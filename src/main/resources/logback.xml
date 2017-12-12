@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_FILE" value="@logging.path@/app.log"></property>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <jmxConfigurator/>
+    <logger name="org.springframework.web" level="info"/>
+    <appender name="stash" class="net.logstash.logback.appender.LogstashSocketAppender">
+        <port>10800</port>
+        <host>192.168.1.109</host>
+        <includeCallerData>true</includeCallerData>
+        <customFields>{"app_name":"@appName@"}</customFields>
+    </appender>
+    <root level="INFO">
+        <!--<appender-ref ref="dailyRollingFile"/>
+        <appender-ref ref="consoleRolling"/>-->
+        <appender-ref ref="stash"/>
+    </root>
+</configuration>
