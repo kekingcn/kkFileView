@@ -61,8 +61,6 @@ converted.file.charset = GBK
 #======================================#文件上传限制#======================================#
 spring.http.multipart.max-file-size=100MB
 ```
-其中office.home为Windows下的openOffice目录地址，openOffice为linux下的openOfficePath地址
-
 
 3. 第三步：运行FilePreviewApplication的main方法，服务启动后，访问http://localhost:8012/
 会看到如下界面，代表服务启动成功
