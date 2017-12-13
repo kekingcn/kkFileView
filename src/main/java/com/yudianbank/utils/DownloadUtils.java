@@ -48,6 +48,8 @@ public class DownloadUtils {
         UUID uuid = UUID.randomUUID();
         if (null == fileName) {
             fileName = uuid+ "."+type;
+        }else { // 文件后缀不一致时，以type为准(针对simText【将类txt文件转为txt】)
+            fileName = fileName.replace(fileName.substring(fileName.lastIndexOf(".") + 1), type);
         }
         String realPath = fileDir + fileName;
         File dirFile = new File(fileDir);
@@ -67,6 +69,8 @@ public class DownloadUtils {
             os.close();
             in.close();
             response.setContent(realPath);
+            // 同样针对类txt文件，如果成功msg包含的是转换后的文件名
+            response.setMsg(fileName);
             return response;
         } catch (IOException e) {
             e.printStackTrace();
