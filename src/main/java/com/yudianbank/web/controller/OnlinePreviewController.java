@@ -32,8 +32,10 @@ public class OnlinePreviewController {
     ZipReader zipReader;
     @Autowired
     SimTextUtil simTextUtil;
-    @ApolloConfig
-    Config config;
+    @Value("${simText}")
+    String[] simText;
+//    @ApolloConfig
+//    Config config;
 
     @Value("${file.dir}")
     String fileDir;
@@ -164,8 +166,7 @@ public class OnlinePreviewController {
         if (fileUtils.listOfficeTypes().contains(fileType.toLowerCase())) {
             fileType = "office";
         }
-        if (Arrays.asList(config.getArrayProperty("simText",",",new String[]{}))
-                .contains(fileType.toLowerCase())) {
+        if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
             fileType = "simText";
         }
         return fileType;
