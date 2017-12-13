@@ -62,6 +62,7 @@ converted.file.charset = GBK
 spring.http.multipart.max-file-size=100MB
 ```
 file.dir为转换文件实际存储地址，注意要以/结尾
+
 3. 第三步：运行FilePreviewApplication的main方法，服务启动后，访问http://localhost:8012/
 会看到如下界面，代表服务启动成功
 ![输入图片说明](https://gitee.com/uploads/images/2017/1213/100221_ea15202e_492218.png "屏幕截图.png")
