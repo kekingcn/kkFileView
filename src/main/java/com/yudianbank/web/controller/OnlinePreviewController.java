@@ -1,12 +1,9 @@
 package com.yudianbank.web.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
 import com.yudianbank.param.ReturnResponse;
-import com.yudianbank.utils.DownloadUtils;
-import com.yudianbank.utils.FileUtils;
-import com.yudianbank.utils.OfficeToPdf;
-import com.yudianbank.utils.ZipReader;
+import com.yudianbank.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -15,10 +12,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Arrays;
 
 /**
  * @author yudian-it
@@ -33,6 +30,10 @@ public class OnlinePreviewController {
     DownloadUtils downloadUtils;
     @Autowired
     ZipReader zipReader;
+    @Autowired
+    SimTextUtil simTextUtil;
+    @ApolloConfig
+    Config config;
 
     @Value("${file.dir}")
     String fileDir;
@@ -49,31 +50,32 @@ public class OnlinePreviewController {
     @RequestMapping(value = "onlinePreview",method = RequestMethod.GET)
     public String onlinePreview(String url, String needEncode, Model model) throws UnsupportedEncodingException {
         // 路径转码
-        url = URLDecoder.decode(url, "utf-8");
+        String decodedUrl = URLDecoder.decode(url, "utf-8");
         String type = typeFromUrl(url);
         String suffix = suffixFromUrl(url);
+        // 抽取文件并返回文件列表
+        String fileName = fileUtils.getFileNameFromURL(decodedUrl);
         model.addAttribute("fileType", suffix);
         if (type.equalsIgnoreCase("picture")) {
             model.addAttribute("imgurl", url);
             return "picture";
-        } else if (type.equalsIgnoreCase("txt")
-                || type.equalsIgnoreCase("html")
-                || type.equalsIgnoreCase("xml")
-                || type.equalsIgnoreCase("java")
-                || type.equalsIgnoreCase("properties")
-                || type.equalsIgnoreCase("mp3")){
-            model.addAttribute("ordinaryUrl",url);
+        } else if (type.equalsIgnoreCase("simText")){
+            ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName, needEncode);
+            if (0 != response.getCode()) {
+                model.addAttribute("msg", response.getMsg());
+                return "fileNotSupported";
+            }
+            model.addAttribute("ordinaryUrl", response.getMsg());
             return "txt";
         } else if(type.equalsIgnoreCase("pdf")){
             model.addAttribute("pdfUrl",url);
             return "pdf";
         } else if(type.equalsIgnoreCase("compress")){
             // 抽取文件并返回文件列表
-            String fileName = fileUtils.getFileNameFromURL(url);
             String fileTree = null;
             // 判断文件名是否存在(redis缓存读取)
             if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))) {
-                ReturnResponse<String> response = downloadUtils.downLoad(url, suffix, fileName, needEncode);
+                ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, fileName, needEncode);
                 if (0 != response.getCode()) {
                     model.addAttribute("msg", response.getMsg());
                     return "fileNotSupported";
@@ -99,7 +101,6 @@ public class OnlinePreviewController {
                 return "fileNotSupported";
             }
         } else if ("office".equalsIgnoreCase(type)) {
-            String fileName = fileUtils.getFileNameFromURL(url);
             String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1)
                     + ((suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx")) ?
                     "html" : "pdf");
@@ -107,7 +108,7 @@ public class OnlinePreviewController {
             if (!fileUtils.listConvertedFiles().containsKey(pdfName)) {
                 String filePath = fileDir + fileName;
                 if (!new File(filePath).exists()) {
-                    ReturnResponse<String> response = downloadUtils.downLoad(url, suffix, null, needEncode);
+                    ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, null, needEncode);
                     if (0 != response.getCode()) {
                         model.addAttribute("msg", response.getMsg());
                         return "fileNotSupported";
@@ -162,6 +163,10 @@ public class OnlinePreviewController {
         }
         if (fileUtils.listOfficeTypes().contains(fileType.toLowerCase())) {
             fileType = "office";
+        }
+        if (Arrays.asList(config.getArrayProperty("simText",",",new String[]{}))
+                .contains(fileType.toLowerCase())) {
+            fileType = "simText";
         }
         return fileType;
     }
