@@ -7,13 +7,6 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 @Component
 public class OfficeToPdf {
-    /**
-     * 获取OpenOffice.org 3的安装目录
-     *
-     * @return OpenOffice.org 3的安装目录
-     */
-    @Value("${openOfficePath}")
-    private String openOfficePath;
     @Autowired
     ConverterUtils converterUtils;
     /**
