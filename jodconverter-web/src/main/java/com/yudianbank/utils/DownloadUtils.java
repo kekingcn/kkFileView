@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 /**
@@ -71,6 +72,10 @@ public class DownloadUtils {
             response.setContent(realPath);
             // 同样针对类txt文件，如果成功msg包含的是转换后的文件名
             response.setMsg(fileName);
+
+            // 转换文件编码为utf8
+          convertTextPlainFileCharsetToUtf8(realPath);
+
             return response;
         } catch (IOException e) {
             e.printStackTrace();
@@ -152,4 +157,40 @@ public class DownloadUtils {
         }
         return newType;
     }
+
+  /**
+   * 转换文本文件编码为utf8
+   * 探测源文件编码,探测到编码切不为utf8则进行转码
+   * @param filePath 文件路径
+   */
+  private static void convertTextPlainFileCharsetToUtf8(String filePath) throws IOException {
+    File sourceFile = new File(filePath);
+    if(sourceFile.exists() && sourceFile.isFile() && sourceFile.canRead()) {
+      String encoding = null;
+      try {
+        FileCharsetDetector.Observer observer = FileCharsetDetector.guessFileEncoding(sourceFile);
+        encoding = observer.getEncoding();
+      } catch (IOException e) {
+        // 编码探测失败,
+        e.printStackTrace();
+      }
+      if(encoding != null && !"UTF-8".equals(encoding)){
+        // 不为utf8,进行转码
+        File tmpUtf8File = new File(filePath+".utf8");
+        Writer writer = new OutputStreamWriter(new FileOutputStream(tmpUtf8File),"UTF-8");
+        Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile),encoding));
+        char[] buf = new char[1024];
+        int read;
+        while ((read = reader.read(buf)) > 0){
+          writer.write(buf, 0, read);
+        }
+        reader.close();
+        writer.close();
+        // 删除源文件
+        sourceFile.delete();
+        // 重命名
+        tmpUtf8File.renameTo(sourceFile);
+      }
+    }
+  }
 }
