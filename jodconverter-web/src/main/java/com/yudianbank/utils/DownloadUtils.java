@@ -169,7 +169,9 @@ public class DownloadUtils {
       String encoding = null;
       try {
         FileCharsetDetector.Observer observer = FileCharsetDetector.guessFileEncoding(sourceFile);
-        encoding = observer.getEncoding();
+        // 为准确探测到编码,不适用猜测的编码
+        encoding = observer.isFound()?observer.getEncoding():null;
+        // 为准确探测到编码,可以考虑使用GBK  大部分文件都是windows系统产生的
       } catch (IOException e) {
         // 编码探测失败,
         e.printStackTrace();
