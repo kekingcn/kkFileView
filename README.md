@@ -42,29 +42,13 @@ QQ群号：613025121
 
 2. 第二步：配置redis地址和OpenOffice目录，如
 ```
-server.port = 8012
-spring.http.encoding.charset = utf8
-## Freemarker 配置
-spring.freemarker.template-loader-path = classpath:/web/
-spring.freemarker.cache = false
-spring.freemarker.charset = UTF-8
-spring.freemarker.check-template-location = true
-spring.freemarker.content-type = text/html
-spring.freemarker.expose-request-attributes = true
-spring.freemarker.expose-session-attributes = true
-spring.freemarker.request-context-attribute = request
-spring.freemarker.suffix = .ftl
 #=============================================#spring Redisson配置#===================================#
 spring.redisson.address = 192.168.1.204:6379
 ##资源映射路径(因为jar方式运行的原因)
 file.dir = C:\\Users\\yudian\\Desktop\\dev\\
-spring.resources.static-locations = classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${file.dir}
 ## openoffice相关配置
 office.home = C:\\Program Files (x86)\\OpenOffice 4
-server.tomcat.uri-encoding = UTF-8
-converted.file.charset = GBK
-#======================================#文件上传限制#======================================#
-spring.http.multipart.max-file-size=100MB
+
 ```
 file.dir为转换文件实际存储地址，注意要以/结尾
 
