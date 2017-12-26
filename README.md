@@ -60,7 +60,6 @@ spring.redisson.address = 192.168.1.204:6379
 file.dir = C:\\Users\\yudian\\Desktop\\dev\\
 spring.resources.static-locations = classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${file.dir}
 ## openoffice相关配置
-openOfficePath = /Applications/OpenOffice.app/Contents
 office.home = C:\\Program Files (x86)\\OpenOffice 4
 server.tomcat.uri-encoding = UTF-8
 converted.file.charset = GBK
