@@ -73,8 +73,10 @@ public class DownloadUtils {
             // 同样针对类txt文件，如果成功msg包含的是转换后的文件名
             response.setMsg(fileName);
 
-            // 转换文件编码为utf8
-          convertTextPlainFileCharsetToUtf8(realPath);
+             // txt转换文件编码为utf8
+            if("txt".equals(type)){
+                convertTextPlainFileCharsetToUtf8(realPath);
+            }
 
             return response;
         } catch (IOException e) {
