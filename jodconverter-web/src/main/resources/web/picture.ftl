@@ -15,7 +15,8 @@
 <h1>如果图片质量很好，首次加载图片时间可能会有点长，请耐心等待</h1>
 
 <ul id="dowebok">
-    <li><img id="Imgbox" src="#" width="800px" height="auto"></li>
+    <li><img id="Imgbox" src="#" width="800px" height="550px"></li>
+
 </ul>
 <script src="js/viewer.min.js"></script>
 <script>
@@ -25,7 +26,6 @@
         document.getElementById("Imgbox").src =document.getElementById("url").value;
     }
     var viewer = new Viewer(document.getElementById('dowebok'), {url: 'src'});
-    viewer.show();
 </script>
 <input name="url" value="${imgurl}" type="hidden" id="url" >
 </body>
