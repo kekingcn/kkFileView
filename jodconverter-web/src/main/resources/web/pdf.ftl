@@ -11,7 +11,12 @@
     </style>
 </head>
 <body>
-    <iframe src="${pdfUrl}" width="100%" frameborder="0"></iframe>
+    <#if pdfUrl?contains("http://")>
+        <#assign finalUrl="${pdfUrl}">
+    <#else>
+        <#assign finalUrl="${baseUrl}${pdfUrl}">
+    </#if>
+    <iframe src="/pdfjs/web/viewer.html?file=${finalUrl}" width="100%" frameborder="0"></iframe>
 </body>
 <script type="text/javascript">
     document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight-10;

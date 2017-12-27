@@ -2,10 +2,18 @@ package com.yudianbank.utils;
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.io.File;
+
+/**
+ * @author yudian-it
+ */
 @Component
 public class OfficeToPdf {
+    /**
+     * 获取OpenOffice.org 3的安装目录
+     *
+     * @return OpenOffice.org 3的安装目录
+     */
     @Autowired
     ConverterUtils converterUtils;
     /**
@@ -20,6 +28,24 @@ public class OfficeToPdf {
     public  boolean openOfficeToPDF(String inputFilePath, String outputFilePath) {
         return office2pdf(inputFilePath, outputFilePath);
     }
+
+
+
+    /**
+     * 连接OpenOffice.org 并且启动OpenOffice.org
+     *
+     * @return
+     */
+    /*public  OfficeManager getOfficeManager() {
+        DefaultOfficeManagerConfiguration config = new DefaultOfficeManagerConfiguration();
+        // 获取OpenOffice.org 3的安装目录
+        String officeHome = openOfficePath;
+        config.setOfficeHome(officeHome);
+        // 启动OpenOffice的服务
+        OfficeManager officeManager = config.buildOfficeManager();
+        officeManager.start();
+        return officeManager;
+    }*/
 
     /**
      * 转换文件

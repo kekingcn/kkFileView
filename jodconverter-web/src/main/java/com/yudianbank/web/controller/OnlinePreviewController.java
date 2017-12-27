@@ -1,19 +1,33 @@
 package com.yudianbank.web.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yudianbank.param.ReturnResponse;
-import com.yudianbank.utils.*;
+import com.yudianbank.utils.DownloadUtils;
+import com.yudianbank.utils.FileUtils;
+import com.yudianbank.utils.OfficeToPdf;
+import com.yudianbank.utils.ZipReader;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
-import java.util.Arrays;
 
 /**
  * @author yudian-it
@@ -28,54 +42,43 @@ public class OnlinePreviewController {
     DownloadUtils downloadUtils;
     @Autowired
     ZipReader zipReader;
-    @Autowired
-    SimTextUtil simTextUtil;
-    @Value("${simText}")
-    String[] simText;
-//    @ApolloConfig
-//    Config config;
 
     @Value("${file.dir}")
     String fileDir;
 
     /**
-     * xls:http://keking.ufile.ucloud.com.cn/20171113164107_月度绩效表模板(新).xls?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=I+D1NOFtAJSPT16E6imv6JWuq0k=
-     * img:http://keking.ufile.ucloud.com.cn/ufile-a703a5a2-788f-488c-a9bf-f36878d5e308.JPG?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=W9TKj5Kp9oxg85fn5/0zgwF2PL4=
-     * doc:http://keking.ufile.ucloud.com.cn/20171113173342_凯京新员工试用期评估与转正确认表.doc?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=v1fC5ijYs8WnPzbSYa/bb0Z2Jf4=
-     * docx:http://keking.ufile.ucloud.com.cn/20171103180053_财产线索类需求20170920(1).docx?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=p7/L1W3iwktzRtkY5Ef2vK7kn3o=
      * @param url
      * @param model
      * @return
      */
     @RequestMapping(value = "onlinePreview",method = RequestMethod.GET)
-    public String onlinePreview(String url, String needEncode, Model model) throws UnsupportedEncodingException {
+    public String onlinePreview(String url, String needEncode, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         // 路径转码
-        String decodedUrl = URLDecoder.decode(url, "utf-8");
+        url = URLDecoder.decode(url, "utf-8");
         String type = typeFromUrl(url);
         String suffix = suffixFromUrl(url);
-        // 抽取文件并返回文件列表
-        String fileName = fileUtils.getFileNameFromURL(decodedUrl);
         model.addAttribute("fileType", suffix);
         if (type.equalsIgnoreCase("picture")) {
             model.addAttribute("imgurl", url);
             return "picture";
-        } else if (type.equalsIgnoreCase("simText")){
-            ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName, needEncode);
-            if (0 != response.getCode()) {
-                model.addAttribute("msg", response.getMsg());
-                return "fileNotSupported";
-            }
-            model.addAttribute("ordinaryUrl", response.getMsg());
+        } else if (type.equalsIgnoreCase("txt")
+                || type.equalsIgnoreCase("html")
+                || type.equalsIgnoreCase("xml")
+                || type.equalsIgnoreCase("java")
+                || type.equalsIgnoreCase("properties")
+                || type.equalsIgnoreCase("mp3")){
+            model.addAttribute("ordinaryUrl",url);
             return "txt";
         } else if(type.equalsIgnoreCase("pdf")){
             model.addAttribute("pdfUrl",url);
             return "pdf";
         } else if(type.equalsIgnoreCase("compress")){
             // 抽取文件并返回文件列表
+            String fileName = fileUtils.getFileNameFromURL(url);
             String fileTree = null;
             // 判断文件名是否存在(redis缓存读取)
             if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))) {
-                ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, fileName, needEncode);
+                ReturnResponse<String> response = downloadUtils.downLoad(url, suffix, fileName, needEncode);
                 if (0 != response.getCode()) {
                     model.addAttribute("msg", response.getMsg());
                     return "fileNotSupported";
@@ -101,14 +104,15 @@ public class OnlinePreviewController {
                 return "fileNotSupported";
             }
         } else if ("office".equalsIgnoreCase(type)) {
-            String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1)
-                    + ((suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx")) ?
-                    "html" : "pdf");
+            String fileName = fileUtils.getFileNameFromURL(url);
+            boolean isHtml = suffix.equalsIgnoreCase("xls")
+                                || suffix.equalsIgnoreCase("xlsx");
+            String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
             // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
             if (!fileUtils.listConvertedFiles().containsKey(pdfName)) {
                 String filePath = fileDir + fileName;
                 if (!new File(filePath).exists()) {
-                    ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, null, needEncode);
+                    ReturnResponse<String> response = downloadUtils.downLoad(url, suffix, null, needEncode);
                     if (0 != response.getCode()) {
                         model.addAttribute("msg", response.getMsg());
                         return "fileNotSupported";
@@ -122,8 +126,7 @@ public class OnlinePreviewController {
                     if (f.exists()) {
                         f.delete();
                     }
-                    if (suffix.equalsIgnoreCase("xls")
-                            || suffix.equalsIgnoreCase("xlsx")) {
+                    if (isHtml) {
                         // 对转换后的文件进行操作(改变编码方式)
                         fileUtils.doActionConvertedFile(outFilePath);
                     }
@@ -132,9 +135,10 @@ public class OnlinePreviewController {
                 }
             }
             model.addAttribute("pdfUrl", pdfName);
-            return "pdf";
+            return isHtml ? "html" : "pdf";
         }else {
-            model.addAttribute("msg", "系统还不支持该格式文件的在线预览，" + "如有需要请按下方显示的邮箱地址联系系统维护人员");
+            model.addAttribute("msg", "系统还不支持该格式文件的在线预览，" +
+                    "如有需要请按下方显示的邮箱地址联系系统维护人员");
             return "fileNotSupported";
         }
     }
@@ -164,11 +168,38 @@ public class OnlinePreviewController {
         if (fileUtils.listOfficeTypes().contains(fileType.toLowerCase())) {
             fileType = "office";
         }
-        if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
-            fileType = "simText";
-        }
         return fileType;
     }
 
+    /**
+     * 根据url获取文件内容
+     * 当pdfjs读取存在跨域问题的文件时将通过此接口读取
+     * @param urlPath
+     * @param resp
+     */
+    @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
+    public void getCorsFile(String urlPath, HttpServletResponse resp) {
+        InputStream inputStream = null;
+        try {
+            String strUrl = urlPath.trim();
+            URL url=new URL(strUrl);
+            //打开请求连接
+            URLConnection connection = url.openConnection();
+            HttpURLConnection httpURLConnection=(HttpURLConnection) connection;
+            httpURLConnection.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+            inputStream = httpURLConnection.getInputStream();
+            byte[] bs = new byte[1024];
+            int len;
+            while(-1 != (len = inputStream.read(bs))) {
+                resp.getOutputStream().write(bs, 0, len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(inputStream != null) {
+                IOUtils.closeQuietly(inputStream);
+            }
+        }
+    }
 
 }
