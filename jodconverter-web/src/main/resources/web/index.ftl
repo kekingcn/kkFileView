@@ -36,13 +36,6 @@
                                 + ",top=80,left=80,toolbar=no, menubar=no, scrollbars=yes, resizable=yes");
                         };
                     </pre>
-                    <b>说明:</b>
-                    <p>1.这里的fileUrl即是需要预览的服务器文件，一般是ufile文件</p>
-                    <p>2.只所以使用encodeURIComponent转码是因为ufile文件中可能会存在&等特殊字符，那么如果不转码会被浏览器处理成多参数
-                        这样后台获取的就不是需要预览的文件的全路径了。</p>
-                    <p>3.configuration.previewUrl是需要接入项目中配置文件预览项目的地址的配置
-                        现在开发和测试地址都是：
-                        http://106.75.31.215:8012/onlinePreview?url=服务器(ufile)文件路径</p>
                 </div>
             </div>
         </div>
