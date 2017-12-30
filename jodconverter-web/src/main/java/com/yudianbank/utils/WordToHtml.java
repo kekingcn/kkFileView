@@ -56,7 +56,6 @@ public class WordToHtml {
 
     public static void main(String[] args) throws IOException, ArchiveException, RarException {
         System.out.println(URLEncoder.encode(" ", "UTF-8"));
-        System.out.println(URLDecoder.decode("http://127.0.0.1:8012/demo/2017%E5%B9%B4%2B%E5%BA%A6%E7%BB%A9%E6%95%88%E8%80%83%E6%A0%B8%E8%A1%A8%E5%8F%8A%E8%AF%84%E4%BC%98%E6%8E%A8%E8%8D%90%E8%A1%A8%2B-%2B%E5%89%AF%E6%9C%AC.xlsx", "UTF-8"));
     }
 
 }
