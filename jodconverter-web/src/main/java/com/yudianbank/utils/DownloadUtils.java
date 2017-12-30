@@ -27,10 +27,11 @@ public class DownloadUtils {
      * @param type
      * @return
      */
-    public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName, String needEncode){
+    public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName){
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         URL url = null;
         try {
+            urlAddress = replacePlusMark(urlAddress);
             urlAddress = encodeUrlParam(urlAddress);
             // 因为tomcat不能处理'+'号，所以讲'+'号替换成'%20%'
             urlAddress = urlAddress.replaceAll("\\+", "%20");
@@ -87,14 +88,18 @@ public class DownloadUtils {
     /**
      * 注:可能是原来因为前端通过encodeURI来编码的，因为通过encodeURI编码+会被转成+号(亦即没有转)，
      * 而通过encodeURIComponent则会转成%2B，这样URLDecoder是可以正确处理的，所以也就没有必要在这里替换了
+     * 注注:最后发现还是我太天真了，URLDecoder还是会把%2B转成空格，所以还是需要调用此处进行转换
      * 转换url参数部分的空格为加号(因为在url编解码的过程中出现+转为空格的情况)
      * @param urlAddress
      * @return
      */
     private String replacePlusMark(String urlAddress) {
-        String nonParamStr = urlAddress.substring(0,urlAddress.indexOf("?") + 1);
-        String paramStr = urlAddress.substring(nonParamStr.length());
-        return nonParamStr + paramStr.replace(" ", "+");
+        if (urlAddress.contains("?")) {
+            String nonParamStr = urlAddress.substring(0,urlAddress.indexOf("?") + 1);
+            String paramStr = urlAddress.substring(nonParamStr.length());
+            return nonParamStr + paramStr.replace(" ", "+");
+        }
+        return urlAddress;
     }
 
     /**
