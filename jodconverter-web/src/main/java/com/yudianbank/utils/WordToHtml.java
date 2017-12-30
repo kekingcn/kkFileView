@@ -1,6 +1,8 @@
 package com.yudianbank.utils;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -53,9 +55,8 @@ public class WordToHtml {
     }
 
     public static void main(String[] args) throws IOException, ArchiveException, RarException {
-        File file = new File("C:\\Users\\yudian-it\\Downloads\\Downloads.zip");
-        System.out.println("Objects.equals(new Integer(1000), new Integer(1000)) :" + Objects.equals(new Integer(1000), new Integer(1000)));
-        System.out.println(Integer.valueOf("-129") == Integer.valueOf("-129"));
+        System.out.println(URLEncoder.encode(" ", "UTF-8"));
+        System.out.println(URLDecoder.decode(" http://keking.ufile.ucloud.com.cn/20171230213253_2017%E5%B9%B4%20%E5%BA%A6%E7%BB%A9%E6%95%88%E8%80%83%E6%A0%B8%E8%A1%A8%E5%8F%8A%E8%AF%84%E4%BC%98%E6%8E%A8%E8%8D%90%E8%A1%A8.xlsxUCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=Pbi/J6UcOZcvGwhAwExe3SpxrGo=", "UTF-8"));
     }
 
 }

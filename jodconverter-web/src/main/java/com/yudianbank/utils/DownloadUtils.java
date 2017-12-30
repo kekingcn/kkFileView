@@ -22,26 +22,18 @@ public class DownloadUtils {
      * 再次测试的时候，通过前台对比url发现，原来参数中有+号特殊字符存在，但是到后之后却变成了空格，突然恍然大悟
      * 应该是转义出了问题，url转义中会把+号当成空格来计算，所以才会出现这种情况，遂想要通过整体替换空格为加号，因为url
      * 中的参数部分是不会出现空格的，但是文件名中就不好确定了，所以只对url参数部分做替换
+     * 注: 针对URLEncoder.encode(s,charset)会将空格转成+的情况需要做下面的替换工作
      * @param urlAddress
      * @param type
-     * @param needEncode
-     *      在处理本地文件(测试预览界面的，非ufile)的时候要对中文进行转码，
-     *      因为tomcat对[英文字母（a-z，A-Z）、数字（0-9）、- _ . ~ 4个特殊字符以及所有保留字符]
-     *      以外的字符会处理不正常，导致失败
      * @return
      */
     public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName, String needEncode){
-//        type = dealWithMS2013(type);
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         URL url = null;
         try {
-            if (null != needEncode) {
-                urlAddress = encodeUrlParam(urlAddress);
-                // 因为tomcat不能处理'+'号，所以讲'+'号替换成'%20%'
-                urlAddress = urlAddress.replaceAll("\\+", "%20");
-            }else{
-                urlAddress = replacePlusMark(urlAddress);
-            }
+            urlAddress = encodeUrlParam(urlAddress);
+            // 因为tomcat不能处理'+'号，所以讲'+'号替换成'%20%'
+            urlAddress = urlAddress.replaceAll("\\+", "%20");
             url = new URL(urlAddress);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -93,6 +85,8 @@ public class DownloadUtils {
     }
 
     /**
+     * 注:可能是原来因为前端通过encodeURI来编码的，因为通过encodeURI编码+会被转成+号(亦即没有转)，
+     * 而通过encodeURIComponent则会转成%2B，这样URLDecoder是可以正确处理的，所以也就没有必要在这里替换了
      * 转换url参数部分的空格为加号(因为在url编解码的过程中出现+转为空格的情况)
      * @param urlAddress
      * @return
@@ -116,7 +110,7 @@ public class DownloadUtils {
             String param = "";
             if (urlAddress.contains("?")) {
                 path = urlAddress.substring(0, urlAddress.indexOf("?"));
-                param = urlAddress.substring(urlAddress.indexOf("?") + 1);
+                param = urlAddress.substring(urlAddress.indexOf("?"));
             }else {
                 path = urlAddress;
             }

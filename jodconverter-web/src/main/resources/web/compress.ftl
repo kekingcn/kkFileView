@@ -55,9 +55,22 @@
             },
             onClick:function (event, treeId, treeNode) {
                 if (!treeNode.directory) {
-                    var winHeight = window.document.documentElement.clientHeight-10;
-                    window.open("${baseUrl}onlinePreview?url=" + encodeURIComponent("${baseUrl}" + treeNode.fileName) + "&needEncode=1",
-                            "_blank", "height=" + winHeight + ",top=80,left=80,toolbar=no, menubar=no, scrollbars=yes, resizable=yes");
+                    /**实现窗口最大化**/
+                    var fulls = "left=0,screenX=0,top=0,screenY=0,scrollbars=1";    //定义弹出窗口的参数
+                    if (window.screen) {
+                        var ah = screen.availHeight - 30;
+                        var aw = (screen.availWidth - 10) / 2;
+                        fulls += ",height=" + ah;
+                        fulls += ",innerHeight=" + ah;
+                        fulls += ",width=" + aw;
+                        fulls += ",innerWidth=" + aw;
+                        fulls += ",resizable"
+                    } else {
+                        fulls += ",resizable"; // 对于不支持screen属性的浏览器，可以手工进行最大化。 manually
+                    }
+                    window.open("onlinePreview?url="
+                            + encodeURIComponent("${baseUrl}" + treeNode.fileName)
+                            + "&needEncode=1", "_blank",fulls);
                 }
             }
         }
