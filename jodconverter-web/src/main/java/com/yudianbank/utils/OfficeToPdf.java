@@ -30,23 +30,6 @@ public class OfficeToPdf {
     }
 
 
-
-    /**
-     * 连接OpenOffice.org 并且启动OpenOffice.org
-     *
-     * @return
-     */
-    /*public  OfficeManager getOfficeManager() {
-        DefaultOfficeManagerConfiguration config = new DefaultOfficeManagerConfiguration();
-        // 获取OpenOffice.org 3的安装目录
-        String officeHome = openOfficePath;
-        config.setOfficeHome(officeHome);
-        // 启动OpenOffice的服务
-        OfficeManager officeManager = config.buildOfficeManager();
-        officeManager.start();
-        return officeManager;
-    }*/
-
     /**
      * 转换文件
      *
