@@ -125,7 +125,7 @@
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
                 item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url="
-                    + encodeURIComponent('${baseUrl}' + item.fileName ) +"&needEncode=1'>预览</a>" +
+                    + encodeURIComponent('${baseUrl}' + item.fileName ) +"'>预览</a>" +
                     "<a class='btn btn-default' target='_blank' href='javascript:void(0);' onclick='deleteFile(\""+item.fileName+"\")'>删除</a>";
             });
             return data;

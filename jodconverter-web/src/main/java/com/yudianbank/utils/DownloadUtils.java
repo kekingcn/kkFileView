@@ -27,10 +27,11 @@ public class DownloadUtils {
      * @param type
      * @return
      */
-    public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName, String needEncode){
+    public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName){
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         URL url = null;
         try {
+            urlAddress = replacePlusMark(urlAddress);
             urlAddress = encodeUrlParam(urlAddress);
             // 因为tomcat不能处理'+'号，所以讲'+'号替换成'%20%'
             urlAddress = urlAddress.replaceAll("\\+", "%20");
@@ -92,9 +93,12 @@ public class DownloadUtils {
      * @return
      */
     private String replacePlusMark(String urlAddress) {
-        String nonParamStr = urlAddress.substring(0,urlAddress.indexOf("?") + 1);
-        String paramStr = urlAddress.substring(nonParamStr.length());
-        return nonParamStr + paramStr.replace(" ", "+");
+        if (urlAddress.contains("?")) {
+            String nonParamStr = urlAddress.substring(0,urlAddress.indexOf("?") + 1);
+            String paramStr = urlAddress.substring(nonParamStr.length());
+            return nonParamStr + paramStr.replace(" ", "+");
+        }
+        return urlAddress;
     }
 
     /**
