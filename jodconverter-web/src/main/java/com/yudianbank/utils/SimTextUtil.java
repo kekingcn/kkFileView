@@ -17,8 +17,8 @@ public class SimTextUtil {
     @Autowired
     DownloadUtils downloadUtils;
 
-    public ReturnResponse<String> readSimText(String url, String fileName, String needEncode){
-        ReturnResponse<String> response = downloadUtils.downLoad(url, "txt", fileName, needEncode);
+    public ReturnResponse<String> readSimText(String url, String fileName){
+        ReturnResponse<String> response = downloadUtils.downLoad(url, "txt", fileName);
         return response;
     }
 }

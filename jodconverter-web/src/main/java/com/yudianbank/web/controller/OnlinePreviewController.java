@@ -50,7 +50,7 @@ public class OnlinePreviewController {
      * @return
      */
     @RequestMapping(value = "onlinePreview",method = RequestMethod.GET)
-    public String onlinePreview(String url, String needEncode, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
+    public String onlinePreview(String url, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         // 路径转码
         String decodedUrl = URLDecoder.decode(url, "utf-8");
         String type = typeFromUrl(url);
@@ -62,7 +62,7 @@ public class OnlinePreviewController {
             model.addAttribute("imgurl", url);
             return "picture";
         } else if (type.equalsIgnoreCase("simText")){
-            ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName, needEncode);
+            ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName);
             if (0 != response.getCode()) {
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
@@ -76,7 +76,7 @@ public class OnlinePreviewController {
             String fileTree = null;
             // 判断文件名是否存在(redis缓存读取)
             if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))) {
-                ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, fileName, needEncode);
+                ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, fileName);
                 if (0 != response.getCode()) {
                     model.addAttribute("msg", response.getMsg());
                     return "fileNotSupported";
@@ -109,7 +109,7 @@ public class OnlinePreviewController {
             if (!fileUtils.listConvertedFiles().containsKey(pdfName)) {
                 String filePath = fileDir + fileName;
                 if (!new File(filePath).exists()) {
-                    ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, null, needEncode);
+                    ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, null);
                     if (0 != response.getCode()) {
                         model.addAttribute("msg", response.getMsg());
                         return "fileNotSupported";

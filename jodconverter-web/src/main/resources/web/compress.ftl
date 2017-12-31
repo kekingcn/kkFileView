@@ -69,8 +69,7 @@
                         fulls += ",resizable"; // 对于不支持screen属性的浏览器，可以手工进行最大化。 manually
                     }
                     window.open("onlinePreview?url="
-                            + encodeURIComponent("${baseUrl}" + treeNode.fileName)
-                            + "&needEncode=1", "_blank",fulls);
+                            + encodeURIComponent("${baseUrl}" + treeNode.fileName), "_blank",fulls);
                 }
             }
         }
