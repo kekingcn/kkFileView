@@ -12,6 +12,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.io.*;
 import java.util.*;
@@ -49,9 +50,11 @@ public class ZipReader {
      * </p>
      * @param filePath
      */
-    public String readZipFile(String filePath) {
+    public String readZipFile(String filePath,String fileKey) {
         String archiveSeparator = "/";
         Map<String, FileNode> appender = Maps.newHashMap();
+        List imgUrls=Lists.newArrayList();
+        String baseUrl= (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
             ZipFile zipFile = new ZipFile(filePath, fileUtils.getFileEncodeUTFGBK(filePath));
@@ -73,18 +76,25 @@ public class ZipReader {
                 }
                 String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level-1) + "_" + parentName;
-                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory);
+                String type=fileUtils.typeFromUrl(childName);
+                if (type.equalsIgnoreCase("picture")){//添加图片文件到图片列表
+                    imgUrls.add(baseUrl+childName);
+                }
+                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);
                 addNodes(appender, parentName, node);
                 appender.put(childName, node);
             }
             // 开启新的线程处理文件解压
             executors.submit(new ZipExtractorWorker(entriesToBeExtracted, zipFile, filePath));
+            fileUtils.setRedisImgUrls(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
+
+
 
     /**
      * 排序zipEntries(对原来列表倒序)
@@ -99,8 +109,10 @@ public class ZipReader {
         return Collections.enumeration(sortedEntries);
     }
 
-    public String unRar(String filePath){
+    public String unRar(String filePath,String fileKey){
         Map<String, FileNode> appender = Maps.newHashMap();
+        List imgUrls=Lists.newArrayList();
+        String baseUrl= (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
         try {
             Archive archive = new Archive(new File(filePath));
             List<FileHeader> headers = archive.getFileHeaders();
@@ -123,11 +135,16 @@ public class ZipReader {
                     headersToBeExtracted.add(Collections.singletonMap(childName, header));
                 }
                 String parentName = getLast2FileName(fullName, "\\", archiveFileName);
-                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory);
+                String type=fileUtils.typeFromUrl(childName);
+                if (type.equalsIgnoreCase("picture")){//添加图片文件到图片列表
+                    imgUrls.add(baseUrl+childName);
+                }
+                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);
                 addNodes(appender, parentName, node);
                 appender.put(childName, node);
             }
             executors.submit(new RarExtractorWorker(headersToBeExtracted, archive, filePath));
+            fileUtils.setRedisImgUrls(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (RarException e) {
             e.printStackTrace();
@@ -213,8 +230,11 @@ public class ZipReader {
         private String fileName;
         private String parentFileName;
         private boolean directory;
-
+        private String fileKey;//用于图片预览时寻址
         private List<FileNode> childList;
+
+        public FileNode() {
+        }
 
         public FileNode(String originName, String fileName, String parentFileName, List<FileNode> childList, boolean directory) {
             this.originName = originName;
@@ -222,6 +242,21 @@ public class ZipReader {
             this.parentFileName = parentFileName;
             this.childList = childList;
             this.directory = directory;
+        }
+        public FileNode(String originName, String fileName, String parentFileName, List<FileNode> childList, boolean directory,String fileKey) {
+            this.originName = originName;
+            this.fileName = fileName;
+            this.parentFileName = parentFileName;
+            this.childList = childList;
+            this.directory = directory;
+            this.fileKey=fileKey;
+        }
+        public String getFileKey() {
+            return fileKey;
+        }
+
+        public void setFileKey(String fileKey) {
+            this.fileKey = fileKey;
         }
 
         public String getFileName() {

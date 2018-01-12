@@ -23,7 +23,7 @@
                 </a>
             </h4>
         </div>
-        <div id="collapseOne" class="panel-collapse collapse in">
+        <div id="collapseOne" class="panel-collapse collapse">
             <div class="panel-body">
                 <div>
                     如果你的项目需要接入文件预览项目，达到对docx、excel、ppt、jpg等文件的预览效果，那么通过在你的项目中加入下面的代码就可以
@@ -37,10 +37,19 @@
                         };
                     </pre>
                 </div>
+                <div>
+                    新增多图片同时预览功能，接口如下：
+                    <pre style="background-color: #2f332a;color: #cccccc">
+                        var fileUrl =url1+"|"+"url2";//多文件使用“|”字符隔开
+                        var url = "http://localhost:8012/picturesPreview?urls" + encodeURIComponent(fileUrl);
+                        var winHeight = window.document.documentElement.clientHeight-10;
+                        $window.open(url, "_blank", "height=" + winHeight
+                                + ",top=80,left=80,toolbar=no, menubar=no, scrollbars=yes, resizable=yes");
+                    </pre>
+                </div>
             </div>
         </div>
     </div>
-
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
@@ -61,6 +70,31 @@
                 </div>
                 <div>
                     <table id="table" data-pagination="true"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion"
+                   href="#collapseThree">
+                    更新记录
+                </a>
+            </h4>
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div>
+                    2018年01月12日 ：<br>
+                    1.新增多图片同时预览<br>
+                    2.支持压缩包内图片轮番预览<br><br>
+
+                    2018年01月02日 ：<br>
+                    1.修复txt等文本编码问题导致预览乱码<br>
+                    2.修复项目模块依赖引入不到的问题<br>
+                    3.新增spring boot profile，支持多环境配置<br>
+                    4.引入pdf.js预览doc等文件，支持doc标题生成pdf预览菜单，支持手机端预览<br>
                 </div>
             </div>
         </div>

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ import java.util.Map;
 public class FileUtils {
 
     final String REDIS_FILE_PREVIEW_PDF_KEY = "converted-preview-pdf-file";
-
+    final String REDIS_FILE_PREVIEW_IMGS_KEY = "converted-preview-imgs-file";//压缩包内图片文件集合
     @Autowired
     RedissonClient redissonClient;
     @Value("${file.dir}")
@@ -30,6 +31,8 @@ public class FileUtils {
     @Value("${converted.file.charset}")
     String charset;
 
+    @Value("${simText}")
+    String[] simText;
     /**
      * 已转换过的文件集合(redis缓存)
      * @return
@@ -48,6 +51,30 @@ public class FileUtils {
         return convertedList.get(key);
     }
 
+    /**
+     * 查看文件类型(防止参数中存在.点号或者其他特殊字符，所以先抽取文件名，然后再获取文件类型)
+     *
+     * @param url
+     * @return
+     */
+    public String typeFromUrl(String url) {
+        String nonPramStr = url.substring(0, url.indexOf("?") != -1 ? url.indexOf("?") : url.length());
+        String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
+        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (listPictureTypes().contains(fileType.toLowerCase())) {
+            fileType = "picture";
+        }
+        if (listArchiveTypes().contains(fileType.toLowerCase())) {
+            fileType = "compress";
+        }
+        if (listOfficeTypes().contains(fileType.toLowerCase())) {
+            fileType = "office";
+        }
+        if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
+            fileType = "simText";
+        }
+        return fileType;
+    }
     /**
      * 从url中剥离出文件名
      * @param url
@@ -129,6 +156,25 @@ public class FileUtils {
         convertedList.fastPut(fileName, value);
     }
 
+    /**
+     * 获取redis中压缩包内图片文件
+     * @param fileKey
+     * @return
+     */
+    public List getRedisImgUrls(String fileKey){
+        RMapCache<String, List> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_IMGS_KEY);
+        return convertedList.get(fileKey);
+    }
+
+    /**
+     * 设置redis中压缩包内图片文件
+     * @param fileKey
+     * @param imgs
+     */
+    public void setRedisImgUrls(String fileKey,List imgs){
+        RMapCache<String, List> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_IMGS_KEY);
+         convertedList.fastPut(fileKey,imgs);
+    }
     /**
      * 判断文件编码格式
      * @param path
