@@ -55,6 +55,19 @@ file.dir为转换文件实际存储地址，注意要以/结尾
 3. 第三步：运行FilePreviewApplication的main方法，服务启动后，访问http://localhost:8012/
 会看到如下界面，代表服务启动成功
 ![输入图片说明](https://gitee.com/uploads/images/2017/1213/100221_ea15202e_492218.png "屏幕截图.png")
+
+### 历史更新记录
+
+   2018年01月12日 ：                
+   1.新增多图片同时预览
+   2.支持压缩包内图片轮番预览
+
+   2018年01月02日 ：
+   1.修复txt等文本编码问题导致预览乱码
+   2.修复项目模块依赖引入不到的问题
+   3.新增spring boot profile，支持多环境配置
+   4.引入pdf.js预览doc等文件，支持doc标题生成pdf预览菜单，支持手机端预览
+
 ### 使用登记
 如果这个项目解决了你的实际问题，可在https://gitee.com/kekingcn/file-online-preview/issues/IGSBV
 登记下，如果节省了你的三方预览服务费用，也愿意支持下的话，可点击下方【捐助】请作者喝杯咖啡，也是非常感谢
