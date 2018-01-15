@@ -86,18 +86,34 @@
         <div id="collapseThree" class="panel-collapse collapse in">
             <div class="panel-body">
                 <div>
+                    2018年01月15日 ：<br>
+                    1.首页新增社会化评论框<br><br>
+
                     2018年01月12日 ：<br>
-                    1.新增多图片同时预览<br>
-                    2.支持压缩包内图片轮番预览<br><br>
+                        1.新增多图片同时预览<br>
+                        2.支持压缩包内图片轮番预览<br><br>
 
                     2018年01月02日 ：<br>
-                    1.修复txt等文本编码问题导致预览乱码<br>
-                    2.修复项目模块依赖引入不到的问题<br>
-                    3.新增spring boot profile，支持多环境配置<br>
-                    4.引入pdf.js预览doc等文件，支持doc标题生成pdf预览菜单，支持手机端预览<br>
+                        1.修复txt等文本编码问题导致预览乱码<br>
+                        2.修复项目模块依赖引入不到的问题<br>
+                        3.新增spring boot profile，支持多环境配置<br>
+                        4.引入pdf.js预览doc等文件，支持doc标题生成pdf预览菜单，支持手机端预览<br><br>
+
+                    2017年12月12日：<br>
+                        1.项目osc开源:<a href="https://gitee.com/kekingcn/file-online-preview" target="_blank">https://gitee.com/kekingcn/file-online-preview</a><br>
+                        2.项目github开源:<a href="https://github.com/kekingcn/kkFileView" target="_blank">https://github.com/kekingcn/kkFileView</a>
                 </div>
             </div>
         </div>
+        <div class="panel-body">
+            <div>
+                <!-- UY BEGIN -->
+                <div id="uyan_frame"></div>
+                <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2155152"></script>
+                <!-- UY END -->
+            </div>
+        </div>
+
     </div>
 </div>
 
