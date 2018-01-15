@@ -139,7 +139,6 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="config.js"></script>
 <script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
 <script src="https://cdn.bootcss.com/jquery.form/3.09/jquery.form.min.js" type="text/javascript"></script>
 <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
