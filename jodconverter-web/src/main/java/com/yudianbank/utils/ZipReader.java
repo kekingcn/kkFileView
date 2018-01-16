@@ -157,6 +157,7 @@ public class ZipReader {
     private void addNodes(Map<String, FileNode> appender, String parentName, FileNode node) {
         if (appender.containsKey(parentName)) {
             appender.get(parentName).getChildList().add(node);
+            appender.get(parentName).getChildList().sort((final FileNode h1, final FileNode h2) -> h1.getOriginName().compareTo(h2.getOriginName()));//排序
         }else { // 根节点
             FileNode nodeRoot = new FileNode(parentName, parentName, "", new ArrayList<>(), true);
             nodeRoot.getChildList().add(node);

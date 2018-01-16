@@ -14,13 +14,14 @@
 <body>
 <ul id="dowebok">
         <#list imgurls as img>
-            <li><img id="${img}"  url="${img}" src="${img}" width="50px" height="50px"></li>
+            <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
         </#list>
 </ul>
 <script src="js/viewer.min.js"></script>
 <script>
     var viewer = new Viewer(document.getElementById('dowebok'), {
-        url: 'src'
+        url: 'src',
+       navbar:false
     });
     document.getElementById("${currentUrl}").click();
 </script>
