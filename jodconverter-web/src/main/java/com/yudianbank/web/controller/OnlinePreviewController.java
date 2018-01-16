@@ -69,6 +69,7 @@ public class OnlinePreviewController {
                 imgUrls = Lists.newArrayList(url);
             }
             model.addAttribute("imgurls", imgUrls);
+            model.addAttribute("currentUrl",url);
             return "picture";
         } else if (type.equalsIgnoreCase("simText")) {
             ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName);
