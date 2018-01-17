@@ -1,5 +1,6 @@
 package cn.keking.utils;
 
+import cn.keking.model.FileType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.junrar.Archive;
@@ -82,8 +83,8 @@ public class ZipReader {
                 }
                 String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level-1) + "_" + parentName;
-                String type=fileUtils.typeFromUrl(childName);
-                if (type.equalsIgnoreCase("picture")){//添加图片文件到图片列表
+                FileType type=fileUtils.typeFromUrl(childName);
+                if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
                 FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);
@@ -141,8 +142,8 @@ public class ZipReader {
                     headersToBeExtracted.add(Collections.singletonMap(childName, header));
                 }
                 String parentName = getLast2FileName(fullName, "\\", archiveFileName);
-                String type=fileUtils.typeFromUrl(childName);
-                if (type.equalsIgnoreCase("picture")){//添加图片文件到图片列表
+                FileType type=fileUtils.typeFromUrl(childName);
+                if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
                 FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);

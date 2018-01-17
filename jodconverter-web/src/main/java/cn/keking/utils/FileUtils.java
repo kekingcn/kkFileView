@@ -1,13 +1,18 @@
 package cn.keking.utils;
 
+import cn.keking.model.FileAttribute;
+import cn.keking.model.FileType;
 import com.google.common.collect.Lists;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +25,8 @@ import java.util.Map;
  */
 @Component
 public class FileUtils {
+    Logger log= LoggerFactory.getLogger(getClass());
+
 
     final String REDIS_FILE_PREVIEW_PDF_KEY = "converted-preview-pdf-file";
     final String REDIS_FILE_PREVIEW_IMGS_KEY = "converted-preview-imgs-file";//压缩包内图片文件集合
@@ -57,23 +64,26 @@ public class FileUtils {
      * @param url
      * @return
      */
-    public String typeFromUrl(String url) {
+    public FileType typeFromUrl(String url) {
         String nonPramStr = url.substring(0, url.indexOf("?") != -1 ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
         if (listPictureTypes().contains(fileType.toLowerCase())) {
-            fileType = "picture";
+          return FileType.picture;
         }
         if (listArchiveTypes().contains(fileType.toLowerCase())) {
-            fileType = "compress";
+            return FileType.compress;
         }
         if (listOfficeTypes().contains(fileType.toLowerCase())) {
-            fileType = "office";
+            return FileType.office;
         }
         if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
-            fileType = "simText";
+            return FileType.simText;
         }
-        return fileType;
+        if("pdf".equalsIgnoreCase(fileType)){
+            return FileType.pdf;
+        }
+        return FileType.other;
     }
     /**
      * 从url中剥离出文件名
@@ -116,6 +126,8 @@ public class FileUtils {
         list.add("png");
         list.add("gif");
         list.add("bmp");
+        list.add("ico");
+        list.add("RAW");
         return list;
     }
 
@@ -234,5 +246,31 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    /**
+     * 获取文件后缀
+     * @param url
+     * @return
+     */
+    private String suffixFromUrl(String url) {
+        String nonPramStr = url.substring(0, url.indexOf("?") != -1 ? url.indexOf("?") : url.length());
+        String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
+        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+        return fileType;
+    }
+
+    public FileAttribute getFileAttribute(String url) {
+        String decodedUrl=null;
+        try {
+            decodedUrl = URLDecoder.decode(url, "utf-8");
+        }catch (UnsupportedEncodingException e){
+            log.debug("url解码失败");
+        }
+        // 路径转码
+        FileType type = typeFromUrl(url);
+        String suffix = suffixFromUrl(url);
+        // 抽取文件并返回文件列表
+        String fileName = getFileNameFromURL(decodedUrl);
+        return new FileAttribute(type,suffix,fileName,url,decodedUrl);
     }
 }
