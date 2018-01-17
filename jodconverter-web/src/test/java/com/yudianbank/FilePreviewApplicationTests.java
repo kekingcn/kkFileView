@@ -1,4 +1,4 @@
-package com.yudianbank;
+package cn.keking;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
