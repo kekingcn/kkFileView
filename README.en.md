@@ -14,6 +14,10 @@ special thanks to the supports of @唐老大 and the contributions of @端木详
 
 URL：http://file.keking.cn/
 
+### Project documentation
+1. 中文文档：https://gitee.com/kekingcn/file-online-preview/blob/master/README.md
+1. English document：https://github.com/kekingcn/kkFileView/blob/master/README.en.md
+
 ### Contact us && Join us
 > We will answer everyone's questions which are found when using this project patiently.
 And please Google or Baidu first before asking a question, so that we can solve then efficiently. 
