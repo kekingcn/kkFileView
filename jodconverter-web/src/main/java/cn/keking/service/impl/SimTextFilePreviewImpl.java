@@ -1,16 +1,13 @@
 package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
-import cn.keking.model.FileType;
-import cn.keking.param.ReturnResponse;
+import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.SimTextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-
-import java.net.URLDecoder;
 
 /**
  * Created by kl on 2018/1/17.

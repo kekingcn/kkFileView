@@ -1,14 +1,20 @@
 package cn.keking.web.controller;
 
+import cn.keking.service.FileConverQueueTask;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -31,6 +37,9 @@ public class OnlinePreviewController {
     @Autowired
     FilePreviewFactory previewFactory;
 
+    @Autowired
+    RedissonClient redissonClient;
+
     /**
      * @param url
      * @param model
@@ -38,9 +47,9 @@ public class OnlinePreviewController {
      */
     @RequestMapping(value = "onlinePreview", method = RequestMethod.GET)
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
-          req.setAttribute("fileKey",req.getParameter("fileKey"));
-          FilePreview filePreview=previewFactory.get(url);
-          return filePreview.filePreviewHandle(url,model);
+        req.setAttribute("fileKey", req.getParameter("fileKey"));
+        FilePreview filePreview = previewFactory.get(url);
+        return filePreview.filePreviewHandle(url, model);
     }
 
     /**
@@ -93,6 +102,18 @@ public class OnlinePreviewController {
                 IOUtils.closeQuietly(inputStream);
             }
         }
+    }
+
+    /**
+     * 通过api接口入队
+     * @param url 请编码后在入队
+     */
+    @GetMapping("/addTask")
+    @ResponseBody
+    public String addQueueTask(String url) {
+        final RBlockingQueue<String> queue = redissonClient.getBlockingQueue(FileConverQueueTask.queueTaskName);
+        queue.addAsync(url);
+        return "success";
     }
 
 }

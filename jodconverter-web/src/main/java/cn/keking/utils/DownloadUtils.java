@@ -1,11 +1,10 @@
 package cn.keking.utils;
 
-import cn.keking.param.ReturnResponse;
+import cn.keking.model.ReturnResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.*;
-import java.nio.charset.Charset;
 import java.util.UUID;
 
 /**

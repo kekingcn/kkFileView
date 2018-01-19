@@ -1,4 +1,4 @@
-package cn.keking.param;
+package cn.keking.model;
 
 import java.io.Serializable;
 

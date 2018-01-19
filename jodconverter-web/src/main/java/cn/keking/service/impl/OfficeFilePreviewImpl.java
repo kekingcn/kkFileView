@@ -1,7 +1,7 @@
 package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
-import cn.keking.param.ReturnResponse;
+import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
@@ -9,6 +9,7 @@ import cn.keking.utils.OfficeToPdf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 

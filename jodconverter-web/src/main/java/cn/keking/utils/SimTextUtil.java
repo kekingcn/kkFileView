@@ -1,6 +1,6 @@
 package cn.keking.utils;
 
-import cn.keking.param.ReturnResponse;
+import cn.keking.model.ReturnResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,7 @@
 package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
-import cn.keking.param.ReturnResponse;
+import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
