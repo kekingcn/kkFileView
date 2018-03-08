@@ -61,13 +61,15 @@ public class OnlinePreviewController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping(value = "picturesPreview", method = RequestMethod.GET)
-    public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
+    public String picturesPreview(String urls, String currentUrl, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         // 路径转码
         String decodedUrl = URLDecoder.decode(urls, "utf-8");
+        String decodedCurrentUrl = URLDecoder.decode(currentUrl, "utf-8");
         // 抽取文件并返回文件列表
-        String[] imgs = decodedUrl.split("|");
+        String[] imgs = decodedUrl.split("\\|");
         List imgurls = Arrays.asList(imgs);
         model.addAttribute("imgurls", imgurls);
+        model.addAttribute("currentUrl",decodedCurrentUrl);
         return "picture";
     }
 
