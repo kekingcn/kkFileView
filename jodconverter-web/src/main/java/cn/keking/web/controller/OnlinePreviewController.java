@@ -73,7 +73,20 @@ public class OnlinePreviewController {
         return "picture";
     }
 
-
+    @RequestMapping(value = "picturesPreview", method = RequestMethod.POST)
+    public String picturesPreview(Model model, HttpServletRequest req) throws UnsupportedEncodingException {
+        String urls = req.getParameter("urls");
+        String currentUrl = req.getParameter("currentUrl");
+        // 路径转码
+        String decodedUrl = URLDecoder.decode(urls, "utf-8");
+        String decodedCurrentUrl = URLDecoder.decode(currentUrl, "utf-8");
+        // 抽取文件并返回文件列表
+        String[] imgs = decodedUrl.split("\\|");
+        List imgurls = Arrays.asList(imgs);
+        model.addAttribute("imgurls", imgurls);
+        model.addAttribute("currentUrl",decodedCurrentUrl);
+        return "picture";
+    }
     /**
      * 根据url获取文件内容
      * 当pdfjs读取存在跨域问题的文件时将通过此接口读取
