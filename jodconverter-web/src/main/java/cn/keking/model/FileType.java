@@ -10,7 +10,8 @@ public enum FileType {
     office("officeFilePreviewImpl"),
     simText("simTextFilePreviewImpl"),
     pdf("pdfFilePreviewImpl"),
-    other("otherFilePreviewImpl");
+    other("otherFilePreviewImpl"),
+    media("mediaFilePreviewImpl");
 
     private String instanceName;
     FileType(String instanceName){

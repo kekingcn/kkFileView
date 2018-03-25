@@ -40,6 +40,9 @@ public class FileUtils {
 
     @Value("${simText}")
     String[] simText;
+
+    @Value("${media}")
+    String[] media;
     /**
      * 已转换过的文件集合(redis缓存)
      * @return
@@ -79,6 +82,9 @@ public class FileUtils {
         }
         if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
             return FileType.simText;
+        }
+        if (Arrays.asList(media).contains(fileType.toLowerCase())) {
+            return FileType.media;
         }
         if("pdf".equalsIgnoreCase(fileType)){
             return FileType.pdf;

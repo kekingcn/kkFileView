@@ -30,6 +30,7 @@ public class SimTextFilePreviewImpl implements FilePreview{
         ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName);
         if (0 != response.getCode()) {
             model.addAttribute("msg", response.getMsg());
+            model.addAttribute("fileType",fileAttribute.getSuffix());
             return "fileNotSupported";
         }
         model.addAttribute("ordinaryUrl", response.getMsg());
