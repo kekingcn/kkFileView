@@ -106,11 +106,17 @@
             </div>
         </div>
         <div class="panel-body">
-            <div>
-                <!-- UY BEGIN -->
-                <div id="uyan_frame"></div>
-                <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2155152"></script>
-                <!-- UY END -->
+            <div style="width: 80%">
+                <!-- 多说评论框 start -->
+                <div id="SOHUCS" sid="kkfileView"></div>
+                <script charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/changyan.js" ></script>
+                <script type="text/javascript">
+                    window.changyan.api.config({
+                        appid: 'cytx6wU4N',
+                        conf: 'prod_c53858654f21b8f813c14b7681f5405a'
+                    });
+                </script>
+                <!-- 多说评论框 end -->
             </div>
         </div>
 
