@@ -17,11 +17,13 @@
             <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
         </#list>
 </ul>
+<script src="js/jquery-3.0.0.min.js"></script>
 <script src="js/viewer.min.js"></script>
 <script>
     var viewer = new Viewer(document.getElementById('dowebok'), {
         url: 'src',
-       navbar:false
+        navbar:false,
+        loop : true
     });
     document.getElementById("${currentUrl}").click();
     // 修改下一页按钮的样式和位置
@@ -38,14 +40,14 @@
         // 覆盖按钮父类原始样式
         viewerToolBar.css("overflow", "visible");
         // 获取文档高度、宽度
-        var clientHeight = document.body.clientHeight;
-        var clientWidth = document.body.clientWidth;
+        var clientHeight = window.innerHeight;
+        var clientWidth = window.innerWidth;
         // 调整样式
         var styleCss = {},nextCss={},prevCss={};
         styleCss.position = "absolute";
-        styleCss.top = -clientHeight + 52;
+        styleCss.top = -clientHeight;
         styleCss.width = clientWidth*0.1;
-        styleCss.height = clientHeight;
+        styleCss.height = clientHeight + 52;
         // 覆盖原始样式
         styleCss.backgroundColor='rgba(0, 0, 0, 0)';
         styleCss.borderRadius='inherit';
