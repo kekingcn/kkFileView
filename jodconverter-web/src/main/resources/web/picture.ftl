@@ -24,6 +24,40 @@
        navbar:false
     });
     document.getElementById("${currentUrl}").click();
+    // 修改下一页按钮的样式和位置
+    $(function () {
+        var outHandler = function(){
+            $(this).css('background-color','rgba(0, 0, 0, 0)');
+        };
+        var overHandler = function(){
+            $(this).css('background-color','rgba(0, 0, 0, .5)');
+        };
+        var next = $("li[data-action=next]");
+        var prev = $("li[data-action=prev]");
+        var viewerToolBar = $(".viewer-footer");
+        // 覆盖按钮父类原始样式
+        viewerToolBar.css("overflow", "visible");
+        // 获取文档高度、宽度
+        var clientHeight = document.body.clientHeight;
+        var clientWidth = document.body.clientWidth;
+        // 调整样式
+        var styleCss = {},nextCss={},prevCss={};
+        styleCss.position = "absolute";
+        styleCss.top = -clientHeight + 52;
+        styleCss.width = clientWidth*0.1;
+        styleCss.height = clientHeight;
+        // 覆盖原始样式
+        styleCss.backgroundColor='rgba(0, 0, 0, 0)';
+        styleCss.borderRadius='inherit';
+        nextCss.right = "0";
+        prevCss.left = "0";
+        next.css($.extend(nextCss, styleCss));
+        prev.css($.extend(prevCss, styleCss));
+        next.on('mouseout',outHandler);
+        next.on('mouseover',overHandler);
+        prev.on('mouseout',outHandler);
+        prev.on('mouseover',overHandler);
+    });
 </script>
 </body>
 
