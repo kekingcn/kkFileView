@@ -78,6 +78,10 @@ If everything is ok,you will see the picture below.
 
 ### Changelog
 
+> April 8th 2019
+1. Cache and queue implementations abstract, providing JDK and REDIS implementations (REDIS becomes optional dependencies)
+2. Provides zip and tar.gz packages, and provides a one-click startup script
+
 > January 17th 2018
 
 1. Refined the project directory, abstract file preview interface, Easy to extend more file extensions and depoly this project on your own
