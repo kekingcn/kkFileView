@@ -50,15 +50,13 @@ QQ群号：613025121
 - redisson 
 - jodconverter
 > 依赖外部环境
-- redis 
+- redis (可选，默认不用)
 - OpenOffice或者LibreOffice
 
 1. 第一步：pull项目https://github.com/kekingcn/file-online-preview.git
 
-2. 第二步：配置redis地址和OpenOffice目录，如
+2. 第二步：配置OpenOffice目录，如
 ```
-#=============================================#spring Redisson配置#===================================#
-spring.redisson.address = 192.168.1.204:6379
 ##资源映射路径(因为jar方式运行的原因)
 file.dir = C:\\Users\\yudian\\Desktop\\dev\\
 ## openoffice相关配置

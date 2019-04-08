@@ -1,12 +1,10 @@
 package cn.keking.web.controller;
 
-import cn.keking.service.FileConverQueueTask;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
 
+import cn.keking.service.cache.CacheService;
 import org.apache.commons.io.IOUtils;
-import org.redisson.api.RBlockingQueue;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,7 +24,6 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author yudian-it
@@ -38,7 +35,7 @@ public class OnlinePreviewController {
     FilePreviewFactory previewFactory;
 
     @Autowired
-    RedissonClient redissonClient;
+    CacheService cacheService;
 
     /**
      * @param url
@@ -126,8 +123,7 @@ public class OnlinePreviewController {
     @GetMapping("/addTask")
     @ResponseBody
     public String addQueueTask(String url) {
-        final RBlockingQueue<String> queue = redissonClient.getBlockingQueue(FileConverQueueTask.queueTaskName);
-        queue.addAsync(url);
+        cacheService.addQueueTask(url);
         return "success";
     }
 

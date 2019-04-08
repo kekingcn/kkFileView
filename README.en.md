@@ -57,15 +57,13 @@ Considering space issues, the pictures of other types of documents will not be s
 - Redisson 
 - Jodconverter
 > Dependencies
-- Redis 
+- Redis(Optional, Unnecessary by default)
 - OpenOffice or LibreOffice
 
 1. First step：`git pull https://github.com/kekingcn/file-online-preview.git`
 
 2. Second step：configure redis address and OpenOffice directory，such as
 ```
-#=============================================#Spring Redisson Configuration#===================================#
-spring.redisson.address = 192.168.1.204:6379
 ##The folder for files which are uploaded to the server(Because of running as jar)
 file.dir = C:\\Users\\yudian\\Desktop\\dev\\
 ## openoffice configuration
