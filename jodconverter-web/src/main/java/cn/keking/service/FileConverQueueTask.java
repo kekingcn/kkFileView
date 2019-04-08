@@ -2,9 +2,8 @@ package cn.keking.service;
 
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
+import cn.keking.service.cache.CacheService;
 import cn.keking.utils.FileUtils;
-import org.redisson.api.RBlockingQueue;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ public class FileConverQueueTask {
     FilePreviewFactory previewFactory;
 
     @Autowired
-    RedissonClient redissonClient;
+    CacheService cacheService;
 
     @Autowired
     FileUtils fileUtils;
@@ -36,7 +35,7 @@ public class FileConverQueueTask {
     @PostConstruct
     public void startTask(){
         ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.submit(new ConverTask(previewFactory,redissonClient,fileUtils));
+        executorService.submit(new ConverTask(previewFactory,cacheService,fileUtils));
         logger.info("队列处理文件转换任务启动完成 ");
     }
 
@@ -44,13 +43,13 @@ public class FileConverQueueTask {
 
         FilePreviewFactory previewFactory;
 
-        RedissonClient redissonClient;
+        CacheService cacheService;
 
         FileUtils fileUtils;
 
-        public ConverTask(FilePreviewFactory previewFactory, RedissonClient redissonClient,FileUtils fileUtils) {
+        public ConverTask(FilePreviewFactory previewFactory, CacheService cacheService,FileUtils fileUtils) {
             this.previewFactory = previewFactory;
-            this.redissonClient = redissonClient;
+            this.cacheService = cacheService;
             this.fileUtils=fileUtils;
         }
 
@@ -58,8 +57,7 @@ public class FileConverQueueTask {
         public void run() {
             while (true) {
                 try {
-                    final RBlockingQueue<String> queue = redissonClient.getBlockingQueue(FileConverQueueTask.queueTaskName);
-                    String url = queue.take();
+                    String url = cacheService.takeQueueTask();
                     if(url!=null){
                         FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
                         logger.info("正在处理转换任务，文件名称【{}】",fileAttribute.getName());

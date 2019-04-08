@@ -2,9 +2,8 @@ package cn.keking.utils;
 
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
+import cn.keking.service.cache.CacheService;
 import com.google.common.collect.Lists;
-import org.redisson.api.RMapCache;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +26,9 @@ import java.util.Map;
 public class FileUtils {
     Logger log= LoggerFactory.getLogger(getClass());
 
-
-    final String REDIS_FILE_PREVIEW_PDF_KEY = "converted-preview-pdf-file";
-    final String REDIS_FILE_PREVIEW_IMGS_KEY = "converted-preview-imgs-file";//压缩包内图片文件集合
     @Autowired
-    RedissonClient redissonClient;
+    CacheService cacheService;
+
     @Value("${file.dir}")
     String fileDir;
 
@@ -48,8 +45,7 @@ public class FileUtils {
      * @return
      */
     public Map<String, String> listConvertedFiles() {
-        RMapCache<String, String> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_KEY);
-        return convertedList;
+        return cacheService.getPDFCache();
     }
 
     /**
@@ -57,8 +53,7 @@ public class FileUtils {
      * @return
      */
     public String getConvertedFile(String key) {
-        RMapCache<String, String> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_KEY);
-        return convertedList.get(key);
+        return cacheService.getPDFCache(key);
     }
 
     /**
@@ -170,8 +165,7 @@ public class FileUtils {
     }
 
     public void addConvertedFile(String fileName, String value){
-        RMapCache<String, String> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_KEY);
-        convertedList.fastPut(fileName, value);
+        cacheService.putPDFCache(fileName, value);
     }
 
     /**
@@ -180,8 +174,7 @@ public class FileUtils {
      * @return
      */
     public List getRedisImgUrls(String fileKey){
-        RMapCache<String, List> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_IMGS_KEY);
-        return convertedList.get(fileKey);
+        return cacheService.getImgCache(fileKey);
     }
 
     /**
@@ -190,8 +183,7 @@ public class FileUtils {
      * @param imgs
      */
     public void setRedisImgUrls(String fileKey,List imgs){
-        RMapCache<String, List> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_IMGS_KEY);
-         convertedList.fastPut(fileKey,imgs);
+        cacheService.putImgCache(fileKey, imgs);
     }
     /**
      * 判断文件编码格式

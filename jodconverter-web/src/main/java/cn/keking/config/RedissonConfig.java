@@ -1,10 +1,9 @@
 package cn.keking.config;
 
 import io.netty.channel.nio.NioEventLoopGroup;
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
 import org.redisson.config.Config;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +13,7 @@ import org.springframework.util.ClassUtils;
  * Created by kl on 2017/09/26.
  * redisson 客户端配置
  */
+@ConditionalOnExpression("'${cache.type:default}'.equals('redis')")
 @ConfigurationProperties(prefix = "spring.redisson")
 @Configuration
 public class RedissonConfig {
@@ -42,8 +42,8 @@ public class RedissonConfig {
 
     private String codec="org.redisson.codec.JsonJacksonCodec";
 
-    @Bean(destroyMethod = "shutdown")
-    RedissonClient redisson() throws Exception {
+    @Bean
+    Config config() throws Exception {
         Config config = new Config();
         config.useSingleServer().setAddress(address)
                 .setConnectionMinimumIdleSize(connectionMinimumIdleSize)
@@ -69,7 +69,7 @@ public class RedissonConfig {
         config.setThreads(thread);
         config.setEventLoopGroup(new NioEventLoopGroup());
         config.setUseLinuxNativeEpoll(false);
-        return Redisson.create(config);
+        return config;
     }
 
     public int getThread() {
