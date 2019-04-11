@@ -1,5 +1,6 @@
 package cn.keking.utils;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
@@ -63,6 +64,12 @@ public class FileUtils {
      * @return
      */
     public FileType typeFromUrl(String url) {
+        if (ConfigConstants.getSimText() != null && ConfigConstants.getSimText().length > 0) {
+            simText = ConfigConstants.getSimText();
+        }
+        if (ConfigConstants.getMedia() != null && ConfigConstants.getMedia().length > 0) {
+            media = ConfigConstants.getMedia();
+        }
         String nonPramStr = url.substring(0, url.indexOf("?") != -1 ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -217,6 +224,9 @@ public class FileUtils {
      */
     public void doActionConvertedFile(String outFilePath) {
         StringBuffer sb = new StringBuffer();
+        if(ConfigConstants.getConvertedFileCharset() != null) {
+            charset = ConfigConstants.getConvertedFileCharset();
+        }
         try (InputStream inputStream = new FileInputStream(outFilePath);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset))){
             String line;
