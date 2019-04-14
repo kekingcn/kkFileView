@@ -32,8 +32,10 @@ public class ConfigRefreshComponent {
         public void run() {
             try {
                 Properties properties = new Properties();
-                String userDir = System.getProperty("user.dir");
-                Properties properties1 = System.getProperties();
+                String userDir = System.getenv("KKFILEVIEW_BIN_FOLDER");
+                if (userDir == null) {
+                    System.getProperty("user.dir");
+                }
                 if (userDir.endsWith("bin")) {
                     userDir = userDir.substring(0, userDir.length() - 4);
                 }
