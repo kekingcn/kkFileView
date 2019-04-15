@@ -42,7 +42,7 @@
         ' then store the id of the new picture and show it
         Session( "GIFID" ) = nGIFID
     %>
-        <BODY bgcolor="red" onLoad="parent.frame1.location.href='./show.asp?<%= nGIFID %>'">
+        <BODY bgcolor="red" onLoad="parent.frame1.location.href='show.asp'">
     <%
     else
     %>

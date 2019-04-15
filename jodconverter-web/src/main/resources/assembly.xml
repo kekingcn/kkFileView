@@ -6,30 +6,31 @@
     <id>make-assembly</id>
     <formats>
         <format>zip</format>
+        <format>tar</format>
         <format>tar.gz</format>
     </formats>
     <includeBaseDirectory>true</includeBaseDirectory>
     <fileSets>
         <fileSet>
             <directory>src/main/conf</directory>
-            <outputDirectory>/conf</outputDirectory>
+            <outputDirectory>${file.separator}conf</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>src/main/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <outputDirectory>${file.separator}bin</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
             <directory>src/main/log</directory>
-            <outputDirectory>/log</outputDirectory>
+            <outputDirectory>${file.separator}log</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>src/main/office</directory>
-            <outputDirectory>/office</outputDirectory>
+            <outputDirectory>${file.separator}office</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <outputDirectory>${file.separator}bin</outputDirectory>
             <includes>
                 <include>*.jar</include>
             </includes>
