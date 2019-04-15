@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="TutorialsDialog" dlg:left="149" dlg:top="54" dlg:width="250" dlg:height="200" dlg:closeable="true" dlg:moveable="true">
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:font-weight="150"/>
+ </dlg:styles>
+ <dlg:bulletinboard>
+  <dlg:button dlg:id="CommandButton" dlg:tab-index="3" dlg:left="232" dlg:top="4" dlg:width="13" dlg:height="13" dlg:value="C">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tutorials.Functions.Minimize?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="myText" dlg:tab-index="4" dlg:left="91" dlg:top="26" dlg:width="153" dlg:height="145" dlg:value="This text explains all the action items that the user can do to follow the current step highlighted in the road map at the left side of the tutorial window.&#x0a;&#x0a;1. Open the Format menu&#x0a;2. Choose the Paragraph command&#x0a;3. Click the Numbering tab&#x0a;&#x0a;The first step will always explain what the current tutorial is about.&#x0a;&#x0a;The last step - it is higjlighted currently in the road map - will summarize what the user now has seen or learned." dlg:multiline="true"/>
+  <dlg:button dlg:id="show" dlg:tab-index="1" dlg:left="142" dlg:top="180" dlg:width="50" dlg:height="14" dlg:value="Show me">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tutorials.Functions.Show?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="next" dlg:tab-index="0" dlg:left="89" dlg:top="180" dlg:width="50" dlg:height="14" dlg:value="Next &gt;&gt;">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tutorials.Functions.NextStep?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:style-id="0" dlg:id="myTextField" dlg:tab-index="5" dlg:left="6" dlg:top="6" dlg:width="192" dlg:height="8" dlg:value="Current Step (in Road Map)"/>
+  <dlg:button dlg:id="done" dlg:tab-index="2" dlg:left="195" dlg:top="180" dlg:width="50" dlg:height="14" dlg:value="Close">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tutorials.Functions.EndDialog?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:style-id="0" dlg:id="ActionItemsLabel" dlg:tab-index="8" dlg:left="91" dlg:top="8" dlg:width="45" dlg:height="8" dlg:value="Action Items"/>
+  <dlg:fixedline dlg:id="FixedLineHorizontal" dlg:tab-index="7" dlg:left="0" dlg:top="176" dlg:width="250" dlg:height="1"/>
+  <dlg:fixedline dlg:id="FixedLineVertikal" dlg:tab-index="6" dlg:left="85" dlg:top="0" dlg:width="1" dlg:height="176" dlg:align="vertical"/>
+ </dlg:bulletinboard>
+</dlg:window>

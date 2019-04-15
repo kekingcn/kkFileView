@@ -1,5 +1,6 @@
 package cn.keking.config;
 
+import cn.keking.utils.HomePathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,24 +33,14 @@ public class ConfigRefreshComponent {
         public void run() {
             try {
                 Properties properties = new Properties();
-                String userDir = System.getenv("KKFILEVIEW_BIN_FOLDER");
-                if (userDir == null) {
-                    System.getProperty("user.dir");
-                }
-                if (userDir.endsWith("bin")) {
-                    userDir = userDir.substring(0, userDir.length() - 4);
-                }
+                String text;
+                String media;
+                String convertedFileCharset;
+                String[] textArray ;
+                String[] mediaArray;
+                String homePath = HomePathUtils.getHomePath();
                 String separator = java.io.File.separator;
-                String configFilePath = userDir + separator + "conf" + separator + "application.properties";
-                File file = new File(configFilePath);
-                if (!file.exists()) {
-                    configFilePath = userDir + separator + "jodconverter-web" + separator + "src" + separator +  "main" + separator + "conf" + separator + "application.properties";
-                }
-                String text = null;
-                String media = null;
-                String convertedFileCharset = null;
-                String[] textArray = {};
-                String[] mediaArray = {};
+                String configFilePath = homePath + separator + "conf" + separator + "application.properties";
                 while (true) {
                     BufferedReader bufferedReader = new BufferedReader(new FileReader(configFilePath));
                     properties.load(bufferedReader);

@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Listbox" script:language="StarBasic">Option Explicit
+Dim OriginalList()
+Dim oDialogModel as Object
+
+
+Sub MergeList(SourceListBox() as Object, SecondList() as String)
+Dim i as Integer
+Dim MaxIndex as Integer
+	MaxIndex = Ubound(SecondList())
+	OriginalList() = AddListToList(OriginalList(), SecondList())
+	For i = 0 To MaxIndex
+		SourceListbox = AddSingleItemToListbox(SourceListbox, SecondList(i))
+	Next i
+	Call FormSetMoveRights()	
+End Sub
+
+
+Sub RemoveListItems(SourceListbox as Object, TargetListbox as Object, RemoveList() as String)
+Dim i as Integer
+Dim s as Integer
+Dim MaxIndex as Integer
+Dim CopyList()
+	MaxIndex = Ubound(RemoveList())
+	For i = 0 To MaxIndex
+		RemoveListboxItemByName(SourceListbox, RemoveList(i))
+		RemoveListboxItemByName(TargetListbox, RemoveList(i))
+	Next i
+	CopyList() = OriginalList()
+	s = 0 
+	MaxIndex = Ubound(CopyList())
+	For i = 0 To MaxIndex
+		If IndexInArray(CopyList(i),RemoveList())= -1 Then
+			OriginalList(s) = CopyList(i)
+			s = s + 1
+		End If
+	Next i
+	ReDim Preserve OriginalList(s-1)
+	Call FormSetMoveRights()	
+End Sub
+
+
+&apos; Note Boolean Parameter
+Sub InitializeListboxProcedures(oModel as Object, SourceListbox as Object, TargetListbox as Object)
+Dim EmptyList()
+	Set oDialogModel = oModel
+	OriginalList()= SourceListbox.StringItemList()
+	TargetListbox.StringItemList() = EmptyList()
+End Sub
+
+
+Sub CopyListboxItems(SourceListbox as Object, TargetListbox As Object)
+Dim NullArray()
+	TargetListbox.StringItemList() = OriginalList()
+	SourceListbox.StringItemList() = NullArray()
+End Sub
+
+
+Sub FormMoveSelected()
+	Call MoveSelectedListBox(oDialogModel.lstFields, oDialogModel.lstSelFields)
+	Call FormSetMoveRights()
+	oDialogModel.lstSelFields.Tag = True
+End Sub
+
+
+Sub FormMoveAll()
+	Call CopyListboxItems(oDialogModel.lstFields, oDialogModel.lstSelFields)
+	Call FormSetMoveRights()
+	oDialogModel.lstSelFields.Tag = True
+End Sub
+
+
+Sub FormRemoveSelected()
+	Call MoveOrderedSelectedListbox(oDialogModel.lstFields, oDialogModel.lstSelFields, False)
+	Call FormSetMoveRights()
+	oDialogModel.lstSelFields.Tag = True
+End Sub
+
+
+Sub FormRemoveAll()
+	Call MoveOrderedSelectedListbox(oDialogModel.lstFields, oDialogModel.lstSelFields, True)
+	Call FormSetMoveRights()
+	oDialogModel.lstSelFields.Tag = 1
+End Sub
+
+
+Sub MoveSelectedListBox(SourceListbox as Object, TargetListbox as Object)
+Dim MaxCurTarget as Integer
+Dim MaxSourceSelected as Integer
+Dim n as Integer
+Dim m as Integer
+Dim CurIndex
+Dim iOldTargetSelect as Integer
+Dim iOldSourceSelect as Integer
+	MaxCurTarget = Ubound(TargetListbox.StringItemList())
+	MaxSourceSelected = Ubound(SourceListbox.SelectedItems())	
+	Dim TargetList(MaxCurTarget+MaxSourceSelected+1) 
+	If MaxSourceSelected &gt; -1 Then
+		iOldSourceSelect = SourceListbox.SelectedItems(0)
+		If Ubound(TargetListbox.SelectedItems()) &gt; -1 Then
+			iOldTargetSelect = TargetListbox.SelectedItems(0)
+		Else 
+			iOldTargetSelect = -1
+		End If
+		For n = 0 To MaxCurTarget
+			TargetList(n) = TargetListbox.StringItemList(n)
+		Next n
+		For m = 0 To MaxSourceSelected
+			CurIndex = SourceListbox.SelectedItems(m)
+			TargetList(n) = SourceListbox.StringItemList(CurIndex)
+			n = n + 1
+		Next m
+		TargetListBox.StringItemList() = TargetList()
+		SourceListbox.StringItemList() = RemoveSelected (SourceListbox)
+		SetNewSelection(SourceListbox, iOldSourceSelect)
+		SetNewSelection(TargetListbox, iOldTargetSelect)
+	End If
+End Sub
+
+
+
+Sub MoveOrderedSelectedListbox(lstSource as Object, lstTarget as Object, bMoveAll as Boolean)
+Dim NullArray()
+Dim MaxSelected as Integer
+Dim MaxSourceIndex as Integer
+Dim MaxOriginalIndex as Integer
+Dim MaxNewIndex as Integer
+Dim n as Integer
+Dim m as Integer
+Dim CurIndex as Integer
+Dim SearchString as String
+Dim SourceList() as String
+Dim iOldTargetSelect as Integer
+Dim iOldSourceSelect as Integer
+	If bMoveAll Then
+		lstSource.StringItemList() = OriginalList()
+		lstTarget.StringItemList() = NullArray()
+	Else
+		MaxOriginalIndex = Ubound(OriginalList())
+		MaxSelected = Ubound(lstTarget.SelectedItems())
+		iOldTargetSelect = lstTarget.SelectedItems(0)
+		If Ubound(lstSource.SelectedItems()) &gt; -1 Then
+			iOldSourceSelect = lstSource.SelectedItems(0)
+		End If
+		Dim SelList(MaxSelected)
+		For n = 0 To MaxSelected
+			CurIndex = lstTarget.SelectedItems(n)
+			SelList(n) = lstTarget.StringItemList(CurIndex)
+		Next n
+		SourceList() = lstSource.StringItemList()
+		MaxSourceIndex = Ubound(lstSource.StringItemList())
+		MaxNewIndex = MaxSelected + MaxSourceIndex + 1
+		Dim NewSourceList(MaxNewIndex)
+		m = 0
+		For n = 0 To MaxOriginalIndex
+			SearchString = OriginalList(n)
+			If IndexinArray(SearchString, SelList()) &lt;&gt; -1 Then
+				NewSourceList(m) =  SearchString
+				m = m + 1
+			ElseIf IndexinArray(SearchString, SourceList()) &lt;&gt; -1 Then
+				NewSourceList(m) =  SearchString
+				m = m + 1
+			End If
+		Next n
+		lstSource.StringItemList() = NewSourceList()
+		lstTarget.StringItemList() = RemoveSelected(lstTarget)
+	End If
+	SetNewSelection(lstSource, iOldSourceSelect)
+	SetNewSelection(lstTarget, iOldTargetSelect)
+
+End Sub
+
+
+Function RemoveSelected(oListbox as Object)
+Dim MaxIndex as Integer
+Dim MaxSelected as Integer
+Dim n as Integer
+Dim m as Integer
+Dim CurIndex as Integer
+Dim CurItem as String
+Dim ResultArray()
+	MaxIndex = Ubound(oListbox.StringItemList())
+	MaxSelected = Ubound(oListbox.SelectedItems())
+	Dim LocItemList(MaxIndex)
+	LocItemList() = oListbox.StringItemList()
+	If MaxSelected &gt; -1 Then
+		For n = 0 To MaxSelected
+			CurIndex = oListbox.SelectedItems(n)
+			LocItemList(CurIndex) = &quot;&quot;
+		Next n
+		If MaxIndex &gt; 0 Then
+			ReDim ResultArray(MaxIndex - MaxSelected - 1)
+			m = 0
+			For n = 0 To MaxIndex
+				CurItem = LocItemList(n)
+				If CurItem &lt;&gt; &quot;&quot; Then
+					ResultArray(m) = CurItem
+					m = m + 1
+				End If
+			Next n	
+		End If
+		RemoveSelected = ResultArray()	
+	Else
+		RemoveSelected = oListbox.StringItemList()	
+	End If
+End Function
+
+
+Sub SetNewSelection(oListBox as Object, iLastSelection as Integer)
+Dim MaxIndex as Integer
+Dim SelIndex as Integer
+Dim SelList(0) as Integer
+	MaxIndex = Ubound(oListBox.StringItemList())
+	If MaxIndex &gt; -1  AND iLastSelection &gt; -1 Then
+		If iLastSelection &gt; MaxIndex Then
+			Selindex = MaxIndex
+		Else
+			SelIndex = iLastSelection
+		End If
+		Sellist(0) = SelIndex
+		oListBox.SelectedItems() = SelList()
+	End If
+End Sub
+
+
+Sub ToggleListboxControls(oDialogModel as Object, bDoEnable as Boolean)
+	With oDialogModel
+		.lblFields.Enabled = bDoEnable
+		.lblSelFields.Enabled = bDoEnable
+&apos;		.lstTables.Enabled = bDoEnable
+		.lstFields.Enabled = bDoEnable
+		.lstSelFields.Enabled = bDoEnable
+		.cmdRemoveAll.Enabled = bDoEnable
+		.cmdRemoveSelected.Enabled = bDoEnable
+		.cmdMoveAll.Enabled = bDoEnable
+		.cmdMoveSelected.Enabled = bDoEnable
+	End With
+	If bDoEnable Then
+		FormSetMoveRights()
+	End If
+End Sub	
+
+
+&apos; Enable or disable the buttons used for moving the available
+&apos; fields between the two list boxes.
+Sub FormSetMoveRights()
+Dim bIsFieldSelected as Boolean
+Dim bSelectSelected as Boolean
+Dim FieldCount as Integer
+Dim SelectCount as Integer
+	bIsFieldSelected = Ubound(oDialogModel.lstFields.SelectedItems()) &lt;&gt; -1
+	FieldCount = Ubound(oDialogModel.lstFields.StringItemList()) + 1
+	bSelectSelected = Ubound(oDialogModel.lstSelFields.SelectedItems()) &gt; -1
+	SelectCount = Ubound(oDialogModel.lstSelFields.StringItemList()) + 1
+	oDialogModel.cmdRemoveAll.Enabled = SelectCount&gt;=1
+	oDialogModel.cmdRemoveSelected.Enabled = bSelectSelected
+	oDialogModel.cmdMoveAll.Enabled = FieldCount &gt;=1
+	oDialogModel.cmdMoveSelected.Enabled = bIsFieldSelected
+	oDialogModel.cmdGoOn.Enabled = SelectCount&gt;=1
+	&apos; This flag is set to &apos;1&apos; when the lstSelFields has been modified 
+End Sub
+
+
+Function AddSingleItemToListbox(ByVal oListbox as Object, ListItem as String, Optional iSelIndex) as Object
+Dim MaxIndex as Integer
+Dim i as Integer
+
+	MaxIndex = Ubound(oListbox.StringItemList())
+Dim LocList(MaxIndex + 1)
+&apos; Todo: This goes faster with the Redim LocList(MaxIndex + 1) Preserve function
+	For i = 0 To MaxIndex
+		LocList(i) = oListbox.StringItemList(i)
+	Next i
+	LocList(MaxIndex + 1) = ListItem
+	oListbox.StringItemList() = LocList()
+	If Not IsMissing(iSelIndex) Then
+		SelectListboxItem(oListbox, iSelIndex)
+	End If
+	AddSingleItemToListbox() = oListbox
+End Function
+
+
+Sub	EmptyListbox(oListbox as Object)
+Dim NullList() as String
+	oListbox.StringItemList() = NullList()
+End Sub
+
+
+Sub	SelectListboxItem(oListbox as Object, iSelIndex as Integer)
+Dim LocSelList(0) as Integer
+	If iSelIndex &lt;&gt; -1 Then
+		LocSelList(0) = iSelIndex
+		oListbox.SelectedItems() = LocSelList()
+	End If
+End Sub
+
+
+Function GetSelectedListboxItems(oListbox as Object)
+Dim SelList(Ubound(oListBox.SelectedItems())) as String
+Dim i as Integer
+Dim CurIndex as Integer
+	For i = 0 To Ubound(oListbox.SelectedItems())
+		CurIndex = oListbox.SelectedItems(i)
+		SelList(i) = oListbox.StringItemList(CurIndex)
+	Next i
+	GetSelectedListboxItems() = SelList()
+End Function
+
+
+&apos; Note: When using this Sub it must be ensured that the
+&apos; &apos;RemoveItem&apos; appears only only once in the Listbox
+Sub RemoveListboxItemByName(oListbox as Object, RemoveItem as String)
+Dim OldList() as String
+Dim NullList() as String
+Dim i as Integer
+Dim a as Integer
+Dim MaxIndex as Integer
+	OldList = oListbox.StringItemList()
+	MaxIndex = Ubound(OldList())
+	If IndexInArray(RemoveItem, OldList()) &lt;&gt; -1 Then
+		If MaxIndex &gt; 0 Then
+			a = 0
+			Dim NewList(MaxIndex -1)
+			For i = 0 To MaxIndex
+				If RemoveItem &lt;&gt; OldList(i) Then
+					NewList(a) = OldList(i)
+					a = a + 1
+				End If
+			Next i
+			oListbox.StringItemList() = NewList()
+		Else
+			oListBox.StringItemList() = NullList()
+		End If
+	End If
+End Sub
+
+
+Function GetItemPos(oListBox as Object, sItem as String)
+Dim ItemList()
+Dim MaxIndex as Integer
+Dim i as Integer
+	ItemList() = oListBox.StringItemList()
+	MaxIndex = Ubound(ItemList())	
+	For i = 0 To MaxIndex
+		If sItem = ItemList(i) Then
+			GetItemPos() = i
+			Exit Function
+		End If
+	Next i
+	GetItemPos() = -1
+End Function
+</script:module>

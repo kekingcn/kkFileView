@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="tools" script:language="StarBasic">REM  *****  BASIC  *****
+Option Explicit
+
+Sub RemoveSheet()
+	If oSheets.HasbyName(&quot;Link&quot;) then
+		oSheets.RemovebyName(&quot;Link&quot;)
+	End If
+End Sub
+
+
+Sub InitializeStatusLine(StatusText as String, MaxValue as Integer, FirstValue as Integer)
+	oStatusline = oDocument.GetCurrentController.GetFrame.CreateStatusIndicator()
+	oStatusLine.Start(StatusText, MaxValue)
+	oStatusline.SetValue(FirstValue)
+End Sub
+
+
+Sub MakeRangeVisible(oSheet as Object, RangeName as String, BIsVisible as Boolean)
+Dim oRangeAddress, oColumns as Object
+Dim i, iStartColumn, iEndColumn as Integer
+	oRangeAddress = oSheet.GetCellRangeByName(RangeName).RangeAddress
+	iStartColumn = oRangeAddress.StartColumn
+	iEndColumn = oRangeAddress.EndColumn
+	oColumns = oSheet.Columns
+	For i = iStartColumn To iEndColumn
+		oSheet.Columns(i).IsVisible = bIsVisible
+	Next i
+End Sub
+
+
+Function GetRowIndex(oSheet as Object, RowName as String)
+Dim oRange as Object
+	oRange = oSheet.GetCellRangeByName(RowName)
+	GetRowIndex = oRange.RangeAddress.StartRow
+End Function	
+
+
+Function GetTransactionCount(iStartRow as Integer)
+Dim iEndRow as Integer
+	iStartRow = GetRowIndex(oMovementSheet, &quot;ColumnsToHide&quot;)
+	iEndRow = GetRowIndex(oMovementSheet, &quot;HiddenRow3&quot; )
+	GetTransactionCount = iEndRow -iStartRow - 2
+End Function	
+
+
+Function GetStocksCount(iStartRow as Integer)
+Dim iEndRow as Integer
+	iStartRow = GetRowIndex(oFirstSheet, &quot;HiddenRow1&quot;)
+	iEndRow = GetRowIndex(oFirstSheet, &quot;HiddenRow2&quot;)
+	GetStocksCount = iEndRow -iStartRow - 1
+End Function
+
+
+Function FillListbox(ListboxControl as Object, MsgTitle as String, bShowMessage) as Boolean
+Dim i, StocksCount as Integer
+Dim iStartRow as Integer
+Dim oCell as Object
+	&apos; Add stock names to empty list box
+	StocksCount = GetStocksCount(iStartRow)
+	If StocksCount &gt; 0 Then
+		ListboxControl.Model.StringItemList() = NullList()
+		For i = 1 To StocksCount
+			oCell = oFirstSheet.GetCellByPosition(SBCOLUMNNAME1,iStartRow + i)
+			ListboxControl.AddItem(oCell.String, i-1)
+		Next
+		FillListbox() = True
+	Else
+		If bShowMessage Then
+			Msgbox(sInsertStockName, 16, MsgTitle)
+			FillListbox() = False
+		End If
+	End If	
+End Function
+
+
+Sub CellValuetoControl(oSheet, oControl as Object, CellName as String)
+Dim oCell as Object
+Dim StringValue
+	oCell = GetCellByName(oSheet, CellName)
+	If oControl.PropertySetInfo.HasPropertyByName(&quot;EffectiveValue&quot;) Then
+		oControl.EffectiveValue = oCell.Value
+	Else	
+		oControl.Value = oCell.Value
+	End If
+&apos;	If oCell.FormulaResultType = 1 Then
+&apos;		StringValue = oNumberFormatter.GetInputString(oCell.NumberFormat, oCell.Value)
+&apos;		oControl.Text = DeleteStr(StringValue, &quot;%&quot;)
+&apos;	Else
+&apos;		oControl.Text = oCell.String
+&apos;	End If
+End Sub
+
+
+Sub RemoveStockRows(oSheet as Object, iStartRow, RowCount as Integer)
+	If RowCount &gt; 0 Then
+		oSheet.Rows.RemoveByIndex(iStartRow, RowCount)
+	End If
+End Sub
+
+
+Sub AddValueToCellContent(iCellCol, iCellRow as Integer, AddValue)
+Dim oCell as Object
+Dim OldValue
+	oCell = oMovementSheet.GetCellByPosition(iCellCol, iCellRow)
+	OldValue = oCell.Value
+	oCell.Value = OldValue + AddValue
+End Sub					
+
+
+Sub CheckInputDate(aEvent as Object)	
+Dim oRefDialog as Object
+Dim oRefModel as Object
+Dim oDateModel as Object
+	oDateModel = aEvent.Source.Model
+	oRefModel = DlgReference.GetControl(&quot;cmdGoOn&quot;).Model
+	oRefModel.Enabled = oDateModel.Date &lt;&gt; 0
+End Sub
+
+
+
+&apos; Updates the cell with the CurrentValue after checking if the
+&apos; Newdate is later than the one that is refered to in the annotation
+&apos; of the cell
+Sub InsertCurrentValue(CurValue as Double, iRow as Integer, Newdate as Date)
+Dim oCell as Object
+Dim OldDate as Date
+	oCell = oFirstSheet.GetCellByPosition(SBCOLUMNRATE1, iRow)
+	OldDate = CDate(oCell.Annotation.Text.String)
+	If NewDate &gt;= OldDate Then
+		oCell.SetValue(CurValue)
+		oCell.Annotation.Text.SetString(CStr(NewDate))
+	End If
+End Sub
+
+
+Sub SplitCellValue(oSheet, FirstNumber, SecondNumber, iCol, iRow, NoteText)
+Dim oCell as Object
+Dim OldValue
+	oCell = oSheet.GetCellByPosition(iCol, iRow)
+	OldValue = oCell.Value
+	oCell.Value = OldValue * FirstNumber / SecondNumber
+	If NoteText &lt;&gt; &quot;&quot; Then
+		oCell.Annotation.SetString(NoteText)
+	End If
+End Sub			
+
+
+Function GetStockRowIndex(ByVal Stockname) as Integer
+Dim i, StocksCount as Integer
+Dim iStartRow as Integer
+Dim oCell as Object
+	StocksCount = GetStocksCount(iStartRow)
+	For i = 1 To StocksCount
+		oCell = oFirstSheet.GetCellByPosition(SBCOLUMNNAME1,iStartRow + i)
+		If oCell.String = Stockname Then
+			GetStockRowIndex = iStartRow + i
+			Exit Function
+		End If
+	Next
+	GetStockRowIndex = -1
+End Function
+
+
+Function GetStockID(StockName as String, Optional iFirstRow as Integer) as String
+Dim CellStockName as String
+Dim i as Integer
+Dim iCount as Integer
+Dim iLastRow as Integer
+	If IsMissing(iFirstRow) Then
+		iFirstRow = GetRowIndex(oFirstSheet, &quot;HiddenRow1&quot;)
+	End If
+	iCount = GetStocksCount(iFirstRow)
+	iLastRow = iFirstRow + iCount
+	For i = iFirstRow To iLastRow
+		CellStockName = oFirstSheet.GetCellByPosition(SBCOLUMNNAME1, i).String
+		If CellStockname = StockName Then
+			Exit For
+		End If
+	Next i
+	If i &gt; iLastRow Then
+		GetStockID() = &quot;&quot;
+	Else
+		If Not IsMissing(iFirstRow) Then
+			iFirstRow = i
+		End If
+		GetStockID() = oFirstSheet.GetCellByPosition(SBCOLUMNID1, i).String
+	End If
+End Function
+
+
+Function CheckDocLocale(LocLanguage as String, LocCountry as String)			
+Dim bIsDocLanguage as Boolean
+Dim bIsDocCountry as Boolean
+	bIsDocLanguage = Instr(1, LocLanguage, sDocLanguage, SBBINARY) &lt;&gt; 0
+	bIsDocCountry = Instr(1, LocCountry, sDocCountry, SBBINARY) &lt;&gt; 0 OR SDocCountry = &quot;&quot;
+	CheckDocLocale = (bIsDocLanguage And bIsDocCountry)
+End Function
+</script:module>

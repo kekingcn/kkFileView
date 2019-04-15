@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="ChangeAllChars" script:language="StarBasic">&apos; This macro replaces all characters in a writer-documet through &quot;x&quot; or &quot;X&quot; signs.
+&apos; It works on the currently activated document.
+Private const UPPERREPLACECHAR = &quot;X&quot;
+Private const LOWERREPLACECHAR = &quot;x&quot;
+
+Private MSGBOXTITLE
+Private NOTSAVEDTEXT
+Private WARNING
+
+Sub ChangeAllChars   &apos; Change all chars in the active document
+Dim oSheets, oPages as Object
+Dim i as Integer
+Const MBYES = 6
+Const MBABORT = 2
+Const MBNO = 7
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	MSGBOXTITLE = &quot;Change All Characters to an &apos;&quot; &amp; UPPERREPLACECHAR &amp; &quot;&apos;&quot;
+	NOTSAVEDTEXT = &quot;This document has already been modified: All characters will be changed to an &quot; &amp; UPPERREPLACECHAR &amp; &quot;&apos;. Should the document be saved now?&quot;
+	WARNING = &quot;This macro changes all characters and numbers to an &apos;&quot; &amp; UPPERREPLACECHAR &amp; &quot;&apos; in this document.&quot;
+
+	On Local Error GoTo NODOCUMENT
+	oDocument = StarDesktop.ActiveFrame.Controller.Model
+	NODOCUMENT:
+	If Err &lt;&gt; 0 Then
+		Msgbox(WARNING &amp; chr(13) &amp; &quot;First, activate a Writer document.&quot; , 16, GetProductName())
+		Exit Sub
+	End If
+	On Local Error Goto 0
+
+	sDocType = GetDocumentType(oDocument)
+
+	If oDocument.IsModified And oDocument.Url &lt;&gt; &quot;&quot; Then
+		Status = MsgBox(NOTSAVEDTEXT, 3+32, MSGBOXTITLE)
+		Select Case Status
+			Case MBYES
+				oDocument.Store
+			Case MBABORT, MBNO
+				End
+		End Select
+	Else
+		Status = MsgBox(WARNING, 3+32, MSGBOXTITLE)
+		If Status = MBNO Or Status = MBABORT Then  &apos; No, Abort
+			End
+		End If
+	End If
+
+	Select Case sDocType
+		Case &quot;swriter&quot;
+			ReplaceAllStrings(oDocument)
+
+		Case Else
+			Msgbox(&quot;This macro only works with Writer documents.&quot;, 16, GetProductName())
+	End Select
+End Sub
+
+
+Sub ReplaceAllStrings(oContainer as Object)
+	ReplaceStrings(oContainer, &quot;[a-z]&quot;, LOWERREPLACECHAR)
+	ReplaceStrings(oContainer, &quot;[à-þ]&quot;, LOWERREPLACECHAR)
+	ReplaceStrings(oContainer, &quot;[A-Z]&quot;, UPPERREPLACECHAR)
+	ReplaceStrings(oContainer, &quot;[À-ß]&quot;, UPPERREPLACECHAR)
+	ReplaceStrings(oContainer, &quot;[0-9]&quot;, UPPERREPLACECHAR)
+End Sub
+
+
+Sub ReplaceStrings(oContainer as Object, sSearchString, sReplaceString  as String)
+	oReplaceDesc = oContainer.createReplaceDescriptor()
+	oReplaceDesc.SearchCaseSensitive = True
+	oReplaceDesc.SearchRegularExpression = True
+	oReplaceDesc.Searchstring = sSearchString
+	oReplaceDesc.ReplaceString = sReplaceString
+	oReplCount = oContainer.ReplaceAll(oReplaceDesc)
+End Sub</script:module>

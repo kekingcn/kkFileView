@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="DBMeta" script:language="StarBasic">REM  *****  BASIC  *****
+Option Explicit
+
+
+Public iCommandTypes() as Integer
+Public CurCommandType as Integer
+Public oDataSource as Object
+Public bEnableBinaryOptionGroup as Boolean
+&apos;Public bSelectContent as Boolean
+
+
+Function GetDatabaseNames(baddFirstListItem as Boolean)
+Dim sDatabaseList()
+	If oDBContext.HasElements Then
+		Dim LocDBList() as String
+		Dim MaxIndex as Integer
+		Dim i as Integer
+		LocDBList = oDBContext.ElementNames()
+		MaxIndex = Ubound(LocDBList())
+		If baddfirstListItem Then
+			ReDim Preserve sDatabaseList(MaxIndex + 1)
+			sDatabaseList(0) = sSelectDatasource
+			a = 1
+		Else
+			ReDim Preserve sDatabaseList(MaxIndex)
+			a = 0
+		End If
+		For i = 0 To MaxIndex
+			sDatabaseList(a) = oDBContext.ElementNames(i)
+			a = a + 1
+		Next i
+	End If
+	GetDatabaseNames() = sDatabaseList()
+End Function
+
+
+Sub GetSelectedDBMetaData(sDBName as String)
+Dim OldsDBname as String
+Dim DBIndex as Integer
+Dim LocList() as String
+&apos;	If bStartUp Then
+&apos;		bStartUp = false
+&apos;		Exit Sub
+&apos;	End Sub
+	ToggleDatabasePage(False)
+	With DialogModel
+			If GetConnection(sDBName) Then
+				If GetDBMetaData() Then
+					LocList() = AddListToList(Array(sSelectDBTable), TableNames())
+					.lstTables.StringItemList() = AddListToList(LocList(), QueryNames())
+&apos;						bSelectContent = True
+					.lstTables.SelectedItems() = Array(0)
+					iCommandTypes() = CreateCommandTypeList()
+					EmptyFieldsListboxes()
+				End If
+			End If
+			bEnableBinaryOptionGroup = False
+			.lstTables.Enabled = True
+			.lblTables.Enabled = True
+&apos;		Else
+&apos;			DialogModel.lstTables.StringItemList = Array(sSelectDBTable)
+&apos;			EmptyFieldsListboxes()
+&apos;		End If
+		ToggleDatabasePage(True)
+	End With
+End Sub
+
+
+Function GetConnection(sDBName as String)
+Dim oInteractionHandler as Object
+Dim bExitLoop as Boolean
+Dim bGetConnection as Boolean
+Dim iMsg as Integer
+Dim Nulllist()
+	If Not IsNull(oDBConnection) Then
+		oDBConnection.Dispose()
+	End If
+	oDataSource = oDBContext.GetByName(sDBName)
+&apos;	If Not oDBContext.hasbyName(sDBName) Then
+&apos;		GetConnection() = False
+&apos;		Exit Function
+&apos;	End If
+	If Not oDataSource.IsPasswordRequired Then
+		oDBConnection = oDBContext.GetByName(sDBName).GetConnection(&quot;&quot;,&quot;&quot;)
+		GetConnection() = True
+	Else
+		oInteractionHandler = createUnoService(&quot;com.sun.star.task.InteractionHandler&quot;)
+		oDataSource = oDBContext.GetByName(sDBName)
+		On Local Error Goto NOCONNECTION
+		Do
+			bExitLoop = True
+			oDBConnection = oDataSource.ConnectWithCompletion(oInteractionHandler)
+			NOCONNECTION:
+			bGetConnection = Err = 0
+			If bGetConnection Then
+				bGetConnection = Not IsNull(oDBConnection)
+				If Not bGetConnection Then
+					Exit Do
+				End If
+			End If
+			If Not bGetConnection Then
+				iMsg = Msgbox (sMsgNoConnection,32 + 2, sMsgWizardName)
+				bExitLoop = iMsg = SBCANCEL
+				Resume CLERROR
+				CLERROR:
+			End If
+		Loop Until bExitLoop
+		On Local Error Goto 0
+		If Not bGetConnection Then
+			DialogModel.lstTables.StringItemList() = Array(sSelectDBTable)
+			DialogModel.lstFields.StringItemList() = NullList()
+			DialogModel.lstSelFields.StringItemList() = NullList()
+		End If
+		GetConnection() = bGetConnection
+	End If
+End Function
+
+
+Function GetDBMetaData()
+	If oDBContext.HasElements Then
+		Tablenames() = oDBConnection.Tables.ElementNames()
+		Querynames() = oDBConnection.Queries.ElementNames()
+		GetDBMetaData = True
+	Else
+		MsgBox(sMsgErrNoDatabase, 64, sMsgWizardName)
+		GetDBMetaData = False
+	End If
+End Function
+
+
+Sub GetTableMetaData()
+Dim iType as Long
+Dim m as Integer
+Dim Found as Boolean
+Dim i as Integer
+Dim sFieldName as String
+Dim n as Integer
+Dim WidthIndex as Integer
+Dim oField as Object
+	MaxIndex = Ubound(DialogModel.lstSelFields.StringItemList())
+	Dim ColumnMap(MaxIndex)as Integer
+	FieldNames() = DialogModel.lstSelFields.StringItemList()
+	&apos; Build a structure which maps the position of a selected field (within the selection) to the the column position within
+	&apos; the table. So we ensure that the controls are placed in the same order the according fields are selected.
+	For i = 0 To Ubound(FieldNames())
+		sFieldName = FieldNames(i)
+		Found = False
+		n = 0
+		While (n&lt; MaxIndex And (Not Found))
+			If (FieldNames(n) = sFieldName) Then
+				Found = True
+				ColumnMap(n) = i
+			End If
+			n = n + 1
+		Wend
+	Next i
+	For n = 0 to MaxIndex
+		sFieldname = FieldNames(n)
+		oField = oColumns.GetByName(sFieldName)
+		iType = oField.Type
+		FieldMetaValues(n,0) = oField.Type
+		FieldMetaValues(n,1) = AssignFieldLength(oField.Precision)
+		FieldMetaValues(n,2) = GetValueoutofList(iType, WidthList(),1, WidthIndex)
+		FieldMetaValues(n,3) = WidthList(WidthIndex,3)
+		FieldMetaValues(n,4) = oField.FormatKey
+		FieldMetaValues(n,5) = oField.DefaultValue
+		FieldMetaValues(n,6) = oField.IsCurrency
+		FieldMetaValues(n,7) = oField.Scale
+&apos;		If oField.Description &lt;&gt; &quot;&quot; Then
+&apos;&apos; Todo: What&apos;s wrong with this line?
+&apos;			Msgbox oField.Helptext
+&apos;		End If
+		FieldMetaValues(n,8) = oField.Description
+	Next
+	ReDim oDBShapeList(MaxIndex) as Object
+	ReDim oTCShapeList(MaxIndex) as Object
+	ReDim oDBModelList(MaxIndex) as Object
+	ReDim oGroupShapeList(MaxIndex) as Object
+End Sub
+
+
+Function GetSpecificFieldNames() as Integer
+Dim n as Integer
+Dim m as Integer
+Dim s as Integer
+Dim iType as Integer
+Dim oField as Object
+Dim MaxIndex as Integer
+Dim EmptyList()
+	If Ubound(DialogModel.lstTables.StringItemList()) &gt; -1 Then
+		FieldNames() = oColumns.GetElementNames()
+		MaxIndex = Ubound(FieldNames())
+		If MaxIndex &lt;&gt; -1 Then
+			Dim ResultFieldNames(MaxIndex)
+			ReDim ImgFieldNames(MaxIndex)
+			m = 0
+			For n = 0 To MaxIndex
+				oField = oColumns.GetByName(FieldNames(n))
+				iType = oField.Type
+				If GetIndexInMultiArray(WidthList(), iType, 0) &lt;&gt; -1 Then
+					ResultFieldNames(m) = FieldNames(n)
+					m = m + 1
+				End If
+				If GetIndexInMultiArray(ImgWidthList(), iType, 0) &lt;&gt; -1 Then
+					ImgFieldNames(s) = FieldNames(n)
+					s = s + 1
+				End If
+			Next n
+			If s &lt;&gt; 0 Then
+				Redim Preserve ImgFieldNames(s-1)
+				bEnableBinaryOptionGroup = True
+			Else
+				bEnableBinaryOptionGroup = False
+			End If
+			If (DialogModel.optBinariesasGraphics.State = 1)  And (s &lt;&gt; 0) Then
+				ResultFieldNames() = AddListToList(ResultFieldNames(), ImgFieldNames())
+			Else
+				Redim Preserve ResultFieldNames(m-1)
+			End If
+			FieldNames() = ResultFieldNames()
+			DialogModel.lstFields.StringItemList = FieldNames()
+			InitializeListboxProcedures(DialogModel, DialogModel.lstFields, DialogModel.lstSelFields)
+		End If
+		GetSpecificFieldNames = MaxIndex
+	Else
+		GetSpecificFieldNames = -1
+	End If
+End Function
+
+
+Sub CreateDBForm()
+	If oDrawPage.Forms.Count = 0 Then
+	  	oDBForm = oDocument.CreateInstance(&quot;com.sun.star.form.component.Form&quot;)
+		oDrawpage.Forms.InsertByIndex (0, oDBForm)
+	Else
+		oDBForm = oDrawPage.Forms.GetByIndex(0)
+	End If
+	oDBForm.Name = &quot;Standard&quot;
+	oDBForm.DataSourceName = sDBName
+	oDBForm.Command = TableName
+	oDBForm.CommandType = CurCommandType
+End Sub
+
+
+Sub AddOrRemoveBinaryFieldsToWidthList()
+Dim LocWidthList()
+Dim MaxIndex as Integer
+Dim OldMaxIndex as Integer
+Dim s as Integer
+Dim n as Integer
+Dim m as Integer
+	If Not bDebug Then
+		On Local Error GoTo WIZARDERROR
+	End If
+	If DialogModel.optBinariesasGraphics.State = 1 Then
+		OldMaxIndex = Ubound(WidthList(),1)
+		If OldMaxIndex = 15 Then
+			MaxIndex = Ubound(WidthList(),1) + Ubound(ImgWidthList(),1) + 1
+			ReDim Preserve WidthList(MaxIndex,4)
+			s = 0
+			For n = OldMaxIndex + 1 To MaxIndex
+				For m = 0 To 3
+					WidthList(n,m) = ImgWidthList(s,m)
+				Next m
+				s = s + 1
+			Next n
+			MergeList(DialogModel.lstFields, ImgFieldNames())
+		End If
+	Else
+		ReDim Preserve WidthList(15, 4)
+		RemoveListItems(DialogModel.lstFields(), DialogModel.lstSelFields(), ImgFieldNames())
+	End If
+	DialogModel.lstSelFields.Tag = True
+WIZARDERROR:
+	If Err &lt;&gt; 0 Then
+		Msgbox(sMsgErrMsg, 16, GetProductName())
+		Resume LOCERROR
+		LOCERROR:
+	End If
+End Sub
+
+
+Function CreateCommandTypeList()
+Dim MaxTableIndex as Integer
+Dim MaxQueryIndex as Integer
+Dim MaxIndex as Integer
+Dim i as Integer
+Dim a as Integer
+	MaxTableIndex = Ubound(TableNames()
+	MaxQueryIndex = Ubound(QueryNames()
+	MaxIndex = MaxTableIndex + MaxQueryIndex + 1
+	If MaxIndex &gt; -1 Then
+		Dim LocCommandTypes(MaxIndex) as Integer
+		For i = 0 To MaxTableIndex
+			LocCommandTypes(i) = com.sun.star.sdb.CommandType.TABLE
+		Next i
+		a = i
+		For i = 0 To MaxQueryIndex
+			LocCommandTypes(a) = com.sun.star.sdb.CommandType.QUERY
+			a = a + 1
+		Next i
+	End If
+	CreateCommandTypeList() = LocCommandTypes()
+End Function
+
+
+Sub GetCurrentMetaValues(Index as Integer)
+	CurFieldType = FieldMetaValues(Index,0)
+	CurFieldLength = FieldMetaValues(Index,1)
+	CurControlType = FieldMetaValues(Index,2)
+	CurControlName = FieldMetaValues(Index,3)
+	CurFormatKey = FieldMetaValues(Index,4)
+	CurDefaultValue = FieldMetaValues(Index,5)
+	CurIsCurrency = FieldMetaValues(Index,6)
+	CurScale = FieldMetaValues(Index,7)
+	CurHelpText = FieldMetaValues(Index,8)
+    CurFieldName = FieldNames(Index)
+End Sub
+
+
+Function AssignFieldLength(FieldLength as Long) as Integer
+	If FieldLength &gt;= 65535 Then
+		AssignFieldLength() = -1
+	Else
+		AssignFieldLength() = FieldLength
+	End If
+End Function
+</script:module>

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Hard" script:language="StarBasic">REM  *****  BASIC  *****
+Option Explicit
+
+
+Sub CreateRangeList()
+Dim MaxIndex as Integer
+	MaxIndex = -1
+	EnableStep1DialogControls(False, False, False)
+	EmptySelection()
+	DialogModel.lblSelection.Label = sCURRRANGES
+	EmptyListbox(DialogModel.lstSelection)
+	oDocument.CurrentController.Select(oSelRanges)
+	If (DialogModel.optSheetRanges.State = 1) AND (DialogModel.chkComplete.State &lt;&gt; 1) Then
+		&apos; Conversion on a sheet?
+		SetStatusLineText(sStsRELRANGES)
+		osheet = oDocument.CurrentController.GetActiveSheet
+		oRanges = osheet.CellFormatRanges.createEnumeration()
+		MaxIndex = AddSheetRanges(oRanges, MaxIndex, oSheet, False)
+		If MaxIndex &gt; -1 Then
+			ReDim Preserve RangeList(MaxIndex)
+		End If
+	Else
+		CreateRangeEnumeration(False)
+		bRangeListDefined = True
+	End If
+	EnableStep1DialogControls(True, True, True)
+	SetStatusLineText(&quot;&quot;)
+End Sub
+
+
+Sub CreateRangeEnumeration(bAutopilot as Boolean)
+Dim i as Integer
+Dim MaxIndex as integer
+Dim sStatustext as String
+	MaxIndex = -1
+	If Not bRangeListDefined Then
+		&apos; Cellranges are not yet defined
+		oSheets = oDocument.Sheets
+		For i = 0 To oSheets.Count-1
+			oSheet = oSheets.GetbyIndex(i)
+			If bAutopilot Then
+				IncreaseStatusValue(SBRELGET/osheets.Count)
+			Else
+				sStatustext = ReplaceString(sStsRELSHEETRANGES,Str(i+1),&quot;%1Number%1&quot;)
+				sStatustext = ReplaceString(sStatusText,oSheets.Count,&quot;%2TotPageCount%2&quot;)
+				SetStatusLineText(sStatusText)
+			End If
+			oRanges = osheet.CellFormatRanges.createEnumeration
+			MaxIndex = AddSheetRanges(oRanges, MaxIndex, oSheet, bAutopilot)
+		Next i
+	Else
+		If Not bAutoPilot Then
+			SetStatusLineText(sStsRELRANGES)
+			&apos; cellranges already defined
+			For i = 0 To Ubound(RangeList())
+				If RangeList(i) &lt;&gt; &quot;&quot; Then
+					AddSingleItemToListBox(DialogModel.lstSelection, RangeList(i))
+				End If
+			Next
+		End If
+	End If
+	If MaxIndex &gt; -1 Then
+		ReDim Preserve RangeList(MaxIndex)
+	Else
+		ReDim RangeList()
+	End If
+	Rangeindex = MaxIndex
+End Sub
+	
+	
+Function AddSheetRanges(oRanges as Object, r as Integer, oSheet as Object, bAutopilot)
+Dim RangeName as String
+Dim AddtoList as Boolean
+Dim iCurStep as Integer
+Dim MaxIndex as Integer
+	iCurStep = DialogModel.Step
+	While oRanges.hasMoreElements
+		oRange = oRanges.NextElement
+		AddToList = CheckFormatType(oRange)
+		If AddToList Then
+			RangeName = RetrieveRangeNamefromAddress(oRange)
+			TotCellCount = TotCellCount + CountRangeCells(oRange)
+			If Not bAutoPilot Then
+				AddSingleItemToListbox(DialogModel.lstSelection, RangeName)
+			End If
+			&apos; The Ranges are only passed to an Array when the whole Document is the basis
+			&apos; Redimension the RangeList Array if necessary
+			MaxIndex = Ubound(RangeList())
+			r = r + 1
+			If r &gt; MaxIndex Then
+				MaxIndex = MaxIndex + SBRANGEUBOUND
+				ReDim Preserve RangeList(MaxIndex)
+			End If
+			RangeList(r) = RangeName
+		End If
+	Wend
+	AddSheetRanges = r
+End Function
+
+
+&apos; adds a section to the collection
+Sub SelectRange()
+Dim i as Integer
+Dim RangeName as String
+Dim SelItem as String
+Dim CurRange as String
+Dim SheetRangeName as String
+Dim DescriptionList() as String
+Dim MaxRangeIndex as Integer
+Dim StatusValue as Integer
+	StatusValue = 0
+	MaxRangeIndex = Ubound(SelRangeList())
+	CurSheetName = oSheet.Name
+	For i = 0 To MaxRangeIndex
+		SelItem = SelRangeList(i)
+		&apos; Is the Range already included in the collection?
+		oRange = RetrieveRangeoutOfRangename(SelItem)
+		TotCellCount = TotCellCount + CountRangeCells(oRange)
+		DescriptionList() = ArrayOutofString(SelItem,&quot;.&quot;,1)
+		SheetRangeName = DeleteStr(DescriptionList(0),&quot;&apos;&quot;)
+		If SheetRangeName = CurSheetName Then
+			oSelRanges.InsertbyName(&quot;&quot;,oRange)
+		End If
+		IncreaseStatusValue(SBRELGET/MaxRangeIndex)
+	Next i
+End Sub
+
+
+Sub ConvertThehardWay(ListboxList(), SwitchFormat as Boolean, bRemove as Boolean)
+Dim i as Integer
+Dim AddCells as Long
+Dim OldStatusValue as Single
+Dim RangeName as String
+Dim LastIndex as Integer
+Dim oSelListbox as Object
+
+	oSelListbox = DialogConvert.GetControl(&quot;lstSelection&quot;)
+	Lastindex = Ubound(ListboxList())
+	If TotCellCount &gt; 0 Then
+		OldStatusValue = StatusValue
+		&apos; hard format
+		For i = 0 To LastIndex
+			RangeName = ListboxList(i)
+			oRange = RetrieveRangeoutofRangeName(RangeName)
+			ConvertCellCurrencies(oRange)
+			If bRemove Then
+				If oSelRanges.HasbyName(RangeName) Then
+					oSelRanges.RemovebyName(RangeName)
+					oDocument.CurrentController.Select(oSelRanges)	
+				End If
+			End If
+			If SwitchFormat Then
+				If oRange.getPropertyState(&quot;NumberFormat&quot;) &lt;&gt; 1 Then
+					&apos; Range is hard formatted
+					SwitchNumberFormat(oRange, oFormats, sEuroSign)
+				End If
+			Else
+				SwitchNumberFormat(oRange, oFormats, sEuroSign)
+			End If
+			AddCells = CountRangeCells(oRange)
+			CurCellCount = AddCells
+			IncreaseStatusValue((CurCellCount/TotCellCount)*(100-OldStatusValue))
+			If bRemove Then
+				RemoveListBoxItemByName(oSelListbox.Model,Rangename)
+			End If
+		Next
+	End If
+End Sub
+
+
+Sub ConvertCellCurrencies(oRange as Object)
+Dim oValues as Object
+Dim oCells as Object
+Dim oCell as Object
+  	oValues = oRange.queryContentCells(com.sun.star.sheet.CellFlags.VALUE)
+	If (oValues.Count &gt; 0) Then
+		oCells = oValues.Cells.createEnumeration
+		While oCells.hasMoreElements
+			oCell = oCells.nextElement
+			ModifyObjectValuewithCurrFactor(oCell)
+		Wend
+	End If
+End Sub
+
+
+Sub ModifyObjectValuewithCurrFactor(oDocObject as Object)
+Dim oDocObjectValue as double
+	oDocObjectValue = oDocObject.Value
+	oDocObject.Value = Round(oDocObjectValue/CurrFactor, 2)
+End Sub
+
+
+Function CheckIfRangeisCurrency(FormatObject as Object)
+Dim oFormatofObject() as Object
+	&apos; Retrieve the Format of the Object
+	On Local Error GoTo NOKEY
+	oFormatofObject() = oFormats.getByKey(FormatObject.NumberFormat)
+	On Local Error GoTo 0			
+	CheckIfRangeIsCurrency = INT(oFormatofObject.Type) AND com.sun.star.util.NumberFormat.CURRENCY
+	Exit Function
+NOKEY:
+	CheckIfRangeisCurrency = False
+	Resume CLERROR
+	CLERROR:
+End Function
+
+
+Function CountColumnsForRow(IndexArray() as String, Row as Integer)
+Dim i as Integer
+Dim NoNulls as Boolean
+	For i = 1 To Ubound(IndexArray,2)
+		If IndexArray(Row,i)= &quot;&quot; Then
+			NoNulls = False
+			Exit For
+		End If
+	Next
+	CountColumnsForRow = i
+End Function
+
+
+Function CountRangeCells(oRange as Object) As Long
+Dim oRangeAddress as Object
+Dim LocCellCount as Long
+	oRangeAddress = oRange.RangeAddress
+	LocCellCount = (oRangeAddress.EndColumn - oRangeAddress.StartColumn + 1) * (oRangeAddress.EndRow - oRangeAddress.StartRow + 1)
+	CountRangeCells = LocCellCount
+End Function</script:module>

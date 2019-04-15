@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TutorialOpen" script:language="StarBasic">REM  *****  BASIC  *****
+Dim myOpenDialog As Object
+Dim oListBox As Object
+Dim files As Object
+Dim oUcb As Object
+Dim oListener As Object
+
+Sub TutorialOpenMain
+	GlobalScope.BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	myOpenDialog = LoadDialog(&quot;Tutorials&quot;,&quot;TutorialOpenDialog&quot;)	
+	init()
+	myOpenDialog.Execute()	
+End Sub
+
+Sub Init
+	On Local Error Goto NOFILE		
+		myOpenDialog.Title = &quot;Tutorials&quot;
+		oListBox = myOpenDialog.GetControl(&quot;ListBox&quot;)	
+		templatePath = GetPathSettings(&quot;Template&quot;,false, 0)
+		Dim tutorialPath As String
+		iPos = InStr(templatePath,&quot;/&quot;)
+		if(iPos &gt; 0) Then
+			tutorialPath = templatePath &amp; &quot;/tutorials&quot;
+		Else
+			tutorialPath = templatePath &amp; &quot;\tutorials&quot;
+		End If
+		oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)	
+		files = oUcb.getFolderContents(tutorialPath,true)	
+		size  = Ubound( files() )	
+		Dim tempFiles(size) As String
+		tempCount = 0
+		For iCount = 0 To size 
+			completPath = files(iCount)
+			oDocInfo = CreateUnoService(&quot;com.sun.star.document.DocumentProperties&quot;)			
+			oDocInfo.Read(completPath)
+			sDocTitle = oDocInfo.Title
+			if(not isNull(sDocTitle) And len(sDocTitle) &gt; 0) Then
+				oListbox.additem(sDocTitle,0)
+				tempFiles(tempCount) = completPath
+				tempCount = tempCount + 1
+			End If
+		Next iCount
+		&apos;printdbgInfo oListbox
+		size = oListbox.ItemCount - 1
+		Dim tempFiles2(size) As String
+		For iCount = 0 To size
+			tempFiles2(iCount)  = tempFiles(iCount) 			
+		Next iCount
+		files() = tempFiles2()
+	Exit Sub	
+	NOFILE:
+	If Err &lt;&gt; 0 Then
+		Msgbox &quot;No file found error!&quot; &amp; CHR(13) &amp; &quot;Path: ...\share\template\...\tutorials\&quot;
+		myOpenDialog.model.Open.enabled = False
+	End If
+End Sub
+
+Sub ItemSelected(oEvent)
+	On Local Error Goto NOFILE		
+		completPath = files(Ubound(files()) - oEvent.Selected)	
+		oTextField = myOpenDialog.GetControl(&quot;Label&quot;) &apos;TextField	
+		oTextField.setText(&quot;&quot;)
+		Dim NoArgs() as new com.sun.star.beans.PropertyValue	
+		oDocInfo = CreateUnoService(&quot;com.sun.star.document.DocumentProperties&quot;)
+		oDocInfo.Read(completPath)
+		sDocDescription = oDocInfo.Description
+		if(not isNull(sDocTitle) And len(sDocDescription) &gt; 0) Then	
+			oTextField.setText(sDocDescription)	
+		Else
+			oTextField.setText(&quot;Not Description!!!.&quot;)		
+		End If
+	Exit Sub
+	NOFILE:
+	If Err &lt;&gt; 0 Then
+		Msgbox &quot;Open file error!&quot;
+	End If	
+End Sub
+
+Sub OpenTutorial(aEvent)
+	completPath = files(Ubound(files()) - oListBox.getSelectedItemPos())	
+	Dim Args(2) as new com.sun.star.beans.PropertyValue
+	Args(1).Name = &quot;MacroExecutionMode&quot;
+	Args(1).Value = com.sun.star.document.MacroExecMode.ALWAYS_EXECUTE
+	Args(2).Name = &quot;AsTemplate&quot;
+	Args(2).Value = true
+
+	StarDesktop.LoadComponentFromURL(completPath,&quot;_default&quot;,0, Args())
+	myOpenDialog.endExecute()
+End Sub
+
+Sub Cancel(aEvent)
+	myOpenDialog.endExecute()
+End Sub
+</script:module>

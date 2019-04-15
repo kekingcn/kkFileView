@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="AutoText" script:language="StarBasic">&apos; BASIC
+Option Explicit
+Dim oDocument as Object
+Dim sDocumentTitle as String
+
+
+Sub Main()
+Dim oTable as Object
+Dim oRows as Object
+Dim oDocuText as Object
+Dim oAutoTextCursor as Object
+Dim oAutoTextContainer as Object
+Dim oAutogroup as Object
+Dim oAutoText as Object
+Dim oCharStyles as Object
+Dim oContentStyle as Object
+Dim oHeaderStyle as Object
+Dim oGroupTitleStyle as Object
+Dim n, m, iAutoCount as Integer
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	sDocumentTitle = &quot;Installed AutoTexts&quot;
+
+	&apos; Open a new empty document
+	oDocument = CreateNewDocument(&quot;swriter&quot;)
+	If Not IsNull(oDocument) Then
+		oDocument.DocumentProperties.Title = sDocumentTitle
+		oDocuText = oDocument.Text
+
+		&apos; Create The Character-templates
+		oCharStyles = oDocument.StyleFamilies.GetByName(&quot;CharacterStyles&quot;)
+
+		&apos; The Characterstyle for the Header that describes the Title of Autotextgroups
+		oGroupTitleStyle = oDocument.createInstance(&quot;com.sun.star.style.CharacterStyle&quot;)
+		oCharStyles.InsertbyName(&quot;AutoTextGroupTitle&quot;, oGroupTitleStyle)
+
+		oGroupTitleStyle.CharWeight = com.sun.star.awt.FontWeight.BOLD
+		oGroupTitleStyle.CharHeight = 14
+
+		&apos; The Characterstyle for the Header that describes the Title of Autotextgroups
+		oHeaderStyle = oDocument.createInstance(&quot;com.sun.star.style.CharacterStyle&quot;)
+		oCharStyles.InsertbyName(&quot;AutoTextHeading&quot;, oHeaderStyle)
+		oHeaderStyle.CharWeight = com.sun.star.awt.FontWeight.BOLD
+
+		&apos; &quot;Ordinary&quot; Table Content
+		oContentStyle = oDocument.createInstance(&quot;com.sun.star.style.CharacterStyle&quot;)
+		oCharStyles.InsertbyName(&quot;TableContent&quot;, oContentStyle)
+
+		oAutoTextContainer = CreateUnoService(&quot;com.sun.star.text.AutoTextContainer&quot;)
+	
+		oAutoTextCursor = oDocuText.CreateTextCursor()
+	
+		oAutoTextCursor.CharStyleName = &quot;AutoTextGroupTitle&quot;
+		&apos; Link the Title with the following table
+		oAutoTextCursor.ParaKeepTogether = True
+
+		For n = 0 To oAutoTextContainer.Count - 1
+			oAutoGroup = oAutoTextContainer.GetByIndex(n)
+
+			oAutoTextCursor.SetString(oAutoGroup.Title)
+			oAutoTextCursor.CollapseToEnd()
+   			oDocuText.insertControlCharacter(oAutoTextCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+			oTable = oDocument.CreateInstance(&quot;com.sun.star.text.TextTable&quot;)
+			&apos; Divide the table if necessary
+			oTable.Split = True
+&apos;			oTable.KeepTogether = False
+			oTable.RepeatHeadLine = True
+			oAutoTextCursor.Text.InsertTextContent(oAutoTextCursor,oTable,False)
+			InsertStringToCell(&quot;AutoText Name&quot;,oTable.GetCellbyPosition(0,0), &quot;AutoTextHeading&quot;)
+			InsertStringToCell(&quot;AutoText Shortcut&quot;,oTable.GetCellbyPosition(1,0), &quot;AutoTextHeading&quot;)
+			&apos; Insert one row at the bottom of the table
+			oRows = oTable.Rows
+			iAutoCount = oAutoGroup.Count
+			For m = 0 To iAutoCount-1
+				&apos; Insert the name and the title of all Autotexts
+				oAutoText = oAutoGroup.GetByIndex(m)
+				InsertStringToCell(oAutoGroup.Titles(m), oTable.GetCellbyPosition(0, m + 1), &quot;TableContent&quot;)
+				InsertStringToCell(oAutoGroup.ElementNames(m), oTable.GetCellbyPosition(1, m + 1), &quot;TableContent&quot;)
+				If m &lt; iAutoCount-1 Then
+					oRows.InsertbyIndex(m + 2,1)
+				End If
+			Next m
+	   		oDocuText.insertControlCharacter(oAutoTextCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+			oAutoTextCursor.CollapseToEnd()
+		Next n
+	End If
+End Sub
+
+
+Sub InsertStringToCell(sCellString as String, oCell as Object, sCellStyle as String)
+Dim oCellCursor as Object
+	oCellCursor = oCell.CreateTextCursor()
+	oCellCursor.CharStyleName = sCellStyle
+	oCell.Text.insertString(oCellCursor,sCellString,False)
+	oDocument.CurrentController.Select(oCellCursor)
+End Sub</script:module>

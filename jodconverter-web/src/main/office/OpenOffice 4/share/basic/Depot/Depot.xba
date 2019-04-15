@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Depot" script:language="StarBasic">Option Explicit
+
+
+Sub Initialize(Optional bChooseMarketPlace as Boolean)
+Dim bEnableHistory as Boolean
+	GlobalScope.BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+&apos;	oMarketModel = GetControlModel(oDocument.Sheets(0), &quot;CmdHistory&quot;)
+&apos;	bEnableHistory = oMarketModel.Enabled
+	ToggleWindow(False)
+	Today = Date()
+	bDebugmode = False
+	oDocument = ThisComponent
+	oController = oDocument.GetCurrentController
+	oSheets = oDocument.Sheets
+	oFirstSheet = oSheets(0)
+	oMovementSheet = oSheets(1)
+	oBankSheet = oSheets(2)
+	oDocFormats = oDocument.NumberFormats
+	oNumberFormatter = CreateUnoService(&quot;com.sun.star.util.NumberFormatter&quot;)
+	oNumberFormatter.AttachNumberFormatsSupplier(oDocument)
+	oDocLocale = oDocument.CharLocale
+	sDocLanguage = oDocLocale.Language
+	sDocCountry = oDocLocale.Country
+	LoadLanguage()
+	ToggleWindow(True)
+&apos;	oMarketModel.Enabled = bEnableHistory
+	If Not IsMissing(bChooseMarketPlace) Then
+		If bChoosemarketPlace Then
+			ChooseMarket()
+		End If
+	Else
+		ChooseMarket()
+	End If
+	If Not IsMissing(bChooseMarketPlace) Then
+		If bChooseMarketPlace Then	
+			oMarketModel.Enabled = bEnableMarket	
+			oInternetModel.Enabled = bEnableInternet
+		End If
+	End If
+End Sub
+
+
+Sub Buy()
+	Initialize(True)
+ 	FillListbox(DlgTransaction.GetControl(&quot;lstBuyStocks&quot;), TransactTitle(SBDIALOGBUY), False)
+	SetupTransactionControls(SBDIALOGBUY)
+	EnableTransactionControls(False)
+	DlgTransaction.Execute()
+End Sub
+
+
+Sub Sell()
+	Initialize(True)
+	If FillListbox(DlgTransaction.GetControl(&quot;lstSellStocks&quot;), TransactTitle(SBDIALOGSELL), True) Then
+		SetupTransactionControls(SBDIALOGSELL)
+		EnableTransactionControls(False)
+		DlgTransaction.Execute()
+	End If
+End Sub
+
+
+Sub Reset()
+Dim TransactionCount as Integer
+Dim StockCount, iStartRow, i as Integer
+Dim oRows, oRange as Object
+Dim StockName as String
+	Initialize(True)
+	&apos; Delete transactions and reset overview
+	If MsgBox(sMsgDeleteAll, SBMSGYESNO+SBMSGQUESTION+SBMSGDEFAULTBTN2, sMsgAuthorization) = 6 Then
+		&apos; Assumption: If and only if there is an overview, then there are transactions, too
+		UnprotectSheets(oSheets)
+		StockCount = GetStocksCount(iStartRow)
+
+		For i = 1 To StockCount
+			StockName = oFirstSheet.GetCellbyPosition(SBCOLUMNNAME1, iStartRow + i).String
+			If oSheets.HasbyName(StockName) Then
+				oSheets.RemoveByName(StockName)
+			End If
+		Next
+		oDocument.AddActionLock
+		RemoveStockRows(oFirstSheet, iStartRow + 1, StockCount)
+		TransactionCount = GetTransactionCount(iStartRow)
+		RemoveStockRows(oMovementSheet, iStartRow + 2, TransactionCount)
+		ProtectSheets(oSheets)
+		oDocument.RemoveActionLock
+	End If
+End Sub
+
+
+Sub TransactionOk
+Dim Sold as Long
+Dim RestQuantity, Value, PartialValue, Profit
+Dim iNewRow as Integer, iRow as Integer
+Dim iStockRow as Long, iRestQuantity as Long
+Dim oNameCell as Object
+Dim CellStockName as String, SelStockName as String
+Dim CurRate as Double
+Dim TransactDate as Date
+Dim LocStockName as String
+	&apos; Check for rate entered
+	If TransactModel.txtRate.Value = 0 Then
+		If TransactModel.Step = SBDIALOGBUY Then
+			If MsgBox(sMsgFreeStock, SBMSGYESNO+SBMSGQUESTION, sMsgConfirm)=7 Then
+				Exit Sub
+			End If
+		Else
+			If MsgBox(sMsgTotalLoss, SBMSGYESNO+SBMSGQUESTION, sMsgConfirm)=7 Then
+				Exit Sub
+			End If
+		End If
+	End If
+	CurRate = TransactModel.txtRate.Value
+	TransactDate = CDateFromISO(TransactModel.txtDate.Date)
+	DlgTransaction.EndExecute()
+	UnprotectSheets(oSheets)
+
+	iNewRow = DuplicateRow(oMovementSheet, &quot;HiddenRow3&quot;)
+
+	If TransactModel.Step = SBDIALOGBUY Then
+		CellStockName = TransactModel.lstBuyStocks.Text
+		If Instr(1,CellStockName,&quot;$&quot;) &lt;&gt; 0 Then
+			CellStockName = &quot;&apos;&quot; &amp; CellStockName &amp; &quot;&apos;&quot;
+		End If
+		oMovementSheet.GetCellByPosition(SBCOLUMNNAME2, iNewRow).String = CellStockName
+		oMovementSheet.GetCellByPosition(SBCOLUMNQUANTITY2, iNewRow).Value = TransactModel.txtQuantity.Value
+	Else
+		CellStockName = DlgTransaction.GetControl(&quot;lstSellStocks&quot;).GetSelectedItem()
+		oMovementSheet.GetCellByPosition(SBCOLUMNNAME2, iNewRow).String = CellStockName
+		oMovementSheet.GetCellByPosition(SBCOLUMNQUANTITY2, iNewRow).Value = -TransactModel.txtQuantity.Value
+	End If
+	
+	oMovementSheet.GetCellByPosition(SBCOLUMNDATE2, iNewRow).Value = CDateFromISO(TransactModel.txtDate.Date)
+	oMovementSheet.GetCellByPosition(SBCOLUMNRATE2, iNewRow).Value = TransactModel.txtRate.Value
+	oMovementSheet.GetCellByPosition(SBCOLUMNPROVPERCENT2, iNewRow).Value = TransactModel.txtCommission.EffectiveValue
+	oMovementSheet.GetCellByPosition(SBCOLUMNPROVMIN2, iNewRow).Value = TransactModel.txtMinimum.Value
+	oMovementSheet.GetCellByPosition(SBCOLUMNPROVFIX2, iNewRow).Value = TransactModel.txtFix.Value
+	
+	&apos; Buy stocks: Update overview for new stocks
+	If TransactModel.Step = SBDIALOGBUY Then
+		iStockRow = GetStockRowIndex(CellStockName)
+		If iStockRow = -1 Then
+			iNewRow = DuplicateRow(oFirstSheet, &quot;HiddenRow2&quot;)
+			oFirstSheet.GetCellByPosition(SBCOLUMNNAME1, iNewRow).String = CellStockName
+			oFirstSheet.GetCellByPosition(SBCOLUMNID1, iNewRow).String = TransactModel.txtStockID.Text
+			iStockRow = GetStockRowIndex(CellStockName)
+		End If
+	&apos; Sell stocks: Get transaction value, then update Transaction sheet
+	ElseIf TransactModel.Step = SBDIALOGSELL Then
+		Profit = oMovementSheet.GetCellByPosition(SBCOLUMNPROCEEDS2, iNewRow).Value
+		Value = Profit
+		Sold = TransactModel.txtQuantity.Value
+		SelStockName = DlgTransaction.GetControl(&quot;lstSellStocks&quot;).GetSelectedItem()
+		&apos; Go to first name
+		If TransactMode = FIFO Then
+			iRow = SBROWFIRSTTRANSACT2
+		Else
+			iRow = iNewRow-1
+		End If
+		
+		&apos; Check that no transaction after split date exists else cancel split
+		Do While Sold &gt; 0
+			oNameCell = oMovementSheet.GetCellByPosition(SBCOLUMNNAME2, iRow)
+			CellStockName = oNameCell.String
+			If CellStockName = SelStockName Then
+				&apos; Update transactions: Note quantity sold
+				RestQuantity = oMovementSheet.GetCellByPosition(SBCOLUMNQTYREST2, iRow).Value
+				&apos; If there still is a rest left ...
+				If RestQuantity &gt; 0 Then
+					If RestQuantity &lt; Sold Then
+						&apos; Recalculate profit of new transaction
+						Profit = Profit - oMovementSheet.GetCellByPosition(SBCOLUMNPRCREST2, iRow).Value	
+						AddValueToCellContent(SBCOLUMNQTYSOLD2, iRow, RestQuantity)
+						PartialValue = RestQuantity / Sold * Value
+						AddValueToCellContent(SBCOLUMNREALPROC2, iRow, PartialValue)
+						Sold = Sold - RestQuantity
+						Value = Value - PartialValue
+					Else
+						&apos; Recalculate profit of neTransactModel.lstBuyStocks.Textw transaction
+						PartialValue = oMovementSheet.GetCellByPosition(SBCOLUMNPRCREST2, iRow).Value	
+						Profit = Profit - PartialValue/RestQuantity * Sold
+						&apos; Update sold shares cell
+						AddValueToCellContent(SBCOLUMNQTYSOLD2, iRow, Sold)
+						&apos; Update sales turnover cell
+						AddValueToCellContent(SBCOLUMNREALPROC2, iRow, Value)
+						&apos; Update variables for rest of transaction
+						Sold = 0
+						Value = 0
+					End If
+				End If
+			End If
+			iRow = iRow + TransactMode
+		Loop
+		oMovementSheet.GetCellByPosition(SBCOLUMNREALPROFIT2,iNewRow).Value = Profit
+		iStockRow = GetStockRowIndex(SelStockName)	
+		iRestQuantity = oFirstSheet.GetCellbyPosition(SBCOLUMNQUANTITY1, iStockRow).Value
+&apos;		If iRestQuantity = 0 Then
+&apos;			If oSheets.HasbyName(SelStockName) Then
+&apos;				oSheets.RemoveByName(SelStockName)
+&apos;			End If
+&apos;		Else
+			
+&apos;		End If
+	End If
+	InsertCurrentValue(CurRate, iStockRow,TransactDate)	
+	ProtectSheets(oSheets)
+End Sub
+
+
+Sub SelectStockname(aEvent as Object)
+Dim iCurRow as Integer
+Dim CurStockName as String
+	With TransactModel
+		&apos; Find row with stock name
+		If TransactModel.Step = SBDIALOGBUY Then
+			CurStockName = .lstBuyStocks.Text
+			iCurRow = GetStockRowIndex(CurStockName)
+			.txtQuantity.ValueMax = 10000000
+		Else
+			Dim ListBoxList() as String
+			ListBoxList() = GetSelectedListboxItems(aEvent.Source.getModel())
+			CurStockName = ListBoxList(0)
+&apos;			CurStockName = DlgTransaction.GetControl(aEvent.Source.getModel.Name).GetSelectedItem()
+			iCurRow = GetStockRowIndex(CurStockName)
+			Dim fdouble as Double
+			fdouble = oFirstSheet.GetCellByPosition(SBCOLUMNQUANTITY1, iCurRow).Value
+			.txtQuantity.Value = fdouble
+			.txtQuantity.ValueMax = oFirstSheet.GetCellByPosition(SBCOLUMNQUANTITY1, iCurRow).Value
+			.txtRate.Value = oFirstSheet.GetCellbyPosition(SBCOLUMNRATE1, iCurRow).Value
+		End If
+		.txtStockID.Enabled = .Step = SBDIALOGBUY
+		.lblStockID.Enabled = .Step = SBDIALOGBUY	
+		&apos; Default settings for quantity and rate
+		.txtStockID.Text = GetStockID(CurStockName, iCurRow)
+	End With
+	EnableTransactionControls(CurStockName &lt;&gt; &quot;&quot;)
+	TransactModel.cmdGoOn.DefaultButton = True
+End Sub
+
+
+
+Sub HandleStocks(Mode as Integer, oDialog as Object)
+Dim DividendPerShare, DividendTotal, RestQuantity, OldValue
+Dim SelStockName, CellStockName as String
+Dim oNameCell as Object, oDateCell as Object
+Dim iRow as Integer
+Dim oDividendCell as Object
+Dim Amount
+Dim OldNumber, NewNumber as Integer
+Dim  NoteText as String
+Dim TotalStocksCount as Long
+Dim oModel as Object
+	oDocument.AddActionLock
+	oDialog.EndExecute()
+	oModel = oDialog.Model
+	SelStockName = DlgStockRates.GetControl(&quot;lstStockNames&quot;).GetSelectedItem()
+	Select Case Mode
+		Case HANDLEDIVIDEND
+			Dim bTakeTotal as Boolean
+			&apos; Update transactions: Enter dividend paid for all Buy transactions not sold completely
+			bTakeTotal = oModel.optTotal.State = 1
+			If bTakeTotal Then
+				DividendTotal = oModel.txtDividend.Value
+				iRow = GetStockRowIndex(SelStockName)
+				TotalStocksCount = oFirstSheet.GetCellByPosition(SBCOLUMNQUANTITY1,iRow).Value
+				DividendPerShare = DividendTotal/TotalStocksCount
+			Else
+				DividendPerShare = oModel.txtDividend.Value
+			End If
+
+		Case HANDLESPLIT
+			&apos; Store entered values in variables
+			OldNumber = oModel.txtOldRate.Value
+			NewNumber = oModel.txtNewRate.Value
+			SplitDate = CDateFromISO(oModel.txtDate.Date)
+			iRow = SBROWFIRSTTRANSACT2
+			NoteText = cSplit &amp; SplitDate &amp; &quot;, &quot; &amp; oModel.txtOldRate.Value &amp; oModel.lblColon.Label &amp; oModel.txtNewRate.Value
+			Do 
+				oNameCell = oMovementSheet.GetCellByPosition(SBCOLUMNNAME2, iRow)
+				CellStockName = oNameCell.String
+				If CellStockName = SelStockName Then
+					oDateCell = oMovementSheet.GetCellByPosition(SBCOLUMNDATE2, iRow)
+					If oDateCell.Value &gt;= SplitDate Then
+						MsgBox sMsgWrongExchangeDate, SBMSGOK + SBMSGSTOP, sMsgError				
+						Exit Sub
+					End If
+				End If
+				iRow = iRow + 1
+			Loop Until CellStockName = &quot;&quot;
+	End Select
+	iRow = SBROWFIRSTTRANSACT2
+	UnprotectSheets(oSheets)
+	Do
+		oNameCell = oMovementSheet.GetCellByPosition(SBCOLUMNNAME2, iRow)
+		CellStockName = oNameCell.String
+		If CellStockName = SelStockName Then
+			Select Case Mode
+				Case HANDLEDIVIDEND
+					RestQuantity = oMovementSheet.GetCellByPosition(SBCOLUMNQTYREST2, iRow).Value
+					If RestQuantity &gt; 0 Then
+						oDividendCell = oMovementSheet.GetCellByPosition(SBCOLUMNDIVIDEND2, iRow)
+						OldValue = oDividendCell.Value
+						oDividendCell.Value = OldValue + RestQuantity * DividendPerShare
+					End If
+				Case HANDLESPLIT
+					oDateCell = oMovementSheet.GetCellByPosition(SBCOLUMNDATE2, iRow)
+				 	SplitCellValue(oMovementSheet, NewNumber, OldNumber, SBCOLUMNQUANTITY2, iRow, NoteText)			
+		 			SplitCellValue(oMovementSheet, OldNumber, NewNumber, SBCOLUMNRATE2, iRow, &quot;&quot;)
+				 	SplitCellValue(oMovementSheet, NewNumber, OldNumber, SBCOLUMNQTYSOLD2, iRow, &quot;&quot;)
+			End Select
+		End If
+		iRow = iRow + 1
+	Loop Until CellStockName = &quot;&quot;
+	If Mode = HANDLESPLIT Then
+	 	CalculateChartafterSplit(SelStockName, NewNumber, OldNumber, NoteText, SplitDate)
+	End If
+	oDocument.CalculateAll()
+	ProtectSheets(oSheets)
+	oDocument.RemoveActionLock
+End Sub
+
+
+Sub CancelStockRate()
+	DlgStockRates.EndExecute()
+End Sub
+
+
+Sub CancelTransaction()
+	DlgTransaction.EndExecute()
+End Sub
+
+
+Sub CommitStockRate()
+Dim CurStep as Integer
+	CurStep = StockRatesModel.Step
+	Select Case CurStep
+		Case 1
+			&apos; Check for quantity entered
+			If StockRatesModel.txtDividend.Value = 0 Then
+				MsgBox sMsgNoDividend, SBMSGSTOP+SBMSGSTOP, sMsgError
+				Exit Sub
+			End If
+			HandleStocks(HANDLEDIVIDEND, DlgStockRates)
+		Case 2
+			HandleStocks(HANDLESPLIT, DlgStockRates)
+		Case 3
+			InsertCompanyHistory()
+	End Select
+End Sub
+
+
+Sub EnableTransactionControls(bEnable as Boolean)
+	With TransactModel
+		.lblQuantity.Enabled = bEnable
+		.txtQuantity.Enabled = bEnable
+		.lblRate.Enabled = bEnable
+		.txtRate.Enabled = bEnable
+		.lblDate.Enabled = bEnable
+		.txtDate.Enabled = bEnable
+		.lblCommission.Enabled = bEnable
+		.txtCommission.Enabled = bEnable
+		.lblMinimum.Enabled = bEnable
+		.txtMinimum.Enabled = bEnable
+		.lblFix.Enabled = bEnable
+		.txtFix.Enabled = bEnable
+		If TransactModel.Step = SBDIALOGSELL Then
+			.cmdGoOn.Enabled = Ubound(TransactModel.lstSellStocks.SelectedItems()) &gt; -1
+			DlgTransaction.GetControl(&quot;lstSellStocks&quot;).SetFocus()
+		Else
+			.cmdGoOn.Enabled = TransactModel.lstBuyStocks.Text &lt;&gt; &quot;&quot;
+			DlgTransaction.GetControl(&quot;lstBuyStocks&quot;).SetFocus()
+		End If
+		If bEnable Then
+			TransactModel.cmdGoOn.DefaultButton = True
+		End If
+	End With
+End Sub		
+
+
+Sub SetupTransactionControls(CurStep as Integer)
+	DlgReference = DlgTransaction
+	With TransactModel
+		.txtDate.Date = CDateToISO(Date())
+		.txtDate.DateMax = CDateToISO(Date())
+		.txtStockID.Enabled = False
+		.lblStockID.Enabled = False
+		.lblStockID.Label = sCurStockIDLabel
+		.txtRate.CurrencySymbol = sCurCurrency
+		.txtFix.CurrencySymbol = sCurCurrency
+		.Step = CurStep
+	End With
+	DlgTransaction.Title = TransactTitle(CurStep)
+	CellValuetoControl(oBankSheet, TransactModel.txtCommission, &quot;ProvisionPercent&quot;)
+	CellValuetoControl(oBankSheet, TransactModel.txtMinimum, &quot;ProvisionMinimum&quot;)
+	CellValuetoControl(oBankSheet, TransactModel.txtFix, &quot;ProvisionFix&quot;)
+End Sub	
+
+
+Sub AddShortCuttoControl()
+Dim SelCompany as String
+Dim iRow, SelIndex as Integer
+	SelIndex = DlgTransaction.GetControl(&quot;lstBuyStocks&quot;).GetSelectedItemPos()
+	If SelIndex &lt;&gt; -1 Then
+		SelCompany = TransactModel.lstBuyStocks.StringItemList(SelIndex)
+		iRow = GetStockRowIndex(SelCompany)
+		If iRow &lt;&gt; -1 Then
+			TransactModel.txtStockID.Text = oFirstSheet.GetCellByPosition(SBCOLUMNID1,iRow).String
+			TransactModel.txtRate.Value = oFirstSheet.GetCellByPosition(SBCOLUMNRATE1,iRow).Value
+		Else
+			TransactModel.txtStockID.Text = &quot;&quot;
+			TransactModel.txtRate.Value = 0
+		End If
+	Else
+		TransactModel.txtStockID.Text = &quot;&quot;
+		TransactModel.txtRate.Value = 0
+	End If
+End Sub
+
+
+Sub OpenStockRatePage(aEvent)
+Dim CurStep as Integer
+	Initialize(True)
+	CurStep = aEvent.Source.Model.Tag
+	If FillListbox(DlgStockRates.GetControl(&quot;lstStockNames&quot;), StockRatesTitle(CurStep), True) Then
+		StockRatesModel.Step = CurStep
+		ToggleStockRateControls(False, CurStep)	
+		InitializeStockRatesControls(CurStep)
+		DlgStockRates.Execute()
+	End If
+End Sub
+
+
+Sub SelectStockNameForRates()
+Dim StockName as String
+	StockName = DlgStockRates.GetControl(&quot;lstStockNames&quot;).GetSelectedItem()
+	If StockName &lt;&gt; &quot;&quot; Then
+		StockRatesModel.txtStockID.Text = GetStockID(StockName)
+		ToggleStockRateControls(True, StockRatesModel.Step)
+	End If
+	StockRatesModel.cmdGoOn.DefaultButton = True
+End Sub
+
+
+Sub ToggleStockRateControls(bDoEnable as Boolean, CurStep as Integer)	
+	With StockRatesModel
+		.lblStockID.Enabled = False
+		.txtStockID.Enabled = False
+		.cmdGoOn.Enabled = Ubound(StockRatesModel.lstStockNames.SelectedItems()) &lt;&gt; -1		
+		Select Case CurStep
+			Case 1
+				.optPerShare.Enabled = bDoEnable
+				.optTotal.Enabled = bDoEnable
+				.lblDividend.Enabled = bDoEnable
+				.txtDividend.Enabled = bDoEnable
+			Case 2
+				.lblExchangeRate.Enabled = bDoEnable
+				.lblDate.Enabled = bDoEnable
+				.lblColon.Enabled = bDoEnable
+				.txtOldRate.Enabled = bDoEnable
+				.txtNewRate.Enabled = bDoEnable
+				.txtDate.Enabled = bDoEnable
+			Case 3
+				.lblStartDate.Enabled = bDoEnable
+				.lblEndDate.Enabled = bDoEnable
+				.txtStartDate.Enabled = bDoEnable
+				.txtEndDate.Enabled = bDoEnable
+				.hlnInterval.Enabled = bDoEnable
+				.optDaily.Enabled = bDoEnable
+				.optWeekly.Enabled = bDoEnable
+		End Select
+	End With
+End Sub
+
+
+Sub InitializeStockRatesControls(CurStep as Integer)
+	DlgReference = DlgStockRates
+	DlgStockRates.Title = StockRatesTitle(CurStep)
+	With StockRatesModel
+		.txtStockID.Text = &quot;&quot;
+		.lblStockID.Label = sCurStockIDLabel
+		Select Case CurStep
+			Case 1
+				.txtDividend.Value = 0
+				.optPerShare.State = 1
+				.txtDividend.CurrencySymbol = sCurCurrency
+			Case 2
+				.txtOldRate.Value = 1
+				.txtNewRate.Value = 1
+				.txtDate.Date = CDateToISO(Date())
+			Case 3
+				.txtStartDate.DateMax = CDateToISO(CDate(Date())-1)
+				.txtEndDate.DateMax = CDateToISO(CDate(Date())-1)
+				.txtStartDate.Date = CDateToISO(CDate(Date())-8)
+				.txtEndDate.Date = CDateToISO(CDate(Date())-1)
+				.optDaily.State = 1
+		End Select
+	End With
+End Sub
+</script:module>

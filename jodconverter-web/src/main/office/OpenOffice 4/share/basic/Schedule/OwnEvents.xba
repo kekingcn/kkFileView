@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="OwnEvents" script:language="StarBasic">Option Explicit
+
+Public Const SBDATEUNDEFINED as Double = -98765432.1
+
+Sub Main
+	Call CalAutopilotTable()
+End Sub
+
+
+Sub CalSaveOwnData()
+Dim FileName as String
+Dim FileChannel as Integer
+Dim i as Integer
+	If bCalOwnDataChanged Then
+		FileName = GetPathSettings(&quot;UserConfig&quot;, False) &amp; &quot;/&quot; &amp; &quot;DATE.DAT&quot;
+		SaveDataToFile(FileName, DlgCalModel.lstOwnData.StringItemList())
+	End If
+End Sub
+
+
+Sub CalLoadOwnData()
+Dim FileName as String
+Dim LocList() as String
+	FileName = GetPathSettings(&quot;UserConfig&quot;, False) &amp; &quot;/DATE.DAT&quot;
+	If LoadDataFromFile(FileName, LocList()) Then
+		DlgCalModel.lstOwnData.StringItemList() = LocList()
+	End If
+End Sub
+
+
+Function CalCreateDateStrOfInput() as String
+Dim DateStr as String
+Dim CurOwnMonth as Integer
+Dim CurOwnDay as Integer
+Dim FormatDateStr as String
+Dim dblDate as Double
+Dim iLen as Integer
+Dim iDiff as Integer
+Dim i as Integer
+	CurOwnDay = DlgCalModel.txtOwnEventDay.Value
+	CurOwnMonth = DlgCalendar.GetControl(&quot;lstOwnEventMonth&quot;).getselectedItemPos() + 1
+	DateStr = DateSerial(0, CurOwnMonth, CurOwnDay)
+	dblDate = CDbl(DateValue(DateStr))
+	FormatDateStr = oNumberFormatter.convertNumberToString(lDateFormat, dblDate)
+	iLen = Len(FormatDateStr)
+	iDiff = 16 - iLen
+	If iDiff &gt; 0 Then
+		For i = 0 To iDiff
+			FormatDateStr = FormatDateStr + &quot; &quot;
+		Next i
+	Else
+    	MsgBox(&quot;Invalid DateFormat: &apos;FormatDateStr&apos;&quot;, 16, sWizardTitle)
+		CalCreateDateStrOfInput = &quot;&quot;
+    	Exit Function
+    End If
+	DateStr = FormatDateStr  &amp; Trim(DlgCalModel.txtEvent.Text)
+	CalCreateDateStrOfInput = DateStr
+End Function
+
+
+
+Sub CalcmdInsertData()
+Dim MaxIndex as Integer
+Dim UIDateStr as String
+Dim DateStr as String
+Dim NewDate as Double
+Dim bInserted as Boolean
+Dim i as Integer
+Dim CurOwnDay as Integer
+Dim CurOwnMonth as Integer
+Dim CurOwnYear as Integer
+	CurOwnDay = DlgCalModel.txtOwnEventDay.Value
+	CurOwnMonth = DlgCalendar.GetControl(&quot;lstOwnEventMonth&quot;).getSelectedItemPos() + 1
+	UIDateStr = CalCreateDateStrOfInput()
+	NewDate = GetDateUnits(CurOwnDay, CurOwnMonth, UIDateStr)
+	If UIDateStr = &quot;&quot; Then Exit Sub
+	MaxIndex = Ubound(DlgCalModel.lstOwnData.StringItemList())
+	If MaxIndex = -1 Then
+		DlgCalendar.GetControl(&quot;lstOwnData&quot;).AddItem(UIDateStr, 0 + 1)
+		bInserted = True
+	Else
+		Dim CurEvMonth(MaxIndex) as Integer
+		Dim CurEvDay(MaxIndex) as Integer
+		Dim CurDate(MaxIndex) as Double
+		&apos; same Years(&quot;no years&quot; are treated like same years) -&gt; delete old entry and insert new one
+		i = 0
+		Do
+			CurDate(i) = GetSelectedDateUnits(CurEvDay(i), CurEvMonth(i), i)
+			If CurDate(i) = NewDate Then
+				DlgCalendar.GetControl(&quot;lstOwnData&quot;).RemoveItems(i,1)
+				DlgCalendar.GetControl(&quot;lstOwnData&quot;).AddItem(UIDateStr, i)
+				bInserted = True
+			End If
+			i = i + 1
+		Loop Until bInserted Or i &gt; MaxIndex
+		
+		&apos;  There exists already a date
+		If Not bInserted Then
+			i = 0
+			Do
+				If (CurEvMonth(i) = CurOwnMonth) And (CurEvDay(i) = CurOwnDay) Then
+					bInserted = True
+					DlgCalendar.GetControl(&quot;lstOwnData&quot;).RemoveItems(i,1)
+					DlgCalendar.GetControl(&quot;lstOwnData&quot;).AddItem(UIDateStr, i)
+				End If
+				i = i + 1
+			Loop Until bInserted Or i &gt; MaxIndex
+		End If
+	
+		&apos; The date is not yet existing and will will be sorted in accordingly
+		If Not bInserted Then
+			i = 0
+			Do 
+				bInserted = NewDate &lt; CurDate(i)
+				If bInserted Then
+					DlgCalendar.GetControl(&quot;lstOwnData&quot;).AddItem(UIDateStr, i)
+				End If
+				i = i + 1
+			Loop Until bInserted Or i &gt; MaxIndex
+			If Not bInserted  Then
+				DlgCalendar.GetControl(&quot;lstOwnData&quot;).AddItem(UIDateStr, MaxIndex+1)
+			End If
+		End If
+	End If
+	bCalOwnDataChanged = True
+	Call CalClearInputMask()
+End Sub
+
+
+Function GetSelectedDateUnits(CurEvDay as Integer, CurEvMonth as Integer, i as Integer) as Double
+Dim dblDate as Double
+Dim DateStr as String
+	dblDate = SBDATEUNDEFINED
+	DateStr = DlgCalModel.lstOwnData.StringItemList(i)
+	If DateStr &lt;&gt; &quot;&quot; Then
+		dblDate = GetDateUnits(CurEvDay, CurEvMonth, DateStr)
+	End If
+	GetSelectedDateUnits() = dblDate
+End Function
+
+
+Function GetDateUnits(CurEvDay as Integer, CurEvMonth as Integer, DateStr) as Double
+Dim bEventOnce as String
+Dim LocDateStr as String
+Dim dblDate as Double
+Dim lDate as Long
+	LocDateStr = Mid(DateStr, 1, 15)
+	LocDateStr = Trim(LocDateStr)
+
+	bEventOnce = True
+	On Local Error Goto NODATEFORMAT
+	dblDate = oNumberFormatter.convertStringToNumber(lDateFormat, LocDateStr)
+	lDate = Clng(dblDate)
+	CurEvMonth = Month(lDate) 
+	CurEvDay = Day(lDate)
+	GetDateUnits() = dblDate
+	Exit Function
+	GetDateUnits() =SBDATEUNDEFINED
+NODATEFORMAT:
+	If Err &lt;&gt; 0 Then
+	    MsgBox(&quot;Error: Date : &apos; &quot; &amp;  LocDateStr &amp; &quot;&apos; is not a valid Format&quot;, 16, sWizardTitle)
+		Resume GETRETURNVALUE
+GETRETURNVALUE:
+		GetDateUnits() = SBDATEUNDEFINED
+	End If
+End Function
+
+
+Function CalGetNameOfEvent(ByVal ListIndex as Integer) as String
+Dim NameStr as String
+	NameStr = DlgCalModel.lstOwnData.StringItemList(ListIndex)
+	NameStr = Trim (Mid(NameStr, 16))
+	CalGetNameOfEvent = NameStr
+End Function
+
+
+
+Sub CheckInsertedDates(Optional ControlEnvironment, Optional CurOwnMonth as Integer)
+Dim EvYear as Long
+Dim EvDay as Long
+Dim sEvMonth as String
+Dim bDoEnable as Boolean
+Dim ListboxName as String
+Dim MaxValue as Integer
+	If Not IsMissing(ControlEnvironment) Then
+		CurOwnMonth = DlgCalendar.GetControl(&quot;lstOwnEventMonth&quot;).getSelectedItemPos()+1
+	End If
+	EvYear =  Year(Now())
+	bDoEnable = CurOwnMonth &lt;&gt; 0
+	If bDoEnable Then
+		MaxValue = CalMaxDayInMonth(EvYear, CurOwnMonth)
+		DlgCalModel.txtOwnEventDay.ValueMax = MaxValue
+		If DlgCalModel.txtOwnEventDay.Value &gt; MaxValue Then
+			DlgCalModel.txtOwnEventDay.Value = MaxValue
+		End If
+		bDoEnable = DlgCalModel.txtOwnEventDay.Value &lt;&gt; 0
+		If bDoEnable Then
+			bDoEnable = Ubound(DlgCalModel.lstOwnEventMonth.SelectedItems()) &gt; -1
+			If bDoEnable Then
+				bDoEnable = LTrim(DlgCalModel.txtEvent.Text) &lt;&gt; &quot;&quot;
+			End If
+		End If
+	End If
+	DlgCalModel.cmdInsert.Enabled = bDoEnable
+End Sub
+
+
+Sub GetOwnMonth()
+Dim EvYear as Integer
+Dim CurOwnMonth as Integer
+	EvYear = year(now())
+	CurOwnMonth = DlgCalModel.lstOwnEventMonth.SelectedItems(0) + 1
+	DlgCalModel.txtOwnEventDay.ValueMax = CalMaxDayInMonth(EvYear, CurOwnMonth)
+	CheckInsertedDates(,CurOwnMonth)
+End Sub</script:module>

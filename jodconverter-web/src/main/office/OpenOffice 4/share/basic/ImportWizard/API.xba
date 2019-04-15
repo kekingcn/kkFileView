@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="API" script:language="StarBasic">Declare Function RegOpenKeyEx Lib &quot;advapi32.dll&quot; Alias &quot;RegOpenKeyExA&quot; _
+ (ByVal hKey As Long, _
+  ByVal lpSubKey As String, _
+  ByVal ulOptions As Long, _
+  ByVal samDesired As Long, _
+  phkResult As Long) As Long
+
+Declare Function RegQueryValueExString Lib &quot;advapi32.dll&quot; Alias &quot;RegQueryValueExA&quot; _
+ (ByVal hKey As Long, _
+  ByVal lpValueName As String, _
+  ByVal lpReserved As Long, _
+  lpType As Long, _
+  lpData As String, _
+  lpcbData As Long) As Long
+
+Declare Function RegQueryValueExLong Lib &quot;advapi32.dll&quot; Alias &quot;RegQueryValueExA&quot; _
+ (ByVal hKey As Long, _
+  ByVal lpValueName As String, _
+  ByVal lpReserved As Long, _
+  lpType As Long, _
+  lpData As Long, _
+  lpcbData As Long) As Long
+
+Declare Function RegQueryValueExNULL Lib &quot;advapi32.dll&quot; Alias &quot;RegQueryValueExA&quot; _
+ (ByVal hKey As Long, _
+  ByVal lpValueName As String, _
+  ByVal lpReserved As Long, _
+  lpType As Long, _
+  ByVal lpData As Long, _
+  lpcbData As Long) As Long
+
+Declare Function RegCloseKeyA Lib &quot;advapi32.dll&quot; Alias &quot;RegCloseKey&quot; _
+ (ByVal hKey As Long) As Long
+
+
+Public Const HKEY_CLASSES_ROOT = &amp;H80000000
+Public Const HKEY_CURRENT_USER = &amp;H80000001
+Public Const HKEY_LOCAL_MACHINE = &amp;H80000002
+Public Const HKEY_USERS = &amp;H80000003
+Public Const KEY_ALL_ACCESS = &amp;H3F
+Public Const REG_OPTION_NON_VOLATILE = 0
+Public Const REG_SZ As Long = 1
+Public Const REG_DWORD As Long = 4
+Public Const ERROR_NONE = 0
+Public Const ERROR_BADDB = 1
+Public Const ERROR_BADKEY = 2
+Public Const ERROR_CANTOPEN = 3
+Public Const ERROR_CANTREAD = 4
+Public Const ERROR_CANTWRITE = 5
+Public Const ERROR_OUTOFMEMORY = 6
+Public Const ERROR_INVALID_PARAMETER = 7
+Public Const ERROR_ACCESS_DENIED = 8
+Public Const ERROR_INVALID_PARAMETERS = 87
+Public Const ERROR_NO_MORE_ITEMS = 259
+&apos;Public Const KEY_READ = &amp;H20019
+
+
+Function OpenRegKey(lBaseKey As Long, sKeyName As String) As Variant
+Dim LocKeyValue
+Dim hKey as Long
+Dim lRetValue as Long
+	lRetValue = RegOpenKeyEx(lBaseKey, sKeyName, 0, KEY_ALL_ACCESS, hKey)
+&apos;	lRetValue = QueryValue(HKEY_LOCAL_MACHINE, &quot;SOFTWARE\Microsoft\Outlook Express\5.0\Default Settings&quot;, &quot;Revocation Checking&quot;)
+	If hKey &lt;&gt; 0 Then
+	    RegCloseKeyA (hKey)
+	End If
+	OpenRegKey() = lRetValue
+End Function
+
+
+Function GetDefaultPath(CurOffice as Integer) As String
+Dim sPath as String
+Dim Index as Integer
+	Select Case Wizardmode
+		Case SBMICROSOFTMODE
+			Index = Applications(CurOffice,SBAPPLKEY)
+			If GetGUIType = 1 Then &apos; Windows
+			    sPath = QueryValue(HKEY_LOCAL_MACHINE, sKeyName(Index), sValueName(Index))
+			Else
+				sPath = &quot;&quot;
+			End If
+			If sPath = &quot;&quot; Then
+				sPath = SOWorkPath
+			End If
+			GetDefaultPath = sPath
+		Case SBXMLMODE
+			GetDefaultPath = SOWorkPath
+	End Select
+End Function
+
+
+Function GetTemplateDefaultPath(Index as Integer) As String
+Dim sLocTemplatePath as String
+Dim sLocProgrampath as String
+Dim Progstring as String
+Dim PathList()as String
+Dim Maxindex as Integer
+Dim OldsLocTemplatePath
+Dim sTemplateKeyName as String
+Dim sTemplateValueName as String
+	On Local Error Goto NOVAlIDSYSTEMPATH
+	Select Case WizardMode
+		Case SBMICROSOFTMODE
+			If GetGUIType = 1 Then &apos; Windows
+				&apos; Template directory of Office 97
+				sTemplateKeyName = &quot;Software\Microsoft\Office\8.0\Common\FileNew\LocalTemplates&quot;
+				sTemplateValueName = &quot;&quot;
+				sLocTemplatePath = QueryValue(HKEY_LOCAL_MACHINE, sTemplateKeyName, sTemplateValueName)
+
+				If sLocTemplatePath = &quot;&quot; Then
+					&apos; Retrieve the template directory of Office 2000
+					&apos; Unfortunately there is no existing note about the template directory in
+					&apos; the whole registry.
+
+					&apos; Programdirectory of Office 2000
+					sTemplateKeyName = &quot;Software\Microsoft\Office\9.0\Common\InstallRoot&quot;
+					sTemplateValueName = &quot;Path&quot;
+				    sLocProgrampath = QueryValue(HKEY_LOCAL_MACHINE, sTemplateKeyName, sTemplateValueName)
+					If sLocProgrampath &lt;&gt; &quot;&quot; Then
+					    If Right(sLocProgrampath, 1) &lt;&gt; &quot;\&quot; Then
+					    	sLocProgrampath = sLocProgrampath &amp; &quot;\&quot;
+			   			End If
+						PathList() = ArrayoutofString(sLocProgrampath,&quot;\&quot;,Maxindex)
+						Progstring = &quot;\&quot; &amp; PathList(Maxindex-1) &amp; &quot;\&quot;
+						OldsLocTemplatePath = DeleteStr(sLocProgramPath,Progstring)
+
+						sLocTemplatePath = OldsLocTemplatePath &amp; &quot;\&quot; &amp; &quot;Templates&quot;
+
+						&apos; Does this subdirectory &quot;templates&quot; exist at all
+            			If oUcb.Exists(sLocTemplatePath) Then
+							&apos; If Not the main directory of the office is the base
+							sLocTemplatePath = OldsLocTemplatePath
+						End If
+					Else
+						sLocTemplatePath = SOWorkPath
+					End If
+				End If
+				GetTemplateDefaultPath = ConvertToUrl(sLocTemplatePath)
+			Else
+				GetTemplateDefaultPath = SOWorkPath
+			End If
+		Case SBXMLMODE
+			If Index = 3 Then
+				&apos; Helper Application with no templates
+				GetTemplateDefaultPath = SOWorkPath
+			Else
+				GetTemplateDefaultPath = SOTemplatePath
+			End If
+	End Select
+NOVALIDSYSTEMPATH:
+	If Err &lt;&gt; 0 Then
+		GetTemplateDefaultPath() = SOWorkPath
+		Resume ONITGOES
+		ONITGOES:
+	End If	
+End Function
+
+
+Function QueryValueEx(ByVal lhKey, ByVal szValueName As String, vValue As String) As Long
+Dim cch As Long
+Dim lrc As Long
+Dim lType As Long
+Dim lValue As Long
+Dim sValue As String
+Dim Empty
+
+    On Error GoTo QueryValueExError
+
+    lrc = RegQueryValueExNULL(lhKey, szValueName, 0&amp;, lType, 0&amp;, cch)
+    If lrc &lt;&gt; ERROR_NONE Then Error 5
+    Select Case lType
+        Case REG_SZ:
+            sValue = String(cch, 0)
+            lrc = RegQueryValueExString(lhKey, szValueName, 0&amp;, lType, sValue, cch)
+            If lrc = ERROR_NONE Then
+                vValue = Left$(sValue, cch)
+            Else
+                vValue = Empty
+            End If
+        Case REG_DWORD:
+            lrc = RegQueryValueExLong(lhKey, szValueName, 0&amp;, lType, lValue, cch)
+            If lrc = ERROR_NONE Then
+                vValue = lValue
+            End If
+        Case Else
+            lrc = -1
+    End Select
+QueryValueExExit:
+    QueryValueEx = lrc
+    Exit Function
+QueryValueExError:
+    Resume QueryValueExExit
+End Function
+
+
+Function QueryValue(BaseKey As Long, sKeyName As String, sValueName As String) As Variant
+Dim lRetVal As Long         &apos; Returnvalue API-Call
+Dim hKey As Long            &apos; Onen key handle
+Dim vValue As String        &apos; Key value
+
+    lRetVal = RegOpenKeyEx(BaseKey, sKeyName, 0, KEY_ALL_ACCESS, hKey)
+    lRetVal = QueryValueEx(hKey, sValueName, vValue)
+    RegCloseKeyA (hKey)
+    QueryValue = vValue
+End Function
+</script:module>

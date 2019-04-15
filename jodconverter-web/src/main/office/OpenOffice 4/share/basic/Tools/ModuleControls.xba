@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="ModuleControls" script:language="StarBasic">Option Explicit
+
+Public DlgOverwrite as Object
+Public Const SBOVERWRITEUNDEFINED as Integer = 0
+Public Const SBOVERWRITECANCEL as Integer = 2
+Public Const SBOVERWRITEQUERY as Integer = 7
+Public Const SBOVERWRITEALWAYS as Integer = 6
+Public Const SBOVERWRITENEVER as Integer = 8
+Public iGeneralOverwrite as Integer
+
+
+
+&apos; Accepts the name of a control and returns the respective control model as object
+&apos; The Container can either be a whole document or a specific sheet of a Calc-Document
+&apos; &apos;CName&apos; is the name of the Control
+Function getControlModel(oContainer as Object, CName as String)
+Dim aForm, oForms as Object
+Dim i as Integer
+	oForms = oContainer.Drawpage.GetForms
+	For i = 0 To oForms.Count-1
+		aForm = oForms.GetbyIndex(i)
+		If aForm.HasByName(CName) Then
+			GetControlModel = aForm.GetbyName(CName)
+			Exit Function
+		End If
+	Next i
+	Msgbox(&quot;No Control with the name &apos;&quot; &amp; CName &amp; &quot;&apos; found&quot; , 16, GetProductName())
+End Function
+
+
+
+&apos; Gets the Shape of a Control( e. g. to reset the size or Position of the control
+&apos; Parameters:
+&apos; The &apos;oContainer&apos; is the Document or a specific sheet of a Calc - Document
+&apos; &apos;CName&apos; is the Name of the Control
+Function GetControlShape(oContainer as Object,CName as String)
+Dim i as integer
+Dim aShape as Object
+	For i = 0 to oContainer.DrawPage.Count-1
+		aShape = oContainer.DrawPage(i)
+		If HasUnoInterfaces(aShape, &quot;com.sun.star.drawing.XControlShape&quot;) then
+			If ashape.Control.Name = CName then
+				GetControlShape = aShape
+				exit Function
+			End If
+		End If
+	Next
+End Function
+
+
+&apos; Returns the View of a Control
+&apos; Parameters:
+&apos; The &apos;oContainer&apos; is the Document or a specific sheet of a Calc - Document
+&apos; The &apos;oController&apos; is always directly attached to the Document
+&apos; &apos;CName&apos; is the Name of the Control
+Function getControlView(oContainer , oController as Object, CName as String) as Object
+Dim aForm, oForms, oControlModel as Object
+Dim i as Integer
+	oForms = oContainer.DrawPage.Forms
+	For i = 0 To oForms.Count-1
+		aForm = oforms.GetbyIndex(i)
+		If aForm.HasByName(CName) Then
+			oControlModel = aForm.GetbyName(CName)
+			GetControlView = oController.GetControl(oControlModel)
+			Exit Function
+		End If
+	Next i
+	Msgbox(&quot;No Control with the name &apos;&quot; &amp; CName &amp; &quot;&apos; found&quot; , 16, GetProductName())
+End Function
+
+
+
+&apos; Parameters:
+&apos; The &apos;oContainer&apos; is the Document or a specific sheet of a Calc - Document
+&apos; &apos;CName&apos; is the Name of the Control
+Function DisposeControl(oContainer as Object, CName as String) as Boolean
+Dim aControl as Object
+
+	aControl = GetControlModel(oContainer,CName)
+	If not IsNull(aControl) Then
+		aControl.Dispose()
+		DisposeControl = True
+	Else
+		DisposeControl = False
+	End If
+End Function
+
+
+&apos; Returns a sequence of a group of controls like option buttons or checkboxes
+&apos; The &apos;oContainer&apos; is the Document or a specific sheet of a Calc - Document
+&apos; &apos;sGroupName&apos; is the Name of the Controlgroup
+Function GetControlGroupModel(oContainer as Object, sGroupName as String )
+Dim aForm, oForms As Object
+Dim aControlModel() As Object
+Dim i as integer
+
+	oForms = oContainer.DrawPage.Forms
+	For i = 0 To oForms.Count-1
+		aForm = oForms(i)
+		If aForm.HasbyName(sGroupName) Then
+			aForm.GetGroupbyName(sGroupName,aControlModel)
+			GetControlGroupModel = aControlModel
+			Exit Function
+		End If
+	Next i
+	Msgbox(&quot;No Controlgroup with the name &apos;&quot; &amp; sGroupName &amp; &quot;&apos; found&quot; , 16, GetProductName())
+End Function
+
+
+&apos; Returns the Referencevalue of a group of e.g. option buttons or check boxes
+&apos; &apos;oControlGroup&apos; is a sequence of the Control objects
+Function GetRefValue(oControlGroup() as Object)
+Dim i as Integer
+	For i = 0 To Ubound(oControlGroup())
+&apos;		oControlGroup(i).DefaultState = oControlGroup(i).State
+		If oControlGroup(i).State Then
+			GetRefValue = oControlGroup(i).RefValue
+			exit Function
+		End If
+	Next
+	GetRefValue() = -1
+End Function
+
+
+Function GetRefValueOfControlGroup(oContainer as Object, GroupName as String)
+Dim oOptGroup() as Object
+Dim iRef as Integer
+	oOptGroup() = GetControlGroupModel(oContainer, GroupName)
+	iRef = GetRefValue(oOptGroup())
+	GetRefValueofControlGroup = iRef
+End Function
+
+
+Function GetOptionGroupValue(oContainer as Object, OptGroupName as String) as Boolean
+Dim oRulesOptions() as Object
+	oRulesOptions() = GetControlGroupModel(oContainer, OptGroupName)
+	GetOptionGroupValue = oRulesOptions(0).State
+End Function
+
+
+
+Function WriteOptValueToCell(oSheet as Object, OptGroupName as String, iCol as Integer, iRow as Integer) as Boolean
+Dim bOptValue as Boolean
+Dim oCell as Object
+	bOptValue = GetOptionGroupValue(oSheet, OptGroupName)
+	oCell = oSheet.GetCellByPosition(iCol, iRow)
+	oCell.SetValue(ABS(CInt(bOptValue)))
+	WriteOptValueToCell() = bOptValue
+End Function
+
+
+Function LoadDialog(Libname as String, DialogName as String, Optional oLibContainer)
+Dim oLib as Object
+Dim oLibDialog as Object
+Dim oRuntimeDialog as Object
+	If IsMissing(oLibContainer ) then
+		oLibContainer = DialogLibraries
+	End If
+	oLibContainer.LoadLibrary(LibName)
+	oLib = oLibContainer.GetByName(Libname)
+	oLibDialog = oLib.GetByName(DialogName)
+	oRuntimeDialog = CreateUnoDialog(oLibDialog)
+	LoadDialog() = oRuntimeDialog
+End Function
+
+
+Sub GetFolderName(oRefModel as Object)
+Dim oFolderDialog as Object
+Dim iAccept as Integer
+Dim sPath as String
+Dim InitPath as String
+Dim RefControlName as String
+Dim oUcb as object
+	&apos;Note: The following services have to be called in the following order
+	&apos; because otherwise Basic does not remove the FileDialog Service
+	oFolderDialog = CreateUnoService(&quot;com.sun.star.ui.dialogs.FolderPicker&quot;)
+	oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	InitPath = ConvertToUrl(oRefModel.Text)
+	If InitPath = &quot;&quot; Then
+		InitPath = GetPathSettings(&quot;Work&quot;)
+	End If
+	If oUcb.Exists(InitPath) Then
+		oFolderDialog.SetDisplayDirectory(InitPath)
+	End If
+	iAccept = oFolderDialog.Execute()
+	If iAccept = 1 Then
+		sPath = oFolderDialog.GetDirectory()
+		If oUcb.Exists(sPath) Then
+			oRefModel.Text = ConvertFromUrl(sPath)
+		End If
+	End If
+End Sub
+
+
+Sub GetFileName(oRefModel as Object, Filternames())
+Dim oFileDialog as Object
+Dim iAccept as Integer
+Dim sPath as String
+Dim InitPath as String
+Dim RefControlName as String
+Dim oUcb as object
+&apos;Dim ListAny(0)
+	&apos;Note: The following services have to be called in the following order
+	&apos; because otherwise Basic does not remove the FileDialog Service
+	oFileDialog = CreateUnoService(&quot;com.sun.star.ui.dialogs.FilePicker&quot;)
+	oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	&apos;ListAny(0) = com.sun.star.ui.dialogs.TemplateDescription.FILEOPEN_SIMPLE
+	&apos;oFileDialog.initialize(ListAny())
+	AddFiltersToDialog(FilterNames(), oFileDialog)
+	InitPath = ConvertToUrl(oRefModel.Text)
+	If InitPath = &quot;&quot; Then
+		InitPath = GetPathSettings(&quot;Work&quot;)
+	End If
+	If oUcb.Exists(InitPath) Then
+		oFileDialog.SetDisplayDirectory(InitPath)
+	End If
+	iAccept = oFileDialog.Execute()
+	If iAccept = 1 Then
+		sPath = oFileDialog.Files(0)
+		If oUcb.Exists(sPath) Then
+			oRefModel.Text = ConvertFromUrl(sPath)
+		End If
+	End If
+	oFileDialog.Dispose()
+End Sub
+
+
+Function StoreDocument(oDocument as Object, FilterNames() as String, DefaultName as String, DisplayDirectory as String, Optional iAddProcedure as Integer) as String
+Dim NoArgs() as New com.sun.star.beans.PropertyValue
+Dim oStoreProperties(0) as New com.sun.star.beans.PropertyValue
+Dim oStoreDialog as Object
+Dim iAccept as Integer
+Dim sPath as String
+Dim ListAny(0) as Long
+Dim UIFilterName as String
+Dim FilterName as String
+Dim FilterIndex as Integer
+	ListAny(0) = com.sun.star.ui.dialogs.TemplateDescription.FILESAVE_AUTOEXTENSION_PASSWORD
+	oStoreDialog = CreateUnoService(&quot;com.sun.star.ui.dialogs.FilePicker&quot;)
+	oStoreDialog.Initialize(ListAny())
+	AddFiltersToDialog(FilterNames(), oStoreDialog)
+	oStoreDialog.SetDisplayDirectory(DisplayDirectory)
+	oStoreDialog.SetDefaultName(DefaultName)
+	oStoreDialog.setValue(com.sun.star.ui.dialogs.ExtendedFilePickerElementIds.CHECKBOX_AUTOEXTENSION,0, true)
+
+	iAccept = oStoreDialog.Execute()
+	If iAccept = 1 Then
+		sPath = oStoreDialog.Files(0)
+		UIFilterName = oStoreDialog.GetCurrentFilter()
+		FilterIndex = IndexInArray(UIFilterName, FilterNames())
+		FilterName = FilterNames(FilterIndex,2)
+		If Not IsMissing(iAddProcedure) Then
+			Select Case iAddProcedure
+				Case 1
+					CommitLastDocumentChanges(sPath)
+			End Select
+		End If
+		On Local Error Goto NOSAVING
+		If FilterName = &quot;&quot;  Then
+			&apos; Todo: Catch the case that a document that has to be overwritten is writeportected (e.g. it is open)
+			oDocument.StoreAsUrl(sPath, NoArgs())
+		Else
+			oStoreProperties(0).Name = &quot;FilterName&quot;
+			oStoreProperties(0).Value = FilterName
+			oDocument.StoreAsUrl(sPath, oStoreProperties())
+		End If
+	End If
+	oStoreDialog.dispose()
+	StoreDocument() = sPath
+	Exit Function
+NOSAVING:
+	If Err &lt;&gt; 0 Then
+&apos;		Msgbox(&quot;Document cannot be saved under &apos;&quot; &amp; ConvertFromUrl(sPath) &amp; &quot;&apos;&quot;, 48, GetProductName())
+		sPath = &quot;&quot;
+		oStoreDialog.dispose()
+		Resume NOERROR
+		NOERROR:
+	End If
+End Function
+
+
+Sub AddFiltersToDialog(FilterNames() as String, oDialog as Object)
+Dim i as Integer
+Dim MaxIndex as Integer
+Dim ViewFiltername as String
+Dim oProdNameAccess as Object
+Dim sProdName as String
+	oProdNameAccess = GetRegistryKeyContent(&quot;org.openoffice.Setup/Product&quot;)
+	sProdName = oProdNameAccess.getByName(&quot;ooName&quot;)
+	MaxIndex = Ubound(FilterNames(), 1)
+	For i = 0 To MaxIndex
+		Filternames(i,0) = ReplaceString(Filternames(i,0), sProdName,&quot;%productname%&quot;)
+		oDialog.AppendFilter(FilterNames(i,0), FilterNames(i,1))
+	Next i
+	oDialog.SetCurrentFilter(FilterNames(0,0)
+End Sub
+
+
+Sub SwitchMousePointer(oWindowPeer as Object, bDoEnable as Boolean)
+Dim oWindowPointer as Object
+	oWindowPointer = CreateUnoService(&quot;com.sun.star.awt.Pointer&quot;)
+	If bDoEnable Then
+		oWindowPointer.SetType(com.sun.star.awt.SystemPointer.ARROW)
+	Else
+		oWindowPointer.SetType(com.sun.star.awt.SystemPointer.WAIT)
+	End If
+	oWindowPeer.SetPointer(oWindowPointer)
+End Sub
+
+
+Sub ShowOverwriteAllDialog(FilePath as String, sTitle as String)
+Dim QueryString as String
+Dim LocRetValue as Integer
+Dim lblYes as String
+Dim lblNo as String
+Dim lblYesToAll as String
+Dim lblCancel as String
+Dim OverwriteModel as Object
+	If InitResources(GetProductName(), &quot;dbw&quot;) Then
+		QueryString = GetResText(507)
+		QueryString = ReplaceString(QueryString, ConvertFromUrl(FilePath), &quot;&lt;PATH&gt;&quot;)
+		If Len(QueryString) &gt; 190 Then
+			QueryString = DeleteStr(QueryString, &quot;.&lt;BR&gt;&quot;)
+		End If
+		QueryString = ReplaceString(QueryString, chr(13), &quot;&lt;BR&gt;&quot;)
+		lblYes = GetResText(508)
+		lblYesToAll = GetResText(509)
+		lblNo = GetResText(510)
+		lblCancel = GetResText(511)
+		DlgOverwrite = LoadDialog(&quot;Tools&quot;, &quot;DlgOverwriteAll&quot;)
+		DlgOverwrite.Title = sTitle
+		OverwriteModel = DlgOverwrite.Model
+		OverwriteModel.cmdYes.Label = lblYes
+		OverwriteModel.cmdYesToAll.Label = lblYesToAll
+		OverwriteModel.cmdNo.Label = lblNo
+		OverwriteModel.cmdCancel.Label = lblCancel
+		OverwriteModel.lblQueryforSave.Label = QueryString
+		OverwriteModel.cmdNo.DefaultButton = True
+		DlgOverwrite.GetControl(&quot;cmdNo&quot;).SetFocus()
+		iGeneralOverwrite = 999
+		LocRetValue = DlgOverwrite.execute()
+		If iGeneralOverwrite = 999 Then
+			iGeneralOverwrite = SBOVERWRITECANCEL
+		End If
+		DlgOverwrite.dispose()
+	Else
+		iGeneralOverwrite = SBOVERWRITECANCEL
+	End If
+End Sub
+
+
+Sub SetOVERWRITEToQuery()
+	iGeneralOverwrite = SBOVERWRITEQUERY
+	DlgOverwrite.EndExecute()
+End Sub
+
+
+Sub SetOVERWRITEToAlways()
+	iGeneralOverwrite = SBOVERWRITEALWAYS
+	DlgOverwrite.EndExecute()
+End Sub
+
+
+Sub SetOVERWRITEToNever()
+	iGeneralOverwrite = SBOVERWRITENEVER
+	DlgOverwrite.EndExecute()
+End Sub
+</script:module>

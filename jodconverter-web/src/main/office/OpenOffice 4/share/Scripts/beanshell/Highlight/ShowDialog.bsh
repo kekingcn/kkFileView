@@ -1,0 +1,144 @@
+/**************************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ *************************************************************/
+// this script serves as an example of how to launch a Basic Dialog
+// from a script
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.script.provider.XScriptContext;
+import com.sun.star.lang.XMultiComponentFactory;
+import com.sun.star.lang.EventObject;
+import com.sun.star.uno.Type;
+import com.sun.star.uno.AnyConverter;
+import com.sun.star.text.XTextDocument;
+import com.sun.star.beans.PropertyValue;
+import com.sun.star.script.XLibraryContainer;
+import com.sun.star.awt.*;
+import com.sun.star.util.*;
+
+boolean tryLoadingLibrary( xmcf, context, name )
+{
+    try 
+    {
+        obj = xmcf.createInstanceWithContext(
+               "com.sun.star.script.Application" + name + "LibraryContainer",
+               context.getComponentContext());
+
+        xLibraryContainer = (XLibraryContainer)
+                    UnoRuntime.queryInterface(XLibraryContainer.class, obj);
+
+        System.err.println("Got XLibraryContainer");
+
+        serviceObj = context.getComponentContext().getValueByName(
+                    "/singletons/com.sun.star.util.theMacroExpander");
+                                                                                    
+        xme = (XMacroExpander) AnyConverter.toObject(
+                    new Type(XMacroExpander.class), serviceObj);
+                                                                                    
+        bootstrapName = "bootstraprc";
+        if (System.getProperty("os.name").startsWith("Windows")) 
+        {
+            bootstrapName = "bootstrap.ini";
+        }
+
+        libURL = xme.expandMacros(
+                "${$OOO_BASE_DIR/program/" + bootstrapName + "::BaseInstallation}" +
+                    "/share/basic/ScriptBindingLibrary/" +
+                    name.toLowerCase() + ".xlb/");
+
+        System.err.println("libURL is: " + libURL);
+
+        xLibraryContainer.createLibraryLink(
+            "ScriptBindingLibrary", libURL, false);
+
+        System.err.println("liblink created");
+
+    } 
+    catch (com.sun.star.uno.Exception e) 
+    {
+        System.err.println("Got an exception loading lib: " + e.getMessage());
+        return false;
+    }
+    return true;
+}
+
+// get the XMultiComponentFactory from the XSCRIPTCONTEXT
+XMultiComponentFactory xmcf =
+    XSCRIPTCONTEXT.getComponentContext().getServiceManager();
+
+Object[] args = new Object[1];
+args[0] = XSCRIPTCONTEXT.getDocument();
+
+Object obj;
+try {
+    // try to create an instance of the DialogProvider
+    obj = xmcf.createInstanceWithArgumentsAndContext(
+        "com.sun.star.awt.DialogProvider", args,
+        XSCRIPTCONTEXT.getComponentContext());
+    /*
+    obj = xmcf.createInstanceWithContext(
+        "com.sun.star.awt.DialogProvider",
+        XSCRIPTCONTEXT.getComponentContext());
+     */
+}
+catch (com.sun.star.uno.Exception e) {
+    System.err.println("Error getting DialogProvider object");
+    return 0;
+}
+
+// get the XDialogProvider interface from the object created above
+XDialogProvider xDialogProvider = (XDialogProvider)
+    UnoRuntime.queryInterface(XDialogProvider.class, obj);
+
+System.err.println("Got DialogProvider, now get dialog");
+
+try {
+    // try to create the Highlight dialog (found in the ScriptBindingLibrary)
+    findDialog = xDialogProvider.createDialog("vnd.sun.star.script:" +
+        "ScriptBindingLibrary.Highlight?location=application");
+    if( findDialog == null )
+    {
+        if (tryLoadingLibrary(xmcf, XSCRIPTCONTEXT, "Dialog") == false ||
+            tryLoadingLibrary(xmcf, XSCRIPTCONTEXT, "Script") == false)
+        {
+            System.err.println("Error loading ScriptBindingLibrary");
+            return 0;
+        }
+        else
+        {
+            // try to create the Highlight dialog (found in the ScriptBindingLibrary)
+            findDialog = xDialogProvider.createDialog("vnd.sun.star.script:" +
+                "ScriptBindingLibrary.Highlight?location=application");
+        }
+    }
+}
+catch (java.lang.Exception e) {
+    System.err.println("Got exception on first creating dialog: " +
+    e.getMessage());
+}
+
+// execute the dialog in a new thread (so that this script can finish)
+Thread t = new Thread() {
+    public void run() {
+        findDialog.execute();
+    }
+};
+t.start();
+
+return 0;

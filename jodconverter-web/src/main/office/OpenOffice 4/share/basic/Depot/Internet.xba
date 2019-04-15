@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Internet" script:language="StarBasic">REM  *****  BASIC  *****
+Option Explicit
+Public sNewSheetName as String
+
+Function CheckHistoryControls()
+Dim bLocGoOn as Boolean
+Dim Firstdate as Date
+Dim LastDate as Date
+	LastDate = CDateFromISO(StockRatesModel.txtEndDate.Date)
+	FirstDate = CDateFromISO(StockRatesModel.txtStartDate.Date)
+	bLocGoOn = FirstDate &lt;&gt; 0 And LastDate &lt;&gt; 0
+	If bLocGoOn Then
+		If FirstDate &gt;= LastDate Then
+			Msgbox(sMsgStartDatebeforeEndDate,16, sProductname)
+			bLocGoOn = False
+		End If
+	End If
+	CheckHistoryControls = bLocGoon
+End Function
+
+ 
+Sub InsertCompanyHistory()
+Dim StockName as String
+Dim CurRow as Integer
+Dim sMsgInternetError as String
+Dim CurRate as Double
+Dim oCell as Object
+Dim sStockID as String
+Dim ChartSource as String	
+	If CheckHistoryControls() Then
+		StartDate = CDateFromISO(StockRatesModel.txtStartDate.Date)
+		EndDate = CDateFromISO(StockRatesModel.txtEndDate.Date)
+		DlgStockRates.EndExecute()
+		If StockRatesModel.optDaily.State = 1 Then
+			sInterval = &quot;d&quot;
+			iStep = 1
+		ElseIf StockRatesModel.optWeekly.State = 1 Then
+			sInterval = &quot;w&quot;
+			iStep = 7
+			StartDate = StartDate - WeekDay(StartDate) + 2
+			EndDate = EndDate - WeekDay(EndDate) + 2
+		End If
+		iEndDay = Day(EndDate)
+		iEndMonth = Month(EndDate)
+		iEndYear = Year(EndDate)
+		iStartDay = Day(StartDate)
+		iStartMonth = Month(StartDate)
+		iStartYear = Year(StartDate)
+&apos;		oDocument.AddActionLock()
+		UnprotectSheets(oSheets)
+		InitializeStatusline(&quot;&quot;, 10, 1)
+		oBackGroundSheet = oSheets.GetbyName(&quot;Background&quot;)	
+		StockName = DlgStockRates.GetControl(&quot;lstStockNames&quot;).GetSelectedItem()
+		CurRow = GetStockRowIndex(Stockname)
+		sStockID = oFirstSheet.GetCellByPosition(SBCOLUMNID1, CurRow).String
+		ChartSource = ReplaceString(HistoryChartSource, sStockID, &quot;&lt;StockID&gt;&quot;)
+		ChartSource = ReplaceString(ChartSource, iStartDay, &quot;&lt;StartDay&gt;&quot;)
+		ChartSource = ReplaceString(ChartSource, cStr(iStartMonth-1), &quot;&lt;StartMonth&gt;&quot;)
+		ChartSource = ReplaceString(ChartSource, iStartYear, &quot;&lt;StartYear&gt;&quot;)	
+		ChartSource = ReplaceString(ChartSource, iEndDay, &quot;&lt;EndDay&gt;&quot;)
+		ChartSource = ReplaceString(ChartSource, cStr(iEndMonth-1), &quot;&lt;EndMonth&gt;&quot;)
+		ChartSource = ReplaceString(ChartSource, iEndYear, &quot;&lt;EndYear&gt;&quot;)
+		ChartSource = ReplaceString(ChartSource, sInterval, &quot;&lt;interval&gt;&quot;)
+		oStatusLine.SetValue(2)
+		If GetCurrentRate(ChartSource, CurRate, 1) Then
+			oStatusLine.SetValue(8)
+			UpdateValue(StockName, Today, CurRate)
+			oStatusLine.SetValue(9)
+			UpdateChart(StockName)
+			oStatusLine.SetValue(10)
+		Else
+			sMsgInternetError = Stockname &amp; &quot;: &quot; &amp; sNoInternetDataAvailable &amp; chr(13) &amp; sCheckInternetSettings
+			Msgbox(sMsgInternetError, 16, sProductname)
+		End If
+		ProtectSheets(oSheets)
+		oStatusLine.End
+		If oSheets.HasbyName(sNewSheetName) Then
+			oController.ActiveSheet = oSheets.GetByName(sNewSheetName)
+		End If
+&apos;		oDocument.RemoveActionLock()	
+	End If
+End Sub
+
+
+
+Sub InternetUpdate()
+Dim i as Integer
+Dim StocksCount as Integer
+Dim iStartRow as Integer
+Dim sUrl as String
+Dim StockName as String		
+Dim CurRate as Double
+Dim oCell as Object
+Dim sMsgInternetError as String
+Dim sStockID as String
+Dim ChartSource as String
+&apos;	oDocument.AddActionLock()
+	Initialize(True)
+	UnprotectSheets(oSheets)
+	StocksCount = GetStocksCount(iStartRow)
+	InitializeStatusline(&quot;&quot;, StocksCount + 1, 1)
+	Today = CDate(Date)
+	For i = iStartRow + 1 To iStartRow + StocksCount
+		StockName = oFirstSheet.GetCellbyPosition(SBCOLUMNNAME1, i).String
+		sStockID = oFirstSheet.GetCellByPosition(SBCOLUMNID1, i).String
+		ChartSource = ReplaceString(sCurChartSource, sStockID, &quot;&lt;StockID&gt;&quot;)
+		If GetCurrentRate(ChartSource, CurRate, 0) Then
+			InsertCurrentValue(CurRate, i, Now)		
+		Else
+			sMsgInternetError = Stockname &amp; &quot;: &quot; &amp; sNoInternetDataAvailable &amp; chr(13) &amp; sCheckInternetSettings
+			Msgbox(sMsgInternetError, 16, sProductname)
+		End If
+		oStatusline.SetValue(i - iStartRow + 1)
+	Next
+	ProtectSheets(oSheets)
+	oStatusLine.End
+&apos;	oDocument.RemoveActionLock
+End Sub
+
+
+
+Function GetCurrentRate(sUrl as String, fValue As Double, iValueRow as Integer) as Boolean
+Dim sFilter As String
+Dim sOptions As String
+Dim oLinkSheet As Object
+Dim sDate as String
+	If oSheets.hasByName(&quot;Link&quot;) Then 
+		oLinkSheet = oSheets.getByName(&quot;Link&quot;)
+	Else
+		oLinkSheet = oDocument.createInstance(&quot;com.sun.star.sheet.Spreadsheet&quot;)
+		oSheets.insertByName(&quot;Link&quot;, oLinkSheet)
+		oLinkSheet.IsVisible = False
+	End If
+	
+	sFilter = &quot;Text - txt - csv (StarCalc)&quot;
+	sOptions = sCurSeparator &amp; &quot;,34,SYSTEM,1,1/10/2/10/3/10/4/10/5/10/6/10/7/10/8/10/9/10&quot;
+	
+	oLinkSheet.LinkMode = com.sun.star.sheet.SheetLinkMode.NONE
+	oLinkSheet.link(sUrl, &quot;&quot;, sFilter, sOptions, 1 )
+	fValue = oLinkSheet.getCellByPosition(iValueCol, iValueRow).Value
+	If fValue = 0 Then
+		Dim sValue as String
+		sValue = oLinkSheet.getCellByPosition(1, iValueRow).String
+		sValue = ReplaceString(sValue, &quot;.&quot;,&quot;,&quot;)
+		fValue = Val(sValue)
+	End If
+	GetCurrentRate = fValue &lt;&gt; 0
+End Function
+
+
+
+Sub UpdateValue(ByVal sName As String, fDate As Double, fValue As Double )
+Dim oSheet As Object
+Dim iColumn As Long
+Dim iRow As Long
+Dim i as Integer
+Dim oCell As Object
+Dim LastDate as Date
+Dim bLeaveLoop as Boolean
+Dim RemoveCount as Integer
+Dim iLastRow as Integer
+Dim iLastLinkRow as Integer
+Dim dDate as Date
+Dim CurDate as Date
+Dim oLinkSheet as Object
+Dim StartIndex as Integer
+Dim iCellValue as Long
+	&apos; Insert Sheet with Company - Chart
+	sName = CheckNewSheetname(oSheets, sName)
+	If NOT oSheets.hasByName(sName) Then
+		oSheets.CopybyName(&quot;Background&quot;, sName, oSheets.Count)
+		oSheet = oSheets.getByName(sName)
+		iCurRow = SBSTARTROW
+		iMaxRow = iCurRow
+		oCell = oSheet.getCellByPosition(SBDATECOLUMN, iCurRow)
+		oCell.Value = fDate
+	End If
+	sNewSheetName = sName
+	oLinkSheet = oSheets.GetByName(&quot;Link&quot;)
+	oSheet = oSheets.getByName(sName)
+	iLastRow = GetLastUsedRow(oSheet)- 2
+	iLastLinkRow = GetLastUsedRow(oLinkSheet)
+	iCurRow = iLastRow
+	bLeaveLoop = False
+	RemoveCount = 0
+	&apos; Delete all Cells in Date Area
+	Do
+		oCell = oSheet.GetCellbyPosition(SBDATECOLUMN,iCurRow)
+		If oCell.CellStyle = sColumnHeader Then
+			bLeaveLoop = True
+			StartIndex = iCurRow
+			iCurRow = iCurRow + 1
+		Else
+			RemoveCount = RemoveCount + 1
+			iCurRow = iCurRow - 1
+		End If
+	Loop Until bLeaveLoop	
+	If RemoveCount &gt; 1 Then
+		oSheet.Rows.RemoveByIndex(iCurRow, RemoveCount-1)
+	End If
+	For i = 1 To iLastLinkRow
+		oCell = oSheet.GetCellbyPosition(SBDATECOLUMN,iCurRow)
+		iCellValue = oLinkSheet.GetCellByPosition(0,i).Value
+		If iCellValue &gt; 0 Then
+			oCell.SetValue(oLinkSheet.GetCellByPosition(0,i).Value)
+		Else
+			oCell.SetValue(StringToDate(oLinkSheet.GetCellByPosition(0,i).String)
+		End If
+		oCell = oSheet.GetCellbyPosition(SBVALUECOLUMN,iCurRow)
+		oCell.SetValue(oLinkSheet.GetCellByPosition(4,i).Value)
+		If i &lt; iLastLinkRow Then
+			iCurRow = iCurRow + 1
+			oSheet.Rows.InsertByIndex(iCurRow,1)
+		End If
+	Next i
+	iMaxRow = iCurRow
+End Sub
+
+
+Function StringToDate(DateString as String) as Date
+Dim ShortMonths(11)
+Dim DateList() as String
+Dim MaxIndex as Integer
+Dim i as Integer
+	ShortMonths(0) = &quot;Jan&quot;
+	ShortMonths(1) = &quot;Feb&quot;
+	ShortMonths(2) = &quot;Mar&quot;
+	ShortMonths(3) = &quot;Apr&quot;
+	ShortMonths(4) = &quot;May&quot;
+	ShortMonths(5) = &quot;Jun&quot;
+	ShortMonths(6) = &quot;Jul&quot;
+	ShortMonths(7) = &quot;Aug&quot;
+	ShortMonths(8) = &quot;Sep&quot;
+	ShortMonths(9) = &quot;Oct&quot;
+	ShortMonths(10) = &quot;Nov&quot;
+	ShortMonths(11) = &quot;Dec&quot;
+	For i = 0 To 11
+		DateString = ReplaceString(DateString,CStr(i+1),ShortMonths(i))
+	Next i
+	DateString = ReplaceString(DateString, &quot;.&quot;, &quot;-&quot;)
+	StringToDate = CDate(DateString)	
+End Function
+
+
+Sub UpdateChart(sName As String)
+Dim oSheet As Object
+Dim oCell As Object, oCursor As Object
+Dim oChartRange As Object
+Dim oEmbeddedChart As Object, oCharts As Object
+Dim oChart As Object, oDiagram As Object
+Dim oYAxis As Object, oXAxis As Object
+Dim fMin As Double, fMax As Double
+Dim nDateFormat As Long
+Dim aPos As Variant
+Dim aSize As Variant
+Dim oContainerChart as Object
+Dim mRangeAddresses(0) as New com.sun.star.table.CellRangeAddress
+	mRangeAddresses(0).Sheet = GetSheetIndex(oSheets, sNewSheetName)
+	mRangeAddresses(0).StartColumn = SBDATECOLUMN 
+	mRangeAddresses(0).StartRow = SBSTARTROW-1
+	mRangeAddresses(0).EndColumn = SBVALUECOLUMN
+	mRangeAddresses(0).EndRow = iMaxRow
+		
+	oSheet = oDocument.Sheets.getByName(sNewSheetName)
+	oCharts = oSheet.Charts
+	
+	If Not oCharts.hasElements Then
+		oSheet.GetCellbyPosition(2,2).SetString(sName)
+		oChartRange = oSheet.getCellRangeByPosition(SBDATECOLUMN,6,5,SBSTARTROW-3)
+		aPos = oChartRange.Position
+		aSize = oChartRange.Size
+		
+		Dim oRectangleShape As New com.sun.star.awt.Rectangle
+		oRectangleShape.X = aPos.X
+		oRectangleShape.Y = aPos.Y
+		oRectangleShape.Width = aSize.Width
+		oRectangleShape.Height = aSize.Height
+		oCharts.addNewByName(sName, oRectangleShape, mRangeAddresses(), True, False)
+		oContainerChart = oCharts.getByName(sName)
+		oChart = oContainerChart.EmbeddedObject
+		oChart.Title.String	= &quot;&quot;
+		oChart.HasLegend = False
+		oChart.diagram = oChart.createInstance(&quot;com.sun.star.chart.XYDiagram&quot;)
+		oDiagram = oChart.Diagram
+		oDiagram.DataRowSource = com.sun.star.chart.ChartDataRowSource.COLUMNS
+		oChart.Area.LineStyle = com.sun.star.drawing.LineStyle.SOLID
+		oXAxis = oDiagram.XAxis
+		oXAxis.TextBreak = False
+		nDateFormat = oXAxis.NumberFormats.getStandardFormat(com.sun.star.util.NumberFormat.DATE, oDocLocale)
+
+		oYAxis = oDiagram.getYAxis()
+		oYAxis.AutoOrigin = True
+	Else
+		oChart = oCharts(0)
+		oChart.Ranges = mRangeAddresses()
+		oChart.HasRowHeaders = False
+		oEmbeddedChart = oChart.EmbeddedObject
+		oDiagram = oEmbeddedChart.Diagram
+		oXAxis = oDiagram.XAxis
+	End If
+	oXAxis.AutoStepMain = False
+	oXAxis.AutoStepHelp = False
+	oXAxis.StepMain = iStep
+	oXAxis.StepHelp = iStep
+	fMin = oSheet.getCellByPosition(SBDATECOLUMN,SBSTARTROW).Value
+	fMax = oSheet.getCellByPosition(SBDATECOLUMN,iMaxRow).Value
+	oXAxis.Min = fMin
+	oXAxis.Max = fMax
+	oXAxis.AutoMin = False
+	oXAxis.AutoMax = False
+End Sub
+
+
+Sub CalculateChartafterSplit(SheetName, NewNumber, OldNumber, NoteText, SplitDate)
+Dim oSheet as Object
+Dim i as Integer
+Dim oValueCell as Object
+Dim oDateCell as Object
+Dim bLeaveLoop as Boolean
+	If oSheets.HasbyName(SheetName) Then
+		oSheet = oSheets.GetbyName(SheetName)
+		i = 0
+		bLeaveLoop = False
+		Do
+			oValueCell = oSheet.GetCellbyPosition(SBVALUECOLUMN, SBSTARTROW + i)
+			If oValueCell.CellStyle = CurrCellStyle Then
+				SplitCellValue(oSheet, OldNumber, NewNumber, SBVALUECOLUMN, SBSTARTROW + i, &quot;&quot;)		
+				i = i + 1
+			Else
+				bLeaveLoop = True
+			End If
+		Loop Until bLeaveLoop
+		oDateCell = oSheet.GetCellbyPosition(SBDATECOLUMN, SBSTARTROW + i-1)
+		oDateCell.Annotation.SetString(NoteText)
+	End If
+End Sub
+</script:module>

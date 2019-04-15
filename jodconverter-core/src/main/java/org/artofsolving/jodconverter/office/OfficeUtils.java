@@ -66,13 +66,16 @@ public class OfficeUtils {
         }
         if (PlatformUtils.isWindows()) {
             // %ProgramFiles(x86)% on 64-bit machines; %ProgramFiles% on 32-bit ones
+            String separator = File.separator;
+            String officeHome = OfficeUtils.getHomePath() + separator + "office";
             String programFiles = System.getenv("ProgramFiles(x86)");
             if (programFiles == null) {
                 programFiles = System.getenv("ProgramFiles");
             }
             return findOfficeHome(
                 programFiles + File.separator + "OpenOffice 4",
-                programFiles + File.separator + "LibreOffice 4"
+                programFiles + File.separator + "LibreOffice 4",
+                officeHome + File.separator + "OpenOffice 4"
             );
         } else if (PlatformUtils.isMac()) {
             return findOfficeHome(
@@ -106,6 +109,20 @@ public class OfficeUtils {
         } else {
             return new File(officeHome, "program/soffice.bin");
         }
+    }
+
+    public static String getHomePath() {
+        String userDir = System.getenv("KKFILEVIEW_BIN_FOLDER");
+        if (userDir == null) {
+            userDir = System.getProperty("user.dir");
+        }
+        if (userDir.endsWith("bin")) {
+            userDir = userDir.substring(0, userDir.length() - 4);
+        } else {
+            String separator = File.separator;
+            userDir = userDir + separator + "jodconverter-web" + separator + "src" + separator +  "main";
+        }
+        return userDir;
     }
 
 }

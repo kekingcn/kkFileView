@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="CalendarMain" script:language="StarBasic">Option Explicit
+
+Const _DEBUG = 0
+
+&apos; CalenderMain
+Public sCurLangLocale as String
+Public sCurCountryLocale as String
+&apos; This flag serves as a query if the individual Data should be saved
+Public bCalOwnDataChanged as Boolean
+
+&apos;BankHoliday Functions
+Public CalBankholidayName$ (1 To 374)
+Public CalTypeOfBankHoliday% (1 To 374)
+
+Public Const cHolidayType_None = 0
+Public Const cHolidayType_Full = 1
+Public Const cHolidayType_Half = 2
+Public Const cHolidayType_Own = 4
+
+Public cCalSubcmdDeleteSelect_DeleteSelEntry$
+Public cCalSubcmdDeleteSelect_DeleteSelEntryTitle$
+Public cCalSubcmdSwitchOwnDataOrGeneral_Back$
+Public cCalSubcmdSwitchOwnDataOrGeneral_OwnData$
+
+&apos;Language
+Public cCalLongMonthNames(11) as String
+Public cCalShortMonthNames(11) as String
+
+Public sBitmapFilename$
+Public sCalendarTitle$, sMonthTitle$, sWizardTitle$, sError$
+Public cCalStyleWorkday$, cCalStyleWeekend$
+
+Public CalChoosenLand as Integer
+
+Public oDocument as Object
+Public oSheets as Object
+Public oSheet as Object
+Public oStatusLine as Object
+Public bCancelTask as Boolean
+Public oNumberFormatter as Object
+
+&apos; BL* means &quot;BundesLand&quot; (for german states only)
+Public CONST CalBLBayern         = 1
+Public CONST CalBLBadenWuert     = 2
+Public CONST CalBLBerlin         = 3
+Public CONST CalBLBremen         = 4
+Public CONST CalBLBrandenburg    = 5
+Public CONST CalBLHamburg        = 6
+Public CONST CalBLHessen         = 7
+Public CONST CalBLMeckPomm       = 8
+Public CONST CalBLNiedersachsen  = 9
+Public CONST CalBLNordrheinWest  = 10
+Public CONST CalBLRheinlandPfalz = 11
+Public CONST CalBLSaarland       = 12
+Public CONST CalBLSachsen        = 13
+Public CONST CalBLSachsenAnhalt  = 14
+Public CONST CalBLSchlHolstein   = 15
+Public CONST CalBLThueringen     = 16
+
+Public DlgCalendar as Object
+Public DlgCalModel as Object
+Public lDateFormat as Long
+Public lDateStandardFormat as Long
+
+
+
+Sub CalAutopilotTable()
+Dim BitmapDir as String
+Dim iThisMonth as Integer
+
+&apos;On Error Goto ErrorHandler
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	bSelectByMouseMove = True
+	oDocument = ThisComponent
+	oStatusline = oDocument.GetCurrentController.GetFrame.CreateStatusIndicator
+	ToggleWindow(False)
+	sCurLangLocale = oDocument.CharLocale.Language
+	sCurCountryLocale = oDocument.CharLocale.Country
+	DlgCalendar = LoadDialog(&quot;Schedule&quot;, &quot;DlgCalendar&quot;)
+	DlgCalModel = DlgCalendar.Model
+    LoadLanguage(sCurLangLocale)
+	CalInitGlobalVariablesDate()
+	BitmapDir = GetOfficeSubPath(&quot;Template&quot;,&quot;../wizard/bitmap&quot;)
+	DlgCalModel.imgCountry.ImageURL = BitmapDir &amp; sBitmapFilename
+	CalChoosenLand = -2
+	CalLoadOwnData()
+	
+	With DlgCalModel
+		.cmdDelete.Enabled = False
+		.lstMonth.StringItemList() = cCalShortMonthNames()
+		Select Case sCurLangLocale
+			Case cLANGUAGE_JAPANESE
+				.lstOwnData.FontName = &quot;HG MinochoL&quot;
+				.txtEvent.FontName = &quot;HG MinchoL&quot;
+			Case cLANGUAGE_CHINESE
+				If oDocument.CharLocale.Country = &quot;CN&quot; Then
+					.lstOwnData.FontName = &quot;FZ Song Ti&quot;
+					.txtEvent.FontName = &quot;FZ Song Ti&quot;
+				Else
+					.lstOwnData.FontName = &quot;FZ Ming Ti&quot;
+					.txtEvent.FontName = &quot;FZ Ming Ti&quot;
+				End If
+			Case &quot;ko&quot;
+				.lstOwnData.FontName = &quot;Sun Gulim&quot;
+				.txtEvent.FontName = &quot;Sun Gulim&quot;
+		End Select
+		.lstOwnEventMonth.StringItemList() = cCalShortMonthNames()
+		.optYear.State = 1
+		.txtYear.Value = Year(Now())
+		.txtYear.Tag = .txtYear.Value
+		.Step = 1
+	End With
+	SetupNumberFormatter(sCurLangLocale, sCurCountryLocale)
+	CalChooseCalendar()  &apos; month
+	iThisMonth = Month(Now)
+	DlgCalendar.GetControl(&quot;lstMonth&quot;).SelectItemPos(iThisMonth-1, True)
+	DlgCalendar.GetControl(&quot;lstHolidays&quot;).SelectItemPos(0,True)
+	DlgCalModel.cmdGoOn.DefaultButton = True
+	ToggleWindow(True)
+	DlgCalendar.GetControl(&quot;lblHolidays&quot;).Visible = sCurLangLocale  = cLANGUAGE_GERMAN
+	DlgCalendar.GetControl(&quot;lstHolidays&quot;).Visible = sCurLangLocale  = cLANGUAGE_GERMAN	
+	fHeightCorrFactor = DlgCalendar.GetControl(&quot;imgCountry&quot;).Size.Height/198
+	fWidthCorrFactor = DlgCalendar.GetControl(&quot;imgCountry&quot;).Size.Width/166
+	DlgCalendar.Execute()
+	DlgCalendar.Dispose()
+	Exit Sub
+ErrorHandler:
+    MsgBox(sError$, 16, sWizardTitle$)
+End Sub
+
+
+Sub SetupNumberFormatter(sCurLangLocale as String, sCurCountryLocale as String)
+Dim oFormats as Object
+Dim DateFormatString as String
+	oFormats = oDocument.getNumberFormats()
+	Select Case sCurLangLocale
+		Case cLANGUAGE_GERMAN
+			DateFormatString = &quot;TT.MMM&quot;
+		Case cLANGUAGE_ENGLISH
+			DateFormatString = &quot;MMM DD&quot;
+		Case cLANGUAGE_FRENCH
+			DateFormatString = &quot;JJ/MMM&quot;
+		Case cLANGUAGE_ITALIAN
+			DateFormatString = &quot;GG/MMM&quot;
+		Case cLANGUAGE_SPANISH
+			DateFormatString = &quot;DD/MMM&quot;
+		Case cLANGUAGE_PORTUGUESE
+			If sCurCountryLocale = &quot;BR&quot; Then
+				DateFormatString = &quot;DD/MMM&quot;
+			Else
+				DateFormatString = &quot;DD-MMM&quot;
+			End If		
+		Case cLANGUAGE_DUTCH
+			DateFormatString = &quot;DD/MMM&quot;
+		Case cLANGUAGE_SWEDISH
+			DateFormatString = &quot;MMM DD&quot;
+		Case cLANGUAGE_DANISH
+			DateFormatString = &quot;DD-MMM&quot;
+		Case cLANGUAGE_POLISH
+			DateFormatString = &quot;MMM DD&quot;
+		Case cLANGUAGE_RUSSIAN
+			DateFormatString = &quot;MMM DD&quot;
+		Case cLANGUAGE_JAPANESE
+			DateFormatString = &quot;M月D日&quot;
+		Case cLANGUAGE_CHINESE
+			If sCurCountryLocale = &quot;TW&quot; Then
+				DateFormatString = &quot;MMMMD&quot; &amp;&quot;&quot;&quot;&quot; &amp; &quot;日&quot; &amp; &quot;&quot;&quot;&quot;
+			Else
+				DateFormatString = &quot;M&quot; &amp; &quot;&quot;&quot;&quot; &amp; &quot;月&quot; &amp; &quot;&quot;&quot;&quot; &amp; &quot;D&quot; &amp;&quot;&quot;&quot;&quot; &amp; &quot;日&quot; &amp; &quot;&quot;&quot;&quot;
+			End If
+		Case cLANGUAGE_GREEK
+			DateFormatString = &quot;DD/MMM&quot;		
+		Case cLANGUAGE_TURKISH
+			DateFormatString = &quot;DD/MMM&quot;		
+		Case cLANGUAGE_POLISH
+			DateFormatString = &quot;MMM DD&quot;		
+		Case cLANGUAGE_FINNISH
+			DateFormatString = &quot;PP.KKK&quot;		
+	End Select
+
+	lDateFormat = AddNumberFormat(oFormats, DateFormatString, oDocument.CharLocale)
+	lDateStandardFormat = oFormats.getStandardFormat(com.sun.star.util.NumberFormat.DATE, oDocument.CharLocale)
+
+&apos;	lDateStandardFormat = AddNumberFormat(oFormats, StandardDateFormatString, oDocument.CharLocale)
+	oNumberFormatter = createUNOService(&quot;com.sun.star.util.NumberFormatter&quot;)
+	oNumberFormatter.attachNumberFormatsSupplier(oDocument)
+End Sub
+
+
+Function AddNumberFormat(oNumberFormats as Object, FormatString as String, oLocale as Object) as Long
+Dim lLocDateFormat as Long
+	lLocDateFormat = oNumberFormats.QueryKey(FormatString, oLocale, True)
+	If lLocDateFormat = -1 Then
+		lLocDateFormat = oNumberFormats.addNew(FormatString, oLocale)
+	End If
+	AddNumberFormat() = lLocDateFormat
+End Function
+
+
+Sub CalChooseCalendar()
+	With DlgCalModel
+		.lstMonth.Enabled = .optMonth.State = 1
+		.lblMonth.Enabled = .optMonth.State = 1
+	End With
+End Sub
+
+
+Sub CalcmdCancel()
+	Call CalSaveOwnData()
+	DlgCalendar.EndExecute
+End Sub
+
+
+Sub CalcmdOk()
+	&apos; cmdOk is called when the Button &apos;Read&apos; is clicked on
+	&apos; It is either given out a month or a year
+Dim i, iSelYear as Integer
+Dim SelYear as String
+&apos;	DlgCalendar.Visible = False
+
+	oSheets = oDocument.sheets
+	Call CalSaveOwnData()
+	UnprotectSheets(oSheets)
+	oSheets.RemovebyName(oSheets.GetbyIndex(0).Name)
+	iSelYear = DlgCalModel.txtYear.Value
+	Select Case sCurLangLocale
+		Case cLANGUAGE_GERMAN
+			If Ubound(DlgCalModel.lstHolidays.SelectedItems()) &gt; -1 Then
+				CalChoosenLand = DlgCalModel.lstHolidays.SelectedItems(0)
+			Else
+				CalChoosenLand = 0
+			End If
+			Call CalFindWholeYearHolidays_GERMANY(iSelYear, CalChoosenLand)
+		Case cLANGUAGE_ENGLISH
+			Call FindWholeYearHolidays_US(iSelYear)
+		Case cLANGUAGE_FRENCH
+			Call FindWholeYearHolidays_FRANCE(iSelYear)
+		Case cLANGUAGE_ITALIAN
+			Call FindWholeYearHolidays_ITA(iSelYear)
+		Case cLANGUAGE_SPANISH
+			Call FindWholeYearHolidays_SPAIN(iSelYear)
+		Case cLANGUAGE_PORTUGUESE
+			Call FindWholeYearHolidays_PORT(iSelYear)
+		Case cLANGUAGE_DUTCH
+			Call FindWholeYearHolidays_NL(iSelYear)
+		Case cLANGUAGE_SWEDISH
+			Call FindWholeYearHolidays_SWED(iSelYear)
+		Case cLANGUAGE_DANISH
+			Call FindWholeYearHolidays_DK(iSelYear)
+		Case cLANGUAGE_POLISH
+			Call FindWholeYearHolidays_PL(iSelYear)
+		Case cLANGUAGE_RUSSIAN
+			Call FindWholeYearHolidays_RU(iSelYear)
+		Case cLANGUAGE_JAPANESE
+			Call FindWholeYearHolidays_JP(iSelYear)
+		Case cLANGUAGE_CHINESE
+			If sCurCountryLocale = &quot;TW&quot; Then
+				Call FindWholeYearHolidays_TW(iSelYear)
+			Else
+				Call FindWholeYearHolidays_CN(iSelYear)
+			End If
+		Case cLANGUAGE_GREEK
+			Call FindWholeYearHolidays_GREEK(iSelYear)
+		Case cLANGUAGE_TURKISH
+			Call FindWholeYearHolidays_TRK(iSelYear)
+		Case cLANGUAGE_POLISH
+			Call FindWholeYearHolidays_PL(iSelYear)
+		Case cLANGUAGE_FINNISH
+			Call FindWholeYearHolidays_FI(iSelYear)
+	End Select
+
+	Call CalInsertOwnDataInTables(iSelYear)
+
+	If DlgCalModel.optYear.State = 1 Then
+		oSheets.RemovebyName(oSheets.GetbyIndex(0).Name)
+		oSheet = oSheets.GetbyIndex(0)
+		oSheet.Name = sCalendarTitle$ + &quot; &quot; + iSelYear
+		oDocument.AddActionLock
+		Call CalCreateYearTable(iSelYear)
+	ElseIf DlgCalModel.optMonth.State = 1 Then
+		Dim iMonth
+		iMonth = DlgCalModel.lstMonth.SelectedItems(0) + 1
+		oSheets.RemovebyName(oSheets.GetbyIndex(1).Name)
+		oSheet = oSheets.GetbyIndex(0)
+		If sMonthTitle = &quot;&quot; Then
+			oSheet.Name = cCalLongMonthNames(iMonth-1)
+		Else
+			oSheet.Name = sMonthTitle + &quot; &quot; + cCalLongMonthNames(iMonth-1)
+		End If
+		oDocument.AddActionLock
+		Call CalCreateMonthTable(iSelYear, iMonth)
+	End If
+
+	oDocument.RemoveActionLock
+	oSheet.protect(&quot;&quot;)
+	oStatusLine.End
+	DlgCalendar.EndExecute()
+	bCancelTask = True
+End Sub
+</script:module>

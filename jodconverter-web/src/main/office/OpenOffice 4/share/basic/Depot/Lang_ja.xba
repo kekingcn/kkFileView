@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Lang_ja" script:language="StarBasic">Option Explicit
+
+Sub LoadJapaneseLanguage()
+
+	sProductname = GetProductname
+	sOK = &quot;~OK&quot;
+	sCancel = &quot;キャンセル&quot;
+	sColumnHeader = &quot;列番号&quot;
+	sInsertStockName = &quot;最初に株の銘柄を入力してください。&quot;
+	sTitle = &quot;&lt;PRODUCTNAME&gt;: 株管理&quot;
+	sTitle = ReplaceString(sTitle, sProductName, &quot;&lt;PRODUCTNAME&gt;&quot;)
+	sMsgError = &quot;入力フィールド&quot;
+	sMsgNoName = sInsertStockname
+	sMsgNoQuantity = &quot;0 より大きな額を入力してください。&quot;
+	sMsgNoDividend = &quot;１株当たりの配当金額または総配当金額を入力してください。&quot;
+	sMsgNoExchangeRate = &quot;交換比率（旧株-&gt;新株）を入力してください。&quot;
+	sMsgNoValidExchangeDate = &quot;株式分割日を入力してください。&quot;
+	sMsgWrongExchangeDate = &quot;分割日以降に取引がすでに存在するので、分割できません。&quot;
+	sMsgSellTooMuch = &quot;売却できる株式数を超えています。最大値: &quot;
+	sMsgConfirm = &quot;ご確認ください&quot;
+	sMsgFreeStock = &quot;無料株式を入力しますか?&quot;
+	sMsgTotalLoss = &quot;全損の入力を行いますか?&quot;
+	sMsgAuthorization = &quot;確認ダイアログ&quot;
+	sMsgDeleteAll = &quot;すべての移動を取り消し、ポートフォリオの概要をリセットしますか?&quot;
+	cSplit = &quot;株式分割日 &quot;
+	sHistory = &quot;履歴&quot;
+	TransactTitle(1) = 	 &quot;株を買う&quot;
+	TransactTitle(2) = &quot;株を買う&quot;
+	StockRatesTitle(1) = &quot;配当額&quot;
+	StockRatesTitle(2) = &quot;株式分割&quot;
+	StockRatesTitle(3) = sHistory
+	sDepotCurrency = &quot;ポートフォリオの通貨&quot;
+	sStockName = &quot;株式名&quot;
+	TransactMode = LIFO	&apos; Possible values: &quot;FIFO&quot; and &quot;LIFO&quot;
+	DateCellStyle = &quot;結果（日付）&quot;
+	CurrCellStyle = &quot;1&quot;
+	sStartDate = &quot;開始日:&quot;
+	sEndDate = &quot;終了日:&quot;
+	sStartUpWelcome = &quot;このテンプレートを使えば、株式のポートフォリオをより効率的に管理できます。&quot;
+	sStartUpChooseMarket = &quot;まず、インターネットにより情報を更新する基準通貨と、対応する証券取引所を選択します。&quot;
+	sStartUpHint = &quot;残念ながら、&lt;History&gt; 機能を使用できるのは米国市場に限られています。&quot;
+	sStartupHint = ReplaceString(sStartUpHint, sHistory, &quot;&lt;History&gt;&quot;)
+	sNoInternetUpdate = &quot;インターネットによる情報の更新を行いません&quot;
+	sMarketPlace = &quot;証券取引所:&quot;
+	sNoInternetDataAvailable = &quot;インターネットから株価情報を受信できない場合があります!&quot;
+	sCheckInternetSettings = &quot;考えられる原因は次のとおりです。&lt;BR&gt;インターネット設定の変更が必要です。&lt;BR&gt;入力した株式のが間違っています。&quot;
+	sCheckInternetSettings = ReplaceString(sCheckInternetSettings, chr(13), &quot;&lt;BR&gt;&quot;)
+
+	sMsgEndDatebeforeNow = &quot;終了日は、今日の日付より前であることが必要です。&quot;
+	sMsgStartDatebeforeEndDate = &quot;開始日は、終了日より前であることが必要です。&quot;
+
+	sMarket(0,0) = &quot;米ドル&quot;
+	sMarket(0,1) = &quot;$&quot;
+	sMarket(0,2) = &quot;ニューヨーク&quot;
+	sMarket(0,3) = &quot;http://finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(0,4) = &quot;http://ichart.finance.yahoo.com/table.csv?&quot; &amp;_
+				   &quot;s=&lt;StockID&gt;&amp;d=&lt;EndMonth&gt;&amp;e=&lt;EndDay&gt;&amp;f=&lt;Endyear&gt;&amp;g=d&amp;&quot; &amp;_
+				   &quot;a=&lt;StartMonth&gt;&amp;b=&lt;StartDay&gt;&amp;c=&lt;Startyear&gt;&amp;ignore=.csv&quot;
+	sMarket(0,5) = &quot;シンボル&quot;
+	sMarket(0,6) = &quot;en&quot;
+	sMarket(0,7) = &quot;US&quot;
+	sMarket(0,8) = &quot;409&quot;
+	sMarket(0,9) = &quot;44&quot;
+	sMarket(0,10) = &quot;1&quot;
+
+	sMarket(1,0) = &quot;ユーロ&quot;
+	sMarket(1,1) = chr(8364)
+	sMarket(1,2) = &quot;フランクフルト&quot;
+	sMarket(1,3) = &quot;http://de.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.F&amp;f=sl1t1c1ghpv&amp;e=.csv&quot;
+	sMarket(1,5) = &quot;銘柄コード&quot;
+	sMarket(1,6) = &quot;de;nl;pt;el&quot;
+	sMarket(1,7) = &quot;DE;NL;PT;GR&quot;
+	sMarket(1,8) = &quot;407;413;816;408&quot;
+	sMarket(1,9) = &quot;59/9&quot;
+	sMarket(1,10) = &quot;1&quot;
+
+	sMarket(2,0) = &quot;英ポンド&quot;
+	sMarket(2,1) = &quot;£&quot;
+	sMarket(2,2) = &quot;ロンドン&quot;
+	sMarket(2,3) = &quot;http://uk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.L&amp;m=*&amp;f=sl1t1c1ghov&amp;e=.csv&quot;
+	sMarket(2,5) = &quot;シンボル&quot;
+	sMarket(2,6) = &quot;en&quot;
+	sMarket(2,7) = &quot;GB&quot;
+	sMarket(2,8) = &quot;809&quot;
+	sMarket(2,9) = &quot;44&quot;
+	sMarket(2,10) = &quot;1&quot;
+
+	sMarket(3,0) = &quot;日本円&quot;
+	sMarket(3,1) = &quot;¥&quot;
+	sMarket(3,2) = &quot;東京&quot;
+	sMarket(3,3) = &quot;&quot;
+	sMarket(3,5) = &quot;コード&quot;
+	sMarket(3,6) = &quot;ja&quot;
+	sMarket(3,7) = &quot;JP&quot;
+	sMarket(3,8) = &quot;411&quot;
+	sMarket(3,9) = &quot;&quot;
+	sMarket(3,10) = &quot;&quot;
+
+	sMarket(4,0) = &quot;香港ドル&quot;
+	sMarket(4,1) = &quot;HK$&quot;
+	sMarket(4,2) = &quot;香港&quot;
+	sMarket(4,3) = &quot;http://hk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.HK&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(4,5) = &quot;番号&quot;
+	sMarket(4,6) = &quot;zh&quot;
+	sMarket(4,7) = &quot;HK&quot;
+	sMarket(4,8) = &quot;C04&quot;
+	sMarket(4,9) = &quot;44&quot;
+	sMarket(4,10) = &quot;1&quot;
+
+	sMarket(5,0) = &quot;オーストリア・ドル&quot;
+	sMarket(5,1) = &quot;$&quot;
+	sMarket(5,2) = &quot;シドニー&quot;
+	sMarket(5,3) = &quot;http://au.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(5,5) = &quot;シンボル&quot;
+	sMarket(5,6) = &quot;en&quot;
+	sMarket(5,7) = &quot;AU&quot;
+	sMarket(5,8) = &quot;C09&quot;
+	sMarket(5,9) = &quot;44&quot;
+	sMarket(5,10) = &quot;1&quot;
+
+&apos; ****************************End of the default subset*********************************
+	CompleteMarketList()
+
+	LocalizedCurrencies()
+
+	With TransactModel
+		.lblStockNames.Label = sStockname
+		.lblQuantity.Label = &quot;株数&quot;
+		.lblRate.Label = &quot;価格&quot;
+		.lblDate.Label = &quot;取引日&quot;
+		.hlnCommission.Label = &quot;その他の経費n&quot;
+		.lblCommission.Label = &quot;手数料&quot;
+		.lblMinimum.Label = &quot;最低手数料&quot;
+		.lblFix.Label = &quot;固定費/諸経費&quot;
+		.cmdGoOn.Label = sOK
+		.cmdCancel.Label = sCancel
+	End With
+
+	With StockRatesModel
+		.optPerShare.Label = &quot;配当金/株式数&quot;
+		.optTotal.Label = &quot;配当金の総額&quot;
+		.lblDividend.Label = &quot;金額&quot;
+		.lblExchangeRate.Label = &quot;交換比率（旧株-&gt;新株）&quot;
+		.lblColon.Label = &quot;:&quot;
+		.lblDate.Label = &quot;交換日:&quot;
+		.lblStockNames.Label = sStockname
+		.lblStartDate.Label = sStartDate
+		.lblEndDate.Label = sEndDate
+		.optDaily.Label = &quot;~毎日&quot;
+		.optWeekly.Label = &quot;~毎週&quot;
+		.hlnInterval.Label = &quot;期間&quot;
+		.cmdGoOn.Label = sOk
+		.cmdCancel.Label = sCancel
+	End With
+End Sub
+</script:module>

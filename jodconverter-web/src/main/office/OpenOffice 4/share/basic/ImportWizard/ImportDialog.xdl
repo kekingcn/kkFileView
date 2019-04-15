@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="ImportDialog" dlg:left="96" dlg:top="28" dlg:width="270" dlg:height="210" dlg:page="4" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_DIALOG" dlg:closeable="true" dlg:moveable="true" dlg:title="ImportDialog">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="lblTemplateExport" dlg:tab-index="0" dlg:left="12" dlg:top="94" dlg:width="60" dlg:height="8" dlg:page="2" dlg:value="lblTemplateExport"/>
+  <dlg:textfield dlg:id="txtTemplateImportPath" dlg:tab-index="1" dlg:left="73" dlg:top="76" dlg:width="170" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_LBTEMPLATEPATH">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:textfield>
+  <dlg:textfield dlg:id="txtTemplateExportPath" dlg:tab-index="2" dlg:left="73" dlg:top="92" dlg:width="170" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_EDTEMPLATEPATH"/>
+  <dlg:checkbox dlg:id="chkDocumentPath" dlg:tab-index="3" dlg:left="12" dlg:top="121" dlg:width="240" dlg:height="10" dlg:page="2" dlg:tag="Document" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CBDOCUMENT" dlg:value="chkDocumentPath" dlg:checked="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.DialogModul.ToggleInputPaths?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkDocumentSearchSubDir" dlg:tab-index="4" dlg:left="12" dlg:top="134" dlg:width="240" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CBDOCUMENTRECURSE" dlg:value="chkDocumentSearchSubDir" dlg:checked="false"/>
+  <dlg:text dlg:id="lblDocumentImport" dlg:tab-index="5" dlg:left="10" dlg:top="151" dlg:width="60" dlg:height="8" dlg:page="2" dlg:value="lblDocumentImport"/>
+  <dlg:text dlg:id="lblDocumentExport" dlg:tab-index="6" dlg:left="10" dlg:top="167" dlg:width="60" dlg:height="8" dlg:page="2" dlg:value="lblDocumentExport"/>
+  <dlg:textfield dlg:id="txtDocumentImportPath" dlg:tab-index="7" dlg:left="73" dlg:top="149" dlg:width="170" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_LBDOCUMENTPATH">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:textfield>
+  <dlg:textfield dlg:id="txtDocumentExportPath" dlg:tab-index="8" dlg:left="73" dlg:top="165" dlg:width="170" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_EDDOCUMENTPATH"/>
+  <dlg:text dlg:id="SummaryHeaderLabel" dlg:tab-index="9" dlg:left="6" dlg:top="37" dlg:width="258" dlg:height="8" dlg:page="3" dlg:value="SummaryHeaderLabel"/>
+  <dlg:textfield dlg:id="SummaryTextbox" dlg:tab-index="10" dlg:left="5" dlg:top="48" dlg:width="259" dlg:height="125" dlg:page="3" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_3_TBSUMMARY" dlg:vscroll="true" dlg:multiline="true" dlg:readonly="true"/>
+  <dlg:text dlg:id="LabelRetrieval" dlg:tab-index="11" dlg:left="10" dlg:top="67" dlg:width="255" dlg:height="8" dlg:page="4" dlg:value="LabelRetrieval"/>
+  <dlg:text dlg:id="LabelCurTemplateRetrieval" dlg:tab-index="12" dlg:left="15" dlg:top="79" dlg:width="249" dlg:height="8" dlg:page="4" dlg:value="LabelCurTemplateRetrieval"/>
+  <dlg:text dlg:id="LabelCurDocumentRetrieval" dlg:tab-index="13" dlg:left="15" dlg:top="91" dlg:width="249" dlg:height="8" dlg:page="4" dlg:value="LabelCurDocumentRetrieval"/>
+  <dlg:text dlg:id="LabelCurProgress" dlg:tab-index="14" dlg:left="10" dlg:top="106" dlg:width="255" dlg:height="8" dlg:page="4" dlg:value="LabelCurProgress"/>
+  <dlg:text dlg:id="LabelCurDocument" dlg:tab-index="15" dlg:left="15" dlg:top="118" dlg:width="249" dlg:height="20" dlg:page="4" dlg:value="LabelCurDocument" dlg:multiline="true"/>
+  <dlg:img dlg:id="ImportPreview" dlg:tab-index="16" dlg:left="5" dlg:top="6" dlg:width="258" dlg:height="26" dlg:scale-image="false"/>
+  <dlg:button dlg:id="cmdBack" dlg:tab-index="17" dlg:left="155" dlg:top="190" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CMDPREV" dlg:value="cmdBack">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.Main.PrevStep?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="18" dlg:left="6" dlg:top="190" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CMDCANCEL" dlg:value="cmdCancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.Main.CancelTask?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdHelp" dlg:tab-index="19" dlg:left="65" dlg:top="190" dlg:width="50" dlg:height="14" dlg:value="cmdHelp" dlg:button-type="help"/>
+  <dlg:button dlg:id="cmdGoOn" dlg:tab-index="20" dlg:left="214" dlg:top="190" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CMDNEXT" dlg:value="cmdGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.Main.NextStep?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="WelcomeTextLabel" dlg:tab-index="21" dlg:left="6" dlg:top="38" dlg:width="258" dlg:height="20" dlg:page="1" dlg:value="WelcomeTextLabel" dlg:multiline="true"/>
+  <dlg:text dlg:id="WelcomeTextLabel3" dlg:tab-index="22" dlg:left="6" dlg:top="58" dlg:width="258" dlg:height="12" dlg:page="1" dlg:value="WelcomeTextLabel3"/>
+  <dlg:button dlg:id="cmdTemplateImport" dlg:tab-index="23" dlg:left="248" dlg:top="75" dlg:width="14" dlg:height="14" dlg:page="2" dlg:tag="txtTemplateImportPath" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CMDTEMPLATEPATHSELECT" dlg:value="...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.DialogModul.TakoverFolderName?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdTemplateExport" dlg:tab-index="24" dlg:left="248" dlg:top="91" dlg:width="14" dlg:height="14" dlg:page="2" dlg:tag="txtTemplateExportPath" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CMDTEMPLATEPATHSELECT2" dlg:value="...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.DialogModul.TakoverFolderName?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdDocumentImport" dlg:tab-index="25" dlg:left="248" dlg:top="148" dlg:width="14" dlg:height="14" dlg:page="2" dlg:tag="txtDocumentImportPath" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CMDDOCUMENTPATHSELECT" dlg:value="...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.DialogModul.TakoverFolderName?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdDocumentExport" dlg:tab-index="26" dlg:left="248" dlg:top="164" dlg:width="14" dlg:height="14" dlg:page="2" dlg:tag="txtDocumentExportPath" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CMDDOCUMENTPATHSELECT2" dlg:value="...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.DialogModul.TakoverFolderName?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optSODocuments" dlg:tab-index="27" dlg:left="6" dlg:top="72" dlg:width="258" dlg:height="9" dlg:page="1" dlg:tag="SO" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_OPTSODOCUMENTS" dlg:value="optSODocuments" dlg:checked="true">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleCheckboxes?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optMSDocuments" dlg:tab-index="28" dlg:left="6" dlg:top="113" dlg:width="258" dlg:height="9" dlg:page="1" dlg:tag="MS" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_OPTMSDOCUMENTS" dlg:value="optMSDocuments">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleCheckboxes?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:checkbox dlg:id="chkSOApplication1" dlg:tab-index="29" dlg:left="12" dlg:top="85" dlg:width="141" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CHKWRITER" dlg:value="chkSOApplication1" dlg:checked="false">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkSOApplication2" dlg:tab-index="30" dlg:left="155" dlg:top="85" dlg:width="109" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CHKCALC" dlg:value="chkSOApplication2" dlg:checked="false">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkSOApplication3" dlg:tab-index="31" dlg:left="12" dlg:top="98" dlg:width="141" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CHKIMPRESS" dlg:value="chkSOApplication3" dlg:checked="false">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkSOApplication4" dlg:tab-index="32" dlg:left="155" dlg:top="98" dlg:width="109" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CHKMATHGLOBAL" dlg:value="chkSOApplication4" dlg:checked="false">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkMSApplication1" dlg:tab-index="33" dlg:disabled="true" dlg:left="12" dlg:top="126" dlg:width="141" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CHKWORD" dlg:value="chkMSApplication1" dlg:checked="false">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkMSApplication2" dlg:tab-index="34" dlg:disabled="true" dlg:left="155" dlg:top="126" dlg:width="109" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CHKEXCEL" dlg:value="chkMSApplication2" dlg:checked="false">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkMSApplication3" dlg:tab-index="35" dlg:disabled="true" dlg:left="12" dlg:top="139" dlg:width="141" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CHKPOWERPOINT" dlg:value="chkMSApplication3" dlg:checked="false">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.Main.ToggleNextButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:text dlg:id="WelcomeTextLabel2" dlg:tab-index="36" dlg:disabled="true" dlg:left="6" dlg:top="152" dlg:width="258" dlg:height="18" dlg:page="1" dlg:value="WelcomeTextLabel2" dlg:multiline="true"/>
+  <dlg:checkbox dlg:id="chkTemplatePath" dlg:tab-index="37" dlg:left="12" dlg:top="48" dlg:width="240" dlg:height="10" dlg:page="2" dlg:tag="Template" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CBTEMPLATE" dlg:value="chkTemplatePath" dlg:checked="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:ImportWizard.DialogModul.ToggleInputPaths?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:checkbox dlg:id="chkTemplateSearchSubDir" dlg:tab-index="38" dlg:left="12" dlg:top="61" dlg:width="240" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_2_CBTEMPLATERECURSE" dlg:value="chkTemplateSearchSubDir" dlg:checked="false"/>
+  <dlg:text dlg:id="lblTemplateImport" dlg:tab-index="39" dlg:left="12" dlg:top="78" dlg:width="60" dlg:height="8" dlg:page="2" dlg:value="lblTemplateImport"/>
+  <dlg:checkbox dlg:id="chkLogfile" dlg:tab-index="40" dlg:left="6" dlg:top="171" dlg:width="136" dlg:height="9" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGIMPORT_0_CHKLOGFILE" dlg:value="chkLogfile" dlg:checked="true"/>
+  <dlg:fixedline dlg:id="hlnTemplates" dlg:tab-index="41" dlg:left="6" dlg:top="37" dlg:width="258" dlg:height="8" dlg:page="2" dlg:value="hlnTemplates"/>
+  <dlg:fixedline dlg:id="hlnDocuments" dlg:tab-index="42" dlg:left="6" dlg:top="110" dlg:width="258" dlg:height="8" dlg:page="2" dlg:value="hlnDocuments"/>
+  <dlg:fixedline dlg:id="FixedLine1" dlg:tab-index="43" dlg:left="6" dlg:top="181" dlg:width="258" dlg:height="6"/>
+  <dlg:fixedline dlg:id="hlnProgress" dlg:tab-index="44" dlg:left="6" dlg:top="55" dlg:width="258" dlg:height="8" dlg:page="4" dlg:value="hlnProgress"/>
+  <dlg:button dlg:id="cmdShowLogFile" dlg:tab-index="45" dlg:disabled="true" dlg:left="75" dlg:top="142" dlg:width="120" dlg:height="14" dlg:page="4" dlg:value="cmdShowLogFile">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ImportWizard.FilesModul.OpenLogDocument?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+ </dlg:bulletinboard>
+</dlg:window>

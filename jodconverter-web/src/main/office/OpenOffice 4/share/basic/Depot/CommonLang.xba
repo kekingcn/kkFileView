@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="CommonLang" script:language="StarBasic">REM  *****  BASIC  *****
+
+
+&apos; Column A has the index 1
+Public Const SBCOLUMNNAME1 = 3			&apos; Stock names, sheet 1
+Public Const SBCOLUMNID1 = 4			&apos; Stock ID, sheet 1
+Public Const SBCOLUMNQUANTITY1 = 5		&apos; Stock quantity sheet 1
+Public Const SBCOLUMNRATE1 = 7			&apos; Price for stocks, sheet 1
+Public Const SBCOLUMNNAME2 = 3			&apos; Stock names, sheet 2
+Public Const SBCOLUMNDATE2 = 4			&apos; Transaction dates, sheet 2
+Public Const SBCOLUMNQUANTITY2 = 5		&apos; Transaction quantity, sheet 2
+Public Const SBCOLUMNRATE2 = 6			&apos; Price for stocks, sheet 2
+Public Const SBCOLUMNPROVPERCENT2 = 7	&apos; Provision in %, sheet 2
+Public Const SBCOLUMNPROVMIN2 = 8		&apos; Minimum provision, sheet 2
+Public Const SBCOLUMNPROVFIX2 = 9		&apos; Fixed provision, sheet 2
+Public Const SBCOLUMNPROCEEDS2 = 12		&apos; Profit, sheet 2
+Public Const SBCOLUMNQTYSOLD2 = 14		&apos; Quantity sold, sheet 2
+Public Const SBCOLUMNQTYREST2 = 15		&apos; Quantity not sold yet, sheet 2
+Public Const SBCOLUMNPRCREST2 = 16		&apos; Proportional proce for quantity not sold yet, sheet 2
+Public Const SBCOLUMNREALPROC2 = 17		&apos; Realized proceeds, sheet 2
+Public Const SBCOLUMNDIVIDEND2 = 18		&apos; Dividend paid, sheet 2
+Public Const SBCOLUMNREALPROFIT2 = 19	&apos; Realized profit, sheet 2
+Public Const SBROWFIRSTTRANSACT2 = 8	&apos; First data row, sheet 2
+Public Const SBROWHEADER1 = 6			&apos; Headline, sheet 1
+Public Const SBMSGOK = 0
+Public Const SBMSGYESNO = 4
+Public Const SBMSGSTOP = 16
+Public Const SBMSGQUESTION = 32
+Public Const SBMSGDEFAULTBTN2 = 256
+Public Const SBHASID = 1				&apos; 0 = no ID, 1 = stocks have an ID
+Public Const SBDIALOGSELL = 1			&apos; Step for main dialog
+Public Const SBDIALOGBUY = 2			&apos; Step for main dialog
+Public Const SBBINARY = 0
+Public TransactMode as Integer
+Public Const LIFO = -1
+Public Const FIFO = 1
+
+Public Const HANDLEDIVIDEND = 1
+Public Const HANDLESPLIT = 2
+
+Global oDocument as Object
+Global oDocFormats() as Object
+Global oController as Object
+Global oFirstSheet as Object
+Global oBankSheet as Object
+Global oMovementSheet as Object
+Global sDocLanguage as String
+Global sDocCountry as String
+Global oSheets as Object
+Global oDocLocale as New com.sun.star.lang.Locale
+Global bEnableMarket as Boolean
+Global bEnableInternet as Boolean
+Global oMarketModel as Object
+Global oInternetModel as Object
+
+Global sCurCurrency$, sCurExtension$, sCurChartSource$, sCurStockIDLabel$, sCurSeparator$
+
+Public oNumberFormatter as Object
+Public bDebugmode as Boolean
+Global GlobListindex as Integer
+Public blabla() as String
+Public SplitDate as Date
+Public oChartSheet as Object
+Public oBackgroundSheet as Object
+Public Const SBDATECOLUMN = 3
+Public Const SBVALUECOLUMN = 4
+Public Const SBSTARTROW = 25
+Public Const SBCHARTPERIOD = 14
+Public Const SBINTERVAL = &quot;d&quot;
+Public sColumnHeader as String
+Public StartDate as Date
+Public EndDate as Date
+Public iCurRow as Integer
+Public iMaxRow as Integer
+Public iStartDay as Integer
+Public iStartMonth as Integer
+Public iStartYear as Integer
+Public iEndDay as Integer
+Public iEndMonth as Integer
+Public iEndYear as Integer
+Public oStatusLine as Object
+Public Today as Date
+Public sInterval as String
+Public ShortMonths(11,1)
+Public iStep as Integer
+Public sDepotCurrency as String
+Public iValueCol as Integer
+
+Public DlgReference as Object
+Public DlgTransaction as Object	
+Public DlgStockRates as Object
+Public DlgStartUp as Object
+Public TransactModel as Object
+Public StockRatesModel as Object
+Public StartUpModel as Object
+Public StockRatesTitle(1 To 3)
+Public TransactTitle(1 To 2)
+Public NullList()
+Public sStartupWelcome$, sStartupChooseMarket$, sStartupHint$
+
+Public sMarket(7,10) as String
+Public sCountryMarket(7,10) as String
+
+Public cDlgCaption1$, cDlgCaption2$
+Public sMsgError$, sMsgNoName$, sMsgNoQuantity$, sMsgNoDividend$, sMsgNoExchangeRate$
+Public sMsgNoValidExchangeDate$, sMsgWrongExchangeDate$, sMsgSellTooMuch$, sMsgConfirm$
+Public sMsgFreeStock$, sMsgTotalLoss$, sMsgEndDatebeforeNow$, sMsgStartDatebeforeEndDate$
+
+Public sOk$, sCancel$
+Public sMsgAuthorization$, sMsgDeleteAll$
+Public SellMethod$
+Public cSplit$
+Global HistoryChartSource as String
+Public DateCellStyle as String
+Public CurrCellStyle as String
+Public sStartDate$, sEndDate$, sHistory$
+Public sInsertStockname$
+Public sProductname$, sTitle$
+Public sInsertStocks$, sStockname$, sNoInternetUpdate$, sMarketplace$, sNoInternetDataAvailable$
+Public sCheckInternetSettings as String
+
+Sub LoadLanguage()
+	LoadDepotDialogs()
+	Select Case sDocLanguage
+		Case &quot;de&quot;
+			LoadGermanLanguage()
+		Case &quot;en&quot;
+			LoadEnglishLanguage()			
+		Case &quot;fr&quot;
+			LoadFrenchLanguage()
+		Case &quot;it&quot;
+			LoadItalianLanguage()		
+		Case &quot;es&quot;
+			LoadSpanishLanguage()
+		Case &quot;sv&quot;
+			LoadSwedishLanguage()
+		Case &quot;ja&quot;
+			LoadJapaneseLanguage()
+		Case &quot;ko&quot;
+			LoadKoreanLanguage()			
+		Case &quot;zh&quot;
+			If sDocCountry = &quot;CN&quot; Then
+				LoadChineseSimpleLanguage()
+			Else
+				LoadChineseTradLanguage()
+			End If				
+	End Select
+	InitializeStartUpModel()	
+End Sub	
+
+Sub CompleteMarketList()
+Dim EuroIndex as Integer
+Dim LocCountry as String
+Dim LocLanguage as String
+Dim sLangList() as String
+Dim sCountryList() as String
+Dim sExtensionList() as String
+Dim MaxIndex as Integer
+Dim bIsLocale as Boolean
+
+	GlobListIndex = -1
+	For n = 0 To 5
+		LocLanguage = sMarket(n,6)
+		LocCountry = sMarket(n,7)
+		If Instr(1,LocLanguage,&quot;;&quot;,SBBINARY) = 0 Then
+			bIsLocale = CheckDocLocale(LocLanguage, LocCountry)
+		Else
+			EuroIndex = 0
+			sLangList() = ArrayoutofString(LocLanguage, &quot;;&quot;, MaxIndex)
+			sCountryList() = ArrayoutofString(LocCountry, &quot;;&quot;, MaxIndex)
+			sExtensionList() = ArrayoutofString(sMarket(n,8), &quot;;&quot;, MaxIndex)
+			For m = 0 To MaxIndex
+				bIsLocale = CheckDocLocale(sLangList(m), sCountryList(m))
+				If bIsLocale Then
+					EuroIndex = m
+					Exit For								
+				End If
+			Next m	
+			sMarket(n,6) = sLangList(EuroIndex)
+			sMarket(n,7) = sCountryList(EuroIndex)
+			sMarket(n,8) = sExtensionList(EuroIndex)
+		End If
+		If bIsLocale Then
+			GlobListIndex = n
+			Exit For
+		End If
+	Next n
+End Sub	
+
+Sub LocalizedCurrencies()
+	If GlobListIndex = -1 Then
+		sCountryMarket(0,0) = &quot;Euro&quot;
+		sCountryMarket(0,1) = chr(8364)
+		sCountryMarket(0,2) = &quot;Paris&quot;
+		sCountryMarket(0,3) = &quot;http://fr.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.PA&amp;f=s4l1t1c1ghov&amp;e=.csv&quot;
+		sCountryMarket(0,5) = &quot;Code&quot;
+		sCountryMarket(0,6) = &quot;fr&quot;			
+		sCountryMarket(0,7) = &quot;FR&quot;
+		sCountryMarket(0,8) = &quot;40C&quot;
+		sCountryMarket(0,9) = &quot;59/9&quot;
+		sCountryMarket(0,10) = &quot;1&quot;
+
+		sCountryMarket(1,0) = &quot;Euro&quot;
+		sCountryMarket(1,1) = chr(8364)
+		sCountryMarket(1,2) = &quot;Milano&quot;
+		sCountryMarket(1,3) = &quot;http://it.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.MI&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+		sCountryMarket(1,5) = &quot;Codice&quot;
+		sCountryMarket(1,6) = &quot;it&quot;
+		sCountryMarket(1,7) = &quot;IT&quot;
+		sCountryMarket(1,8) = &quot;410&quot;
+		sCountryMarket(1,9) = &quot;44&quot;
+		sCountryMarket(1,10) = &quot;1&quot;
+
+		sCountryMarket(2,0) = &quot;Euro&quot;
+		sCountryMarket(2,1) = chr(8364)
+		sCountryMarket(2,2) = &quot;Madrid&quot;
+		sCountryMarket(2,3) = &quot;http://es.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;m=MC&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+		sCountryMarket(2,5) = &quot;Simbolo&quot;
+		sCountryMarket(2,6) = &quot;es&quot;
+		sCountryMarket(2,7) = &quot;ES&quot;
+		sCountryMarket(2,8) = &quot;40A&quot;
+		sCountryMarket(2,9) = &quot;44&quot;
+		sCountryMarket(2,10) = &quot;1&quot;
+
+		sCountryMarket(3,0) = &quot;Dansk krone&quot;
+		sCountryMarket(3,1) = &quot;kr&quot;
+		sCountryMarket(3,2) = &quot;København&quot;
+		sCountryMarket(3,3) = &quot;http://dk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID.CO&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+		sCountryMarket(3,5) = &quot;Aktiesymbol&quot;
+		sCountryMarket(3,6) = &quot;da&quot;
+		sCountryMarket(3,7) = &quot;DK&quot;
+		sCountryMarket(3,8) = &quot;406&quot;
+		sCountryMarket(3,9) = &quot;44&quot;
+		sCountryMarket(3,10) = &quot;1&quot;
+
+		sCountryMarket(4,0) = &quot;Svensk krona&quot;
+		sCountryMarket(4,1) = &quot;kr&quot;
+		sCountryMarket(4,2) = &quot;Stockholm&quot;
+		sCountryMarket(4,3) = &quot;http://se.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.L&amp;f=sl1d1t1c1ohgv&amp;e=.c&quot;
+		sCountryMarket(4,5) = &quot;Kod&quot;			
+		sCountryMarket(4,6) = &quot;sv&quot;			
+		sCountryMarket(4,7) = &quot;SE&quot;
+		sCountryMarket(4,8) = &quot;41D&quot;
+		sCountryMarket(4,9) = &quot;44&quot;
+		sCountryMarket(4,10) = &quot;1&quot;
+
+		&apos; Taiwan Dollar
+		sCountryMarket(5,0) = &quot;新臺幣&quot;
+		sCountryMarket(5,1) = &quot;￥&quot;
+		sCountryMarket(5,2) = &quot;代號&quot;
+		sCountryMarket(5,3) = &quot;http://tw.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.TW&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+		sCountryMarket(5,5) = &quot;代號&quot;			
+		sCountryMarket(5,6) = &quot;zh&quot;			
+		sCountryMarket(5,7) = &quot;TW&quot;	
+		sCountryMarket(5,8) = &quot;404&quot;
+		sCountryMarket(5,9) = &quot;44&quot;
+		sCountryMarket(5,10) = &quot;1&quot;		
+
+		&apos; Chinese Yuan
+		sCountryMarket(6,0) = &quot;人民币&quot;
+		sCountryMarket(6,1) = &quot;￥&quot;
+		sCountryMarket(6,2) = &quot;代号&quot;
+		sCountryMarket(6,3) = &quot;http://cn.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.SS&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+		sCountryMarket(6,5) = &quot;代号&quot;
+		sCountryMarket(6,6) = &quot;zh&quot;			
+		sCountryMarket(6,7) = &quot;CN&quot;	
+		sCountryMarket(6,8) = &quot;804&quot;
+		sCountryMarket(6,9) = &quot;44&quot;
+		sCountryMarket(6,10) = &quot;1&quot;
+		
+		&apos; korean Won
+		sCountryMarket(7,0) = &quot;한국 원화&quot;
+		sCountryMarket(7,1) = &quot;￦&quot;
+		sCountryMarket(7,2) = &quot;서울&quot;
+		sCountryMarket(7,3) = &quot;http://kr.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.KS&amp;f=snl1d1t1c1ohgv&amp;e=.csv&quot;
+		sCountryMarket(7,5) = &quot;종목 코드&quot;
+		sCountryMarket(7,6) = &quot;ko&quot;
+		sCountryMarket(7,7) = &quot;KR&quot;			
+		sCountryMarket(7,8) = &quot;412&quot;
+		sCountryMarket(7,9) = &quot;44&quot;
+		sCountryMarket(7,10) = &quot;2&quot;
+
+
+&apos;		sCountryMarket(5,0) = &quot;Российский рубль&quot;
+&apos;		sCountryMarket(5,1) = &quot;р.&quot;
+&apos;		sCountryMarket(5,2) = &quot;&quot;
+&apos;		sCountryMarket(5,3) = &quot;&quot;
+&apos;		sCountryMarket(5,5) = &quot;&quot;				
+&apos;		sCountryMarket(5,6) = &quot;ru&quot;			
+&apos;		sCountryMarket(5,7) = &quot;RU&quot;	
+&apos;		sCountryMarket(5,8) = &quot;-419&quot;
+&apos;		sCountryMarket(5,9) = &quot;&quot;
+&apos;
+&apos;		sCountryMarket(6,0) = &quot;Złoty polski&quot;
+&apos;		sCountryMarket(6,1) = &quot;zł&quot;
+&apos;		sCountryMarket(6,2) = &quot;&quot;
+&apos;		sCountryMarket(6,3) = &quot;&quot;
+&apos;		sCountryMarket(6,5) = &quot;&quot;				&apos;Still Todo!!
+&apos;		sCountryMarket(6,6) = &quot;pl&quot;			
+&apos;		sCountryMarket(6,7) = &quot;PL&quot;	
+&apos;		sCountryMarket(6,8) = &quot;-415&quot;
+&apos;		sCountryMarket(6,9) = &quot;&quot;
+&apos;
+&apos;		sCountryMarket(7,0) = &quot;Türkische Lira&quot;
+&apos;		sCountryMarket(7,1) = &quot;TL&quot;
+&apos;		sCountryMarket(7,2) = &quot;&quot;
+&apos;		sCountryMarket(7,3) = &quot;&quot;
+&apos;		sCountryMarket(7,5) = &quot;&quot;				&apos;Still Todo!!
+&apos;		sCountryMarket(7,6) = &quot;tr&quot;			
+&apos;		sCountryMarket(7,7) = &quot;TR&quot;	
+&apos;		sCountryMarket(7,8) = &quot;-41F&quot;
+&apos;		sCountryMarket(7,9) = &quot;&quot;
+
+	Dim n as Integer
+	Dim m as Integer
+&apos;	Dim sCountryMarket(6,9) as String
+	
+		For n = 0 To Ubound(sCountryMarket(),1)
+			If sDocLanguage = sCountryMarket(n,6) and sDocCountry = sCountryMarket(n,7) Then
+				GlobListIndex = 6
+				For m = 0 To 10
+					sMarket(6,m) = sCountryMarket(n,m)
+				Next m
+				Exit For
+			End If
+		Next n		
+	End If
+End Sub
+
+Sub LoadDepotDialogs()
+	DlgTransaction = LoadDialog(&quot;Depot&quot;, &quot;Dialog2&quot;)
+	DlgStockRates = LoadDialog(&quot;Depot&quot;, &quot;Dialog3&quot;)
+	DlgStartUp = LoadDialog(&quot;Depot&quot;, &quot;Dialog4&quot;)
+	TransactModel = DlgTransaction.Model
+	StockRatesModel = DlgStockRates.Model	
+	StartUpModel = DlgStartUp.Model
+End Sub	
+
+
+Sub InitializeStartUpModel()
+	With StartUpModel
+		.lblWelcome.Label = sStartupWelcome &amp; Chr(13) &amp; chr(13) &amp; sStartUpChooseMarket
+		sStartUpHint = ReplaceString(sStartUpHint, sHistory, &quot;&lt;History&gt;&quot;)
+		.lblHint.Label = sStartupHint
+&apos;		.cmdGoOn.Enabled = Ubound(StartUpModel.lstMarkets.SelectedItems()) &lt;&gt; -1
+		.cmdGoOn.Label = sOK 
+		.cmdCancel.Label = sCancel
+	End With
+End Sub</script:module>

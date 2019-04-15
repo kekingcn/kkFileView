@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="DialogStyles" dlg:left="170" dlg:top="93" dlg:width="120" dlg:height="169" dlg:help-url="HID:WIZARDS_HID_DLGSTYLES_DIALOG" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="0" dlg:left="5" dlg:top="150" dlg:width="50" dlg:height="13" dlg:help-url="HID:WIZARDS_HID_DLGSTYLES_CANCEL" dlg:value="cmdCancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Template.Samples.RestoreCurrentStyles?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdOk" dlg:tab-index="1" dlg:left="65" dlg:top="150" dlg:width="50" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGSTYLES_OKAY" dlg:value="cmdOk">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Template.Samples.CloseStyleDialog?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:menulist dlg:id="lbStyles" dlg:tab-index="2" dlg:left="5" dlg:top="5" dlg:width="110" dlg:height="133" dlg:help-url="HID:WIZARDS_HID_DLGSTYLES_LISTBOX">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Template.Samples.SelectStyle?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+ </dlg:bulletinboard>
+</dlg:window>

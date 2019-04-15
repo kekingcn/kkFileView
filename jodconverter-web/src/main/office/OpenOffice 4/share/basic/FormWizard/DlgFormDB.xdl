@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="DlgFormDB" dlg:left="96" dlg:top="28" dlg:width="270" dlg:height="210" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGFORM_DIALOG" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="lblSelFields" dlg:tab-index="10" dlg:left="154" dlg:top="70" dlg:width="110" dlg:height="8" dlg:page="1" dlg:value="lblSelFields"/>
+  <dlg:menulist dlg:id="lstTables" dlg:tab-index="3" dlg:left="6" dlg:top="51" dlg:width="110" dlg:height="12" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGFORM_MASTER_LBTABLES" dlg:spin="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:FormWizard.FormWizard.FormGetFields?language=Basic&amp;location=application" script:language="Script"/>
+   <script:event script:event-name="on-mousedown" script:macro-name="vnd.sun.star.script:FormWizard.FormWizard.DeleteFirstTableListBoxEntry?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:img dlg:id="imgTheme" dlg:tab-index="1" dlg:left="6" dlg:top="6" dlg:width="258" dlg:height="26" dlg:scale-image="false"/>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="33" dlg:left="6" dlg:top="190" dlg:width="53" dlg:height="14" dlg:help-url="HID:34401" dlg:value="cmdCancel" dlg:button-type="cancel"/>
+  <dlg:button dlg:id="cmdHelp" dlg:tab-index="34" dlg:left="63" dlg:top="190" dlg:width="53" dlg:height="14" dlg:tag="34400" dlg:value="cmdHelp" dlg:button-type="help"/>
+  <dlg:button dlg:id="cmdBack" dlg:tab-index="35" dlg:left="155" dlg:top="190" dlg:width="53" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGFORM_CMDPREV" dlg:value="cmdBack">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.FormWizard.PreviousStep?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdGoOn" dlg:tab-index="36" dlg:left="211" dlg:top="190" dlg:width="53" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGFORM_CMDNEXT" dlg:value="cmdGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.FormWizard.NextStep?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="lblTables" dlg:tab-index="2" dlg:left="6" dlg:top="40" dlg:width="72" dlg:height="8" dlg:page="1" dlg:value="lblTables"/>
+  <dlg:text dlg:id="lblFields" dlg:tab-index="4" dlg:left="6" dlg:top="70" dlg:width="109" dlg:height="8" dlg:page="1" dlg:value="lblFields"/>
+  <dlg:button dlg:id="cmdMoveSelected" dlg:tab-index="6" dlg:left="122" dlg:top="84" dlg:width="25" dlg:height="14" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGFORM_OPTONEXISTINGRELATION" dlg:value="-&gt;">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormMoveSelected?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdMoveAll" dlg:tab-index="7" dlg:left="122" dlg:top="101" dlg:width="25" dlg:height="14" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGFORM_OPTSELECTMANUALLY" dlg:value="=&gt;&gt;">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormMoveAll?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdRemoveSelected" dlg:tab-index="8" dlg:left="122" dlg:top="118" dlg:width="25" dlg:height="14" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGFORM_lstRELATIONS" dlg:value="&lt;-">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormRemoveSelected?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdRemoveAll" dlg:tab-index="9" dlg:left="122" dlg:top="135" dlg:width="25" dlg:height="14" dlg:page="1" dlg:help-url="HID:34425" dlg:value="&lt;&lt;=">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormRemoveAll?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optIgnoreBinaries" dlg:tab-index="14" dlg:left="122" dlg:top="169" dlg:width="104" dlg:height="10" dlg:page="1" dlg:help-url="HID:34427" dlg:value="optIgnoreBinaries" dlg:checked="true">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.DBMeta.AddOrRemoveBinaryFieldsToWidthList?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optBinariesasGraphics" dlg:tab-index="13" dlg:left="12" dlg:top="169" dlg:width="104" dlg:height="10" dlg:page="1" dlg:help-url="HID:34426" dlg:value="optBinariesasGraphics">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.DBMeta.AddOrRemoveBinaryFieldsToWidthList?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:menulist dlg:id="lstFields" dlg:tab-index="5" dlg:left="6" dlg:top="81" dlg:width="110" dlg:height="70" dlg:page="1" dlg:help-url="HID:34420" dlg:multiselection="true">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormMoveSelected?language=Basic&amp;location=application" script:language="Script"/>
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormSetMoveRights?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:menulist dlg:id="lstSelFields" dlg:tab-index="11" dlg:left="154" dlg:top="81" dlg:width="110" dlg:height="70" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGFORM_CHKCREATESUBFORM" dlg:multiselection="true">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormRemoveSelected?language=Basic&amp;location=application" script:language="Script"/>
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Tools.Listbox.FormSetMoveRights?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:text dlg:id="lblStyles" dlg:tab-index="25" dlg:left="150" dlg:top="39" dlg:width="114" dlg:height="8" dlg:page="2" dlg:value="lblStyles"/>
+  <dlg:button dlg:id="cmdArrange1" dlg:tab-index="16" dlg:left="12" dlg:top="50" dlg:width="23" dlg:height="25" dlg:page="2" dlg:tag="1" dlg:help-url="HID:WIZARDS_HID_DLGFORM_SUB_LBTABLES">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeArrangemode?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdArrange2" dlg:tab-index="17" dlg:left="39" dlg:top="50" dlg:width="23" dlg:height="25" dlg:page="2" dlg:tag="2" dlg:help-url="HID:WIZARDS_HID_DLGFORM_SUB_FIELDSAVAILABLE">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeArrangemode?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdArrange3" dlg:tab-index="18" dlg:left="66" dlg:top="50" dlg:width="23" dlg:height="25" dlg:page="2" dlg:tag="3" dlg:help-url="HID:WIZARDS_HID_DLGFORM_SUB_CMDMOVESELECTED">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeArrangemode?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdArrange4" dlg:tab-index="19" dlg:left="93" dlg:top="50" dlg:width="23" dlg:height="25" dlg:page="2" dlg:tag="4" dlg:help-url="HID:WIZARDS_HID_DLGFORM_SUB_CMDMOVEALL">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeArrangemode?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdArrange5" dlg:tab-index="20" dlg:left="120" dlg:top="50" dlg:width="23" dlg:height="25" dlg:page="2" dlg:tag="5" dlg:help-url="HID:WIZARDS_HID_DLGFORM_SUB_CMDREMOVESELECTED">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeArrangemode?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:menulist dlg:id="lstStyles" dlg:tab-index="26" dlg:left="150" dlg:top="50" dlg:width="114" dlg:height="86" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGFORM_LINKER_LSTSLAVELINK2">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:FormWizard.tools.ImportStyles?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optBorder0" dlg:tab-index="22" dlg:left="12" dlg:top="95" dlg:width="131" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGFORM_SUB_CMDMOVEUP" dlg:value="optBorder0">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeBorderLayouts?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optBorder1" dlg:tab-index="23" dlg:left="12" dlg:top="109" dlg:width="131" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGFORM_SUB_CMDMOVEDOWN" dlg:value="optBorder1">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeBorderLayouts?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optBorder2" dlg:tab-index="24" dlg:left="12" dlg:top="123" dlg:width="131" dlg:height="10" dlg:page="2" dlg:help-url="HID:34440" dlg:value="optBorder2">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeBorderLayouts?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:fixedline dlg:id="hlnBinaries" dlg:tab-index="12" dlg:left="6" dlg:top="158" dlg:width="258" dlg:height="8" dlg:page="1" dlg:value="hlnBinaries"/>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optTiled" dlg:tab-index="31" dlg:left="156" dlg:top="154" dlg:width="81" dlg:height="10" dlg:page="2" dlg:tag="11" dlg:help-url="HID:WIZARDS_HID_DLGFORM_LINKER_LSTMASTERLINK2" dlg:value="optTiled" dlg:checked="true">
+    <script:event script:event-name="on-mouseup" script:macro-name="vnd.sun.star.script:WebWizard.Common.SetBackGraphicStyle?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optArea" dlg:tab-index="32" dlg:left="156" dlg:top="168" dlg:width="81" dlg:height="10" dlg:page="2" dlg:tag="10" dlg:help-url="HID:WIZARDS_HID_DLGFORM_LINKER_LSTSLAVELINK3" dlg:value="optArea">
+    <script:event script:event-name="on-mouseup" script:macro-name="vnd.sun.star.script:WebWizard.Common.SetBackGraphicStyle?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:fixedline dlg:id="hlnBackground" dlg:tab-index="30" dlg:left="150" dlg:top="143" dlg:width="114" dlg:height="8" dlg:page="2" dlg:value="hlnBackground"/>
+  <dlg:fixedline dlg:id="hlnAlign" dlg:tab-index="27" dlg:left="6" dlg:top="143" dlg:width="137" dlg:height="8" dlg:page="2" dlg:value="hlnAlign"/>
+  <dlg:fixedline dlg:id="hlnBorderLayout" dlg:tab-index="21" dlg:left="6" dlg:top="83" dlg:width="137" dlg:height="8" dlg:page="2" dlg:value="hlnBorderLayout"/>
+  <dlg:fixedline dlg:id="hlnArrangements" dlg:tab-index="15" dlg:left="6" dlg:top="39" dlg:width="137" dlg:height="8" dlg:page="2" dlg:value="hlnArrangements"/>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optAlign0" dlg:tab-index="28" dlg:left="12" dlg:top="154" dlg:width="131" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGFORM_LINKER_LSTSLAVELINK1" dlg:value="optAlign0">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeLabelAlignments?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optAlign2" dlg:tab-index="29" dlg:left="12" dlg:top="168" dlg:width="131" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGFORM_LINKER_LSTMASTERLINK1" dlg:value="optAlign2">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:FormWizard.Layouter.ChangeLabelAlignments?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:fixedline dlg:id="FixedLine1" dlg:tab-index="0" dlg:left="6" dlg:top="180" dlg:width="258" dlg:height="6"/>
+ </dlg:bulletinboard>
+</dlg:window>
