@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Language" script:language="StarBasic">Option Explicit
+
+
+Global Const RID_COMMON	= 1000
+Global Const RID_FORM	= 2200
+
+Public Const SBCANCEL = 2
+Public Const SBREPEAT = 4
+Public LabelDiffHeight as Long
+Public BasicLabelDiffHeight as Long
+
+Public WizardTitle(1 To 3) as String
+Public DlgFormDB as Object
+Public DialogModel as Object
+
+Dim sMsgWizardName as String
+Dim sMsgErrMsg as String
+Dim sMsgErrNoDatabase as String
+Dim sMsgErrNoTableInDatabase as String
+Dim sMsgErrTitleSuggestedExist as String
+Dim sMsgErrTitleSyntaxError as String
+Dim sMsgErrTitleAsTableExist as String
+Dim sMsgProgressText as String
+Dim sMsgCreatedForm as String
+Dim sMsgErrCouldNotOpenObject as String
+Dim sMsgErrNameToLong as String
+Dim sTimeAppendix as String
+Dim sDateAppendix as String
+Public sGoOn as String
+Public sReady as String
+Public sMsgNoConnection as String
+Public sWriterFilterName as String		
+Public XPixelFactor as Long		
+Public YPixelFactor as Long
+Public sSelectDatasource as String
+Public sSelectDBTable as String
+
+
+
+Sub LoadLanguage ()
+	sMsgWizardName = GetResText(RID_FORM + 0)
+	sMsgErrMsg = GetResText(RID_COMMON + 6)
+	sMsgErrNoDatabase = GetResText(RID_COMMON + 8)
+	sMsgErrNoTableInDatabase = GetResText(RID_COMMON + 9)
+	sMsgErrTitleSuggestedExist = GetResText(RID_COMMON + 10)
+	sMsgErrTitleAsTableExist = GetResText(RID_COMMON + 10)
+	sMsgErrTitleSyntaxError = GetResText(RID_COMMON + 11)
+	sMsgNoConnection = GetResText(RID_COMMON + 14
+	sMsgProgressText = GetResText(RID_FORM + 2)
+	sMsgCreatedForm = GetResText(RID_FORM + 26)
+	sMsgErrNameToLong = GetResText (RID_FORM + 27)
+	sMsgErrCouldNotOpenObject = GetResText (RID_COMMON + 13)
+
+	&apos;	Internal Logic
+	sDateAppendix = GetResText(RID_FORM + 4)
+	sTimeAppendix = GetResText(RID_FORM + 5)
+	
+	sReady = GetResText(RID_COMMON + 0)
+End Sub
+
+
+Sub SetDialogLanguage ()
+Dim i as Integer
+Dim ButtonHelpText as String
+Dim CmdButton as Object
+Dim IDArray as Variant
+Dim FNameAddOn as String
+Dim slblSelFields as String
+Dim slblFields as String
+
+	DlgFormDB = LoadDialog(&quot;FormWizard&quot;, &quot;DlgFormDB&quot;)
+	DialogModel = DlgFormDB.Model
+	
+	With DialogModel
+		.cmdCancel.Label = GetResText(RID_COMMON + 1)
+		.cmdBack.Label = GetResText(RID_COMMON + 2)
+		.cmdHelp.Label = GetResText(RID_COMMON + 20)
+		sGoOn = GetResText(RID_COMMON + 3)
+		.cmdGoOn.Label = sGoOn
+		.lblTables.Label = GetResText(RID_FORM + 6)
+
+		slblFields = GetResText(RID_FORM + 12)
+		slblSelFields = GetResText(RID_FORM + 13)
+		.lblFields.Label = slblFields
+		.lblSelFields.Label = slblSelFields
+
+		.lblStyles.Label = GetResText(RID_FORM + 21)
+		.hlnBorderLayout.Label = GetResText(RID_FORM + 28)
+		.hlnAlign.Label = GetResText(RID_FORM + 32)
+		.hlnArrangements.Label = GetResText(RID_FORM + 35)
+
+		WizardTitle(1) = sMsgWizardName &amp; &quot; - &quot; &amp; GetResText(RID_FORM + 45)
+		WizardTitle(2) = sMsgWizardName &amp; &quot; - &quot; &amp; GetResText(RID_FORM + 46)
+		WizardTitle(3) = sMsgWizardName &amp; &quot; - &quot; &amp; GetResText(RID_FORM + 47)
+
+		.hlnBinaries.Label = GetResText(RID_FORM + 50)
+		.optIgnoreBinaries.Label = GetResText(RID_FORM + 51)
+		.optBinariesasGraphics.Label = GetResText(RID_FORM + 52)
+	
+		.hlnBackground.Label = GetResText(RID_FORM + 55)
+		.optTiled.Label = GetResText(RID_FORM + 56)
+		.optArea.Label = GetResText(RID_FORM + 57)
+
+		.optBorder0.Label = GetResText(RID_FORM + 29)
+		.optBorder1.Label = GetResText(RID_FORM + 30)
+		.optBorder2.Label = GetResText(RID_FORM + 31)
+		.optBorder1.State = 1
+		
+		.optAlign0.Label = GetResText(RID_FORM + 33)
+		.optAlign2.Label = GetResText(RID_FORM + 34)
+		.optAlign0.State = 1
+		
+		FNameAddOn = &quot;&quot;
+		If isHighContrast(DlgFormDB.getPeer) Then FNameAddOn = &quot;_hc&quot;
+
+		IDArray = Array(36, 37, 40, 38, 39)
+		For i = 1 To 5
+			ButtonHelpText = GetResText(RID_FORM + IDArray(i-1)
+			cmdButton = DlgFormDB.getControl(&quot;cmdArrange&quot; &amp; i)
+			cmdButton.Model.ImageURL = FormPath &amp; &quot;Arrange_&quot; &amp; i &amp; FNameAddOn &amp; &quot;.gif&quot;
+			cmdButton.Model.HelpText = ButtonHelpText
+			cmdButton.getPeer().setProperty(&quot;AccessibleName&quot;, ButtonHelpText)
+		Next i		
+&apos;		.cmdArrange1.ImageURL = FormPath &amp; &quot;Arrange_1&quot; &amp; FNameAddOn &amp; &quot;.gif&quot;
+&apos;		.cmdArrange1.HelpText = GetResText(RID_FORM + 36)
+&apos;
+&apos;		.cmdArrange2.ImageURL = FormPath &amp; &quot;Arrange_2&quot; &amp; FNameAddOn &amp; &quot;.gif&quot;
+&apos;		.cmdArrange2.HelpText = GetResText(RID_FORM + 37)
+&apos;
+&apos;		.cmdArrange3.ImageURL = FormPath &amp; &quot;Arrange_3&quot; &amp; FNameAddOn &amp; &quot;.gif&quot;
+&apos;		.cmdArrange3.HelpText = GetResText(RID_FORM + 40)
+&apos;
+&apos;		.cmdArrange4.ImageURL = FormPath &amp; &quot;Arrange_4&quot; &amp; FNameAddOn &amp; &quot;.gif&quot;
+&apos;		.cmdArrange4.HelpText = GetResText(RID_FORM + 38)
+&apos;
+&apos;		.cmdArrange5.ImageURL = FormPath &amp; &quot;Arrange_5&quot; &amp; FNameAddOn &amp; &quot;.gif&quot;
+&apos;		.cmdArrange5.HelpText = GetResText(RID_FORM + 39)
+		sWriterFilterName = GetResText(RID_FORM + 70)
+	End With
+	DlgFormDB.GetControl(&quot;cmdMoveSelected&quot;).getPeer().setProperty(&quot;AccessibleName&quot;, GetResText(RID_COMMON + 39)
+	DlgFormDB.GetControl(&quot;cmdRemoveSelected&quot;).getPeer().setProperty(&quot;AccessibleName&quot;, GetResText(RID_COMMON + 40)
+	DlgFormDB.GetControl(&quot;cmdMoveAll&quot;).getPeer().setProperty(&quot;AccessibleName&quot;, GetResText(RID_COMMON + 41)
+	DlgFormDB.GetControl(&quot;cmdRemoveAll&quot;).getPeer().setProperty(&quot;AccessibleName&quot;, GetResText(RID_COMMON + 42)
+	DlgFormDB.getControl(&quot;lstFields&quot;).getPeer().setProperty(&quot;AccessibleName&quot;, DeleteStr(slblFields, &quot;~&quot;))
+	DlgFormDB.getControl(&quot;lstSelFields&quot;).getPeer().setProperty(&quot;AccessibleName&quot;, DeleteStr(slblSelFields, &quot;~&quot;))
+	
+	sSelectDatasource = GetResText(RID_COMMON + 37)
+	sSelectDBTable = GetResText(RID_COMMON + 38)	
+End Sub
+
+
+
+Sub InitializeWidthList()
+
+	If Ubound(WidthList(),1) &gt; 16 Then
+		ReDim WidthList(16,4)
+	End If
+
+	WidthList(0,0) = com.sun.star.sdbc.DataType.BIT   			&apos; = -7;
+	WidthList(0,1) = cCheckbox
+	WidthList(0,2) = False
+	WidthList(0,3) = &quot;CheckBox&quot;
+
+	WidthList(1,0) = com.sun.star.sdbc.DataType.TINYINT			&apos; =  -6;
+	WidthList(1,1) = cNumericBox
+	WidthList(1,2) = False
+	WidthList(1,3) = &quot;FormattedField&quot;
+	
+	WidthList(2,0) = com.sun.star.sdbc.DataType.SMALLINT		&apos; =   5;
+	WidthList(2,1) = cNumericBox
+	WidthList(2,2) = False
+	WidthList(2,3) = &quot;FormattedField&quot;
+	
+	WidthList(3,0) = com.sun.star.sdbc.DataType.INTEGER			&apos; =   4;
+	WidthList(3,1) = cNumericBox
+	WidthList(3,2) = False
+	WidthList(3,3) = &quot;FormattedField&quot;
+	
+	WidthList(4,0) = com.sun.star.sdbc.DataType.BIGINT			&apos; =  -5;
+	WidthList(4,1) = cNumericBox
+	WidthList(4,2) = False
+	WidthList(4,3) = &quot;FormattedField&quot;
+	
+	WidthList(5,0) = com.sun.star.sdbc.DataType.FLOAT			&apos; =   6;
+	WidthList(5,1) = cNumericBox
+	WidthList(5,2) = False
+	WidthList(5,3) = &quot;FormattedField&quot;
+	
+	WidthList(6,0) = com.sun.star.sdbc.DataType.REAL			&apos; =   7;
+	WidthList(6,1) = cNumericBox
+	WidthList(6,2) = False
+	WidthList(6,3) = &quot;FormattedField&quot;
+	
+	WidthList(7,0) = com.sun.star.sdbc.DataType.DOUBLE			&apos; =   8;
+	WidthList(7,1) = cNumericBox
+	WidthList(7,2) = False
+	WidthList(7,3) = &quot;FormattedField&quot;
+	
+	WidthList(8,0) = com.sun.star.sdbc.DataType.NUMERIC			&apos; =   2;
+	WidthList(8,1) = cNumericBox
+	WidthList(8,2) = False
+	WidthList(8,3) = &quot;FormattedField&quot;
+	
+	WidthList(9,0) = com.sun.star.sdbc.DataType.DECIMAL			&apos; =   3;  (including decimal places)
+	WidthList(9,1) = cNumericBox
+	WidthList(9,2) = False
+	WidthList(9,3) = &quot;FormattedField&quot;
+	
+	WidthList(10,0) = com.sun.star.sdbc.DataType.CHAR			&apos; =   1;
+	WidthList(10,1) = cTextBox
+	WidthList(10,2) = False
+	WidthList(10,3) = &quot;TextField&quot;
+
+	WidthList(11,0) = com.sun.star.sdbc.DataType.VARCHAR		&apos; =  12;
+	WidthList(11,1) = cTextBox
+	WidthList(11,2) = True
+	WidthList(11,3) = &quot;TextField&quot;
+	
+	WidthList(12,0) = com.sun.star.sdbc.DataType.LONGVARCHAR	&apos; =  -1;
+	WidthList(12,1) = cTextBox
+	WidthList(12,2) = True
+	WidthList(12,3) = &quot;TextField&quot;
+
+	WidthList(13,0) = com.sun.star.sdbc.DataType.DATE			&apos; =  91;
+	WidthList(13,1) = cDateBox
+	WidthList(13,2) = False
+	WidthList(13,3) = &quot;DateField&quot;
+	
+	WidthList(14,0) = com.sun.star.sdbc.DataType.TIME			&apos; =  92;
+	WidthList(14,1) = cTimeBox
+	WidthList(14,2) = False
+	WidthList(14,3) = &quot;TimeField&quot;
+	
+	WidthList(15,0) = com.sun.star.sdbc.DataType.TIMESTAMP		&apos; =  93;
+	WidthList(15,1) = cDateBox
+	WidthList(15,2) = False
+	WidthList(15,3) = &quot;DateField&quot;
+
+	WidthList(16,0) = com.sun.star.sdbc.DataType.BOOLEAN   			&apos; = 16;
+	WidthList(16,1) = cCheckbox
+	WidthList(16,2) = False
+	WidthList(16,3) = &quot;CheckBox&quot;
+
+	ImgWidthList(0,0) = com.sun.star.sdbc.DataType.BINARY			&apos; =  -2;
+	ImgWidthList(0,1) = cImageControl
+	ImgWidthList(0,2) = False
+	ImgWidthList(0,3) = &quot;ImageControl&quot;
+	
+	ImgWidthList(1,0) = com.sun.star.sdbc.DataType.VARBINARY		&apos; =  -3;
+	ImgWidthList(1,1) = cImageControl
+	ImgWidthList(1,2) = False
+	ImgWidthList(1,3) = &quot;ImageControl&quot;
+
+	ImgWidthList(2,0) = com.sun.star.sdbc.DataType.LONGVARBINARY	&apos; =  -4;
+	ImgWidthList(2,1) = cImageControl
+	ImgWidthList(2,2) = False
+	ImgWidthList(2,3) = &quot;ImageControl&quot;
+
+	ImgWidthList(3,0) = com.sun.star.sdbc.DataType.BLOB			&apos; = 2004;
+	ImgWidthList(3,1) = cImageControl
+	ImgWidthList(3,2) = False
+	ImgWidthList(3,3) = &quot;ImageControl&quot;
+
+&apos; Note: the following Fieldtypes are ignored
+&apos;ExcludeList(0) = com.sun.star.sdbc.DataType.SQLNULL
+&apos;ExcludeList(1) = com.sun.star.sdbc.DataType.OTHER
+&apos;ExcludeList(2) = com.sun.star.sdbc.DataType.OBJECT
+&apos;ExcludeList(3) = com.sun.star.sdbc.DataType.DISTINCT
+&apos;ExcludeList(4) = com.sun.star.sdbc.DataType.STRUCT
+&apos;ExcludeList(5) = com.sun.star.sdbc.DataType.ARRAY
+&apos;ExcludeList(6) = com.sun.star.sdbc.DataType.CLOB
+&apos;ExcludeList(7) = com.sun.star.sdbc.DataType.REF
+
+	oModelService(cLabel) = &quot;com.sun.star.form.component.FixedText&quot;
+	oModelService(cTextBox) = &quot;com.sun.star.form.component.TextField&quot;
+	oModelService(cCheckBox) = &quot;com.sun.star.form.component.CheckBox&quot;
+	oModelService(cDateBox) = &quot;com.sun.star.form.component.DateField&quot;
+	oModelService(cTimeBox) = &quot;com.sun.star.form.component.TimeField&quot;
+	oModelService(cNumericBox) = &quot;com.sun.star.form.component.FormattedField&quot;
+	oModelService(cGridControl) = &quot;com.sun.star.form.component.GridControl&quot;
+	oModelService(cImageControl) = &quot;com.sun.star.form.component.DatabaseImageControl&quot;
+End Sub
+</script:module>

@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Layouter" script:language="StarBasic">Option Explicit
+
+Public oProgressbar as Object
+Public ProgressValue as Integer
+Public oDocument as Object
+Public oController as Object
+Public oForm as Object
+Public oDrawPage as Object
+Public oPageStyle as Object
+
+Public nMaxColRightX as Long
+Public nMaxTCWidth as Long
+Public nMaxRowRightX as Long
+Public nMaxRowY as Long
+Public nSecMaxRowY as Long
+Public MaxIndex as Integer
+Public CurIndex as Integer
+
+Public Const cVertDistance = 200
+Public Const cHoriDistance = 300
+
+Public nPageWidth as Long
+Public nPageHeight as Long
+Public nFormWidth as Long
+Public nFormHeight as Long
+Public nMaxHoriPos as Long
+Public nMaxVertPos as Long
+
+Public CONST SBALIGNLEFT = 0
+Public CONST SBALIGNRIGHT = 2
+
+Public Const SBNOBORDER = 0
+Public Const SB3DBORDER = 1
+Public Const SBSIMPLEBORDER = 2
+
+Public CurArrangement as Integer
+Public CurBorderType as Integer
+Public CurAlignmode as Integer
+
+Public OldAlignMode as Integer
+Public OldBorderType as Integer
+Public OldArrangement as Integer
+
+Public Const cColumnarLeft = 1
+Public Const cColumnarTop = 2
+Public Const cTabled = 3
+Public Const cLeftJustified = 4
+Public Const cTopJustified = 5
+
+Public Const cXOffset = 1000
+Public Const cYOffset = 700
+&apos; This is the viewed space that we lose because of the symbol bars
+Public Const cSymbolMargin = 2000
+Public Const MaxFieldIndex = 200
+
+Public Const cControlCollectionCount = 9
+Public Const cLabel 		= 1
+Public Const cTextBox 		= 2
+Public Const cCheckBox	 	= 3
+Public Const cDateBox 		= 4
+Public Const cTimeBox 		= 5
+Public Const cNumericBox 	= 6
+Public Const cCurrencyBox 	= 7
+Public Const cGridControl	= 8
+Public Const cImageControl	= 9
+
+Public Styles(100, 8) as String
+
+Public CurControlType as Integer
+Public CurFieldlength as Double
+Public CurFieldType as Integer
+Public CurFieldName as String
+Public CurControlName as String
+Public CurFormatKey as Long
+Public CurDefaultValue
+Public CurIsCurrency as Boolean
+Public CurScale as Integer
+Public CurHelpText as String
+
+Public FieldMetaValues(MaxFieldIndex, 8)
+&apos; Description of this List:
+&apos;	CurFieldType = FieldMetaValues(Index,0)
+&apos;	CurFieldLength = FieldMetaValues(Index,1)
+&apos;	CurControlType = FieldMetaValues(Index,2)	(ControlType eg. cLabel, cTextbox usw.)
+&apos;	CurControlName = FieldMetaValues(Index,3)
+&apos;	CurFormatKey = FieldMetaValues(Index,4)
+&apos;	CurDefaultValue = FieldMetaValues(Index,5)
+&apos;	CurIsCurrency = FieldMetaValues(Index,6)
+&apos;	CurScale = FieldMetaValues(Index,7)
+&apos;	CurHelpText = FieldMetaValues(Index,8)
+
+Public FieldNames(MaxFieldIndex) as string
+Public oModelService(cControlCollectionCount) as String
+Public oGridModel as Object
+
+
+Function InsertControl(oContainer as Object, oControlObject as object, aPoint as Object, aSize as Object)
+Dim oShape as object
+	oShape = oDocument.CreateInstance (&quot;com.sun.star.drawing.ControlShape&quot;)
+	oShape.Size = aSize
+	oShape.Position = aPoint
+	oShape.AnchorType = com.sun.star.text.TextContentAnchorType.AT_PARAGRAPH
+	oShape.control = oControlObject
+	oContainer.Add(oShape)
+	InsertControl() = oShape
+End Function
+
+
+Function ArrangeControls()
+Dim oShape as Object
+Dim i as Integer
+	oProgressbar = oDocument.GetCurrentController.GetFrame.CreateStatusIndicator
+	oProgressbar.Start(&quot;&quot;, MaxIndex)
+	If oDBForm.HasbyName(&quot;Grid1&quot;) Then
+		RemoveShapes()
+	End If
+	ToggleLayoutPage(False)
+	Select Case CurArrangement
+		Case cTabled
+			PositionGridControl(MaxIndex)
+		Case Else
+			PositionControls(MaxIndex)
+	End Select
+	ToggleLayoutPage(True)
+	oProgressbar.End
+End Function
+
+
+Sub OpenFormDocument()
+Dim NoArgs() as new com.sun.star.beans.PropertyValue
+Dim oViewSettings as Object
+	oDocument = CreateNewDocument(&quot;swriter&quot;)
+	oProgressbar = oDocument.GetCurrentController.GetFrame.CreateStatusIndicator()
+	oProgressbar.Start(&quot;&quot;, 100)
+	oDocument.ApplyFormDesignMode = False
+	oController = oDocument.GetCurrentController
+	oViewSettings = oDocument.CurrentController.ViewSettings
+	oViewSettings.ShowTableBoundaries = False
+	oViewSettings.ShowOnlineLayout = True
+	oDrawPage = oDocument.DrawPage
+	oPageStyle = oDocument.StyleFamilies.GetByName(&quot;PageStyles&quot;).GetByName(&quot;Standard&quot;)
+End Sub
+
+
+Sub	InitializeLabelValues()
+Dim oLabelModel as Object
+Dim oTBModel as Object
+Dim oLabelShape as Object
+Dim oTBShape as Object
+Dim aTBSize As New com.sun.star.awt.Size
+Dim aLabelSize As New com.sun.star.awt.Size
+Dim aPoint As New com.sun.star.awt.Point
+Dim aSize As New com.sun.star.awt.Size
+Dim oLocControl as Object
+Dim oLocPeer as Object
+	oLabelModel =  CreateUnoService(&quot;com.sun.star.form.component.FixedText&quot;)
+	oTBModel =  CreateUnoService(&quot;com.sun.star.form.component.TextField&quot;)
+
+	Set oLabelShape = InsertControl(oDrawPage, oLabelModel, aPoint, aLabelSize)
+	Set oTBShape = InsertControl(oDrawPage, oTBModel, aPoint, aSize)
+
+	oLocPeer = oController.GetControl(oLabelModel).Peer
+	XPixelFactor = 100000/oLocPeer.GetInfo.PixelPerMeterX
+	YPixelFactor = 100000/oLocPeer.GetInfo.PixelPerMeterY
+	aLabelSize = GetPeerSize(oLabelModel, oLocControl, &quot;The quick brown fox...&quot;)
+	nTCHeight = (aLabelSize.Height+1) * YPixelFactor
+	aTBSize = GetPeerSize(oTBModel, oLocControl, &quot;The quick brown fox...&quot;)
+	nDBRefHeight = (aTBSize.Height+1) * YPixelFactor
+	BasicLabelDiffHeight = Clng((nDBRefHeight - nTCHeight)/2)
+	oDrawPage.Remove(oLabelShape)
+	oDrawPage.Remove(oTBShape)
+End Sub
+
+
+Sub ConfigurePageStyle()
+Dim aPageSize As New com.sun.star.awt.Size
+Dim aSize As New com.sun.star.awt.Size
+	oPageStyle.IsLandscape = True
+	aPageSize = oPageStyle.Size
+	nPageWidth = aPageSize.Width
+	nPageHeight = aPageSize.Height
+	aSize.Width = nPageHeight
+	aSize.Height = nPageWidth
+	oPageStyle.Size = aSize
+	nPageWidth = nPageHeight
+	nPageHeight = oPageStyle.Size.Height
+	nFormWidth = nPageWidth - oPageStyle.RightMargin - oPageStyle.LeftMargin - 2 * cXOffset
+	nFormHeight = nPageHeight - oPageStyle.TopMargin - oPageStyle.BottomMargin - 2 * cYOffset - cSymbolMargin
+End Sub
+
+
+&apos; Modify the Borders of the Controls
+Sub ChangeBorderLayouts(oEvent as Object)
+Dim oModel as Object
+Dim i as Integer
+Dim oCurModel as Object
+Dim sLocText as String
+Dim oGroupShape as Object
+Dim s as Integer
+	If Not bDebug Then
+		On Local Error GoTo WIZARDERROR
+	End If
+	oModel = oEvent.Source.Model
+	SwitchBorderMode(Val(Right(oModel.Name,1)))
+	ToggleLayoutPage(False)
+	If CurArrangement = cTabled Then
+		oGridModel.Border = CurBorderType
+	Else
+		If OldBorderType &lt;&gt; CurBorderType Then
+			For i = 0 To MaxIndex
+				If oDBShapeList(i).SupportsService(&quot;com.sun.star.drawing.GroupShape&quot;) Then
+					oGroupShape = oDBShapeList(i)
+					For s = 0 To oGroupShape.Count-1
+						oGroupShape(s).Control.Border = CurBorderType
+					Next s
+				Else
+					If oDBModelList(i).PropertySetInfo.HasPropertyByName(&quot;Border&quot;) Then
+						oDBModelList(i).Border = CurBorderType
+					End If
+				End If
+			Next i
+		End If
+	End If
+	ToggleLayoutPage(True)
+WIZARDERROR:
+	If Err &lt;&gt; 0 Then	
+		Msgbox(sMsgErrMsg, 16, GetProductName())
+		Resume LOCERROR
+		LOCERROR:
+		DlgFormDB.Dispose()	
+	End If
+End Sub
+
+
+Sub ChangeLabelAlignments(oEvent as Object)
+Dim i as Integer
+Dim oSize as New com.sun.star.awt.Size
+Dim oModel as Object
+	If Not bDebug Then
+		On Local Error GoTo WIZARDERROR
+	End If
+	oModel = oEvent.Source.Model
+	SwitchAlignMode(Val(Right(oModel.Name,1)))
+	ToggleLayoutPage(False)
+	If OldAlignMode &lt;&gt; CurAlignMode Then
+		For i = 0 To MaxIndex
+			oTCShapeList(i).GetControl.Align = CurAlignmode
+		Next i
+	End If
+	If CurAlignmode = com.sun.star.awt.TextAlign.RIGHT Then
+		For i = 0 To Ubound(oTCShapeList())
+			oSize = oTCShapeList(i).Size
+			oSize.Width = oDBShapeList(i).Position.X - oTCShapeList(i).Position.X - cHoriDistance
+			oTCShapeList(i).Size = oSize
+		Next i
+	End If
+
+WIZARDERROR:
+	If Err &lt;&gt; 0 Then	
+		Msgbox(sMsgErrMsg, 16, GetProductName())
+		Resume LOCERROR
+		LOCERROR:		
+	End If
+	ToggleLayoutPage(True)
+End Sub
+
+
+Sub ChangeArrangemode(oEvent as Object)
+Dim oModel as Object
+	If Not bDebug Then
+		On Local Error GoTo WIZARDERROR
+	End If
+	oModel = oEvent.Source.Model
+	SwitchArrangementButtons(Val(Right(oModel.Name,1)))
+	oModel.State = 1
+	DlgFormDB.GetControl(&quot;cmdArrange&quot; &amp; OldArrangement).Model.State = 0
+	If CurArrangement &lt;&gt; OldArrangement Then
+		ArrangeControls()
+		Select Case CurArrangement
+			Case cTabled
+				ToggleBorderGroup(False)
+				ToggleAlignGroup(False)
+			Case Else &apos; cColumnarTop,cLeftJustified, cTopJustified
+				ToggleAlignGroup(CurArrangement = cColumnarLeft)
+				If CurArrangement = cColumnarTop Then
+					If CurAlignMode = com.sun.star.awt.TextAlign.RIGHT Then
+						DialogModel.optAlign0.State = 1
+						CurAlignMode = com.sun.star.awt.TextAlign.LEFT
+						OldAlignMode = com.sun.star.awt.TextAlign.RIGHT
+					End If
+				End If
+				ControlCaptionstoStandardLayout()
+				oDBForm.Load
+		End Select
+	End If
+WIZARDERROR:
+	If Err &lt;&gt; 0 Then	
+		Msgbox(sMsgErrMsg, 16, GetProductName())
+		Resume LOCERROR
+		LOCERROR:		
+	End If
+End Sub
+
+
+Sub	ToggleBorderGroup(bDoEnable as Boolean)
+	With DialogModel
+		.hlnBorderLayout.Enabled = bDoEnable
+		.optBorder0.Enabled = bDoEnable	 	&apos; 0: No border
+		.optBorder1.Enabled = bDoEnable		&apos; 1: 3D border
+		.optBorder2.Enabled = bDoEnable		&apos; 2: simple border
+	End With
+End Sub
+
+
+Sub	ToggleAlignGroup(ByVal bDoEnable as Boolean)
+	With DialogModel
+		If bDoEnable Then
+			bDoEnable = CurArrangement = cColumnarLeft
+		End If
+		.hlnAlign.Enabled = bDoEnable
+		.optAlign0.Enabled = bDoEnable
+		.optAlign2.Enabled = bDoEnable
+	End With
+End Sub
+
+
+Sub ToggleLayoutPage(bDoEnable as Boolean, Optional FocusControlName as String)
+	DialogModel.Enabled = bDoEnable
+	If bDoEnable Then
+		If Not bDebug Then
+			oDocument.UnlockControllers()
+		End If
+		ToggleOptionButtons(DialogModel,(bWithBackGraphic = True))
+		ToggleAlignGroup(bDoEnable)
+		ToggleBorderGroup(bDoEnable)
+	Else
+		If Not bDebug Then
+			oDocument.LockControllers()	
+		End If
+	End If
+	If Not IsMissing(FocusControlName) Then
+		DlgFormDB.GetControl(FocusControlName).SetFocus()
+	End If	
+End Sub
+
+
+Sub DestroyControlShapes(oDrawPage as Object)
+Dim i as Integer
+Dim oShape as Object
+	For i = oDrawPage.Count-1 To 0 Step -1
+		oShape = oDrawPage.GetByIndex(i)
+		If oShape.ShapeType = &quot;com.sun.star.drawing.ControlShape&quot; Then
+			oShape.Dispose()
+		End If
+	Next i
+End Sub
+
+
+Sub SwitchArrangementButtons(ByVal LocArrangement as Integer)
+	OldArrangement = CurArrangement
+	CurArrangement = LocArrangement
+	If OldArrangement &lt;&gt; 0 Then
+		DlgFormDB.GetControl(&quot;cmdArrange&quot; &amp; OldArrangement).Model.State = 0
+	End If
+	DlgFormDB.GetControl(&quot;cmdArrange&quot; &amp; CurArrangement).Model.State = 1
+End Sub
+
+
+Sub SwitchBorderMode(ByVal LocBorderType as Integer)
+	OldBorderType = CurBorderType
+	CurBorderType = LocBorderType
+End Sub
+
+
+Sub SwitchAlignMode(ByVal LocAlignMode as Integer)
+	OldAlignMode = CurAlignMode
+	CurAlignMode = LocAlignMode
+End Sub</script:module>

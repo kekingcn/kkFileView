@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="RoadMap" script:language="StarBasic">REM  *****  BASIC  *****
+Dim oControlModel
+Dim oDialogModel
+Dim CurrentItem
+Dim bLongString
+Dim oControl
+Dim oEvent
+Dim oUseDialog As Object 
+Dim oModulName As Object 
+
+Sub RoadMapMain(ModulNameforItemChange, dialogtoUse)
+	GlobalScope.BasicLibraries.LoadLibrary(&quot;Tools&quot;)	
+	oUseDialog = dialogtoUse
+	oModulName = ModulNameforItemChange
+	oDialogModel = oUseDialog.Model
+	oControlModel = oUseDialog.Model.CreateInstance(&quot;com.sun.star.awt.UnoControlRoadmapModel&quot;)	
+	
+	oDialogModel.insertByName(&quot;RoadMap&quot;, oControlModel)
+	oControl = oUseDialog.getControl(&quot;RoadMap&quot;)	
+	oEvent = createUnoListener( &quot;CallBack_&quot;, &quot;com.sun.star.awt.XItemListener&quot; )
+	oControl.addItemListener(oEvent)	
+	oControlModel.CurrentItemID = 0
+	oControlModel.Complete = True
+	oControlModel.Activated = True	
+End Sub
+
+Sub SetVisibleRoadMap(param)
+	oControl.SetVisible(param)	
+End Sub
+
+Sub SetDialogModelSize(Width, Height)
+	oDialogModel.Width = Width
+	oDialogModel.Height = Height	
+End Sub
+
+Sub SetControlModelPosSize(X, Y, Width, Height)
+	oControlModel.PositionX = X
+	oControlModel.PositionY = Y
+	oControlModel.Width = Width
+	oControlModel.Height = Height	
+End Sub
+
+Sub SetControlModelText( ModelText As String)
+	oControlModel.Text = ModelText	
+End Sub
+
+Sub InsertItemsLabels( ItemLabelsArray() As String)
+	For i = 0 To Ubound(ItemLabelsArray())		
+		oRoadmapItem = oControlModel.createInstance()		
+		oRoadmapItem.Label = ItemLabelsArray(i)
+		oRoadmapItem.ID = i
+		oControlModel.insertbyIndex(i, oRoadmapItem)
+	Next i
+End Sub
+
+Sub SetItemEnabled( ItemIndex, param)
+	oControlModel.getByIndex(ItemIndex).Enabled = param
+	oControlModel.CurrentItemID = ItemIndex
+End Sub
+
+Sub AddImagetoControlModel( Url As String)
+	oControlModel.ImageUrl = ConvertToUrl(Url)	
+End Sub
+
+Function GetSelectedIndex()
+	GetSelectedIndex() = oControlModel.CurrentItemID	
+End Function
+
+Function GetControlModel()
+	GetControlModel = oControlModel	
+End Function
+
+Function GetDialogModel()
+	GetDialogModel = oDialogModel	
+End Function
+
+Sub Callback_itemStateChanged(aEvent)
+	oModulName.ItemChange(oControlModel.CurrentItemID, aEvent.itemID)
+End Sub
+
+Sub SetComplete(param)
+	oControlModel.Complete = param
+End Sub
+
+Sub SetActivated(param)
+	oControlModel.Activated = param
+End Sub
+
+Sub RemoveItem(ItemIndex)
+	If ItemIndex &gt; -1 Then
+		oControlModel.removeByIndex(ItemIndex)
+	End If
+End Sub
+
+Sub InsertItem(ItemLabel As String)
+	oRoadmapItem = oControlModel.createInstance()
+	oRoadmapItem.Label = ItemLabel
+	oControlModel.insertbyIndex(oControlModel.CurrentItemID, oRoadmapItem)	
+End Sub
+
+Sub ReplaceItem(ItemLabel As String)
+	oRoadmapItem = oControlModel.createInstance()
+	oRoadmapItem.Label = ItemLabel
+	oControlModel.replacebyIndex(oControlModel.CurrentItemID, oRoadmapItem)
+End Sub
+
+Sub Callback_disposing(aEvent)
+End Sub
+
+Sub Property_propertyChange(aEvent)
+End Sub
+
+Sub Property_disposing(aEvent)
+End Sub
+</script:module>

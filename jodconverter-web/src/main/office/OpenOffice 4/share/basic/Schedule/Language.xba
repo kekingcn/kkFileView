@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Language" script:language="StarBasic">Option Explicit
+
+
+Public Const cLANGUAGE_SYSTEM = &quot;&quot;, cLANGUAGE_CHINESE = &quot;zh&quot;, cLANGUAGE_DANISH = &quot;da&quot;
+Public Const cLANGUAGE_DUTCH = &quot;nl&quot;, cLANGUAGE_ENGLISH = &quot;en&quot;, cLANGUAGE_FINNISH = &quot;fi&quot;
+Public Const cLANGUAGE_FRENCH = &quot;fr&quot;, cLANGUAGE_GERMAN = &quot;de&quot;, cLANGUAGE_GREEK = &quot;el&quot;
+Public Const cLANGUAGE_ITALIAN = &quot;it&quot;, cLANGUAGE_JAPANESE = &quot;ja&quot;, cLANGUAGE_NORWEGIAN = &quot;no&quot;
+Public Const cLANGUAGE_POLISH = &quot;pl&quot;, cLANGUAGE_PORTUGUESE = &quot;pt&quot;, cLANGUAGE_RUSSIAN = &quot;ru&quot;
+Public Const cLANGUAGE_SPANISH = &quot;es&quot;, cLANGUAGE_SWEDISH = &quot;sv&quot;, cLANGUAGE_TURKISH = &quot;tr&quot;
+
+Public BLNameList(0 To 16) as String
+
+
+&apos; R e s o u r c e   s t r i n g   c o n s t a n t s
+&apos; -------------------------------------------------
+&apos; Dialog labels start at 1000
+
+Sub LoadLanguage%(ByVal LangLocale)
+Dim Dummy$
+Dim i as Integer
+Const dlgMonth = 1200
+&apos; Abreviated months start 1225
+Const dlgShortMonth = 1225
+	If InitResources(&quot;schedule&quot;, &quot;cal&quot;) Then
+		If LangLocale  = cLANGUAGE_GERMAN Then
+
+			&apos; Load all states
+			BLNameList(0) = GetResText(1100)
+			BLNameList(1) = &quot;Bayern&quot;
+			BLNameList(2) = &quot;Baden-Württemberg&quot;
+			BLNameList(3) = &quot;Berlin&quot;
+			BLNameList(4) = &quot;Bremen&quot;
+			BLNameList(5) = &quot;Brandenburg&quot;
+			BLNameList(6) = &quot;Hamburg&quot;
+			BLNameList(7) = &quot;Hessen&quot;
+			BLNameList(8) = &quot;Mecklenburg-Vorpommern&quot;
+			BLNameList(9) = &quot;Niedersachsen&quot;
+			BLNameList(10) = &quot;Nordrhein-Westfalen&quot;
+			BLNameList(11) = &quot;Rheinland-Pfalz&quot;
+			BLNameList(12) = &quot;Saarland&quot;
+			BLNameList(13) = &quot;Sachsen&quot;
+			BLNameList(14) = &quot;Sachsen-Anhalt&quot;
+			BLNameList(15) = &quot;Schleswig Holstein&quot;
+			BLNameList(16) = &quot;Thüringen&quot;
+
+			DlgCalModel.lstHolidays.StringItemList() = BLNameList()
+		End If
+		sWizardTitle$ = GetResText(1300)
+		sError = GetResText(1301)
+		cCalSubcmdDeleteSelect_DeleteSelEntryTitle$ = GetResText(1302)
+		cCalSubcmdDeleteSelect_DeleteSelEntry$ = GetResText(1303)
+		DlgCalendar.Title = GetResText(1000)
+
+		With DlgCalModel
+			cCalSubcmdSwitchOwnDataOrGeneral_OwnData$ = GetResText(1002)
+			cCalSubcmdSwitchOwnDataOrGeneral_Back$ = GetResText(1001)
+			.hlnTime.Label = GetResText(1011)
+			.lblYear.Label = GetResText(1012)
+			.cmdCancel.Label = GetResText(1005)
+			.cmdGoOn.Label = GetResText(1004)
+			.lblHolidays.Label = GetResText(1014)
+			sBitmapFilename = GetResText(1099)
+			sBitmapFilename = ReplaceString(sBitmapFileName, &quot;.gif&quot;, &quot;.bmp&quot;)
+			DlgCalModel.hlnCalendar.Label = GetResText(1006)
+			.optYear.Label = GetResText(1007)
+			.optMonth.Label = GetResText(1008)
+			.lblMonth.Label = GetResText(1013)
+			.cmdOwnData.Label = GetResText(1015)
+			.hlnNewEvent.Label = GetResText(1019)
+			.lblEvent.Label = GetResText(1019)
+			.lblEventDay.Label = GetResText(1021)
+			.lblEventMonth.Label = GetResText(1022)
+&apos;			.lblEventYear.Label = GetResText(1023)
+&apos;			.chkEventOnce.Label = GetResText(1020)
+			.cmdInsert.Label = GetResText(1016)
+			.cmdDelete.Label = GetResText(1017)
+			&apos; Load long month names
+			For i = 0 To 11
+				cCalLongMonthNames(i) = GetResText(dlgMonth+i)
+				cCalShortMonthNames(i)= cCalLongMonthNames(i)
+				&apos;cCalShortMonthNames(i)= Left$(cCalLongMonthNames(i), 3)
+				cCalShortMonthNames(i)= RTrim(cCalShortMonthNames(i))
+			Next
+			&apos; Load sheet names
+			sCalendarTitle = GetResText(1410)
+			sMonthTitle = GetResText(1411)
+			&apos; Load names of styles
+			cCalStyleWorkday$ = GetResText(1400)
+			cCalStyleWeekend$ = GetResText(1401)
+		End With
+	End If
+End Sub
+</script:module>

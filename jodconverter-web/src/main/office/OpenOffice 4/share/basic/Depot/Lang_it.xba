@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Lang_it" script:language="StarBasic">Option Explicit
+
+Sub LoadItalianLanguage()
+
+	sProductname = GetProductname
+	sOK = &quot;~OK&quot; 
+	sCancel = &quot;Annulla&quot;
+	sColumnHeader = &quot;Intestazione colonna&quot;
+	sInsertStockName = &quot;Inserite un nome di azioni&quot;
+	sTitle = &quot;&lt;PRODUCTNAME&gt;: Gestione delle azioni&quot;
+	sTitle = ReplaceString(sTitle, sProductName, &quot;&lt;PRODUCTNAME&gt;&quot;)
+	sMsgError = &quot;Errore dati immessi&quot;
+	sMsgNoName = sInsertStockname
+	sMsgNoQuantity = &quot;Inserite il numero delle azioni&quot;
+	sMsgNoDividend = &quot;Inserite un dividendo a unità oppure un dividendo totale&quot;
+	sMsgNoExchangeRate = &quot;Indicate un corretto tasso di cambio (vecchie azioni -&gt; nuove azioni).&quot;
+	sMsgNoValidExchangeDate = &quot;Indicate la data di frazionamento delle azioni.&quot;
+	sMsgWrongExchangeDate = &quot;Il frazionamento non è possibile perché sono ancora in atto transazioni dopo la data indicata.&quot;
+	sMsgSellTooMuch = &quot;Non potete vendere così tante azioni. Massimo: &quot;
+	sMsgConfirm = &quot;È necessaria una conferma&quot;
+	sMsgFreeStock = &quot;Confermate la digitazione di azioni gratuite?&quot;
+	sMsgTotalLoss = &quot;Confermate la digitazione di perdita totale?&quot;
+	sMsgAuthorization = &quot;Domanda di sicurezza&quot;
+	sMsgDeleteAll = &quot;Eliminare tutti i movimenti e ripristinare la panoramica dei depositi?&quot;
+	cSplit = &quot;Frazionamento delle azioni il: &quot;
+	sHistory = &quot;Cronologia&quot;
+	TransactTitle(1) = 	 &quot;Vendita di azioni&quot;
+	TransactTitle(2) = &quot;Acquisto di azioni&quot;
+	StockRatesTitle(1) = &quot;Pagamento dei dividendi&quot;
+	StockRatesTitle(2) = &quot;Frazionamento azioni&quot;
+	StockRatesTitle(3) = sHistory
+	sDepotCurrency = &quot;Valuta deposito&quot;	
+	sStockName = &quot;Nome delle azioni&quot;
+	TransactMode = LIFO	&apos; Possible values: &quot;FIFO&quot; and &quot;LIFO&quot;
+	DateCellStyle = &quot;Risultato data&quot;
+	CurrCellStyle = &quot;1&quot;
+	sStartDate = &quot;Data d&apos;inizio:&quot;
+	sEndDate = &quot;Data finale:&quot;
+	sStartUpWelcome = &quot;Questo modello vi permette una gestione efficace delle vostre azioni.&quot;
+	sStartUpChooseMarket = &quot;Selezionate la valuta di riferimento e la Borsa per il collegamento Internet.&quot;
+	sStartUpHint = &quot;La funzione &lt;History&gt; è disponibile solo per il mercato americano.&quot;
+	sStartupHint = ReplaceString(sStartUpHint, sHistory, &quot;&lt;History&gt;&quot;)
+	sNoInternetUpdate = &quot;Senza aggiornamento Internet&quot;
+	sMarketPlace = &quot;Borsa:&quot;
+	sNoInternetDataAvailable = &quot;Impossibile ricevere le quotazioni Internet&quot;
+	sCheckInternetSettings = &quot;Possibili cause: &lt;BR&gt; le impostazioni Internet devono essere modificate.&lt;BR&gt; Avete indicato un indice (ad es. simbolo o codice) errato per le azioni.&quot;
+	sCheckInternetSettings = ReplaceString(sCheckInternetSettings, chr(13), &quot;&lt;BR&gt;&quot;)
+
+	sMsgEndDatebeforeNow = &quot;La data finale dev&apos;essere anteriore alla data odierna.&quot;
+	sMsgStartDatebeforeEndDate = &quot;La data d&apos;inizio deve precedere la data finale.&quot;
+
+	sMarket(0,0) = &quot;Dollaro USA&quot;
+	sMarket(0,1) = &quot;$&quot;
+	sMarket(0,2) = &quot;New York&quot;
+	sMarket(0,3) = &quot;http://finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(0,4) = &quot;http://ichart.finance.yahoo.com/table.csv?&quot; &amp;_
+				   &quot;s=&lt;StockID&gt;&amp;d=&lt;EndMonth&gt;&amp;e=&lt;EndDay&gt;&amp;f=&lt;Endyear&gt;&amp;g=d&amp;&quot; &amp;_
+				   &quot;a=&lt;StartMonth&gt;&amp;b=&lt;StartDay&gt;&amp;c=&lt;Startyear&gt;&amp;ignore=.csv&quot;
+	sMarket(0,5) = &quot;Simbolo&quot;
+	sMarket(0,6) = &quot;en&quot;
+	sMarket(0,7) = &quot;US&quot;
+	sMarket(0,8) = &quot;409&quot;
+	sMarket(0,9) = &quot;44&quot;
+	sMarket(0,10) = &quot;1&quot;
+	
+	sMarket(1,0) = &quot;Euro&quot;
+	sMarket(1,1) = chr(8364)
+	sMarket(1,2) = &quot;Francoforte&quot;
+	sMarket(1,3) = &quot;http://de.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.F&amp;f=sl1t1c1ghpv&amp;e=.csv&quot;
+	sMarket(1,5) = &quot;Numero identificazione titoli&quot;
+	sMarket(1,6) = &quot;de;nl;pt;el&quot;
+	sMarket(1,7) = &quot;DE;NL;PT;GR&quot;
+	sMarket(1,8) = &quot;407;413;816;408&quot;
+	sMarket(1,9) = &quot;59/9&quot;
+	sMarket(1,10) = &quot;1&quot;
+
+	sMarket(2,0) = &quot;Sterlina inglese&quot;
+	sMarket(2,1) = &quot;£&quot;
+	sMarket(2,2) = &quot;Londra&quot;
+	sMarket(2,3) = &quot;http://uk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.L&amp;m=*&amp;f=sl1t1c1ghov&amp;e=.csv&quot;
+	sMarket(2,5) = &quot;Simbolo&quot;
+	sMarket(2,6) = &quot;en&quot;
+	sMarket(2,7) = &quot;GB&quot;
+	sMarket(2,8) = &quot;809&quot;
+	sMarket(2,9) = &quot;44&quot;
+	sMarket(2,10) = &quot;1&quot;
+
+	sMarket(3,0) = &quot;Yen&quot;
+	sMarket(3,1) = &quot;¥&quot;
+	sMarket(3,2) = &quot;Tokyo&quot;
+	sMarket(3,3) = &quot;&quot;
+	sMarket(3,5) = &quot;Codice&quot;
+	sMarket(3,6) = &quot;ja&quot;
+	sMarket(3,7) = &quot;JP&quot;
+	sMarket(3,8) = &quot;411&quot;
+	sMarket(3,9) = &quot;&quot;
+	sMarket(3,10) = &quot;&quot;
+	
+	sMarket(4,0) = &quot;Dollaro Hong Kong&quot;
+	sMarket(4,1) = &quot;HK$&quot;
+	sMarket(4,2) = &quot;Hong Kong&quot;
+	sMarket(4,3) = &quot;http://hk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(4,5) = &quot;Numero&quot;
+	sMarket(4,6) = &quot;zh&quot;
+	sMarket(4,7) = &quot;HK&quot;	
+	sMarket(4,8) = &quot;C04&quot;
+	sMarket(4,9) = &quot;44&quot;
+	sMarket(4,10) = &quot;1&quot;
+
+	sMarket(5,0) = &quot;Dollaro australiano&quot;
+	sMarket(5,1) = &quot;$&quot;
+	sMarket(5,2) = &quot;Sydney&quot;
+	sMarket(5,3) = &quot;http://au.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(5,5) = &quot;Simbolo&quot;
+	sMarket(5,6) = &quot;en&quot;
+	sMarket(5,7) = &quot;AU&quot;
+	sMarket(5,8) = &quot;C09&quot;
+	sMarket(5,9) = &quot;44&quot;
+	sMarket(5,10) = &quot;1&quot;
+
+&apos; ****************************End of the default subset*********************************
+	CompleteMarketList()
+
+	LocalizedCurrencies()
+	
+	With TransactModel
+		.lblStockNames.Label = sStockname
+		.lblQuantity.Label = &quot;Quantità&quot;
+		.lblRate.Label = &quot;Quotazione&quot;
+		.lblDate.Label = &quot;Data della transazione&quot;
+		.hlnCommission.Label = &quot;Spese extra&quot;
+		.lblCommission.Label = &quot;Commissioni&quot;
+		.lblMinimum.Label = &quot;Commissione minima&quot;
+		.lblFix.Label = &quot;Importo fisso/Spese&quot;
+		.cmdGoOn.Label = sOK
+		.cmdCancel.Label = sCancel
+	End With
+	
+	With StockRatesModel
+		.optPerShare.Label = &quot;Dividendo/Azione&quot;
+		.optTotal.Label = &quot;Dividendo totale&quot;
+		.lblDividend.Label = &quot;Importo&quot;
+		.lblExchangeRate.Label = &quot;Tasso di cambio (vecchio-&gt;nuovo)&quot;
+		.lblColon.Label = &quot;:&quot;
+		.lblDate.Label = &quot;Data di cambio:&quot;
+		.lblStockNames.Label = sStockname
+		.lblStartDate.Label = sStartDate
+		.lblEndDate.Label = sEndDate
+		.optDaily.Label = &quot;~Giornaliero&quot;
+		.optWeekly.Label = &quot;~Settimanale&quot;
+		.hlnInterval.Label = &quot;Durata&quot;
+		.cmdGoOn.Label = sOk
+		.cmdCancel.Label = sCancel
+	End With
+End Sub
+</script:module>

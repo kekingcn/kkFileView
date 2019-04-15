@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="ShowInfoDialog" script:language="StarBasic">REM  *****  BASIC  *****
+Dim oWnd As Object
+Dim oWnd2 As Object
+Dim oWnd3 As Object
+Dim oDoc as Object
+    
+Sub ShowInfoMain
+	prop() = GetShowInfoPropeties()
+	Init(prop(0).Value, prop(1).Value, prop(2).Value, prop(3).Value, prop(4).Value, prop(5).Value, prop(6).Value, prop(7).Value, prop(8).Value)		
+End Sub
+
+Sub Init(tFieldText As String, windowX, windowY, windowWidth, windowHeight, tFieldX, tFieldY, tFieldWidth, tFieldHeight)
+	toolkit = createUnoService(&quot;com.sun.star.awt.Toolkit&quot;)
+    Dim oWndDescr As new com.sun.star.awt.WindowDescriptor
+    Dim oBounds As new com.sun.star.awt.Rectangle
+    oWndDescr.Type = com.sun.star.awt.WindowClass.TOP
+    oWndDescr.WindowServiceName = &quot;&quot;
+    oWndDescr.ParentIndex = 0
+    
+    &apos;officeX = StarDesktop.ActiveFrame.getContainerWindow().AccessibleContext.LocationOnScreen.X
+	&apos;officeY = StarDesktop.ActiveFrame.getContainerWindow().AccessibleContext.LocationOnScreen.Y
+	&apos;officeWidth  = StarDesktop.ActiveFrame.getContainerWindow().getPosSize().Width
+	&apos;officeHeight = StarDesktop.ActiveFrame.getContainerWindow().getPosSize().Height
+	officeWidth  = thisComponent.CurrentController.Frame.getContainerWindow().getPosSize().Width
+	officeHeight = thisComponent.CurrentController.Frame.getContainerWindow().getPosSize().Height
+
+	&apos;dialogWidth  = myTutoShowDialog.getPosSize().Width
+	&apos;dialogHeight = myTutoShowDialog.getPosSize().Height
+	X = officeWidth - windowWidth - windowX
+	Y = officeHeight - windowHeight - windowY
+    
+    oBounds.X = X : oBounds.Y = Y
+    oBounds.Width = windowWidth : oBounds.Height = windowHeight
+    oWndDescr.Bounds = oBounds
+    oWndDescr.Parent = thisComponent.CurrentController.Frame.ContainerWindow
+    with com.sun.star.awt.WindowAttribute
+        oWndDescr.WindowAttributes = .CLOSEABLE AND .MOVEABLE AND .SIZEABLE AND .BORDER AND .SHOW
+    end with
+           
+    oWnd = toolkit.createWindow(oWndDescr)	
+
+	Dim oWndDescr3 As new com.sun.star.awt.WindowDescriptor
+    Dim oBounds3 As new com.sun.star.awt.Rectangle
+	oWndDescr3.Type = com.sun.star.awt.WindowClass.TOP
+    oWndDescr3.WindowServiceName = &quot;fixedimage&quot; &apos;&quot;fixedtext&quot;
+    oWndDescr3.ParentIndex = 0
+    oBounds3.X = 0 : oBounds3.Y = 0
+    oBounds3.Width = tFieldWidth : oBounds3.Height = tFieldHeight
+    oWndDescr3.Bounds = oBounds3
+    oWndDescr3.Parent = oWnd
+    with com.sun.star.awt.WindowAttribute
+        oWndDescr3.WindowAttributes = .CLOSEABLE AND .MOVEABLE AND .SIZEABLE AND .BORDER AND .SHOW
+    end with
+
+    oWnd3= toolkit.createWindow(oWndDescr3)    
+    &apos;oWnd2.Text = tFieldText 	
+	&apos;printdbgInfo(oWnd3)
+	setImage(oWnd3)
+	&apos;oWnd3.Background = 16777215	
+&apos;	oWnd2.SetBackGround(16776960)
+	oWnd.SetBackGround(16776960)
+&apos;	oWnd.FontDescriptors(0).Name = &quot;Albany&quot;
+&apos;	oWnd.FontDescriptors(0).StyleName = &quot;BOLD&quot;	
+
+	Dim oWndDescr2 As new com.sun.star.awt.WindowDescriptor
+    Dim oBounds2 As new com.sun.star.awt.Rectangle
+	oWndDescr2.Type = com.sun.star.awt.WindowClass.TOP
+    oWndDescr2.WindowServiceName = &quot;fixedtext&quot;
+    oWndDescr2.ParentIndex = 0
+    oBounds2.X = tFieldX : oBounds2.Y = tFieldY
+    oBounds2.Width = tFieldWidth : oBounds2.Height = tFieldHeight
+    oWndDescr2.Bounds = oBounds2
+    oWndDescr2.Parent = oWnd3
+    with com.sun.star.awt.WindowAttribute
+        oWndDescr2.WindowAttributes = .CLOSEABLE AND .MOVEABLE AND .SIZEABLE AND .BORDER AND .SHOW
+    end with
+
+    oWnd2= toolkit.createWindow(oWndDescr2)
+    oWnd2.Text = tFieldText 
+    oWnd2.Background = 268435455
+    &apos;printdbgInfo(oWnd2)
+    
+    &apos;printdbgInfo oWnd.getPosSize()
+	
+End Sub
+
+Function GetShowInfoPropeties()
+	stepText = GetStepTitle()
+	Dim Properties(8) As new com.sun.star.beans.NamedValue	
+	Properties(0).Name = &quot;ShowInfoDialogText&quot;
+	Properties(0).Value = stepText &amp; &quot;Press [Esc] to abort.&quot;	
+	Properties(1).Name = &quot;WindowX&quot;
+	Properties(1).Value = 20		
+	Properties(2).Name = &quot;WindowY&quot;
+	Properties(2).Value = 40		
+	Properties(3).Name = &quot;WindowWidth&quot;
+	Properties(3).Value = 190	
+	Properties(4).Name = &quot;WindowHeight&quot;
+	Properties(4).Value = 50
+	Properties(5).Name = &quot;TFieldX&quot;
+	Properties(5).Value = 7
+	Properties(6).Name = &quot;TFieldY&quot;
+	Properties(6).Value = 8
+	Properties(7).Name = &quot;TFieldWidth&quot;
+	Properties(7).Value = 190
+	Properties(8).Name = &quot;TFieldHeight&quot;
+	Properties(8).Value = 50
+	GetShowInfoPropeties = Properties()	
+End Function
+
+Sub setShowInfoText()
+	stepText = GetStepTitle()
+	oWnd2.Text = stepText &amp; &quot;Press [Esc] to abort.&quot;
+End Sub
+
+Sub ShowON()
+	setShowInfoText()
+	oWnd.setVisible(True)
+	oWnd3.setVisible(True)	
+	oWnd2.setVisible(True)
+End Sub
+
+Sub ShowOFF()
+	&apos;On Local Error Goto NOPROPERTYSETINFO:
+		oWnd.setVisible(False)
+		oWnd2.setVisible(False)
+		oWnd3.setVisible(False)
+		&apos;oDoc.dispose()
+	Exit Sub
+	&apos;NOPROPERTYSETINFO:
+End Sub
+
+Sub DisposeIDialog()
+    &apos;On Local Error Goto NOPROPERTYSETINFO:	
+		oWnd3.dispose
+		oWnd2.dispose
+		oWnd.dispose
+		oDoc.dispose()	
+	Exit Sub
+	&apos;NOPROPERTYSETINFO:
+End Sub
+
+sub setImage(whatever as Object) 
+	
+	templatePath = GetPathSettings(&quot;Template&quot;,false, 0)
+	Dim bitmapPath As String
+	iPos = InStr(templatePath,&quot;/&quot;)
+	if(iPos &gt; 0) Then
+		bitmapPath = templatePath &amp; &quot;../wizard/bitmap/tutorial_background.gif&quot;
+	Else
+		bitmapPath = templatePath &amp; &quot;..\wizard\bitmap\tutorial_background.gif&quot;
+	End If
+	
+	dim props(0) as new com.sun.star.beans.PropertyValue
+	props(0).Name = &quot;Hidden&quot;
+	props(0).Value = true
+    oDoc = StarDesktop.loadComponentFromUrl(&quot;private:factory/swriter&quot;,&quot;_blank&quot;,0,props())
+    oShape = addControlToDefaultForm(&quot;ImageButton&quot;, 1000, 1000, 2000, 1000)    
+    imgControl = oShape.getControl()
+    &apos;imgControl.ImageUrl=&quot;file:///D:/Program%20Files/src680_m11_qwizards1_49_TEST/share/gallery/tutoItem.gif&quot;    
+	imgControl.ImageUrl = bitmapPath  
+    imgControl.addConsumer(whatever)
+    imgControl.startProduction()
+end sub
+
+Function createControlShape(cKind As String) As Object
+
+    Dim oControlShape As Object
+    Dim oControl As Object
+
+    
+    oControlShape = oDoc.createInstance(&quot;com.sun.star.drawing.ControlShape&quot;)
+    oControl = oDoc.createInstance(&quot;com.sun.star.form.component.&quot; &amp; cKind)
+    oControl.setPropertyValue(&quot;DefaultControl&quot;, &quot;com.sun.star.form.control.&quot; &amp; cKind)
+    oControlShape.setControl(oControl)
+
+
+    createControlShape() = oControlShape
+
+End Function
+
+Function createControlShapeWithDefaultControl(cKind As String) As Object
+
+    Dim oControlShape As Object
+    Dim oControl As Object
+
+    
+    oControlShape = oDoc.createInstance(&quot;com.sun.star.drawing.ControlShape&quot;)
+    oControl = oDoc.createInstance(&quot;com.sun.star.form.component.&quot; &amp; cKind)
+    oControlShape.setControl(oControl)
+
+
+    createControlShapeWithDefaultControl() = oControlShape
+
+End Function
+
+Function createUNOControlShape(cKind As String, defControl As String) As Object
+
+    Dim oControlShape As Object
+    Dim oControl As Object
+
+
+    oControlShape = oDoc.createInstance(&quot;com.sun.star.drawing.ControlShape&quot;)
+    oControl = oDoc.createInstance(&quot;com.sun.star.form.component.&quot; &amp; cKind)
+    oControl.setPropertyValue(&quot;DefaultControl&quot;, &quot;com.sun.star.awt.&quot; &amp; defControl)
+    oControlShape.setControl(oControl)
+
+
+    createUNOControlShape() = oControlShape
+
+End Function
+
+Function addShape(oShape As Object) As Boolean
+
+	Dim vSize As New com.sun.star.awt.Size
+	Dim oDrawPage As Object
+	Dim oForms As Object
+	Dim oForm As Object
+
+    oDrawPage = oDoc.getDrawPage()
+    oForms = oDrawPage.getForms()
+    
+    if oForms.Count = 0 then
+        oForm = oDoc.createInstance(&quot;com.sun.star.form.component.Form&quot;)
+        oForms.insertByIndex(0, oForm)
+    end if
+    
+    vSize.Height = 2000 : vSize.Width = 2000
+    oShape.Size = vSize
+    oDrawPage.add(oShape)
+
+    addShape() = true
+
+End Function
+
+sub addControl(cKind as String)
+
+    Dim oDrawPage As Object
+    Dim oForm As Object, oForms As Object
+    Dim oControl As Object, oControlShape As Object
+    Dim aSz As Variant
+    Dim oText As Object
+
+    oDrawPage = oDoc.DrawPage
+    oControlShape = oDoc.createInstance(&quot;com.sun.star.drawing.ControlShape&quot;)
+    oControl = oDoc.createInstance(&quot;com.sun.star.form.component.&quot; + cKind)
+    oForm = oDoc.createInstance(&quot;com.sun.star.form.component.Form&quot;)
+    oforms = oDrawPage.Forms
+    if oforms.count = 0 then
+            oforms.insertbyindex(0,oForm)
+    end if
+    oControlShape.Control = oControl
+    oDrawPage.add(oControlShape)
+        
+End sub
+
+Function addControlToDefaultForm(cKind as String, x As Integer, y As Integer, width As Integer, height As Integer) As Object
+
+    Dim oDrawPage As Object
+    Dim oControl As Object, oControlShape As Object
+    Dim pos As New com.sun.star.awt.Point
+    Dim size As New com.sun.star.awt.Size
+
+	pos.X = x
+	pos.Y = y
+	size.Width = width
+	size.Height = height
+	
+    oDrawPage = oDoc.DrawPage
+    oControlShape = oDoc.createInstance(&quot;com.sun.star.drawing.ControlShape&quot;)
+    oControl = oDoc.createInstance(&quot;com.sun.star.form.component.&quot; + cKind)
+    oControlShape.Control = oControl
+    oControlShape.Position = pos
+    oControlShape.Size = size
+    oDrawPage.add(oControlShape)
+
+	addControlToDefaultForm() = oControlShape
+
+End Function
+
+Function addShapeToDrawDoc(oPage as Object, nPosX, nPosY as Integer, oType As String) As Object
+    Dim aPoint As New com.sun.star.awt.Point
+    Dim aSize As New com.sun.star.awt.Size
+    Dim oShape As Object
+    Dim servNames As Variant
+
+    aPoint.x = nPosX
+    aPoint.y = nPosY
+    aSize.Width = 2000
+    aSize.Height = 1000
+    oShape = oDoc.createInstance(&quot;com.sun.star.drawing.&quot;+oType+&quot;Shape&quot;)
+    oShape.Size = aSize
+    oShape.Position = aPoint
+    
+    if oShape.getPropertySetInfo().hasPropertyByName(&quot;FillColor&quot;) then
+    	oShape.FillColor = RGB(128, 255, 0)
+    End If
+
+    oPage.add(oShape)
+
+    addShapeToDrawDoc() = oShape
+End Function
+</script:module>

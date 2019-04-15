@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="TutorialOpenDialog" dlg:left="158" dlg:top="58" dlg:width="250" dlg:height="200" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:button dlg:id="Open" dlg:tab-index="1" dlg:left="141" dlg:top="180" dlg:width="50" dlg:height="14" dlg:value="Open">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tutorials.TutorialOpen.OpenTutorial?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Cancel" dlg:tab-index="2" dlg:left="194" dlg:top="180" dlg:width="50" dlg:height="14" dlg:value="Cancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tutorials.TutorialOpen.Cancel?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:menulist dlg:id="ListBox" dlg:tab-index="0" dlg:left="8" dlg:top="17" dlg:width="98" dlg:height="155">
+   <script:event script:event-name="on-performaction" script:location="application" script:macro-name="Tutorials.TutorialOpen.OpenTutorial" script:language="StarBasic"/>
+   <script:event script:event-name="on-itemstatechange" script:location="application" script:macro-name="Tutorials.TutorialOpen.ItemSelected" script:language="StarBasic"/>
+  </dlg:menulist>
+  <dlg:fixedline dlg:id="FixedLine" dlg:tab-index="3" dlg:left="6" dlg:top="6" dlg:width="100" dlg:height="8" dlg:value="Tutorials"/>
+  <dlg:fixedline dlg:id="FixedLine1" dlg:tab-index="4" dlg:left="6" dlg:top="176" dlg:width="238" dlg:height="1"/>
+  <dlg:fixedline dlg:id="FixedLine2" dlg:tab-index="5" dlg:left="110" dlg:top="6" dlg:width="134" dlg:height="8" dlg:value="Description"/>
+  <dlg:fixedline dlg:id="FixedLine3" dlg:tab-index="6" dlg:left="267" dlg:top="44" dlg:width="0" dlg:height="2"/>
+  <dlg:text dlg:id="Label" dlg:tab-index="7" dlg:left="112" dlg:top="17" dlg:width="132" dlg:height="155" dlg:multiline="true"/>
+ </dlg:bulletinboard>
+</dlg:window>

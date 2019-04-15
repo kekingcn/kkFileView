@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Currency" script:language="StarBasic">REM  *****  BASIC  *****
+Option Explicit
+
+Dim bDoUnLoad as Boolean
+
+
+Sub Startup()
+Dim i as Integer
+Dim a as Integer
+Dim ListString as String
+Dim MarketListBoxControl as Object
+	Initialize(False)
+	MarketListBoxControl = DlgStartUp.GetControl(&quot;lstMarkets&quot;)
+	a = 0
+	For i = 0 To Ubound(sMarket(),1)
+		ListString = sMarket(i,0)
+		If sMarket(i,0) &lt;&gt; &quot;&quot; Then
+			If sMarket(i,3) = &quot;&quot; Then
+				ListString = ListString &amp; &quot;    (&quot; &amp; sNoInternetUpdate &amp; &quot;)&quot;
+			Else
+				ListString = ListString &amp; &quot;    (&quot; &amp; sMarketplace &amp; &quot; &quot; &amp; sMarket(i,2) &amp; &quot;)&quot;
+			End If
+			MarketListBoxControl.AddItem(ListString, a)
+			a = a + 1
+		End If
+	Next i
+	MarketListBoxControl.SelectItemPos(GlobListIndex, True)
+	DlgStartUp.Title = sDepotCurrency
+	DlgStartUp.Model.cmdGoOn.DefaultButton = True
+	DlgStartUp.GetControl(&quot;lstMarkets&quot;).SetFocus()
+	DlgStartUp.Execute()
+	DlgStartUp.Dispose()
+End Sub
+
+
+Sub EnableGoOnButton()
+	StartUpModel.cmdGoOn.Enabled = True
+	StartUpModel.cmdGoOn.DefaultButton = True
+End Sub
+
+
+Sub CloseStartUpDialog()
+	DlgStartUp.EndExecute()
+&apos;	oDocument.Dispose()
+End Sub
+
+
+Sub DisposeDocument()
+	If bDoUnload Then
+		oDocument.Dispose()
+	End If		
+End Sub
+
+
+Sub ChooseMarket(Optional aEvent)
+Dim Index as Integer
+Dim bIsDocLanguage as Boolean
+Dim bIsDocCountry as Boolean
+	oInternetModel = GetControlModel(oDocument.Sheets(0), &quot;CmdInternet&quot;)
+	If Not IsMissing(aEvent) Then
+		Index = StartupModel.lstMarkets.SelectedItems(0)
+		oInternetModel.Tag = Index
+	Else
+		Index = oInternetModel.Tag
+	End If
+	oMarketModel = GetControlModel(oDocument.Sheets(0), &quot;CmdHistory&quot;)
+	sCurCurrency = sMarket(Index,1)
+	If Index = 0 Then
+		HistoryChartSource = sMarket(Index,4)
+	End If
+	sCurStockIDLabel = sMarket(Index,5)
+	sCurExtension = sMarket(Index,8)
+	iValueCol = Val(sMarket(Index,10)
+	If Instr(sCurExtension,&quot;;&quot;) &lt;&gt; 0 Then
+		&apos; Take the german extension as the stock place is Frankfurt
+		sCurExtension = &quot;407&quot;
+	End If		
+	sCurChartSource = sMarket(Index,3)
+	bIsDocLanguage = Instr(1, sMarket(Index,6), sDocLanguage, SBBINARY) &lt;&gt; 0
+	bIsDocCountry = Instr(1, sMarket(Index,7), sDocCountry, SBBINARY) &lt;&gt; 0  OR SDocCountry = &quot;&quot;
+	sCurSeparator = sMarket(Index,9)
+	TransactModel.txtRate.CurrencySymbol = sCurCurrency
+	TransactModel.txtFix.CurrencySymbol = sCurCurrency
+	TransactModel.txtMinimum.CurrencySymbol = sCurCurrency
+	bEnableMarket = Index = 0
+	bEnableInternet = sCurChartSource &lt;&gt; &quot;&quot;
+	oMarketModel.Enabled = bEnableMarket	
+	oInternetModel.Enabled = bEnableInternet
+	If Not IsMissing(aEvent) Then
+		ConvertStylesCurrencies()
+		bDoUnload = False
+		DlgStartUp.EndExecute()
+	End If
+End Sub
+
+
+Sub ConvertStylesCurrencies()
+Dim m as integer
+Dim aStyleFormat as Object
+Dim StyleName as String
+Dim bAddToList as Boolean
+Dim oStyle as Object
+Dim oStyles as Object
+ 	UnprotectSheets(oSheets)
+	oFirstSheet.GetCellByPosition(SBCOLUMNID1, SBROWHEADER1).SetString(sCurStockIDLabel)
+	oStyles = oDocument.StyleFamilies.GetbyIndex(0)
+	For m = 0 To oStyles.count-1
+		oStyle = oStyles.GetbyIndex(m)
+		StyleName = oStyle.Name
+		bAddToList = CheckFormatType(oStyle)
+		If bAddToList Then 
+			SwitchNumberFormat(ostyle, oDocFormats, sCurCurrency, sCurExtension)
+		End If
+	Next m
+	ProtectSheets(oSheets)
+End Sub
+
+
+Sub SwitchNumberFormat(oObject as Object, oFormats as object, sNewSymbol as String, sNewExtension as String)
+Dim nFormatLanguage as Integer
+Dim nFormatDecimals as Integer
+Dim nFormatLeading as Integer
+Dim bFormatLeading as Integer
+Dim bFormatNegRed as Integer
+Dim bFormatThousands as Integer
+Dim aNewStr as String
+Dim iNumberFormat as Long
+Dim sSimpleStr as String
+Dim nSimpleKey as Long
+Dim aFormat()
+Dim oLocale as New com.sun.star.lang.Locale
+	&apos; Numberformat with the new Symbol as Base for new Format
+	sSimpleStr = &quot;0 [$&quot; &amp; sNewSymbol &amp; &quot;-&quot; &amp; sNewExtension &amp; &quot;]&quot;
+	nSimpleKey = Numberformat(oFormats, sSimpleStr, oDocLocale)
+	On Local Error Resume Next
+	iNumberFormat = oObject.NumberFormat
+	If Err &lt;&gt; 0 Then
+		Msgbox &quot;Error Reading the Number Format&quot;
+		Resume CLERROR
+	End If
+
+	On Local Error GoTo NOKEY
+	aFormat() = oFormats.getByKey(iNumberFormat)
+	On Local Error GoTo 0
+	&apos; set new currency format with according settings
+	nFormatDecimals = aFormat.Decimals
+	nFormatLeading = aFormat.LeadingZeros
+	bFormatNegRed = aFormat.NegativeRed
+	bFormatThousands = aFormat.ThousandsSeparator
+	oLocale = aFormat.Locale
+	aNewStr = oFormats.generateFormat(nSimpleKey, oLocale, bFormatThousands, bFormatNegRed, nFormatDecimals, nFormatLeading)
+	oObject.NumberFormat = Numberformat(oFormats, aNewStr, oLocale)
+	NOKEY:
+	If Err &lt;&gt; 0 Then
+		Resume CLERROR
+	End If
+	CLERROR:
+End Sub
+
+
+Function Numberformat( oFormats as Object, aFormatStr as String, oLocale as Variant )
+Dim nRetkey 
+	nRetKey = oFormats.queryKey(aFormatStr, oLocale, True)
+	If nRetKey = -1 Then
+		nRetKey = oFormats.addNew( aFormatStr, oLocale )
+		If nRetKey = -1 Then nRetKey = 0
+	End If
+	Numberformat = nRetKey
+End Function
+
+
+Function CheckFormatType(oStyle as Object)
+Dim oFormatofObject as Object
+	oFormatofObject = oDocFormats.getByKey(oStyle.NumberFormat)
+  	CheckFormatType = INT(oFormatOfObject.Type) AND com.sun.star.util.NumberFormat.CURRENCY
+End Function</script:module>

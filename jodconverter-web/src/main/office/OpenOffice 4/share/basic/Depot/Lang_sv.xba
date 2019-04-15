@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Lang_sv" script:language="StarBasic">Option Explicit
+
+Sub LoadSwedishLanguage()
+	sProductname = GetProductname
+	sOK = &quot;~OK&quot; 
+	sCancel = &quot;Avbryt&quot;
+	sColumnHeader = &quot;Kolumnhuvud&quot;	
+	sInsertStockName = &quot;Infoga först några aktier i Din portfölj!&quot;
+	sTitle = &quot;&lt;PRODUCTNAME&gt;: Aktieförvaltning&quot;
+	sTitle = ReplaceString(sTitle, sProductName, &quot;&lt;PRODUCTNAME&gt;&quot;)
+	sMsgError = &quot;Inmatningsfel&quot;
+	sMsgNoName = sInsertStockname
+	sMsgNoQuantity = &quot;Var vänlig och mata in ett större antal än 0&quot;
+	sMsgNoDividend = &quot;Var vänlig och mata in utdelning per styck eller den totala utdelningen&quot;
+	sMsgNoExchangeRate = &quot;Var vänlig och mata in en korrekt omräkningskurs (gamla aktier -&gt; nya aktier).&quot;
+	sMsgNoValidExchangeDate = &quot;Var vänlig och mata in ett giltigt datum för aktiesplitten.&quot;
+	sMsgWrongExchangeDate = &quot;Split är inte möjlig eftersom det redan finns transaktioner efter splitdatum.&quot;
+	sMsgSellTooMuch = &quot;Så många aktier kan Du inte sälja. Maximum: &quot;
+	sMsgConfirm = &quot;Bekräftelse krävs&quot;
+	sMsgFreeStock = &quot;Avser Du att mata in gratisaktier?&quot;
+	sMsgTotalLoss = &quot;Avser Du att mata in en totalförlust?&quot;
+	sMsgAuthorization = &quot;Säkerhetskontroll&quot;
+	sMsgDeleteAll = &quot;Vill Du ta bort alla rörelser och återställa portföljöversikten?&quot;
+	cSplit = &quot;Aktiesplit den &quot;
+	sHistory = &quot;Historik&quot;
+	TransactTitle(1) = 	 &quot;Sälja aktier&quot;
+	TransactTitle(2) = &quot;Köpa aktier&quot;
+	StockRatesTitle(1) = &quot;Aktieutdelning&quot;
+	StockRatesTitle(2) = &quot;Aktiesplit&quot;
+	StockRatesTitle(3) = sHistory
+	sDepotCurrency = &quot;Portföljvaluta&quot;	
+	sStockName = &quot;Aktienamn&quot;
+	TransactMode = LIFO	&apos; Possible values: &quot;FIFO&quot; and &quot;LIFO&quot;
+	DateCellStyle = &quot;Resultat datum&quot;
+	CurrCellStyle = &quot;1&quot;
+	sStartDate = &quot;Startdatum:&quot;
+	sEndDate = &quot;Slutdatum:&quot;
+	sStartUpWelcome = &quot;Med hjälp av den här mallen kan Du förvalta Din aktieportfölj effektivt&quot;
+	sStartUpChooseMarket = &quot;Välj först Din referensvaluta och därigenom börs för Internet-uppdateringen!&quot;
+	sStartUpHint = &quot;Tyvärr är &lt;History&gt;-funktionen bara tillgänglig för den amerikanska marknaden!&quot;
+	sStartupHint = ReplaceString(sStartUpHint, sHistory, &quot;&lt;History&gt;&quot;)
+	sNoInternetUpdate = &quot;utan Internet-uppdatering&quot;
+	sMarketPlace = &quot;Börs:&quot;
+	sNoInternetDataAvailable = &quot;Det gick inte att ta emot Internet-kurser!&quot;
+	sCheckInternetSettings = &quot;Detta kan bero på att: &lt;BR&gt; Dina Internet-inställningar måste ändras.&lt;BR&gt; Du har angivit ett felaktigt ID (t.ex. symbol, värdepappersnr.) för aktien.&quot;
+	sCheckInternetSettings = ReplaceString(sCheckInternetSettings, chr(13), &quot;&lt;BR&gt;&quot;)
+
+	sMsgEndDatebeforeNow = &quot;Slutdatum måste ligga före idag!&quot;
+	sMsgStartDatebeforeEndDate = &quot;Startdatum måste ligga före slutdatum!&quot;
+
+	sMarket(0,0) = &quot;Amerikansk dollar&quot;
+	sMarket(0,1) = &quot;$&quot;
+	sMarket(0,2) = &quot;New York&quot;
+	sMarket(0,3) = &quot;http://finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(0,4) = &quot;http://ichart.finance.yahoo.com/table.csv?&quot; &amp;_
+				   &quot;s=&lt;StockID&gt;&amp;d=&lt;EndMonth&gt;&amp;e=&lt;EndDay&gt;&amp;f=&lt;Endyear&gt;&amp;g=d&amp;&quot; &amp;_
+				   &quot;a=&lt;StartMonth&gt;&amp;b=&lt;StartDay&gt;&amp;c=&lt;Startyear&gt;&amp;ignore=.csv&quot;
+	sMarket(0,5) = &quot;Symbol&quot;
+	sMarket(0,6) = &quot;en&quot;
+	sMarket(0,7) = &quot;US&quot;
+	sMarket(0,8) = &quot;409&quot;
+	sMarket(0,9) = &quot;44&quot;
+	sMarket(0,10) = &quot;1&quot;
+	
+	sMarket(1,0) = &quot;Euro&quot;
+	sMarket(1,1) = chr(8364)
+	sMarket(1,2) = &quot;Frankfurt&quot;
+	sMarket(1,3) = &quot;http://de.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.F&amp;f=sl1t1c1ghpv&amp;e=.csv&quot;
+	sMarket(1,5) = &quot;Värdepappersnr&quot;
+	sMarket(1,6) = &quot;de;nl;pt;el&quot;
+	sMarket(1,7) = &quot;DE;NL;PT;GR&quot;
+	sMarket(1,8) = &quot;407;413;816;408&quot;
+	sMarket(1,9) = &quot;59/9&quot;
+	sMarket(1,10) = &quot;1&quot;
+
+	sMarket(2,0) = &quot;Engelskt pund&quot;
+	sMarket(2,1) = &quot;£&quot;
+	sMarket(2,2) = &quot;London&quot;
+	sMarket(2,3) = &quot;http://uk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.L&amp;m=*&amp;f=sl1t1c1ghov&amp;e=.csv&quot;
+	sMarket(2,5) = &quot;Symbol&quot;
+	sMarket(2,6) = &quot;en&quot;
+	sMarket(2,7) = &quot;GB&quot;
+	sMarket(2,8) = &quot;809&quot;
+	sMarket(2,9) = &quot;44&quot;
+	sMarket(2,10) = &quot;1&quot;
+
+	sMarket(3,0) = &quot;Japansk yen&quot;
+	sMarket(3,1) = &quot;¥&quot;
+	sMarket(3,2) = &quot;Tokyo&quot;
+	sMarket(3,3) = &quot;&quot;
+	sMarket(3,5) = &quot;Kod&quot;
+	sMarket(3,6) = &quot;ja&quot;
+	sMarket(3,7) = &quot;JP&quot;
+	sMarket(3,8) = &quot;411&quot;
+	sMarket(3,9) = &quot;&quot;
+	sMarket(3,10) = &quot;&quot;
+	
+	sMarket(4,0) = &quot;Hongkongdollar&quot;
+	sMarket(4,1) = &quot;HK$&quot;
+	sMarket(4,2) = &quot;Hongkong&quot;
+	sMarket(4,3) = &quot;http://hk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(4,5) = &quot;Nummer&quot;
+	sMarket(4,6) = &quot;zh&quot;
+	sMarket(4,7) = &quot;HK&quot;	
+	sMarket(4,8) = &quot;C04&quot;
+	sMarket(4,9) = &quot;44&quot;
+	sMarket(4,10) = &quot;1&quot;
+
+	sMarket(5,0) = &quot;Australisk dollar&quot;
+	sMarket(5,1) = &quot;$&quot;
+	sMarket(5,2) = &quot;Sydney&quot;
+	sMarket(5,3) = &quot;http://au.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(5,5) = &quot;Symbol&quot;
+	sMarket(5,6) = &quot;en&quot;
+	sMarket(5,7) = &quot;AU&quot;
+	sMarket(5,8) = &quot;C09&quot;
+	sMarket(5,9) = &quot;44&quot;
+	sMarket(5,10) = &quot;1&quot;
+
+&apos; ****************************End of the default subset*********************************
+	CompleteMarketList()
+
+	LocalizedCurrencies()
+	
+	With TransactModel
+		.lblStockNames.Label = sStockname
+		.lblQuantity.Label = &quot;Antal&quot;
+		.lblRate.Label = &quot;Kurs&quot;
+		.lblDate.Label = &quot;Transaktionsdatum&quot;
+		.hlnCommission.Label = &quot;Övriga utgifter&quot;
+		.lblCommission.Label = &quot;Provision&quot;
+		.lblMinimum.Label = &quot;Minimiprovision&quot;
+		.lblFix.Label = &quot;Fast belopp/omkostnader&quot;
+		.cmdGoOn.Label = sOK
+		.cmdCancel.Label = sCancel
+	End With
+	
+	With StockRatesModel
+		.optPerShare.Label = &quot;Utdelning per aktie&quot;
+		.optTotal.Label = &quot;Utdelning totalt&quot;
+		.lblDividend.Label = &quot;Belopp&quot;
+		.lblExchangeRate.Label = &quot;Omräkningskurs (gammal-&gt;ny)&quot;
+		.lblColon.Label = &quot;:&quot;
+		.lblDate.Label = &quot;Omräkningsdatum:&quot;
+		.lblStockNames.Label = sStockname
+		.lblStartDate.Label = sStartDate
+		.lblEndDate.Label = sEndDate
+		.optDaily.Label = &quot;~Dagligen&quot;
+		.optWeekly.Label = &quot;~Varje vecka&quot;
+		.hlnInterval.Label = &quot;Period&quot;
+		.cmdGoOn.Label = sOk
+		.cmdCancel.Label = sCancel
+	End With
+End Sub
+</script:module>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Writer" script:language="StarBasic">REM  *****  BASIC  *****
+
+
+Sub ConvertWriterTables()
+Dim CellString as String
+Dim oParagraphs as Object
+Dim oPara as Object
+Dim i as integer
+Dim sCellNames()
+Dim oCell as Object
+	oParagraphs = oDocument.Text.CreateEnumeration
+	While oParagraphs.HasMoreElements
+		oPara = oParagraphs.NextElement
+		If NOT oPara.supportsService(&quot;com.sun.star.text.Paragraph&quot;) Then
+			&apos; Note: As cells might be splitted or merged
+			&apos; you cannot refer to them via their indices
+			sCellNames = oPara.CellNames
+			For i = 0 To Ubound(sCellNames)
+				If sCellNames(i) &lt;&gt; &quot;&quot; Then
+					oCell = oPara.getCellByName(sCellNames(i))
+					If CheckFormatType(oCell) Then
+						SwitchNumberFormat(oCell, oFormats, sEuroSign)
+						ModifyObjectValuewithCurrFactor(oCell)
+					End If
+				End If
+			Next
+		End If
+	Wend
+End Sub
+
+
+Sub ModifyObjectValuewithCurrFactor(oDocObject as Object)
+	oDocObjectValue = oDocObject.Value
+	oDocObject.Value = oDocObjectValue/CurrFactor
+End Sub
+
+
+Sub ConvertTextFields()
+Dim oTextFields as Object
+Dim oTextField as Object
+Dim FieldValue
+Dim oDocObjectValue as double
+Dim InstanceNames(500) as String
+Dim CurInstanceName as String
+Dim MaxIndex as Integer
+	MaxIndex = 0
+	oTextfields = oDocument.getTextfields.CreateEnumeration
+	While oTextFields.hasmoreElements
+		oTextField = oTextFields.NextElement
+		If oTextField.PropertySetInfo.HasPropertybyName(&quot;NumberFormat&quot;) Then
+			If CheckFormatType(oTextField) Then
+				If oTextField.PropertySetInfo.HasPropertybyName(&quot;Value&quot;) Then
+					If Not oTextField.SupportsService(&quot;com.sun.star.text.TextField.GetExpression&quot;) Then
+						oTextField.Content = CStr(Round(oTextField.Value/CurrFactor,2))
+					End If
+				ElseIf oTextField.TextFieldMaster.PropertySetInfo.HasPropertyByName(&quot;Value&quot;) Then
+					CurInstanceName = oTextField.TextFieldMaster.InstanceName
+					If Not FieldinArray(InstanceNames(), MaxIndex, CurInstanceName) Then
+						oTextField.TextFieldMaster.Content = CStr(Round(oTextField.TextFieldMaster.Value/CurrFactor,2))
+						InstanceNames(MaxIndex) = CurInstanceName
+						MaxIndex = MaxIndex + 1
+					End If
+				End If
+				SwitchNumberFormat(oTextField, oFormats, sEuroSign)
+			End If
+		End If
+	Wend
+	oDocument.GetTextFields.refresh()
+End Sub
+</script:module>

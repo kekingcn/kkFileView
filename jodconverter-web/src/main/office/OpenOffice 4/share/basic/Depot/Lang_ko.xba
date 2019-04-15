@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Lang_ko" script:language="StarBasic">Option Explicit
+
+Sub LoadKoreanLanguage()
+
+	sProductname = GetProductname
+	sOK = &quot;~확인&quot; 
+	sCancel = &quot;취소&quot;
+	sColumnHeader = &quot;열 머리글&quot;
+	sInsertStockName = &quot;주식 종목을 삽입해주십시오.&quot;
+	sTitle = &quot;&lt;PRODUCTNAME&gt;: 주식 매수&quot;
+	sTitle = ReplaceString(sTitle, sProductName, &quot;&lt;PRODUCTNAME&gt;&quot;)
+	sMsgError = &quot;입력 오류&quot;
+	sMsgNoName = sInsertStockname
+	sMsgNoQuantity = &quot;0 이하의 매수를 입력해주십시오.&quot;
+	sMsgNoDividend = &quot;한 주당 배당분 또는 총배당분을 입력해주십시오.&quot;
+	sMsgNoExchangeRate = &quot;정확한 환율을 입력해주십시오 (구주를 신주로 소급 시).&quot;
+	sMsgNoValidExchangeDate = &quot;유효한 배당 결제일을 입력해주십시오.&quot;
+	sMsgWrongExchangeDate = &quot;배당 기준일이 경과하여 배당할 수 없습니다.&quot;
+	sMsgSellTooMuch = &quot;이렇게 많은 주식을 팔 수 없습니다. 최대 매도수: &quot;
+	sMsgConfirm = &quot;확인 필요&quot;
+	sMsgFreeStock = &quot;공짜 주식을 입력하시겠습니까?&quot;
+	sMsgTotalLoss = &quot;주가 폭락세를 입력하시겠습니까?&quot;
+	sMsgAuthorization = &quot;안정성 조회&quot;
+	sMsgDeleteAll = &quot;모든 주가 움직임을 삭제하고 계좌 현황을 원래대로 하시겠습니까?&quot;
+	cSplit = &quot;주식 배당일 &quot;
+	sHistory = &quot;내역&quot;
+	TransactTitle(1) = 	 &quot;주식 관리: 주식 매도&quot;
+	TransactTitle(2) = &quot;주식 관리: 주식 매수&quot;
+	StockRatesTitle(1) = &quot;주식 관리: 배당금 지불&quot;
+	StockRatesTitle(2) = &quot;주식 관리: 주식 배분&quot;
+	StockRatesTitle(3) = sHistory
+	sDepotCurrency = &quot;주식 계좌 통화&quot;	
+	sStockName = &quot;주식 종목명&quot;
+	TransactMode = LIFO	&apos; Possible values: &quot;FIFO&quot; and &quot;LIFO&quot;
+	DateCellStyle = &quot;결과, 날짜&quot;
+	CurrCellStyle = &quot;1&quot;
+	sStartDate = &quot;매매일:&quot;
+	sEndDate = &quot;만기일:&quot;
+	sStartUpWelcome = &quot;이 템플릿을 사용하여 주식 투자 관리를 효율적으로 할 수 있습니다.&quot;
+	sStartUpChooseMarket = &quot;인터넷 업데이트를 위해 우선 관련 통화와 증권 장소를 선택하십시오.&quot;
+	sStartUpHint = &quot;&lt;내역&gt; 기능은 미국 시장용으로만 사용할 수 있습니다.&quot;
+	sStartupHint = ReplaceString(sStartUpHint, sHistory, &quot;&lt;History&gt;&quot;)
+	sNoInternetUpdate = &quot;인터넷 업데이트 없음&quot;
+	sMarketPlace = &quot;증권 장소:&quot;
+	sNoInternetDataAvailable = &quot;인터넷 시세는 받을 수 없었습니다.&quot;
+	sCheckInternetSettings = &quot;원인: &lt;BR&gt; 인터넷 설정을 점검해야만 합니다.&lt;BR&gt; 옳지 않은 암호&lt;예를 들어 잘못된 문자 또는 종목 코드&gt;를 입력했습니다.&quot;
+	sCheckInternetSettings = ReplaceString(sCheckInternetSettings, chr(13), &quot;&lt;BR&gt;&quot;)
+
+	sMsgEndDatebeforeNow = &quot;만기일은 오늘 날짜 전에 기입되어야 합니다.&quot;
+	sMsgStartDatebeforeEndDate = &quot;매매일은 만기일 전에 기입되어야 합니다.&quot;
+
+	sMarket(0,0) = &quot;미국 달러&quot;
+	sMarket(0,1) = &quot;$&quot;
+	sMarket(0,2) = &quot;뉴욕&quot;
+	sMarket(0,3) = &quot;http://finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(0,4) = &quot;http://ichart.finance.yahoo.com/table.csv?&quot; &amp;_
+				   &quot;s=&lt;StockID&gt;&amp;d=&lt;EndMonth&gt;&amp;e=&lt;EndDay&gt;&amp;f=&lt;Endyear&gt;&amp;g=d&amp;&quot; &amp;_
+				   &quot;a=&lt;StartMonth&gt;&amp;b=&lt;StartDay&gt;&amp;c=&lt;Startyear&gt;&amp;ignore=.csv&quot;
+	sMarket(0,5) = &quot;기호&quot;
+	sMarket(0,6) = &quot;en&quot;
+	sMarket(0,7) = &quot;US&quot;
+	sMarket(0,8) = &quot;409&quot;
+	sMarket(0,9) = &quot;44&quot;
+	sMarket(0,10) = &quot;1&quot;
+	
+	sMarket(1,0) = &quot;유로&quot;
+	sMarket(1,1) = chr(8364)
+	sMarket(1,2) = &quot;프랑크푸르트&quot;
+	sMarket(1,3) = &quot;http://de.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.F&amp;f=sl1t1c1ghpv&amp;e=.csv&quot;
+	sMarket(1,5) = &quot;WKN&quot;
+	sMarket(1,6) = &quot;de;nl;pt;el&quot;
+	sMarket(1,7) = &quot;DE;NL;PT;GR&quot;
+	sMarket(1,8) = &quot;407;413;816;408&quot;
+	sMarket(1,9) = &quot;59/9&quot;
+	sMarket(1,10) = &quot;1&quot;
+
+	sMarket(2,0) = &quot;영국 파운드&quot;
+	sMarket(2,1) = &quot;£&quot;
+	sMarket(2,2) = &quot;런던&quot;
+	sMarket(2,3) = &quot;http://uk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.L&amp;m=*&amp;f=sl1t1c1ghov&amp;e=.csv&quot;
+	sMarket(2,5) = &quot;기호&quot;
+	sMarket(2,6) = &quot;en&quot;
+	sMarket(2,7) = &quot;GB&quot;
+	sMarket(2,8) = &quot;809&quot;
+	sMarket(2,9) = &quot;44&quot;
+	sMarket(2,10) = &quot;1&quot;
+
+	sMarket(3,0) = &quot;엔화&quot;
+	sMarket(3,1) = &quot;¥&quot;
+	sMarket(3,2) = &quot;도쿄&quot;
+	sMarket(3,3) = &quot;&quot;
+	sMarket(3,5) = &quot;코드&quot;
+	sMarket(3,6) = &quot;ja&quot;
+	sMarket(3,7) = &quot;JP&quot;
+	sMarket(3,8) = &quot;411&quot;
+	sMarket(3,9) = &quot;&quot;
+	sMarket(3,10) = &quot;&quot;
+	
+	sMarket(4,0) = &quot;홍콩 달러&quot;
+	sMarket(4,1) = &quot;HK$&quot;
+	sMarket(4,2) = &quot;홍콩&quot;
+	sMarket(4,3) = &quot;http://hk.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;.HK&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(4,5) = &quot;번호&quot;
+	sMarket(4,6) = &quot;zh&quot;
+	sMarket(4,7) = &quot;HK&quot;	
+	sMarket(4,8) = &quot;C04&quot;
+	sMarket(4,9) = &quot;44&quot;
+	sMarket(4,10) = &quot;1&quot;
+
+	sMarket(5,0) = &quot;호주 달러&quot;
+	sMarket(5,1) = &quot;$&quot;
+	sMarket(5,2) = &quot;시드니&quot;
+	sMarket(5,3) = &quot;http://au.finance.yahoo.com/d/quotes.csv?s=&lt;StockID&gt;&amp;f=sl1d1t1c1ohgv&amp;e=.csv&quot;
+	sMarket(5,5) = &quot;기호&quot;
+	sMarket(5,6) = &quot;en&quot;
+	sMarket(5,7) = &quot;AU&quot;
+	sMarket(5,8) = &quot;C09&quot;
+	sMarket(5,9) = &quot;44&quot;
+	sMarket(5,10) = &quot;1&quot;
+
+&apos; ****************************End of the default subset*********************************
+	CompleteMarketList()
+
+	LocalizedCurrencies()
+
+	With TransactModel
+		.lblStockNames.Label = sStockname
+		.lblQuantity.Label = &quot;수량&quot;
+		.lblRate.Label = &quot;시세&quot;
+		.lblDate.Label = &quot;배당 결산일&quot;
+		.hlnCommission.Label = &quot;기타 지출&quot;
+		.lblCommission.Label = &quot;수수료&quot;
+		.lblMinimum.Label = &quot;최저 수수료&quot;
+		.lblFix.Label = &quot;약정 금액/기타 경비&quot;
+		.cmdGoOn.Label = sOK
+		.cmdCancel.Label = sCancel
+	End With
+	
+	With StockRatesModel
+		.optPerShare.Label = &quot;배당분/주&quot;
+		.optTotal.Label = &quot;배당분 합계&quot;
+		.lblDividend.Label = &quot;금액&quot;
+		.lblExchangeRate.Label = &quot;환율(구주-&gt;신주)&quot;
+		.lblColon.Label = &quot;:&quot;
+		.lblDate.Label = &quot;환율일자&quot;
+		.lblStockNames.Label = sStockname
+		.lblStartDate.Label = sStartDate
+		.lblEndDate.Label = sEndDate
+		.optDaily.Label = &quot;~매일&quot;
+		.optWeekly.Label = &quot;~매주&quot;
+		.hlnInterval.Label = &quot;기간&quot;
+		.cmdGoOn.Label = sOk
+		.cmdCancel.Label = sCancel
+	End With
+End Sub
+</script:module>

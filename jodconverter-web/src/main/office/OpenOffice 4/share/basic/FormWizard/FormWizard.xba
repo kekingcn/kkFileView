@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="FormWizard" script:language="StarBasic">Option Explicit
+
+Public DocumentName as String
+Public FormPath as String
+Public WizardPath as String
+Public WebWizardPath as String
+Public WorkPath as String
+Public TempPath as String
+Public TexturePath as String
+Public sQueryName as String
+Public oDBConnection as Object
+Public bWithBackGraphic as Boolean
+Public bNeedFieldRefresh as Boolean
+Public oDBForm as Object
+Public oColumns() as Object
+Public sDatabaseList() as String
+Public TableNames() as String
+Public QueryNames() as String
+Public FieldNames() as String
+Public ImgFieldNames() as String
+Public oDBContext as Object
+Public oUcb as Object
+Public oDocInfo as Object
+Public WidthList(15,3)
+Public ImgWidthList(3,3)
+Public sDBName as String
+Public Tablename as String
+Public Const SBSIZETEXT = &quot;The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.&quot;
+Public bDisposeDoc as Boolean
+Public bDebug as Boolean
+&apos;Public bStartUp as Boolean
+Public bConnectionIsovergiven as Boolean
+Public FormName As String
+Public sFormUrl as String
+Public oFormDocuments
+
+
+&apos; The macro can be called in 4 possible scenarios:
+&apos; Scenario 1. No parameters at given
+&apos; Scenario 2: Only Datasourcename is given, but no connection and no Content
+&apos; Scenario 3: a data source and a connection are given
+&apos; Scenario 4: all parameters (data source name, connection, object type and object) are given
+
+Sub Main()
+Dim oLocDBContext as Object
+Dim oLocConnection as Object
+
+&apos; Scenario 1. No parameters at given
+	MainWithDefault()
+
+&apos; Scenario 2: Only Datasourcename is given, but no connection and no Content
+&apos;	MainWithDefault(&quot;Bibliography&quot;)
+
+&apos; Scenario 3: a data source and a connection are given
+&apos;	oLocDBContext = CreateUnoService(&quot;com.sun.star.sdb.DatabaseContext&quot;)
+&apos;	oLocConnection = oLocDBContext.GetByName(&quot;Bibliography&quot;).GetConnection(&quot;&quot;,&quot;&quot;)
+&apos;	MainWithDefault(&quot;Bibliography&quot;, oLocConnection)
+
+&apos; Scenario 4: all parameters (data source name, connection, object type and object) are given
+&apos;	oLocDBContext = CreateUnoService(&quot;com.sun.star.sdb.DatabaseContext&quot;)
+&apos;	oLocConnection = oLocDBContext.GetByName(&quot;Bibliography&quot;).GetConnection(&quot;&quot;,&quot;&quot;)
+&apos;	MainWithDefault(&quot;Bibliography&quot;, oLocConnection, com.sun.star.sdb.CommandType.TABLE, &quot;biblio&quot;)
+End Sub
+
+
+Sub MainWithDefault(Optional DatasourceName as String, Optional oConnection as Object, Optional CommandType as Integer, Optional sContent as String)
+Dim i as Integer
+Dim SelCount as Integer
+Dim RetValue as Integer
+Dim SelList(0) as Integer
+Dim LocList() as String
+	SelList(0) = 0
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	BasicLibraries.LoadLibrary(&quot;WebWizard&quot;)
+	bDebug = False
+	If Not bDebug Then
+		On Local Error GoTo WIZARDERROR
+	End If
+	OpenFormDocument()
+	CurArrangement = 0
+	bControlsareCreated = False
+	bEnableBinaryOptionGroup = False
+	bDisposeDoc = True
+	MaxIndex = -1
+	If Not InitResources(&quot;Formwizard&quot;,&quot;dbw&quot;) Then
+		Exit Sub
+	End If
+	oDBContext = CreateUnoService(&quot;com.sun.star.sdb.DatabaseContext&quot;)
+	oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	If GetFormWizardPaths() = False Then
+		Exit Sub
+	End If
+	oDocument.GetCurrentController().Frame.ComponentWindow.Enable = False
+	oProgressBar.Value = 10
+	LoadLanguage()
+	oProgressBar.Value = 20
+	InitializeWidthList()
+	oProgressBar.Value = 30
+	Styles() = getListBoxArrays(oUcb, &quot;/stl&quot;)
+	CurIndex = GetCurIndex(DialogModel, Styles(), 2)
+	oProgressBar.Value = 40
+	ConfigurePageStyle()
+	oProgressBar.Value = 50
+	InitializeLabelValues()
+	bNeedFieldRefresh = True
+	SetDialogLanguage()
+&apos;	bStartUp = true
+	With DialogModel
+		.cmdBack.Enabled = False
+		.cmdGoOn.Enabled = False
+		.lblTables.Enabled = False
+		.lstSelFields.Tag = False
+		.Step = 1
+	End With
+	oProgressBar.Value = 60
+	bConnectionIsovergiven = Not IsMissing(oConnection)
+	If Not IsMissing(DataSourceName) Then
+		sDBName = DataSourceName
+		If Not IsMissing(oConnection) Then
+			&apos; Scenario 3: a data source and a connection are given
+			Set oDBConnection = oConnection
+			oDataSource = oDBContext.GetByName(DataSourceName)
+			DialogModel.lstTables.Enabled = True
+			DialogModel.lblTables.Enabled = True
+			If GetDBMetaData() Then
+				LocList() = AddListToList(TableNames(), QueryNames())
+				iCommandTypes = CreateCommandTypeList()
+				If Not IsMissing(sContent) Then
+					&apos; Scenario 4: all parameters (data source name, connection, object type and object) are given
+					DialogModel.lstTables.StringItemList() = LocList()
+					iCommandTypes() = CreateCommandTypeList()
+					SelCount = CountItemsInArray(DialogModel.lstTables.StringItemList(), sContent)
+					If SelCount = 1 Then
+						DlgFormDB.GetControl(&quot;lstTables&quot;).SelectItem(sContent, True)
+					Else
+						If CommandType = com.sun.star.sdb.CommandType.QUERY Then
+							SelIndex = IndexInArray(sContent, QueryNames()
+							DlgFormDB.GetControl(&quot;lstTables&quot;).SelectItemPos(SelIndex, True)
+						ElseIf CommandType = com.sun.star.sdb.CommandType.TABLE Then
+							SelIndex = IndexInArray(sContent, TableNames()
+							DlgFormDB.GetControl(&quot;lstTables&quot;).SelectItemPos(Ubound(QueryNames()+1 + SelIndex, True)
+						End If
+					End If
+					CurCommandType = CommandType
+					FillUpFieldsListbox(False)
+				Else
+					LocList() = AddListToList(Array(sSelectDBTable), LocList())
+					DialogModel.lstTables.StringItemList() = LocList()
+&apos;					bSelectContent = True
+					DialogModel.lstTables.SelectedItems() = Array(0)
+
+				End If
+			End If
+		Else
+			&apos; Scenario 2: Only Datasourcename is given, but no connection and no Content
+			GetSelectedDBMetaData(sDBName)
+		End If
+	Else
+		&apos; Scenario 1: No parameters are given
+		ToggleListboxControls(DialogModel, False)
+	End If
+	oProgressBar.Value = 80
+	bWithBackGraphic = LoadNewStyles(oDocument, DialogModel, CurIndex, Styles(CurIndex, 8), Styles(), TexturePath)
+	DlgFormDB.Title = WizardTitle(1)
+	DialogModel.lstStyles.StringItemList() = ArrayfromMultiArray(Styles, 1)
+	DialogModel.lstStyles.SelectedItems() = SelList()
+	ControlCaptionsToStandardLayout()
+	oDocument.GetCurrentController().Frame.ComponentWindow.Enable = True
+	oProgressBar.Value = 90
+	DialogModel.imgTheme.ImageURL = FormPath &amp; &quot;FormWizard_1.bmp&quot;
+	DialogModel.imgTheme.BackGroundColor = RGB(0,60,126)
+	ToggleDatabasePage(True)
+	oProgressBar.Value = 100
+	DlgFormDB.GetControl(&quot;lstTables&quot;).SetFocus()
+	oProgressbar.End
+	RetValue = DlgFormDB.Execute()
+	DlgFormDB.Dispose()
+	If bDisposeDoc Then
+		Dim aPropertyValues(2) as new com.sun.star.beans.PropertyValue
+		oFormDocuments = oDataSource.getFormDocuments()
+		DlgFormDB.Dispose()
+		oDocument.dispose()
+		Dim	bLinkExists as Boolean
+		i = 1
+		Dim FormBaseName  as String
+		FormBaseName = FormName
+		Do								 
+			bLinkExists = oFormDocuments.HasbyHierarchicalName(FormName)
+			If bLinkExists Then
+				i = i + 1
+				FormName = FormBaseName &amp; &quot;_&quot; &amp; i
+			End If
+		Loop Until Not bLinkExists
+		aPropertyValues(0).Name = &quot;Name&quot;
+		aPropertyValues(0).Value = FormName
+		aPropertyValues(1).Name = &quot;Parent&quot;
+		aPropertyValues(1).Value = oFormDocuments()
+		aPropertyValues(2).Name = &quot;URL&quot;
+		aPropertyValues(2).Value = sFormUrl
+		Dim oDBDocument
+		oDBDocument = oFormDocuments.createInstanceWithArguments(&quot;com.sun.star.sdb.DocumentDefinition&quot;, aPropertyValues())
+		oFormDocuments.insertbyName(FormName, oDBDocument)
+	ElseIf RetValue = 0 Then
+		RemoveNirwanaShapes()
+	End If
+	If ((Not IsNull(oDBConnection)) And (Not bConnectionIsovergiven)) Then
+		oDBConnection.Dispose()
+	End If	
+WIZARDERROR:
+	If Err &lt;&gt; 0 Then
+		Msgbox(sMsgErrMsg, 16, GetProductName())
+		Resume LOCERROR
+		LOCERROR:
+	End If
+End Sub
+
+
+Sub FormGetFields()
+Dim i as Integer
+&apos;	If bSelectContent Then
+&apos;		bSelectContent = False
+&apos;		Exit Sub
+&apos;	End If
+	DeleteFirstListBoxEntry(&quot;lstTables&quot;, sSelectDBTable)
+	ToggleDatabasePage(False)
+	FillUpFieldsListbox(True)
+	ToggleDatabasePage(True)
+End Sub
+
+
+Sub FillUpFieldsListbox(bGetCommandType as Boolean)
+Dim SelIndex as Integer
+Dim QueryIndex as Integer
+	If Not bDebug Then
+		On Local Error GoTo NOFIELDS
+	End If
+	SelIndex = DlgFormDB.GetControl(&quot;lstTables&quot;).getSelectedItemPos() &apos;.SelectedItems())
+	If SelIndex &gt; -1 Then
+		If bGetCommandType Then
+			CurCommandType = iCommandTypes(SelIndex)
+		End If
+		If CurCommandType = com.sun.star.sdb.CommandType.QUERY Then
+			QueryIndex = SelIndex  - Ubound(Tablenames()) - 1
+			Tablename = QueryNames(QueryIndex)
+			oColumns = oDBConnection.Queries.GetByName(TableName).Columns
+		Else
+			Tablename = Tablenames(SelIndex)
+			oColumns = oDBConnection.Tables.GetByName(Tablename).Columns
+		End If
+		If GetSpecificFieldNames() &lt;&gt; -1 Then
+			ToggleListboxControls(DialogModel, True)
+			Exit Sub
+		End If
+	End If
+	EmptyFieldsListboxes()
+NOFIELDS:
+	If Err &lt;&gt; 0 Then
+		MsgBox sMsgErrCouldNotOpenObject, 16, sMsgWizardName
+	End If
+End Sub
+
+
+Sub PreviousStep()
+	If Not bDebug Then
+		On Local Error GoTo WIZARDERROR
+	End If
+	With DialogModel
+		.Step = 1
+		.cmdBack.Enabled = False
+		.cmdGoOn.Enabled = True
+		.lstSelFields.Tag = Not bControlsareCreated
+		.cmdGoOn.Label = sGoOn
+		.imgTheme.ImageUrl = FormPath &amp; &quot;FormWizard_1.bmp&quot;
+	End With
+	FormSetMoveRights()
+WIZARDERROR:
+	If Err &lt;&gt; 0 Then
+		Msgbox(sMsgErrMsg, 16, GetProductName())
+		Resume LOCERROR
+		LOCERROR:
+	End If
+End Sub
+
+
+Sub NextStep()
+	If Not bDebug Then
+		On Local Error GoTo WIZARDERROR
+	End If
+	Select Case DialogModel.Step
+		Case 1
+			bControlsAreCreated = Not (cBool(DialogModel.lstSelFields.Tag))
+			If Not bControlsAreCreated Then
+				GetTableMetaData()
+				CreateDBForm()
+				RemoveShapes()
+				InitializeLayoutSettings()
+				oDBForm.Load
+			End If
+			DialogModel.cmdGoOn.Label = sReady
+			DialogModel.cmdBack.Enabled = True
+			DialogModel.Step = 2
+			bDisposeDoc = False
+		Case 2
+			StoreForm()
+			DlgFormDB.EndExecute()
+			exit Sub
+	End Select
+	DialogModel.imgTheme.ImageUrl = FormPath &amp; &quot;FormWizard_&quot; &amp; DialogModel.Step &amp; &quot;.bmp&quot;
+	DlgFormDB.Title = WizardTitle(DialogModel.Step)
+WIZARDERROR:
+	If Err &lt;&gt; 0 Then
+		Msgbox(sMsgErrMsg, 16, GetProductName())
+		Resume LOCERROR
+		LOCERROR:
+	End If
+End Sub
+
+
+Sub InitializeLayoutSettings()
+	SwitchArrangementButtons(cTabled)
+	SwitchAlignMode(SBALIGNLEFT)
+	SwitchBorderMode(SB3DBORDER)
+	ToggleBorderGroup(bControlsAreCreated)
+	ToggleAlignGroup(bControlsAreCreated)
+	ArrangeControls()
+	If OldAlignMode &lt;&gt; 0 Then
+		DlgFormDB.GetControl(&quot;optAlign2&quot;).Model.State = 0
+	End If
+End Sub
+
+
+Sub ToggleDatabasePage(bDoEnable as Boolean)
+	With DialogModel
+		.cmdBack.Enabled = False
+		.cmdHelp.Enabled = bDoEnable
+		.cmdGoOn.Enabled = Ubound(DialogModel.lstSelFields.StringItemList()) &lt;&gt; -1
+		.hlnBinaries.Enabled = ((bDoEnable = True) And (bEnableBinaryOptionGroup = True))
+		.optIgnoreBinaries.Enabled = ((bDoEnable = True) And (bEnableBinaryOptionGroup = True))
+		.optBinariesasGraphics.Enabled = ((bDoEnable = True) And (bEnableBinaryOptionGroup = True))
+	End With
+End Sub
+
+
+&apos; This Sub is called from the Procedure &quot;StoreDocument&quot; in the &quot;Tools&quot; Library
+Sub CommitLastDocumentChanges(sTargetPath as String)
+Dim i as Integer
+Dim sBookmarkName as String
+Dim oDBBookmarks as Object
+Dim bLinkExists as Boolean
+Dim sBaseBookmarkName as String
+	sBookmarkName = GetFileNamewithoutExtension(FileNameoutofPath(sTargetPath))
+	sBaseBookmarkName = sBookmarkName
+	oDBBookmarks = oDataSource.GetBookmarks()
+	i = 1
+	Do
+		bLinkExists = oDBBookmarks.HasbyName(sBookmarkName)
+		If bLinkExists Then
+			i = i + 1
+			sBookmarkName = sBaseBookmarkName &amp; &quot;_&quot; &amp; i
+		Else
+			oDBBookmarks.insertByName(sBookmarkName, sTargetPath)
+		End If
+	Loop Until Not bLinkExists
+	bDisposeDoc = False
+	GroupShapesTogether()
+	ToggleDesignMode(oDocument)
+	oDBForm.Reload()
+End Sub
+
+
+Sub StoreFormInDatabase()
+	Dim NoArgs() as new com.sun.star.beans.PropertyValue	
+	FormName = &quot;Form_&quot; &amp; sDBName &amp; &quot;_&quot; &amp; TableName &amp; &quot;.sxw&quot;
+	sFormUrl = TempPath &amp; &quot;/&quot; &amp; FormName
+	oDocument.StoreAsUrl(sFormUrl, NoArgs())
+	bdisposeDoc = true
+	DlgFormDB.Endexecute()
+End Sub
+
+
+
+Sub StoreForm()
+Dim sTargetPath as String
+Dim TypeNames(0,2) as String
+Dim oMasterKey as Object
+Dim oTypes() as Object
+	oMasterKey = GetRegistryKeyContent(&quot;org.openoffice.TypeDetection.Types/&quot;)
+	oTypes() = oMasterKey.Types
+	TypeNames(0,0) = GetFilterName(&quot;StarOffice XML (Writer)&quot;)
+	TypeNames(0,1) = &quot;*.sxw&quot;
+	TypeNames(0,2) = &quot;&quot;
+	StoreFormInDatabase()
+&apos;	sTargetPath = StoreDocument(oDocument, TypeNames(), &quot;Form_&quot; &amp; sDBName &amp; &quot;_&quot; &amp; TableName &amp; &quot;.sxw&quot;, WorkPath, 1)
+End Sub
+
+
+
+Sub EmptyFieldsListboxes()
+Dim NullList() as String
+	ToggleListboxControls(DialogModel, False)
+	DialogModel.lstFields.StringItemList() = NullList()
+	DialogModel.lstSelFields.StringItemList() = NullList()
+	bEnableBinaryOptionGroup = False
+End Sub
+
+
+Sub DeleteFirstTableListBoxEntry()
+	DeleteFirstListBoxEntry(&quot;lstTables&quot;, sSelectDBTable)
+End Sub
+
+Sub DeleteFirstListboxEntry(ListBoxName as String, DelEntryName as String)
+Dim oListbox as Object
+Dim sFirstItem as String
+dim iSelPos as Integer
+	oListBox = DlgFormDB.getControl(ListBoxName)
+	sFirstItem = oListBox.getItem(0)
+	If sFirstItem = DelEntryName Then
+		iSelPos = oListBox.getSelectedItemPos()
+	    oListBox.removeItems(0, 1)
+		If iSelPos &gt; 0 Then
+		    oListBox.selectItemPos(iSelPos-1, True)
+		End If
+	End If
+End Sub
+</script:module>

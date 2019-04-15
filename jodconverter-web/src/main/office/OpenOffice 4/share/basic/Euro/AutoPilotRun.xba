@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="AutoPilotRun" script:language="StarBasic">Option Explicit
+
+Public SourceDir as String
+Public TargetDir as String
+Public TargetStemDir as String
+Public SourceFile as String
+Public TargetFile as String
+Public Source as String
+Public SubstFile as String
+Public SubstDir as String
+Public NoArgs()
+Public TypeList(14) as String
+Public GoOn as Boolean
+Public DoUnprotect as Integer
+Public Password as String
+Public DocIndex as Integer
+Public oPathSettings as Object
+Public oUcb as Object
+Public TotDocCount as Integer
+Public sTotDocCount as String
+Public OpenProperties(1) as New com.sun.star.beans.PropertyValue
+
+
+Sub StartAutoPilot()
+Dim i As Integer
+Dim oFactoryKey as Object
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	BasicLibraries.LoadLibrary(&quot;ImportWizard&quot;)
+	If InitResources(&quot;Euro Converter&quot;, &quot;eur&quot;) Then
+		oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+		oLocale = GetStarOfficeLocale()
+		InitializeConverter(oLocale, 2)
+		ToggleGoOnButton()
+		oFactoryKey = GetRegistryKeyContent(&quot;org.openoffice.Setup/Office/Factories&quot;)
+		DialogModel.chkTextDocuments.Enabled =  oFactoryKey.hasbyName(&quot;com.sun.star.text.TextDocument&quot;)
+		DialogModel.cmdGoOn.DefaultButton = True
+		DialogModel.lstCurrencies.TabIndex = 12
+		DialogConvert.GetControl(&quot;optWholeDir&quot;).SetFocus()
+		DialogConvert.Execute()
+		DialogConvert.Dispose()
+	End If
+End Sub
+
+
+Sub ConvertDocuments()
+Dim FilesList()
+Dim bDisposable as Boolean
+
+	If Source &lt;&gt; &quot;&quot; And TargetDir &lt;&gt; &quot;&quot; Then
+		If DialogModel.optSingleFile.State = 1 Then
+			SourceFile = Source
+			TotDocCount = 1
+		Else
+			SourceDir = Source
+			TargetStemDir = TargetDir
+			TypeList(0) = &quot;calc8&quot;
+			TypeList(1) = &quot;calc_StarOffice_XML_Calc&quot;
+			TypeList(2) = &quot;calc_StarCalc_30&quot;
+			TypeList(3) = &quot;calc_StarCalc_40&quot;
+			TypeList(4) = &quot;calc_StarCalc_50&quot;
+			If DialogModel.chkTextDocuments.State = 1 Then
+				ReDim Preserve TypeList(13) as String
+
+				TypeList(5) = &quot;writer8&quot;
+				TypeList(6) = &quot;writerglobal8&quot;
+				TypeList(7) = &quot;writer_StarOffice_XML_Writer&quot;
+				TypeList(8) = &quot;writer_globaldocument_StarOffice_XML_Writer_GlobalDocument&quot;
+				TypeList(9) = &quot;writer_StarWriter_30&quot;
+				TypeList(10) = &quot;writer_StarWriter_40&quot;
+				TypeList(11) = &quot;writer_globaldocument_StarWriter_40GlobalDocument&quot;
+				TypeList(12) = &quot;writer_StarWriter_50&quot;
+				TypeList(13) = &quot;writer_globaldocument_StarWriter_50GlobalDocument&quot;
+			End If
+			FilesList() = ReadDirectories(SourceDir, bRecursive, True, False, TypeList())
+			TotDocCount = Ubound(FilesList(),1) + 1
+		End If
+		InitializeProgressPage(DialogModel)
+&apos;		ChangeToNextProgressStep()
+		sTotDocCount = CStr(TotDocCount)
+		OpenProperties(0).Name = &quot;Hidden&quot;
+		OpenProperties(0).Value = True
+		OpenProperties(1).Name = &quot;AsTemplate&quot;
+		OpenProperties(1).Value = False
+		For DocIndex = 0 To TotDocCount - 1
+			If InitializeDocument(FilesList(), bDisposable) Then
+				If StoreDocument() Then
+					ConvertDocument()
+					oDocument.Store
+				End If
+				If bDisposable Then
+					oDocument.Dispose()
+				End If
+			End If
+		Next DocIndex
+		DialogModel.cmdBack.Enabled = True
+		DialogModel.cmdGoOn.Enabled = True
+		DialogModel.cmdGoOn.Label = sReady
+		DialogModel.cmdCancel.Label = sEnd
+	End If
+End Sub
+
+
+Function InitializeDocument(FilesList(), bDisposable as Boolean) as Boolean
+&apos; The Autopilot is started from step No. 2
+Dim sViewPath as String
+Dim bIsReadOnly as Boolean
+Dim sExtension as String
+	On Local Error Goto NEXTFILE
+	If Not bCancelTask Then
+		If DialogModel.optWholeDir.State = 1 Then
+			SourceFile = FilesList(DocIndex,0)
+			TargetFile = ReplaceString(SourceFile,TargetStemDir,SourceDir)
+			TargetDir = DirectorynameoutofPath(TargetFile, &quot;/&quot;)
+		Else
+			SourceFile = Source
+			TargetFile = TargetDir &amp; &quot;/&quot; &amp; FileNameoutofPath(SourceFile, &quot;/&quot;)
+		End If
+		If CreateFolder(TargetDir) Then
+			sExtension = GetFileNameExtension(SourceFile, &quot;/&quot;)
+ 			oDocument = OpenDocument(SourceFile, OpenProperties(), bDisposable)
+			If (oDocument.IsReadOnly) AND (UCase(SourceFile) = UCase(TargetFile)) Then
+				bIsReadOnly = True
+				Msgbox(sMsgDOCISREADONLY, 16, GetProductName())
+			Else
+				bIsReadOnly = False
+				RetrieveDocumentObjects()
+				sViewPath = CutPathView(SourceFile, 60)
+				DialogModel.lblCurDocument.Label = Str(DocIndex+1) &amp; &quot;/&quot; &amp; sTotDocCount &amp; &quot;  (&quot; &amp; sViewPath &amp; &quot;)&quot;
+			End If
+			InitializeDocument() = Not bIsReadOnly
+		Else
+			InitializeDocument() = False
+		End If
+	Else
+		InitializeDocument() = False
+	End If
+NEXTFILE:
+	If Err &lt;&gt; 0 Then
+		InitializeDocument() = False
+		Resume LETSGO
+LETSGO:
+	End If
+End Function
+
+
+Sub ChangeToNextProgressStep()
+	DialogModel.lblCurProgress.FontWeight = com.sun.star.awt.FontWeight.NORMAL
+	DialogConvert.GetControl(&quot;lblCurProgress&quot;).Visible = True
+End Sub
+
+
+Function StoreDocument() as Boolean
+Dim sCurFileExists as String
+Dim iOverWrite as Integer
+	If (TargetFile &lt;&gt; &quot;&quot;) And (Not bCancelTask) Then
+		On Local Error Goto NOSAVING
+		If oUcb.Exists(TargetFile) Then
+			sCurFileExists = ReplaceString(sMsgFileExists, ConvertFromUrl(TargetFile), &quot;&lt;1&gt;&quot;)
+			sCurFileExists = ReplaceString(sCurFileExists, chr(13), &quot;&lt;CR&gt;&quot;)
+			iOverWrite = Msgbox (sCurFileExists, 32 + 3, sMsgDLGTITLE)
+			Select Case iOverWrite
+				Case 1	&apos; OK
+				Case 2 	&apos; Abort
+					bCancelTask = True
+					StoreDocument() = False
+					Exit Function
+				Case 7 	&apos; No
+					StoreDocument() = False
+					Exit Function
+			End Select
+		End If
+		If TargetFile &lt;&gt; SourceFile Then
+			oDocument.StoreAsUrl(TargetFile,NoArgs)
+		Else
+			oDocument.Store
+		End If
+		StoreDocument() = True
+		NOSAVING:
+		If Err &lt;&gt; 0 Then
+			StoreDocument() = False
+			Resume CLERROR
+		End If
+		CLERROR:
+	End If
+End Function
+
+
+Sub SwapExtent()
+	DialogModel.chkRecursive.Enabled = DialogModel.optWholeDir.State = 1
+	If DialogModel.optWholeDir.State = 1 Then
+		DialogModel.lblSource.Label = sSOURCEDIR
+		If Not IsNull(SubstFile) Then
+			SubstFile = DialogModel.txtSource.Text
+			DialogModel.txtSource.Text = SubstDir
+		End If
+	Else
+		DialogModel.LblSource.Label = sSOURCEFILE
+		If Not IsNull(SubstDir) Then
+			SubstDir = DialogModel.txtSource.Text
+			DialogModel.txtSource.Text = SubstFile
+		End If
+	End If
+	ToggleGoOnButton()
+End Sub
+
+
+Function InitializeThirdStep() as Boolean
+Dim TextBoxText as String
+	Source = AssignFileName(DialogModel.txtSource.Text, DialogModel.lblSource.Label, True)
+	If CheckTextBoxPath(DialogModel.txtTarget, True, True, sMsgDLGTITLE, True) Then
+		TargetDir = AssignFileName(DialogModel.txtTarget.Text, DialogModel.lblTarget.Label, False)
+	Else
+		TargetDir = &quot;&quot;
+	End If
+	If Source &lt;&gt; &quot;&quot; And TargetDir &lt;&gt; &quot;&quot; Then
+		bRecursive = DialogModel.chkRecursive.State = 1
+		bDoUnprotect = DialogModel.chkProtect.State = 1
+		DialogModel.lblRetrieval.FontWeight = com.sun.star.awt.FontWeight.BOLD
+		DialogModel.lblRetrieval.Label = sPrgsRETRIEVAL
+		DialogModel.lblCurProgress.Label = sPrgsCONVERTING
+		If DialogModel.optWholeDir.State = 1 Then
+			TextBoxText = sSOURCEDIR &amp; &quot; &quot; &amp; ConvertFromUrl(Source) &amp; chr(13)
+			If DialogModel.chkRecursive.State = 1 Then
+				TextBoxText = TextBoxText &amp; DeleteStr(sInclusiveSubDir,&quot;~&quot;) &amp; chr(13)
+			End If
+		Else
+			TextBoxText = sSOURCEFILE &amp; &quot; &quot; &amp; ConvertFromUrl(Source) &amp; chr(13) 
+		End If
+		TextBoxText = TextBoxText &amp; sTARGETDIR &amp; &quot; &quot; &amp; ConvertFromUrl(TargetDir) &amp; chr(13)
+		If DialogModel.chkProtect.State = 1 Then
+			TextBoxText = TextboxText &amp; sPrgsUNPROTECT
+		End If
+		DialogModel.txtConfig.Text = TextBoxText
+	 	ToggleProgressStep()
+		DialogModel.cmdGoOn.Enabled = False 	
+		InitializeThirdStep() = True	
+	Else
+		InitializeThirdStep() = False
+	End If
+End Function
+
+
+Sub ToggleProgressStep(Optional aEvent as Object)
+Dim bMakeVisible as Boolean
+Dim LocStep as Integer
+	&apos; If the Sub is call by the &apos;cmdBack&apos; Button then set the &apos;bMakeVisible&apos; variable accordingly
+	bMakeVisible = IsMissing(aEvent)
+	If bMakeVisible Then
+		DialogModel.Step = 3
+	Else
+		DialogModel.Step = 2
+	End If
+ 	DialogConvert.GetControl(&quot;lblCurrencies&quot;).Visible = Not bMakeVisible
+ 	DialogConvert.GetControl(&quot;lstCurrencies&quot;).Visible = Not bMakeVisible
+	DialogConvert.GetControl(&quot;cmdBack&quot;).Visible = bMakeVisible
+ 	DialogConvert.GetControl(&quot;cmdGoOn&quot;).Visible = bMakeVisible
+	DialogModel.imgPreview.ImageUrl = BitmapDir &amp; &quot;euro_&quot; &amp; DialogModel.Step &amp; &quot;.bmp&quot;	 	
+End Sub
+
+
+Sub EnableStep2DialogControls(OnValue as Boolean)
+	With DialogModel
+		.hlnExtent.Enabled = OnValue
+		.optWholeDir.Enabled = OnValue
+		.optSingleFile.Enabled = OnValue
+		.chkProtect.Enabled = OnValue
+		.cmdCallSourceDialog.Enabled = OnValue
+		.cmdCallTargetDialog.Enabled = OnValue
+		.lblSource.Enabled = OnValue
+		.lblTarget.Enabled = OnValue
+		.txtSource.Enabled = OnValue
+		.txtTarget.Enabled = OnValue
+		.imgPreview.Enabled = OnValue
+		.lstCurrencies.Enabled = OnValue
+		.lblCurrencies.Enabled = OnValue
+		If OnValue Then
+			ToggleGoOnButton()
+			.chkRecursive.Enabled = .optWholeDir.State = 1
+		Else
+			.cmdGoOn.Enabled = False
+			.chkRecursive.Enabled = False
+		End If
+	End With
+End Sub
+
+
+Sub InitializeProgressPage()
+	DialogConvert.GetControl(&quot;lblRetrieval&quot;).Visible = False
+	DialogConvert.GetControl(&quot;lblCurProgress&quot;).Visible = False
+	DialogModel.lblRetrieval.FontWeight = com.sun.star.awt.FontWeight.NORMAL
+	DialogModel.lblCurProgress.FontWeight = com.sun.star.awt.FontWeight.BOLD
+	DialogConvert.GetControl(&quot;lblRetrieval&quot;).Visible = True
+	DialogConvert.GetControl(&quot;lblCurProgress&quot;).Visible = True
+End Sub
+
+
+Function AssignFileName(sPath as String, ByVal HeaderString, bCheckFileType as Boolean) as String
+Dim bIsValid as Boolean
+Dim sLocMimeType as String
+Dim sNoDirMessage as String
+	HeaderString = DeleteStr(HeaderString, &quot;:&quot;)
+	sPath = ConvertToUrl(Trim(sPath))
+	bIsValid = oUcb.Exists(sPath)
+	If bIsValid Then
+		If DialogModel.optSingleFile.State = 1 Then
+			If bCheckFileType Then
+				sLocMimeType = GetRealFileContent(sPath)
+				If DialogModel.chkTextDocuments.State = 1 Then
+					If (Instr(1, sLocMimeType, &quot;text&quot;) = 0) And (Instr(1, sLocMimeType, &quot;calc&quot;) = 0) Then
+						Msgbox(sMsgFileInvalid, 48, sMsgDLGTITLE)
+						bIsValid = False						
+					End If				
+				Else
+					If (Instr(1, sLocMimeType, &quot;spreadsheet&quot;) = 0) And (Instr(1, sLocMimeType, &quot;calc&quot;)) = 0 Then
+						Msgbox(sMsgFileInvalid, 48, sMsgDLGTITLE)
+						bIsValid = False
+					End If
+				End If
+			End If
+		Else
+			If Not oUcb.IsFolder(sPath) Then
+				sNoDirMessage = ReplaceString(sMsgNODIRECTORY,sPath,&quot;&lt;1&gt;&quot;)
+				Msgbox(sNoDirMessage,48, sMsgDLGTITLE)
+				bIsValid = False
+			Else
+				sPath = RTrimStr(sPath,&quot;/&quot;)
+				sPath = sPath &amp; &quot;/&quot;
+			End If
+		End if
+	Else
+		Msgbox(HeaderString &amp; &quot; &apos;&quot; &amp; ConvertFromUrl(sPath) &amp; &quot;&apos; &quot; &amp;  sMsgNOTTHERE,48, sMsgDLGTITLE)
+	End If
+	If bIsValid Then
+		AssignFileName() = sPath
+	Else
+		AssignFilename() = &quot;&quot;
+	End If
+End Function
+
+
+Sub ToggleGoOnButton()
+Dim bDoEnable as Boolean	
+Dim sLocMimeType as String
+Dim sPath as String
+	bDoEnable = Ubound(DialogModel.lstCurrencies.SelectedItems()) &gt; -1
+	If bDoEnable Then
+		&apos; Check if Source is set correctly
+		sPath = ConvertToUrl(Trim(DialogModel.txtSource.Text))
+		bDoEnable = oUcb.Exists(sPath)
+	End If
+	DialogModel.cmdGoOn.Enabled = bDoEnable
+End Sub
+
+
+Sub CallFolderPicker()
+	GetFolderName(DialogModel.txtTarget)
+	ToggleGoOnButton()	
+End Sub
+
+
+Sub CallFilePicker()
+	If DialogModel.optSingleFile.State = 1 Then
+		Dim oMasterKey as Object
+		Dim oTypes() as Object
+		Dim oUIKey() as Object
+		
+		oMasterKey = GetRegistryKeyContent(&quot;org.openoffice.TypeDetection.Types&quot;)
+		oTypes() = oMasterKey.Types
+		oUIKey = GetRegistryKeyContent(&quot;org.openoffice.Office.UI/FilterClassification/LocalFilters&quot;)
+		If DialogModel.chkTextDocuments.State = 1 Then
+			Dim FilterNames(11,1) as String
+			FilterNames(6,0) = oTypes.GetByName(&quot;writer_StarOffice_XML_Writer&quot;).UIName
+			FilterNames(6,1) = &quot;*.sxw&quot;
+			FilterNames(7,0) = oTypes.GetByName(&quot;writer_StarOffice_XML_Writer_Template&quot;).UIName
+			FilterNames(7,1) = &quot;*.stw&quot;
+			FilterNames(8,0) = oUIKey.Classes.GetByName(&quot;sw3to5&quot;).DisplayName
+			FilterNames(8,1) = &quot;*.sdw&quot;
+			FilterNames(9,0) = oUIKey.Classes.GetByName(&quot;sw3to5templ&quot;).DisplayName
+			Filternames(9,1) = &quot;*.vor&quot;
+			FilterNames(10,0) = oTypes.GetByName(&quot;writer8&quot;).UIName
+			FilterNames(10,1) = &quot;*.odt&quot;
+			FilterNames(11,0) = oTypes.GetByName(&quot;writer8_template&quot;).UIName
+			FilterNames(11,1) = &quot;*.ott&quot;
+		Else
+			ReDim FilterNames(5,1) as String
+		End If
+		FilterNames(0,0) = oTypes.GetByName(&quot;calc_StarOffice_XML_Calc&quot;).UIName	
+		Filternames(0,1) = &quot;*.sxc&quot;
+		FilterNames(1,0) = oTypes.GetByName(&quot;calc_StarOffice_XML_Calc_Template&quot;).UIName
+		Filternames(1,1) = &quot;*.stc&quot;
+		FilterNames(2,0) = oUIKey.Classes.GetByName(&quot;sc345&quot;).DisplayName
+		FilterNames(2,1) = &quot;*.sdc&quot;
+		FilterNames(3,0) = oUIKey.Classes.GetByName(&quot;sc345templ&quot;).DisplayName
+		Filternames(3,1) = &quot;*.vor&quot;
+		FilterNames(4,0) = oTypes.GetByName(&quot;calc8&quot;).UIName	
+		Filternames(4,1) = &quot;*.ods&quot;
+		FilterNames(5,0) = oTypes.GetByName(&quot;calc8_template&quot;).UIName	
+		Filternames(5,1) = &quot;*.ots&quot;
+		GetFileName(DialogModel.txtSource, Filternames())
+	Else
+		GetFolderName(DialogModel.txtSource)
+	End If
+	ToggleGoOnButton()
+End Sub
+
+
+Sub PreviousStep()
+	DialogModel.Step = 2
+	DialogModel.cmdGoOn.Label =  sGOON
+	DialogModel.cmdCancel.Label = sCANCEL
+End Sub
+</script:module>

@@ -12,6 +12,26 @@
     </modules>
     <packaging>pom</packaging>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <build.exclude.resource></build.exclude.resource>
+            </properties>
+            <activation>
+                <!--默认激活开发环境-->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+
+        <profile>
+            <id>release</id>
+            <properties>
+                <build.exclude.resource>*.properties</build.exclude.resource>
+            </properties>
+        </profile>
+    </profiles>
+
     <name>file-online-preview</name>
     <description>Demo project for Spring Boot</description>
 </project>

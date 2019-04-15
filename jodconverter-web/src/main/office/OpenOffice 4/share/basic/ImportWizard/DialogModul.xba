@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="DialogModul" script:language="StarBasic">Option Explicit
+
+Public Const bDebugWizard = True
+
+Public Const SBFIRSTAPPLCHECKED = 0
+Public Const SBSECONDAPPLCHECKED = 1
+Public Const SBTHIRDAPPLCHECKED = 2
+Public Const SBFOURTHAPPLCHECKED = 3
+Public bFilterTracingAvailable as Boolean
+Public WizardMode as String
+Public Const SBMICROSOFTMODE = &quot;MS&quot;
+Public Const SBXMLMODE = &quot;SO&quot;
+&apos; The absolute maximal Number of possible Applications
+Public Const Twip = 425
+Public Const SBMAXAPPLCOUNT = 4
+Public MaxApplCount as Integer
+Public CurOffice As Integer
+Public SOBitmapPath As String
+Public SOWorkPath As String
+Public SOTemplatePath as String
+Public bCancelTask As Boolean
+Public bDoKeepApplValues as Boolean
+Public iApplSection as Integer
+Public oUcb as Object
+Public PathSeparator as String
+
+Public ApplCount as Integer
+Public sKeyName(SBMAXAPPLCOUNT-1) as String
+Public sValueName(SBMAXAPPLCOUNT-1) as String
+Public sCRLF as String
+Public MSFilterName(5,4) as String
+Public XMLFilterName(7,3) as String &apos;Number of different formats
+Public FilterTracingLogPath(2) as String
+Public bMSApplFilterTracingAvailable(2) as String
+Public bTakeOverTargetName(2) as Boolean
+Public bTakeOverPathName(2) as Boolean
+
+&apos; e.g.:
+&apos; XMLFilterName(x,0) = &quot;sdw&quot; 						&apos; in documents we take the extensions; in SO-templates the appropriate Filtername
+&apos; XMLFilterName(x,1) = &quot;swriter: StarWriter 5.0&quot; 	&apos; the filtername of the target-format
+&apos; XMLFilterName(x,2) = &quot;sxw&quot; 						&apos; the target extension
+
+Public Applications(SBMAXAPPLCOUNT-1,9)
+
+Public Const SBAPPLCONVERT = 0
+Public Const SBDOCCONVERT = 1
+Public Const SBDOCRECURSIVE = 2
+Public Const SBDOCSOURCE = 3
+Public Const SBDOCTARGET = 4
+Public Const SBTEMPLCONVERT = 5
+Public Const SBTEMPLRECURSIVE = 6
+Public Const SBTEMPLSOURCE = 7
+Public Const SBTEMPLTARGET = 8
+Public Const SBAPPLKEY = 9
+Public XMLTemplateList()
+
+&apos; Application-relating Data are stored in this Array
+&apos; according to the following structure:
+&apos; Applications(X,0) = True/False 		(Application is to be converted)
+&apos; Applications(X,1) = True/False 		(Documents are to be converted)
+&apos; Applications(X,2) = True/False		(Including Subdirectories)
+&apos; Applications(X,3) = &quot;File:///...&quot;		(SourceUrl of the documents)
+&apos; Applications(X,4) = &quot;File///:...&quot;		(TargetUrl of the documents)
+&apos; Applications(X,5) = True/False		(Templates are to be converted)
+&apos; Applications(X,6) = True/False 		(Including Subdirectories)
+&apos; Applications(X,7) = &quot;File:///...&quot;		(SourceUrl of the templates)
+&apos; Applications(X,8) = &quot;File:///...&quot; 	(TargetUrl of the templates)
+&apos; Applications(X,9) = 0				    (Key to the original Index of the Applications)
+
+Public Const SBMAXEXTENSIONLENGTH = 17
+
+
+Sub FillStep_Welcome()
+Dim i as Integer
+&apos;	bDoKeepApplValues = False
+	ImportDialogArea.Title = sTitle
+	With ImportDialog
+		.cmdHelp.Label = sHelpButton
+		.cmdCancel.Label = sCancelButton
+		.cmdBack.Label = sBackButton
+		.cmdGoOn.Label = sNextButton
+		.WelcomeTextLabel.Label = sWelcomeTextLabel1
+		.WelcomeTextLabel2.Label = sWelcomeTextLabel2
+		.WelcomeTextLabel3.Label = sWelcomeTextLabel3
+
+		.optMSDocuments.Label = sContainerName(0)
+		.chkMSApplication1.Label = sMsDocumentCheckbox(0)
+		.chkMSApplication2.Label = sMsDocumentCheckbox(1)
+		.chkMSApplication3.Label = sMsDocumentCheckbox(2)
+
+		.optSODocuments.Label = sContainerName(1)
+		.chkSOApplication1.Label = sSODocumentCheckbox(0)
+		.chkSOApplication2.Label = sSODocumentCheckbox(1)
+		.chkSOApplication3.Label = sSODocumentCheckbox(2)
+		.chkSOApplication4.Label = sSODocumentCheckbox(3)
+		.cmdBack.Enabled = False
+		.Step = 1
+		
+		If Not oFactoryKey.hasbyName(&quot;com.sun.star.text.TextDocument&quot;) Then
+			.chkLogfile.State = 0
+			.chkLogfile.Enabled = False
+		End If	
+	End With
+	CheckModuleInstallation()
+	ToggleNextButton()
+End Sub
+
+
+Sub FillStep_InputPaths(OfficeIndex as Integer, bStartup as Boolean)
+Dim Index as Integer
+Dim oNullObject as Object
+	If bStartup And Not bDoKeepApplValues Then
+	    If ImportDialog.optMSDocuments.State = 1 Then
+			SetupMSConfiguration()
+		Else
+			SetupXMLConfiguration()
+		End If
+		FillUpApplicationList()
+	End If
+	CurOffice = OfficeIndex
+	Index = Applications(CurOffice,SBAPPLKEY)
+	InitializePathsforCurrentApplication(Index)
+	With ImportDialog
+		.chkTemplatePath.Label = sTemplateCheckbox(Index)
+    	.chkDocumentPath.State = Abs(Applications(CurOffice,SBDOCCONVERT))
+ 	  	.chkDocumentSearchSubDir.State = Abs(Applications(CurOffice,SBDOCRECURSIVE))
+		.txtDocumentImportPath.Text = ConvertFromUrl(Applications(CurOffice,SBDOCSOURCE))
+		.txtDocumentExportPath.Text = ConvertFromUrl(Applications(CurOffice,SBDOCTARGET))
+		.hlnDocuments.Label = sProgressMoreDocs
+		If WizardMode = SBXMLMODE Then
+			ImportDialogArea.Title = sTitle &amp; &quot; - &quot; &amp; sSODocumentCheckBox(Index)
+		Else
+			ImportDialogArea.Title = sTitle &amp; &quot; - &quot; &amp; sMSDocumentCheckBox(Index)
+		End If
+		If WizardMode = SBXMLMODE AND Index = 3 Then
+			&apos; Note: SO-Helper Applications are partly treated like templates although they only have documents
+			.hlnTemplates.Label = sProgressMoreDocs
+			.chkTemplatePath.Label = sSOHelperDocuments(0,0)
+			.chkTemplatePath.Enabled = oFactoryKey.HasByName(sSOHelperDocuments(0,1))
+			.chkDocumentPath.Label = sSOHelperDocuments(1,0)
+			.chkDocumentPath.Enabled = oFactoryKey.HasByName(sSOHelperDocuments(1,1))
+		Else
+			.chkTemplatePath.Enabled = True
+			.chkDocumentPath.Enabled = True
+			.chkTemplatePath.Label = sTemplateCheckbox(Index)
+			.chkDocumentPath.Label = sDocumentCheckbox(Index)
+			.hlnTemplates.Label = sProgressMoreTemplates
+		End If
+		.chkTemplatePath.State = Abs(Applications(CurOffice,SBTEMPLCONVERT))
+		ToggleInputPaths(oNullObject,&quot;Template&quot;)
+		ToggleInputPaths(oNullObject,&quot;Document&quot;)		
+		.chkTemplateSearchSubDir.State = Abs(Applications(CurOffice,SBTEMPLRECURSIVE))
+		.txtTemplateImportPath.Text = ConvertFromUrl(Applications(CurOffice,SBTEMPLSOURCE))
+		.txtTemplateExportPath.Text = ConvertFromUrl(Applications(CurOffice,SBTEMPLTARGET))
+		.cmdGoOn.Label = sNextButton
+		.cmdBack.Enabled = True
+		ImportDialog.Step = 2
+	End With
+	ImportDialogArea.GetControl(&quot;chkTemplatePath&quot;).SetFocus()
+	ToggleNextButton()
+End Sub
+
+
+Sub FillUpApplicationList()
+Dim i as Integer
+Dim a as Integer
+Dim BoolValue as Boolean
+	If Not bDoKeepApplValues Then
+		a = 0
+		For i = 1 To ApplCount
+		    If ImportDialog.optMSDocuments.State = 1 Then
+				BoolValue = ImportDialogArea.GetControl(&quot;chkMSApplication&quot; &amp; i).Model.State = 1
+			Else
+				BoolValue = ImportDialogArea.GetControl(&quot;chkSOApplication&quot; &amp; i).Model.State = 1
+			End If
+			Applications(a,SBAPPLCONVERT) = BoolValue
+			Applications(a,SBDOCCONVERT) = BoolValue
+			Applications(a,SBDOCRECURSIVE) = BoolValue
+			Applications(a,SBDOCSOURCE) = &quot;&quot;			&apos; GetDefaultPath(i)
+			Applications(a,SBDOCTARGET) = &quot;&quot;			&apos; SOWorkPath
+			Applications(a,SBTEMPLCONVERT) = BoolValue
+			Applications(a,SBTEMPLRECURSIVE) = BoolValue
+			Applications(a,SBTEMPLSOURCE) = &quot;&quot; 			&apos; GetTemplateDefaultPath(i)
+			Applications(a,SBTEMPLTARGET) = &quot;&quot; 			&apos; GetTargetTemplatePath(i)
+			Applications(a,SBAPPLKEY) = i-1
+			If BoolValue Then 
+				a = a + 1
+			End If
+		Next i
+		ApplCount = a
+	End If
+End Sub
+
+
+Sub InitializePathsforCurrentApplication(i as Integer)
+	AssignPathToCurrentApplication(SBDOCSOURCE, GetDefaultPath(i))
+	AssignPathToCurrentApplication(SBDOCTARGET, SOWorkPath)
+	AssignPathToCurrentApplication(SBTEMPLSOURCE, GetTemplateDefaultPath(i))
+	AssignPathToCurrentApplication(SBTEMPLTARGET, GetTargetTemplatePath(i))
+End Sub
+
+
+Sub AssignPathToCurrentApplication(Index as Integer, NewPath as String)
+	If Applications(CurOffice,Index) = &quot;&quot; Then
+		If CurOffice &gt; 0 Then
+			Applications(CurOffice,Index) = Applications(CurOffice-1,Index)
+		Else
+			Applications(CurOffice,Index) = NewPath
+		End If
+	End If
+End Sub
+
+
+Sub SaveStep_InputPath()
+	Applications(CurOffice,SBDOCCONVERT)  = ImportDialog.chkDocumentPath.State = 1
+	Applications(CurOffice,SBDOCRECURSIVE)  = ImportDialog.chkDocumentSearchSubDir.State = 1
+	Applications(CurOffice,SBDOCSOURCE)  = ConvertToURL(ImportDialog.txtDocumentImportPath.Text)
+	Applications(CurOffice,SBDOCTARGET) = ConvertToUrl(ImportDialog.txtDocumentExportPath.Text)
+    Applications(CurOffice,SBTEMPLCONVERT) = ImportDialog.chkTemplatePath.State = 1
+    Applications(CurOffice,SBTEMPLRECURSIVE) = ImportDialog.chkTemplateSearchSubDir.State = 1
+	Applications(CurOffice,SBTEMPLSOURCE) = ConvertToURL(ImportDialog.txtTemplateImportPath.Text)
+	Applications(CurOffice,SBTEMPLTARGET) = ConvertToURL(ImportDialog.txtTemplateExportPath.Text)
+End Sub
+
+
+Sub ToggleInputPaths(aEvent as Object, Optional sDocType)
+Dim bDoEnable as Boolean
+Dim sLocDocType as String
+Dim oCheckBox as Object
+	If Not IsNull(aEvent) Then
+		sLocDocType = aEvent.Source.Model.Tag
+	Else
+		sLocDocType = sDocType
+	End If
+	With ImportDialogArea
+		oCheckBox = .GetControl(&quot;chk&quot; &amp; sLocDocType &amp; &quot;Path&quot;).Model
+    	bDoEnable = oCheckBox.State = 1 And oCheckBox.Enabled
+		.GetControl(&quot;lbl&quot; &amp; sLocDocType &amp; &quot;Import&quot;).Model.Enabled = bDoEnable
+		.GetControl(&quot;lbl&quot; &amp; sLocDocType &amp; &quot;Export&quot;).Model.Enabled = bDoEnable
+		.GetControl(&quot;txt&quot; &amp; sLocDocType &amp; &quot;ImportPath&quot;).Model.Enabled = bDoEnable
+		.GetControl(&quot;txt&quot; &amp; sLocDocType &amp; &quot;ExportPath&quot;).Model.Enabled = bDoEnable
+		.GetControl(&quot;chk&quot; &amp; sLocDocType &amp; &quot;SearchSubDir&quot;).Model.Enabled = bDoEnable
+		.GetControl(&quot;cmd&quot; &amp; sLocDocType &amp; &quot;Import&quot;).Model.Enabled = bDoEnable
+		.GetControl(&quot;cmd&quot; &amp; sLocDocType &amp; &quot;Export&quot;).Model.Enabled = bDoEnable
+	End With
+	ToggleNextButton()
+End Sub
+
+
+Function MakeSummaryString()
+Dim sTmpText As String
+Dim i as Integer
+Dim Index as Integer
+Dim sAddText as String
+	For i = 0 To ApplCount -1
+		Index = Applications(i,SBAPPLKEY)
+		GetFilterTracingLogPath(i, Index)
+		If 	Applications(i,SBTEMPLCONVERT) Then
+			&apos; Templates are to be converted
+			sAddText = &quot;&quot;
+			If WizardMode = SBMICROSOFTMODE Then
+				sAddText = sSumMSTemplates(Index) &amp; sCRLF
+			Else
+				sAddText = sSumSOTemplates(Index) &amp; sCRLF			
+			End If
+			sTmpText = sTmpText &amp; sAddText &amp;  ConvertFromUrl(Applications(i,SBTEMPLSOURCE)) &amp; sCRLF
+			If Applications(i,SBTEMPLRECURSIVE) Then
+				&apos; Including Subdirectories
+				sTmpText = sTmpText &amp; sSumInclusiveSubDir &amp; sCRLF
+			End If
+			sTmpText = sTmpText &amp; sSumSaveDocuments &amp; sCRLF
+			sTmpText = sTmpText &amp; ConvertFromUrl(Applications(i,SBTEMPLTARGET)) &amp; sCRLF
+			sTmpText = sTmpText &amp; sCRLF
+		End If
+
+		If Applications(i,SBDOCCONVERT) Then
+			&apos; Documents are to be converted
+			If WizardMode = SBMICROSOFTMODE Then
+				sAddText = sSumMSDocuments(Index) &amp; sCRLF
+			Else
+				sAddText = sSumSODocuments(Index) &amp; sCRLF			
+			End If
+			sTmpText = sTmpText &amp; sAddText &amp; ConvertFromUrl(Applications(i,SBDOCSOURCE)) &amp; sCRLF
+
+			If Applications(i,SBDOCRECURSIVE) Then
+				&apos; Including Subdirectories
+				sTmpText = sTmpText &amp; sSumInclusiveSubDir &amp; sCRLF
+			End If
+
+			sTmpText = sTmpText &amp; sSumSaveDocuments &amp; sCRLF
+			sTmpText = sTmpText &amp; ConvertFromUrl(Applications(i,SBDOCTARGET)) &amp; sCRLF
+			sTmpText = sTmpText &amp; sCRLF
+		End If
+	Next i
+	MakeSummaryString = sTmpText
+End Function
+
+
+Sub FillStep_Summary()
+	ImportDialogArea.Title = sTitle
+	With ImportDialog
+		.SummaryTextbox.Text = MakeSummaryString()
+		.cmdGoOn.Enabled = .SummaryTextbox.Text &lt;&gt; &quot;&quot;
+		.cmdGoOn.Label = sBeginButton
+		.SummaryHeaderLabel.Label = sSummaryHeader
+		.Step = 3
+	End With
+	ImportDialogArea.GetControl(&quot;SummaryHeaderLabel&quot;).SetFocus()					
+End Sub
+
+
+Sub FillStep_Progress()
+	With ImportDialog
+		.cmdBack.Enabled = False
+		.cmdGoOn.Enabled = False
+	    .hlnProgress.Label = sProgressPage_1
+	    .LabelRetrieval.FontWeight = com.sun.star.awt.FontWeight.BOLD
+   	 	.LabelRetrieval.Label = sProgressPage_2
+   	 	.LabelCurProgress.Label = sProgressPage_3
+   	 	.LabelCurDocumentRetrieval.Label = &quot;&quot;
+   	 	.LabelCurTemplateRetrieval.Label = &quot;&quot;
+   		.LabelCurDocument.Label = &quot;&quot;
+		.Step = 4
+	End With
+	ImportDialogArea.GetControl(&quot;LabelRetrieval&quot;).SetFocus()
+	If ImportDialog.chkLogfile.State = 1 Then
+		ImportDialog.cmdShowLogFile.DefaultButton = True
+	End If
+End Sub
+
+
+Sub GetFilterTracingLogPath(i as Integer, Index as Integer)
+Dim aNodePath(0) as new com.sun.star.beans.PropertyValue
+Dim oMasterKey
+Dim oImportKey	
+Dim oWordKey
+Dim oExcelkey
+Dim oPowerpointKey
+Dim oFilterService
+	aNodePath(0).Name = &quot;nodepath&quot;
+	aNodePath(0).Value = &quot;org.openoffice.Office.Tracing&quot;
+	oFilterService = createUnoService(&quot;com.sun.star.util.FilterTracer&quot;)
+	bFilterTracingAvailable = Not IsNull(oFilterService)
+	If bFilterTracingAvailable Then
+		oMasterkey = GetRegistryKeyContent(&quot;org.openoffice.Office.Tracing/&quot;)
+		If oMasterKey.hasbyName(&quot;Import&quot;) Then
+			oImportKey = GetRegistryKeyContent(&quot;org.openoffice.Office.Tracing/Import&quot;)
+			bMSApplFilterTracingAvailable(i) = CheckMSImportAvailability(oImportkey, MSFiltername(Index, 4), FilterTracingLogPath(i), bTakeOverTargetName(i), bTakeOverPathName(i))
+		End If
+	End If
+End Sub
+
+
+Function CheckMSImportAvailability(oImportkey, MSApplName as String, MSLogPath as String, bTakeOverTargetname as String, bTakeOverpathName as String) as Boolean
+Dim bApplIsAvailable as Boolean
+Dim oApplKey
+Dim LocApplName as String
+Dim LocApplPath as String
+	bApplIsAvailable = oImportKey.hasbyName(MSApplName)
+	If bApplIsAvailable Then
+		oApplKey = oImportKey.getByName(MSApplName)
+		bApplIsAvailable = oApplKey.On
+		LocApplName = oApplKey.Name
+		LocApplPath = oApplKey.Path
+		bTakeOverTargetName = (LocApplName = &quot;&quot;)
+		bTakeOverPathName = (LocApplPath = &quot;&quot;)		
+		MSLogPath = LocApplPath &amp; &quot;/&quot; &amp; LocApplName &amp; &quot;.log&quot;
+	End If
+	CheckMSImportAvailability() = bApplIsAvailable
+End Function
+
+
+
+Sub	SetupMSConfiguration()
+	iApplSection = 0
+	Wizardmode = SBMICROSOFTMODE
+	MaxApplCount = 3
+	ApplCount = 3
+	&apos; chkTemplatePath-Captions
+	GetApplResourceArray(1009 + iApplSection, ApplCount, sTemplateCheckBox())
+	&apos; DocumentCheckbox- Captions
+	GetApplResourceArray(1009 + iApplSection + ApplCount, ApplCount, sDocumentCheckBox())
+
+	sKeyName(0) = &quot;Software\Microsoft\Office\8.0\Word\Options&quot;
+	sKeyName(1) = &quot;Software\Microsoft\Office\8.0\Excel\Microsoft Excel&quot;
+	sKeyName(2) = &quot;Software\Microsoft\Office\8.0\PowerPoint\Recent Folder List\Default&quot;
+
+	sValueName(0) = &quot;DOC-PATH&quot;
+	sValueName(1) = &quot;DefaultPath&quot;
+	sValueName(2) = &quot;&quot;
+
+&apos; See definition of Filtername-Array about meaning of fields
+	MSFilterName(0,0) = &quot;doc|docx|docm&quot;
+	MSFilterName(0,1) = &quot;writer8|writer8|writer8&quot;
+	MSFilterName(0,2) = &quot;odt|odt|odt&quot;
+	MSFilterName(0,3) = sMSDocumentCheckBox(0)
+	MSFilterName(0,4) = &quot;Word&quot;
+	
+
+	MSFilterName(1,0) = &quot;xls|xlsx|xlsm&quot;
+	MSFilterName(1,1) = &quot;calc8|calc8|calc8&quot;
+	MSFilterName(1,2) = &quot;ods|ods|ods&quot;
+	MSFilterName(1,3) = sMSDocumentCheckBox(1)
+	MSFilterName(1,4) = &quot;Excel&quot;
+
+	MSFilterName(2,0) = &quot;ppt|pps|pptx|pptm&quot;
+	MSFilterName(2,1) = &quot;impress8|impress8|impress8|impress8&quot;
+	MSFilterName(2,2) = &quot;odp|odp|odp|odp&quot;
+	MSFilterName(2,3) = sMSDocumentCheckBox(2)
+	MSFilterName(2,4) = &quot;PowerPoint&quot;
+
+	MSFilterName(3,0) = &quot;dot|dotx|dotm&quot;
+	MSFilterName(3,1) = &quot;writer8_template|writer8_template|writer8_template&quot;
+	MSFilterName(3,2) = &quot;ott|ott|ott&quot;
+	MSFilterName(3,3) = sMSTemplateCheckBox(0)
+	MSFilterName(3,4) = &quot;Word&quot;	
+	
+	MSFilterName(4,0) = &quot;xlt|xltx|xltm&quot;
+	MSFilterName(4,1) = &quot;calc8_template|calc8_template|calc8_template&quot;
+	MSFilterName(4,2) = &quot;ots|ots|ots&quot;
+	MSFilterName(4,3) = sMSTemplateCheckBox(1)
+	MSFilterName(4,4) = &quot;Excel&quot;	
+
+	MSFilterName(5,0) = &quot;pot|potx|potm&quot;
+	MSFilterName(5,1) = &quot;impress8_template|impress8_template|impress8_template&quot;
+	MSFilterName(5,2) = &quot;otp|otp|otp&quot;
+	MSFilterName(5,3) = sMSTemplateCheckBox(2)
+	MSFilterName(5,4) = &quot;PowerPoint&quot;	
+End Sub
+
+
+
+&apos; This is an extract from &quot;http://util.openoffice.org/source/browse/util/sot/source/base/exchange.cxx?rev=1.25&amp;content-type=text/x-cvsweb-markup&quot;
+&apos; about the listed defined mimetypes that are required to define binary StarOffice templates that have for all applications the same extension &quot;.vor&quot;
+
+&apos; 26 SOT_FORMATSTR_ID_STARWRITER_30*/			{ &quot;application/x-openoffice-starwriter-30;windows_formatname=\&quot;StarWriter 3.0\&quot;&quot;, &quot;StarWriter 3.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 27 SOT_FORMATSTR_ID_STARWRITER_40*/			{ &quot;application/x-openoffice-starwriter-40;windows_formatname=\&quot;StarWriter 4.0\&quot;&quot;, &quot;StarWriter 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 28 SOT_FORMATSTR_ID_STARWRITER_50*/			{ &quot;application/x-openoffice-starwriter-50;windows_formatname=\&quot;StarWriter 5.0\&quot;&quot;, &quot;StarWriter 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+&apos; 29 SOT_FORMATSTR_ID_STARWRITERWEB_40*/		{ &quot;application/x-openoffice-starwriterweb-40;windows_formatname=\&quot;StarWriter/Web 4.0\&quot;&quot;, &quot;StarWriter/Web 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 30 SOT_FORMATSTR_ID_STARWRITERWEB_50*/		{ &quot;application/x-openoffice-starwriterweb-50;windows_formatname=\&quot;StarWriter/Web 5.0\&quot;&quot;, &quot;StarWriter/Web 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+&apos; 31 SOT_FORMATSTR_ID_STARWRITERGLOB_40*/		{ &quot;application/x-openoffice-starwriterglob-40;windows_formatname=\&quot;StarWriter/Global 4.0\&quot;&quot;, &quot;StarWriter/Global 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 32 SOT_FORMATSTR_ID_STARWRITERGLOB_50*/		{ &quot;application/x-openoffice-starwriterglob-50;windows_formatname=\&quot;StarWriter/Global 5.0\&quot;&quot;, &quot;StarWriter/Global 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+&apos; 33 SOT_FORMATSTR_ID_STARDRAW*/				{ &quot;application/x-openoffice-stardraw;windows_formatname=\&quot;StarDrawDocument\&quot;&quot;, &quot;StarDrawDocument&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 34 SOT_FORMATSTR_ID_STARDRAW_40*/				{ &quot;application/x-openoffice-stardraw-40;windows_formatname=\&quot;StarDrawDocument 4.0\&quot;&quot;, &quot;StarDrawDocument 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 36 SOT_FORMATSTR_ID_STARDRAW_50*/				{ &quot;application/x-openoffice-stardraw-50;windows_formatname=\&quot;StarDraw 5.0\&quot;&quot;, &quot;StarDraw 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+&apos; 35 SOT_FORMATSTR_ID_STARIMPRESS_50*/			{ &quot;application/x-openoffice-starimpress-50;windows_formatname=\&quot;StarImpress 5.0\&quot;&quot;, &quot;StarImpress 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+&apos; 37 SOT_FORMATSTR_ID_STARCALC*/				{ &quot;application/x-openoffice-starcalc;windows_formatname=\&quot;StarCalcDocument\&quot;&quot;, &quot;StarCalcDocument&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 38 SOT_FORMATSTR_ID_STARCALC_40*/				{ &quot;application/x-openoffice-starcalc-40;windows_formatname=\&quot;StarCalc 4.0\&quot;&quot;, &quot;StarCalc 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 39 SOT_FORMATSTR_ID_STARCALC_50*/				{ &quot;application/x-openoffice-starcalc-50;windows_formatname=\&quot;StarCalc 5.0\&quot;&quot;, &quot;StarCalc 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+&apos; 40 SOT_FORMATSTR_ID_STARCHART*/				{ &quot;application/x-openoffice-starchart;windows_formatname=\&quot;StarChartDocument\&quot;&quot;, &quot;StarChartDocument&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 41 SOT_FORMATSTR_ID_STARCHART_40*/			{ &quot;application/x-openoffice-starchart-40;windows_formatname=\&quot;StarChartDocument 4.0\&quot;&quot;, &quot;StarChartDocument 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 42 SOT_FORMATSTR_ID_STARCHART_50*/			{ &quot;application/x-openoffice-starchart-50;windows_formatname=\&quot;StarChart 5.0\&quot;&quot;, &quot;StarChart 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+&apos; 46 SOT_FORMATSTR_ID_STARMATH*/				{ &quot;application/x-openoffice-starmath;windows_formatname=\&quot;StarMath\&quot;&quot;, &quot;StarMath&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 47 SOT_FORMATSTR_ID_STARMATH_40*/				{ &quot;application/x-openoffice-starmath-40;windows_formatname=\&quot;StarMathDocument 4.0\&quot;&quot;, &quot;StarMathDocument 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+&apos; 48 SOT_FORMATSTR_ID_STARMATH_50*/				{ &quot;application/x-openoffice-starmath-50;windows_formatname=\&quot;StarMath 5.0\&quot;&quot;, &quot;StarMath 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
+
+
+Sub SetupXMLConfiguration()
+	iApplSection = 1000
+	Wizardmode = SBXMLMODE
+	ApplCount = 4
+	MaxApplCount = 4
+	XMLTemplateList = Array(&quot;vor&quot;, &quot;sti&quot;, &quot;stw&quot; , &quot;stc&quot; , &quot;std&quot;)
+	&apos; chkTemplatePath-Captions
+	GetApplResourceArray(1009 + iApplSection, ApplCount, sTemplateCheckBox())
+	&apos; DocumentCheckbox- Captions
+	GetApplResourceArray(1009 + iApplSection + ApplCount, ApplCount, sDocumentCheckBox())
+
+	XMLFilterName(0,0) = &quot;sdw|sxw&quot;
+	XMLFilterName(0,1) = &quot;writer8|writer8&quot;
+	XMLFilterName(0,2) = &quot;odt|odt&quot;
+	XMLFilterName(0,3) = sDocumentCheckBox(0)
+
+	XMLFilterName(1,0) = &quot;sdc|sxc&quot;
+	XMLFilterName(1,1) = &quot;calc8|calc8&quot;
+	XMLFilterName(1,2) = &quot;ods|ods&quot;
+	XMLFilterName(1,3) = sDocumentCheckBox(1)
+
+	If oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) and oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
+		XMLFilterName(2,0) = &quot;sdd|sda|sxi|sxd&quot;
+		XMLFilterName(2,1) = &quot;impress8|draw8|impress8|draw8&quot;
+		XMLFilterName(2,2) = &quot;odp|odg|odp|odg&quot;
+	Elseif oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) Then
+		XMLFilterName(2,0) = &quot;sda|sxd&quot;
+		XMLFilterName(2,1) = &quot;draw8|draw8&quot;
+		XMLFilterName(2,2) = &quot;odg|odg&quot;
+	Elseif oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
+		XMLFilterName(2,0) = &quot;sdd|sxi&quot;
+		XMLFilterName(2,1) = &quot;impress8|impress8&quot;
+		XMLFilterName(2,2) = &quot;odp|odp&quot;
+	End If
+	XMLFilterName(2,3) = sDocumentCheckBox(2)
+
+	
+	XMLFilterName(3,0) = &quot;smf|sxm&quot;
+	XMLFilterName(3,1) = &quot;math8|math8&quot;
+	XMLFilterName(3,2) = &quot;odf|odf&quot;
+	XMLFilterName(3,3) = sDocumentCheckBox(3)	
+
+	XMLFilterName(4,0) = &quot;application/x-openoffice-starwriter|application/vnd.stardivision.writer/web|application/vnd.sun.xml.writer|application/vnd.sun.xml.writerweb&quot;
+	XMLFilterName(4,1) = &quot;writer8_template|writerweb8_writer_template|writer8_template|writerweb8_writer_template&quot;
+	XMLFilterName(4,2) = &quot;ott|oth|ott|oth&quot;
+	XMLFilterName(4,3) = sTemplateCheckBox(0)
+
+
+	XMLFilterName(5,0) = &quot;application/x-openoffice-starcalc|application/vnd.sun.xml.calc&quot;
+	XMLFilterName(5,1) = &quot;calc8_template|calc8_template&quot;
+	XMLFilterName(5,2) = &quot;ots|ots&quot;
+	XMLFilterName(5,3) = sTemplateCheckBox(1)
+
+	&apos; due to bug #108942# impress templates of the version 4.0 have to be handled in a special way because their mimetype 
+	&apos; falsely points to the draw application.
+	If oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) and  oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
+		XMLFilterName(6,0) = &quot;application/x-openoffice-starimpress|application/x-openoffice-stardraw-40|application/x-openoffice-stardraw|application/vnd.sun.xml.impress|application/vnd.sun.xml.draw&quot;
+		XMLFilterName(6,1) = &quot;impress8_template|impress8_template|draw8_template|impress8_template|draw8_template&quot;
+		XMLFilterName(6,2) = &quot;otp|otp|otg|otp|otg&quot;
+	Elseif oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) Then
+		XMLFilterName(6,0) = &quot;application/x-openoffice-stardraw|application/vnd.sun.xml.draw&quot;
+		XMLFilterName(6,1) = &quot;draw8_template|draw8_template&quot;
+		XMLFilterName(6,2) = &quot;otg|otg&quot;
+	Elseif oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
+		XMLFilterName(6,0) = &quot;application/x-openoffice-starimpress|application/x-openoffice-stardraw-40|application/vnd.sun.xml.impress&quot;
+		XMLFilterName(6,1) = &quot;impress8_template|impress8_template|impress8_template&quot;
+		XMLFilterName(6,2) = &quot;otp|otp|otp&quot;
+	End If	
+	XMLFilterName(6,3) = sTemplateCheckBox(2)
+	
+	If oFactoryKey.HasByName(&quot;com.sun.star.text.GlobalDocument&quot;) Then
+		XMLFilterName(7,0) = &quot;sgl|sxg&quot;
+		XMLFilterName(7,1) = &quot;writerglobal8|writerglobal8&quot;
+		XMLFilterName(7,2) = &quot;odm|odm&quot;
+		XMLFilterName(7,3) = sTemplateCheckBox(3)
+	End If
+End Sub
+
+
+Function CheckControlPath(oCheckbox as Object, oTextBox as Object, ByVal bDoEnable as Boolean)
+Dim sPath as String
+	If Not bDoEnable Then
+		CheckControlPath = False
+	ElseIf oCheckbox.State = 0 Then
+		CheckControlPath = True
+	Else
+		sPath = ConvertToUrl(Trim(oTextBox.Text)
+		CheckControlPath = oUcb.Exists(sPath)
+	End If
+End Function
+
+
+Function CheckInputPaths() as Boolean
+Dim bChangePage as Boolean
+	bChangePage = CheckTextBoxPath(ImportDialog.txtTemplateImportPath, True, False, sTitle, False)
+	bChangePage = CheckTextBoxPath(ImportDialog.txtTemplateExportPath, bChangePage, True, sTitle, False)
+	bChangePage = CheckTextBoxPath(ImportDialog.txtDocumentImportPath, bChangePage, False, sTitle, False)
+	bChangePage = CheckTextBoxPath(ImportDialog.txtDocumentExportPath, bChangePage, True, sTitle, False)
+	CheckInputPaths = bChangePage
+End Function
+
+
+Function CheckTextBoxPath(oTextBox as Object, ByVal bCheck as Boolean, bCreateNew as Boolean, sTitle as String, bgetResources as Boolean) as Boolean
+Dim iCreate as Integer
+Dim sQueryMessage as String
+Dim sUrlPath as String
+Dim sMessageNoDir as String
+Dim sShowPath as String
+Dim oLocUcb as Object
+	oLocUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	If bGetResources Then
+		If InitResources(&quot;ImportWizard&quot;,&quot;imp&quot;) then
+ 			sNoDirCreation = GetResText(1050)
+			sMsgDirNotThere = GetResText(1051)
+			sQueryForNewCreation = GetResText(1052)
+		Else
+			CheckTextBoxPath() = False
+			Exit Function
+		End If
+	End If
+	If oTextBox.Enabled Then
+		If bCheck Then
+			sShowPath = oTextBox.Text
+			sUrlPath = ConvertToUrl(sShowPath)
+			If Not oLocUcb.Exists(sUrlPath) Then
+				If Not bCreateNew Then
+					&apos; Sourcedirectories must be existing, Targetdirectories may be created new
+					sQueryMessage = ReplaceString(sMsgDirNotThere, sShowPath,&quot;%1&quot;)
+					Msgbox(sQueryMessage,16,sTitle)
+					CheckTextBoxPath() = False
+					Exit Function
+				Else
+					sQueryMessage = ReplaceString(sMsgDirNotThere, sShowPath,&quot;%1&quot;)
+					sQueryMessage = sQueryMessage &amp; Chr(13) &amp; sQueryForNewCreation
+					iCreate = Msgbox (sQueryMessage, 36, sTitle)
+					If iCreate = 6 Then
+						On Local Error Goto NOVALIDPATH
+						CreateFolder(sUrlPath)
+						If Not oLocUcb.Exists(sUrlPath) Then
+							Goto NOVALIDPATH
+						End If
+					Else
+						CheckTextBoxPath() = False
+						Exit Function
+					End If
+				End If
+			End If
+			CheckTextBoxPath() = True
+		Else
+			CheckTextBoxPath() = False
+		End If
+	Else
+		CheckTextBoxPath() = True
+	End If
+	Exit Function
+NOVALIDPATH:
+	sMessageNoDir = ReplaceString(sNoDirCreation, sShowPath, &quot;%1&quot;)
+	Msgbox(sMessageNoDir, 16, sTitle)
+	CheckTextBoxPath() = False
+End Function
+
+
+Sub InitializeProgressPage(oDialog as Object)
+  oDialog.LabelRetrieval.FontWeight = com.sun.star.awt.FontWeight.NORMAL
+  oDialog.LabelCurProgress.FontWeight = com.sun.star.awt.FontWeight.BOLD
+End Sub
+
+
+Sub	SetProgressDisplay(AbsFound as Integer)
+	ImportDialog.LabelRetrieval.Label = sProgressPage_2 &amp;  &quot;  &quot; &amp; ReplaceString(sProgressPage_5, Str(AbsFound) &amp; &quot; &quot;, &quot;%1&quot;)
+	ImportDialog.LabelCurDocumentRetrieval.Label =  sProgressFound &amp; &quot; &quot; &amp; CStr(AbsDocuFound) &amp;  &quot; &quot; &amp; sProgressMoreDocs
+	ImportDialog.LabelCurTemplateRetrieval.Label = sProgressFound &amp; &quot; &quot; &amp; CStr(AbsTemplateFound) &amp; &quot; &quot; &amp; sProgressMoreTemplates
+End Sub
+
+Sub TakoverFolderName(aEvent as Object)
+Dim RefControlName as String
+Dim oRefControl
+	RefControlName = aEvent.Source.Model.Tag
+	oRefControl = ImportDialogArea.GetControl(RefControlName)
+	GetFolderName(oRefControl.Model)
+	ToggleNextButton()
+End Sub
+
+
+Sub FinalizeDialogButtons()	
+	ImportDialog.cmdShowLogFile.Enabled = ((Isnull(oLogDocument) = False) And (ImportDialog.chkLogfile.State = 1))
+	ImportDialog.cmdCancel.Enabled = False
+	ImportDialog.cmdGoOn.Label = sCloseButton
+	ImportDialog.cmdGoOn.Enabled = True
+End Sub	
+</script:module>

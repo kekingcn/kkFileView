@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="UCB" script:language="StarBasic">&apos;Option explicit
+Public oDocument
+Public oDocInfo as object
+Const SBMAXDIRCOUNT = 10
+Dim CurDirMaxCount as Integer
+Dim sDirArray(SBMAXDIRCOUNT-1) as String
+Dim DirIndex As Integer
+Dim iDirCount as Integer
+Public bInterruptSearch as Boolean
+Public NoArgs()as New com.sun.star.beans.PropertyValue
+
+Sub Main()
+Dim LocsfileContent(0) as String
+	LocsfileContent(0) = &quot;*&quot;
+	ReadDirectories(&quot;file:///space&quot;, LocsfileContent(), True, False, false)
+End Sub
+
+&apos;        ReadDirectories(      sSourceDir,          bRecursive,          bCheckRealType, False, sFileContent(), sLocExtension)
+
+Function ReadDirectories(ByVal AnchorDir As String, bRecursive as Boolean,  bcheckFileType as Boolean, bGetByTitle as Boolean, Optional sFileContent(), Optional sExtension as String)
+Dim i as integer
+Dim Status as Object
+Dim FileCountinDir as Integer
+Dim RealFileContent as String
+Dim FileName as string
+Dim oUcbObject as Object
+Dim DirContent()
+Dim CurIndex as Integer
+Dim MaxIndex as Integer
+Dim StartUbound as Integer
+Dim FileExtension as String
+	StartUbound = 5
+	MaxIndex = StartUBound
+	CurDirMaxCount = SBMAXDIRCOUNT
+Dim sFileArray(StartUbound,1) as String
+	On Local Error Goto FILESYSTEMPROBLEM:
+	CurIndex = -1
+	&apos; Todo: Is the last separator valid?
+	DirIndex = 0
+	sDirArray(iDirIndex) = AnchorDir
+	iDirCount = 1
+	oDocInfo = CreateUnoService(&quot;com.sun.star.document.DocumentProperties&quot;)
+	oUcbObject = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	If oUcbObject.Exists(AnchorDir) Then
+		Do
+			AnchorDir = sDirArray(DirIndex)
+			On Local Error Resume Next
+			DirContent() = oUcbObject.GetFolderContents(AnchorDir,True)
+			DirIndex = DirIndex + 1
+			On Local Error Goto 0
+			On Local Error Goto FILESYSTEMPROBLEM:
+			If Ubound(DirContent()) &lt;&gt; -1 Then
+				FileCountinDir = Ubound(DirContent())+ 1
+				For i = 0 to FilecountinDir -1
+					If bInterruptSearch = True Then
+						Exit Do
+					End If
+					
+					Filename = DirContent(i)
+					If oUcbObject.IsFolder(FileName) Then
+						If brecursive Then
+							AddFoldertoList(FileName, DirIndex)
+						End If
+					Else
+						If bcheckFileType Then
+							RealFileContent = GetRealFileContent(FileName)
+						Else
+							RealFileContent = GetFileNameExtension(FileName)
+						End If
+						If RealFileContent &lt;&gt; &quot;&quot; Then
+							&apos; Retrieve the Index in the Array, where a Filename is positioned
+							If Not IsMissing(sFileContent()) Then
+								If (FieldinArray(sFileContent(), Ubound(sFileContent), RealFileContent)) Then
+									&apos; The extension of the current file passes the filter and is therefor admitted to the
+									&apos; fileList
+									If Not IsMissing(sExtension) Then
+										If sExtension &lt;&gt; &quot;&quot; Then
+											&apos; Consider that some Formats like old StarOffice Templates with the extension &quot;.vor&quot; can only be
+											&apos; precisely identified by their mimetype and their extension
+											FileExtension = GetFileNameExtension(FileName)
+											If FileExtension = sExtension Then
+												AddFileNameToList(sFileArray(), FileName, RealFileContent, bGetByTitle, CurIndex)
+											End If
+										Else
+											AddFileNameToList(sFileArray(), FileName, RealFileContent, bGetByTitle, CurIndex)
+										End If
+									Else
+										AddFileNameToList(sFileArray(), FileName, RealFileContent, bGetByTitle, CurIndex)
+									End If
+								End If
+							Else
+								AddFileNameToList(sFileArray(), FileName, RealFileContent, bGetByTitle, CurIndex)
+							End If
+							If CurIndex = MaxIndex Then
+								MaxIndex = MaxIndex + StartUbound
+								ReDim Preserve sFileArray(MaxIndex,1) as String
+							End If
+						End If
+					End If
+				Next i
+			End If
+		Loop Until DirIndex &gt;= iDirCount
+		If CurIndex &gt; -1 Then
+			ReDim Preserve sFileArray(CurIndex,1) as String
+		Else
+			ReDim sFileArray() as String
+		End If
+	Else
+		Msgbox(&quot;Directory &apos;&quot; &amp; ConvertFromUrl(AnchorDir) &amp; &quot;&apos; does not exist!&quot;, 16, GetProductName())
+	End If
+	ReadDirectories() = sFileArray()
+	Exit Function
+
+	FILESYSTEMPROBLEM:
+	Msgbox(&quot;Sorry, Filesystem Problem&quot;)
+	ReadDirectories() = sFileArray()
+	Resume LEAVEPROC
+	LEAVEPROC:
+End Function
+
+
+Sub AddFoldertoList(sDirURL as String, iDirIndex)
+	iDirCount = iDirCount + 1
+	If iDirCount = CurDirMaxCount Then
+		CurDirMaxCount = CurDirMaxCount + SBMAXDIRCOUNT
+		ReDim Preserve sDirArray(CurDirMaxCount) as String
+	End If
+	sDirArray(iDirCount-1) = sDirURL
+End Sub
+
+
+Sub AddFileNameToList(sFileArray(), FileName as String, FileContent as String, bGetByTitle as Boolean, CurIndex)
+Dim FileCount As Integer
+	CurIndex = CurIndex + 1
+	sFileArray(CurIndex,0) = FileName
+	If bGetByTitle Then
+		sFileArray(CurIndex,1) = RetrieveDocTitle(oDocInfo, FileName)
+		&apos; Add the documenttitles to the Filearray
+	Else
+		sFileArray(CurIndex,1) = FileContent
+	End If
+End Sub
+
+
+Function RetrieveDocTitle(oDocProps as Object, sFileName as String) As String
+Dim sDocTitle as String
+	On Local Error Goto NOFILE
+	oDocProps.loadFromMedium(sFileName, NoArgs())
+	sDocTitle = oDocProps.Title
+	NOFILE:
+	If Err &lt;&gt; 0 Then
+		RetrieveDocTitle = &quot;&quot;
+		RESUME CLR_ERROR
+	End If
+	CLR_ERROR:
+	If sDocTitle = &quot;&quot; Then
+		sDocTitle = GetFileNameWithoutExtension(sFilename, &quot;/&quot;)
+	End If
+	RetrieveDocTitle = sDocTitle
+End Function
+
+
+&apos; Retrieves The Filecontent of a Document by extracting the content
+&apos; from the Header of the document
+Function GetRealFileContent(FileName as String) As String
+	On Local Error Goto NOFILE
+	oTypeDetect = createUnoService(&quot;com.sun.star.document.TypeDetection&quot;)
+	GetRealFileContent = oTypeDetect.queryTypeByURL(FileName)
+	NOFILE:
+	If Err &lt;&gt; 0 Then
+		GetRealFileContent = &quot;&quot;
+		resume CLR_ERROR
+	End If
+	CLR_ERROR:
+End Function
+
+
+Function CopyRecursively(SourceFilePath as String, SourceStemDir as String, TargetStemDir as String)
+Dim TargetDir as String
+Dim TargetFile as String
+
+	TargetFile= ReplaceString(SourceFilePath, TargetStemDir, SourceStemDir)
+	TargetFileName = FileNameoutofPath(TargetFile,&quot;/&quot;)
+	TargetDir = DeleteStr(TargetFile, TargetFileName)
+	CreateFolder(TargetDir)
+	CopyRecursively() = TargetFile
+End Function
+
+
+&apos; Opens a help url referenced by a Help ID that is retrieved from the calling button tag
+Sub ShowHelperDialog(aEvent)
+Dim oSystemNode as Object
+Dim sSystem as String
+Dim oLanguageNode as Object
+Dim sLocale as String
+Dim sLocaleList() as String
+Dim sLanguage as String
+Dim sHelpUrl as String
+Dim sDocType as String
+	HelpID = aEvent.Source.Model.Tag
+	oLocDocument = StarDesktop.ActiveFrame.Controller.Model
+	sDocType = GetDocumentType(oLocDocument)
+	oSystemNode = GetRegistryKeyContent(&quot;org.openoffice.Office.Common/Help&quot;)
+	sSystem = oSystemNode.GetByName(&quot;System&quot;)
+	oLanguageNode = GetRegistryKeyContent(&quot;org.openoffice.Setup/L10N/&quot;)
+	sLocale = oLanguageNode.getByName(&quot;ooLocale&quot;)
+	sLocaleList() = ArrayoutofString(sLocale, &quot;-&quot;)
+	sLanguage = sLocaleList(0)
+	sHelpUrl = &quot;vnd.sun.star.help://&quot; &amp; sDocType &amp; &quot;/&quot; &amp; HelpID &amp; &quot;?Language=&quot; &amp; sLanguage &amp; &quot;&amp;System=&quot; &amp; sSystem
+	StarDesktop.LoadComponentfromUrl(sHelpUrl, &quot;OFFICE_HELP&quot;, 63, NoArgs())
+End Sub
+
+
+Sub SaveDataToFile(FilePath as String, DataList())
+Dim FileChannel as Integer
+Dim i as Integer
+Dim oFile as Object
+Dim oOutputStream as Object
+Dim oStreamString as Object
+Dim oUcb as Object
+Dim sCRLF as String
+
+	sCRLF = CHR(13) &amp; CHR(10)
+	oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	oOutputStream = createUnoService(&quot;com.sun.star.io.TextOutputStream&quot;)
+	If oUcb.Exists(FilePath) Then
+		oUcb.Kill(FilePath)
+	End If
+	oFile = oUcb.OpenFileReadWrite(FilePath)
+	oOutputStream.SetOutputStream(oFile.GetOutputStream)
+	For i = 0 To Ubound(DataList())
+		oOutputStream.WriteString(DataList(i) &amp; sCRLF)
+	Next i
+	oOutputStream.CloseOutput()
+End Sub
+
+
+Function LoadDataFromFile(FilePath as String, DataList()) as Boolean
+Dim oInputStream as Object
+Dim i as Integer
+Dim oUcb as Object
+Dim oFile as Object
+Dim MaxIndex as Integer
+	oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	If oUcb.Exists(FilePath) Then
+		MaxIndex = 10
+		oInputStream = createUnoService(&quot;com.sun.star.io.TextInputStream&quot;)
+		oFile = oUcb.OpenFileReadWrite(FilePath)
+		oInputStream.SetInputStream(oFile.GetInputStream)
+		i = -1
+		Redim Preserve DataList(MaxIndex)
+		While Not oInputStream.IsEOF
+			i = i + 1
+			If i &gt; MaxIndex Then
+				MaxIndex = MaxIndex + 10
+				Redim Preserve DataList(MaxIndex)
+			End If
+			DataList(i) = oInputStream.ReadLine
+		Wend
+		If i &gt; -1 And i &lt;&gt; MaxIndex Then
+			Redim Preserve DataList(i)
+		End If
+		LoadDataFromFile() = True
+		oInputStream.CloseInput()
+	Else
+		LoadDataFromFile() = False
+	End If
+End Function
+
+
+Function CreateFolder(sNewFolder) as Boolean
+Dim oUcb as Object
+	oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	On Local Error Goto NOSPACEONDRIVE
+	If Not oUcb.Exists(sNewFolder) Then
+		oUcb.CreateFolder(sNewFolder)
+	End If
+	CreateFolder = True
+NOSPACEONDRIVE:
+	If Err &lt;&gt; 0 Then
+		If InitResources(&quot;&quot;, &quot;dbw&quot;) Then
+			ErrMsg = GetResText(500)
+			ErrMsg = ReplaceString(ErrMsg, chr(13), &quot;&lt;BR&gt;&quot;)
+			ErrMsg = ReplaceString(ErrMsg, sNewFolder, &quot;%1&quot;)
+			Msgbox(ErrMsg, 48, GetProductName())
+		End If
+		CreateFolder = False
+		Resume GOON
+	End If
+GOON:
+End Function
+</script:module>

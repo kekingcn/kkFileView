@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="Dialog2" dlg:tab-index="0" dlg:left="91" dlg:top="24" dlg:width="220" dlg:height="128" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_DIALOG_SELLBUY" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="lblStockNames" dlg:tab-index="0" dlg:left="6" dlg:top="6" dlg:width="102" dlg:height="8" dlg:value="lblStockNames"/>
+  <dlg:menulist dlg:id="lstSellStocks" dlg:tab-index="1" dlg:left="6" dlg:top="17" dlg:width="102" dlg:height="12" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_1_LSTSELLSTOCKS" dlg:spin="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Depot.Depot.SelectStockname?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:combobox dlg:id="lstBuyStocks" dlg:tab-index="2" dlg:left="6" dlg:top="17" dlg:width="102" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_2_LSTBUYSTOCKS" dlg:spin="true">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Depot.Depot.SelectStockname?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:combobox>
+  <dlg:text dlg:id="lblStockID" dlg:tab-index="3" dlg:left="150" dlg:top="6" dlg:width="66" dlg:height="8" dlg:value="lblStockID"/>
+  <dlg:textfield dlg:id="txtStockID" dlg:tab-index="4" dlg:left="150" dlg:top="17" dlg:width="40" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTSTOCKID_SELLBUY"/>
+  <dlg:text dlg:id="lblQuantity" dlg:tab-index="5" dlg:left="6" dlg:top="36" dlg:width="57" dlg:height="8" dlg:value="lblQuantity"/>
+  <dlg:numericfield dlg:id="txtQuantity" dlg:tab-index="6" dlg:left="6" dlg:top="47" dlg:width="46" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTQUANTITY" dlg:decimal-accuracy="0" dlg:value-min="1"/>
+  <dlg:currencyfield dlg:id="txtRate" dlg:tab-index="7" dlg:left="68" dlg:top="47" dlg:width="40" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTRATE" dlg:value-min="0"/>
+  <dlg:datefield dlg:id="txtDate" dlg:tab-index="8" dlg:left="150" dlg:top="47" dlg:width="50" dlg:height="12" dlg:tag="Dialog2" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTDATE" dlg:strict-format="true" dlg:spin="true">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Depot.tools.CheckInputDate?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:datefield>
+  <dlg:text dlg:id="lblRate" dlg:tab-index="9" dlg:left="68" dlg:top="36" dlg:width="77" dlg:height="8" dlg:value="lblRate"/>
+  <dlg:text dlg:id="lblDate" dlg:tab-index="10" dlg:left="150" dlg:top="37" dlg:width="66" dlg:height="8" dlg:value="lblDate"/>
+  <dlg:formattedfield dlg:id="txtCommission" dlg:tab-index="11" dlg:left="6" dlg:top="90" dlg:width="40" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTCOMMISSION" dlg:format-code="0,00%" dlg:format-locale="de;DE"/>
+  <dlg:text dlg:id="lblCommission" dlg:tab-index="12" dlg:left="6" dlg:top="79" dlg:width="60" dlg:height="8" dlg:value="lblCommission"/>
+  <dlg:currencyfield dlg:id="txtFix" dlg:tab-index="13" dlg:left="68" dlg:top="90" dlg:width="40" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTFIX" dlg:value-min="0"/>
+  <dlg:currencyfield dlg:id="txtMinimum" dlg:tab-index="14" dlg:left="150" dlg:top="90" dlg:width="40" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTMINIMUM" dlg:value-min="0"/>
+  <dlg:text dlg:id="lblFix" dlg:tab-index="15" dlg:left="68" dlg:top="79" dlg:width="71" dlg:height="8" dlg:value="lblFix"/>
+  <dlg:text dlg:id="lblMinimum" dlg:tab-index="16" dlg:left="150" dlg:top="79" dlg:width="66" dlg:height="8" dlg:value="lblMinimum"/>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="17" dlg:left="58" dlg:top="109" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_CMDCANCEL_SELLBUY" dlg:value="cmdCancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Depot.Depot.CancelTransaction?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdGoOn" dlg:tab-index="18" dlg:left="111" dlg:top="109" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_CMDGOON_SELLBUY" dlg:value="cmdGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Depot.Depot.TransactionOk?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:fixedline dlg:id="hlnCommission" dlg:tab-index="19" dlg:left="6" dlg:top="66" dlg:width="210" dlg:height="8" dlg:value="hlnCommission"/>
+ </dlg:bulletinboard>
+</dlg:window>

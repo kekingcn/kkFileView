@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="GetTexts" script:language="StarBasic">Option Explicit
+&apos; Macro-Description:
+&apos; This Macro extracts the Strings out of the currently activated document und inserts them into a logdocument
+&apos; The aim of the macro is to provide the programmer an insight into the StarOffice API
+&apos; It focusses on how document-Objects are accessed.
+&apos; Therefor not only texts of the document-body are retrieved but also Texts of general
+&apos; document Objects like, Annotations, charts and general Document Information
+
+Public oLogDocument, oLogText, oLogCursor, oLogHeaderStyle, oLogBodyTextStyle as Object
+Public oDocument as Object
+Public LogArray(1000) as String
+Public LogIndex as Integer
+Public oLocHeaderStyle as Object
+
+Sub Main
+Dim sDocType as String
+Dim oHyperCursor as Object
+Dim oCharStyles as Object
+    BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	On Local Error GoTo NODOCUMENT
+	oDocument = StarDesktop.ActiveFrame.Controller.Model
+	sDocType = GetDocumentType(oDocument)
+	NODOCUMENT:
+	If Err &lt;&gt; 0 Then
+		Msgbox(&quot;This macro extracts all data from the active Writer, Calc or Draw document.&quot; &amp; chr(13) &amp;_
+			   &quot;To start this macro you have to activate a document first.&quot; , 16, GetProductName)
+		Exit Sub
+	End If
+	On Local Error Goto 0
+
+	&apos; Open a new document where all the texts are inserted
+	oLogDocument = CreateNewDocument(&quot;swriter&quot;)
+	If Not IsNull(oLogDocument) Then
+		oLogText = oLogDocument.Text
+
+		&apos; create and define the character styles of the Log-document
+		oCharStyles = oLogDocument.StyleFamilies.GetByName(&quot;CharacterStyles&quot;)
+		oLogHeaderStyle = oLogDocument.createInstance(&quot;com.sun.star.style.CharacterStyle&quot;)
+		oCharStyles.InsertbyName(&quot;Log Header&quot;, oLogHeaderStyle)
+
+		oLogHeaderStyle.charWeight = com.sun.star.awt.FontWeight.BOLD
+		oLogBodyTextStyle = oLogDocument.createInstance(&quot;com.sun.star.style.CharacterStyle&quot;)
+		oCharStyles.InsertbyName(&quot;Log Body&quot;, oLogBodyTextStyle)
+
+		&apos; Insert the title of the activated document as a hyperlink
+		oHyperCursor = oLogText.createTextCursor()
+		oHyperCursor.CharWeight = com.sun.star.awt.FontWeight.BOLD
+		oHyperCursor.gotoStart(False)
+		oHyperCursor.HyperLinkURL = oDocument.URL
+		oHyperCursor.HyperLinkTarget = oDocument.URL
+		If oDocument.DocumentProperties.Title &lt;&gt; &quot;&quot; Then
+			oHyperCursor.HyperlinkName = oDocument.DocumentProperties.Title
+		End If
+		oLogText.insertString(oHyperCursor, oDocument.DocumentProperties.Title, False)
+		oLogText.insertControlCharacter(oHyperCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+
+		oLogCursor = oLogText.createTextCursor()
+		oLogCursor.GotoEnd(False)
+		&apos; &quot;Switch off&quot; the Hyperlink - Properties
+		oLogCursor.SetPropertyToDefault(&quot;HyperLinkURL&quot;)
+		oLogCursor.SetPropertyToDefault(&quot;HyperLinkTarget&quot;)
+		oLogCursor.SetPropertyToDefault(&quot;HyperLinkName&quot;)
+		LogIndex = 0
+
+		&apos; Get the Properties of the document
+		GetDocumentProps()
+
+		Select Case sDocType
+			Case &quot;swriter&quot;
+				GetWriterStrings()
+			Case &quot;scalc&quot;
+				GetCalcStrings()
+			Case &quot;sdraw&quot;, &quot;simpress&quot;
+				GetDrawStrings()
+			Case Else
+				Msgbox(&quot;This macro only works with a Writer, Calc or Draw/Impress document.&quot;, 16, GetProductName())
+		End Select
+	End If
+End Sub
+
+
+&apos; ***********************************************Calc-Documents**************************************************
+
+Sub GetCalcStrings()
+Dim i, n as integer
+Dim oSheet as Object
+Dim SheetName as String
+Dim oSheets as Object
+	&apos; Create a sequence of all sheets within the document
+	oSheets = oDocument.Sheets
+
+	For i = 0 to osheets.Count - 1
+		oSheet = osheets.GetbyIndex(i)
+		SheetName = oSheet.Name
+		MakeLogHeadLine(&quot;Sheet No. &quot; &amp; i &amp; &quot;(&quot; &amp; SheetName &amp; &quot;)&quot; )
+
+		&apos; Check the &quot;body&quot; of the sheet
+		GetCellTexts(oSheet)
+
+		If oSheet.IsScenario then
+			MakeLogHeadLine(&quot;Scenario Comments from &quot; &amp; SheetName &amp; &quot;&apos;&quot;)
+			WriteStringtoLogFile(osheet.ScenarioComment)
+		End if
+
+		GetAnnotations(oSheet, &quot;Annotations from &apos;&quot; &amp; SheetName &amp; &quot;&apos;&quot;)
+
+		GetChartStrings(oSheet, &quot;Charts from &apos;&quot; &amp; SheetName &amp; &quot;&apos;&quot;)
+
+		GetControlStrings(oSheet.DrawPage, &quot;Controls from &apos;&quot; &amp; SheetName &amp; &quot;&apos;&quot;)
+	Next
+
+	&apos; Pictures
+	GetCalcGraphicNames()
+
+	GetNamedRanges()
+End Sub
+
+
+Sub GetCellTexts(oSheet as Object)
+Dim BigRange, BigEnum, oCell as Object
+	BigRange = oDocument.CreateInstance(&quot;com.sun.star.sheet.SheetCellRanges&quot;)
+	BigRange.InsertbyName(&quot;&quot;,oSheet)
+	BigEnum = BigRange.GetCells.CreateEnumeration
+	While BigEnum.hasmoreElements
+		oCell = BigEnum.NextElement
+		If oCell.String &lt;&gt; &quot;&quot; And Val(oCell.String) = 0then
+			WriteStringtoLogFile(oCell.String)
+		End If
+	Wend
+End Sub
+
+
+Sub GetAnnotations(oSheet as Object, HeaderLine as String)
+Dim oNotes as Object
+Dim n as Integer
+	oNotes = oSheet.getAnnotations
+	If oNotes.hasElements() then
+		MakeLogHeadLine(HeaderLine)
+		For n = 0 to oNotes.Count-1
+			WriteStringtoLogFile(oNotes.GetbyIndex(n).String)
+		Next
+	End if
+End Sub
+
+
+Sub GetNamedRanges()
+Dim i as integer
+	MakeLogHeadLine(&quot;Named Ranges&quot;)
+	For i = 0 To oDocument.NamedRanges.Count - 1
+		WriteStringtoLogFile(oDocument.NamedRanges.GetbyIndex(i).Name)
+	Next
+End Sub
+
+
+Sub GetCalcGraphicNames()
+Dim n,m as integer
+	MakeLogHeadLine(&quot;Graphics&quot;)
+	For n = 0 To oDocument.Drawpages.count-1
+		For m = 0 To oDocument.Drawpages.GetbyIndex(n).Count - 1
+			WriteStringtoLogFile(oDocument.DrawPages.GetbyIndex(n).GetbyIndex(m).Text.String)
+		Next m
+	Next n
+End Sub
+
+
+&apos; ***********************************************Writer-Documents**************************************************
+
+Sub GetParagraphTexts(oParaObject as Object, HeadLine as String)
+Dim ParaEnum as Object
+Dim oPara as Object
+Dim oTextPortEnum as Object
+Dim oTextPortion as Object
+Dim i as integer
+Dim oCellNames()
+Dim oCell as Object
+
+	MakeLogHeadLine(HeadLine)
+	ParaEnum = oParaObject.Text.CreateEnumeration
+
+	While ParaEnum.HasMoreElements
+		oPara = ParaEnum.NextElement
+
+		&apos; Note: The Enumeration ParaEnum lists all tables and Paragraphs.
+		&apos; Therefor we have to find out what kind of object &quot;oPara&quot; actually is
+		If oPara.supportsService(&quot;com.sun.star.text.Paragraph&quot;) Then
+			&apos; &quot;oPara&quot; is a Paragraph
+			oTextPortEnum = oPara.createEnumeration
+			While oTextPortEnum.hasmoreElements
+				oTextPortion = oTextPortEnum.nextElement()
+				WriteStringToLogFile(oTextPortion.String)
+			Wend
+		Else
+			&apos; &quot;oPara&quot; is a table
+			oCellNames = oPara.CellNames
+			For i = 0 To Ubound(oCellNames())
+				If oCellNames(i) &lt;&gt; &quot;&quot; Then
+					oCell = oPara.getCellByName(oCellNames(i))
+					WriteStringToLogFile(oCell.String)
+				End If
+			Next
+		End If
+	Wend
+End Sub
+
+
+
+Sub GetChartStrings(oSheet as Object, HeaderLine as String)
+Dim i as Integer
+Dim aChartObject as Object
+Dim aChartDiagram as Object
+
+	MakeLogHeadLine(HeaderLine)
+
+	For i = 0 to oSheet.Charts.Count-1
+		aChartObject = oSheet.Charts.GetByIndex(i).EmbeddedObject
+		If aChartObject.HasSubTitle then
+			WriteStringToLogFile(aChartObject.SubTitle.String)
+		End If
+
+		If aChartObject.HasMainTitle then
+			WriteStringToLogFile(aChartObject.Title.String)
+		End If
+
+		aChartDiagram = aChartObject.Diagram
+
+		If aChartDiagram.hasXAxisTitle Then
+			WriteStringToLogFile(aChartDiagram.XAxisTitle)
+		End If
+
+		If aChartDiagram.hasYAxisTitle Then
+			WriteStringToLogFile(aChartDiagram.YAxisTitle)
+		End If
+
+		If aChartDiagram.hasZAxisTitle Then
+			WriteStringToLogFile(aChartDiagram.ZAxisTitle)
+		End If
+	Next i
+End Sub
+
+
+
+Sub GetFrameTexts()
+Dim i as integer
+Dim oTextFrame as object
+Dim oFrameEnum as Object
+Dim oFramePort as Object
+Dim oFrameTextEnum as Object
+Dim oFrameTextPort as Object
+
+	MakeLogHeadLine(&quot;Text Frames&quot;)
+	For i = 0 to oDocument.TextFrames.Count-1
+		oTextFrame = oDocument.TextFrames.GetbyIndex(i)
+		WriteStringToLogFile(oTextFrame.Name)
+
+		&apos; Is the frame bound to the Page
+		If oTextFrame.AnchorType  = com.sun.star.text.TextContentAnchorType.AT_PAGE  Then
+			GetParagraphTexts(oTextFrame, &quot;Text Frame Contents&quot;)
+		End If
+
+		oFrameEnum = oTextFrame.CreateEnumeration
+		While oFrameEnum.HasMoreElements
+			oFramePort = oFrameEnum.NextElement
+			If oFramePort.supportsService(&quot;com.sun.star.text.Paragraph&quot;) then
+				oFrameTextEnum = oFramePort.createEnumeration
+				While oFrameTextEnum.HasMoreElements
+					oFrameTextPort = oFrameTextEnum.NextElement
+					If oFrameTextPort.SupportsService(&quot;com.sun.star.text.TextFrame&quot;) Then
+						WriteStringtoLogFile(oFrameTextPort.String)
+					End If
+				Wend
+			Else
+				WriteStringtoLogFile(oFramePort.Name)
+			End if
+		Wend
+	Next
+End Sub
+
+
+Sub GetTextFieldStrings()
+Dim aTextField as Object
+Dim i as integer
+Dim CurElement as Object
+	MakeLogHeadLine(&quot;Text Fields&quot;)
+	aTextfield = oDocument.getTextfields.CreateEnumeration
+	While aTextField.hasmoreElements
+		CurElement = aTextField.NextElement
+		If CurElement.PropertySetInfo.hasPropertybyName(&quot;Content&quot;) Then
+			WriteStringtoLogFile(CurElement.Content)
+		ElseIf CurElement.PropertySetInfo.hasPropertybyName(&quot;PlaceHolder&quot;) Then
+			WriteStringtoLogFile(CurElement.PlaceHolder)
+			WriteStringtoLogFile(CurElement.Hint)
+		ElseIf Curelement.TextFieldMaster.PropertySetInfo.HasPropertybyName(&quot;Content&quot;) then
+			WriteStringtoLogFile(CurElement.TextFieldMaster.Content)
+		End If
+	Wend
+End Sub
+
+
+
+Sub GetLinkedFileNames()
+Dim oDocSections as Object
+Dim LinkedFileName as String
+Dim i as Integer
+	If Right(oDocument.URL,3) = &quot;sgl&quot; Then
+		MakeLogHeadLine(&quot;Sub-documents&quot;)
+		oDocSections = oDocument.TextSections
+		For i = 0 to oDocSections.Count - 1
+			LinkedFileName = oDocSections.GetbyIndex(i).FileLink.FileURL
+			If LinkedFileName &lt;&gt; &quot;&quot; Then
+				WriteStringToLogFile(LinkedFileName)
+			End If
+		Next i
+	End If
+End Sub
+
+
+Sub GetSectionNames()
+Dim i as integer
+Dim oDocSections as Object
+	MakeLogHeadLine(&quot;Sections&quot;)
+	oDocSections = oDocument.TextSections
+	For i = 0 to oDocSections.Count-1
+		WriteStringtoLogFile(oDocSections.GetbyIndex(i).Name)
+	Next
+End Sub
+
+
+Sub GetWriterStrings()
+	GetParagraphTexts(oDocument, &quot;Document Body&quot;)
+	GetGraphicNames()
+	GetStyles()
+	GetControlStrings(oDocument.DrawPage, &quot;Controls&quot;)
+	GetTextFieldStrings()
+	GetSectionNames()
+	GetFrameTexts()
+	GetHyperLinks
+	GetLinkedFileNames()
+End Sub
+
+
+&apos; ***********************************************Draw-Documents**************************************************
+
+Sub GetDrawPageTitles(LocObject as Object)
+Dim n as integer
+Dim oPage as Object
+
+	For n = 0 to LocObject.Count - 1
+		oPage = LocObject.GetbyIndex(n)
+		WriteStringtoLogFile(oPage.Name)
+		&apos; Is the Page a DrawPage and not a MasterPage?
+		If oPage.supportsService(&quot;com.sun.star.drawing.DrawPage&quot;)then
+			&apos; Get the Name of the NotesPage (only relevant for Impress-Documents)
+			If oDocument.supportsService(&quot;com.sun.star.presentation.PresentationDocument&quot;) then
+				WriteStringtoLogFile(oPage.NotesPage.Name)
+			End If
+		End If
+	Next
+End Sub
+
+
+Sub GetPageStrings(oPages as Object)
+Dim m, n, s as Integer
+Dim oPage, oPageElement, oShape as Object
+	For n = 0 to oPages.Count-1
+		oPage = oPages.GetbyIndex(n)
+		If oPage.HasElements then
+			For m = 0 to oPage.Count-1
+				oPageElement = oPage.GetByIndex(m)
+				If HasUnoInterfaces(oPageElement,&quot;com.sun.star.container.XIndexAccess&quot;) Then
+					&apos; The Object &quot;oPageElement&quot; a group of Shapes, that can be accessed by their index
+					For s = 0 To oPageElement.Count - 1
+						WriteStringToLogFile(oPageElement.GetByIndex(s).String)
+					Next s
+				ElseIf HasUnoInterfaces(oPageElement, &quot;com.sun.star.text.XText&quot;) Then
+					WriteStringtoLogFile(oPageElement.String)
+				End If
+			Next
+		End If
+	Next
+End Sub
+
+
+Sub GetDrawStrings()
+Dim oDPages, oMPages as Object
+
+	oDPages = oDocument.DrawPages
+	oMPages = oDocument.Masterpages
+
+	MakeLogHeadLine(&quot;Titles&quot;)
+	GetDrawPageTitles(oDPages)
+	GetDrawPageTitles(oMPages)
+
+	MakeLogHeadLine(&quot;Document Body&quot;)
+	GetPageStrings(oDPages)
+	GetPageStrings(oMPages)
+End Sub
+
+
+&apos; ***********************************************Misc**************************************************
+
+Sub GetDocumentProps()
+Dim oDocuProps as Object
+	MakeLogHeadLine(&quot;Document Properties&quot;)
+	oDocuProps = oDocument.DocumentProperties
+	WriteStringToLogFile(oDocuProps.Title)
+	WriteStringToLogFile(oDocuProps.Description)
+	WriteStringToLogFile(oDocuProps.Subject)
+	WriteStringToLogFile(oDocuProps.Author)
+&apos; 	WriteStringToLogFile(oDocuProps.UserDefinedProperties.ReplyTo)
+&apos; 	WriteStringToLogFile(oDocuProps.UserDefinedProperties.Recipient)
+&apos; 	WriteStringToLogFile(oDocuProps.UserDefinedProperties.References)
+&apos; 	WriteStringToLogFile(oDocuProps.Keywords)
+End Sub
+
+
+Sub GetHyperlinks()
+Dim i as integer
+Dim oCrsr as Object
+Dim oAllHyperLinks as Object
+Dim SrchAttributes(0) as new com.sun.star.beans.PropertyValue
+Dim oSearchDesc as Object
+
+	MakeLogHeadLine(&quot;Hyperlinks&quot;)
+	&apos; create a Search-Descriptor
+	oSearchDesc = oDocument.CreateSearchDescriptor
+	oSearchDesc.Valuesearch = False
+
+	&apos; define the Search-attributes
+	srchattributes(0).Name = &quot;HyperLinkURL&quot;
+	srchattributes(0).Value = &quot;&quot;
+	oSearchDesc.SetSearchAttributes(SrchAttributes())
+
+	oAllHyperLinks = oDocument.findAll(oSearchDesc())
+
+	For i = 0 to oAllHyperLinks.Count - 1
+		oFound = oAllHyperLinks(i)
+		oCrsr = oFound.Text.createTextCursorByRange(oFound)
+		WriteStringToLogFile(oCrs.HyperLinkURL)   	&apos;Url
+		WriteStringToLogFile(oCrs.HyperLinkTarget)	&apos;Name
+		WriteStringToLogFile(oCrs.HyperLinkName)	&apos;Frame
+	Next i
+End Sub
+
+
+Sub GetGraphicNames()
+Dim i as integer
+Dim oDocGraphics as Object
+	MakeLogHeadLine(&quot;Graphics&quot;)
+	oDocGraphics = oDocument.GraphicObjects
+	For i = 0 to oDocGraphics.count - 1
+		WriteStringtoLogFile(oDocGraphics.GetbyIndex(i).Name)
+	Next
+End Sub
+
+
+Sub GetStyles()
+Dim m,n as integer
+	MakeLogHeadLine(&quot;User-defined Templates&quot;)
+
+	&apos; Check all StyleFamilies(i.e. PageStyles, ParagraphStyles, CharacterStyles, cellStyles)
+	For n = 0 to oDocument.StyleFamilies.Count - 1
+		For m = 0 to oDocument.StyleFamilies.getbyIndex(n).Count-1
+			If oDocument.StyleFamilies.GetbyIndex(n).getbyIndex(m).IsUserDefined then
+				WriteStringtoLogFile(oDocument.StyleFamilies.GetbyIndex(n).getbyIndex(m).Name)
+			End If
+		Next
+	Next
+End Sub
+
+
+Sub GetControlStrings(oDPage as Object, HeaderLine as String)
+Dim aForm as Object
+Dim m,n as integer
+	MakeLogHeadLine(HeaderLine)
+	&apos;SearchFor all possible Controls
+	For n = 0 to oDPage.Forms.Count - 1
+		aForm = oDPage.Forms(n)
+		For m = 0 to aForm.Count-1
+			GetControlContent(aForm.GetbyIndex(m))
+		Next
+	Next
+End Sub
+
+
+Sub GetControlContent(LocControl as Object)
+Dim i as integer
+
+	If LocControl.PropertySetInfo.HasPropertybyName(&quot;Label&quot;) then
+		WriteStringtoLogFile(LocControl.Label)
+
+	ElseIf LocControl.SupportsService(&quot;com.sun.star.form.component.ListBox&quot;) then
+		For i = 0 to Ubound(LocControl.StringItemList())
+			WriteStringtoLogFile(LocControl.StringItemList(i))
+		Next
+	End If
+	If LocControl.PropertySetInfo.HasPropertybyName(&quot;HelpText&quot;) then
+		WriteStringtoLogFile(LocControl.Helptext)
+	End If
+End Sub
+
+&apos; ***********************************************LogDocument**************************************************
+
+Sub WriteStringtoLogFile( sString as String)
+	If (Not FieldInArray(LogArray(),LogIndex,sString))AND (NOT ISNULL(sString)) Then
+		LogArray(LogIndex) = sString
+		LogIndex = LogIndex + 1
+		oLogText.insertString(oLogCursor,sString,False)
+   		oLogText.insertControlCharacter(oLogCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+	End If
+End Sub
+
+
+Sub MakeLogHeadLine(HeadText as String)
+	oLogCursor.CharStyleName = &quot;Log Header&quot;
+	oLogText.insertControlCharacter(oLogCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+	oLogText.insertString(oLogCursor,HeadText,False)
+	oLogText.insertControlCharacter(oLogCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+	oLogCursor.CharStyleName = &quot;Log Body&quot;
+End Sub
+</script:module>

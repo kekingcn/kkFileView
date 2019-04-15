@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="GermanHolidays" script:language="StarBasic">Option Explicit
+
+Sub Main()
+	Call CalAutopilotTable()
+End Sub
+
+Function CalGetGermanLandAtMousePos(byval X as single, byval Y as single) as Integer
+	CalChoosenLand = 0
+	If (X&gt;73)And(X&lt;130)And(Y&gt;=117)And(Y&lt;181) Then
+		CalChoosenLand = CalBLBayern
+
+	ElseIf (X&gt;41)And(X&lt;89)And(Y&gt;=136)And(Y&lt;183) Then
+		CalChoosenLand = CalBLBadenWuert
+		
+	ElseIf (X&gt;18)And(X&lt;35)And(Y&gt;136)And(Y&lt;147) Then
+		CalChoosenLand = CalBLSaarland
+		
+	ElseIf (X&gt;13)And(X&lt;42)And(Y&gt;111)And(Y&lt;146) Then 
+		CalChoosenLand = CalBLRheinlandPfalz
+		
+	ElseIf (X&gt;15)And(X&lt;=60)And(Y&gt;=69)And(Y&lt;112) Then 
+		CalChoosenLand = CalBLNordrheinWest
+
+	ElseIf (X&gt;=42)And(X&lt;78)And(Y&gt;=95)And(Y&lt;136) Then 
+		CalChoosenLand = CalBLHessen
+
+	ElseIf (X&gt;=78)And(X&lt;112)And(Y&gt;=95)And(Y&lt;117) Then 
+		CalChoosenLand = CalBLThueringen
+		
+	ElseIf (X&gt;=112)And(X&lt;158)And(Y&gt;=88)And(Y&lt;114) Then
+		CalChoosenLand = CalBLSachsen
+
+	ElseIf (X&gt;77)And(X&lt;84)And(Y&gt;35)And(Y&lt;42) Then
+		CalChoosenLand = CalBLHamburg
+
+	ElseIf (X&gt;56)And(X&lt;60)And(Y&gt;36)And(Y&lt;41) Then 
+		CalChoosenLand = CalBLBremen
+
+	ElseIf (X&gt;58)And(X&lt;63)And(Y&gt;44)And(Y&lt;52) Then
+		CalChoosenLand = CalBLBremen
+		
+	ElseIf (X&gt;52)And(X&lt;95)And(Y&gt;8)And(Y&lt;40) Then
+		CalChoosenLand = CalBLSchlHolstein
+
+	ElseIf (X&gt;90)And(X&lt;149)And(Y&gt;23)And(Y&lt;48) Then
+		CalChoosenLand = CalBLMeckPomm
+
+	ElseIf (X&gt;28)And(X&lt;90)And(Y&gt;35)And(Y&lt;69) Then
+		CalChoosenLand = CalBLNiedersachsen
+
+	ElseIf (X&gt;60)And(X&lt;90)And(Y&gt;=69)And(Y&lt;95) Then
+		CalChoosenLand = CalBLNiedersachsen
+
+	ElseIf (X&gt;=90)And(X&lt;=115)And(Y&gt;47)And(Y&lt;95) Then
+		CalChoosenLand = CalBLSachsenAnhalt
+
+	ElseIf (X&gt;129)And(X&lt;139)And(Y&gt;60)And(Y&lt;66) Then 
+		CalChoosenLand = CalBLBerlin
+
+	ElseIf (X&gt;115)And(X&lt;151)And(Y&gt;=48)And(Y&lt;88) Then
+		CalChoosenLand = CalBLBrandenburg
+	End If
+	CalGetGermanLandAtMousePos = CalChoosenLand
+End Function
+
+
+
+Sub CalFindWholeYearHolidays_GERMANY(ByVal iSelYear as Integer, ByVal iCountry as Integer)
+	Dim So as Integer
+	Dim OsternDate&amp;, VierterAdvent&amp;
+
+	If (iCountry &lt; 1) Or (iCountry &gt; 16) Then 
+		iCountry = CalBLHamburg
+	End If
+	OsternDate&amp; = CalEasterTable&amp;(iSelYear)
+	So = 1
+
+	CalInsertBankholiday(DateSerial(iSelYear, 1, 1), &quot;Neujahr&quot;, cHolidayType_Full)
+	
+	If (iCountry = CalBLBayern) Or (iCountry = CalBLBadenWuert) Or (iCountry = CalBLSachsenAnhalt) Then
+		CalInsertBankholiday(DateSerial(iSelYear, 1, 6), &quot;Hl. 3 Könige&quot;, cHolidayType_Full)
+	End If
+	
+	CalInsertBankholiday(OsternDate&amp;-2, &quot;Karfreitag&quot;, cHolidayType_Full)
+	CalInsertBankholiday(OsternDate&amp;, &quot;Ostersonntag&quot;, cHolidayType_Full)
+	CalInsertBankholiday(OsternDate&amp;+1, &quot;Ostermontag&quot;, cHolidayType_Full)
+	CalInsertBankholiday(DateSerial(iSelYear, 5, 1), &quot;Maifeiertag&quot;, cHolidayType_Full)
+	CalInsertBankholiday(OsternDate&amp;+39, &quot;Christi Himmelfahrt&quot;, cHolidayType_Full)
+	CalInsertBankholiday(OsternDate&amp;+49, &quot;Pfingstsonntag&quot;, cHolidayType_Full)
+	CalInsertBankholiday(OsternDate&amp;+50, &quot;Pfingstmontag&quot;, cHolidayType_Full)
+
+	If (iCountry = CalBLBadenWuert) Or (iCountry = CalBLBayern) Or (iCountry = CalBLHessen) Or (iCountry = CalBLNordRheinWest) Or (iCountry = CalBLRheinlandPfalz) Or (iCountry = CalBLSaarland) Or (iCountry = CalBLSachsen) Or (iCountry = CalBLThueringen) Then
+		CalInsertBankholiday(OsternDate&amp;+60, &quot;Fronleichnam&quot;, cHolidayType_Full)
+	End If
+
+	If (iCountry = CalBLBayern) Or (iCountry = CalBLSaarland) Then
+		CalInsertBankholiday(DateSerial(iSelYear, 8, 15), &quot;Mariä Himmelfahrt&quot;, cHolidayType_Full)
+	End If
+
+	CalInsertBankholiday(DateSerial(iSelYear, 10, 3), &quot;Tag der dt. Einheit&quot;, cHolidayType_Full)
+
+	If (iCountry=CalBLBrandenburg) Or (iCountry=CalBLMeckPomm) Or (iCountry=CalBLSachsenAnhalt) Or (iCountry=CalBLSachsen) Or (iCountry=CalBLThueringen) Then
+		CalInsertBankholiday(DateSerial(iSelYear, 10, 31), &quot;Reformationstag&quot;, cHolidayType_Full)
+	End If
+
+	If (iCountry = CalBLBadenWuert) Or (iCountry = CalBLBayern) Or (iCountry = CalBLNordRheinWest) Or (iCountry = CalBLRheinlandPfalz) Or (iCountry = CalBLSaarland) Or (iCountry = CalBLSachsen) Or (iCountry = CalBLThueringen) Then
+		CalInsertBankholiday(DateSerial(iSelYear, 11, 1), &quot;Allerheiligen&quot;, cHolidayType_Full)
+	End If
+
+	vierterAdvent = DateSerial(iSelYear, 12, 24)
+	While WeekDay(vierterAdvent) &lt;&gt; So
+		vierterAdvent = vierterAdvent - 1
+	Wend
+
+	If iCountry = CalBLSachsen Then
+		CalInsertBankholiday(vierterAdvent-32, &quot;Buß- und Bettag&quot;, cHolidayType_Full)
+	Else
+		CalInsertBankholiday(vierterAdvent-32, &quot;Buß- und Bettag&quot;, cHolidayType_Half)
+	End If
+	CalInsertBankholiday(vierterAdvent-21, &quot;1. Advent&quot;, cHolidayType_Full)
+	CalInsertBankholiday(vierterAdvent-14, &quot;2. Advent&quot;, cHolidayType_Full)
+	CalInsertBankholiday(vierterAdvent-7, &quot;3. Advent&quot;, cHolidayType_Full)
+	CalInsertBankholiday(vierterAdvent, &quot;4. Advent&quot;, cHolidayType_Full)
+
+	CalInsertBankholiday(Dateserial(iSelYear, 12, 24), &quot;Heiligabend&quot;, cHolidayType_Half)
+	CalInsertBankholiday(Dateserial(iSelYear, 12, 25), &quot;1. Weihnachtstag&quot;, cHolidayType_Full)
+	CalInsertBankholiday(Dateserial(iSelYear, 12, 26), &quot;2. Weihnachtstag&quot;, cHolidayType_Full)
+	CalInsertBankholiday(Dateserial(iSelYear, 12, 31), &quot;Sylvester&quot;, cHolidayType_Half)
+End Sub
+</script:module>

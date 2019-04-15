@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="TemplateDialog" dlg:left="170" dlg:top="93" dlg:width="220" dlg:height="60" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_DIALOG" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="OptAgenda1" dlg:tab-index="0" dlg:left="12" dlg:top="20" dlg:width="144" dlg:height="10" dlg:page="1" dlg:tag="TOP2;PT1" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_OPTIONAGENDA1" dlg:value="OptAgenda1">
+    <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Template.ModuleAgenda.GetOptionValues?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="OptAgenda2" dlg:tab-index="1" dlg:left="12" dlg:top="34" dlg:width="144" dlg:height="10" dlg:page="1" dlg:tag="TOP1;PT2" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_OPTIONAGENDA2" dlg:value="OptAgenda2">
+    <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Template.ModuleAgenda.GetOptionValues?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:button dlg:id="CmdCorrGoOn" dlg:tab-index="2" dlg:left="164" dlg:top="11" dlg:width="50" dlg:height="14" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_LETTEROKAY" dlg:value="CmdCorrGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="Template.Correspondence.OK" script:language="StarBasic"/>
+  </dlg:button>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="OptSingle" dlg:tab-index="3" dlg:left="12" dlg:top="20" dlg:width="144" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_OPTIONLETTER1" dlg:value="OptSingle"/>
+   <dlg:radio dlg:id="Optmerge" dlg:tab-index="4" dlg:left="12" dlg:top="34" dlg:width="144" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_OPTIONLETTER2" dlg:value="Optmerge"/>
+  </dlg:radiogroup>
+  <dlg:button dlg:id="CmdAgdGoon" dlg:tab-index="5" dlg:left="164" dlg:top="11" dlg:width="50" dlg:height="14" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_AGENDAOKAY" dlg:value="CmdAgdGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="Template.ModuleAgenda.ModifyTemplate" script:language="StarBasic"/>
+  </dlg:button>
+  <dlg:button dlg:id="CmdCancel" dlg:tab-index="6" dlg:left="164" dlg:top="28" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGCORRESPONDENCE_CANCEL" dlg:value="CmdCancel" dlg:button-type="cancel">
+   <script:event script:event-name="on-performaction" script:macro-name="Template.ModuleAgenda.DisposeDocument" script:language="StarBasic"/>
+  </dlg:button>
+  <dlg:fixedline dlg:id="FrmLetter" dlg:tab-index="7" dlg:left="6" dlg:top="6" dlg:width="150" dlg:height="10" dlg:page="2" dlg:value="FrmLetter"/>
+  <dlg:fixedline dlg:id="FrmAgenda" dlg:tab-index="8" dlg:left="6" dlg:top="6" dlg:width="150" dlg:height="10" dlg:page="1" dlg:value="FrmAgenda"/>
+ </dlg:bulletinboard>
+</dlg:window>

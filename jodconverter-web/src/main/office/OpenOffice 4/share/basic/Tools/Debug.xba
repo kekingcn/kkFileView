@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Debug" script:language="StarBasic">REM  *****  BASIC  *****
+
+Sub ActivateReadOnlyFlag()
+	SetBasicReadOnlyFlag(True)
+End Sub
+
+
+Sub DeactivateReadOnlyFlag()
+	SetBasicReadOnlyFlag(False)
+End Sub
+
+
+Sub SetBasicReadOnlyFlag(bReadOnly as Boolean)
+Dim i as Integer
+Dim LibName as String
+Dim BasicLibNames() as String
+	BasicLibNames() = BasicLibraries.ElementNames()
+	For i = 0 To Ubound(BasicLibNames())
+		LibName = BasicLibNames(i)
+		If LibName &lt;&gt; &quot;Standard&quot; Then
+			BasicLibraries.SetLibraryReadOnly(LibName, bReadOnly)
+		End If
+	Next i
+End Sub
+
+
+Sub WritedbgInfo(LocObject as Object)
+Dim locUrl as String
+Dim oLocDocument as Object
+Dim oLocText as Object
+Dim oLocCursor as Object
+Dim NoArgs()
+Dim sObjectStrings(2) as String
+Dim sProperties() as String
+Dim n as Integer
+Dim m as Integer
+Dim MaxIndex as Integer
+	sObjectStrings(0) = LocObject.dbg_Properties
+	sObjectStrings(1) = LocObject.dbg_Methods
+	sObjectStrings(2) = LocObject.dbg_SupportedInterfaces
+	LocUrl = &quot;private:factory/swriter&quot;
+	oLocDocument = StarDesktop.LoadComponentFromURL(LocUrl,&quot;_default&quot;,0,NoArgs)
+	oLocText = oLocDocument.text
+	oLocCursor = oLocText.createTextCursor()
+	oLocCursor.gotoStart(False)
+	If Vartype(LocObject) = 9 then	&apos; an Object Variable
+		For n = 0 To 2
+			sProperties() = ArrayoutofString(sObjectStrings(n),&quot;;&quot;, MaxIndex)
+			For m = 0 To MaxIndex
+				oLocText.insertString(oLocCursor,sProperties(m),False)
+				oLocText.insertControlCharacter(oLocCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+			Next m
+		Next n
+	Elseif Vartype(LocObject) = 8 Then	&apos; a String Variable
+		oLocText.insertString(oLocCursor,LocObject,False)
+	ElseIf Vartype(LocObject) = 1 Then
+		Msgbox(&quot;Variable is Null!&quot;, 16, GetProductName())
+	End If
+End Sub
+
+
+Sub WriteDbgString(LocString as string)
+Dim oLocDesktop as object
+Dim LocUrl as String
+Dim oLocDocument as Object
+Dim oLocCursor as Object
+Dim oLocText as Object
+
+	LocUrl = &quot;private:factory/swriter&quot;
+	oLocDocument = StarDesktop.LoadComponentFromURL(LocUrl,&quot;_default&quot;,0,NoArgs)
+	oLocText = oLocDocument.text
+	oLocCursor = oLocText.createTextCursor()
+	oLocCursor.gotoStart(False)
+	oLocText.insertString(oLocCursor,LocString,False)
+End Sub
+
+
+Sub printdbgInfo(LocObject)
+	If Vartype(LocObject) = 9 then
+		Msgbox LocObject.dbg_properties
+		Msgbox LocObject.dbg_methods
+		Msgbox LocObject.dbg_supportedinterfaces
+	Elseif Vartype(LocObject) = 8 Then	&apos; a String Variable
+		Msgbox LocObject
+	ElseIf Vartype(LocObject) = 0 Then
+		Msgbox(&quot;Variable is Null!&quot;, 16, GetProductName())
+	Else
+		Msgbox(&quot;Type of Variable: &quot; &amp; Typename(LocObject), 48, GetProductName())
+	End If
+End Sub
+
+
+Sub ShowArray(LocArray())
+Dim i as integer
+Dim msgstring
+	msgstring = &quot;&quot;
+	For i = Lbound(LocArray()) to Ubound(LocArray())
+		msgstring = msgstring + LocArray(i) + chr(13)
+	Next
+	Msgbox msgstring
+End Sub
+
+
+Sub ShowPropertyValues(oLocObject as Object)
+Dim PropName as String
+Dim sValues as String
+	On Local Error Goto NOPROPERTYSETINFO:
+	sValues = &quot;&quot;
+	For i = 0 To Ubound(oLocObject.PropertySetInfo.Properties)
+		Propname = oLocObject.PropertySetInfo.Properties(i).Name
+		sValues = sValues &amp; PropName &amp; chr(13) &amp; &quot; = &quot; &amp; oLocObject.GetPropertyValue(PropName) &amp; chr(13)
+	Next i
+	Msgbox(sValues , 64, GetProductName())
+	Exit Sub
+
+NOPROPERTYSETINFO:
+	Msgbox(&quot;Sorry, No PropertySetInfo attached to the object&quot;, 16, GetProductName())
+	Resume LEAVEPROC
+	LEAVEPROC:
+End Sub
+
+
+Sub ShowNameValuePair(Pair())
+Dim i as Integer
+Dim ShowString as String
+	ShowString = &quot;&quot;
+	On Local Error Resume Next
+	For i = 0 To Ubound(Pair())
+		ShowString = ShowString &amp; Pair(i).Name &amp; &quot; = &quot;
+		ShowString = ShowString &amp; Pair(i).Value &amp; chr(13)
+	Next i
+	Msgbox ShowString
+End Sub
+
+
+&apos; Retrieves all the Elements of aSequence of an object, with the
+&apos; possibility to define a filter(sfilter &lt;&gt; &quot;&quot;)
+Sub ShowElementNames(oLocElements() as Object, Optional sFiltername as String)
+Dim i as Integer
+Dim NameString as String
+	NameString = &quot;&quot;
+	For i = 0 To Ubound(oLocElements())
+		If Not IsMissIng(sFilterName) Then
+			If Instr(1, oLocElements(i), sFilterName) Then
+				NameString = NameString &amp; oLocElements(i) &amp; chr(13)
+			End If
+		Else
+			NameString = NameString &amp; oLocElements(i) &amp; chr(13)
+		End If
+	Next i
+	Msgbox(NameString, 64, GetProductName())
+End Sub
+
+
+&apos; Retrieves all the supported servicenames of an object, with the
+&apos; possibility to define a filter(sfilter &lt;&gt; &quot;&quot;)
+Sub ShowSupportedServiceNames(oLocObject as Object, Optional sFilterName as String)
+	On Local Error Goto NOSERVICENAMES
+	If IsMissing(sFilterName) Then
+		ShowElementNames(oLocobject.SupportedServiceNames())
+	Else
+		ShowElementNames(oLocobject.SupportedServiceNames(), sFilterName)
+	End If
+	Exit Sub
+
+	NOSERVICENAMES:
+	Msgbox(&quot;Sorry, No &apos;SupportedServiceNames&apos; - Property attached to the object&quot;, 16, GetProductName())
+	Resume LEAVEPROC
+	LEAVEPROC:
+End Sub
+
+
+&apos; Retrieves all the available Servicenames of an object, with the
+&apos; possibility to define a filter(sfilter &lt;&gt; &quot;&quot;)
+Sub ShowAvailableServiceNames(oLocObject as Object, Optional sFilterName as String)
+	On Local Error Goto NOSERVICENAMES
+	If IsMissing(sFilterName) Then
+		ShowElementNames(oLocobject.AvailableServiceNames)
+	Else
+		ShowElementNames(oLocobject.AvailableServiceNames, sFilterName)
+	End If
+	Exit Sub
+
+	NOSERVICENAMES:
+	Msgbox(&quot;Sorry, No &apos;AvailableServiceNames&apos; - Property attached to the object&quot;, 16, GetProductName())
+	Resume LEAVEPROC
+	LEAVEPROC:
+End Sub
+
+
+Sub ShowCommands(oLocObject as Object)
+	On Local Error Goto NOCOMMANDS
+	ShowElementNames(oLocObject.QueryCommands)
+	Exit Sub
+	NOCOMMANDS:
+	Msgbox(&quot;Sorry, No &apos;QueryCommands&apos; - Property attached to the object&quot;, 16, GetProductName())
+	Resume LEAVEPROC
+	LEAVEPROC:
+End Sub
+
+
+Sub ProtectCurrentSheets()
+Dim oDocument as Object
+Dim sDocType as String
+Dim iResult as Integer
+Dim oSheets as Object
+Dim i as Integer
+Dim bDoProtect as Boolean
+	oDocument = StarDesktop.ActiveFrame.Controller.Model
+	sDocType = GetDocumentType(oDocument)
+	If sDocType = &quot;scalc&quot; Then
+		oSheets = oDocument.Sheets
+		bDoProtect = False
+		For i = 0 To oSheets.Count-1
+			If Not oSheets(i).IsProtected Then
+				bDoProtect = True
+			End If
+		Next i
+		If bDoProtect Then
+			iResult = Msgbox( &quot;Do you want to protect all sheets of this document?&quot;,35, GetProductName())
+			If iResult = 6 Then
+				ProtectSheets(oDocument.Sheets)
+			End If
+		End If
+	End If
+End Sub
+
+
+Sub FillDocument()
+	oMyReport = createUNOService(&quot;com.sun.star.wizards.report.CallReportWizard&quot;)
+	oMyReport.trigger(&quot;fill&quot;)
+End Sub
+
+</script:module>

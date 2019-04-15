@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="Dialog1" dlg:left="160" dlg:top="81" dlg:width="208" dlg:height="156" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_DIALOG" dlg:closeable="true" dlg:moveable="true">
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:border="none"/>
+  <dlg:style dlg:style-id="1" dlg:font-name="Cumberland" dlg:font-stylename="Standard" dlg:font-family="modern" dlg:font-charset="ansi"/>
+  <dlg:style dlg:style-id="2" dlg:font-name="Cumberland" dlg:font-stylename="Standard" dlg:font-family="modern" dlg:font-charset="ansi"/>
+ </dlg:styles>
+ <dlg:bulletinboard>
+  <dlg:menulist dlg:id="lstHolidays" dlg:tab-index="0" dlg:left="6" dlg:top="17" dlg:width="95" dlg:height="12" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_1_CMBSTATE" dlg:spin="true"/>
+  <dlg:fixedline dlg:id="hlnCalendar" dlg:tab-index="1" dlg:left="6" dlg:top="36" dlg:width="95" dlg:height="8" dlg:page="1" dlg:value="hlnCalendar"/>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optYear" dlg:tab-index="2" dlg:left="12" dlg:top="47" dlg:width="81" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_1_OPYEAR" dlg:value="optYear">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Schedule.CalendarMain.CalChooseCalendar?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optMonth" dlg:tab-index="3" dlg:left="12" dlg:top="61" dlg:width="81" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_1_OPMONTH" dlg:value="optMonth">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Schedule.CalendarMain.CalChooseCalendar?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:text dlg:id="lblHolidays" dlg:tab-index="4" dlg:left="6" dlg:top="6" dlg:width="96" dlg:height="8" dlg:page="1" dlg:value="lblHolidays"/>
+  <dlg:img dlg:style-id="0" dlg:id="imgCountry" dlg:tab-index="5" dlg:left="106" dlg:top="6" dlg:width="95" dlg:height="113" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_1_PREVIEW">
+   <script:event script:event-name="on-mousedown" script:macro-name="vnd.sun.star.script:Schedule.DlgControl.SelectState?language=Basic&amp;location=application" script:language="Script"/>
+   <script:event script:event-name="on-mouseout" script:macro-name="vnd.sun.star.script:Schedule.DlgControl.MouseLeavesImage?language=Basic&amp;location=application" script:language="Script"/>
+   <script:event script:event-name="on-mousemove" script:macro-name="vnd.sun.star.script:Schedule.DlgControl.CalMouseMoved?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:img>
+  <dlg:fixedline dlg:id="hlnTime" dlg:tab-index="6" dlg:left="5" dlg:top="78" dlg:width="95" dlg:height="8" dlg:page="1" dlg:value="hlnTime"/>
+  <dlg:menulist dlg:id="lstMonth" dlg:tab-index="7" dlg:left="62" dlg:top="106" dlg:width="38" dlg:height="12" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_1_EDMONTH" dlg:spin="true"/>
+  <dlg:text dlg:id="lblYear" dlg:tab-index="8" dlg:left="12" dlg:top="91" dlg:width="46" dlg:height="8" dlg:page="1" dlg:value="lblYear"/>
+  <dlg:text dlg:id="lblMonth" dlg:tab-index="9" dlg:left="12" dlg:top="108" dlg:width="46" dlg:height="8" dlg:page="1" dlg:value="lblMonth"/>
+  <dlg:fixedline dlg:id="FixedLine1" dlg:tab-index="10" dlg:left="6" dlg:top="125" dlg:width="196" dlg:height="4"/>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="11" dlg:left="6" dlg:top="136" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_0_CMDCANCEL" dlg:value="cmdCancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Schedule.CalendarMain.CalcmdCancel?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdOwnData" dlg:tab-index="12" dlg:left="99" dlg:top="136" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_0_CMDOWNDATA" dlg:value="cmdOwnData">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Schedule.DlgControl.CalmdSwitchOwnDataOrGeneral?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdGoOn" dlg:tab-index="13" dlg:left="152" dlg:top="136" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_0_CMDOK" dlg:value="cmdGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Schedule.CalendarMain.CalcmdOk?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="lblEvent" dlg:tab-index="14" dlg:left="12" dlg:top="17" dlg:width="67" dlg:height="8" dlg:page="2" dlg:value="lblEvent"/>
+  <dlg:fixedline dlg:id="hlnNewEvent" dlg:tab-index="15" dlg:left="6" dlg:top="6" dlg:width="196" dlg:height="8" dlg:page="2" dlg:value="hlnNewEvent"/>
+  <dlg:textfield dlg:style-id="1" dlg:id="txtEvent" dlg:tab-index="16" dlg:left="12" dlg:top="28" dlg:width="107" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_2_EDEVENT">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Schedule.OwnEvents.CheckInsertedDates?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:textfield>
+  <dlg:numericfield dlg:id="txtOwnEventDay" dlg:tab-index="17" dlg:left="13" dlg:top="55" dlg:width="30" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_2_EDEVENTDAY" dlg:decimal-accuracy="0" dlg:value-min="1" dlg:spin="true">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Schedule.OwnEvents.CheckInsertedDates?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:numericfield>
+  <dlg:menulist dlg:id="lstOwnEventMonth" dlg:tab-index="18" dlg:left="60" dlg:top="55" dlg:width="30" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_2_EDEVENTMONTH" dlg:spin="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Schedule.OwnEvents.GetOwnMonth?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:button dlg:id="cmdInsert" dlg:tab-index="19" dlg:left="99" dlg:top="70" dlg:width="50" dlg:height="14" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_2_CMDINSERT" dlg:value="cmdInsert">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Schedule.OwnEvents.CalcmdInsertData?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdDelete" dlg:tab-index="20" dlg:left="152" dlg:top="70" dlg:width="50" dlg:height="14" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_2_CMDDELETE" dlg:value="cmdDelete">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Schedule.DlgControl.CalcmdDeleteSelect?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:menulist dlg:style-id="2" dlg:id="lstOwnData" dlg:tab-index="21" dlg:left="12" dlg:top="86" dlg:width="190" dlg:height="34" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_2_LBOWNDATA">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Schedule.DlgControl.CalUpdateNewEventFrame?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:text dlg:id="lblEventDay" dlg:tab-index="22" dlg:left="12" dlg:top="44" dlg:width="44" dlg:height="8" dlg:page="2" dlg:value="lblEventDay"/>
+  <dlg:text dlg:id="lblEventMonth" dlg:tab-index="23" dlg:left="60" dlg:top="44" dlg:width="44" dlg:height="8" dlg:page="2" dlg:value="lblEventMonth"/>
+  <dlg:numericfield dlg:id="txtYear" dlg:tab-index="24" dlg:left="62" dlg:top="89" dlg:width="38" dlg:height="12" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGHOLIDAYCAL_1_EDYEAR" dlg:decimal-accuracy="0" dlg:value-min="1582" dlg:value-max="9957" dlg:spin="true"/>
+ </dlg:bulletinboard>
+</dlg:window>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="BankHoliday" script:language="StarBasic">Option Explicit
+
+Sub Main()
+	Call CalAutopilotTable()
+End Sub
+
+
+Function CalEasterTable&amp;(byval Year%)
+Dim B%,C%,D%,E%,F%,G%,H%,I%,K%,L%,M%,N%,O%, nMonth%, nDay%
+       N = Year% mod 19
+       B = int(Year% / 100)
+       C = Year% mod 100
+       D = int(B / 4)
+       E = B mod 4
+       F = int((B + 8) / 25)
+       G = int((B - F + 1) / 3)
+       H =(19 * N + B - D - G + 15) mod 30
+       I = int(C / 4)
+       K = C mod 4
+       L =(32 + 2 * E + 2 * I - H - K) mod 7
+       M = int((N + 11 * H + 22 * L) / 451)
+       O = H + L - 7 * M + 114
+       nDay = O mod 31 + 1
+       nMonth = int(O / 31)
+	   CalEasterTable&amp; = DateSerial(Year, nMonth,nDay)
+End Function
+
+
+&apos; Note: the following algorithm is valid only till the Year 2100.
+&apos; but I have no Idea from which date in the paste it is valid
+Function CalOrthodoxEasterTable(ByVal iYear as Integer) as Long
+Dim R1%, R2%, R3%, RA%, R4%, RB%, R5%, RC%
+Dim lDate as Long
+	R1 = iYear mod 19
+	R2 = iYear mod 4
+	R3 = iYear mod 7
+	RA =19 * R1 + 16
+	R4 = RA mod 30
+	RB = 2 * R2 + 4 * R3 + 6 * R4
+	R5 = RB mod 7
+	RC = R4 + R5
+	lDate = DateSerial(iYear, 4,4)
+	CalOrthodoxEasterTable() = lDate + RC
+End Function
+
+
+Sub CalInitGlobalVariablesDate()
+Dim i as Integer
+	For i = 1 To 374
+		CalBankholidayName$(i) = &quot;&quot;
+		CalTypeOfBankHoliday%(i) = cHolidayType_None
+	Next
+End Sub
+
+
+Sub CalInsertBankholiday(byval CurDate as Long, byval EventName as String, ByVal iLevel as Integer)
+Dim iDay
+	iDay =(Month(CurDate)-1)*31 +Day(CurDate)
+
+	If 0 &lt;&gt; CalTypeOfBankHoliday(iDay) Then
+		If iLevel &lt; CalTypeOfBankHoliday(iDay) Then
+			CalTypeOfBankHoliday(iDay) = iLevel
+		End If
+	Else
+		CalTypeOfBankHoliday(iDay) = iLevel
+	End If
+
+	If CalBankHolidayName(iDay) = &quot;&quot; Then
+		CalBankHolidayName(iDay) = EventName
+	Else
+		CalBankHolidayName(iDay) = CalBankHolidayName(iDay) &amp; &quot; / &quot; &amp; EventName
+	End If
+End Sub
+
+Function CalMaxDayInMonth(ByVal iYear as Integer, ByVal iMonth as Integer) as Integer
+&apos; delivers the maximum Day of a month in a certain year
+	Dim TmpDate as Long
+	Dim	MaxDay as Long
+	
+	MaxDay = 28
+	TmpDate = DateSerial(iYear, iMonth, MaxDay)
+	
+	While Month(TmpDate) = iMonth
+		MaxDay = MaxDay + 1
+		TmpDate = TmpDate + 1
+	Wend
+	Maxday = MaxDay - 1
+	CalMaxDayInMonth() = MaxDay
+End Function
+
+
+Function CalGetIntOfShortMonthName(ByVal MonthName as String) as Integer
+Dim i as Integer
+Dim nMonth as Integer
+	
+	nMonth = Val(MonthName)
+	
+	If (1 &lt;= nMonth And 12 &gt;= nMonth) Then
+		CalGetIntOfShortMonthName = nMonth
+		Exit Function
+	End If	
+	
+	MonthName = UCase(Trim(Left(MonthName, 3)))
+
+	For i = 0 To 11 
+		If (UCase(cCalShortMonthNames(i)) = MonthName) Then
+			CalGetIntOfShortMonthName = i+1
+			Exit Function
+		End If
+	Next
+	
+	&apos;	Not Found
+	CalGetIntOfShortMonthName = 0
+End Function
+
+
+Sub CalInsertOwnDataInTables(ByVal iSelYear as Integer)
+	&apos; inserts the individual data from the table into the previously unsorted list
+Dim CurEventName as String
+Dim CurEvMonth as Integer
+Dim CurEvDay as Integer
+Dim LastIndex as Integer
+Dim i as Integer
+Dim DateStr as String
+	LastIndex = Ubound(DlgCalModel.lstOwnData.StringItemList())
+	For i = 0 To LastIndex
+		If GetSelectedDateUnits(CurEvDay, CurEvMonth, i) &lt;&gt; SBDATEUNDEFINED Then
+			CurEventName = CalGetNameOfEvent(i)
+			CalInsertBankholiday(DateSerial(iSelYear, CurEvMonth, CurEvDay), CurEventName, cHolidayType_Own)
+		End If
+	Next
+End Sub
+
+
+&apos; Finds eg the first,second Monday in a month
+&apos; Note: in This Function the week starts with the Sunday
+Function GetMonthDate(YearInt as Integer, iMonth as Integer, iWeekDay as Integer, iOffset as Integer)
+Dim bFound as Boolean
+Dim lDate as Long
+	&apos;	1st Tue in Nov : Election Day, Half
+	bFound = False
+	lDate = DateSerial(YearInt, iMonth, 1)
+	Do
+		If iWeekDay = WeekDay(lDate) Then 
+			bFound = True
+		Else
+			lDate = lDate + 1
+		End If
+	Loop Until bFound
+	GetMonthDate = lDate + iOffset
+End Function
+
+
+&apos; Finds the next weekday after a fixed date
+&apos; e.g. Midsummerfeast in Sweden: next Saturday after 20th June
+Function GetNextWeekDay(iYear as Integer, iMonth as Integer, iDay as Integer, iWeekDay as Integer)
+Dim lDate as Long
+Dim iCurWeekDay as Integer
+	lDate = DateSerial(iYear, iMonth, iDay)
+	iCurWeekDay = WeekDay(lDate)
+	While iCurWeekDay &lt;&gt; iWeekDay
+		lDate = lDate + 1
+		iCurWeekDay = WeekDay(lDate)
+	Wend
+	GetNextWeekDay() = lDate
+End Function
+
+
+Sub AddFollowUpHolidays(ByVal lStartDate as Long, iCount as Integer, HolidayName as String, iType as Integer)
+Dim lDate as Long
+	For lDate = lStartDate + 1 To lStartDate + 4
+		CalInsertBankholiday(lDate, HolidayName, iType)
+	Next lDate
+End Sub
+</script:module>

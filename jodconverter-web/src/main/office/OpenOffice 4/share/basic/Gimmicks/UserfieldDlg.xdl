@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="UserfieldDlg" dlg:left="161" dlg:top="57" dlg:width="281" dlg:height="214" dlg:closeable="true" dlg:moveable="true" dlg:title="Modify User Data">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="Label1" dlg:tab-index="0" dlg:left="6" dlg:top="48" dlg:width="57" dlg:height="8" dlg:value="Label1"/>
+  <dlg:text dlg:id="Label2" dlg:tab-index="1" dlg:left="6" dlg:top="64" dlg:width="57" dlg:height="8" dlg:value="Label2"/>
+  <dlg:text dlg:id="Label3" dlg:tab-index="2" dlg:left="6" dlg:top="80" dlg:width="57" dlg:height="8" dlg:value="Label3"/>
+  <dlg:text dlg:id="Label4" dlg:tab-index="3" dlg:left="6" dlg:top="96" dlg:width="57" dlg:height="8" dlg:value="Label4"/>
+  <dlg:text dlg:id="Label5" dlg:tab-index="4" dlg:left="6" dlg:top="112" dlg:width="57" dlg:height="8" dlg:value="Label5"/>
+  <dlg:text dlg:id="Label6" dlg:tab-index="5" dlg:left="6" dlg:top="128" dlg:width="57" dlg:height="8" dlg:value="Label6"/>
+  <dlg:text dlg:id="Label7" dlg:tab-index="6" dlg:left="6" dlg:top="144" dlg:width="57" dlg:height="8" dlg:value="Label7"/>
+  <dlg:text dlg:id="Label8" dlg:tab-index="7" dlg:left="6" dlg:top="160" dlg:width="57" dlg:height="8" dlg:value="Label8"/>
+  <dlg:text dlg:id="Label9" dlg:tab-index="8" dlg:left="6" dlg:top="176" dlg:width="57" dlg:height="8" dlg:value="Label9"/>
+  <dlg:textfield dlg:id="TextField1" dlg:tab-index="9" dlg:left="65" dlg:top="46" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField2" dlg:tab-index="10" dlg:left="65" dlg:top="62" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField3" dlg:tab-index="11" dlg:left="65" dlg:top="78" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField4" dlg:tab-index="12" dlg:left="65" dlg:top="94" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField5" dlg:tab-index="13" dlg:left="65" dlg:top="110" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField6" dlg:tab-index="14" dlg:left="65" dlg:top="126" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField7" dlg:tab-index="15" dlg:left="65" dlg:top="142" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField8" dlg:tab-index="16" dlg:left="65" dlg:top="158" dlg:width="193" dlg:height="12"/>
+  <dlg:textfield dlg:id="TextField9" dlg:tab-index="17" dlg:left="65" dlg:top="174" dlg:width="193" dlg:height="12"/>
+  <dlg:scrollbar dlg:id="ScrollBar1" dlg:tab-index="18" dlg:left="263" dlg:top="46" dlg:width="12" dlg:height="140" dlg:align="vertical">
+   <script:event script:event-name="on-adjustmentvaluechange" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.ScrollControls?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:scrollbar>
+  <dlg:button dlg:id="cmdQuit" dlg:tab-index="19" dlg:left="6" dlg:top="193" dlg:width="35" dlg:height="14" dlg:help-text="Exit Macro" dlg:value="Exit">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.StopMacro?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdSave" dlg:tab-index="20" dlg:left="45" dlg:top="193" dlg:width="35" dlg:height="14" dlg:help-text="Save All Data of All Users to File" dlg:value="~Save">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.SaveSettings?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdSelect" dlg:tab-index="21" dlg:left="84" dlg:top="193" dlg:width="35" dlg:height="14" dlg:help-text="Replace the User Data in &lt;PRODUCTNAME&gt; With the User Data Above" dlg:value="Se~lect">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.SelectCurrentFields?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdNextUser" dlg:tab-index="22" dlg:left="162" dlg:top="193" dlg:width="35" dlg:height="14" dlg:tag="1" dlg:help-text="Show Data of Next User" dlg:value="Next &gt;&gt;">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.StepToRecord?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdPrevUser" dlg:tab-index="23" dlg:left="123" dlg:top="193" dlg:width="35" dlg:height="14" dlg:tag="-1" dlg:help-text="Show Data of Previous User" dlg:value="&lt;&lt;Previous">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.StepToRecord?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="CommandButton1" dlg:tab-index="24" dlg:left="201" dlg:top="193" dlg:width="35" dlg:height="14" dlg:help-text="Add Data for New User" dlg:value="~New">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.AddRecord?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="Label10" dlg:tab-index="25" dlg:left="6" dlg:top="6" dlg:width="269" dlg:height="34" dlg:value="This macro lets you easily administrate several user profiles.&#x0a;The user data of several users may be stored in a single file in the directory &lt;ConfigDir&gt;. From there, you can select a particular user whose data is then the current user data in &lt;PRODUCTNAME&gt;." dlg:multiline="true"/>
+  <dlg:button dlg:id="cmdDelete" dlg:tab-index="26" dlg:left="240" dlg:top="193" dlg:width="35" dlg:height="14" dlg:help-text="Delete Data of Current User" dlg:value="Delete">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Gimmicks.Userfields.DeleteCurrentSettings?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+ </dlg:bulletinboard>
+</dlg:window>

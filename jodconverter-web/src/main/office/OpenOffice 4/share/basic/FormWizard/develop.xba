@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="develop" script:language="StarBasic">REM  *****  BASIC  *****
+Option Explicit
+
+Public oDBShapeList() as Object
+Public oTCShapeList() as Object
+Public oDBModelList() as Object
+Public oGroupShapeList() as Object
+
+Public oGridShape as Object
+Public a as Integer
+Public StartA as Integer
+Public bIsFirstRun as Boolean
+Public bIsVeryFirstRun as Boolean
+Public bControlsareCreated as Boolean
+Public nDBRefHeight as Long
+Public nXTCPos&amp;, nYTCPos&amp;, nXDBPos&amp;, nYDBPos&amp;, nTCHeight&amp;, nTCWidth&amp;, nDBHeight&amp;, nDBWidth&amp;
+
+Dim iReduceWidth as Integer
+
+Function PositionControls(Maxindex as Integer)
+Dim oTCModel as Object
+Dim oDBModel as Object
+Dim i as Integer
+	InitializePosSizes()
+	bIsFirstRun = True
+	bIsVeryFirstRun = True
+	a = 0
+	StartA = 0
+	nMaxRowY = 0
+	nSecMaxRowY = 0
+	If CurArrangement = cLeftJustified Or cTopJustified Then
+		DialogModel.optAlign0.State = 1
+	End If
+	For i = 0 To MaxIndex
+		GetCurrentMetaValues(i)
+		oTCModel = InsertTextControl(i)
+		If CurFieldType = com.sun.star.sdbc.DataType.TIMESTAMP Then
+			InsertTimeStampShape(i)			
+		Else		
+			InsertDBControl(i)
+			bIsVeryFirstRun = False
+			oDBModelList(i).LabelControl = oTCModel
+		End If
+		GetLabelDiffHeight(i+1)
+		ResetPosSizes(i)
+		oProgressbar.Value = i
+	Next i
+	ControlCaptionstoStandardLayout()
+	bControlsareCreated = True
+End Function
+
+
+Sub ResetPosSizes(LastIndex as Integer)
+	Select Case CurArrangement
+		Case cColumnarLeft
+			nYDBPos = nYDBPos  + nDBHeight + cVertDistance
+			If (nYDBPos &gt; cYOffset + nFormHeight) Or (LastIndex = MaxIndex) Then
+				RepositionColumnarLeftControls(LastIndex)
+				nXTCPos = nMaxColRightX + 2 * cHoriDistance
+				nXDBPos = nXTCPos + cHoriDistance + nMaxTCWidth
+				nYDBPos = cYOffset
+				bIsFirstRun = True
+				StartA = LastIndex + 1
+				a = 0
+			Else
+				a = a + 1
+			End If
+			nYTCPos = nYDBPos + LABELDIFFHEIGHT
+		Case cColumnarTop
+			nYTCPos = nYDBPos + nDBHeight + cVertDistance
+			If nYTCPos &gt; cYOffset + nFormHeight Then
+				nXDBPos = nMaxColRightX + cHoriDistance
+				nXTCPos = nXDBPos
+				nYDBPos = cYOffset + nTCHeight + cVertDistance
+				nYTCPos = cYOffset
+				bIsFirstRun = True
+				StartA = LastIndex + 1
+				a = 0
+			Else
+				a = a + 1
+			End If
+		Case cLeftJustified,cTopJustified
+			If nMaxColRightX &gt; cXOffset + nFormWidth Then
+				Dim nOldYTCPos as Long
+				nOldYTCPos = nYTCPos
+				CheckJustifiedPosition()
+			Else
+				nXTCPos = nMaxColRightX + CHoriDistance
+				If CurArrangement = cLeftJustified Then
+					nYTCPos = nYDBPos + LabelDiffHeight
+				End If
+			End If
+			a = a + 1				
+	End Select
+End Sub
+
+
+Sub	RepositionColumnarLeftControls(LastIndex as Integer)
+Dim aSize As New com.sun.star.awt.Size
+Dim aPoint As New com.sun.star.awt.Point
+Dim i as Integer
+	aSize = GetSize(nMaxTCWidth, nTCHeight)
+	bIsFirstRun = True
+	For i = StartA To LastIndex
+		If i = StartA Then
+			nXTCPos = oTCShapeList(i).Position.X
+			nXDBPos = nXTCPos + nMaxTCWidth  + cHoriDistance
+		End If
+		ResetDBShape(oDBShapeList(i), nXDBPos)
+		CheckOuterPoints(nXDBPos, nDBWidth, nYDBPos, nDBHeight, True)
+	Next i
+End Sub
+
+
+Sub ResetDBShape(oLocDBShape as Object, iXPos as Long)
+Dim aSize As New com.sun.star.awt.Size
+Dim aPoint As New com.sun.star.awt.Point
+	nYDBPos = oLocDBShape.Position.Y
+	nDBWidth = oLocDBShape.Size.Width
+	nDBHeight = oLocDBShape.Size.Height
+	aPoint = GetPoint(iXPos,nYDBPos)
+	oLocDBShape.SetPosition(aPoint)
+End Sub
+
+
+Sub InitializePosSizes()
+	nXTCPos = cXOffset
+	nTCWidth = 2000
+	nDBWidth = 2000
+	nDBHeight = nDBRefHeight
+	iReduceWidth = 0
+	Select Case CurArrangement
+		Case cColumnarLeft, cLeftJustified
+			GetLabelDiffHeight(0)
+			nYTCPos = cYOffset + LABELDIFFHEIGHT
+			nXDBPos = cXOffset + 3050
+			nYDBPos = cYOffset
+		Case cColumnarTop, cTopJustified
+			nXDBPos = cXOffset
+			nYTCPos = cYOffset
+	End Select
+End Sub
+
+
+Function InsertTextControl(i as Integer) as Object
+Dim oShape as Object
+Dim oModel as Object
+Dim aPoint as New com.sun.star.awt.Point
+Dim aSize As New com.sun.star.awt.Size
+	If bControlsareCreated Then
+		Set oShape = oTCShapeList(i)
+		Set oModel = oShape.GetControl
+		If CurArrangement = cLeftJustified Then
+			nTCWidth = GetPreferredWidth(oModel, True, CurFieldname)
+		Else
+			nTCWidth = oShape.Size.Width
+		End If
+		oShape.Position = GetPoint(nXTCPos, nYTCPos)
+		If CurArrangement = cColumnarTop Then
+			oModel.Align = com.sun.star.awt.TextAlign.LEFT
+		End If
+	Else
+		oModel = CreateUnoService(oModelService(cLabel))
+		aPoint = GetPoint(nXTCPos, nYTCPos)
+		aSize = GetSize(nTCWidth,nTCHeight)
+		Set oShape = InsertControl(oDrawPage, oModel, aPoint, aSize)
+		Set oTCShapeList(i)= oShape
+		If bIsVeryFirstRun Then
+			If CurArrangement = cColumnarTop Then
+				nYDBPos = nYTCPos + nTCHeight
+			End If
+		End If
+		nTCWidth = GetPreferredWidth(oModel, True, CurFieldName)
+	End If
+	If CurArrangement = cColumnarLeft Then
+		&apos; Note This If Sequence must be called before retrieving the outer Points
+		If bIsFirstRun Then
+			nMaxTCWidth = nTCWidth
+			bIsFirstRun = False
+		ElseIf nTCWidth &gt; nMaxTCWidth Then
+			nMaxTCWidth = nTCWidth
+		End If
+	End If
+	CheckOuterPoints(oShape.Position.X, nTCWidth, nYTCPos, nTCHeight, False)
+	Select Case CurArrangement
+		Case cLeftJustified
+			nXDBPos = nMaxColRightX
+		Case cColumnarTop,cTopJustified
+			oModel.Align = com.sun.star.awt.TextAlign.LEFT
+			nXDBPos = nXTCPos
+			nYDBPos = nYTCPos + nTCHeight
+			If CurFieldLength = 20 And nDBWidth &gt; 2 * nTCWidth Then
+				iReduceWidth = iReduceWidth + 1
+			End If 
+	End Select	
+	oShape.SetSize(GetSize(nTCWidth,nTCHeight))
+	If CurHelpText &lt;&gt; &quot;&quot; Then
+		oModel.HelpText = CurHelptext
+	End If
+	InsertTextControl = oModel
+End Function
+
+
+Sub InsertDBControl(i as Integer)
+Dim aPoint as New com.sun.star.awt.Point
+Dim aSize As New com.sun.star.awt.Size
+Dim oControl as Object
+Dim iColRightX as Long
+
+	aPoint = GetPoint(nXDBPos, nYDBPos)
+	If bControlsAreCreated Then
+		oDBShapeList(i).Position = aPoint
+	Else
+		oDBModelList(i) = CreateUnoService(oModelService(CurControlType))
+		oDBShapeList(i) = InsertControl(oDrawPage, oDBModelList(i), aPoint, aSize)		
+		SetNumerics(oDBModelList(i), CurFieldType)
+		If CurControlType = cCheckBox Then
+			oDBModelList(i).Label = &quot;&quot;
+		End If
+		oDBModelList(i).DataField = CurFieldName
+	End If
+	nDBHeight = GetDBHeight(oDBModelList(i))
+	nDBWidth = GetPreferredWidth(oDBModelList(i),True)
+	aSize = GetSize(nDBWidth,nDBHeight)
+	oDBShapeList(i).SetSize(aSize)
+	CheckOuterPoints(nXDBPos, nDBWidth, nYDBPos, nDBHeight, True)
+End Sub
+
+
+Function InsertTimeStampShape(i as Integer) as Object
+Dim oDateModel as Object
+Dim oTimeModel as Object
+Dim oDateShape as Object
+Dim oTimeShape as Object
+Dim oDateTimeShape as Object
+Dim aPoint as New com.sun.star.awt.Point
+Dim aSize as New com.sun.star.awt.Size
+Dim nDateWidth as Long
+Dim nTimeWidth as Long
+Dim oGroupShape as Object
+	aPoint = GetPoint(nXDBPos, nYDBPos)
+	If bControlsAreCreated Then
+		oDBShapeList(i).Position = aPoint
+		nDBWidth = oDBShapeList(i).Size.Width
+		nDBHeight = oDBShapeList(i).Size.Height
+	Else		
+		oGroupShape = oDocument.CreateInstance(&quot;com.sun.star.drawing.GroupShape&quot;)
+		oGroupShape.AnchorType = com.sun.star.text.TextContentAnchorType.AT_PARAGRAPH
+		oDrawPage.Add(oGroupShape)
+		CurFieldType = com.sun.star.sdbc.DataType.DATE
+		oDateModel = CreateUnoService(&quot;com.sun.star.form.component.DateField&quot;)
+		oDateModel.DataField = CurFieldName
+		oDateShape = InsertControl(oGroupShape, oDateModel, aPoint, aSize)
+		SetNumerics(oDateModel, CurFieldType)
+		nDBHeight = GetDBHeight(oDateModel)
+		nDateWidth = GetPreferredWidth(oDateModel,True)
+		aSize = GetSize(nDateWidth,nDBHeight)
+		oDateShape.SetSize(aSize)
+
+		CurFieldType = com.sun.star.sdbc.DataType.TIME
+		oTimeModel = CreateUnoService(&quot;com.sun.star.form.component.TimeField&quot;)
+		oTimeModel.DataField = CurFieldName
+		oTimeShape = InsertControl(oGroupShape, oTimeModel, aPoint, aSize)
+		oTimeShape.Position = GetPoint(nXDBPos + 10 + nDateWidth,nYDBPos)
+		nTimeWidth = GetPreferredWidth(oTimeModel)
+		aSize = GetSize(nTimeWidth,nDBHeight)
+		oTimeShape.SetSize(aSize)
+		nDBWidth = nDateWidth + nTimeWidth + 10
+		oGroupShape.Position = aPoint
+		oGroupShape.Size = GetSize(nDBWidth, nDBHeight)
+		Set oDBShapeList(i)= oGroupShape
+	End If
+	CheckOuterPoints(nXDBPos, nDBWidth, nYDBPos, nDBHeight, True)
+	InsertTimeStampShape() = oDBShapeList(i)	
+End Function
+
+
+&apos; Note: on all Controls except for the checkbox the Label has to be set
+&apos; a bit under the DBControl because its Height is also smaller 
+Sub GetLabelDiffHeight(Index as Integer)
+	If (CurArrangement = cLeftJustified) Or (CurArrangement = cColumnarLeft) Then
+		If Index &lt;= Ubound(FieldMetaValues()) Then
+			If FieldMetaValues(Index,2) = cCheckBox Then
+				LabelDiffHeight = 0
+			Else
+				LabelDiffHeight = BasicLabelDiffHeight
+			End If
+		End If
+	End If
+End Sub
+
+
+Sub CheckJustifiedPosition()
+Dim nLeftDist as Long
+Dim nRightDist as Long
+Dim oLocDBShape as Object
+Dim oLocTextShape as Object
+Dim nBaseWidth as Long
+	nBaseWidth = nFormWidth + cXOffset
+	nLeftDist = nMaxColRightX - nBaseWidth
+	nRightDist = nBaseWidth - nXTCPos + cHoriDistance
+	If nLeftDist &lt; 0.5 * nRightDist and iReduceWidth &gt; 2 Then
+		&apos; Fieldwidths in the line can be made smaller
+		AdjustLineWidth(StartA, a, nLeftDist, - 1)
+		If CurArrangement = cLeftjustified Then
+			nYDBPos = nMaxRowY + cVertDistance
+			nYTCPos = nYDBPos + LABELDIFFHEIGHT
+			nXTCPos = cXOffset
+		Else
+			nYTCPos = nMaxRowY + cVertDistance
+			nYDBPos = nYTCPos + nTCHeight
+			nXTCPos = cXOffset
+			nXDBPos = cXOffset
+		End If
+		bIsFirstRun = True
+		StartA = a + 1
+	Else
+		Set oLocDBShape = oDBShapeList(a)
+		Set oLocTextShape = oTCShapeList(a)
+		If CurArrangement = cLeftJustified Then
+			If nYDBPos + nDBHeight = nMaxRowY Then
+				&apos; The last Control was the highes in the row
+				nYDBPos = nSecMaxRowY + cVertDistance
+			Else
+				nYDBPos = nMaxRowY + cVertDistance
+			End If
+			nYTCPos = nYDBPos + LABELDIFFHEIGHT
+			nXDBPos = cXOffset + nTCWidth
+			oLocTextShape.Position = GetPoint(cXOffset, nYTCPos)
+			oLocDBShape.Position = GetPoint(nXDBPos, nYDBPos)
+			&apos; PosSizes for the next two Controls
+			nXTCPos = oLocDBShape.Position.X + oLocDBShape.Size.Width + cHoriDistance
+			bIsFirstRun = True
+			CheckOuterPoints(nXDBPos, nDBWidth, nYDBPos, nDBHeight, True)
+			nXDBPos = nMaxColRightX + cHoriDistance
+		Else		&apos; cTopJustified
+			If nYDBPos + nDBHeight = nMaxRowY Then
+				&apos; The last Control was the highest in the row
+				nYTCPos = nSecMaxRowY + cVertDistance
+			Else
+				nYTCPos = nMaxRowY + cVertDistance
+			End If
+			nYDBPos = nYTCPOS + nTCHeight
+			nXDBPos = cXOffset
+			nXTCPos = cXOffset
+			oLocTextShape.Position = GetPoint(cXOffset, nYTCPos)
+			oLocDBShape.Position = GetPoint(cXOffset, nYDBPos)
+			bIsFirstRun = True
+			If nDBWidth &gt; nTCWidth Then
+				CheckOuterPoints(nXDBPos, nDBWidth, nYDBPos, nDBHeight, True)
+			Else
+				CheckOuterPoints(nXDBPos, nTCWidth, nYDBPos, nDBHeight, True)
+			End If
+			nXTCPos = nMaxColRightX + cHoriDistance
+			nXDBPos = nXTCPos
+		End If
+		AdjustLineWidth(StartA, a-1, nRightDist, 1)
+		StartA = a
+ 	End If
+ 	iReduceWidth = 0
+End Sub
+
+
+
+Function GetCorrWidth(StartIndex as Integer, EndIndex as Integer, nDist as Long, Widthfactor as Integer) as Integer
+Dim ShapeCount as Integer
+	If WidthFactor &gt; 0 Then
+		ShapeCount = EndIndex-StartIndex + 1
+	Else
+		ShapeCount = iReduceWidth
+	End If
+	GetCorrWidth() = (nDist)/ShapeCount
+End Function
+
+
+Sub AdjustLineWidth(StartIndex as Integer, EndIndex as Integer, nDist as Long, Widthfactor as Integer)
+Dim i as Integer
+Dim oLocDBShape as Object
+Dim oLocTCShape as Object
+Dim CorrWidth as Integer
+Dim bAdjustPos as Boolean
+Dim iLocTCPosX as Long
+Dim iLocDBPosX as Long
+	CorrWidth =	GetCorrWidth(StartIndex, EndIndex, nDist, Widthfactor)
+	bAdjustPos = False
+	iLocTCPosX = cXOffset
+	For i = StartIndex To EndIndex
+		Set oLocDBShape = oDBShapeList(i)
+		Set oLocTCShape = oTCShapeList(i)
+		If bAdjustPos Then
+			oLocTCShape.Position = GetPoint(iLocTCPosX, oLocTCShape.Position.Y)
+			If CurArrangement = cLeftJustified Then
+				iLocDBPosX = oLocTCShape.Position.X + oLocTCShape.Size.Width
+				oLocDBShape.Position = GetPoint(iLocDBPosX, oLocDBShape.Position.Y)
+			Else
+				oLocDBShape.Position = GetPoint(iLocTCPosX, oLocTCShape.Position.Y + nTCHeight)
+			End If
+		Else
+			bAdjustPos = True
+		End If
+		If CDbl(FieldMetaValues(i,1)) &gt; 20 or WidthFactor &gt; 0 Then
+			If (CurArrangement = cTopJustified) And (oLocTCShape.Size.Width &gt; oLocDBShape.Size.Width) Then
+				oLocDBShape.Size = GetSize(oLocTCShape.Size.Width + WidthFactor * CorrWidth, oLocDBShape.Size.Height)
+			Else
+				oLocDBShape.Size = GetSize(oLocDBShape.Size.Width + WidthFactor * CorrWidth, oLocDBShape.Size.Height)
+			End If
+		End If
+		iLocTCPosX = oLocDBShape.Position.X + oLocDBShape.Size.Width + cHoriDistance
+		If CurArrangement = cTopJustified Then
+			If oLocTCShape.Size.Width &gt; oLocDBShape.Size.Width Then
+				iLocTCPosX = oLocDBShape.Position.X + oLocTCShape.Size.Width + cHoriDistance
+			End If
+		End If
+	Next i
+End Sub
+
+
+Sub CheckOuterPoints(nXPos, nWidth, nYPos, nHeight, bIsDBField as Boolean)
+Dim nColRightX as Long
+Dim nRowY as Long
+Dim nOldMaxRowY as Long
+	If CurArrangement = cLeftJustified Or CurArrangement = cTopJustified Then
+		If bIsDBField Then
+			&apos; Only at DBControls you can measure the Value of nMaxRowY
+			If bIsFirstRun Then
+				nMaxRowY = nYPos + nHeight
+				nSecMaxRowY = nMaxRowY
+			Else
+				nRowY = nYPos + nHeight
+				If nRowY &gt;= nMaxRowY Then
+					nOldMaxRowY = nMaxRowY
+					nSecMaxRowY = nOldMaxRowY
+					nMaxRowY = nRowY
+				End If
+			End If
+		End If 
+	End If
+	&apos; Find the outer right point
+	If bIsFirstRun Then
+		nMaxColRightX = nXPos + nWidth
+		bIsFirstRun = False
+	Else
+		nColRightX = nXPos + nWidth
+		If nColRightX &gt; nMaxColRightX Then
+			nMaxColRightX = nColRightX
+		End If
+	End If
+End Sub
+
+
+Function PositionGridControl(MaxIndex as Integer)
+Dim oControl as Object
+Dim n as Integer
+Dim oColumn as Object
+Dim aPoint as New com.sun.star.awt.Point
+Dim aSize as New com.sun.star.awt.Size
+	If bControlsareCreated Then
+		ShapesToNirwana()
+	End If
+	oGridModel = CreateUnoService(oModelService(cGridControl))
+	oGridModel.Name = &quot;Grid1&quot;
+	aPoint = GetPoint(cXOffset, cYOffset)
+	aSize = GetSize(nFormWidth, nFormHeight)
+	oDBForm.InsertByName (oGridModel.Name, oGridModel)
+	oGridShape = InsertControl(oDrawPage, oGridModel, aPoint, aSize)
+	For n = 0 to MaxIndex
+		GetCurrentMetaValues(n)
+	    If CurFieldType = com.sun.star.sdbc.DataType.TIMESTAMP Then
+			oColumn = SetupGridColumn(oGridModel,&quot;DateField&quot;, False, com.sun.star.sdbc.DataType.DATE, CurFieldName &amp; &quot; &quot; &amp; sDateAppendix)
+			oColumn = SetupGridColumn(oGridModel,&quot;TimeField&quot;, False, com.sun.star.sdbc.DataType.TIME, CurFieldName &amp; &quot; &quot; &amp; sTimeAppendix)
+	    Else
+			If CurControlType = cImageControl Then
+				oColumn = SetupGridColumn(oGridModel,&quot;TextField&quot;, True, CurFieldType, CurFieldName)
+			Else
+				oColumn = SetupGridColumn(oGridModel, CurControlName, False, CurFieldType, CurFieldName)
+			End If
+		End If
+		oProgressbar.Value = n
+	next n
+End Function
+
+
+Function SetupGridColumn(oGridModel as Object, ControlName as String, bHidden as Boolean, iLocFieldType as Integer, ColName as String) as Object
+Dim oColumn as Object
+	CurControlName = ControlName
+	oColumn = oGridModel.CreateColumn(CurControlName)
+	oColumn.Name = CalcUniqueContentName(oGridModel, CurControlName)
+	oColumn.Hidden = bHidden
+	SetNumerics(oColumn, iLocFieldType)
+	oColumn.DataField = CurFieldName
+	oColumn.Label = ColName 
+	oColumn.Width = 0 	&apos; Width of column is adjusted to Columname
+	oGridModel.insertByName(oColumn.Name, oColumn)
+End Function		
+
+
+Sub ControlCaptionstoStandardLayout()
+Dim i as Integer
+Dim iBorderType as Integer
+Dim oCurModel as Object
+Dim oStyle as Object
+Dim iStandardColor as Long
+	If CurArrangement &lt;&gt; cTabled Then
+		oStyle = oDocument.StyleFamilies.GetByName(&quot;ParagraphStyles&quot;).GetByName(&quot;Standard&quot;)
+		iStandardColor = oStyle.CharColor
+		For i = 0 To MaxIndex
+			oCurModel = oTCShapeList(i).GetControl
+			If i = 0 Then
+				If oCurModel.TextColor = iStandardColor Then
+					Exit Sub
+				End If
+			End If
+			oCurModel.TextColor = iStandardColor
+		Next i
+	End If
+End Sub
+
+
+Sub GroupShapesTogether()
+Dim i as Integer
+	If CurArrangement &lt;&gt; cTabled Then
+		For i = 0 To MaxIndex
+			oGroupShapeList(i) = CreateUnoService(&quot;com.sun.star.drawing.ShapeCollection&quot;)
+			oGroupShapeList(i).Add(oTCShapeList(i))
+			oGroupShapeList(i).Add(oDBShapeList(i))
+			oDrawPage.Group(oGroupShapeList(i))
+		Next i
+	Else
+		RemoveNirwanaShapes()
+	End If
+End Sub</script:module>

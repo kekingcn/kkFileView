@@ -5,6 +5,7 @@ import cn.keking.extend.ControlDocumentFormatRegistry;
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
 import org.artofsolving.jodconverter.office.OfficeManager;
+import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +24,8 @@ import java.util.Map;
 @Component
 public class ConverterUtils {
 
-    @Value("${office.home}")
-    String officeHome;
+//    @Value("${office.home}")
+//    String officeHome;
 //    OpenOfficeConnection connection;
     OfficeManager officeManager;
 
@@ -32,6 +33,7 @@ public class ConverterUtils {
     public void initOfficeManager() {
         ////            connection = new SocketOpenOfficeConnection(host,8100);
 ////            connection.connect();
+        String officeHome = OfficeUtils.getDefaultOfficeHome().getAbsolutePath();
         DefaultOfficeManagerConfiguration configuration = new DefaultOfficeManagerConfiguration();
         configuration.setOfficeHome(officeHome);
         configuration.setPortNumber(8100);

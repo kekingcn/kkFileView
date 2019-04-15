@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Correspondence" script:language="StarBasic">Option Explicit
+
+Public msgNoTextmark$, msgError$
+Public sAddressbook$
+Public Table
+Public sCompany$, sFirstName$, sLastName$, sStreet$, sPostalCode$, sCity$, sState$, sInitials$, sPosition$
+Public DialogExited
+Public oDocument, oText, oBookMarks, oBookMark, oBookMarkCursor, oBookText as Object
+Public bTemplate, bDBFields as Boolean
+
+Sub Main
+	bTemplate = true
+    BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	TemplateDialog = LoadDialog(&quot;Template&quot;, &quot;TemplateDialog&quot;)
+	DialogModel = TemplateDialog.Model
+	DialogModel.Step = 2
+	DialogModel.Optmerge.State = True
+	LoadLanguageCorrespondence()	
+	TemplateDialog.Execute
+	TemplateDialog.Dispose()
+End Sub
+
+
+Sub Placeholder
+	bTemplate = false
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	LoadLanguageCorrespondence()
+	bDBFields = false
+	OK()
+End Sub
+
+
+Sub Database
+	bTemplate = false
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	LoadLanguageCorrespondence()
+	bDBFields = true
+	OK()
+End Sub
+
+
+Function LoadLanguageCorrespondence() as Boolean
+	If InitResources(&quot;&apos;Template&apos;&quot;, &quot;tpl&quot;) Then
+		msgNoTextmark$ = GetResText(1303) &amp; Chr(13) &amp; Chr(10) &amp; GetResText(1301)
+		msgError$ = GetResText(1302)
+		If bTemplate Then
+			DialogModel.Title = GetResText(1303+3)
+			DialogModel.CmdCancel.Label = GetResText(1102)
+			DialogModel.CmdCorrGoOn.Label = GetResText(1103)
+			DialogModel.OptSingle.Label = GetResText(1303 + 1)
+			DialogModel.Optmerge.Label = GetResText(1303 + 2)
+			DialogModel.FrmLetter.Label = GetResText(1303)
+		End If
+		LoadLanguageCorrespondence() = True
+	Else
+		msgbox(&quot;Warning: Resource could not be loaded!&quot;)
+	End If
+End Function
+
+
+Function GetFieldName(oFieldKnot as Object, GeneralFieldName as String)
+	If oFieldKnot.HasByName(GeneralFieldName) Then
+    GetFieldName = oFieldKnot.GetByName(GeneralFieldName).AssignedFieldName
+	Else
+		GetFieldName = &quot;&quot;
+	End If
+End Function
+
+
+Sub OK
+Dim ParaBreak
+Dim sDocLang as String
+Dim oSearchDesc as Object
+Dim oFoundAll as Object
+Dim oFound as Object
+Dim sFoundContent as String
+Dim sFoundString as String
+Dim sDBField as String
+Dim i as Integer
+Dim oDBAccess as Object
+Dim oAddressDialog as Object
+Dim oAddressPilot as Object
+Dim oFields as Object
+Dim oDocSettings as Object
+Dim oContext as Object
+Dim bDBvalid as Boolean
+	&apos;On Local Error Goto GENERALERROR
+	
+	If bTemplate Then
+		bDBFields = DialogModel.Optmerge.State              &apos;database or placeholder
+		TemplateDialog.EndExecute()
+		DialogExited = TRUE
+	End If
+	
+	If bDBFields Then
+		oDBAccess = GetRegistryKeyContent(&quot;org.openoffice.Office.DataAccess/AddressBook/&quot;)
+		sAddressbook = oDBAccess.DataSourceName
+
+		bDBvalid = false
+		oContext = createUnoService( &quot;com.sun.star.sdb.DatabaseContext&quot; )		
+
+		If (not isNull(oContext)) Then 
+			&apos;Is the previously assigned address data source still valid?
+			bDBvalid = oContext.hasByName(sAddressbook)
+		end if
+				
+		If (bDBvalid = false) Then			
+			oAddressPilot = createUnoService(&quot;com.sun.star.ui.dialogs.AddressBookSourcePilot&quot;)
+			oAddressPilot.execute
+			
+			oDBAccess = GetRegistryKeyContent(&quot;org.openoffice.Office.DataAccess/AddressBook/&quot;)
+			sAddressbook = oDBAccess.DataSourceName
+			If sAddressbook = &quot;&quot; Then
+				MsgBox(GetResText(1301))
+				Exit Sub
+			End If
+		End If
+		oFields = oDBAccess.GetByName(&quot;Fields&quot;)
+		Table = oDBAccess.GetByName(&quot;Command&quot;)
+	End If
+
+	ParaBreak = com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK
+  	oDocument = ThisComponent
+	If bDBFields Then
+		&apos;set the address db as current db at the document
+    	oDocSettings = oDocument.createInstance(&quot;com.sun.star.document.Settings&quot;)
+		oDocSettings.CurrentDatabaseDataSource = sAddressbook
+		oDocSettings.CurrentDatabaseCommand = Table
+		oDocSettings.CurrentDatabaseCommandType = 0
+	End If
+	oBookmarks = oDocument.Bookmarks
+	oText = oDocument.Text
+
+	oSearchDesc = oDocument.createsearchDescriptor()
+	oSearchDesc.SearchRegularExpression = True
+	oSearchDesc.SearchWords = True
+	oSearchDesc.SearchString  = &quot;&lt;[^&gt;]+&gt;&quot;
+	oFoundall = oDocument.FindAll(oSearchDesc)
+
+	&apos;Loop over the foundings
+  	For i = oFoundAll.Count -1 To 0 Step -1
+		oFound = oFoundAll.GetByIndex(i)
+		sFoundString = oFound.String
+		&apos;Extract the string inside the brackets
+		sFoundContent = FindPartString(sFoundString,&quot;&lt;&quot;,&quot;&gt;&quot;,1)
+		sFoundContent = LTrim(sFoundContent)
+		&apos; Define the Cursor and place it on the founding
+		oBookmarkCursor = oFound.Text.CreateTextCursorbyRange(oFound)
+		oBookText = oFound.Text
+		If bDBFields Then
+			sDBField = GetFieldname(oFields, sFoundContent)
+			If sDBField &lt;&gt; &quot;&quot; Then
+				InsertDBField(sAddressbook, Table, sDBField)
+			Else
+				InsertPlaceholder(sFoundContent)
+			End If
+		Else
+			InsertPlaceholder(sFoundContent)
+		End If
+	Next i
+	If bDBFields Then
+		&apos;Open the DB beamer with the right DB
+		Dim oDisp as Object
+		Dim oTransformer
+		Dim aURL as new com.sun.star.util.URL
+		aURL.complete = &quot;.component:DB/DataSourceBrowser&quot;
+		oTransformer = createUnoService(&quot;com.sun.star.util.URLTransformer&quot;)
+		oTransformer.parseStrict(aURL)
+		oDisp = oDocument.getCurrentController.getFrame.queryDispatch(aURL, &quot;_beamer&quot;, com.sun.star.frame.FrameSearchFlag.CHILDREN + com.sun.star.frame.FrameSearchFlag.CREATE)
+		Dim aArgs(3) as new com.sun.star.beans.PropertyValue
+		aArgs(1).Name = &quot;DataSourceName&quot;
+		aArgs(1).Value = sAddressbook
+		aArgs(2).Name = &quot;CommandType&quot;
+		aArgs(2).Value = com.sun.star.sdb.CommandType.TABLE
+		aArgs(3).Name = &quot;Command&quot;
+		aArgs(3).Value = Table
+		oDisp.dispatch(aURL, aArgs())
+	End If
+	
+	GENERALERROR:
+	If Err &lt;&gt; 0 Then
+		Msgbox(msgError$,16, GetProductName())
+		Resume LETSGO
+	End If
+	LETSGO:
+
+End Sub
+
+
+Sub InsertDBField(sDBName as String, sTableName as String, sColName as String)
+Dim oFieldMaster, oField as Object
+	If sColname &lt;&gt; &quot;&quot; Then
+		oFieldMaster = oDocument.createInstance(&quot;com.sun.star.text.FieldMaster.Database&quot;)
+		oField = oDocument.createInstance(&quot;com.sun.star.text.TextField.Database&quot;)
+		oFieldMaster.DataBaseName = sDBName
+		oFieldMaster.DataBaseName = sDBName
+		oFieldMaster.DataTableName = sTableName
+		oFieldMaster.DataColumnName = sColName
+		oField.AttachTextfieldmaster (oFieldMaster)
+		oBookText.InsertTextContent(oBookMarkCursor, oField, True)
+		oField.Content = &quot;&lt;&quot; &amp; sColName &amp; &quot;&gt;&quot;
+	End If
+End Sub
+
+
+Sub InsertPlaceholder(sColName as String)
+Dim oFieldMaster as Object
+Dim bCorrectField as Boolean
+	If sColname &lt;&gt; &quot;&quot; Then
+		bCorrectField = True
+		oFieldMaster = oDocument.createInstance(&quot;com.sun.star.text.TextField.JumpEdit&quot;)
+		Select Case sColName
+			Case &quot;Company&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+1)
+			Case &quot;Department&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+2)
+			Case &quot;FirstName&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+3)
+			Case &quot;LastName&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+4)
+			Case &quot;Street&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+5)
+			Case &quot;Country&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+6)
+			Case &quot;Zip&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+7)
+			Case &quot;City&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+8)
+			Case &quot;Title&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+9)
+			Case &quot;Position&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+10)
+			Case &quot;AddrForm&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+11)
+			Case &quot;Code&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+12)
+			Case &quot;AddrFormMail&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+13)
+			Case &quot;PhonePriv&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+14)
+			Case &quot;PhoneComp&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+15)
+			Case &quot;Fax&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+16)
+			Case &quot;EMail&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+17)
+			Case &quot;URL&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+18)
+			Case &quot;Note&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+19)
+			Case &quot;Altfield1&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+20)
+			Case &quot;Altfield2&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+21)
+			Case &quot;Altfield3&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+22)
+			Case &quot;Altfield4&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+23)
+			Case &quot;Id&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+24)
+			Case &quot;State&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+25)
+			Case &quot;PhoneOffice&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+26)
+			Case &quot;Pager&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+27)
+			Case &quot;PhoneCell&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+28)
+			Case &quot;PhoneOther&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+29)
+			Case &quot;CalendarURL&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+30)
+			Case &quot;InviteParticipant&quot;
+				oFieldMaster.PlaceHolder = getResText(1350+31)
+			Case Else
+				bCorrectField = False
+		End Select
+		If bCorrectField Then
+			oFieldMaster.Hint = getResText(1350)
+			oBookText.InsertTextContent(oBookMarkCursor, oFieldMaster, True)
+		End If
+	End If
+End Sub
+</script:module>

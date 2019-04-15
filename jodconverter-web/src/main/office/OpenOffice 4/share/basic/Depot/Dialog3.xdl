@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="Dialog3" dlg:left="161" dlg:top="81" dlg:width="176" dlg:height="119" dlg:page="3" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_DIALOG_SPLIT" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="lblStockNames" dlg:tab-index="0" dlg:left="6" dlg:top="6" dlg:width="98" dlg:height="8" dlg:value="lblStockNames"/>
+  <dlg:menulist dlg:id="lstStockNames" dlg:tab-index="1" dlg:left="5" dlg:top="17" dlg:width="102" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_LSTSTOCKNAMES" dlg:spin="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Depot.Depot.SelectStockNameForRates?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:textfield dlg:id="txtStockID" dlg:tab-index="2" dlg:left="120" dlg:top="17" dlg:width="50" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_TXTSTOCKID_SPLIT"/>
+  <dlg:datefield dlg:id="txtStartDate" dlg:tab-index="3" dlg:left="63" dlg:top="37" dlg:width="50" dlg:height="12" dlg:page="3" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_3_TXTSTARTDATE" dlg:spin="true">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Depot.tools.CheckInputDate?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:datefield>
+  <dlg:datefield dlg:id="txtEndDate" dlg:tab-index="4" dlg:left="63" dlg:top="53" dlg:width="50" dlg:height="12" dlg:page="3" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_3_TXTENDDATE" dlg:spin="true">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Depot.tools.CheckInputDate?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:datefield>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optDaily" dlg:tab-index="5" dlg:left="12" dlg:top="83" dlg:width="75" dlg:height="10" dlg:page="3" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_3_OPTDAILY" dlg:value="optDaily"/>
+   <dlg:radio dlg:id="optWeekly" dlg:tab-index="6" dlg:left="101" dlg:top="83" dlg:width="69" dlg:height="10" dlg:page="3" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_3_OPTWEEKLY" dlg:value="optWeekly"/>
+  </dlg:radiogroup>
+  <dlg:datefield dlg:id="txtDate" dlg:tab-index="7" dlg:left="71" dlg:top="73" dlg:width="50" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_2_TXTDATE" dlg:spin="true">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Depot.tools.CheckInputDate?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:datefield>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optPerShare" dlg:tab-index="8" dlg:left="6" dlg:top="37" dlg:width="69" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_1_OPTPERSHARE" dlg:value="optPerShare"/>
+   <dlg:radio dlg:id="optTotal" dlg:tab-index="9" dlg:left="6" dlg:top="51" dlg:width="69" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_1_OPTTOTAL" dlg:value="optTotal"/>
+  </dlg:radiogroup>
+  <dlg:currencyfield dlg:id="txtDividend" dlg:tab-index="10" dlg:left="6" dlg:top="80" dlg:width="50" dlg:height="12" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_1_TXTDIVIDEND" dlg:value-min="0" dlg:spin="true"/>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="11" dlg:left="41" dlg:top="98" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_CMDCANCEL_SPLIT" dlg:value="cmdCancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Depot.Depot.CancelStockRate?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdGoOn" dlg:tab-index="12" dlg:left="94" dlg:top="98" dlg:width="50" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_0_CMDGOON_SPLIT" dlg:value="cmdGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Depot.Depot.CommitStockRate?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="lblStockID" dlg:tab-index="13" dlg:left="120" dlg:top="6" dlg:width="50" dlg:height="8" dlg:value="lblStockID"/>
+  <dlg:text dlg:id="lblDividend" dlg:tab-index="14" dlg:left="6" dlg:top="68" dlg:width="73" dlg:height="8" dlg:page="1" dlg:value="lblDividend"/>
+  <dlg:text dlg:id="lblExchangeRate" dlg:tab-index="15" dlg:left="6" dlg:top="39" dlg:width="92" dlg:height="8" dlg:page="2" dlg:value="lblExchangeRate"/>
+  <dlg:text dlg:id="lblColon" dlg:tab-index="16" dlg:left="40" dlg:top="55" dlg:width="5" dlg:height="8" dlg:page="2" dlg:value=" :"/>
+  <dlg:text dlg:id="lblDate" dlg:tab-index="17" dlg:left="5" dlg:top="75" dlg:width="66" dlg:height="8" dlg:page="2" dlg:value="lblDate"/>
+  <dlg:fixedline dlg:id="hlnInterval" dlg:tab-index="18" dlg:left="6" dlg:top="72" dlg:width="164" dlg:height="8" dlg:page="3" dlg:value="hlnInterval"/>
+  <dlg:text dlg:id="lblStartDate" dlg:tab-index="19" dlg:left="6" dlg:top="39" dlg:width="53" dlg:height="8" dlg:page="3" dlg:value="lblStartDate"/>
+  <dlg:text dlg:id="lblEndDate" dlg:tab-index="20" dlg:left="6" dlg:top="55" dlg:width="53" dlg:height="8" dlg:page="3" dlg:value="lblEndDate"/>
+  <dlg:numericfield dlg:id="txtOldRate" dlg:tab-index="21" dlg:left="6" dlg:top="53" dlg:width="30" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_2_TXTOLDRATE" dlg:decimal-accuracy="0" dlg:value-min="1" dlg:spin="true"/>
+  <dlg:numericfield dlg:id="txtNewRate" dlg:tab-index="22" dlg:left="50" dlg:top="53" dlg:width="30" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGDEPOT_2_TXTNEWRATE" dlg:decimal-accuracy="0" dlg:value-min="1" dlg:spin="true"/>
+ </dlg:bulletinboard>
+</dlg:window>

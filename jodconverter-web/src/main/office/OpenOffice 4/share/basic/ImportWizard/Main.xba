@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Main" script:language="StarBasic">Option Explicit
+
+&apos;  *****  BASIC  *****
+Public HeaderPreviews(4) as Object
+Public ImportDialog as Object
+Public ImportDialogArea as Object
+Public oFactoryKey as Object
+Public bShowLogFile as Boolean
+
+&apos; If the ProgressPage ist already on Top The Dialog will be immediately closed when this flag is
+&apos; set to False
+Public bConversionIsRunning as Boolean
+Public RetValue as Integer
+
+Sub Main()
+	Dim NoArgs() as New com.sun.star.beans.PropertyValue
+	bShowLogFile=FALSE
+	If Not bDebugWizard Then
+		On Local Error Goto RTError
+	End If
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	RetValue = 10
+	bIsFirstLogTable = True
+	bConversionIsRunning = False
+	sCRLF = CHR(13) &amp; CHR(10)
+	oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	oFactoryKey = GetRegistryKeyContent(&quot;org.openoffice.Setup/Office/Factories&quot;)
+	If GetImportWizardPaths() = False Then
+		Exit Sub
+	End If
+  	bCancelTask = False
+  	bDoKeepApplValues = False
+	CurOffice = 0
+	ImportDialogArea = LoadDialog(&quot;ImportWizard&quot;,&quot;ImportDialog&quot;)
+	ImportDialog = ImportDialogArea.Model
+	LoadLanguage()
+	WizardMode = SBXMLMODE
+	MaxApplCount = 4
+	FillStep_Welcome()
+	RepaintHeaderPreview()
+	ImportDialog.ImportPreview.BackGroundColor = RGB(0,60,126)	
+	ImportDialog.cmdGoOn.DefaultButton = True
+	ImportDialogArea.GetControl(&quot;optSODocuments&quot;).SetFocus()
+	ToggleCheckboxesWithBoolean(False)
+	RetValue = ImportDialogArea.Execute()
+	If bShowLogFile=TRUE Then 
+		OpenDocument(sLogUrl, NoArgs())
+	End if
+	If RetValue = 0 Then
+		CancelTask()
+	End If
+	ImportDialogArea.Dispose()
+	End
+	Exit Sub
+RTError:
+	Msgbox sRTErrorDesc, 16, sRTErrorHeader
+End Sub
+
+
+
+Sub NextStep()
+Dim iCurStep as Integer
+	If Not bDebugWizard Then
+		On Error Goto RTError
+	End If
+	bConversionIsRunning = False
+	iCurStep = ImportDialog.Step
+	Select Case iCurStep
+		Case 1
+			FillStep_InputPaths(0, True)
+		Case 2
+			If CheckInputPaths Then
+				SaveStep_InputPath
+				If CurOffice &lt; ApplCount - 1 Then
+					CurOffice = CurOffice + 1
+					TakeOverPathSettings()
+					FillStep_InputPaths(CurOffice, False)
+				Else
+					FillStep_Summary()
+				End If
+			End If
+		Case 3
+			FillStep_Progress()
+			Select Case WizardMode
+				Case SBMICROSOFTMODE
+					Call ConvertAllDocuments(MSFilterName())
+				CASE SBXMLMODE
+					Call ConvertAllDocuments(XMLFilterName())
+			End Select
+		Case 4
+			CancelTask(True)
+	End Select
+
+	If ((ImportDialog.chkLogfile.State &lt;&gt; 1) OR (iCurStep &lt;&gt; 3)) Then
+		ImportDialog.cmdGoOn.DefaultButton = True
+	End If
+	
+	RepaintHeaderPreview()	
+	Exit Sub
+RTError:
+	Msgbox sRTErrorDesc, 16, sRTErrorHeader
+End Sub
+
+
+
+Sub PrevStep()
+Dim iCurStep as Integer
+	If Not bDebugWizard Then
+		On Error Goto RTError
+	End If
+	bConversionIsRunning = False
+	iCurStep = ImportDialog.Step
+	Select Case iCurStep
+		Case 4
+			ImportDialog.cmdCancel.Label = sCancelButton
+			FillStep_Summary()
+		Case 3
+			FillStep_InputPaths(Applcount-1, False)
+		Case 2
+			SaveStep_InputPath
+			If CurOffice &gt; 0 Then
+				CurOffice = CurOffice - 1
+				FillStep_InputPaths(CurOffice, False)
+			Else
+				FillStep_Welcome()
+				bDoKeepApplValues = True
+			End If
+	End Select
+	ImportDialog.cmdGoOn.DefaultButton = True
+	RepaintHeaderPreview()	
+	Exit Sub
+RTError:
+	Msgbox sRTErrorDesc, 16, sRTErrorHeader
+End Sub
+
+
+
+Sub CancelTask()
+	If bConversionIsRunning Then
+		If Msgbox(sConvertError1, 36, sConvertError2) = 6 Then
+			bCancelTask = True
+			bInterruptSearch = True
+		Else
+			bCancelTask = False
+			ImportDialog.cmdCancel.Enabled = True
+		End If
+	Else
+		ImportDialogArea.EndExecute()
+	End If
+End Sub
+
+
+Sub TemplateDirSearchDialog()
+	CallDirSearchDialog(ImportDialog.TemplateImportPath)
+End Sub
+
+
+Sub RepaintHeaderPreview()
+Dim Bitmap As Object
+Dim CurStep as Integer
+Dim sBitmapPath as String
+Dim LocPrefix as String
+	CurStep = ImportDialog.Step
+	LocPrefix = WizardMode
+	LocPrefix = ReplaceString(LocPrefix,&quot;XML&quot;, &quot;SO&quot;)
+	If CurStep = 2 Then
+		sBitmapPath = SOBitmapPath &amp; LocPrefix &amp; &quot;-Import_&quot; &amp; CurStep &amp; &quot;-&quot; &amp; Applications(CurOffice,SBAPPLKEY) + 1 &amp; &quot;.bmp&quot;
+	Else
+		sBitmapPath = SOBitmapPath &amp; &quot;Import_&quot; &amp; CurStep &amp; &quot;.bmp&quot;
+	End If
+	ImportDialog.ImportPreview.ImageURL = sBitmapPath
+End Sub
+
+
+Sub CheckModuleInstallation()
+Dim i as Integer
+	For i = 1 To MaxApplCount
+		ImportDialogArea.GetControl(&quot;chk&quot; &amp; WizardMode &amp; &quot;Application&quot; &amp; i).Model.Enabled = Abs(CheckInstalledModule(i-1))
+	Next i
+End Sub
+
+
+Function CheckInstalledModule(Index as Integer) as Boolean
+Dim ModuleName as String
+Dim NameList() as String
+Dim MaxIndex as Integer
+Dim i as Integer		
+	ModuleName = ModuleList(Index)
+	If Instr(1,ModuleName,&quot;/&quot;) &lt;&gt; 0 Then
+		CheckInstalledModule() = False
+		NameList() = ArrayoutOfString(ModuleName,&quot;/&quot;, MaxIndex)
+		For i = 0 To MaxIndex
+			If oFactoryKey.HasByName(NameList(i)) Then
+				CheckInstalledModule() = True
+			End If
+		Next i
+	Else
+		CheckInstalledModule() = oFactoryKey.HasByName(ModuleName)
+	End If
+End Function
+
+
+Sub ToggleCheckboxes(oEvent as Object)
+Dim bMSEnable as Boolean
+	WizardMode = oEvent.Source.Model.Tag
+	bMSEnable = WizardMode = &quot;MS&quot;
+	ToggleCheckBoxesWithBoolean(bMSEnable)
+End Sub
+
+
+Sub ToggleCheckboxesWithBoolean(bMSEnable as Boolean)
+	If bMSEnable = True Then
+		WizardMode = SBMICROSOFTMODE
+		MaxApplCount = 3
+	Else
+		WizardMode = SBXMLMODE
+		MaxApplCount = 4
+	End If
+	With ImportDialogArea
+		.GetControl(&quot;chkSOApplication1&quot;).Model.Enabled = Not bMSEnable
+		.GetControl(&quot;chkSOApplication2&quot;).Model.Enabled = Not bMSEnable
+		.GetControl(&quot;chkSOApplication3&quot;).Model.Enabled = Not bMSEnable
+		.GetControl(&quot;chkSOApplication4&quot;).Model.Enabled = Not bMSEnable
+		.GetControl(&quot;chkMSApplication1&quot;).Model.Enabled = bMSEnable
+		.GetControl(&quot;chkMSApplication2&quot;).Model.Enabled = bMSEnable
+		.GetControl(&quot;chkMSApplication3&quot;).Model.Enabled = bMSEnable
+	End With
+	CheckModuleInstallation()
+	ImportDialog.WelcomeTextLabel2.Enabled = bMSEnable
+	bDoKeepApplValues = False
+	ToggleNextButton()
+End Sub
+
+
+Sub ToggleNextButton()
+Dim iCurStep as Integer
+Dim bDoEnable as Boolean
+Dim i as Integer
+	iCurStep = ImportDialog.Step
+	Select Case iCurStep
+		Case 1
+			With ImportDialog
+				If .optMSDocuments.State = 1 Then
+          			bDoEnable = .chkMSApplication1.State = 1 Or .chkMSApplication2.State = 1 Or .chkMSApplication3.State = 1
+				Else
+          			bDoEnable = .chkSOApplication1.State = 1 Or .chkSOApplication2.State = 1 Or .chkSOApplication3.State = 1 Or .chkSOApplication4.State = 1
+				End If
+			End With
+			bDoKeepApplValues = False
+		Case 2
+			bDoEnable = CheckControlPath(ImportDialog.chkTemplatePath, ImportDialog.txtTemplateImportPath, True)
+			bDoEnable = CheckControlPath(ImportDialog.chkDocumentPath, ImportDialog.txtDocumentImportPath, bDoEnable)
+	End Select
+	ImportDialog.cmdGoOn.Enabled = bDoEnable
+End Sub
+
+
+Sub TakeOverPathSettings()					
+&apos;Takes over the Pathsettings from the first selected application to the next applications
+	If Applications(CurOffice,SBDOCSOURCE) = &quot;&quot; Then
+		Applications(CurOffice,SBDOCSOURCE) = Applications(0,SBDOCSOURCE)
+		Applications(CurOffice,SBDOCTARGET) = Applications(0,SBDOCTARGET)
+		If WizardMode = SBXMLMODE AND Applications(CurOffice,SBAPPLKEY) = 3 Then
+			Applications(CurOffice,SBTEMPLSOURCE) = Applications(CurOffice,SBDOCSOURCE)
+			Applications(CurOffice,SBTEMPLTARGET) = Applications(CurOffice,SBDOCTARGET)											
+		Else
+			Applications(CurOffice,SBTEMPLSOURCE) = Applications(0,SBTEMPLSOURCE)
+			Applications(CurOffice,SBTEMPLTARGET) = Applications(0,SBTEMPLTARGET)
+		End If
+	End If
+End Sub
+
+
+Function GetImportWizardPaths() as Boolean
+	SOBitmapPath = GetOfficeSubPath(&quot;Template&quot;, &quot;../wizard/bitmap&quot;)
+	If SOBitmapPath &lt;&gt; &quot;&quot; Then
+		SOWorkPath = GetPathSettings(&quot;Work&quot;, False)
+		If SOWorkPath &lt;&gt; &quot;&quot; Then
+			SOTemplatePath = GetPathSettings(&quot;Template_writable&quot;,False,0)
+			If SOTemplatePath &lt;&gt; &quot;&quot; Then
+				GetImportWizardPaths() = True
+				Exit Function
+			End If
+		End If
+	End  If
+	GetImportWizardPaths() = False
+End Function
+</script:module>

@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta>
+<style>
+			#Copyright_Trademark * {font-size: .7em;}
+			.note {border: 1px solid #993333; padding: 3px;}
+			p { margin-top: .1em; margin-bottom: .1em;}
+			.code {font-family: monospace;}
+		</style>
+</head>
+<body>
+<div id="Intro">
+<h1>OpenOffice 4.1.6 ReadMe</h1>
+<p>有关此自述文件的最新更新，请参阅  <a href="http://www.openoffice.org/welcome/readme.html">http://www.openoffice.org/welcome/readme.html</a></p>
+<p>该文件包含有关此程序的重要信息。请在开始操作之前仔细阅读这些信息。</p>
+<p>负责此产品开发的 Apache OpenOffice.org 社区诚挚邀请您加入社区并成为社区成员。作为新用户，您可以查看 OpenOffice 社区站点上的有用信息，网址为 <a href="http://openoffice.apache.org">http://openoffice.apache.org</a></p>
+<p>也可以阅读下面来了解如何参与 Apache OpenOffice 项目。</p>
+<h3>OpenOffice 对任何用户确实是免费的吗？</h3>
+<p>OpenOffice 对所有用户都是免费的。您可以获得此 OpenOffice 的副本，将其安装到您所需要的任何计算机上，并将其用于您需要的任何用途（包括商业、政府、公共管理和教育用途）。要了解详情，请参见 OpenOffice 随附的许可文本或 <a href="http://www.openoffice.org/license.html">http://www.openoffice.org/license.html</a></p>
+<h3>为什么 OpenOffice 对任何用户都是免费的？</h3>
+<p>现今，您可以免费使用 OpenOffice 的副本，这是由于个人贡献者和社区发起人已经设计、开发、测试、翻译、评注、支持、营销以及通过许多其他方式帮助 OpenOffice 成为今天 - 世界上最主要的开源办公软件。</p>
+<p>如果您欣赏他们的努力， 并且愿意帮助Apache OpenOffice可以继续发展，您可以考虑为这个项目做出贡献，具体请参考<a href="http://openoffice.apache.org/get-involved.html">http://openoffice.apache.org/get-involved.html</a>，还可以参考<a href="http://www.apache.org/foundation/contributing.html">http://www.apache.org/foundation/contributing.html</a>来了解如何捐助这个项目。任何人都可以贡献其中。</p>
+</div>
+<div id="Installation">
+<h2>安装注意事项</h2>
+<p class="note">OpenOffice 要求一个较新版本的JAVA运行环境以使用它的全部功能； JAVA可以从<a href="http://java.com">http://java.com</a> 下载。</p>
+<h3>系统要求</h3>
+<div id="SystemRequirements_WIN">
+<ul>
+<li><p>微软 Windows XP, Vista, Windows 7 或者 Windows 8</p></li>
+<li><p>Pentium III 或更高系列处理器</p></li>
+<li><p>256 MB RAM（建议使用 512 MB RAM）</p></li>
+<li><p>高达 1.5 GB 的硬盘可用空间</p></li>
+<li><p>1024x768 分辨率（建议使用更高分辨率），至少 256 色</p></li>
+</ul>
+<p class="note">请注意，安装过程中需要拥有管理员权限。</p>
+<p>通过使用下列含有该安装程序的命令行开关项，可以强制或禁止将 OpenOffice 注册为 Microsoft Office 格式默认的应用程序：</p>
+<ul>
+<li><p><tt>/msoreg=1</tt> 强制将 OpenOffice 注册为 Microsoft Office 格式默认的应用程序。</p></li>
+<li><p><tt>/msoreg=0</tt> 禁止将 OpenOffice 注册为 Microsoft Office 格式默认的应用程序。</p></li>
+</ul>
+<p>如果您使用 setup /a 执行管理安装，则需要确保系统上安装了 msvcr100.dll 文件。OpenOffice 需要此文件才能在管理安装后启动。您可以从 <a href="http://www.microsoft.com/en-us/download/details.aspx?id=5555">http://www.microsoft.com/en-us/download/details.aspx?id=5555</a> 获取该文件。</p>
+<p class="note">请注意，安装过程中需要拥有管理员权限。</p>
+</div>
+<p>请确定您系统上的临时目录中有足够可用的内存空间，并且已获得读、写及运行的访问权限。开始安装前请关闭其他所有应用程序。</p>
+</div>
+<div id="StartupProblems">
+<h2>程序启动时出现的问题</h2>
+<p>显卡驱动程序经常会引发 OpenOffice 启动问题（例如应用程序挂起）和屏幕显示问题。如果出现这些问题，请更新您的显卡驱动程序或尝试使用操作系统附带的图形驱动程序。如果显示三维对象时出现问题，则经常可以通过禁用“工具”-“选项”- OpenOffice -“视图”-“三维视图”下的“使用 OpenGL”选项得到解决。</p>
+</div>
+<div id="Scroll">
+<h2>Windows 下的 ALPS/Synaptics 笔记本触摸板</h2>
+<p>由于 Windows 驱动的问题, 您将不能通过使用 ALPS/Synaptics 触摸板的滚动条控制 OpenOffice 的上下滚动。</p>
+<p>如果想要使用触摸板的滚动条，需要把下面几行内容添加到配置文件 "<tt>C:\Program Files\Synaptics\SynTP\SynTPEnh.ini</tt>" 中，然后重新启动您的计算机：</p>
+<p class="code">[OpenOffice]</p>
+<p class="code">FC = "SALFRAME"</p>
+<p class="code">SF = 0x10000000</p>
+<p class="code">SF |= 0x00004000</p>
+<p class="note">在 Windows 的不同版本中配置文件的位置可能会不同。</p>
+</div>
+<div id="Keyboard">
+<h2>快捷键</h2>
+<p>OpenOffice 中只能够使用操作系统尚未预设的快捷键（组合键）。如果 OpenOffice 帮助中描述的一些组合键在使用 OpenOffice 时根本无法起作用，您就需要检查一下这些快捷键是否已经被操作系统占用。要解除此类冲突，您可以更改操作系统指定的快捷键。另外，您也可以更改 OpenOffice 中绝大部分的快捷键。有关此主题的详细信息，请参阅 OpenOffice 帮助或操作系统的帮助文档。</p>
+</div>
+<div id="Mapi">
+<h2>OpenOffice 中以当前文档格式发送电子邮件时出现的问题</h2>
+<p>当通过“文件”-“发送”-“文档作为电子邮件”或“文档作为 PDF 附件”发送文档时可能会发生问题（程序崩溃或中止）。这是由于 Windows 系统文件 "Mapi" (Messaging Application Programming Interface) 导致了一些文件版本上的问题。不幸的是，我们无法确定哪些版本有问题。有关详细信息，请访问 <a href="http://www.microsoft.com">http://www.microsoft.com</a> 以在知识库中搜索 "mapi dll"。</p>
+</div>
+<div id="A11y">
+<h2>辅助功能的重要提示</h2>
+<p>有关 OpenOffice 中辅助功能的详细信息，请参见 <a href="http://www.openoffice.org/access/">http://www.openoffice.org/access/</a></p>
+</div>
+<div id="UserSupport">
+<h2>用户支持</h2>
+<p>主支持页 <a href="http://support.openoffice.org/">http://support.openoffice.org/</a> 提供了各种可能的方法来帮助您使用 OpenOffice。您的问题可能已得到回答 - 可以在 <a href="http://forum.openoffice.org">http://forum.openoffice.org</a> 查看社区论坛，或在 <a href="http://openoffice.apache.org/mailing-lists.html">http://openoffice.apache.org/mailing-lists.html</a> 搜索 "users@openoffice.apache.org" 邮件列表的存档。或者，您也可以将问题发送至 <a href="mailto:users@openoffice.apache.org">users@openoffice.apache.org</a>。以下网页介绍了如何订阅此列表（获取电子邮件响应）：<a href="http://openoffice.apache.org/mailing-lists.html">http://openoffice.apache.org/mailing-lists.html</a>。</p>
+<p>您还可以查阅常见问题解答部分，网址为 <a href="http://wiki.openoffice.org/wiki/Documentation/FAQ">http://wiki.openoffice.org/wiki/Documentation/FAQ</a>。</p>
+</div>
+<div id="ReportBugsIssues">
+<h2>报告错误和问题</h2>
+<p>OpenOffice 网站中的 <a href="https://issues.apache.org/ooo/">BugZilla</a>, 是我们用于报告、跟踪和解决错误与问题的机制。我们鼓励所有用户利用这种权利，并欢迎您报告在您的特定平台上出现的问题。热心的问题报告是用户群体对正在开发和改进的办公套件可做的最重要贡献之一。</p>
+</div>
+<div id="GettingInvolved">
+<h2>涉及</h2>
+<p>您在该重要的开源项目发展中的积极参与将会对 OpenOffice 社区非常有帮助。</p>
+<p>作为一名用户，您已经是本套件开发过程中重要的一环，我们鼓励您成为更加活跃的社区长期贡献者。请加入并查看用户页面 <a href="http://openoffice.apache.org/get-involved.html">http://openoffice.apache.org/get-involved.html</a></p>
+<h3>开始方式</h3>
+<p>订阅一个或多个邮件列表是开始做出贡献的最佳途径，经过一段时间的邮件阅读，并且逐步借助归档邮件使自己熟悉更多的从 OpenOffice 源代码在2000年10月发布以来的讨论话题。当您觉得适当的时候，您只需要发送一封邮件做自我介绍并加入讨论。</p>
+<h3>订阅邮件</h3>
+<p>在<a href="http://openoffice.apache.org/mailing-lists.html">http://openoffice.apache.org/mailing-lists.html</a>中有一些您可以订阅的关于 OpenOffice 的邮件列表。</p>
+<ul>
+<li><p>新闻: announce@openoffice.apache.org *推荐所有用户订阅* (低流量)</p></li>
+<li><p>主用户论坛: users@openoffice.apache.org *更容易看到各种讨论* (高流量)</p></li>
+<li><p>通用项目开发和讨论邮件列表：dev@openoffice.apache.org (高流量)</p></li>
+</ul>
+<h3>Joining the Project</h3>
+<p>您可以为这个重要的开源项目做出主要的贡献，即使您的软件设计和编码经验有限。是的，您可以！</p>
+<p>在 <a href="http://openoffice.apache.org/get-involved.html">http://openoffice.apache.org/get-involved.html</a> 中你将会发现一些概览，范围从本地化、质量保障、用户支持到一些真正核心编码的项目工程，你可以从它们开始。如果你不是一名程序员，你可以进行其他帮助，如完善文档或从事市场推广。OpenOffice 的市场推广可以是零散的，也可以借鉴传统的推广开源软件的商业手段，并且我们需要使产品可以不受语言和文化的限制，所以你要做的可以仅仅是把这个办公套件的信息传播出去或者告诉你的朋友。</p>
+<p>你可以通过加入市场推广的邮件列表 marketing@openoffice.apache.org 来提供帮助，在那里你可以建立所在国家和本地社区内新闻、媒体、政府机构、顾问、学校、Linux用户群和开发者的通讯联系点。</p>
+</div>
+<div id="Credits">
+<p>我们希望您能够愉快地使用新的 OpenOffice 4.1.6 并在线加入我们。</p>
+<p>Apache OpenOffice 社区</p>
+</div>
+<div id="ModifiedSourceCode"></div>
+</body>
+</html>

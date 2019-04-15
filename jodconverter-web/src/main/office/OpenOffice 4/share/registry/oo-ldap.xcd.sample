@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+
+<!-- This file is an example of an LDAP configuration file.
+
+     To use user data from LDAP in your installation, you need to provide a
+     customized version of this file, removing the ".sample" suffix.
+
+     This sample file is designed to work with a Sun Java System Directory
+     Server.  There is another sample file designed to work with a Windows
+     Active Directory Server.  Only one of those files should be activated by
+     removing its ".sample" suffix.
+
+     To customize values in this file, replace the data within <value>...
+     </value> elements flagged as "CUSTOMIZE" with the values for your
+     organization.  If a certain setting is not necessary for your installation,
+     you can remove the compelete corresponding <value>...</value> element.
+-->
+
+<oor:data xmlns:oor="http://openoffice.org/2001/registry">
+  <dependency file="main"/>
+  <oor:component-data oor:package="org.openoffice" oor:name="LDAP">
+    <node oor:name="UserDirectory">
+      <prop oor:name="SearchUser">
+        <!-- CUSTOMIZE, activate unless anonymous access is possible:
+        <value>MyUserLogin</value> -->
+      </prop>
+      <prop oor:name="SearchPassword">
+        <!-- CUSTOMIZE, activate unless anonymous access is possible:
+        <value>MyPassword</value> -->
+      </prop>
+      <prop oor:name="UserObjectClass">
+        <!-- CUSTOMIZE --><value>inetorgperson</value>
+      </prop>
+      <prop oor:name="UserUniqueAttribute">
+        <!-- CUSTOMIZE --><value>uid</value>
+      </prop>
+      <node oor:name="ServerDefinition">
+        <prop oor:name="Server">
+          <!-- CUSTOMIZE --><value>ldapserver.mycorp.com</value>
+        </prop>
+        <prop oor:name="Port">
+          <!-- CUSTOMIZE --><value>389</value>
+        </prop>
+        <prop oor:name="BaseDN">
+          <!-- CUSTOMIZE --><value>dc=mycorp,dc=com</value>
+        </prop>
+      </node>
+    </node>
+  </oor:component-data>
+  <oor:component-data oor:package="org.openoffice" oor:name="UserProfile">
+    <node oor:name="Data">
+      <prop oor:name="o">
+        <value oor:external=
+     "com.sun.star.configuration.backend.LdapUserProfileBe o,organizationName"/>
+      </prop>
+      <prop oor:name="givenname">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe givenname"/>
+      </prop>
+      <prop oor:name="sn">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe sn"/>
+      </prop>
+      <prop oor:name="initials">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe initials"/>
+      </prop>
+      <prop oor:name="street">
+        <value oor:external=
+"com.sun.star.configuration.backend.LdapUserProfileBe street,postalAddress,streetAddress"
+/>
+      </prop>
+      <prop oor:name="l">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe l"/>
+      </prop>
+      <prop oor:name="st">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe st"/>
+      </prop>
+      <prop oor:name="postalcode">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe postalcode"/>
+      </prop>
+      <!--
+      <prop oor:name="c">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe ..."/>
+      </prop>
+      -->
+      <prop oor:name="title">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe title"/>
+      </prop>
+      <prop oor:name="position">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe position"/>
+      </prop>
+      <prop oor:name="homephone">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe homephone"/>
+      </prop>
+      <prop oor:name="telephonenumber">
+        <value oor:external=
+        "com.sun.star.configuration.backend.LdapUserProfileBe telephonenumber"/>
+      </prop>
+      <prop oor:name="facsimiletelephonenumber">
+        <value oor:external=
+"com.sun.star.configuration.backend.LdapUserProfileBe facsimiletelephonenumber,officeFax"
+/>
+      </prop>
+      <prop oor:name="mail">
+        <value oor:external=
+        "com.sun.star.configuration.backend.LdapUserProfileBe mail"/>
+      </prop>
+      <!--
+      <prop oor:name="fathersname">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe ..."/>
+      </prop>
+      -->
+      <!--
+      <prop oor:name="apartment">
+        <value oor:external=
+            "com.sun.star.configuration.backend.LdapUserProfileBe ..."/>
+      </prop>
+      -->
+    </node>
+  </oor:component-data>
+</oor:data>

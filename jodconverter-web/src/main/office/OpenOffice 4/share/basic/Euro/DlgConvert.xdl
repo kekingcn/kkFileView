@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="DialogConvert" dlg:left="96" dlg:top="28" dlg:width="270" dlg:height="210" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_DIALOG" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="lblCurrencies" dlg:tab-index="1" dlg:left="170" dlg:top="39" dlg:width="89" dlg:height="8" dlg:value="lblCurrencies"/>
+  <dlg:checkbox dlg:id="chkComplete" dlg:tab-index="0" dlg:left="12" dlg:top="43" dlg:width="129" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CHECKBOX1" dlg:value="chkComplete" dlg:checked="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Euro.ConvertRun.RetrieveEnableValue?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:menulist dlg:id="lstCurrencies" dlg:tab-index="2" dlg:left="170" dlg:top="51" dlg:width="90" dlg:height="12" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_COMBOBOX1" dlg:spin="true" dlg:linecount="12">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Euro.Common.SelectCurrency?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optCellTemplates" dlg:tab-index="3" dlg:left="12" dlg:top="96" dlg:width="129" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_OPTIONBUTTON1" dlg:value="optCellTemplates">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.Soft.CreateStyleEnumeration?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optSheetRanges" dlg:tab-index="4" dlg:left="12" dlg:top="110" dlg:width="130" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_OPTIONBUTTON2" dlg:value="optSheetRanges">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.Hard.CreateRangeList?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optDocRanges" dlg:tab-index="5" dlg:left="12" dlg:top="124" dlg:width="130" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_OPTIONBUTTON3" dlg:value="optDocRanges">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.Hard.CreateRangeList?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optSelRange" dlg:tab-index="6" dlg:left="12" dlg:top="138" dlg:width="130" dlg:height="10" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_OPTIONBUTTON4" dlg:value="optSelRange">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.ConvertRun.CheckRangeSelection?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:text dlg:id="lblSelection" dlg:tab-index="7" dlg:left="170" dlg:top="84" dlg:width="73" dlg:height="8" dlg:page="1" dlg:value="lblSelection"/>
+  <dlg:menulist dlg:id="lstSelection" dlg:tab-index="8" dlg:left="170" dlg:top="96" dlg:width="90" dlg:height="52" dlg:page="1" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_LISTBOX1" dlg:multiselection="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Euro.ConvertRun.SelectListItem?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:menulist>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="optSingleFile" dlg:tab-index="9" dlg:left="12" dlg:top="51" dlg:width="146" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_OBFILE" dlg:value="optSingleFile">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.AutoPilotRun.SwapExtent?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+   <dlg:radio dlg:id="optWholeDir" dlg:tab-index="10" dlg:left="12" dlg:top="65" dlg:width="146" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_OBDIR" dlg:value="optWholeDir" dlg:checked="true">
+    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.AutoPilotRun.SwapExtent?language=Basic&amp;location=application" script:language="Script"/>
+   </dlg:radio>
+  </dlg:radiogroup>
+  <dlg:textfield dlg:id="txtConfig" dlg:tab-index="11" dlg:left="6" dlg:top="50" dlg:width="258" dlg:height="55" dlg:page="3" dlg:vscroll="true" dlg:multiline="true" dlg:readonly="true"/>
+  <dlg:textfield dlg:id="txtSource" dlg:tab-index="12" dlg:left="80" dlg:top="82" dlg:width="165" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_TBSOURCE">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Euro.AutoPilotRun.ToggleGoOnButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:textfield>
+  <dlg:button dlg:id="cmdCallSourceDialog" dlg:tab-index="13" dlg:left="249" dlg:top="81" dlg:width="15" dlg:height="14" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CBSOURCEOPEN" dlg:value="...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.AutoPilotRun.CallFilePicker?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:checkbox dlg:id="chkRecursive" dlg:tab-index="14" dlg:left="12" dlg:top="98" dlg:width="252" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CHECKRECURSIVE" dlg:value="chkRecursive" dlg:checked="false"/>
+  <dlg:checkbox dlg:id="chkTextDocuments" dlg:tab-index="15" dlg:left="12" dlg:top="112" dlg:width="251" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CHKTEXTDOCUMENTS" dlg:value="chkTextDocuments" dlg:checked="false"/>
+  <dlg:checkbox dlg:id="chkProtect" dlg:tab-index="16" dlg:left="12" dlg:top="126" dlg:width="251" dlg:height="10" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CHKPROTECT" dlg:value="chkProtect" dlg:checked="false"/>
+  <dlg:textfield dlg:id="txtTarget" dlg:tab-index="17" dlg:left="80" dlg:top="143" dlg:width="165" dlg:height="12" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_TBTARGET"/>
+  <dlg:button dlg:id="cmdCallTargetDialog" dlg:tab-index="18" dlg:left="249" dlg:top="142" dlg:width="15" dlg:height="14" dlg:page="2" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CBTARGETOPEN" dlg:value="...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.AutoPilotRun.CallFolderPicker?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:progressmeter dlg:id="ProgressBar" dlg:tab-index="19" dlg:left="85" dlg:top="152" dlg:width="179" dlg:height="10" dlg:page="3"/>
+  <dlg:text dlg:id="lblHint" dlg:tab-index="20" dlg:left="6" dlg:top="166" dlg:width="258" dlg:height="20" dlg:value="lblHint" dlg:multiline="true"/>
+  <dlg:text dlg:id="lblTarget" dlg:tab-index="21" dlg:left="6" dlg:top="145" dlg:width="73" dlg:height="8" dlg:page="2" dlg:value="lblTarget"/>
+  <dlg:text dlg:id="lblSource" dlg:tab-index="22" dlg:left="6" dlg:top="84" dlg:width="73" dlg:height="8" dlg:page="2" dlg:value="lblSource"/>
+  <dlg:text dlg:id="lblCurProgress" dlg:tab-index="23" dlg:left="16" dlg:top="130" dlg:width="208" dlg:height="8" dlg:page="3"/>
+  <dlg:text dlg:id="lblRetrieval" dlg:tab-index="24" dlg:left="9" dlg:top="119" dlg:width="216" dlg:height="8" dlg:page="3" dlg:value="lblRetrieval"/>
+  <dlg:text dlg:id="lblConfig" dlg:tab-index="25" dlg:left="6" dlg:top="39" dlg:width="94" dlg:height="8" dlg:page="3" dlg:value="lblConfig"/>
+  <dlg:text dlg:id="lblCurDocument" dlg:tab-index="26" dlg:left="16" dlg:top="141" dlg:width="208" dlg:height="8" dlg:page="3"/>
+  <dlg:img dlg:id="imgPreview" dlg:tab-index="27" dlg:left="6" dlg:top="6" dlg:width="258" dlg:height="26" dlg:src="file:///D:/office630np/share/template/german/wizard/bitmap/euro_2.bmp"/>
+  <dlg:fixedline dlg:id="hlnSelection" dlg:tab-index="28" dlg:left="7" dlg:top="72" dlg:width="258" dlg:height="8" dlg:page="1" dlg:value="hlnSelection"/>
+  <dlg:fixedline dlg:id="hlnExtent" dlg:tab-index="29" dlg:left="6" dlg:top="39" dlg:width="156" dlg:height="8" dlg:page="2" dlg:value="hlnExtent"/>
+  <dlg:fixedline dlg:id="hlnProgress" dlg:tab-index="30" dlg:left="6" dlg:top="108" dlg:width="258" dlg:height="8" dlg:page="3" dlg:value="hlnProgress"/>
+  <dlg:fixedline dlg:id="FixedLine1" dlg:tab-index="31" dlg:left="6" dlg:top="152" dlg:width="258" dlg:height="9" dlg:page="1"/>
+  <dlg:text dlg:id="lblProgress" dlg:tab-index="32" dlg:left="6" dlg:top="153" dlg:width="79" dlg:height="8" dlg:page="3" dlg:value="lblProgress"/>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="33" dlg:left="6" dlg:top="190" dlg:width="53" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CBCANCEL" dlg:value="cmdCancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.Common.CancelTask?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdHelp" dlg:tab-index="34" dlg:left="63" dlg:top="190" dlg:width="53" dlg:height="14" dlg:value="cmdHelp" dlg:button-type="help"/>
+  <dlg:button dlg:id="cmdBack" dlg:tab-index="35" dlg:left="155" dlg:top="190" dlg:width="53" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CBBACK" dlg:value="cmdBack">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.AutoPilotRun.PreviousStep?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdGoOn" dlg:tab-index="36" dlg:left="211" dlg:top="190" dlg:width="53" dlg:height="14" dlg:help-url="HID:WIZARDS_HID_DLGCONVERT_CBGOON" dlg:value="cmdGoOn">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Euro.Common.StartConversion?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+ </dlg:bulletinboard>
+</dlg:window>

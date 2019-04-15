@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="ModuleAgenda" script:language="StarBasic">&apos; All variables must be declared before use
+Option Explicit
+
+&apos; Used for &quot;disabling&quot; the cancel button of the dialog
+Public DialogExited As Boolean
+Dim DlgAgenda_gMyName as String
+Public TemplateDialog as Object
+Public DialogModel as Object
+Public sTrueContent as String
+Public Bookmarkname as String
+
+
+
+Sub Initialize()
+&apos; User sets the type of minutes
+        BasicLibraries.LoadLibrary( &quot;Tools&quot; )
+	TemplateDialog = LoadDialog(&quot;Template&quot;, &quot;TemplateDialog&quot;)
+	DialogModel = TemplateDialog.Model
+	DialogModel.Step = 1
+	LoadLanguageAgenda()
+	DialogModel.OptAgenda2.State = TRUE
+	GetOptionValues()
+	DialogExited = FALSE
+	TemplateDialog.Execute
+End Sub
+
+
+Sub LoadLanguageAgenda()
+	If InitResources(&quot;&apos;Template&apos;&quot;, &quot;tpl&quot;) Then
+		DlgAgenda_gMyName = GetResText(1200)
+		DialogModel.CmdCancel.Label = GetResText(1102)
+		DialogModel.CmdAgdGoon.Label = GetResText(1103)
+&apos;		DlgAgenda_gMsgNoCancel$ = GetResText(1201)
+		DialogModel.FrmAgenda.Label = GetResText(1202)
+		DialogModel.OptAgenda1.Label = GetResText(1203)
+		DialogModel.OptAgenda2.Label = GetResText(1204)
+&apos;		DialogModel.OptAgenda1.State = 1
+	End If
+End Sub
+
+
+Sub ModifyTemplate()
+Dim oDocument, oBookmarks, oBookmark, oBookmarkCursor, oTextField as Object
+Dim i as Integer
+
+  oDocument = ThisComponent
+	oBookMarks = oDocument.Bookmarks
+
+	On Local Error Goto NOBOOKMARK
+	TemplateDialog.EndExecute
+	DialogExited = TRUE
+	oBookmarkCursor = CreateBookmarkCursor(oDocument, BookmarkName)
+	oBookmarkCursor.Text.insertString(oBookmarkCursor,&quot;&quot;,True)
+	&apos; Delete all the Bookmarks except for the one named &quot;NextTopic&quot;
+	For i = oBookmarks.Count-1 To 0 Step -1
+		oBookMark = oBookMarks.GetByIndex(i)
+		If oBookMark.Name &lt;&gt; &quot;NextTopic&quot; Then
+			oBookMark.Dispose()
+		End If
+	Next i
+	oBookMarkCursor = CreateBookmarkCursor(oDocument, &quot;NextTopic&quot;)
+	If Not IsNull(oBookMarkCursor) Then
+		oTextField = oBookMarkCursor.TextField
+&apos;		oTextField.TrueContent = 	sTrueContent
+		oTextField.Content = sTrueContent
+	End If
+
+	NOBOOKMARK:
+	If Err &lt;&gt; 0 Then
+		RESUME NEXT
+	End If
+End Sub
+
+
+Sub NewTopic
+&apos; Add a new topic to the agenda
+Dim oDocument, oBookmarks, oBookmark, oBookmarkCursor, oTextField as Object
+Dim oBaustein, oAutoText, oAutoGroup as Object
+Dim i as Integer
+
+  	oDocument = ThisComponent
+	oBookMarkCursor = CreateBookMarkCursor(oDocument, &quot;NextTopic&quot;)
+	oTextField = oBookMarkCursor.TextField
+	oAutoText = CreateUnoService(&quot;com.sun.star.text.AutoTextContainer&quot;)
+	If oAutoText.HasbyName(&quot;template&quot;) Then
+		oAutoGroup = oAutoText.GetbyName(&quot;template&quot;)
+		If oAutoGroup.HasbyName(oTextField.Content) Then
+			oBaustein = oAutoGroup.GetbyName(oTextField.Content)
+			oBaustein.ApplyTo(oBookMarkCursor)
+		Else
+			Msgbox(&quot;AutoText &apos;&quot; &amp; oTextField.Content &amp; &quot;&apos; is not existing. Cannot insert additional topic!&quot;)
+		End If
+	Else
+		Msgbox(&quot;AutoGroupField template is not existing. Cannot insert additional topic!&quot;, 16, DlgAgenda_gMyName )
+	End If
+End Sub
+
+
+
+&apos; Add initials, date and time at bottom of agenda, disable and hide command buttons
+Sub FinishAgenda
+Dim BtnAddAgendaTopic As Object
+Dim BtnFinishAgenda As Object
+Dim oUserField, oDateTimeField as Object
+Dim oBookmarkCursor as Object
+Dim oFormats, oLocale as Object
+Dim iDateTimeKey as Integer
+
+        BasicLibraries.LoadLibrary( &quot;Tools&quot; )
+  oDocument = ThisComponent
+
+	oUserField = oDocument.CreateInstance(&quot;com.sun.star.text.TextField.ExtendedUser&quot;)
+	oUserField.UserDatatype = com.sun.star.text.UserDataPart.SHORTCUT
+
+	oDateTimeField = oDocument.CreateInstance(&quot;com.sun.star.text.TextField.DateTime&quot;)
+
+	&apos; Assign Standardformat to Datetime-Textfield
+	oFormats = oDocument.Numberformats
+	oLocale = oDocument.CharLocale
+	iDateTimeKey = oFormats.GetStandardFormat(com.sun.star.util.NumberFormat.DATETIME,oLocale)
+	oDateTimeField.NumberFormat = iDateTimeKey
+
+	oBookmarkCursor = CreateBookmarkCursor(oDocument, &quot;NextTopic&quot;)
+	oBookmarkCursor.Text.InsertTextContent(oBookmarkCursor,oUserField,False)
+	oBookmarkCursor.Text.InsertString(oBookmarkCursor,&quot; &quot;,False)
+	oBookmarkCursor.Text.InsertTextContent(oBookmarkCursor,oDateTimeField,False)
+	BtnAddAgendaTopic = getControlModel(oDocument, &quot;BtnAddAgendaTopic&quot;)
+	BtnFinishAgenda = getControlModel(oDocument, &quot;BtnFinishAgenda&quot;)
+	If Not IsNull(BtnAddAgendaTopic) Then BtnAddAgendaTopic.Enabled = FALSE
+	If Not IsNull(BtnFinishAgenda) Then BtnFinishAgenda.Enabled = FALSE
+End Sub
+
+
+Function CreateBookMarkCursor(oDocument as Object,sBookmarkName as String)
+	oBookMarks = oDocument.Bookmarks
+	If oBookmarks.HasbyName(sBookmarkName) Then
+		oBookMark = oBookMarks.GetbyName(sBookmarkName)
+		CreateBookMarkCursor = oBookMark.Anchor.Text.CreateTextCursorByRange(oBookMark.Anchor)
+	Else
+		Msgbox &quot;Bookmark &quot; &amp; sBookmarkName &amp;  &quot; is not defined!&quot;
+	End If
+End Function
+
+
+
+Sub DeleteButtons
+Dim AgendaFinished As Boolean
+Dim BtnAddAgendaTopic As Object
+Dim BtnFinishAgenda As Object
+
+  oDocument = ThisComponent
+
+	BtnAddAgendaTopic = getControlModel(oDocument, &quot;BtnAddAgendaTopic&quot;)
+	BtnFinishAgenda = getControlModel(oDocument, &quot;BtnFinishAgenda&quot;)
+
+	&apos; If buttons could be accessed: If at least one button is disabled, then agenda is finished
+	AgendaFinished = FALSE
+	If Not IsNull(BtnAddAgendaTopic) Then
+		AgendaFinished = (AgendaFinished Or (BtnAddAgendaTopic.Enabled = FALSE))
+	End If
+
+	If Not IsNull(BtnFinishAgenda) Then
+		AgendaFinished = (AgendaFinished Or (BtnFinishAgenda.Enabled = FALSE))
+	End If
+
+	&apos; Delete Buttons, empty rows at end of document &amp; macro bindings if agenda is finished
+	If AgendaFinished Then
+		DisposeControl(oDocument, &quot;BtnAddAgendaTopic&quot;)
+		DisposeControl(oDocument, &quot;BtnFinishAgenda&quot;)
+
+		oBookmarkCursor = CreateBookMarkCursor(oDocument,&quot;NextTopic&quot;)
+		oBookMarkCursor.GotoEnd(True)
+		oBookmarkCursor.Text.insertString(oBookmarkCursor,&quot;&quot;,True)
+
+		AttachBasicMacroToEvent(oDocument,&quot;OnNew&quot;, &quot;&quot;)
+		AttachBasicMacroToEvent(oDocument,&quot;OnSave&quot;, &quot;&quot;)
+		AttachBasicMacroToEvent(oDocument,&quot;OnSaveAs&quot;, &quot;&quot;)
+		AttachBasicMacroToEvent(oDocument,&quot;OnPrint&quot;, &quot;&quot;)
+	End If
+End Sub
+
+
+
+Sub GetOptionValues(Optional aEvent as Object)
+Dim CurTag as String
+Dim Taglist() as String
+	If Not IsMissing(aEvent) Then
+		CurTag = aEvent.Source.Model.Tag
+	Else
+		If DialogModel.OptAgenda1.State = TRUE Then
+			CurTag = DialogModel.OptAgenda1.Tag
+		Else
+			CurTag = DialogModel.OptAgenda2.Tag
+		End If		
+	End If
+	Taglist() = ArrayoutOfString(CurTag, &quot;;&quot;)
+	Bookmarkname = TagList(0)
+	sTrueContent = TagList(1)
+End Sub
+
+</script:module>

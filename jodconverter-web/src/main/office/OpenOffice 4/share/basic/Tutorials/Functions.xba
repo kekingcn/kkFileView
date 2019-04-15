@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Functions" script:language="StarBasic">REM  *****  BASIC  *****
+Dim DialogVisible As Boolean
+Dim TutorStep As Integer
+Dim TutorLastStep As Integer
+Dim myDialog As Object
+Dim myTutorial As Object
+Public TutorText() As String
+Dim documentTitle As String
+Dim exampleUse As Object     
+Dim properties() As Object
+Dim docTYP  As String
+&apos;public myWidth As Long
+Dim myHeight As Long
+Dim oTextField As Object
+Dim stepTitle  As String
+Dim oOpenDialogFlag
+Dim imageStatus  As String
+
+Sub LoadTutorialDialog(exampleToUse, documentTYP)
+	Init()
+	exampleUse = exampleToUse
+	TutorText() = exampleUse.LoadText()	
+	properties() = exampleUse.GetProperties()
+	If properties(3).Value = &quot;True&quot; Then
+		Dim localisation(0) As new com.sun.star.beans.NamedValue
+		localisation(0).Name = &quot;Localisation&quot;
+    	localisation(0).Value = properties()
+    	myTutorial.execute(localisation())
+	Else
+		TutorStep = 0
+		TutorLastStep = 0
+		docTYP = documentTYP
+		InitAction()
+		ShowInfoMain()	
+		DialogVisible = True
+		myDialog = LoadDialog(&quot;Tutorials&quot;,&quot;TutorialsDialog&quot;)	
+		
+		SetTutorialDocumentPosSize()
+		
+		documentProps =  ThisComponent.getDocumentProperties()
+		myDialog.Title = &quot;Tutorials - &quot; &amp; documentProps.Title
+		oTextField = myDialog.GetControl(&quot;myTextField&quot;)
+		oTextField.setVisible(False)
+		
+		imageStatus = &quot;MIN&quot;		
+		setMaxMinImage(imageStatus)
+		
+		&apos;myWidth = myDialog.Size.Width
+		myHeight = myDialog.Size.Height
+		
+		CheckForStepShowButtonStatus()
+		CheckForStepNextButtonStatus()
+		InitRoadMap()		
+		SetVisibleTrue()
+		myDialog.model.myTextField.Label = stepTitle
+		myDialog.model.myText.Label = GetStepText()&apos;TutorText(TutorStep)
+				
+		
+		Do
+			wait 1000
+		Loop Until DialogVisible = False
+		If( oOpenDialogFlag = True) Then
+			Destroy()
+			TutorialOpen.TutorialOpenMain()		
+		Else 
+			Destroy()
+		End If				
+	End If
+End Sub
+
+Sub setMaxMinImage(param As String)
+	On Local Error Goto NOIMAGE
+		oCommandButton = myDialog.GetControl(&quot;CommandButton&quot;)
+		templatePath = GetPathSettings(&quot;Template&quot;,false, 0)
+		Dim bitmapPath As String
+		iPos = InStr(templatePath,&quot;/&quot;)
+		If(iPos &gt; 0) Then
+			If(param = &quot;MAX&quot;) Then
+				bitmapPath = templatePath &amp; &quot;../wizard/bitmap/maximize.bmp&quot;
+			ElseIf(param = &quot;MIN&quot;) Then	
+				bitmapPath = templatePath &amp; &quot;../wizard/bitmap/minimize.bmp&quot;
+			End If
+		Else
+			If(param = &quot;MAX&quot;) Then
+				bitmapPath = templatePath &amp; &quot;..\wizard\bitmap\maximize.bmp&quot;
+			ElseIf(param = &quot;MIN&quot;) Then	
+				bitmapPath = templatePath &amp; &quot;..\wizard\bitmap\minimize.bmp&quot;
+			End If		
+		End If
+		&apos;printdbgInfo oCommandButton.Model
+		oCommandButton.Model.ImageUrl = bitmapPath
+	Exit Sub	
+	NOIMAGE:		
+End Sub
+
+Sub SetTutorialDocumentPosSize()
+	activDesktopWindow = StarDesktop.activeFrame.ContainerWindow
+	If(activDesktopWindow.posSize.Height &lt; 550) Then
+		activDesktopWindow.setPosSize(0,0,0,550,8)
+	End If	
+	If	(activDesktopWindow.posSize.Width &lt; 750 ) Then
+		activDesktopWindow.setPosSize(0,0,750,0,4)
+	EndIf	
+End Sub
+
+Sub InitRoadMap()
+	RoadMapMain(Functions, myDialog)
+	SetControlModelPosSize(0, 0, 85, 176)
+	SetControlModelText(&quot;Steps&quot;)
+	
+	StepSize = Ubound(TutorText())
+	Dim ItemsArray(StepSize) as String
+	For i = 0 To StepSize		
+		stepcontent = TutorText(i)
+		iPos = InStr(stepcontent,CHR(13))
+		ItemName = Left(stepcontent, iPos)
+		ItemsArray(i) = ItemName
+	Next i
+	InsertItemsLabels( ItemsArray())
+	
+	For i = 1 To StepSize			
+		SetItemEnabled( i, False)			
+	Next i
+	SetItemEnabled( 0, True)
+End Sub
+
+Sub Destroy()
+	&apos;myDialog.dispose		
+	wait 1000				
+    ShowInfoDialog.DisposeIDialog()
+    
+    &apos; HIER WIRD DAS DOCUMENT GESCHLOSSEN!!!!!!!! GPF
+    thisComponent.CurrentController.Frame.close(True)    
+	
+End Sub
+
+Sub Init
+	GlobalScope.BasicLibraries.LoadLibrary(&quot;Tools&quot;)	
+	myTutorial = createUNOService(&quot;com.sun.star.wizards.tutorial.executer.CallTutorialFramework&quot;)
+	documentTitle = ThisComponent.getCurrentController.getFrame.Title	
+End Sub
+
+Sub InitStep
+    udProps = ThisComponent.DocumentProperties.UserDefinedProperties
+    If udProps.PropertySetInfo.hasPropertyByName(&quot;CurrentStep&quot;) Then
+        TutorStep = udProps.CurrentStep
+    Else
+        udProps.addProperty(&quot;CurrentStep&quot;, 0, TutorStep)
+    End If
+End Sub
+
+Sub setStep
+    ThisComponent.DocumentProperties.UserDefinedProperties.CurrentStep = TutorStep
+End Sub
+
+Sub InitAction()
+	SetStepTitle()
+		
+	Dim property(6) As new com.sun.star.beans.PropertyValue	
+	property(0).Name = &quot;DocumentTYP&quot;
+	property(0).Value = docTYP	
+	property(1).Name = &quot;MethodName&quot;
+	property(1).Value = &quot;setDelay&quot;	
+	property(2).Name = &quot;Param&quot;
+	property(2).Value = 0	 &apos;key insert speed (Millis)
+	property(3).Name = &quot;Param&quot;
+	property(3).Value = 4	 &apos;mouse animate speed (Millis)
+	property(4).Name = &quot;Param&quot;
+	property(4).Value = 2000 &apos;after mouse animate sleep (Millis)
+	property(5).Name = &quot;Param&quot;
+	property(5).Value = 10	 &apos;mouse scroll speed (Millis)
+	property(6).Name = &quot;Param&quot;
+	property(6).Value = -1	 &apos;mouse speed (step)
+	myTutorial.setPropertyValues(property())
+End Sub
+
+Sub EndDialog
+	oOpenDialogFlag = False	
+	If (myDialog.model.done.Label = &quot;Close&quot;) Then
+		TutorialCloseMain()
+	Else 
+		DialogVisible = False		
+	End If
+End Sub
+
+Sub NextStep
+	GotoStep(TutorStep + 1)	
+End Sub
+
+Sub GotoStep(StepIndex)
+	If(StepIndex &lt;= Ubound(TutorText())) Then	
+		TutorStep = StepIndex
+		If TutorStep &gt; TutorLastStep Then
+			TutorLastStep = TutorStep
+		End If		
+		If(TutorStep = Ubound(TutorText())) Then
+			myDialog.model.next.enabled = False
+			myDialog.model.done.Label = &quot;Done&quot;
+			myDialog.model.show.Label = &quot;Tutorials&quot;	
+		Else
+			myDialog.model.next.enabled = True 	
+		End If
+		SetStepTitle()
+		myDialog.model.myText.Label = GetStepText()
+		CheckForStepShowButtonStatus()	
+		SetItemEnabled( TutorStep, True)
+		&apos;setStep()
+	End If
+End Sub
+
+Function GetStepText()
+	Dim tempText As String
+	tempText = TutorText(TutorStep)
+	iPos = InStr(tempText,CHR(13))
+	ResultString = Right(tempText, Len(tempText) - iPos - 1)
+	GetStepText() = ResultString
+End Function
+
+Sub ItemChange(CurrentItemID, SelectitemID)
+	GotoStep(SelectitemID)
+End Sub
+
+Sub SetDisableShowMeButton()
+	myDialog.model.show.enabled = False	
+	TutorLastStep = TutorLastStep + 1
+End Sub
+
+Sub Minimize(aEvent)
+	ActionItemsTextField = myDialog.GetControl(&quot;ActionItemsLabel&quot;)
+	FixedLineVertikal = myDialog.GetControl(&quot;FixedLineVertikal&quot;)
+	
+	If myDialog.Size.Height = 35 Then
+		myDialog.setPosSize(0,0,0,myHeight,8)
+		oTextField.setVisible(False)
+		ActionItemsTextField.setVisible(True)
+		FixedLineVertikal.setVisible(True)
+		RoadMap.SetVisibleRoadMap(True)
+	Else
+		myDialog.setPosSize(0,0,0,35,8)
+		rmSelectedIndex = RoadMap.GetSelectedIndex() + 1
+		gsTitle = GetStepTitle()		
+		oTextField.setText(rmSelectedIndex &amp; &quot;. &quot; &amp; gsTitle)
+		oTextField.setVisible(True)
+		ActionItemsTextField.setVisible(False)
+		FixedLineVertikal.setVisible(False)
+		RoadMap.SetVisibleRoadMap(False)
+	End If
+	If(imageStatus = &quot;MAX&quot;) Then
+		imageStatus = &quot;MIN&quot; 
+	ElseIf(imageStatus = &quot;MIN&quot;) Then	
+		imageStatus = &quot;MAX&quot;
+	End If
+	setMaxMinImage(imageStatus)
+
+End Sub
+
+Sub SetStepTitle()
+	stepcontent = TutorText(TutorStep)
+	iPos = InStr(stepcontent,CHR(13))
+	stepTitle = Left(stepcontent, iPos)
+	SetStepTitle() = stepTitle
+End Sub
+
+Function GetStepTitle()
+	GetStepTitle() = stepTitle
+End Function
+
+Sub CheckForStepShowButtonStatus()
+	If ((exampleUse.ContainsStepAction() = True And TutorStep = TutorLastStep) Or myDialog.model.show.Label = &quot;Tutorials&quot;) Then
+		myDialog.model.show.enabled = True			
+	Else
+		myDialog.model.show.enabled = False
+	End If
+End Sub
+
+Sub CheckForStepNextButtonStatus()
+	If(TutorStep = Ubound(TutorText())) Then
+		myDialog.model.next.enabled = False
+		myDialog.model.done.Label = &quot;Done&quot;
+	End If
+End Sub
+
+Sub Show(aEvent)
+	&apos;ShowInfoMain()
+	If( myDialog.model.show.Label = &quot;Tutorials&quot;) Then
+		oOpenDialogFlag = True
+		DialogVisible = False
+	Else 
+		SetMousePosition(aEvent)
+		exampleUse.Action() 
+	End If	
+End Sub
+
+Sub SetMousePosition(aEvent)
+	MyPoints() = MousePoints(aEvent)
+	
+	Dim mousePosition(3) as new com.sun.star.beans.PropertyValue
+	mousePosition(0).Name = &quot;DocumentTYP&quot;
+	mousePosition(0).Value = docTYP	
+	mousePosition(1).Name = &quot;MethodName&quot;
+	mousePosition(1).Value = &quot;setMousePosition&quot;           
+   	mousePosition(2).Name = &quot;Param&quot;
+   	mousePosition(2).Value = MyPoints(0)   	
+	mousePosition(3).Name = &quot;Param&quot;
+	mousePosition(3).Value = MyPoints(1)
+			
+	myTutorial.setPropertyValues(mousePosition())	
+End Sub
+
+Function MousePoints(aEvent)
+	Dim position(1) As Integer
+	position(0) = myDialog.getControl(&quot;show&quot;).AccessibleContext.LocationOnScreen.X + aEvent.Source.Model.PositionX	
+	position(1) = myDialog.getControl(&quot;show&quot;).AccessibleContext.LocationOnScreen.Y + aEvent.Source.Model.PositionY
+	MousePoints = position()	
+End Function
+
+Function CheckPath(path() As String)		
+	&apos;documentTitle = ThisComponent.getCurrentController.getFrame.Title
+	sTitle =  path(0)	
+	ResultString = Right(sTitle, 3)
+	iPos = InStr(ResultString,&quot;#&quot;)
+	ResultString = Right(ResultString, Len(ResultString) - iPos)
+	ResultFrameString = InStr (sTitle, &quot;{D}FRAME#&quot;)
+	If ResultFrameString &lt;&gt; 0 Then
+		If Not (sTitle = (&quot;{D}FRAME#&quot; &amp; documentTitle &amp; &quot;#&quot; &amp; ResultString)) Then
+			&apos;path(0) = &quot;{D}FRAME#&quot; &amp; documentTitle &amp; &quot;#&quot; &amp; ResultString
+			path(0) = &quot;FRAME#&quot; &amp; documentTitle &amp; &quot;#&quot; &amp; ResultString
+			sTitle =  path(1)	
+			ResultString = Right(sTitle, 3)
+			iPos = InStr(ResultString,&quot;#&quot;)
+			ResultString = Right(ResultString, Len(ResultString) - iPos)
+			path(1) = &quot;ROOT_PANE#&quot; &amp; documentTitle &amp; &quot;#&quot; &amp; ResultString
+		Else
+			&apos;path(0) = &quot;{D}FRAME#&quot; &amp; documentTitle &amp; &quot;#&quot; &amp; ResultString	
+			path(0) = &quot;FRAME#&quot; &amp; documentTitle &amp; &quot;#&quot; &amp; ResultString	
+		End If
+	End If	
+End Function
+
+Sub SetVisibleTutorialsDialog(param)
+	myDialog.setVisible(param)
+End Sub
+
+Sub SetVisibleTrue()
+	myDialog.setVisible(True)
+End Sub
+
+Sub SetVisibleFalse()
+	myDialog.setVisible(False)
+End Sub
+
+Sub ExitTutorial()		
+	Dim aUrl As new com.sun.star.util.URL
+	oDoc = ThisComponent
+    urlTransformer = createUNOService(&quot;com.sun.star.util.URLTransformer&quot;)
+    aUrl.Complete = &quot;slot:5621&quot;
+    urlTransformer.parseStrict(aUrl)
+    xController = oDoc.getCurrentController()
+    xDispatcher = xController.queryDispatch(aUrl, &quot;&quot;, 0)
+    if NOT isNull(xDispatcher) then
+        xDispatcher.dispatch(aUrl, DimArray())
+     else
+       msgBox &quot;Error! Cannot close document.&quot;
+     End If     
+End Sub
+</script:module>

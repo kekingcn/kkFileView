@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Protect" script:language="StarBasic">REM  *****  BASIC  *****
+Option Explicit
+
+Public PWIndex as Integer
+
+
+Function UnprotectSheetsWithPassWord(oSheets as Object, bDoUnProtect as Boolean)
+Dim i as Integer
+Dim MaxIndex as Integer
+Dim iMsgResult as Integer
+	PWIndex = -1
+	If bDocHasProtectedSheets Then
+		If Not bDoUnprotect Then
+			&apos; At First query if sheets shall generally be unprotected
+			iMsgResult = Msgbox(sMsgUNPROTECT,36,sMsgDLGTITLE)
+			bDoUnProtect = iMsgResult = 6
+		End If
+		If bDoUnProtect Then	
+			MaxIndex = oSheets.Count-1
+			For i = 0 To MaxIndex
+				bDocHasProtectedSheets = Not UnprotectSheet(oSheets(i))
+				If bDocHasProtectedSheets Then
+					ReprotectSheets()
+					Exit For
+				End If
+			Next i
+			If PWIndex = -1 Then
+				ReDim UnProtectList() as String
+			Else
+				ReDim Preserve UnProtectList(PWIndex) as String
+			End If
+		Else
+			Msgbox (sMsgSHEETSNOPROTECT, 64, sMsgDLGTITLE)
+		End If
+	End If
+	UnProtectSheetsWithPassword = bDocHasProtectedSheets
+End Function
+
+
+Function UnprotectSheet(oListSheet as Object)
+Dim ListSheetName as String
+Dim sStatustext as String
+Dim i as Integer
+Dim bOneSheetIsUnprotected as Boolean
+	i = -1
+	ListSheetName = oListSheet.Name
+	If oListSheet.IsProtected Then
+		oListSheet.Unprotect(&quot;&quot;)
+		If oListSheet.IsProtected Then
+			&apos; Sheet is protected by a Password
+			bOneSheetIsUnProtected = UnprotectSheetWithDialog(oListSheet, ListSheetName)
+			UnProtectSheet() = bOneSheetIsUnProtected
+		Else
+			&apos; The Sheet could be unprotected without a password
+			AddSheettoUnprotectionlist(ListSheetName,&quot;&quot;)
+			UnprotectSheet() = True
+		End If
+	Else
+		UnprotectSheet() = True
+	End If
+End Function
+
+
+Function UnprotectSheetWithDialog(oListSheet as Object, ListSheetName as String) as Boolean
+Dim PWIsCorrect as Boolean
+Dim QueryText as String
+	oDocument.CurrentController.SetActiveSheet(oListSheet)
+	QueryText = ReplaceString(sMsgPWPROTECT,&quot;&apos;&quot; &amp; ListSheetName &amp; &quot;&apos;&quot;, &quot;%1TableName%1&quot;)
+	&apos;&quot;Please insert the password to unprotect the sheet &apos;&quot; &amp; ListSheetName&apos;&quot;
+	Do
+		ExecutePasswordDialog(QueryText)
+		If bCancelProtection Then
+			bCancelProtection = False
+			Msgbox (sMsgSHEETSNOPROTECT, 64, sMsgDLGTITLE)
+			UnprotectSheetWithDialog() = False
+			exit Function
+		End If
+		oListSheet.Unprotect(Password)
+		If oListSheet.IsProtected Then
+			PWIsCorrect = False
+			Msgbox (sMsgWRONGPW, 64, sMsgDLGTITLE)
+		Else
+			&apos; Sheet could be unprotected
+			AddSheettoUnprotectionlist(ListSheetName,Password)
+			PWIsCorrect = True
+		End If
+	Loop Until PWIsCorrect
+	UnprotectSheetWithDialog() = True
+End Function
+
+
+Sub	ExecutePasswordDialog(QueryText as String)
+	With PasswordModel
+		.Title = QueryText
+		.hlnPassword.Label = sMsgPASSWORD
+		.cmdCancel.Label = sMsgCANCEL
+		.cmdHelp.Label = sHELP
+		.cmdGoOn.Label = sMsgOK
+		.cmdGoOn.DefaultButton = True
+	End With
+	DialogPassword.Execute
+End Sub
+
+Sub ReadPassword()
+	Password = PasswordModel.txtPassword.Text
+	DialogPassword.EndExecute
+End Sub
+
+
+Sub RejectPassword()
+	bCancelProtection = True
+	DialogPassword.EndExecute
+End Sub
+
+
+&apos; Reprotects the previousliy protected sheets
+&apos; The passwordinformation is stored in the List &apos;UnProtectList()&apos;
+Sub ReprotectSheets()
+Dim i as Integer
+Dim oProtectSheet as Object
+Dim ProtectList() as String
+Dim SheetName as String
+Dim SheetPassword as String
+	If PWIndex &gt; -1 Then
+		SetStatusLineText(sStsREPROTECT)
+		For i = 0 To PWIndex
+			ProtectList() = ArrayOutOfString(UnProtectList(i),&quot;;&quot;)
+			SheetName = ProtectList(0)
+			If Ubound(ProtectList()) &gt; 0 Then
+				SheetPassWord = ProtectList(1)
+			Else
+				SheetPassword = &quot;&quot;
+			End If
+			oProtectSheet =  oSheets.GetbyName(SheetName)
+			If Not oProtectSheet.IsProtected Then
+				oProtectSheet.Protect(SheetPassWord)
+			End If
+		Next i
+		SetStatusLineText(&quot;&quot;)
+	End If
+	PWIndex = -1
+	ReDim UnProtectList()
+End Sub
+
+
+&apos; Add a Sheet to the list of sheets that finally have to be
+&apos; unprotected
+Sub AddSheettoUnprotectionlist(ListSheetName as String, Password as String)
+Dim MaxIndex as Integer
+	MaxIndex = Ubound(UnProtectList())
+	PWIndex = PWIndex + 1
+	If PWIndex &gt; MaxIndex Then
+		ReDim Preserve UnprotectList(MaxIndex + SBRANGEUBOUND)
+	End If
+	UnprotectList(PWIndex) = ListSheetName &amp; &quot;;&quot; &amp; Password
+End Sub
+
+
+Function CheckSheetProtection(oSheets as Object) as Boolean
+Dim MaxIndex as Integer
+Dim i as Integer
+Dim bProtectedSheets as Boolean
+	bProtectedSheets = False
+	MaxIndex = oSheets.Count-1
+	For i = 0 To MaxIndex
+		bProtectedSheets = oSheets(i).IsProtected
+		If bProtectedSheets Then
+			CheckSheetProtection() = True
+			Exit Function
+		End If
+	Next i
+	CheckSheetProtection() = False
+End Function</script:module>

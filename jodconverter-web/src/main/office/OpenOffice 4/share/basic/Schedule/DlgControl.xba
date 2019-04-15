@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="DlgControl" script:language="StarBasic">Option Explicit
+
+Dim CalBitmap As Object
+Public bSelectByMouseMove as Boolean
+Public fHeightCorrFactor as Double
+Public fWidthCorrFactor as Double
+
+
+
+Sub Main()
+	Call CalAutopilotTable()
+End Sub
+
+
+Sub CalcmdDeleteSelect()
+Dim MsgBoxResult as Integer
+Dim bDoEnable as Boolean
+Dim iSel as Integer
+Dim MaxIndex as Integer
+	If Ubound(DlgCalModel.lstOwnData.SelectedItems()) &gt; -1 Then
+		MsgBoxResult = MsgBox(cCalSubcmdDeleteSelect_DeleteSelEntry$, 4+32, cCalSubcmdDeleteSelect_DeleteSelEntryTitle$)
+		If MsgBoxResult = 6 Then
+			iSel = DlgCalModel.lstOwnData.SelectedItems(0)
+			DlgCalModel.lstOwnData.StringItemList() = RemoveSelected(DlgCalModel.lstOwnData)
+			&apos; Flag to store the new data
+			bCalOwnDataChanged = True
+			bDoEnable = Ubound(DlgCalModel.lstOwnData.StringItemList()) &gt; -1
+			DlgCalModel.cmdDelete.Enabled = bDoEnable
+			If bDoEnable Then
+				MaxIndex = Ubound(DlgCalModel.lstOwnData.StringItemList()) 
+				If iSel &gt; MaxIndex Then
+					iSel = MaxIndex
+				End If
+				DlgCalendar.GetControl(&quot;lstOwnData&quot;).SelectItemPos(iSel, True)
+				CalUpdateNewEventFrame()
+			Else
+				Call CalClearInputMask()
+			End If
+		End If
+	End If
+End Sub
+
+
+Sub CalSaveOwnEventControls()
+	With DlgCalModel
+		.txtOwnEventDay.Tag = .txtOwnEventDay.Value
+		.txtOwnEventMonth.Tag = .txtOwnEventMonth.Text
+	End With
+End Sub
+
+
+Sub CalMouseMoved(aEvent as object)
+Dim ListIndex as Integer
+	Select Case sCurLangLocale
+		Case  cLANGUAGE_GERMAN
+			If bSelectByMouseMove Then
+&apos;				oStatusLine.SetText(&quot;Position: &quot; &amp; aEvent.X &amp; &quot; ; &quot; &amp; aEvent.Y)
+				ListIndex = CalGetGermanLandAtMousePos(CInt(aEvent.X/fWidthCorrFactor), CInt(aEvent.Y/fHeightCorrFactor))
+				DlgCalendar.GetControl(&quot;lstHolidays&quot;).SelectItemPos(ListIndex, True)
+			End If
+	End Select	
+End Sub
+
+
+Sub SelectState(aEvent as Object)
+Dim ListIndex as Integer
+	Select Case sCurLangLocale
+		Case  cLANGUAGE_GERMAN
+			If aEvent.ClickCount &gt;= 1 Then
+				ListIndex = CalGetGermanLandAtMousePos(CInt(aEvent.X/fWidthCorrFactor), CInt(aEvent.Y/fHeightCorrFactor))
+			DlgCalendar.GetControl(&quot;lstHolidays&quot;).SelectItemPos(ListIndex, True)
+			bSelectByMouseMove = False
+		End If
+	End Select
+End Sub
+
+
+Sub MouseLeavesImage
+	bSelectbyMouseMove = True
+End Sub
+
+
+Sub CalClearInputMask()
+Dim NullList() as String
+	With DlgCalModel
+		.txtEvent.Text = &quot;&quot;
+		.txtOwnEventDay.SetPropertyToDefault(&quot;Value&quot;)
+		.cmdInsert.Enabled = False
+	End With
+	If Ubound(DlgCalModel.lstOwnData.StringItemList()) &gt; -1 Then
+		If Ubound(DlgCalModel.lstOwnData.SelectedItems()) = -1 Then
+			DlgCalendar.GetControl(&quot;lstOwnData&quot;).SelectItemPos(0,True)
+			CalUpdateNewEventFrame()
+		End If
+	End If
+End Sub
+
+
+Sub CalmdSwitchOwnDataOrGeneral()
+	If DlgCalModel.Step = 1 Then
+		DlgCalModel.Step = 2
+		DlgCalModel.cmdOwnData.Label = cCalSubcmdSwitchOwnDataOrGeneral_Back$
+		DlgCalModel.cmdInsert.Enabled = DlgCalModel.txtEvent.Text &lt;&gt; &quot;&quot;
+&apos;		ToggleYearBox()
+	Else
+		dim bla as boolean
+		DlgCalModel.Step = 1
+		DlgCalendar.GetControl(&quot;lblHolidays&quot;).Visible = sCurLangLocale  = cLANGUAGE_GERMAN
+		DlgCalendar.GetControl(&quot;lstHolidays&quot;).Visible = sCurLangLocale  = cLANGUAGE_GERMAN
+		DlgCalModel.cmdOwnData.Label = cCalSubcmdSwitchOwnDataOrGeneral_OwnData$
+	End If
+End Sub
+
+
+Sub ToggleInsertButton()
+	DlgCalModel.cmdInsert.Enabled = LTrim(DlgCalModel.txtEvent.Text) &lt;&gt; &quot;&quot;	
+End Sub
+
+
+Sub CalUpdateNewEventFrame()
+Dim bDoEnable as Boolean
+Dim sSelectedItem
+Dim ListIndex as Integer
+Dim MaxSelIndex as Integer
+Dim CurEvMonth as Integer
+Dim CurEvDay as Integer
+Dim DateStr as String
+	bDoEnable = False
+	With DlgCalModel
+		MaxSelIndex = Ubound(DlgCalModel.lstOwnData.SelectedItems())
+		If MaxSelIndex &gt; -1 Then
+			ListIndex = .lstOwnData.SelectedItems(MaxSelIndex)
+			.txtEvent.Text = CalGetNameofEvent(ListIndex)
+			If GetSelectedDateUnits(CurEvDay, CurEvMonth, ListIndex) &lt;&gt; SBDATEUNDEFINED Then
+				.txtOwnEventDay.Value = CurEvDay
+				DlgCalendar.GetControl(&quot;lstOwnEventMonth&quot;).SelectItemPos(CurEvMonth-1, True)
+				.cmdDelete.Enabled = True
+				.cmdInsert.Enabled = True
+			Else
+				Call CalClearInputMask()
+				.cmdDelete.Enabled = True
+			End If
+		End If
+	End With
+End Sub
+</script:module>

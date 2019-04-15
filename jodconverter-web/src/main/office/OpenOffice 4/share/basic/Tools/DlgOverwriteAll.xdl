@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="DlgOverwriteAll" dlg:left="138" dlg:top="75" dlg:width="230" dlg:height="64" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="lblQueryforSave" dlg:tab-index="0" dlg:left="6" dlg:top="6" dlg:width="218" dlg:height="36" dlg:value="lblQueryforSave" dlg:multiline="true"/>
+  <dlg:button dlg:id="cmdYes" dlg:tab-index="1" dlg:left="6" dlg:top="43" dlg:width="50" dlg:height="14" dlg:value="cmdYes">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.ModuleControls.SetOVERWRITEToQuery?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdYesToAll" dlg:tab-index="2" dlg:left="62" dlg:top="43" dlg:width="50" dlg:height="14" dlg:value="cmdYesToAll">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.ModuleControls.SetOVERWRITEToAlways?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdNo" dlg:tab-index="3" dlg:left="118" dlg:top="43" dlg:width="50" dlg:height="14" dlg:default="true" dlg:value="cmdNo">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Tools.ModuleControls.SetOVERWRITEToNever?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="4" dlg:left="174" dlg:top="43" dlg:width="50" dlg:height="14" dlg:value="cmdCancel" dlg:button-type="cancel"/>
+ </dlg:bulletinboard>
+</dlg:window>

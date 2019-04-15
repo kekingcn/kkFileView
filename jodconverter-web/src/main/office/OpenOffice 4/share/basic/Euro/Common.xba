@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<!--***********************************************************
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ ***********************************************************-->
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Common" script:language="StarBasic"> REM  *****  BASIC  *****
+Public DialogModel as Object
+Public DialogConvert as Object
+Public DialogPassword as Object
+Public PasswordModel as Object
+
+Sub	RetrieveDocumentObjects()
+	CurMimeType = Tools.GetDocumentType(oDocument)
+	If Instr(1, CurMimeType, &quot;calc&quot;) &lt;&gt; 0 Then
+	    oSheets = oDocument.Sheets
+		oSheet = oDocument.Sheets.GetbyIndex(0)
+		oAddressRanges = oDocument.createInstance(&quot;com.sun.star.sheet.SheetCellRanges&quot;)
+	End If
+    &apos; Retrieve the indices for the cellformatations
+    oFormats = oDocument.NumberFormats
+End Sub
+
+
+Sub CancelTask()
+&apos;	If Not DocDisposed Then
+&apos;		ReprotectSheets()
+&apos;	End If
+	If DialogModel.Step = 3 And (Not bCancelTask) Then
+		If Msgbox(sMsgCancelConversion, 36, sMsgCancelTitle) = 6 Then
+			bCancelTask = True
+			DialogConvert.EndExecute
+		Else
+			bCancelTask = False
+		End If
+	Else
+		DialogConvert.EndExecute()
+	End If
+End Sub
+
+
+Function ConvertDocument()
+	GoOn = True
+&apos;	DocDisposed = True
+	InitializeProgressbar()
+	If Instr(1, CurMimeType, &quot;calc&quot;) &lt;&gt; 0 Then
+		bDocHasProtectedSheets = CheckSheetProtection(oSheets)
+		If bDocHasProtectedSheets Then
+			bDocHasProtectedSheets = UnprotectSheetsWithPassword(oSheets, bDoUnProtect)
+		End If
+		If Not bDocHasProtectedSheets Then
+			If Not bRangeListDefined Then
+				TotCellCount = 0
+				CreateRangeEnumeration(True)
+			Else
+				IncreaseStatusvalue(SBRelGet/3)
+			End If
+			RangeIndex = Ubound(RangeList())
+			If RangeIndex &gt; -1 Then
+				ConvertThehardWay(RangeList(), True, False)
+				MakeStyleEnumeration(True)
+				oDocument.calculateAll()
+			End If
+			ReprotectSheets()
+			bRangeListDefined = False
+		End If
+	Else
+		DialogModel.ProgressBar.ProgressValue = 10  &apos; oStatusline.SetValue(10)
+		ConvertTextFields()
+		DialogModel.ProgressBar.ProgressValue = 80  &apos; oStatusline.SetValue(80)
+		ConvertWriterTables()
+	End If
+	EndStatusLine()
+	On Local Error Goto 0
+End Function
+
+
+Sub SwitchNumberFormat(oObject as Object, oFormats as object)
+Dim nFormatLanguage as Integer
+Dim nFormatDecimals as Integer
+Dim nFormatLeading as Integer
+Dim bFormatLeading as Integer
+Dim bFormatNegRed as Integer
+Dim bFormatThousands as Integer
+Dim i as Integer
+Dim aNewStr as String
+Dim iNumberFormat as Long
+Dim AddToList as Boolean
+Dim sOldCurrSymbol as String
+	On Local Error Resume Next
+	iNumberFormat = oObject.NumberFormat
+	On Local Error GoTo NOKEY
+	aFormat() = oFormats.getByKey(iNumberFormat)
+	On Local Error GoTo 0
+	sOldCurrSymbol = aFormat.CurrencySymbol
+	If sOldCurrSymbol = CurrValue(CurrIndex,5) Then
+		aSimpleStr = &quot;0 [$EUR]&quot;
+	Else
+		aSimpleStr = &quot;0 [$&quot; &amp; sEuroSign &amp; aFormat.CurrencyExtension &amp; &quot;]&quot;
+	End If
+
+	nSimpleKey = Numberformat(oFormats, aSimpleStr, oLocale)
+	&apos; set new Currency format with according settings
+	nFormatDecimals = 2
+	nFormatLeading = aFormat.LeadingZeros
+	bFormatNegRed = aFormat.NegativeRed
+	bFormatThousands = aFormat.ThousandsSeparator
+	aNewStr = oFormats.generateFormat( nSimpleKey, aFormat.Locale, bFormatThousands, bFormatNegRed, nFormatDecimals, nFormatLeading)
+	oObject.NumberFormat = Numberformat(oFormats, aNewStr, aFormat.Locale)
+	NOKEY:
+	If Err &lt;&gt; 0 Then
+		Resume CLERROR
+	End If
+	CLERROR:
+End Sub
+
+
+Function Numberformat( oFormats as Object, aFormatStr as String, oLocale as Object)
+Dim nRetkey 
+Dim l as String
+Dim c as String
+	nRetKey = oFormats.queryKey( aFormatStr, oLocale, True )
+	If nRetKey = -1 Then
+		l = oLocale.Language
+		c = oLocale.Country
+		nRetKey = oFormats.addNew( aFormatStr, oLocale )
+		If nRetKey = -1 Then nRetKey = 0
+	End If
+	Numberformat = nRetKey
+End Function
+
+
+Function CheckFormatType( FormatObject as object)
+Dim i as Integer
+Dim LocCurrIndex as Integer
+Dim nFormatFormatString as String
+Dim FormatLangID as Integer
+Dim sFormatCurrExt as String
+Dim oFormatofObject() as Object
+
+	&apos; Retrieve the Format of the Object
+	On Local Error GoTo NOKEY
+	oFormatofObject = oFormats.getByKey(FormatObject.NumberFormat)
+	On Local Error GoTo 0			
+  	If NOT INT(oFormatofObject.Type) AND com.sun.star.util.NumberFormat.CURRENCY Then
+		CheckFormatType = False
+		Exit Function
+	End If
+	If FieldinArray(CurrSymbolList(),2,oFormatofObject.CurrencySymbol) Then
+		&apos; If the Currencysymbol of the object ist the one needed, then check the Currency extension
+		sFormatCurrExt = oFormatofObject.CurrencyExtension
+
+		If FieldInList(CurExtension(),2,sFormatCurrExt) Then
+			&apos; The Currency - extension also fits
+			CheckFormatType = True
+		Else
+			&apos; The Currency - symbol is Euro-conforming (like &apos;DEM&apos;), so there is no Currency-Extension
+			CheckFormatType = oFormatofObject.CurrencySymbol = CurrsymbolList(2)
+		End If
+	Else
+		&apos; The Currency Symbol of the object is not the desired one
+		If oFormatofObject.CurrencySymbol = &quot;&quot; Then
+			&apos; Format is &quot;automatic&quot;
+			CheckFormatType = CheckLocale(oFormatofObject.Locale)
+		Else
+			CheckFormatType = False
+		End If
+	End If
+
+	NOKEY:
+	If Err &lt;&gt; 0 Then
+		CheckFormatType = False
+		Resume CLERROR
+	End If
+	CLERROR:
+End Function
+
+
+Sub StartConversion()
+	GoOn = True
+	Select Case DialogModel.Step
+		Case 1
+			If DialogModel.chkComplete.State = 1 Then
+				ConvertWholeDocument()
+			Else
+				ConvertRangesorStylesofDocument()
+			End If
+		Case 2
+			bCancelTask = False
+			If InitializeThirdStep() Then
+				ConvertDocuments()
+				bCancelTask = True
+			End If
+		Case 3
+			DialogConvert.EndExecute()
+	End Select
+End Sub
+
+
+Sub IncreaseStatusValue(AddStatusValue as Integer)
+	StatusValue = Int(StatusValue + AddStatusValue)
+	If DialogModel.Step = 3 Then
+		DialogModel.ProgressBar.ProgressValue = StatusValue
+	Else
+		oStatusline.SetValue(StatusValue)
+	End If
+End Sub
+
+
+Sub SelectCurrency()
+Dim AddtoList as Boolean
+Dim NullList()
+Dim OldCurrIndex as Integer
+	bRangeListDefined = False
+	OldCurrIndex = CurrIndex
+	CurrIndex = DialogModel.lstCurrencies.SelectedItems(0)
+	If OldCurrIndex &lt;&gt; CurrIndex Then
+		InitializeCurrencyValues(CurrIndex)
+		CurExtension(0) = LangIDValue(CurrIndex,0,2)
+		CurExtension(1) = LangIDValue(CurrIndex,1,2)
+		CurExtension(2) = LangIDValue(CurrIndex,2,2)
+		If DialogModel.Step = 1 Then
+			EnableStep1DialogControls(False,False, False)
+			If DialogModel.optCellTemplates.State = 1 Then
+				EnableStep1DialogControls(False, False, False)
+				CreateStyleEnumeration()
+			ElseIf ((DialogModel.optSheetRanges.State = 1) OR (DialogModel.optDocRanges.State = 1)) AND (DialogModel.Step = 1) Then
+				CreateRangeEnumeration(False)
+				If Ubound(RangeList()) = -1 Then
+					DialogModel.lstSelection.StringItemList() = NullList()
+				End If
+			ElseIf DialogModel.optSelRange.State= 1 Then
+				&apos;Preselected Range
+			End If
+			EnableStep1DialogControls(True, True, True)
+		ElseIf DialogModel.Step = 2 Then
+			EnableStep2DialogControls(True)
+		End If
+	End If
+End Sub
+
+
+Sub FillUpCurrencyListbox()
+Dim i as Integer
+Dim MaxIndex as Integer
+	MaxIndex = Ubound(CurrValue(),1)
+	Dim LocList(MaxIndex) as String
+	For i = 0 To MaxIndex
+		LocList(i) = CurrValue(i,0)
+	Next i
+	DialogModel.lstCurrencies.StringItemList() = LocList()
+	If CurrIndex &gt; -1 Then
+		SelectListboxItem(DialogModel.lstCurrencies, CurrIndex)
+	End If
+End Sub
+
+
+Sub InitializeProgressbar()
+	CurCellCount = 0
+	If Not IsNull(oStatusLine) Then
+		oStatusline.Start(sStsPROGRESS, 100)
+	Else
+		DialogModel.ProgressBar.ProgressValue = 0
+	End If
+	StatusValue = 0
+End Sub
+
+
+Sub	EndStatusLine()
+	If Not IsNull(oStatusLine) Then
+		oStatusline.End
+	Else
+		DialogModel.ProgressBar.ProgressValue = 100
+	End If
+End Sub
+</script:module>
