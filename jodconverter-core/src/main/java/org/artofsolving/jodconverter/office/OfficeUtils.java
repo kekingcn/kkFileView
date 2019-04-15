@@ -66,8 +66,7 @@ public class OfficeUtils {
         }
         if (PlatformUtils.isWindows()) {
             // %ProgramFiles(x86)% on 64-bit machines; %ProgramFiles% on 32-bit ones
-            String separator = File.separator;
-            String officeHome = OfficeUtils.getHomePath() + separator + "office";
+            String homePath = OfficeUtils.getHomePath();
             String programFiles = System.getenv("ProgramFiles(x86)");
             if (programFiles == null) {
                 programFiles = System.getenv("ProgramFiles");
@@ -75,7 +74,7 @@ public class OfficeUtils {
             return findOfficeHome(
                 programFiles + File.separator + "OpenOffice 4",
                 programFiles + File.separator + "LibreOffice 4",
-                officeHome + File.separator + "OpenOffice 4"
+                homePath + File.separator + "office"
             );
         } else if (PlatformUtils.isMac()) {
             return findOfficeHome(
