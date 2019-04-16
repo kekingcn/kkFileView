@@ -30,8 +30,7 @@ public class FileUtils {
     @Autowired
     CacheService cacheService;
 
-    @Value("${file.dir}")
-    String fileDir;
+    String fileDir = ConfigConstants.getFileDir();
 
     @Value("${converted.file.charset}")
     String charset;

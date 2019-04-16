@@ -1,7 +1,7 @@
 package cn.keking.utils;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.*;
@@ -13,8 +13,7 @@ import java.util.UUID;
 @Component
 public class DownloadUtils {
 
-    @Value("${file.dir}")
-    String fileDir;
+    String fileDir = ConfigConstants.getFileDir();
 
     /**
      * 一开始测试的时候发现有些文件没有下载下来，而有些可以；当时也是郁闷了好一阵，但是最终还是不得解

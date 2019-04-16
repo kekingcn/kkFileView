@@ -1,5 +1,6 @@
 package cn.keking.service.impl;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
@@ -25,8 +26,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
     @Autowired
     FileUtils fileUtils;
 
-    @Value("${file.dir}")
-    String fileDir;
+    String fileDir = ConfigConstants.getFileDir();
 
     @Autowired
     DownloadUtils downloadUtils;

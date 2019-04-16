@@ -1,5 +1,6 @@
 package cn.keking.utils;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +12,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -36,8 +36,7 @@ public class ZipReader {
 
     @Autowired
     FileUtils fileUtils;
-    @Value("${file.dir}")
-    String fileDir;
+    String fileDir = ConfigConstants.getFileDir();
 
     ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 

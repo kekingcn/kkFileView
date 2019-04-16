@@ -1,8 +1,8 @@
 package cn.keking.utils;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class SimTextUtil {
-    @Value("${file.dir}")
-    String fileDir;
+    String fileDir = ConfigConstants.getFileDir();
     @Autowired
     DownloadUtils downloadUtils;
 
