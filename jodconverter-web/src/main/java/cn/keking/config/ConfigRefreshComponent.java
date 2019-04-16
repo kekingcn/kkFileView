@@ -1,13 +1,12 @@
 package cn.keking.config;
 
-import cn.keking.utils.HomePathUtils;
+import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
@@ -38,7 +37,7 @@ public class ConfigRefreshComponent {
                 String convertedFileCharset;
                 String[] textArray ;
                 String[] mediaArray;
-                String homePath = HomePathUtils.getHomePath();
+                String homePath = OfficeUtils.getHomePath();
                 String separator = java.io.File.separator;
                 String configFilePath = homePath + separator + "conf" + separator + "application.properties";
                 while (true) {
