@@ -28,9 +28,9 @@ install_ubuntu() {
 
 
 if [ -f "/etc/redhat-release" ]; then
-  yum install wget
+  yum install -y wget
   install_redhat
 else
-  apt-get install wget
+  apt-get install -y wget
   install_ubuntu
 fi
