@@ -1,5 +1,6 @@
 package cn.keking.web.controller;
 
+import cn.keking.config.ConfigConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -7,7 +8,6 @@ import com.google.common.collect.Lists;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,8 +28,7 @@ import java.util.UUID;
  */
 @RestController
 public class FileController {
-    @Value("${file.dir}")
-    String fileDir;
+    String fileDir = ConfigConstants.getFileDir();
     @Autowired
     FileUtils fileUtils;
     String demoDir = "demo";
