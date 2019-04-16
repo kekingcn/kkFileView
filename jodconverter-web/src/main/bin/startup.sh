@@ -2,7 +2,7 @@
 DIR_HOME=("/opt/openoffice.org3" "/opt/libreoffice" "/opt/openoffice4" "/usr/lib/openoffice" "/usr/lib/libreoffice")
 FLAG=
 OFFICE_HOME=
-KKFILEVIEW_BIN_FOLDER=$(cd "$(dirname "$0")";pwd)vim
+KKFILEVIEW_BIN_FOLDER=$(cd "$(dirname "$0")";pwd)
 export KKFILEVIEW_BIN_FOLDER=$KKFILEVIEW_BIN_FOLDER
 cd $KKFILEVIEW_BIN_FOLDER
 echo "Using KKFILEVIEW_BIN_FOLDER $KKFILEVIEW_BIN_FOLDER"
