@@ -86,6 +86,7 @@ public class OfficeUtils {
             return findOfficeHome(
                 "/opt/openoffice.org3",
                 "/opt/libreoffice",
+                "/opt/openoffice4",
                 "/usr/lib/openoffice",
                 "/usr/lib/libreoffice"
             );
