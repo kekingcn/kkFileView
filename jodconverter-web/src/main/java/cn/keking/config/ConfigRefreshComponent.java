@@ -21,6 +21,10 @@ public class ConfigRefreshComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRefreshComponent.class);
 
+    public static final String DEFAULT_TXT_TYPE = "txt,html,xml,properties,md,java,py,c,cpp,sql";
+    public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
+
+
     @PostConstruct
     void refresh() {
         Thread configRefreshThread = new Thread(new ConfigRefreshThread());
@@ -32,9 +36,10 @@ public class ConfigRefreshComponent {
         public void run() {
             try {
                 Properties properties = new Properties();
+                Properties sysProperties = System.getProperties();
                 String text;
                 String media;
-                String convertedFileCharset;
+                String convertedFileCharset = sysProperties.getProperty("sun.jnu.encoding");
                 String[] textArray ;
                 String[] mediaArray;
                 String homePath = OfficeUtils.getHomePath();
@@ -43,9 +48,9 @@ public class ConfigRefreshComponent {
                 while (true) {
                     BufferedReader bufferedReader = new BufferedReader(new FileReader(configFilePath));
                     properties.load(bufferedReader);
-                    text = properties.get("simText") == null ? "" : properties.get("simText").toString();
-                    media = properties.get("media") == null ? "" : properties.get("media").toString();
-                    convertedFileCharset = properties.get("converted.file.charset") == null ? "" : properties.get("converted.file.charset").toString();
+                    text = properties.getProperty("simText", DEFAULT_TXT_TYPE);
+                    media = properties.getProperty("media", DEFAULT_MEDIA_TYPE);
+                    convertedFileCharset = properties.getProperty("converted.file.charset", convertedFileCharset);
                     textArray = text.split(",");
                     mediaArray = media.split(",");
                     ConfigConstants.setSimText(textArray);
