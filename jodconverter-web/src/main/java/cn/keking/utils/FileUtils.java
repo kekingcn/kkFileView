@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -32,14 +31,6 @@ public class FileUtils {
 
     String fileDir = ConfigConstants.getFileDir();
 
-    @Value("${converted.file.charset}")
-    String charset;
-
-    @Value("${simText}")
-    String[] simText;
-
-    @Value("${media}")
-    String[] media;
     /**
      * 已转换过的文件集合(redis缓存)
      * @return
@@ -63,12 +54,8 @@ public class FileUtils {
      * @return
      */
     public FileType typeFromUrl(String url) {
-        if (ConfigConstants.getSimText() != null && ConfigConstants.getSimText().length > 0) {
-            simText = ConfigConstants.getSimText();
-        }
-        if (ConfigConstants.getMedia() != null && ConfigConstants.getMedia().length > 0) {
-            media = ConfigConstants.getMedia();
-        }
+        String[] simText = ConfigConstants.getSimText();
+        String[] media = ConfigConstants.getMedia();
         String nonPramStr = url.substring(0, url.indexOf("?") != -1 ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -223,9 +210,7 @@ public class FileUtils {
      */
     public void doActionConvertedFile(String outFilePath) {
         StringBuffer sb = new StringBuffer();
-        if(ConfigConstants.getConvertedFileCharset() != null) {
-            charset = ConfigConstants.getConvertedFileCharset();
-        }
+        String charset = ConfigConstants.getConvertedFileCharset();
         try (InputStream inputStream = new FileInputStream(outFilePath);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset))){
             String line;
