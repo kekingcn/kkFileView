@@ -42,9 +42,7 @@ public class ConfigRefreshComponent {
                 String convertedFileCharset = sysProperties.getProperty("sun.jnu.encoding");
                 String[] textArray ;
                 String[] mediaArray;
-                String homePath = OfficeUtils.getHomePath();
-                String separator = java.io.File.separator;
-                String configFilePath = homePath + separator + "conf" + separator + "application.properties";
+                String configFilePath = OfficeUtils.getCustomizedConfigPath();
                 while (true) {
                     BufferedReader bufferedReader = new BufferedReader(new FileReader(configFilePath));
                     properties.load(bufferedReader);

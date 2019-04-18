@@ -12,8 +12,11 @@
 //
 package org.artofsolving.jodconverter.office;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.Map;
+import java.util.Properties;
 
 import org.artofsolving.jodconverter.util.PlatformUtils;
 
@@ -61,8 +64,14 @@ public class OfficeUtils {
     }
 
     public static File getDefaultOfficeHome() {
-        if (System.getProperty("office.home") != null) {
-            return new File(System.getProperty("office.home"));
+        Properties properties = new Properties();
+        String customizedConfigPath = getCustomizedConfigPath();
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(customizedConfigPath));
+            properties.load(bufferedReader);
+        } catch (Exception e) {}
+        if (properties.getProperty("office.home") != null) {
+            return new File(properties.getProperty("office.home"));
         }
         if (PlatformUtils.isWindows()) {
             // %ProgramFiles(x86)% on 64-bit machines; %ProgramFiles% on 32-bit ones
@@ -125,6 +134,13 @@ public class OfficeUtils {
             userDir = userDir + separator + "jodconverter-web" + separator + "src" + separator +  "main";
         }
         return userDir;
+    }
+
+    public static String getCustomizedConfigPath() {
+        String homePath = OfficeUtils.getHomePath();
+        String separator = java.io.File.separator;
+        String configFilePath = homePath + separator + "conf" + separator + "application.properties";
+        return configFilePath;
     }
 
 }
