@@ -38,6 +38,7 @@ public class CompressFilePreviewImpl implements FilePreview{
         if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))) {
             ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, fileName);
             if (0 != response.getCode()) {
+                model.addAttribute("fileType", suffix);
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
             }
@@ -47,14 +48,17 @@ public class CompressFilePreviewImpl implements FilePreview{
             } else if ("rar".equalsIgnoreCase(suffix)) {
                 fileTree = zipReader.unRar(filePath, fileName);
             }
-            fileUtils.addConvertedFile(fileName, fileTree);
+            if (fileTree != null && !"null".equals(fileTree)) {
+                fileUtils.addConvertedFile(fileName, fileTree);
+            }
         } else {
             fileTree = fileUtils.getConvertedFile(fileName);
         }
-        if (null != fileTree) {
+        if (fileTree != null && !"null".equals(fileTree)) {
             model.addAttribute("fileTree", fileTree);
             return "compress";
         } else {
+            model.addAttribute("fileType", suffix);
             model.addAttribute("msg", "压缩文件类型不受支持，尝试在压缩的时候选择RAR4格式");
             return "fileNotSupported";
         }

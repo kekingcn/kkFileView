@@ -120,7 +120,7 @@ public class ZipReader {
         List imgUrls=Lists.newArrayList();
         String baseUrl= (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
         try {
-            Archive archive = new Archive(new File(filePath));
+            Archive archive = new Archive(new FileInputStream(new File(filePath)));
             List<FileHeader> headers = archive.getFileHeaders();
             headers = sortedHeaders(headers);
             String archiveFileName = fileUtils.getFileNameFromPath(filePath);
@@ -176,10 +176,10 @@ public class ZipReader {
     private List<FileHeader> sortedHeaders(List<FileHeader> headers) {
         List<FileHeader> sortedHeaders = new ArrayList<>();
         Map<Integer, FileHeader> mapHeaders = new TreeMap<>();
-        headers.forEach(header -> mapHeaders.put(header.getFileNameW().length(), header));
+        headers.forEach(header -> mapHeaders.put(new Integer(0).equals(header.getFileNameW().length()) ? header.getFileNameString().length() : header.getFileNameW().length(), header));
         for (Map.Entry<Integer, FileHeader> entry : mapHeaders.entrySet()){
             for (FileHeader header : headers) {
-                if (entry.getKey().intValue() == header.getFileNameW().length()) {
+                if (entry.getKey().equals(new Integer(0).equals(header.getFileNameW().length()) ? header.getFileNameString().length() : header.getFileNameW().length())) {
                     sortedHeaders.add(header);
                 }
             }
