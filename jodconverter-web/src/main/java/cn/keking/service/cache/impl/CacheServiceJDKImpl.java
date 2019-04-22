@@ -3,6 +3,7 @@ package cn.keking.service.cache.impl;
 import cn.keking.service.cache.CacheService;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.googlecode.concurrentlinkedhashmap.Weighers;
+import org.rocksdb.RocksDB;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.BlockingQueue;
  * @description
  */
 @Service
-@ConditionalOnExpression("'${cache.type:default}'.equals('default')")
+@ConditionalOnExpression("'${cache.type:default}'.equals('jdk')")
 public class CacheServiceJDKImpl implements CacheService {
 
     private Map<String, String> pdfCache;
