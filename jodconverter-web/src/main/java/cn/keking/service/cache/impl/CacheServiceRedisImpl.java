@@ -44,6 +44,11 @@ public class CacheServiceRedisImpl implements CacheService {
     }
 
     @Override
+    public void initPdfImagesCachePool(Integer capacity) {
+
+    }
+
+    @Override
     public void putPDFCache(String key, String value) {
         RMapCache<String, String> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_KEY);
         convertedList.fastPut(key, value);
@@ -75,6 +80,18 @@ public class CacheServiceRedisImpl implements CacheService {
     public List<String> getImgCache(String key) {
         RMapCache<String, List<String>> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_IMGS_KEY);
         return convertedList.get(key);
+    }
+
+    @Override
+    public Integer getPdfImageCache(String key) {
+        RMapCache<String, Integer> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_IMGS_KEY);
+        return convertedList.get(key);
+    }
+
+    @Override
+    public void putPdfImageCache(String pdfFilePath, int num) {
+        RMapCache<String, Integer> convertedList = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_IMGS_KEY);
+        convertedList.fastPut(pdfFilePath, num);
     }
 
     @Override

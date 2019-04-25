@@ -48,6 +48,15 @@ public class FileUtils {
     }
 
     /**
+     * 已将pdf转换成图片的图片本地路径
+     * @param key pdf本地路径
+     * @return
+     */
+    public Integer getConvertedPdfImage(String key) {
+        return cacheService.getPdfImageCache(key);
+    }
+
+    /**
      * 查看文件类型(防止参数中存在.点号或者其他特殊字符，所以先抽取文件名，然后再获取文件类型)
      *
      * @param url
@@ -159,6 +168,15 @@ public class FileUtils {
 
     public void addConvertedFile(String fileName, String value){
         cacheService.putPDFCache(fileName, value);
+    }
+
+    /**
+     *
+     * @param pdfFilePath
+     * @param num
+     */
+    public void addConvertedPdfImage(String pdfFilePath, int num){
+        cacheService.putPdfImageCache(pdfFilePath, num);
     }
 
     /**

@@ -17,6 +17,9 @@
         <#assign finalUrl="${baseUrl}${pdfUrl}">
     </#if>
     <iframe src="/pdfjs/web/viewer.html?file=${finalUrl}" width="100%" frameborder="0"></iframe>
+
+    <img src="images/right.png" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" alt="图片预览" onclick="goForImage()"/>
+
 </body>
 <script type="text/javascript">
     document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight-10;
@@ -26,6 +29,16 @@
     window.onresize = function(){
         var fm = document.getElementsByTagName("iframe")[0];
         fm.height = window.document.documentElement.clientHeight-10;
+    }
+
+    function goForImage() {
+        var url = window.location.href;
+        if (url.indexOf("officePreviewType=pdf") != -1) {
+            url = url.replace("officePreviewType=pdf", "officePreviewType=image");
+        } else {
+            url = url + "&officePreviewType=image";
+        }
+        window.location.href=url;
     }
 </script>
 </html>
