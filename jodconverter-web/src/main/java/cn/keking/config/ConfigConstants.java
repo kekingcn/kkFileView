@@ -17,6 +17,7 @@ public class ConfigConstants {
     private static String[] simText = {};
     private static String[] media = {};
     private static String convertedFileCharset;
+    private static String officePreviewType;
     private static String fileDir = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
 
     public static String[] getSimText() {
@@ -41,6 +42,14 @@ public class ConfigConstants {
 
     public static void setConvertedFileCharset(String convertedFileCharset) {
         ConfigConstants.convertedFileCharset = convertedFileCharset;
+    }
+
+    public static String getOfficePreviewType() {
+        return officePreviewType;
+    }
+
+    public static void setOfficePreviewType(String officePreviewType) {
+        ConfigConstants.officePreviewType = officePreviewType;
     }
 
     public static String getFileDir() {

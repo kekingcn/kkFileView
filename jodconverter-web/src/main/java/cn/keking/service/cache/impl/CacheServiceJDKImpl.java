@@ -25,6 +25,8 @@ public class CacheServiceJDKImpl implements CacheService {
 
     private Map<String, List<String>> imgCache;
 
+    private Map<String, Integer> pdfImagesCache;
+
     private static final int QUEUE_SIZE = 500000;
 
     private BlockingQueue blockingQueue = new ArrayBlockingQueue(QUEUE_SIZE);
@@ -39,6 +41,13 @@ public class CacheServiceJDKImpl implements CacheService {
     @Override
     public void initIMGCachePool(Integer capacity) {
         imgCache = new ConcurrentLinkedHashMap.Builder<String, List<String>>()
+                .maximumWeightedCapacity(capacity).weigher(Weighers.singleton())
+                .build();
+    }
+
+    @Override
+    public void initPdfImagesCachePool(Integer capacity) {
+        pdfImagesCache = new ConcurrentLinkedHashMap.Builder<String, Integer>()
                 .maximumWeightedCapacity(capacity).weigher(Weighers.singleton())
                 .build();
     }
@@ -89,6 +98,22 @@ public class CacheServiceJDKImpl implements CacheService {
             initPDFCachePool(CacheService.DEFAULT_IMG_CAPACITY);
         }
         return imgCache.get(key);
+    }
+
+    @Override
+    public Integer getPdfImageCache(String key) {
+        if (pdfImagesCache == null) {
+            initPdfImagesCachePool(CacheService.DEFAULT_PDFIMG_CAPACITY);
+        }
+        return pdfImagesCache.get(key);
+    }
+
+    @Override
+    public void putPdfImageCache(String pdfFilePath, int num) {
+        if (pdfImagesCache == null) {
+            initPdfImagesCachePool(CacheService.DEFAULT_PDFIMG_CAPACITY);
+        }
+        pdfImagesCache.put(pdfFilePath, num);
     }
 
     @Override

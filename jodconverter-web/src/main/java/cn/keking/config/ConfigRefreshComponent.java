@@ -1,5 +1,6 @@
 package cn.keking.config;
 
+import cn.keking.service.impl.OfficeFilePreviewImpl;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,9 @@ public class ConfigRefreshComponent {
                 String text;
                 String media;
                 String convertedFileCharset = sysProperties.getProperty("sun.jnu.encoding");
-                String[] textArray ;
+                String[] textArray;
                 String[] mediaArray;
+                String officePreviewType;
                 String configFilePath = OfficeUtils.getCustomizedConfigPath();
                 while (true) {
                     BufferedReader bufferedReader = new BufferedReader(new FileReader(configFilePath));
@@ -49,11 +51,13 @@ public class ConfigRefreshComponent {
                     text = properties.getProperty("simText", DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", DEFAULT_MEDIA_TYPE);
                     convertedFileCharset = properties.getProperty("converted.file.charset", convertedFileCharset);
+                    officePreviewType = properties.getProperty("office.preview.type", OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE);
                     textArray = text.split(",");
                     mediaArray = media.split(",");
                     ConfigConstants.setSimText(textArray);
                     ConfigConstants.setMedia(mediaArray);
                     ConfigConstants.setConvertedFileCharset(convertedFileCharset);
+                    ConfigConstants.setOfficePreviewType(officePreviewType);
                     Thread.sleep(1000L);
                 }
             } catch (IOException | InterruptedException e) {

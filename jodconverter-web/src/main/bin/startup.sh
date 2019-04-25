@@ -27,4 +27,4 @@ else
 fi
 echo "Starting kkFileView..."
 echo "Please check log file for more information"
-nohup java -Dspring.config.location=../conf/application.properties -jar kkFileView-0.1.jar > ../log/kkFileView.log 2>&1 &
+nohup java -Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider -Dspring.config.location=../conf/application.properties -jar kkFileView-0.1.jar > ../log/kkFileView.log 2>&1 &

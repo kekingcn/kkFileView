@@ -51,6 +51,10 @@ public class CacheServiceRocksDBImpl implements CacheService {
                 Map<String, List<String>> initIMGCache = new HashMap<>();
                 db.put(REDIS_FILE_PREVIEW_IMGS_KEY.getBytes(), toByteArray(initIMGCache));
             }
+            if (db.get(REDIS_FILE_PREVIEW_PDF_IMGS_KEY.getBytes()) == null) {
+                Map<String, Integer> initPDFIMGCache = new HashMap<>();
+                db.put(REDIS_FILE_PREVIEW_PDF_IMGS_KEY.getBytes(), toByteArray(initPDFIMGCache));
+            }
         } catch (RocksDBException | IOException e) {
             LOGGER.error("Uable to init RocksDB" + e);
         }
@@ -64,6 +68,11 @@ public class CacheServiceRocksDBImpl implements CacheService {
 
     @Override
     public void initIMGCachePool(Integer capacity) {
+
+    }
+
+    @Override
+    public void initPdfImagesCachePool(Integer capacity) {
 
     }
 
@@ -134,6 +143,30 @@ public class CacheServiceRocksDBImpl implements CacheService {
             LOGGER.error("Get from RocksDB Exception" + e);
         }
         return result;
+    }
+
+    @Override
+    public Integer getPdfImageCache(String key) {
+        Integer result = 0;
+        Map<String, Integer> map;
+        try{
+            map = (Map<String, Integer>) toObject(db.get(REDIS_FILE_PREVIEW_PDF_IMGS_KEY.getBytes()));
+            result = map.get(key);
+        } catch (RocksDBException | IOException | ClassNotFoundException e) {
+            LOGGER.error("Get from RocksDB Exception" + e);
+        }
+        return result;
+    }
+
+    @Override
+    public void putPdfImageCache(String pdfFilePath, int num) {
+        try {
+            Map<String, Integer> pdfImageCacheItem = new HashMap<>();
+            pdfImageCacheItem.put(pdfFilePath, num);
+            db.put(REDIS_FILE_PREVIEW_PDF_IMGS_KEY.getBytes(), toByteArray(pdfImageCacheItem));
+        } catch (RocksDBException | IOException e) {
+            LOGGER.error("Put into RocksDB Exception" + e);
+        }
     }
 
     @Override
