@@ -18,7 +18,7 @@
     </#if>
     <iframe src="/pdfjs/web/viewer.html?file=${finalUrl}" width="100%" frameborder="0"></iframe>
 
-    <img src="images/right.png" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" alt="图片预览" onclick="goForImage()"/>
+    <img src="images/left.png" style="position: fixed; cursor: pointer; top: 40%; right: 70px; z-index: 999;" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>
 
 </body>
 <script type="text/javascript">

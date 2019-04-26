@@ -18,20 +18,20 @@
 <div class="container">
     <#list imgurls as img>
         <div class="img-area">
-            <img class="my-photo" alt="loading" data-src="${img}" src="images/loading.gif">
+            <img class="my-photo" alt="loading" title="查看大图" style="cursor: pointer;" data-src="${img}" src="images/loading.gif" onclick="changePreviewType('allImages')">
         </div>
     </#list>
 </div>
-<img src="images/left.png" style="position: fixed; cursor: pointer; top: 40%; left: 50px; z-index: 999;" alt="PDF预览" onclick="goForPdf()"/>
+<img src="images/right.png" style="position: fixed; cursor: pointer; top: 40%; right: 70px; z-index: 999;" alt="使用PDF预览" title="使用PDF预览" onclick="changePreviewType('pdf')"/>
 <script>
     window.onload=checkImgs;
     window.onscroll = throttle(checkImgs);
-    function goForPdf() {
+    function changePreviewType(previewType) {
         var url = window.location.href;
         if (url.indexOf("officePreviewType=image") != -1) {
-            url = url.replace("officePreviewType=image", "officePreviewType=pdf");
+            url = url.replace("officePreviewType=image", "officePreviewType="+previewType);
         } else {
-            url = url + "&officePreviewType=pdf";
+            url = url + "&officePreviewType="+previewType;
         }
         window.location.href=url;
     }
