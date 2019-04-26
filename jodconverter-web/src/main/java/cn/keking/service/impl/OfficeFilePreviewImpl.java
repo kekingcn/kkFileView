@@ -79,7 +79,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
             }
         }
-        if (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType)) {
+        if (!isHtml && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
             List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, url);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "office转图片异常，请联系管理员");
