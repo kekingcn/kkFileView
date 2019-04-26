@@ -131,7 +131,11 @@ public class OfficeUtils {
             userDir = userDir.substring(0, userDir.length() - 4);
         } else {
             String separator = File.separator;
-            userDir = userDir + separator + "jodconverter-web" + separator + "src" + separator +  "main";
+            if (userDir.contains("jodconverter-web")) {
+                userDir = userDir + separator + "src" + separator +  "main";
+            } else {
+                userDir = userDir + separator + "jodconverter-web" + separator + "src" + separator + "main";
+            }
         }
         return userDir;
     }
