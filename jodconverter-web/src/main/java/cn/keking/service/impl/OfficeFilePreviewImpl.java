@@ -41,6 +41,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
 
     public static final String OFFICE_PREVIEW_TYPE_PDF = "pdf";
     public static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
+    public static final String OFFICE_PREVIEW_TYPE_ALLIMAGES = "allImages";
 
     @Override
     public String filePreviewHandle(String url, Model model) {
@@ -78,7 +79,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
             }
         }
-        if (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType)) {
+        if (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType)) {
             List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, url);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "office转图片异常，请联系管理员");
@@ -87,7 +88,11 @@ public class OfficeFilePreviewImpl implements FilePreview {
             }
             model.addAttribute("imgurls", imageUrls);
             model.addAttribute("currentUrl", imageUrls.get(0));
-            return "officePicture";
+            if (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType)) {
+                return "officePicture";
+            } else {
+                return "picture";
+            }
         }
         model.addAttribute("pdfUrl", pdfName);
         return isHtml ? "html" : "pdf";
