@@ -33,7 +33,11 @@
         } else {
             url = url + "&officePreviewType="+previewType;
         }
-        window.location.href=url;
+        if ('allImages' == previewType) {
+            window.open(url)
+        } else {
+            window.location.href = url;
+        }
     }
 </script>
 </body>
