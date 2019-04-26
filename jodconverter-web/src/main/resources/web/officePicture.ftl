@@ -6,7 +6,8 @@
     <script src="js/lazyload.js"></script>
     <style>
         .container{
-            width:100%;
+            width: 100%;
+            height: 100%;
         }
         .img-area{
             text-align: center
@@ -14,7 +15,7 @@
 
     </style>
 </head>
-<body>
+<body bgcolor="#404040">
 <div class="container">
     <#list imgurls as img>
         <div class="img-area">
