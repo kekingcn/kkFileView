@@ -2,6 +2,7 @@
 
 <html lang="en">
 <head>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style type="text/css">
         body{
             margin: 0;
@@ -18,7 +19,9 @@
     </#if>
     <iframe src="/pdfjs/web/viewer.html?file=${finalUrl}" width="100%" frameborder="0"></iframe>
 
-    <img src="images/left.png" style="position: fixed; cursor: pointer; top: 40%; right: 70px; z-index: 999;" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>
+<#--    <img src="images/left.png" style="position: fixed; cursor: pointer; top: 40%; right: 60px; z-index: 999;" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>-->
+    <span class="fa fa-file-image-o fa-5x" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" title="使用图片预览" onclick="goForImage()"></span>
+
 
 </body>
 <script type="text/javascript">
