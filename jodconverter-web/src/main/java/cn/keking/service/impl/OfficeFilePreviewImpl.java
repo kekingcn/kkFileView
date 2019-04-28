@@ -60,6 +60,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             if (!new File(filePath).exists()) {
                 ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, null);
                 if (0 != response.getCode()) {
+                    model.addAttribute("fileType", suffix);
                     model.addAttribute("msg", response.getMsg());
                     return "fileNotSupported";
                 }
