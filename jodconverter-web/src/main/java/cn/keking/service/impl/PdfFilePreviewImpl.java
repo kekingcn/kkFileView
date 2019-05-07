@@ -40,6 +40,7 @@ public class PdfFilePreviewImpl implements FilePreview{
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? "" : model.asMap().get("officePreviewType").toString();
+        String originUrl = model.asMap().get("originUrl").toString();
         model.addAttribute("pdfUrl", url);
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = fileDir + pdfName;
@@ -54,7 +55,7 @@ public class PdfFilePreviewImpl implements FilePreview{
                 }
                 outFilePath = response.getContent();
             }
-            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, url);
+            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, originUrl);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "pdf转图片异常，请联系管理员");
                 model.addAttribute("fileType",fileAttribute.getSuffix());
