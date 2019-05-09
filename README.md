@@ -17,6 +17,7 @@
 地址：http://file.keking.cn/
 
 ### 项目文档（Project documentation）
+1. 详细wiki文档：https://gitee.com/kekingcn/file-online-preview/wikis/pages
 1. 中文文档：https://gitee.com/kekingcn/file-online-preview/blob/master/README.md
 1. English document：https://github.com/kekingcn/kkFileView/blob/master/README.en.md
 
