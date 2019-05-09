@@ -39,7 +39,7 @@ public class PdfFilePreviewImpl implements FilePreview{
         String decodedUrl=fileAttribute.getDecodedUrl();
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
-        String officePreviewType = model.asMap().get("officePreviewType") == null ? "" : model.asMap().get("officePreviewType").toString();
+        String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String originUrl = model.asMap().get("originUrl").toString();
         model.addAttribute("pdfUrl", url);
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
