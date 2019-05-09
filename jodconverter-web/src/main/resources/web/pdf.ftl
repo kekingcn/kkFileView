@@ -12,12 +12,12 @@
     </style>
 </head>
 <body>
-    <#if pdfUrl?contains("http://")>
+    <#if pdfUrl?contains("http://") || pdfUrl?contains("https://")>
         <#assign finalUrl="${pdfUrl}">
     <#else>
         <#assign finalUrl="${baseUrl}${pdfUrl}">
     </#if>
-    <iframe src="/pdfjs/web/viewer.html?file=${finalUrl}" width="100%" frameborder="0"></iframe>
+    <iframe src="" width="100%" frameborder="0"></iframe>
 
 <#--    <img src="images/left.png" style="position: fixed; cursor: pointer; top: 40%; right: 60px; z-index: 999;" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>-->
     <span class="fa fa-file-image-o fa-5x" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" title="使用图片预览" onclick="goForImage()"></span>
@@ -25,6 +25,7 @@
 
 </body>
 <script type="text/javascript">
+    document.getElementsByTagName('iframe')[0].src = "/pdfjs/web/viewer.html?file="+encodeURIComponent('${finalUrl}');
     document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight-10;
     /**
      * 页面变化调整高度

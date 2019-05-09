@@ -15,13 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLDecoder;
+import java.io.*;
+import java.net.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -98,7 +93,7 @@ public class OnlinePreviewController {
         InputStream inputStream = null;
         try {
             String strUrl = urlPath.trim();
-            URL url = new URL(strUrl);
+            URL url = new URL(new URI(strUrl).toASCIIString());
             //打开请求连接
             URLConnection connection = url.openConnection();
             HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
@@ -109,7 +104,7 @@ public class OnlinePreviewController {
             while (-1 != (len = inputStream.read(bs))) {
                 resp.getOutputStream().write(bs, 0, len);
             }
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         } finally {
             if (inputStream != null) {
