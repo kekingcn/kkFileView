@@ -249,7 +249,7 @@ public class FileUtils {
         }
         // 重新写入文件
         try(FileOutputStream fos = new FileOutputStream(outFilePath);
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos))){
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos, "utf-8"))) {
             writer.write(sb.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
