@@ -47,6 +47,8 @@ public class CompressFilePreviewImpl implements FilePreview{
                 fileTree = zipReader.readZipFile(filePath, fileName);
             } else if ("rar".equalsIgnoreCase(suffix)) {
                 fileTree = zipReader.unRar(filePath, fileName);
+            } else if ("7z".equalsIgnoreCase(suffix)) {
+                fileTree = zipReader.read7zFile(filePath, fileName);
             }
             if (fileTree != null && !"null".equals(fileTree)) {
                 fileUtils.addConvertedFile(fileName, fileTree);
