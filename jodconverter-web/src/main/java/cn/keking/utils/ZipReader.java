@@ -9,6 +9,8 @@ import com.github.junrar.exception.RarException;
 import com.github.junrar.rarfile.FileHeader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,6 +160,71 @@ public class ZipReader {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 解压7z文件
+     * @param filePath
+     * @param fileKey
+     * @return
+     */
+    public String read7zFile(String filePath,String fileKey) {
+        String archiveSeparator = "/";
+        Map<String, FileNode> appender = Maps.newHashMap();
+        List imgUrls=Lists.newArrayList();
+        String baseUrl= (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+        String archiveFileName = fileUtils.getFileNameFromPath(filePath);
+        try {
+            SevenZFile zipFile = new SevenZFile(new File(filePath));
+            Iterable<SevenZArchiveEntry> entries = zipFile.getEntries();
+            // 排序
+            Enumeration<SevenZArchiveEntry> newEntries = sortSevenZEntries(entries);
+            List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted = Lists.newArrayList();
+            while (newEntries.hasMoreElements()){
+                SevenZArchiveEntry entry = newEntries.nextElement();
+                String fullName = entry.getName();
+                int level = fullName.split(archiveSeparator).length;
+                // 展示名
+                String originName = getLastFileName(fullName, archiveSeparator);
+                String childName = level + "_" + originName;
+                boolean directory = entry.isDirectory();
+                if (!directory) {
+                    childName = archiveFileName + "_" + originName;
+                    entriesToBeExtracted.add(Collections.singletonMap(childName, entry));
+                }
+                String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
+                parentName = (level-1) + "_" + parentName;
+                FileType type=fileUtils.typeFromUrl(childName);
+                if (type.equals(FileType.picture)){//添加图片文件到图片列表
+                    imgUrls.add(baseUrl+childName);
+                }
+                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);
+                addNodes(appender, parentName, node);
+                appender.put(childName, node);
+            }
+            // 开启新的线程处理文件解压
+            executors.submit(new SevenZExtractorWorker(entriesToBeExtracted, filePath));
+            fileUtils.setRedisImgUrls(fileKey,imgUrls);
+            return new ObjectMapper().writeValueAsString(appender.get(""));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    /**
+     * 排序7ZEntries(对原来列表倒序)
+     * @param entries
+     */
+    private Enumeration<SevenZArchiveEntry> sortSevenZEntries(Iterable<SevenZArchiveEntry> entries) {
+        List<SevenZArchiveEntry> sortedEntries = Lists.newArrayList();
+        Iterator<SevenZArchiveEntry> iterator = entries.iterator();
+        while(iterator.hasNext()){
+            sortedEntries.add(iterator.next());
+        }
+//        Collections.sort(sortedEntries, Comparator.comparingInt(o -> o.getName().length()));
+        return Collections.enumeration(sortedEntries);
     }
 
     private void addNodes(Map<String, FileNode> appender, String parentName, FileNode node) {
@@ -399,6 +466,60 @@ public class ZipReader {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * 7z文件抽取线程
+     */
+    class SevenZExtractorWorker implements Runnable {
+
+        private List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted;
+        private String filePath;
+
+        public SevenZExtractorWorker(List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted, String filePath) {
+            this.entriesToBeExtracted = entriesToBeExtracted;
+            this.filePath = filePath;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("解析压缩文件开始《《《《《《《《《《《《《《《《《《《《《《《");
+            try {
+                SevenZFile sevenZFile = new SevenZFile(new File(filePath));
+                SevenZArchiveEntry entry = sevenZFile.getNextEntry();
+                while (entry != null) {
+                    if (entry.isDirectory()) {
+                        entry = sevenZFile.getNextEntry();
+                        continue;
+                    }
+                    String childName = "default_file";
+                    SevenZArchiveEntry entry1 = null;
+                    for (Map<String, SevenZArchiveEntry> entryMap : entriesToBeExtracted) {
+                        childName = entryMap.keySet().iterator().next();
+                        entry1 = entryMap.values().iterator().next();
+                        if (entry.getName().equals(entry1.getName())) {
+                            break;
+                        }
+                    }
+                    FileOutputStream out = new FileOutputStream(fileDir + childName);
+                    byte[] content = new byte[(int) entry.getSize()];
+                    sevenZFile.read(content, 0, content.length);
+                    out.write(content);
+                    out.close();
+                    entry = sevenZFile.getNextEntry();
+                }
+                sevenZFile.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (new File(filePath).exists()) {
+                new File(filePath).delete();
+            }
+            System.out.println("解析压缩文件结束《《《《《《《《《《《《《《《《《《《《《《《");
         }
     }
 
