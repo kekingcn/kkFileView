@@ -46,7 +46,8 @@ public class ConfigRefreshComponent {
                 String officePreviewType;
                 String configFilePath = OfficeUtils.getCustomizedConfigPath();
                 while (true) {
-                    BufferedReader bufferedReader = new BufferedReader(new FileReader(configFilePath));
+                    FileReader fileReader = new FileReader(configFilePath);
+                    BufferedReader bufferedReader = new BufferedReader(fileReader);
                     properties.load(bufferedReader);
                     text = properties.getProperty("simText", DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", DEFAULT_MEDIA_TYPE);
@@ -58,6 +59,8 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setMedia(mediaArray);
                     ConfigConstants.setConvertedFileCharset(convertedFileCharset);
                     ConfigConstants.setOfficePreviewType(officePreviewType);
+                    bufferedReader.close();
+                    fileReader.close();
                     Thread.sleep(1000L);
                 }
             } catch (IOException | InterruptedException e) {
