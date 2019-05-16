@@ -1,5 +1,6 @@
 package cn.keking.service.impl;
 
+import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,11 @@ public class MediaFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model) {
         model.addAttribute("mediaUrl", url);
+        FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
+        String suffix=fileAttribute.getSuffix();
+        if ("flv".equalsIgnoreCase(suffix)) {
+            return "flv";
+        }
         return "media";
     }
 
