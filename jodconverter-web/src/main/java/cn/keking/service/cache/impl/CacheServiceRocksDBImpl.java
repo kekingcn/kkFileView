@@ -79,7 +79,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     @Override
     public void putPDFCache(String key, String value) {
         try {
-            Map<String, String> pdfCacheItem = new HashMap<>();
+            Map<String, String> pdfCacheItem = getPDFCache();
             pdfCacheItem.put(key, value);
             db.put(REDIS_FILE_PREVIEW_PDF_KEY.getBytes(), toByteArray(pdfCacheItem));
         } catch (RocksDBException | IOException e) {
@@ -90,7 +90,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     @Override
     public void putImgCache(String key, List<String> value) {
         try {
-            Map<String, List<String>> imgCacheItem = new HashMap<>();
+            Map<String, List<String>> imgCacheItem = getImgCache();
             imgCacheItem.put(key, value);
             db.put(REDIS_FILE_PREVIEW_PDF_KEY.getBytes(), toByteArray(imgCacheItem));
         } catch (RocksDBException | IOException e) {
@@ -145,6 +145,16 @@ public class CacheServiceRocksDBImpl implements CacheService {
         return result;
     }
 
+    public Map<String, Integer> getPdfImageCaches() {
+        Map<String, Integer> map = new HashMap<>();
+        try{
+            map = (Map<String, Integer>) toObject(db.get(REDIS_FILE_PREVIEW_PDF_IMGS_KEY.getBytes()));
+        } catch (RocksDBException | IOException | ClassNotFoundException e) {
+            LOGGER.error("Get from RocksDB Exception" + e);
+        }
+        return map;
+    }
+
     @Override
     public Integer getPdfImageCache(String key) {
         Integer result = 0;
@@ -161,7 +171,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     @Override
     public void putPdfImageCache(String pdfFilePath, int num) {
         try {
-            Map<String, Integer> pdfImageCacheItem = new HashMap<>();
+            Map<String, Integer> pdfImageCacheItem = getPdfImageCaches();
             pdfImageCacheItem.put(pdfFilePath, num);
             db.put(REDIS_FILE_PREVIEW_PDF_IMGS_KEY.getBytes(), toByteArray(pdfImageCacheItem));
         } catch (RocksDBException | IOException e) {
