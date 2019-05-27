@@ -47,7 +47,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model) {
         // 预览Type，参数传了就取参数的，没传取系统默认
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
-        String originUrl = model.asMap().get("originUrl").toString();
+        String originUrl = (String) model.asMap().get("originUrl");
         FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
@@ -81,7 +81,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
             }
         }
-        if (!isHtml && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
+        if (!isHtml && originUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
             List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, originUrl);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "office转图片异常，请联系管理员");
