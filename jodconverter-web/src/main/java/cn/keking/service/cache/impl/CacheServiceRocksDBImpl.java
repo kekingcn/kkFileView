@@ -180,6 +180,17 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    public void cleanCache() {
+        try {
+            cleanPdfCache();
+            cleanImgCache();
+            cleanPdfImgCache();
+        } catch (IOException | RocksDBException e) {
+            LOGGER.error("Clean Cache Exception" + e);
+        }
+    }
+
+    @Override
     public void addQueueTask(String url) {
         blockingQueue.add(url);
     }
@@ -209,5 +220,20 @@ public class CacheServiceRocksDBImpl implements CacheService {
         ois.close();
         bis.close();
         return obj;
+    }
+
+    private void cleanPdfCache() throws IOException, RocksDBException {
+        Map<String, String> initPDFCache = new HashMap<>();
+        db.put(REDIS_FILE_PREVIEW_PDF_KEY.getBytes(), toByteArray(initPDFCache));
+    }
+
+    private void cleanImgCache() throws IOException, RocksDBException {
+        Map<String, List<String>> initIMGCache = new HashMap<>();
+        db.put(REDIS_FILE_PREVIEW_IMGS_KEY.getBytes(), toByteArray(initIMGCache));
+    }
+
+    private void cleanPdfImgCache() throws IOException, RocksDBException {
+        Map<String, Integer> initPDFIMGCache = new HashMap<>();
+        db.put(REDIS_FILE_PREVIEW_PDF_IMGS_KEY.getBytes(), toByteArray(initPDFIMGCache));
     }
 }
