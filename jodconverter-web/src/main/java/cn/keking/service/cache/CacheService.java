@@ -20,7 +20,7 @@ public interface CacheService {
 
     void initPDFCachePool(Integer capacity);
     void initIMGCachePool(Integer capacity);
-    public void initPdfImagesCachePool(Integer capacity);
+    void initPdfImagesCachePool(Integer capacity);
     void putPDFCache(String key, String value);
     void putImgCache(String key, List<String> value);
     Map<String, String> getPDFCache();
@@ -30,7 +30,11 @@ public interface CacheService {
     Integer getPdfImageCache(String key);
     void putPdfImageCache(String pdfFilePath, int num);
 
+    void cleanCache();
+
     void addQueueTask(String url);
     String takeQueueTask() throws InterruptedException;
+
+
 
 }

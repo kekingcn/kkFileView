@@ -1,8 +1,14 @@
 package cn.keking.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 
 public class DeleteFileUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteFileUtil.class);
+
     /**
      * 删除单个文件
      *
@@ -15,14 +21,14 @@ public class DeleteFileUtil {
         // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
         if (file.exists() && file.isFile()) {
             if (file.delete()) {
-                System.out.println("删除单个文件" + fileName + "成功！");
+                LOGGER.info("删除单个文件" + fileName + "成功！");
                 return true;
             } else {
-                System.out.println("删除单个文件" + fileName + "失败！");
+                LOGGER.info("删除单个文件" + fileName + "失败！");
                 return false;
             }
         } else {
-            System.out.println("删除单个文件失败：" + fileName + "不存在！");
+            LOGGER.info("删除单个文件失败：" + fileName + "不存在！");
             return false;
         }
     }
@@ -43,7 +49,7 @@ public class DeleteFileUtil {
         File dirFile = new File(dir);
         // 如果dir对应的文件不存在，或者不是一个目录，则退出
         if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
-            System.out.println("删除目录失败：" + dir + "不存在！");
+            LOGGER.info("删除目录失败：" + dir + "不存在！");
             return false;
         }
         boolean flag = true;
@@ -65,7 +71,7 @@ public class DeleteFileUtil {
             }
         }
         if (!flag) {
-            System.out.println("删除目录失败！");
+            LOGGER.info("删除目录失败！");
             return false;
         }
         return true;

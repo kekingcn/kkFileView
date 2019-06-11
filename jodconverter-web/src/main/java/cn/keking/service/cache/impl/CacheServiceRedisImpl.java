@@ -95,6 +95,13 @@ public class CacheServiceRedisImpl implements CacheService {
     }
 
     @Override
+    public void cleanCache() {
+        cleanPdfCache();
+        cleanImgCache();
+        cleanPdfImgCache();
+    }
+
+    @Override
     public void addQueueTask(String url) {
         RBlockingQueue<String> queue = redissonClient.getBlockingQueue(FileConverQueueTask.queueTaskName);
         queue.addAsync(url);
@@ -104,5 +111,20 @@ public class CacheServiceRedisImpl implements CacheService {
     public String takeQueueTask() throws InterruptedException {
         RBlockingQueue<String> queue = redissonClient.getBlockingQueue(FileConverQueueTask.queueTaskName);
         return queue.take();
+    }
+
+    private void cleanPdfCache() {
+        RMapCache<String, String> pdfCache = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_KEY);
+        pdfCache.clear();
+    }
+
+    private void cleanImgCache() {
+        RMapCache<String, List<String>> imgCache = redissonClient.getMapCache(REDIS_FILE_PREVIEW_IMGS_KEY);
+        imgCache.clear();
+    }
+
+    private void cleanPdfImgCache() {
+        RMapCache<String, Integer> pdfImg = redissonClient.getMapCache(REDIS_FILE_PREVIEW_PDF_IMGS_KEY);
+        pdfImg.clear();
     }
 }

@@ -117,6 +117,13 @@ public class CacheServiceJDKImpl implements CacheService {
     }
 
     @Override
+    public void cleanCache() {
+        initPDFCachePool(CacheService.DEFAULT_PDF_CAPACITY);
+        initIMGCachePool(CacheService.DEFAULT_IMG_CAPACITY);
+        initPdfImagesCachePool(CacheService.DEFAULT_PDFIMG_CAPACITY);
+    }
+
+    @Override
     public void addQueueTask(String url) {
         blockingQueue.add(url);
     }
