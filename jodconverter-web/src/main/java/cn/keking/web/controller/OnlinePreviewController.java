@@ -1,10 +1,14 @@
 package cn.keking.web.controller;
 
+import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
 
 import cn.keking.service.cache.CacheService;
+import cn.keking.utils.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,11 +30,16 @@ import java.util.List;
 @Controller
 public class OnlinePreviewController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OnlinePreviewController.class);
+
     @Autowired
     FilePreviewFactory previewFactory;
 
     @Autowired
     CacheService cacheService;
+
+    @Autowired
+    private FileUtils fileUtils;
 
     /**
      * @param url
@@ -39,11 +48,12 @@ public class OnlinePreviewController {
      */
     @RequestMapping(value = "onlinePreview", method = RequestMethod.GET)
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
+        FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
         req.setAttribute("fileKey", req.getParameter("fileKey"));
         model.addAttribute("officePreviewType", req.getParameter("officePreviewType"));
-        model.addAttribute("originUrl",req.getRequestURL().toString());
-        FilePreview filePreview = previewFactory.get(url);
-        return filePreview.filePreviewHandle(url, model);
+        model.addAttribute("originUrl", req.getRequestURL().toString());
+        FilePreview filePreview = previewFactory.get(fileAttribute);
+        return filePreview.filePreviewHandle(url, model, fileAttribute);
     }
 
     /**
@@ -105,7 +115,7 @@ public class OnlinePreviewController {
                 resp.getOutputStream().write(bs, 0, len);
             }
         } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
+            LOGGER.error("下载pdf文件失败", e);
         } finally {
             if (inputStream != null) {
                 IOUtils.closeQuietly(inputStream);

@@ -35,7 +35,7 @@ public class FileConverQueueTask {
     @PostConstruct
     public void startTask(){
         ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.submit(new ConverTask(previewFactory,cacheService,fileUtils));
+        executorService.submit(new ConverTask(previewFactory, cacheService, fileUtils));
         logger.info("队列处理文件转换任务启动完成 ");
     }
 
@@ -47,7 +47,7 @@ public class FileConverQueueTask {
 
         FileUtils fileUtils;
 
-        public ConverTask(FilePreviewFactory previewFactory, CacheService cacheService,FileUtils fileUtils) {
+        public ConverTask(FilePreviewFactory previewFactory, CacheService cacheService, FileUtils fileUtils) {
             this.previewFactory = previewFactory;
             this.cacheService = cacheService;
             this.fileUtils=fileUtils;
@@ -58,13 +58,13 @@ public class FileConverQueueTask {
             while (true) {
                 try {
                     String url = cacheService.takeQueueTask();
-                    if(url!=null){
-                        FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
+                    if(url != null){
+                        FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
                         logger.info("正在处理转换任务，文件名称【{}】",fileAttribute.getName());
                         FileType fileType=fileAttribute.getType();
                         if(fileType.equals(FileType.compress) || fileType.equals(FileType.office)){
-                            FilePreview filePreview=previewFactory.get(url);
-                            filePreview.filePreviewHandle(url,new ExtendedModelMap());
+                            FilePreview filePreview=previewFactory.get(fileAttribute);
+                            filePreview.filePreviewHandle(url, new ExtendedModelMap(), fileAttribute);
                         }
                     }
                 } catch (Exception e) {

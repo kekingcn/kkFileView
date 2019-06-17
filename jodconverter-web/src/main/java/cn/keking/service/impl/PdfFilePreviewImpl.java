@@ -34,8 +34,7 @@ public class PdfFilePreviewImpl implements FilePreview{
     String fileDir = ConfigConstants.getFileDir();
 
     @Override
-    public String filePreviewHandle(String url, Model model) {
-        FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String decodedUrl=fileAttribute.getDecodedUrl();
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();

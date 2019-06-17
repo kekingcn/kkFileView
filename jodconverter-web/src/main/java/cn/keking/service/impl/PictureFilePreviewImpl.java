@@ -1,5 +1,6 @@
 package cn.keking.service.impl;
 
+import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.FileUtils;
 import com.google.common.collect.Lists;
@@ -21,7 +22,7 @@ public class PictureFilePreviewImpl implements FilePreview {
     FileUtils fileUtils;
 
     @Override
-    public String filePreviewHandle(String url, Model model) {
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileKey=(String) RequestContextHolder.currentRequestAttributes().getAttribute("fileKey",0);
         List imgUrls = Lists.newArrayList(url);
         try{

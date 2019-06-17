@@ -19,9 +19,8 @@ public class MediaFilePreviewImpl implements FilePreview {
     FileUtils fileUtils;
 
     @Override
-    public String filePreviewHandle(String url, Model model) {
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         model.addAttribute("mediaUrl", url);
-        FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
         String suffix=fileAttribute.getSuffix();
         if ("flv".equalsIgnoreCase(suffix)) {
             return "flv";

@@ -28,8 +28,7 @@ public class CompressFilePreviewImpl implements FilePreview{
     ZipReader zipReader;
 
     @Override
-    public String filePreviewHandle(String url, Model model) {
-        FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName=fileAttribute.getName();
         String decodedUrl=fileAttribute.getDecodedUrl();
         String suffix=fileAttribute.getSuffix();

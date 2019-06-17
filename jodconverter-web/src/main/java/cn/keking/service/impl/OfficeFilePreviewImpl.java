@@ -9,9 +9,7 @@ import cn.keking.utils.FileUtils;
 import cn.keking.utils.OfficeToPdf;
 import cn.keking.utils.PdfUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 
@@ -44,11 +42,10 @@ public class OfficeFilePreviewImpl implements FilePreview {
     public static final String OFFICE_PREVIEW_TYPE_ALLIMAGES = "allImages";
 
     @Override
-    public String filePreviewHandle(String url, Model model) {
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         // 预览Type，参数传了就取参数的，没传取系统默认
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String originUrl = (String) model.asMap().get("originUrl");
-        FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String decodedUrl=fileAttribute.getDecodedUrl();

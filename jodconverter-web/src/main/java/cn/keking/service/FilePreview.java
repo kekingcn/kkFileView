@@ -1,5 +1,6 @@
 package cn.keking.service;
 
+import cn.keking.model.FileAttribute;
 import org.springframework.ui.Model;
 
 /**
@@ -7,5 +8,5 @@ import org.springframework.ui.Model;
  * Content :
  */
 public interface FilePreview {
-    String filePreviewHandle(String url, Model model);
+    String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);
 }

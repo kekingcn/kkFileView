@@ -23,8 +23,7 @@ public class SimTextFilePreviewImpl implements FilePreview{
     FileUtils fileUtils;
 
     @Override
-    public String filePreviewHandle(String url, Model model){
-        FileAttribute fileAttribute=fileUtils.getFileAttribute(url);
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute){
         String decodedUrl=fileAttribute.getDecodedUrl();
         String fileName=fileAttribute.getName();
         ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName);
