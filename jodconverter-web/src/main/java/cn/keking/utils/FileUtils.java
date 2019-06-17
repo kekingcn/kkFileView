@@ -9,11 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,13 +65,17 @@ public class FileUtils {
      * @return
      */
     public FileType typeFromUrl(String url) {
-        String[] simText = ConfigConstants.getSimText();
-        String[] media = ConfigConstants.getMedia();
         String nonPramStr = url.substring(0, url.indexOf("?") != -1 ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
+        return typeFromFileName(fileName);
+    }
+
+    private FileType typeFromFileName(String fileName) {
+        String[] simText = ConfigConstants.getSimText();
+        String[] media = ConfigConstants.getMedia();
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
         if (listPictureTypes().contains(fileType.toLowerCase())) {
-          return FileType.picture;
+            return FileType.picture;
         }
         if (listArchiveTypes().contains(fileType.toLowerCase())) {
             return FileType.compress;
@@ -265,22 +271,83 @@ public class FileUtils {
     private String suffixFromUrl(String url) {
         String nonPramStr = url.substring(0, url.indexOf("?") != -1 ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
+        return suffixFromFileName(fileName);
+    }
+
+    private String suffixFromFileName(String fileName) {
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
         return fileType;
     }
 
+    /**
+     * 获取url中的参数
+     * @param url
+     * @param name
+     * @return
+     */
+    private String getUrlParameterReg(String url, String name) {
+        Map<String, String> mapRequest = new HashMap();
+        String strUrlParam = TruncateUrlPage(url);
+        if (strUrlParam == null) {
+            return "";
+        }
+        //每个键值为一组
+        String[] arrSplit=strUrlParam.split("[&]");
+        for(String strSplit:arrSplit) {
+            String[] arrSplitEqual= strSplit.split("[=]");
+            //解析出键值
+            if(arrSplitEqual.length > 1) {
+                //正确解析
+                mapRequest.put(arrSplitEqual[0], arrSplitEqual[1]);
+            } else if (!arrSplitEqual[0].equals("")) {
+                //只有参数没有值，不加入
+                mapRequest.put(arrSplitEqual[0], "");
+            }
+        }
+        return mapRequest.get(name);
+    }
+
+    /**
+     * 去掉url中的路径，留下请求参数部分
+     * @param strURL url地址
+     * @return url请求参数部分
+     */
+    private static String TruncateUrlPage(String strURL) {
+        String strAllParam = null;
+        strURL = strURL.trim();
+        String[] arrSplit = strURL.split("[?]");
+        if(strURL.length() > 1)  {
+            if(arrSplit.length > 1) {
+                if(arrSplit[1] != null) {
+                    strAllParam=arrSplit[1];
+                }
+            }
+        }
+        return strAllParam;
+    }
+
+
     public FileAttribute getFileAttribute(String url) {
-        String decodedUrl=null;
+        String decodedUrl = null;
         try {
             decodedUrl = URLDecoder.decode(url, "utf-8");
-        }catch (UnsupportedEncodingException e){
-            log.debug("url解码失败");
+        } catch (UnsupportedEncodingException e){
+            log.error("url解码失败");
         }
-        // 路径转码
-        FileType type = typeFromUrl(url);
-        String suffix = suffixFromUrl(url);
-        // 抽取文件并返回文件列表
-        String fileName = getFileNameFromURL(decodedUrl);
+        String fileName;
+        FileType type;
+        String suffix;
+
+        String fullFileName = getUrlParameterReg(decodedUrl, "fullfilename");
+        if (!StringUtils.isEmpty(fullFileName)) {
+            fileName = fullFileName;
+            type = typeFromFileName(fileName);
+            suffix = suffixFromFileName(fileName);
+        } else {
+            fileName = getFileNameFromURL(decodedUrl);
+            type = typeFromUrl(url);
+            suffix = suffixFromUrl(url);
+        }
         return new FileAttribute(type,suffix,fileName,url,decodedUrl);
     }
 }

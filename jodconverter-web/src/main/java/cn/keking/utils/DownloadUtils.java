@@ -25,7 +25,7 @@ public class DownloadUtils {
      * @param type
      * @return
      */
-    public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName){
+    public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName) {
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         URL url = null;
         try {
@@ -40,7 +40,7 @@ public class DownloadUtils {
         UUID uuid = UUID.randomUUID();
         if (null == fileName) {
             fileName = uuid+ "."+type;
-        }else { // 文件后缀不一致时，以type为准(针对simText【将类txt文件转为txt】)
+        } else { // 文件后缀不一致时，以type为准(针对simText【将类txt文件转为txt】)
             fileName = fileName.replace(fileName.substring(fileName.lastIndexOf(".") + 1), type);
         }
         String realPath = fileDir + fileName;
