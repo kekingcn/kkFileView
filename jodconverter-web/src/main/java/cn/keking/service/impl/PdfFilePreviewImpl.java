@@ -35,7 +35,6 @@ public class PdfFilePreviewImpl implements FilePreview{
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String decodedUrl=fileAttribute.getDecodedUrl();
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
@@ -46,7 +45,7 @@ public class PdfFilePreviewImpl implements FilePreview{
         if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType)) {
             //当文件不存在时，就去下载
             if (!new File(outFilePath).exists()) {
-                ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, fileName);
+                ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
                 if (0 != response.getCode()) {
                     model.addAttribute("fileType", suffix);
                     model.addAttribute("msg", response.getMsg());

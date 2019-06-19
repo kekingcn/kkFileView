@@ -285,9 +285,9 @@ public class FileUtils {
      * @param name
      * @return
      */
-    private String getUrlParameterReg(String url, String name) {
+    public String getUrlParameterReg(String url, String name) {
         Map<String, String> mapRequest = new HashMap();
-        String strUrlParam = TruncateUrlPage(url);
+        String strUrlParam = truncateUrlPage(url);
         if (strUrlParam == null) {
             return "";
         }
@@ -312,7 +312,7 @@ public class FileUtils {
      * @param strURL url地址
      * @return url请求参数部分
      */
-    private static String TruncateUrlPage(String strURL) {
+    private String truncateUrlPage(String strURL) {
         String strAllParam = null;
         strURL = strURL.trim();
         String[] arrSplit = strURL.split("[?]");

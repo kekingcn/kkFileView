@@ -24,6 +24,10 @@ public class ConfigRefreshComponent {
 
     public static final String DEFAULT_TXT_TYPE = "txt,html,xml,properties,md,java,py,c,cpp,sql";
     public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
+    public static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
+    public static final String DEFAULT_FTP_USERNAME = null;
+    public static final String DEFAULT_FTP_PASSWORD = null;
+    public static final String DEFAULT_FTP_CONTROL_ENCODING = "UTF-8";
 
 
     @PostConstruct
@@ -37,13 +41,15 @@ public class ConfigRefreshComponent {
         public void run() {
             try {
                 Properties properties = new Properties();
-                Properties sysProperties = System.getProperties();
                 String text;
                 String media;
-                String convertedFileCharset = sysProperties.getProperty("sun.jnu.encoding");
                 String[] textArray;
                 String[] mediaArray;
+                String convertedFileCharset;
                 String officePreviewType;
+                String ftpUsername;
+                String ftpPassword;
+                String ftpControlEncoding;
                 String configFilePath = OfficeUtils.getCustomizedConfigPath();
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
@@ -51,20 +57,26 @@ public class ConfigRefreshComponent {
                     properties.load(bufferedReader);
                     text = properties.getProperty("simText", DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", DEFAULT_MEDIA_TYPE);
-                    convertedFileCharset = properties.getProperty("converted.file.charset", convertedFileCharset);
+                    convertedFileCharset = properties.getProperty("converted.file.charset", DEFAULT_CONVERTER_CHARSET);
                     officePreviewType = properties.getProperty("office.preview.type", OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE);
+                    ftpUsername = properties.getProperty("ftp.username", DEFAULT_FTP_USERNAME);
+                    ftpPassword = properties.getProperty("ftp.password", DEFAULT_FTP_PASSWORD);
+                    ftpControlEncoding = properties.getProperty("ftp.control.encoding", DEFAULT_FTP_CONTROL_ENCODING);
                     textArray = text.split(",");
                     mediaArray = media.split(",");
                     ConfigConstants.setSimText(textArray);
                     ConfigConstants.setMedia(mediaArray);
                     ConfigConstants.setConvertedFileCharset(convertedFileCharset);
                     ConfigConstants.setOfficePreviewType(officePreviewType);
+                    ConfigConstants.setFtpUsername(ftpUsername);
+                    ConfigConstants.setFtpPassword(ftpPassword);
+                    ConfigConstants.setFtpControlEncoding(ftpControlEncoding);
                     bufferedReader.close();
                     fileReader.close();
                     Thread.sleep(1000L);
                 }
             } catch (IOException | InterruptedException e) {
-                LOGGER.error("读取配置文件异常：{}", e);
+                LOGGER.error("读取配置文件异常", e);
             }
         }
     }
