@@ -52,25 +52,21 @@ QQ群号：613025121
 - jodconverter
 > 依赖外部环境
 - redis (可选，默认不用)
-- OpenOffice或者LibreOffice
+- OpenOffice或者LibreOffice(Windows下已内置，Linux会自动安装，Mac OS下需要手动安装)
 
 1. 第一步：pull项目https://github.com/kekingcn/file-online-preview.git
 
-2. 第二步：配置OpenOffice目录，如
-```
-##资源映射路径(因为jar方式运行的原因)
-file.dir = C:\\Users\\yudian\\Desktop\\dev\\
-## openoffice相关配置
-office.home = C:\\Program Files (x86)\\OpenOffice 4
-
-```
-file.dir为转换文件实际存储地址，注意要以/结尾
-
-3. 第三步：运行FilePreviewApplication的main方法，服务启动后，访问http://localhost:8012/
+3. 第二步：运行FilePreviewApplication的main方法，服务启动后，访问http://localhost:8012/
 会看到如下界面，代表服务启动成功
 ![输入图片说明](https://gitee.com/uploads/images/2017/1213/100221_ea15202e_492218.png "屏幕截图.png")
 
 ### 历史更新记录
+
+> 2019年06月18日 ：
+1. 支持自动清理缓存及预览文件
+2. 支持http/https下载流url文件预览
+3. 支持FTP url文件预览
+4. 加入Docker构建
 
 > 2019年04月08日 ：
 1. 缓存及队列实现抽象，提供JDK和REDIS两种实现(REDIS成为可选依赖)

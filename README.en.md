@@ -58,25 +58,21 @@ Considering space issues, the pictures of other types of documents will not be s
 - Jodconverter
 > Dependencies
 - Redis(Optional, Unnecessary by default)
-- OpenOffice or LibreOffice
+- OpenOffice or LibreOffice(Integrated on Windows, will be installed automatically on Linux, need to be manually installed on Mac OS)
 
 1. First step：`git pull https://github.com/kekingcn/file-online-preview.git`
 
-2. Second step：configure redis address and OpenOffice directory，such as
-```
-##The folder for files which are uploaded to the server(Because of running as jar)
-file.dir = C:\\Users\\yudian\\Desktop\\dev\\
-## openoffice configuration
-office.home = C:\\Program Files (x86)\\OpenOffice 4
-
-```
-'file.dir' is the real storage address of the converted files, please end with '/'.
-
-3. Third step：Run the main method of FilePreviewApplication.java.After starting,visit `http://localhost:8012/`.
+2. Third step：Run the main method of FilePreviewApplication.java.After starting,visit `http://localhost:8012/`.
 If everything is ok,you will see the picture below.
 ![输入图片说明](https://gitee.com/uploads/images/2017/1213/100221_ea15202e_492218.png "屏幕截图.png")
 
 ### Changelog
+
+> June 18th 2019 ：
+1. Support automatic cleaning of cache and preview files
+2. Support http/https stream url file preview
+3. Support FTP url file preview
+4. Add Docker build
 
 > April 8th 2019
 1. Cache and queue implementations abstract, providing JDK and REDIS implementations (REDIS becomes optional dependencies)
