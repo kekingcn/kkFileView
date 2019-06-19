@@ -18,6 +18,9 @@ public class ConfigConstants {
     private static String[] media = {};
     private static String convertedFileCharset;
     private static String officePreviewType;
+    private static String ftpUsername;
+    private static String ftpPassword;
+    private static String ftpControlEncoding;
     private static String fileDir = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
 
     public static String[] getSimText() {
@@ -50,6 +53,30 @@ public class ConfigConstants {
 
     public static void setOfficePreviewType(String officePreviewType) {
         ConfigConstants.officePreviewType = officePreviewType;
+    }
+
+    public static String getFtpUsername() {
+        return ftpUsername;
+    }
+
+    public static void setFtpUsername(String ftpUsername) {
+        ConfigConstants.ftpUsername = ftpUsername;
+    }
+
+    public static String getFtpPassword() {
+        return ftpPassword;
+    }
+
+    public static String getFtpControlEncoding() {
+        return ftpControlEncoding;
+    }
+
+    public static void setFtpControlEncoding(String ftpControlEncoding) {
+        ConfigConstants.ftpControlEncoding = ftpControlEncoding;
+    }
+
+    public static void setFtpPassword(String ftpPassword) {
+        ConfigConstants.ftpPassword = ftpPassword;
     }
 
     public static String getFileDir() {

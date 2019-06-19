@@ -1,7 +1,11 @@
 package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.*;
@@ -13,7 +17,16 @@ import java.util.UUID;
 @Component
 public class DownloadUtils {
 
-    String fileDir = ConfigConstants.getFileDir();
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadUtils.class);
+
+    private String fileDir = ConfigConstants.getFileDir();
+
+    @Autowired
+    private FileUtils fileUtils;
+
+    private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
+    private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
+    private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
 
     /**
      * 一开始测试的时候发现有些文件没有下载下来，而有些可以；当时也是郁闷了好一阵，但是最终还是不得解
@@ -21,11 +34,12 @@ public class DownloadUtils {
      * 应该是转义出了问题，url转义中会把+号当成空格来计算，所以才会出现这种情况，遂想要通过整体替换空格为加号，因为url
      * 中的参数部分是不会出现空格的，但是文件名中就不好确定了，所以只对url参数部分做替换
      * 注: 针对URLEncoder.encode(s,charset)会将空格转成+的情况需要做下面的替换工作
-     * @param urlAddress
-     * @param type
+     * @param fileAttribute
      * @return
      */
-    public ReturnResponse<String> downLoad(String urlAddress, String type, String fileName) {
+    public ReturnResponse<String> downLoad(FileAttribute fileAttribute, String  fileName) {
+        String urlAddress = fileAttribute.getDecodedUrl();
+        String type = fileAttribute.getSuffix();
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         URL url = null;
         try {
@@ -49,17 +63,24 @@ public class DownloadUtils {
             dirFile.mkdirs();
         }
         try {
-            URLConnection connection = url.openConnection();
-            InputStream in = connection.getInputStream();
+            if ("ftp".equals(url.getProtocol())) {
+                String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
+                String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
+                String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
+                FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
+            } else {
+                URLConnection connection = url.openConnection();
+                InputStream in = connection.getInputStream();
 
-            FileOutputStream os = new FileOutputStream(realPath);
-            byte[] buffer = new byte[4 * 1024];
-            int read;
-            while ((read = in.read(buffer)) > 0) {
-                os.write(buffer, 0, read);
+                FileOutputStream os = new FileOutputStream(realPath);
+                byte[] buffer = new byte[4 * 1024];
+                int read;
+                while ((read = in.read(buffer)) > 0) {
+                    os.write(buffer, 0, read);
+                }
+                os.close();
+                in.close();
             }
-            os.close();
-            in.close();
             response.setContent(realPath);
             // 同样针对类txt文件，如果成功msg包含的是转换后的文件名
             response.setMsg(fileName);
@@ -68,15 +89,14 @@ public class DownloadUtils {
             if("txt".equals(type)){
                 convertTextPlainFileCharsetToUtf8(realPath);
             }
-
             return response;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("文件下载失败", e);
             response.setCode(1);
             response.setContent(null);
             if (e instanceof FileNotFoundException) {
                 response.setMsg("文件不存在!!!");
-            }else {
+            } else {
                 response.setMsg(e.getMessage());
             }
             return response;

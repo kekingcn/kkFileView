@@ -48,7 +48,6 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String originUrl = (String) model.asMap().get("originUrl");
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
-        String decodedUrl=fileAttribute.getDecodedUrl();
         boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx");
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
         String outFilePath = fileDir + pdfName;
@@ -56,7 +55,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         if (!fileUtils.listConvertedFiles().containsKey(pdfName)) {
             String filePath = fileDir + fileName;
             if (!new File(filePath).exists()) {
-                ReturnResponse<String> response = downloadUtils.downLoad(decodedUrl, suffix, null);
+                ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
                 if (0 != response.getCode()) {
                     model.addAttribute("fileType", suffix);
                     model.addAttribute("msg", response.getMsg());
