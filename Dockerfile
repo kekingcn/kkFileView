@@ -27,4 +27,5 @@ RUN yum install -y kde-l10n-Chinese &&\
 	mkfontdir &&\
 	fc-cache -fv
 ENV LC_ALL zh_CN.UTF-8
-CMD sh /opt/kkFileView-2.1.0-SNAPSHOT/bin/docker-startup.sh
+ENV KKFILEVIEW_BIN_FOLDER /opt/kkFileView-2.1.0-SNAPSHOT/bin
+ENTRYPOINT ["java","-Dfile.encoding=UTF-8","-Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider","-Dspring.config.location=/opt/kkFileView-2.1.0-SNAPSHOT/conf/application.properties","-jar","/opt/kkFileView-2.1.0-SNAPSHOT/bin/kkFileView-2.1.0-SNAPSHOT.jar"]
