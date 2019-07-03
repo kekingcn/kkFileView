@@ -29,22 +29,15 @@
                     如果你的项目需要接入文件预览项目，达到对docx、excel、ppt、jpg等文件的预览效果，那么通过在你的项目中加入下面的代码就可以
                     成功实现：
                     <pre style="background-color: #2f332a;color: #cccccc">
-                        $scope.openWin = function (fileUrl) {
-                            var url = configuration.previewUrl + encodeURIComponent(fileUrl);
-                            var winHeight = window.document.documentElement.clientHeight-10;
-                            $window.open(url, "_blank", "height=" + winHeight
-                                + ",top=80,left=80,toolbar=no, menubar=no, scrollbars=yes, resizable=yes");
-                        };
+var url = 'http://127.0.0.1:8080/file/test.txt'; //要预览文件的访问地址
+window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(url));
                     </pre>
                 </div>
                 <div>
                     新增多图片同时预览功能，接口如下：
                     <pre style="background-color: #2f332a;color: #cccccc">
-                        var fileUrl =url1+"|"+"url2";//多文件使用“|”字符隔开
-                        var url = "http://localhost:8012/picturesPreview?urls" + encodeURIComponent(fileUrl);
-                        var winHeight = window.document.documentElement.clientHeight-10;
-                        $window.open(url, "_blank", "height=" + winHeight
-                                + ",top=80,left=80,toolbar=no, menubar=no, scrollbars=yes, resizable=yes");
+var fileUrl =url1+"|"+"url2";//多文件使用“|”字符隔开
+window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fileUrl));
                     </pre>
                 </div>
             </div>
@@ -86,8 +79,23 @@
         <div id="collapseThree" class="panel-collapse collapse in">
             <div class="panel-body">
                 <div>
+                    2019年06月18日 ：<br>
+                        1. 支持自动清理缓存及预览文件<br>
+                        2. 支持http/https下载流url文件预览<br>
+                        3. 支持FTP url文件预览<br>
+                        4. 加入Docker构建<br><br>
+
+                    2019年04月08日 ：<br>
+                        1. 缓存及队列实现抽象，提供JDK和REDIS两种实现(REDIS成为可选依赖)<br>
+                        2. 打包方式提供zip和tar.gz包，并提供一键启动脚本<br><br>
+
+                    2018年01月19日 ：<br>
+                        1. 大文件入队提前处理<br>
+                        1. 新增addTask文件转换入队接口<br>
+                        1. 采用redis队列，支持kkFIleView接口和异构系统入队两种方式<br><br>
+
                     2018年01月15日 ：<br>
-                    1.首页新增社会化评论框<br><br>
+                        1.首页新增社会化评论框<br><br>
 
                     2018年01月12日 ：<br>
                         1.新增多图片同时预览<br>
@@ -100,7 +108,7 @@
                         4.引入pdf.js预览doc等文件，支持doc标题生成pdf预览菜单，支持手机端预览<br><br>
 
                     2017年12月12日：<br>
-                        1.项目osc开源:<a href="https://gitee.com/kekingcn/file-online-preview" target="_blank">https://gitee.com/kekingcn/file-online-preview</a><br>
+                        1.项目gitee开源:<a href="https://gitee.com/kekingcn/file-online-preview" target="_blank">https://gitee.com/kekingcn/file-online-preview</a><br>
                         2.项目github开源:<a href="https://github.com/kekingcn/kkFileView" target="_blank">https://github.com/kekingcn/kkFileView</a>
                 </div>
             </div>
