@@ -123,30 +123,35 @@ public class DownloadUtils {
      * 对最有一个路径进行转码
      * @param urlAddress
      *          http://192.168.2.111:8013/demo/Handle中文.zip
+     *          http://192.168.2.111:8013/download?id=1&filename=中文.zip
      * @return
      */
-    private String encodeUrlParam(String urlAddress) {
-        String newUrl = "";
-        try {
-            String path = "";
-            String param = "";
-            if (urlAddress.contains("?")) {
-                path = urlAddress.substring(0, urlAddress.indexOf("?"));
-                param = urlAddress.substring(urlAddress.indexOf("?"));
-            }else {
-                path = urlAddress;
+
+    private String encodeUrlParam(String urlAddress){
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < urlAddress.length(); i++) {
+            char c = urlAddress.charAt(i);
+            if (c >= 0 && c <= 255) {
+                sb.append(c);
+            } else {
+                byte[] b;
+                try {
+                    //指定需要的编码类型
+                    b = String.valueOf(c).getBytes("utf-8");
+                } catch (Exception ex) {
+                    System.out.println(ex);
+                    b = new byte[0];
+                }
+                for (int j = 0; j < b.length; j++) {
+                    int k = b[j];
+                    if (k < 0) {
+                        k += 256;
+                    }
+                    sb.append("%" + Integer.toHexString(k).toUpperCase());
+                }
             }
-            String lastPath = path.substring(path.lastIndexOf("/") + 1);
-            String leftPath = path.substring(0, path.lastIndexOf("/") + 1);
-            String encodeLastPath = URLEncoder.encode(lastPath, "UTF-8");
-            newUrl += leftPath + encodeLastPath;
-            if (urlAddress.contains("?")) {
-                newUrl += param;
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
-        return newUrl;
+        return sb.toString();
     }
 
 
