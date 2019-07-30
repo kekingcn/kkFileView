@@ -37,7 +37,19 @@ public class FileController {
     @RequestMapping(value = "fileUpload", method = RequestMethod.POST)
     public String fileUpload(@RequestParam("file") MultipartFile file,
                              HttpServletRequest request) throws JsonProcessingException {
+        // 获取文件名
         String fileName = file.getOriginalFilename();
+        //判断是否为IE浏览器的文件名，IE浏览器下文件名会带有盘符信息
+        // Check for Unix-style path
+        int unixSep = fileName.lastIndexOf('/');
+        // Check for Windows-style path
+        int winSep = fileName.lastIndexOf('\\');
+        // Cut off at latest possible point
+        int pos = (winSep > unixSep ? winSep : unixSep);
+        if (pos != -1)  {
+            fileName = fileName.substring(pos + 1);
+        }
+
         // 判断该文件类型是否有上传过，如果上传过则提示不允许再次上传
         if (existsTypeFile(fileName)) {
             return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(1, "每一种类型只可以上传一个文件，请先删除原有文件再次上传", null));
