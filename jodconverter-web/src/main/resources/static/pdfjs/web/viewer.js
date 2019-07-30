@@ -1897,7 +1897,7 @@ var validateFileURL = void 0;
       }
       var fileOrigin = new URL(file, window.location.href).origin;
       if (fileOrigin !== viewerOrigin) {
-        return  '/getCorsFile?urlPath=' + file;
+        return  '/getCorsFile?urlPath=' + encodeURIComponent(file);
       }
     } catch (ex) {
       var message = ex && ex.message;
