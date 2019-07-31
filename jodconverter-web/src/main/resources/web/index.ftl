@@ -2,11 +2,11 @@
 
 <html lang="en">
 <head>
-    <title>图片预览图</title>
+    <title>kkFileView演示首页</title>
     <link rel="stylesheet" href="css/viewer.min.css">
     <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.css" />
+    <link rel="stylesheet" href="//cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.css" />
     <style type="text/css">
     </style>
 </head>
@@ -117,7 +117,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
             <div style="width: 80%">
                 <!-- 多说评论框 start -->
                 <div id="SOHUCS" sid="kkfileView"></div>
-                <script charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/changyan.js" ></script>
+                <script charset="utf-8" type="text/javascript" src="//changyan.sohu.com/upload/changyan.js" ></script>
                 <script type="text/javascript">
                     window.changyan.api.config({
                         appid: 'cytx6wU4N',
@@ -154,9 +154,9 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
     </div>
 </div>
 <script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
-<script src="https://cdn.bootcss.com/jquery.form/3.09/jquery.form.min.js" type="text/javascript"></script>
-<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.js"></script>
+<script src="//cdn.bootcss.com/jquery.form/3.09/jquery.form.min.js" type="text/javascript"></script>
+<script src="//cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.js"></script>
 <script>
     function deleteFile(fileName) {
         $.ajax({
