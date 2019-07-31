@@ -247,7 +247,7 @@ public class FileUtils {
             // 添加sheet控制头
             sb.append("<script src=\"js/jquery-3.0.0.min.js\" type=\"text/javascript\"></script>");
             sb.append("<script src=\"js/excel.header.js\" type=\"text/javascript\"></script>");
-            sb.append("<link rel=\"stylesheet\" href=\"http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css\">");
+            sb.append("<link rel=\"stylesheet\" href=\"//cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css\">");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
