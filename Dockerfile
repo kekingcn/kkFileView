@@ -27,5 +27,5 @@ RUN yum install -y kde-l10n-Chinese &&\
 	mkfontdir &&\
 	fc-cache -fv
 ENV LC_ALL zh_CN.UTF-8
-ENV KKFILEVIEW_BIN_FOLDER /opt/kkFileView-2.1.2/bin
-ENTRYPOINT ["java","-Dfile.encoding=UTF-8","-Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider","-Dspring.config.location=/opt/kkFileView-2.1.2/conf/application.properties","-jar","/opt/kkFileView-2.1.2/bin/kkFileView-2.1.2.jar"]
+ENV KKFILEVIEW_BIN_FOLDER /opt/kkFileView-2.2.0-SNAPSHOT/bin
+ENTRYPOINT ["java","-Dfile.encoding=UTF-8","-Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider","-Dspring.config.location=/opt/kkFileView-2.2.0-SNAPSHOT/conf/application.properties","-jar","/opt/kkFileView-2.2.0-SNAPSHOT/bin/kkFileView-2.2.0-SNAPSHOT.jar"]
