@@ -187,7 +187,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         }).on('pre-body.bs.table', function (e,data) {
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
-                item.action = "<a class='btn btn-default' href='${baseUrl}onlinePreview?url="+ encodeURIComponent('${baseUrl}' + item.fileName ) +"'>预览</a>" +
+                item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url="+ encodeURIComponent('${baseUrl}' + item.fileName ) +"'>预览</a>" +
                     "<a class='btn btn-default' href='javascript:void(0);' onclick='deleteFile(\""+item.fileName+"\")'>删除</a>";
             });
             return data;
