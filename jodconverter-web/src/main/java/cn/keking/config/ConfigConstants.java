@@ -14,6 +14,7 @@ import java.io.File;
 @Component
 public class ConfigConstants {
 
+    private static Boolean cacheEnabled;
     private static String[] simText = {};
     private static String[] media = {};
     private static String convertedFileCharset;
@@ -22,6 +23,14 @@ public class ConfigConstants {
     private static String ftpPassword;
     private static String ftpControlEncoding;
     private static String fileDir = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
+
+    public static Boolean isCacheEnabled() {
+        return cacheEnabled;
+    }
+
+    public static void setCacheEnabled(Boolean cacheEnabled) {
+        ConfigConstants.cacheEnabled = cacheEnabled;
+    }
 
     public static String[] getSimText() {
         return simText;

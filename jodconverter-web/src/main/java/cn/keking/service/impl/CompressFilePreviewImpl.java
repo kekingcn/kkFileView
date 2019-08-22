@@ -1,5 +1,6 @@
 package cn.keking.service.impl;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
@@ -33,7 +34,7 @@ public class CompressFilePreviewImpl implements FilePreview{
         String suffix=fileAttribute.getSuffix();
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
-        if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))) {
+        if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
@@ -48,7 +49,7 @@ public class CompressFilePreviewImpl implements FilePreview{
             } else if ("7z".equalsIgnoreCase(suffix)) {
                 fileTree = zipReader.read7zFile(filePath, fileName);
             }
-            if (fileTree != null && !"null".equals(fileTree)) {
+            if (fileTree != null && !"null".equals(fileTree) && ConfigConstants.isCacheEnabled()) {
                 fileUtils.addConvertedFile(fileName, fileTree);
             }
         } else {
