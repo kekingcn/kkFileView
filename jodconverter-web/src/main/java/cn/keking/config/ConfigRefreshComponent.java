@@ -22,6 +22,7 @@ public class ConfigRefreshComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRefreshComponent.class);
 
+    public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,xml,properties,md,java,py,c,cpp,sql";
     public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
     public static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
@@ -43,6 +44,7 @@ public class ConfigRefreshComponent {
                 Properties properties = new Properties();
                 String text;
                 String media;
+                Boolean cacheEnabled;
                 String[] textArray;
                 String[] mediaArray;
                 String convertedFileCharset;
@@ -55,6 +57,7 @@ public class ConfigRefreshComponent {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
                     properties.load(bufferedReader);
+                    cacheEnabled = new Boolean(properties.getProperty("cache.enabled", DEFAULT_CACHE_ENABLED));
                     text = properties.getProperty("simText", DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", DEFAULT_MEDIA_TYPE);
                     convertedFileCharset = properties.getProperty("converted.file.charset", DEFAULT_CONVERTER_CHARSET);
@@ -64,6 +67,7 @@ public class ConfigRefreshComponent {
                     ftpControlEncoding = properties.getProperty("ftp.control.encoding", DEFAULT_FTP_CONTROL_ENCODING);
                     textArray = text.split(",");
                     mediaArray = media.split(",");
+                    ConfigConstants.setCacheEnabled(cacheEnabled);
                     ConfigConstants.setSimText(textArray);
                     ConfigConstants.setMedia(mediaArray);
                     ConfigConstants.setConvertedFileCharset(convertedFileCharset);

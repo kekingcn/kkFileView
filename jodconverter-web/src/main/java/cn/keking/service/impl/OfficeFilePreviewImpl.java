@@ -52,7 +52,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
         String outFilePath = fileDir + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
-        if (!fileUtils.listConvertedFiles().containsKey(pdfName)) {
+        if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath = fileDir + fileName;
             if (!new File(filePath).exists()) {
                 ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
@@ -69,12 +69,14 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 if (f.exists()) {
                     f.delete();
                 }
-                if (isHtml) {
-                    // 对转换后的文件进行操作(改变编码方式)
-                    fileUtils.doActionConvertedFile(outFilePath);
+                if (ConfigConstants.isCacheEnabled()) {
+                    if (isHtml) {
+                        // 对转换后的文件进行操作(改变编码方式)
+                        fileUtils.doActionConvertedFile(outFilePath);
+                    }
+                    // 加入缓存
+                    fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
                 }
-                // 加入缓存
-                fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
             }
         }
         if (!isHtml && originUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
