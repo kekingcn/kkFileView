@@ -25,7 +25,7 @@
     </#list>
 </div>
 <#--<img src="images/right.png" style="position: fixed; cursor: pointer; top: 40%; right: 60px; z-index: 999;" alt="使用PDF预览" title="使用PDF预览" onclick="changePreviewType('pdf')"/>-->
-<span class="fa fa-file-pdf-o fa-5x" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" title="使用PDF预览" onclick="changePreviewType('pdf')"></span>
+<span class="fa fa-file-pdf-o fa-4x" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" title="使用PDF预览" onclick="changePreviewType('pdf')"></span>
 <script>
     window.onload=checkImgs;
     window.onscroll = throttle(checkImgs);
