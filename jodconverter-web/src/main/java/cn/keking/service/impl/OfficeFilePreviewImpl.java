@@ -69,11 +69,11 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 if (f.exists()) {
                     f.delete();
                 }
+                if (isHtml) {
+                    // 对转换后的文件进行操作(改变编码方式)
+                    fileUtils.doActionConvertedFile(outFilePath);
+                }
                 if (ConfigConstants.isCacheEnabled()) {
-                    if (isHtml) {
-                        // 对转换后的文件进行操作(改变编码方式)
-                        fileUtils.doActionConvertedFile(outFilePath);
-                    }
                     // 加入缓存
                     fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
                 }
