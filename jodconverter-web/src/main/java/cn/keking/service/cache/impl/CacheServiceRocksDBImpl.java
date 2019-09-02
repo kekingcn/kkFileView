@@ -92,7 +92,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
         try {
             Map<String, List<String>> imgCacheItem = getImgCache();
             imgCacheItem.put(key, value);
-            db.put(REDIS_FILE_PREVIEW_PDF_KEY.getBytes(), toByteArray(imgCacheItem));
+            db.put(REDIS_FILE_PREVIEW_IMGS_KEY.getBytes(), toByteArray(imgCacheItem));
         } catch (RocksDBException | IOException e) {
             LOGGER.error("Put into RocksDB Exception" + e);
         }
