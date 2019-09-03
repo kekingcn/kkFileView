@@ -116,7 +116,7 @@ public class OfficeUtils {
 
     public static File getOfficeExecutable(File officeHome) {
         if (PlatformUtils.isMac()) {
-            return new File(officeHome, "MacOS/soffice.bin");
+            return new File(officeHome, "MacOS/soffice");
         } else {
             return new File(officeHome, "program/soffice.bin");
         }
