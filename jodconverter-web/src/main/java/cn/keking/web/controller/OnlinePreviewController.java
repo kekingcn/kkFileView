@@ -1,5 +1,6 @@
 package cn.keking.web.controller;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
@@ -7,6 +8,10 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +24,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -40,6 +47,8 @@ public class OnlinePreviewController {
 
     @Autowired
     private FileUtils fileUtils;
+
+    private String fileDir = ConfigConstants.getFileDir();
 
     /**
      * @param url
@@ -121,6 +130,86 @@ public class OnlinePreviewController {
                 IOUtils.closeQuietly(inputStream);
             }
         }
+    }
+
+
+    @RequestMapping(value = "/getPDFImage", method = RequestMethod.GET)
+    @ResponseBody
+    public String getPDFImage(String urlPath, Integer dpi, Integer page) {
+        FileAttribute fileAttribute = fileUtils.getFileAttribute(urlPath);
+        String fileName = fileAttribute.getName();
+        String fullFileName = fileDir + fileName;
+        String result = "";
+        InputStream is = null;
+        try {
+            File dirFile = new File(fileDir);
+            if (!dirFile.exists()) {
+                dirFile.mkdirs();
+            }
+            String strUrl = urlPath.trim();
+            URL url = new URL(new URI(strUrl).toASCIIString());
+            //打开请求连接
+            URLConnection connection = url.openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
+            httpURLConnection.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+            is = httpURLConnection.getInputStream();
+            FileOutputStream os = new FileOutputStream(fullFileName);
+            byte[] buffer = new byte[4 * 1024];
+            int read;
+            while ((read = is.read(buffer)) > 0) {
+                os.write(buffer, 0, read);
+            }
+            os.close();
+
+            try {
+                String imageFileSuffix = ".jpg";
+                File pdfFile = new File(fullFileName);
+                PDDocument doc = PDDocument.load(pdfFile);
+                int pageCount = doc.getNumberOfPages();
+                if (page >= pageCount) {
+                    return result;
+                }
+                PDFRenderer pdfRenderer = new PDFRenderer(doc);
+
+                int index = fullFileName.lastIndexOf(".");
+                String folder = fullFileName.substring(0, index);
+
+                File path = new File(folder);
+                if (!path.exists()) {
+                    path.mkdirs();
+                }
+                String imageFilePath;
+
+                imageFilePath = folder + File.separator + page + imageFileSuffix;
+                BufferedImage image = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
+                ImageIOUtil.writeImage(image, imageFilePath, dpi);
+                File imgFile = new File(imageFilePath);
+                FileInputStream in = new FileInputStream(imgFile);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] b = new byte[1024];
+                int i = 0;
+                while ((i = in.read(b)) != -1) {
+                    out.write(b, 0, b.length);
+                }
+                out.close();
+                in.close();
+                String base64Image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(out.toByteArray());
+                out.close();
+                result = base64Image;
+
+                doc.close();
+            } catch (IOException e) {
+                LOGGER.error("Convert pdf to jpg exception", e);
+            }
+
+        } catch (IOException | URISyntaxException e) {
+            LOGGER.error("下载pdf文件失败", e);
+        } finally {
+            if (is != null) {
+                IOUtils.closeQuietly(is);
+            }
+        }
+        return result;
     }
 
     /**
