@@ -54,21 +54,15 @@ public class OfficeFilePreviewImpl implements FilePreview {
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath = fileDir + fileName;
-            if (!new File(filePath).exists()) {
-                ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
-                if (0 != response.getCode()) {
-                    model.addAttribute("fileType", suffix);
-                    model.addAttribute("msg", response.getMsg());
-                    return "fileNotSupported";
-                }
-                filePath = response.getContent();
+            ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
+            if (0 != response.getCode()) {
+                model.addAttribute("fileType", suffix);
+                model.addAttribute("msg", response.getMsg());
+                return "fileNotSupported";
             }
+            filePath = response.getContent();
             if (StringUtils.hasText(outFilePath)) {
                 officeToPdf.openOfficeToPDF(filePath, outFilePath);
-                File f = new File(filePath);
-                if (f.exists()) {
-                    f.delete();
-                }
                 if (isHtml) {
                     // 对转换后的文件进行操作(改变编码方式)
                     fileUtils.doActionConvertedFile(outFilePath);
