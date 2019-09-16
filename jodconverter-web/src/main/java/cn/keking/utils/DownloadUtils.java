@@ -46,7 +46,9 @@ public class DownloadUtils {
             urlAddress = replacePlusMark(urlAddress);
             urlAddress = encodeUrlParam(urlAddress);
             // 因为tomcat不能处理'+'号，所以讲'+'号替换成'%20%'
+            // 也不能处理空格
             urlAddress = urlAddress.replaceAll("\\+", "%20");
+            urlAddress = urlAddress.replaceAll(" ", "%20");
             url = new URL(urlAddress);
         } catch (MalformedURLException e) {
             e.printStackTrace();
