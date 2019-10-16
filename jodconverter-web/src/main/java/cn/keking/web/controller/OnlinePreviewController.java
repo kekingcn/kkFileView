@@ -57,7 +57,7 @@ public class OnlinePreviewController {
      */
     @RequestMapping(value = "onlinePreview", method = RequestMethod.GET)
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
-        FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
+        FileAttribute fileAttribute = fileUtils.getFileAttribute(url, req);
         req.setAttribute("fileKey", req.getParameter("fileKey"));
         model.addAttribute("officePreviewType", req.getParameter("officePreviewType"));
         model.addAttribute("originUrl", req.getRequestURL().toString());
@@ -82,7 +82,7 @@ public class OnlinePreviewController {
         String[] imgs = decodedUrl.split("\\|");
         List imgurls = Arrays.asList(imgs);
         model.addAttribute("imgurls", imgurls);
-        model.addAttribute("currentUrl",decodedCurrentUrl);
+        model.addAttribute("currentUrl", decodedCurrentUrl);
         return "picture";
     }
 
@@ -97,7 +97,7 @@ public class OnlinePreviewController {
         String[] imgs = decodedUrl.split("\\|");
         List imgurls = Arrays.asList(imgs);
         model.addAttribute("imgurls", imgurls);
-        model.addAttribute("currentUrl",decodedCurrentUrl);
+        model.addAttribute("currentUrl", decodedCurrentUrl);
         return "picture";
     }
     /**
@@ -135,8 +135,8 @@ public class OnlinePreviewController {
 
     @RequestMapping(value = "/getPDFImage", method = RequestMethod.GET)
     @ResponseBody
-    public String getPDFImage(String urlPath, Integer dpi, Integer page) {
-        FileAttribute fileAttribute = fileUtils.getFileAttribute(urlPath);
+    public String getPDFImage(String urlPath, Integer dpi, Integer page, HttpServletRequest request) {
+        FileAttribute fileAttribute = fileUtils.getFileAttribute(urlPath, request);
         String fileName = fileAttribute.getName();
         String fullFileName = fileDir + fileName;
         String result = "";

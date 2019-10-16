@@ -72,6 +72,13 @@ public class DownloadUtils {
                 FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
             } else {
                 URLConnection connection = url.openConnection();
+                HttpURLConnection conn=(HttpURLConnection)connection;
+                conn.setRequestMethod(fileAttribute.getHttpMethod());
+                // 发送POST请求必须设置如下两行
+                connection.setRequestProperty("Authorization",fileAttribute.getAuth());
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+
                 InputStream in = connection.getInputStream();
 
                 FileOutputStream os = new FileOutputStream(realPath);
