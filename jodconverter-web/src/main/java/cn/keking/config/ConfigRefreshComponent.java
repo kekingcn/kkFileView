@@ -5,6 +5,7 @@ import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
@@ -29,6 +30,7 @@ public class ConfigRefreshComponent {
     public static final String DEFAULT_FTP_USERNAME = null;
     public static final String DEFAULT_FTP_PASSWORD = null;
     public static final String DEFAULT_FTP_CONTROL_ENCODING = "UTF-8";
+    public static final String BASE_URL = null;
 
 
     @PostConstruct
@@ -53,6 +55,7 @@ public class ConfigRefreshComponent {
                 String ftpPassword;
                 String ftpControlEncoding;
                 String configFilePath = OfficeUtils.getCustomizedConfigPath();
+                String baseUlr;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -67,6 +70,7 @@ public class ConfigRefreshComponent {
                     ftpControlEncoding = properties.getProperty("ftp.control.encoding", DEFAULT_FTP_CONTROL_ENCODING);
                     textArray = text.split(",");
                     mediaArray = media.split(",");
+                    baseUlr = properties.getProperty("base.url", null);
                     ConfigConstants.setCacheEnabled(cacheEnabled);
                     ConfigConstants.setSimText(textArray);
                     ConfigConstants.setMedia(mediaArray);
@@ -75,6 +79,9 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setFtpUsername(ftpUsername);
                     ConfigConstants.setFtpPassword(ftpPassword);
                     ConfigConstants.setFtpControlEncoding(ftpControlEncoding);
+                    if (baseUlr != null && !StringUtils.isEmpty(baseUlr)) {
+                        ConfigConstants.setBaseUrl(baseUlr);
+                    }
                     bufferedReader.close();
                     fileReader.close();
                     Thread.sleep(1000L);
