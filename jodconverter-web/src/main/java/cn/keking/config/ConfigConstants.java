@@ -23,6 +23,7 @@ public class ConfigConstants {
     private static String ftpPassword;
     private static String ftpControlEncoding;
     private static String fileDir = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
+    private static String baseUrl;
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -90,6 +91,15 @@ public class ConfigConstants {
 
     public static String getFileDir() {
         return fileDir;
+    }
+
+    public static String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public static void setBaseUrl(String baseUrl) {
+        // 不以'/'结尾的，加上'/'
+        ConfigConstants.baseUrl = baseUrl.concat("/");
     }
 
     @Value("${file.dir:default}")
