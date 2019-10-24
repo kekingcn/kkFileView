@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -328,26 +327,19 @@ public class FileUtils {
 
 
     public FileAttribute getFileAttribute(String url) {
-        String decodedUrl = null;
-        try {
-            decodedUrl = URLDecoder.decode(url, "utf-8");
-        } catch (UnsupportedEncodingException e){
-            log.error("url解码失败");
-        }
         String fileName;
         FileType type;
         String suffix;
-
-        String fullFileName = getUrlParameterReg(decodedUrl, "fullfilename");
+        String fullFileName = getUrlParameterReg(url, "fullfilename");
         if (!StringUtils.isEmpty(fullFileName)) {
             fileName = fullFileName;
             type = typeFromFileName(fileName);
             suffix = suffixFromFileName(fileName);
         } else {
-            fileName = getFileNameFromURL(decodedUrl);
+            fileName = getFileNameFromURL(url);
             type = typeFromUrl(url);
             suffix = suffixFromUrl(url);
         }
-        return new FileAttribute(type,suffix,fileName,url,decodedUrl);
+        return new FileAttribute(type,suffix,fileName,url,url);
     }
 }
