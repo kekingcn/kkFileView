@@ -6,7 +6,7 @@ KKFILEVIEW_BIN_FOLDER=$(cd "$(dirname "$0")";pwd)
 export KKFILEVIEW_BIN_FOLDER=$KKFILEVIEW_BIN_FOLDER
 cd $KKFILEVIEW_BIN_FOLDER
 echo "Using KKFILEVIEW_BIN_FOLDER $KKFILEVIEW_BIN_FOLDER"
-grep 'office\.home' ../conf/application.properties | grep '!^#'
+grep 'office\.home' ../config/application.properties | grep '!^#'
 if [ $? -eq 0 ]; then
   echo "Using customized office.home"
 else 
