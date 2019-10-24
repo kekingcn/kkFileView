@@ -11,18 +11,24 @@
     <includeBaseDirectory>true</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>src/main/conf</directory>
-            <outputDirectory>${file.separator}conf</outputDirectory>
+            <directory>src/main/bin</directory>
+            <outputDirectory>${file.separator}bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <fileMode>755</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
             <directory>src/main/bin</directory>
             <outputDirectory>${file.separator}bin</outputDirectory>
-            <fileMode>755</fileMode>
+            <includes>
+                <include>*.bat</include>
+            </includes>
         </fileSet>
         <fileSet>
-            <directory>src/main/script</directory>
-            <outputDirectory>${file.separator}script</outputDirectory>
-            <fileMode>755</fileMode>
+            <directory>src/main/config</directory>
+            <outputDirectory>${file.separator}config</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>src/main/log</directory>
