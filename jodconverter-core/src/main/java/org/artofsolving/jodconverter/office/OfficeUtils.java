@@ -143,7 +143,7 @@ public class OfficeUtils {
     public static String getCustomizedConfigPath() {
         String homePath = OfficeUtils.getHomePath();
         String separator = java.io.File.separator;
-        String configFilePath = homePath + separator + "conf" + separator + "application.properties";
+        String configFilePath = homePath + separator + "config" + separator + "application.properties";
         return configFilePath;
     }
 
