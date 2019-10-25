@@ -1,7 +1,7 @@
 package cn.keking.filters;
 
 import cn.keking.config.ConfigConstants;
-import org.springframework.util.StringUtils;
+import cn.keking.config.ConfigRefreshComponent;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -23,8 +23,12 @@ public class ChinesePathFilter implements Filter {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String baseUrl;
-        if (ConfigConstants.getBaseUrl() != null) {
-            baseUrl = ConfigConstants.getBaseUrl();
+        String baseUrlTmp = ConfigConstants.getBaseUrl();
+        if (baseUrlTmp != null && !ConfigRefreshComponent.DEFAULT_BASE_URL.equals(baseUrlTmp.toLowerCase())) {
+            if (!baseUrlTmp.endsWith("/")) {
+                baseUrlTmp = baseUrlTmp.concat("/");
+            }
+            baseUrl = baseUrlTmp;
         } else {
             StringBuilder pathBuilder = new StringBuilder();
             pathBuilder.append(request.getScheme()).append("://").append(request.getServerName()).append(":")

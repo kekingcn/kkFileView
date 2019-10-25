@@ -25,6 +25,9 @@ import java.util.Map;
  */
 @Component
 public class FileUtils {
+
+    public static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
+
     Logger log= LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -233,9 +236,8 @@ public class FileUtils {
      */
     public void doActionConvertedFile(String outFilePath) {
         StringBuffer sb = new StringBuffer();
-        String charset = ConfigConstants.getConvertedFileCharset();
         try (InputStream inputStream = new FileInputStream(outFilePath);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset))){
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_CONVERTER_CHARSET))){
             String line;
             while(null != (line = reader.readLine())){
                 if (line.contains("charset=gb2312")) {
