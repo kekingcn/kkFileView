@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 /**
  * Created by kl on 2018/1/17.
  * Content :处理文本文件
@@ -32,7 +36,16 @@ public class SimTextFilePreviewImpl implements FilePreview{
             model.addAttribute("fileType",fileAttribute.getSuffix());
             return "fileNotSupported";
         }
-        model.addAttribute("ordinaryUrl", response.getMsg());
+        try {
+            File originFile = new File(response.getContent());
+            File previewFile = new File(response.getContent() + ".txt");
+            Files.copy(originFile.toPath(), previewFile.toPath());
+        } catch (IOException e) {
+            model.addAttribute("msg", e.getLocalizedMessage());
+            model.addAttribute("fileType",fileAttribute.getSuffix());
+            return "fileNotSupported";
+        }
+        model.addAttribute("ordinaryUrl", response.getMsg() + ".txt");
         return "txt";
     }
 
