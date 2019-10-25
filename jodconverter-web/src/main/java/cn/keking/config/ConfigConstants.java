@@ -17,13 +17,14 @@ public class ConfigConstants {
     private static Boolean cacheEnabled;
     private static String[] simText = {};
     private static String[] media = {};
-    private static String convertedFileCharset;
     private static String officePreviewType;
     private static String ftpUsername;
     private static String ftpPassword;
     private static String ftpControlEncoding;
     private static String fileDir = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
     private static String baseUrl;
+
+    public static final String DEFAULT_FILE_DIR_VALUE = "default";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -47,14 +48,6 @@ public class ConfigConstants {
 
     public static void setMedia(String[] media) {
         ConfigConstants.media = media;
-    }
-
-    public static String getConvertedFileCharset() {
-        return convertedFileCharset;
-    }
-
-    public static void setConvertedFileCharset(String convertedFileCharset) {
-        ConfigConstants.convertedFileCharset = convertedFileCharset;
     }
 
     public static String getOfficePreviewType() {
@@ -98,13 +91,12 @@ public class ConfigConstants {
     }
 
     public static void setBaseUrl(String baseUrl) {
-        // 不以'/'结尾的，加上'/'
-        ConfigConstants.baseUrl = baseUrl.concat("/");
+        ConfigConstants.baseUrl = baseUrl;
     }
 
     @Value("${file.dir:default}")
     public void setFileDir(String fileDir) {
-        if (!"default".equals(fileDir)) {
+        if (!DEFAULT_FILE_DIR_VALUE.equals(fileDir.toLowerCase())) {
             if (!fileDir.endsWith(File.separator)) {
                 fileDir = fileDir + File.separator;
             }

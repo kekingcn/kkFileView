@@ -15,6 +15,7 @@ package org.artofsolving.jodconverter.office;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -26,6 +27,8 @@ import com.sun.star.uno.UnoRuntime;
 public class OfficeUtils {
 
     public static final String SERVICE_DESKTOP = "com.sun.star.frame.Desktop";
+    public static final String OFFICE_HOME_KEY = "office.home";
+    public static final String DEFAULT_OFFICE_HOME_VALUE = "default";
 
     private OfficeUtils() {
         throw new AssertionError("utility class must not be instantiated");
@@ -69,9 +72,11 @@ public class OfficeUtils {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(customizedConfigPath));
             properties.load(bufferedReader);
+            restorePropertiesFromEnvFormat(properties);
         } catch (Exception e) {}
-        if (properties.getProperty("office.home") != null) {
-            return new File(properties.getProperty("office.home"));
+        String officeHome = properties.getProperty(OFFICE_HOME_KEY);
+        if (officeHome != null && !DEFAULT_OFFICE_HOME_VALUE.equals(officeHome)) {
+            return new File(officeHome);
         }
         if (PlatformUtils.isWindows()) {
             // %ProgramFiles(x86)% on 64-bit machines; %ProgramFiles% on 32-bit ones
@@ -145,6 +150,34 @@ public class OfficeUtils {
         String separator = java.io.File.separator;
         String configFilePath = homePath + separator + "config" + separator + "application.properties";
         return configFilePath;
+    }
+
+    /**
+     * SpringBoot application.properties 支持从环境变量获取值
+     * @param properties
+     */
+    public synchronized static void restorePropertiesFromEnvFormat(Properties properties) {
+        Iterator<Map.Entry<Object, Object>> iterator = properties.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Object, Object> entry = iterator.next();
+            String key = entry.getKey().toString();
+            String value = entry.getValue().toString();
+            if (value.trim().startsWith("${") && value.trim().endsWith("}")) {
+                int beginIndex = value.indexOf(":");
+                if (beginIndex < 0) {
+                    beginIndex = value.length() - 1;
+                }
+                int endIndex = value.length() - 1;
+                String envKey = value.substring(2, beginIndex);
+                String envValue = System.getenv(envKey);
+                if (envValue == null || "".equals(envValue.trim())) {
+                    value = value.substring(beginIndex + 1, endIndex);
+                } else {
+                    value = envValue;
+                }
+                properties.setProperty(key, value);
+            }
+        }
     }
 
 }
