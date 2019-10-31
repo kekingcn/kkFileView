@@ -23,14 +23,12 @@ public class PdfUtils {
     @Autowired
     FileUtils fileUtils;
 
-    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String url) {
+    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl) {
         List<String> imageUrls = new ArrayList<>();
         Integer imageCount = fileUtils.getConvertedPdfImage(pdfFilePath);
         String imageFileSuffix = ".jpg";
-        // https://8个字符  http://7个字符 从这后面开始出现的第一个/就是当前file.Dir下的根目录
-        int index1 = url.indexOf("/", 8);
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
-        String urlPrefix = url.substring(0, index1 + 1) + pdfFolder;
+        String urlPrefix = baseUrl + pdfFolder;
         if (imageCount != null && imageCount.intValue() > 0) {
             for (int i = 0; i < imageCount ; i++)
             imageUrls.add(urlPrefix + "/" + i + imageFileSuffix);
