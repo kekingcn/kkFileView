@@ -52,7 +52,7 @@ public class ConfigRefreshComponent {
                 String ftpPassword;
                 String ftpControlEncoding;
                 String configFilePath = OfficeUtils.getCustomizedConfigPath();
-                String baseUlr;
+                String baseUrl;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -67,7 +67,7 @@ public class ConfigRefreshComponent {
                     ftpControlEncoding = properties.getProperty("ftp.control.encoding", DEFAULT_FTP_CONTROL_ENCODING);
                     textArray = text.split(",");
                     mediaArray = media.split(",");
-                    baseUlr = properties.getProperty("base.url", DEFAULT_BASE_URL);
+                    baseUrl = properties.getProperty("base.url", DEFAULT_BASE_URL);
                     ConfigConstants.setCacheEnabled(cacheEnabled);
                     ConfigConstants.setSimText(textArray);
                     ConfigConstants.setMedia(mediaArray);
@@ -75,7 +75,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setFtpUsername(ftpUsername);
                     ConfigConstants.setFtpPassword(ftpPassword);
                     ConfigConstants.setFtpControlEncoding(ftpControlEncoding);
-                    ConfigConstants.setBaseUrl(baseUlr);
+                    ConfigConstants.setBaseUrl(baseUrl);
                     bufferedReader.close();
                     fileReader.close();
                     Thread.sleep(1000L);

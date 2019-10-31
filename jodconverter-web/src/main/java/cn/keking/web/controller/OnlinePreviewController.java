@@ -49,38 +49,17 @@ public class OnlinePreviewController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "onlinePreview", method = RequestMethod.GET)
+    @RequestMapping(value = "/onlinePreview", method = RequestMethod.GET)
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
         req.setAttribute("fileKey", req.getParameter("fileKey"));
         model.addAttribute("officePreviewType", req.getParameter("officePreviewType"));
-        model.addAttribute("originUrl", req.getRequestURL().toString());
         FilePreview filePreview = previewFactory.get(fileAttribute);
         return filePreview.filePreviewHandle(url, model, fileAttribute);
     }
 
-    /**
-     * 多图片切换预览
-     *
-     * @param model
-     * @param req
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    @RequestMapping(value = "picturesPreview", method = RequestMethod.GET)
-    public String picturesPreview(String urls, String currentUrl, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
-        // 路径转码
-        String decodedUrl = URLDecoder.decode(urls, "utf-8");
-        String decodedCurrentUrl = URLDecoder.decode(currentUrl, "utf-8");
-        // 抽取文件并返回文件列表
-        String[] imgs = decodedUrl.split("\\|");
-        List imgurls = Arrays.asList(imgs);
-        model.addAttribute("imgurls", imgurls);
-        model.addAttribute("currentUrl",decodedCurrentUrl);
-        return "picture";
-    }
 
-    @RequestMapping(value = "picturesPreview", method = RequestMethod.POST)
+    @RequestMapping(value = "/picturesPreview")
     public String picturesPreview(Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String urls = req.getParameter("urls");
         String currentUrl = req.getParameter("currentUrl");

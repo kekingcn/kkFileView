@@ -10,8 +10,8 @@ import cn.keking.utils.PdfUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.context.request.RequestContextHolder;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -38,7 +38,7 @@ public class PdfFilePreviewImpl implements FilePreview{
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
-        String originUrl = model.asMap().get("originUrl").toString();
+        String baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
         model.addAttribute("pdfUrl", url);
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = fileDir + pdfName;
@@ -51,7 +51,7 @@ public class PdfFilePreviewImpl implements FilePreview{
                 return "fileNotSupported";
             }
             outFilePath = response.getContent();
-            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, originUrl);
+            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "pdf转图片异常，请联系管理员");
                 model.addAttribute("fileType",fileAttribute.getSuffix());
