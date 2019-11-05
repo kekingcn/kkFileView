@@ -39,6 +39,9 @@ public class SimTextFilePreviewImpl implements FilePreview{
         try {
             File originFile = new File(response.getContent());
             File previewFile = new File(response.getContent() + ".txt");
+            if (previewFile.exists()) {
+                previewFile.delete();
+            }
             Files.copy(originFile.toPath(), previewFile.toPath());
         } catch (IOException e) {
             model.addAttribute("msg", e.getLocalizedMessage());
