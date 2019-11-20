@@ -25,7 +25,7 @@
 
 </body>
 <script type="text/javascript">
-    document.getElementsByTagName('iframe')[0].src = "/pdfjs/web/viewer.html?file="+encodeURIComponent('${finalUrl}');
+    document.getElementsByTagName('iframe')[0].src = "${baseUrl}/pdfjs/web/viewer.html?file="+encodeURIComponent('${finalUrl}');
     document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight-10;
     /**
      * 页面变化调整高度
@@ -33,7 +33,7 @@
     window.onresize = function(){
         var fm = document.getElementsByTagName("iframe")[0];
         fm.height = window.document.documentElement.clientHeight-10;
-    }
+    };
 
     function goForImage() {
         var url = window.location.href;
