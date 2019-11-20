@@ -1,5 +1,6 @@
 package cn.keking.utils;
 
+import cn.keking.config.ConfigConstants;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -40,8 +41,9 @@ public class PdfUtils {
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
 
-            int index = pdfFilePath.lastIndexOf(".");
-            String folder = pdfFilePath.substring(0, index);
+            //int index = pdfFilePath.lastIndexOf(".");
+            //String folder = pdfFilePath.substring(0, index);
+            String folder = ConfigConstants.getFileDir() + "/" + pdfFolder;
 
             File path = new File(folder);
             if (!path.exists()) {
