@@ -38,7 +38,7 @@ public class PdfFilePreviewImpl implements FilePreview{
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
-        String baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+        String baseUrl = (String) model.asMap().get("BaseUrl");
         model.addAttribute("pdfUrl", url);
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = fileDir + pdfName;
@@ -65,6 +65,8 @@ public class PdfFilePreviewImpl implements FilePreview{
                 return "picture";
             }
         }
+        //fix 对于已经下载pdf文件直接读取已下载pdf文件
+        model.addAttribute("pdfUrl", pdfName);
         return "pdf";
     }
 }

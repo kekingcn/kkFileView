@@ -1,5 +1,6 @@
 package cn.keking.service;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
@@ -9,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ExtendedModelMap;
+import org.springframework.ui.Model;
+
 import javax.annotation.PostConstruct;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,8 +66,10 @@ public class FileConverQueueTask {
                         logger.info("正在处理转换任务，文件名称【{}】",fileAttribute.getName());
                         FileType fileType=fileAttribute.getType();
                         if(fileType.equals(FileType.compress) || fileType.equals(FileType.office)){
+                            Model model = new ExtendedModelMap();
+                            model.asMap().put("BaseUrl", ConfigConstants.getFileDir());
                             FilePreview filePreview=previewFactory.get(fileAttribute);
-                            filePreview.filePreviewHandle(url, new ExtendedModelMap(), fileAttribute);
+                            filePreview.filePreviewHandle(url, model, fileAttribute);
                         }
                     }
                 } catch (Exception e) {
