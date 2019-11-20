@@ -67,7 +67,7 @@ public class FileConverQueueTask {
                         FileType fileType=fileAttribute.getType();
                         if(fileType.equals(FileType.compress) || fileType.equals(FileType.office)){
                             Model model = new ExtendedModelMap();
-                            model.asMap().put("BaseUrl", ConfigConstants.getFileDir());
+                            model.asMap().put("BaseUrl", "");
                             FilePreview filePreview=previewFactory.get(fileAttribute);
                             filePreview.filePreviewHandle(url, model, fileAttribute);
                         }
@@ -76,7 +76,7 @@ public class FileConverQueueTask {
                     try {
                         Thread.sleep(1000*10);
                     }catch (Exception ex){
-                        ex.printStackTrace();
+                        //Ignored
                     }
                     e.printStackTrace();
                 }
