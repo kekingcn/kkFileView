@@ -37,7 +37,7 @@ public class DownloadUtils {
      * @param fileAttribute
      * @return
      */
-    public ReturnResponse<String> downLoad(FileAttribute fileAttribute, String  fileName) {
+    public ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
         String urlAddress = fileAttribute.getDecodedUrl();
         String type = fileAttribute.getSuffix();
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
@@ -65,7 +65,12 @@ public class DownloadUtils {
             dirFile.mkdirs();
         }
         try {
-            if ("ftp".equals(url.getProtocol())) {
+            if("file".equals(url.getProtocol())){
+                File old = new File(url.getPath());
+                //org.apache.commons.io.FileUtils.copyFile(old,new File(realPath));
+                realPath = old.getCanonicalPath();
+            }
+            else if ("ftp".equals(url.getProtocol())) {
                 String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
                 String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
