@@ -91,8 +91,11 @@ public class FileUtils {
         if (Arrays.asList(media).contains(fileType.toLowerCase())) {
             return FileType.media;
         }
-        if("pdf".equalsIgnoreCase(fileType)){
+        if ("pdf".equalsIgnoreCase(fileType)) {
             return FileType.pdf;
+        }
+        if ("dwg".equalsIgnoreCase(fileType)) {
+            return FileType.cad;
         }
         return FileType.other;
     }
