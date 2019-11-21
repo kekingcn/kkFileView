@@ -11,7 +11,8 @@ public enum FileType {
     simText("simTextFilePreviewImpl"),
     pdf("pdfFilePreviewImpl"),
     other("otherFilePreviewImpl"),
-    media("mediaFilePreviewImpl");
+    media("mediaFilePreviewImpl"),
+    cad("cadFilePreviewImpl");
 
     private String instanceName;
     FileType(String instanceName){
