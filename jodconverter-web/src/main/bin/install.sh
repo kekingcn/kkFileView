@@ -4,6 +4,8 @@ cd /tmp
 install_redhat() {
     wget https://iweb.dl.sourceforge.net/project/openofficeorg.mirror/4.1.6/binaries/zh-CN/Apache_OpenOffice_4.1.6_Linux_x86-64_install-rpm_zh-CN.tar.gz -cO openoffice_rpm.tar.gz && tar zxf /tmp/openoffice_rpm.tar.gz && cd /tmp/zh-CN/RPMS
    if [ $? -eq 0 ];then
+     yum install -y libXext.x86_64
+     yum groupinstall -y  "X Window System"
      rpm -Uvih *.rpm
      echo 'install desktop service ...'
      rpm -Uvih desktop-integration/openoffice4.1.6-redhat-menus-4.1.6-9790.noarch.rpm
