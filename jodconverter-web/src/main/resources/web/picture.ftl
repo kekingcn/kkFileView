@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>图片预览图</title>
+    <title>图片预览</title>
     <link rel="stylesheet" href="css/viewer.min.css">
     <style>
         * { margin: 0; padding: 0;}
