@@ -17,7 +17,7 @@ RUN yum install -y kde-l10n-Chinese &&\
 	yum install -y libXext.x86_64 &&\
 	yum groupinstall -y  "X Window System" &&\
 	cd /tmp &&\
-	wget https://iweb.dl.sourceforge.net/project/openofficeorg.mirror/4.1.6/binaries/zh-CN/Apache_OpenOffice_4.1.6_Linux_x86-64_install-rpm_zh-CN.tar.gz -cO openoffice_rpm.tar.gz &&\
+	wget http://kkfileview.keking.cn/Apache_OpenOffice_4.1.6_Linux_x86-64_install-rpm_zh-CN.tar.gz -cO openoffice_rpm.tar.gz &&\
 	tar zxf /tmp/openoffice_rpm.tar.gz &&\
 	cd /tmp/zh-CN/RPMS &&\
 	rpm -Uvih *.rpm &&\
