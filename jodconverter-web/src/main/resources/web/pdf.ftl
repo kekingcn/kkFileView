@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <title>PDF预览</title>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style type="text/css">
         body{
