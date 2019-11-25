@@ -13,6 +13,10 @@
         .img-area{
             text-align: center
         }
+        .img-area img{
+            cursor: pointer;
+            width: 100%;
+        }
 
     </style>
 </head>
@@ -20,7 +24,7 @@
 <div class="container">
     <#list imgurls as img>
         <div class="img-area">
-            <img class="my-photo" alt="loading" title="查看大图" style="cursor: pointer;" data-src="${img}" src="images/loading.gif" onclick="changePreviewType('allImages')">
+            <img class="my-photo" alt="loading" title="查看大图" data-src="${img}" src="images/loading.gif" onclick="changePreviewType('allImages')">
         </div>
     </#list>
 </div>
