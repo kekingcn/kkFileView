@@ -33,7 +33,7 @@
     <span>
         该文件类型(${fileType})系统暂时不支持在线预览，<b>说明</b>：
         <p style="color: red;">${msg}</p>
-        如有需要请联系<a href="mailto:1210893441@qq.com">@HappyPig</a>
+        有任何疑问，请加&nbsp;<a href="https://jq.qq.com/?_wv=1027&k=5c0UAtu">官方QQ群：613025121</a>&nbsp;咨询
     </span>
 </div>
 </body>
