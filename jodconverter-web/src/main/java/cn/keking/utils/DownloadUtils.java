@@ -1,6 +1,7 @@
 package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.hutool.URLUtil;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import org.slf4j.Logger;
@@ -29,11 +30,6 @@ public class DownloadUtils {
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
 
     /**
-     * 一开始测试的时候发现有些文件没有下载下来，而有些可以；当时也是郁闷了好一阵，但是最终还是不得解
-     * 再次测试的时候，通过前台对比url发现，原来参数中有+号特殊字符存在，但是到后之后却变成了空格，突然恍然大悟
-     * 应该是转义出了问题，url转义中会把+号当成空格来计算，所以才会出现这种情况，遂想要通过整体替换空格为加号，因为url
-     * 中的参数部分是不会出现空格的，但是文件名中就不好确定了，所以只对url参数部分做替换
-     * 注: 针对URLEncoder.encode(s,charset)会将空格转成+的情况需要做下面的替换工作
      * @param fileAttribute
      * @return
      */
@@ -43,12 +39,7 @@ public class DownloadUtils {
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         URL url = null;
         try {
-            urlAddress = replacePlusMark(urlAddress);
-            urlAddress = encodeUrlParam(urlAddress);
-            // 因为tomcat不能处理'+'号，所以讲'+'号替换成'%20%'
-            // 也不能处理空格
-            urlAddress = urlAddress.replaceAll("\\+", "%20");
-            urlAddress = urlAddress.replaceAll(" ", "%20");
+            urlAddress = URLUtil.normalize(urlAddress, true);
             url = new URL(urlAddress);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -103,84 +94,6 @@ public class DownloadUtils {
             }
             return response;
         }
-    }
-
-    /**
-     * 注:可能是原来因为前端通过encodeURI来编码的，因为通过encodeURI编码+会被转成+号(亦即没有转)，
-     * 而通过encodeURIComponent则会转成%2B，这样URLDecoder是可以正确处理的，所以也就没有必要在这里替换了
-     * 转换url参数部分的空格为加号(因为在url编解码的过程中出现+转为空格的情况)
-     * @param urlAddress
-     * @return
-     */
-    private String replacePlusMark(String urlAddress) {
-        if (urlAddress.contains("?")) {
-            String nonParamStr = urlAddress.substring(0,urlAddress.indexOf("?") + 1);
-            String paramStr = urlAddress.substring(nonParamStr.length());
-            return nonParamStr + paramStr.replace(" ", "+");
-        }
-        return urlAddress;
-    }
-
-    /**
-     * 对最有一个路径进行转码
-     * @param urlAddress
-     *          http://192.168.2.111:8013/demo/Handle中文.zip
-     *          http://192.168.2.111:8013/download?id=1&filename=中文.zip
-     * @return
-     */
-
-    private String encodeUrlParam(String urlAddress){
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < urlAddress.length(); i++) {
-            char c = urlAddress.charAt(i);
-            if (c >= 0 && c <= 255) {
-                sb.append(c);
-            } else {
-                byte[] b;
-                try {
-                    //指定需要的编码类型
-                    b = String.valueOf(c).getBytes("utf-8");
-                } catch (Exception ex) {
-                    System.out.println(ex);
-                    b = new byte[0];
-                }
-                for (int j = 0; j < b.length; j++) {
-                    int k = b[j];
-                    if (k < 0) {
-                        k += 256;
-                    }
-                    sb.append("%" + Integer.toHexString(k).toUpperCase());
-                }
-            }
-        }
-        return sb.toString();
-    }
-
-
-
-    /**
-     * 因为jodConvert2.1不支持ms2013版本的office转换，这里偷懒，尝试看改一下文件类型，让jodConvert2.1去
-     * 处理ms2013，看结果如何，如果问题很大的话只能采取其他方式，如果没有问题，暂时使用该版本来转换
-     * @param type
-     * @return
-     */
-    private String dealWithMS2013(String type) {
-        String newType = null;
-        switch (type){
-            case "docx":
-                newType = "doc";
-            break;
-            case "xlsx":
-                newType = "doc";
-            break;
-            case "pptx":
-                newType = "ppt";
-            break;
-            default:
-                newType = type;
-            break;
-        }
-        return newType;
     }
 
   /**
