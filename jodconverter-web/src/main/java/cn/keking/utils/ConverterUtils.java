@@ -2,6 +2,7 @@ package cn.keking.utils;
 
 import com.sun.star.document.UpdateDocMode;
 import cn.keking.extend.ControlDocumentFormatRegistry;
+import org.apache.commons.lang3.StringUtils;
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
 import org.artofsolving.jodconverter.office.OfficeManager;
@@ -97,8 +98,8 @@ public class ConverterUtils {
                 } else {
                     flag = false;
                 }
-            }else {
-                Process p = Runtime.getRuntime().exec(new String[]{"sh","-c","ps -ef | grep "+processName});
+            } else {
+                Process p = Runtime.getRuntime().exec(new String[]{"sh","-c","ps -ef | grep " + processName});
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 InputStream os = p.getInputStream();
                 byte b[] = new byte[256];
@@ -106,8 +107,8 @@ public class ConverterUtils {
                     baos.write(b);
                 }
                 String s = baos.toString();
-                if (s.indexOf(processName) >= 0) {
-                    String[] cmd ={"sh","-c","killall -9 "+processName};
+                if (StringUtils.ordinalIndexOf(s, processName, 3) > 0) {
+                    String[] cmd ={"sh","-c","kill -15 `ps -ef|grep " + processName + "|awk 'NR==1{print $2}'`"};
                     Runtime.getRuntime().exec(cmd);
                     flag = true;
                 } else {
