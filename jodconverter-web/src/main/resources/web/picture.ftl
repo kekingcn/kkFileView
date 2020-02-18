@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>图片预览</title>
     <link rel="stylesheet" href="css/viewer.min.css">
     <style>
@@ -22,7 +22,8 @@
 <script>
     var viewer = new Viewer(document.getElementById('dowebok'), {
         url: 'src',
-        navbar:false,
+        navbar: false,
+        button: false,
         loop : true
     });
     document.getElementById("${currentUrl}").click();
