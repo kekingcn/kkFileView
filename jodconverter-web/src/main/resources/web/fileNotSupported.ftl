@@ -2,6 +2,7 @@
 
 <html lang="en">
 <head>
+    <meta charset="utf-8" />
     <style type="text/css">
         body{
             margin: 0 auto;

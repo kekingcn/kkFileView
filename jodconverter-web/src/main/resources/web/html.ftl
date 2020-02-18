@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
     <style type="text/css">
         body{
             margin: 0;
