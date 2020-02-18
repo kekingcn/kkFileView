@@ -1,6 +1,5 @@
 package cn.keking.web.controller;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
@@ -34,15 +33,13 @@ public class OnlinePreviewController {
     private static final Logger LOGGER = LoggerFactory.getLogger(OnlinePreviewController.class);
 
     @Autowired
-    FilePreviewFactory previewFactory;
+    private FilePreviewFactory previewFactory;
 
     @Autowired
-    CacheService cacheService;
+    private CacheService cacheService;
 
     @Autowired
     private FileUtils fileUtils;
-
-    private String fileDir = ConfigConstants.getFileDir();
 
     /**
      * @param url
