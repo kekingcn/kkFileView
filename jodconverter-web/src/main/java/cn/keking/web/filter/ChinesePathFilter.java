@@ -1,7 +1,6 @@
-package cn.keking.filters;
+package cn.keking.web.filter;
 
 import cn.keking.config.ConfigConstants;
-import cn.keking.config.ConfigRefreshComponent;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +28,7 @@ public class ChinesePathFilter implements Filter {
                 .append(request.getServerPort()).append(((HttpServletRequest) request).getContextPath()).append("/");
         localBaseUrl = pathBuilder.toString();
         String baseUrlTmp = ConfigConstants.getBaseUrl();
-        if (baseUrlTmp != null && !ConfigRefreshComponent.DEFAULT_BASE_URL.equals(baseUrlTmp.toLowerCase())) {
+        if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equals(baseUrlTmp.toLowerCase())) {
             if (!baseUrlTmp.endsWith("/")) {
                 baseUrlTmp = baseUrlTmp.concat("/");
             }

@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @auther: chenjh
@@ -23,8 +26,19 @@ public class ConfigConstants {
     private static String ftpControlEncoding;
     private static String fileDir = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
     private static String baseUrl;
+    private static String trustHost;
+    private static Set<String> trustHostSet;
 
+    public static final String DEFAULT_CACHE_ENABLED = "true";
+    public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
+    public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
     public static final String DEFAULT_FILE_DIR_VALUE = "default";
+    public static final String DEFAULT_FTP_USERNAME = null;
+    public static final String DEFAULT_FTP_PASSWORD = null;
+    public static final String DEFAULT_FTP_CONTROL_ENCODING = "UTF-8";
+    public static final String DEFAULT_OFFICE_PREVIEW_TYPE = "image";
+    public static final String DEFAULT_BASE_URL = "default";
+    public static final String DEFAULT_TRUST_HOST = "default";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -104,4 +118,29 @@ public class ConfigConstants {
         }
     }
 
+    static String getTrustHost() {
+        return trustHost;
+    }
+
+    @Value("${trust.host:default}")
+    static void setTrustHost(String trustHost) {
+        ConfigConstants.trustHost = trustHost;
+        Set<String> trustHostSet;
+        if (DEFAULT_TRUST_HOST.equals(trustHost.toLowerCase())) {
+            trustHostSet = new HashSet<>();
+        } else {
+            String[] trustHostArray = trustHost.toLowerCase().split(",");
+            trustHostSet = new HashSet<>(Arrays.asList(trustHostArray));
+            ConfigConstants.setTrustHostSet(trustHostSet);
+        }
+        ConfigConstants.setTrustHostSet(trustHostSet);
+    }
+
+    public static Set<String> getTrustHostSet() {
+        return trustHostSet;
+    }
+
+    private static void setTrustHostSet(Set<String> trustHostSet) {
+        ConfigConstants.trustHostSet = trustHostSet;
+    }
 }
