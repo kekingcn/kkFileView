@@ -1,6 +1,7 @@
 package cn.keking.web.filter;
 
 import cn.keking.config.ConfigConstants;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,18 @@ public class ChinesePathFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    private static String BASE_URL;
+
+    public static String getBaseUrl() {
+        String baseUrl;
+        try {
+            baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+        } catch (Exception e) {
+            baseUrl = BASE_URL;
+        }
+        return baseUrl;
     }
 
     @Override
@@ -36,6 +49,7 @@ public class ChinesePathFilter implements Filter {
         } else {
             baseUrl = localBaseUrl;
         }
+        BASE_URL = baseUrl;
         request.setAttribute("baseUrl", baseUrl);
         request.setAttribute("localBaseUrl", localBaseUrl);
         chain.doFilter(request, response);

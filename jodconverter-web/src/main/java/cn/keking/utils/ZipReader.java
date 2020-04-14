@@ -2,6 +2,7 @@ package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
+import cn.keking.web.filter.ChinesePathFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.junrar.Archive;
@@ -15,7 +16,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -62,7 +62,7 @@ public class ZipReader {
         String archiveSeparator = "/";
         Map<String, FileNode> appender = Maps.newHashMap();
         List imgUrls=Lists.newArrayList();
-        String baseUrl= (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+        String baseUrl = ChinesePathFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
             ZipFile zipFile = new ZipFile(filePath, fileUtils.getFileEncodeUTFGBK(filePath));
@@ -120,7 +120,7 @@ public class ZipReader {
     public String unRar(String filePath,String fileKey){
         Map<String, FileNode> appender = Maps.newHashMap();
         List imgUrls=Lists.newArrayList();
-        String baseUrl= (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+        String baseUrl = ChinesePathFilter.getBaseUrl();
         try {
             Archive archive = new Archive(new FileInputStream(new File(filePath)));
             List<FileHeader> headers = archive.getFileHeaders();
@@ -172,7 +172,7 @@ public class ZipReader {
         String archiveSeparator = "/";
         Map<String, FileNode> appender = Maps.newHashMap();
         List imgUrls=Lists.newArrayList();
-        String baseUrl= (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+        String baseUrl= ChinesePathFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
             SevenZFile zipFile = new SevenZFile(new File(filePath));

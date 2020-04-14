@@ -62,7 +62,7 @@ public class FileConverQueueTask {
                         FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
                         logger.info("正在处理转换任务，文件名称【{}】",fileAttribute.getName());
                         FileType fileType=fileAttribute.getType();
-                        if(fileType.equals(FileType.compress) || fileType.equals(FileType.office)){
+                        if(fileType.equals(FileType.compress) || fileType.equals(FileType.office) || fileType.equals(FileType.cad)){
                             FilePreview filePreview=previewFactory.get(fileAttribute);
                             filePreview.filePreviewHandle(url, new ExtendedModelMap(), fileAttribute);
                         }
