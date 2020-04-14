@@ -23,7 +23,7 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String fileKey=(String) RequestContextHolder.currentRequestAttributes().getAttribute("fileKey",0);
+        String fileKey = (String) RequestContextHolder.currentRequestAttributes().getAttribute("fileKey",0);
         List imgUrls = Lists.newArrayList(url);
         try{
             imgUrls.clear();
