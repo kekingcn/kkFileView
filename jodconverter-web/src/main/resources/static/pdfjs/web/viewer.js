@@ -1886,7 +1886,7 @@ var PDFViewerApplication = {
 var validateFileURL = void 0;
 {
   var HOSTED_VIEWER_ORIGINS = ['null', 'http://mozilla.github.io', 'https://mozilla.github.io'];
-  validateFileURL = function validateFileURL(file) {
+  validateFileURL = function validateFileURL(file,base) {
     if (file === undefined) {
       return file;
     }
@@ -1897,7 +1897,7 @@ var validateFileURL = void 0;
       }
       var fileOrigin = new URL(file, window.location.href).origin;
       if (fileOrigin !== viewerOrigin) {
-        return  '/getCorsFile?urlPath=' + encodeURIComponent(file);
+        return base.endsWith('/') ? base : '/' + 'getCorsFile?urlPath=' + encodeURIComponent(file);
       }
     } catch (ex) {
       var message = ex && ex.message;
@@ -1931,10 +1931,12 @@ function loadAndEnablePDFBug(enabledTabs) {
 function webViewerInitialized() {
   var appConfig = PDFViewerApplication.appConfig;
   var file = void 0;
+  var base = void 0;
   var queryString = document.location.search.substring(1);
   var params = (0, _ui_utils.parseQueryString)(queryString);
   file = 'file' in params ? params.file : appConfig.defaultUrl;
-  file = validateFileURL(file);
+  base = 'base' in params ? params.base : appConfig.defaultUrl;
+  file = validateFileURL(file,base);
   var waitForBeforeOpening = [];
   var fileInput = document.createElement('input');
   fileInput.id = appConfig.openFileInputName;
