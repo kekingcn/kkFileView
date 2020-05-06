@@ -24,6 +24,7 @@
         url: 'src',
         navbar: false,
         button: false,
+        backdrop: false,
         loop : true
     });
     document.getElementById("${currentUrl}").click();
