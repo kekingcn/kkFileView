@@ -31,7 +31,7 @@ public class FileUtils {
     Logger log= LoggerFactory.getLogger(getClass());
 
     @Autowired
-    CacheService cacheService;
+    private CacheService cacheService;
 
     String fileDir = ConfigConstants.getFileDir();
 
@@ -195,7 +195,7 @@ public class FileUtils {
      * @param fileKey
      * @return
      */
-    public List getRedisImgUrls(String fileKey){
+    public List getImgCache(String fileKey){
         return cacheService.getImgCache(fileKey);
     }
 
@@ -204,7 +204,7 @@ public class FileUtils {
      * @param fileKey
      * @param imgs
      */
-    public void setRedisImgUrls(String fileKey,List imgs){
+    public void putImgCache(String fileKey,List imgs){
         cacheService.putImgCache(fileKey, imgs);
     }
     /**

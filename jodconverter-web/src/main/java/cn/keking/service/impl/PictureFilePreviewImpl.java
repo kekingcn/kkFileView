@@ -27,7 +27,7 @@ public class PictureFilePreviewImpl implements FilePreview {
         List imgUrls = Lists.newArrayList(url);
         try{
             imgUrls.clear();
-            imgUrls.addAll(fileUtils.getRedisImgUrls(fileKey));
+            imgUrls.addAll(fileUtils.getImgCache(fileKey));
         }catch (Exception e){
             imgUrls = Lists.newArrayList(url);
         }
