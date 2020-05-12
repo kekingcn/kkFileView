@@ -94,7 +94,7 @@ public class ZipReader {
             }
             // 开启新的线程处理文件解压
             executors.submit(new ZipExtractorWorker(entriesToBeExtracted, zipFile, filePath));
-            fileUtils.setRedisImgUrls(fileKey,imgUrls);
+            fileUtils.putImgCache(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (IOException e) {
             e.printStackTrace();
@@ -152,7 +152,7 @@ public class ZipReader {
                 appender.put(childName, node);
             }
             executors.submit(new RarExtractorWorker(headersToBeExtracted, archive, filePath));
-            fileUtils.setRedisImgUrls(fileKey,imgUrls);
+            fileUtils.putImgCache(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (RarException e) {
             e.printStackTrace();
@@ -204,7 +204,7 @@ public class ZipReader {
             }
             // 开启新的线程处理文件解压
             executors.submit(new SevenZExtractorWorker(entriesToBeExtracted, filePath));
-            fileUtils.setRedisImgUrls(fileKey,imgUrls);
+            fileUtils.putImgCache(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (IOException e) {
             e.printStackTrace();
