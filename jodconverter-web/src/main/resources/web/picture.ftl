@@ -11,7 +11,7 @@
         /*#dowebok li img { width: 200%;}*/
     </style>
 </head>
-<body>
+<body bgcolor="#404040">
 <ul id="dowebok">
         <#list imgurls as img>
             <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
