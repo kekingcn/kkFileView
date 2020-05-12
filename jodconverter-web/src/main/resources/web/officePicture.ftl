@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8" />
     <title>PDF图片预览</title>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="js/lazyload.js"></script>
     <style>
         .container{
@@ -24,8 +23,7 @@
         </div>
     </#list>
 </div>
-<#--<img src="images/right.png" style="position: fixed; cursor: pointer; top: 40%; right: 60px; z-index: 999;" alt="使用PDF预览" title="使用PDF预览" onclick="changePreviewType('pdf')"/>-->
-<span class="fa fa-file-pdf-o fa-4x" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" title="使用PDF预览" onclick="changePreviewType('pdf')"></span>
+<img src="images/pdf.svg" width="63" height="63" style="position: fixed; cursor: pointer; top: 40%; right: 48px; z-index: 999;" alt="使用PDF预览" title="使用PDF预览" onclick="changePreviewType('pdf')"/>
 <script>
     window.onload=checkImgs;
     window.onscroll = throttle(checkImgs);
