@@ -7,8 +7,8 @@
     <title>kkFileView演示首页</title>
     <link rel="stylesheet" href="css/viewer.min.css">
     <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="css/bootstrap/bootstrap-table.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css">
     <style type="text/css">
     </style>
 </head>
@@ -157,8 +157,8 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
 </div>
 <script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
 <script src="js/jquery.form.min.js" type="text/javascript"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/bootstrap-table.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="bootstrap-table/bootstrap-table.min.js"></script>
 <script>
     function deleteFile(fileName) {
         $.ajax({

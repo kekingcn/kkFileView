@@ -1,6 +1,5 @@
 package cn.keking.config;
 
-import cn.keking.service.impl.OfficeFilePreviewImpl;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +69,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setFtpControlEncoding(ftpControlEncoding);
                     ConfigConstants.setBaseUrl(baseUrl);
                     ConfigConstants.setTrustHost(trustHost);
+                    setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();
                     Thread.sleep(1000L);
@@ -77,6 +77,30 @@ public class ConfigRefreshComponent {
             } catch (IOException | InterruptedException e) {
                 LOGGER.error("读取配置文件异常", e);
             }
+        }
+
+        private void setWatermarkConfig(Properties properties) {
+            String watermarkTxt = properties.getProperty("watermark.txt", WatermarkConfigConstants.DEFAULT_WATERMARK_TXT);
+            String watermarkXSpace = properties.getProperty("watermark.x.space", WatermarkConfigConstants.DEFAULT_WATERMARK_X_SPACE);
+            String watermarkYSpace = properties.getProperty("watermark.y.space", WatermarkConfigConstants.DEFAULT_WATERMARK_Y_SPACE);
+            String watermarkFont = properties.getProperty("watermark.font", WatermarkConfigConstants.DEFAULT_WATERMARK_FONT);
+            String watermarkFontsize = properties.getProperty("watermark.fontsize", WatermarkConfigConstants.DEFAULT_WATERMARK_FONTSIZE);
+            String watermarkColor = properties.getProperty("watermark.color", WatermarkConfigConstants.DEFAULT_WATERMARK_COLOR);
+            String watermarkAlpha = properties.getProperty("watermark.alpha", WatermarkConfigConstants.DEFAULT_WATERMARK_ALPHA);
+            String watermarkWidth = properties.getProperty("watermark.width", WatermarkConfigConstants.DEFAULT_WATERMARK_WIDTH);
+            String watermarkHeight = properties.getProperty("watermark.height", WatermarkConfigConstants.DEFAULT_WATERMARK_HEIGHT);
+            String watermarkAngle = properties.getProperty("watermark.angle", WatermarkConfigConstants.DEFAULT_WATERMARK_ANGLE);
+            WatermarkConfigConstants.setWatermarkTxtValue(watermarkTxt);
+            WatermarkConfigConstants.setWatermarkXSpaceValue(watermarkXSpace);
+            WatermarkConfigConstants.setWatermarkYSpaceValue(watermarkYSpace);
+            WatermarkConfigConstants.setWatermarkFontValue(watermarkFont);
+            WatermarkConfigConstants.setWatermarkFontsizeValue(watermarkFontsize);
+            WatermarkConfigConstants.setWatermarkColorValue(watermarkColor);
+            WatermarkConfigConstants.setWatermarkAlphaValue(watermarkAlpha);
+            WatermarkConfigConstants.setWatermarkWidthValue(watermarkWidth);
+            WatermarkConfigConstants.setWatermarkHeightValue(watermarkHeight);
+            WatermarkConfigConstants.setWatermarkAngleValue(watermarkAngle);
+
         }
     }
 }

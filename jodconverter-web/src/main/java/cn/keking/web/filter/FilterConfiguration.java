@@ -38,4 +38,29 @@ public class FilterConfiguration {
         registrationBean.setUrlPatterns(filterUri);
         return registrationBean;
     }
+
+    @Bean
+    public FilterRegistrationBean getBaseUrlFilter() {
+        Set<String> filterUri = new HashSet<>();
+        filterUri.add("/index");
+        filterUri.add("/onlinePreview");
+        filterUri.add("/picturesPreview");
+        BaseUrlFilter filter = new BaseUrlFilter();
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        registrationBean.setFilter(filter);
+        registrationBean.setUrlPatterns(filterUri);
+        return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean getWatermarkConfigFilter() {
+        Set<String> filterUri = new HashSet<>();
+        filterUri.add("/onlinePreview");
+        filterUri.add("/picturesPreview");
+        WatermarkConfigFilter filter = new WatermarkConfigFilter();
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        registrationBean.setFilter(filter);
+        registrationBean.setUrlPatterns(filterUri);
+        return registrationBean;
+    }
 }

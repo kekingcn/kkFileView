@@ -48,7 +48,7 @@ public class SimTextFilePreviewImpl implements FilePreview{
             model.addAttribute("fileType",fileAttribute.getSuffix());
             return "fileNotSupported";
         }
-        model.addAttribute("ordinaryUrl", response.getMsg() + ".txt");
+        model.addAttribute("ordinaryUrl", response.getMsg());
         return "txt";
     }
 
