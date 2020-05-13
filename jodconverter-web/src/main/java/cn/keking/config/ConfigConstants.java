@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.Set;
 
 /**
@@ -17,95 +17,94 @@ import java.util.Set;
 @Component
 public class ConfigConstants {
 
-    private static Boolean cacheEnabled;
-    private static String[] simText = {};
-    private static String[] media = {};
-    private static String officePreviewType;
-    private static String ftpUsername;
-    private static String ftpPassword;
-    private static String ftpControlEncoding;
-    private static String fileDir = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
-    private static String baseUrl;
-    private static String trustHost;
-    private static Set<String> trustHostSet;
+    private static Boolean CACHE_ENABLED;
+    private static String[] SIM_TEXT = {};
+    private static String[] MEDIA = {};
+    private static String OFFICE_PREVIEW_TYPE;
+    private static String FTP_USERNAME;
+    private static String FTP_PASSWORD;
+    private static String FTP_CONTROL_ENCODING;
+    private static String BASE_URL;
+    private static String FILE_DIR = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
+    private static CopyOnWriteArraySet<String> TRUST_HOST_SET;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
     public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
-    public static final String DEFAULT_FILE_DIR_VALUE = "default";
+    public static final String DEFAULT_OFFICE_PREVIEW_TYPE = "image";
     public static final String DEFAULT_FTP_USERNAME = null;
     public static final String DEFAULT_FTP_PASSWORD = null;
     public static final String DEFAULT_FTP_CONTROL_ENCODING = "UTF-8";
-    public static final String DEFAULT_OFFICE_PREVIEW_TYPE = "image";
     public static final String DEFAULT_BASE_URL = "default";
+    public static final String DEFAULT_FILE_DIR_VALUE = "default";
     public static final String DEFAULT_TRUST_HOST = "default";
 
     public static Boolean isCacheEnabled() {
-        return cacheEnabled;
+        return CACHE_ENABLED;
     }
 
     public static void setCacheEnabled(Boolean cacheEnabled) {
-        ConfigConstants.cacheEnabled = cacheEnabled;
+        CACHE_ENABLED = cacheEnabled;
     }
 
     public static String[] getSimText() {
-        return simText;
+        return SIM_TEXT;
     }
 
     public static void setSimText(String[] simText) {
-        ConfigConstants.simText = simText;
+        SIM_TEXT = simText;
     }
 
     public static String[] getMedia() {
-        return media;
+        return MEDIA;
     }
 
-    public static void setMedia(String[] media) {
-        ConfigConstants.media = media;
+    public static void setMedia(String[] Media) {
+        ConfigConstants.MEDIA = Media;
     }
 
     public static String getOfficePreviewType() {
-        return officePreviewType;
+        return OFFICE_PREVIEW_TYPE;
     }
 
     public static void setOfficePreviewType(String officePreviewType) {
-        ConfigConstants.officePreviewType = officePreviewType;
+        OFFICE_PREVIEW_TYPE = officePreviewType;
     }
 
     public static String getFtpUsername() {
-        return ftpUsername;
+        return FTP_USERNAME;
     }
 
     public static void setFtpUsername(String ftpUsername) {
-        ConfigConstants.ftpUsername = ftpUsername;
+        FTP_USERNAME = ftpUsername;
     }
 
     public static String getFtpPassword() {
-        return ftpPassword;
-    }
-
-    public static String getFtpControlEncoding() {
-        return ftpControlEncoding;
-    }
-
-    public static void setFtpControlEncoding(String ftpControlEncoding) {
-        ConfigConstants.ftpControlEncoding = ftpControlEncoding;
+        return FTP_PASSWORD;
     }
 
     public static void setFtpPassword(String ftpPassword) {
-        ConfigConstants.ftpPassword = ftpPassword;
+        FTP_PASSWORD = ftpPassword;
     }
 
-    public static String getFileDir() {
-        return fileDir;
+    public static String getFtpControlEncoding() {
+        return FTP_CONTROL_ENCODING;
+    }
+
+    public static void setFtpControlEncoding(String ftpControlEncoding) {
+        FTP_CONTROL_ENCODING = ftpControlEncoding;
     }
 
     public static String getBaseUrl() {
-        return baseUrl;
+        return BASE_URL;
     }
 
     public static void setBaseUrl(String baseUrl) {
-        ConfigConstants.baseUrl = baseUrl;
+        BASE_URL = baseUrl;
+    }
+
+    public static String getFileDir() {
+        return FILE_DIR;
     }
 
     @Value("${file.dir:default}")
@@ -114,33 +113,32 @@ public class ConfigConstants {
             if (!fileDir.endsWith(File.separator)) {
                 fileDir = fileDir + File.separator;
             }
-            ConfigConstants.fileDir = fileDir;
+            FILE_DIR = fileDir;
         }
-    }
-
-    static String getTrustHost() {
-        return trustHost;
     }
 
     @Value("${trust.host:default}")
-    static void setTrustHost(String trustHost) {
-        ConfigConstants.trustHost = trustHost;
-        Set<String> trustHostSet;
+    public void setTrustHostStr(String trustHost) {
+        setTrustHost(trustHost);
+    }
+
+    public static void setTrustHost(String trustHost) {
+        CopyOnWriteArraySet<String> trustHostSet;
         if (DEFAULT_TRUST_HOST.equals(trustHost.toLowerCase())) {
-            trustHostSet = new HashSet<>();
+            trustHostSet = new CopyOnWriteArraySet<>();
         } else {
             String[] trustHostArray = trustHost.toLowerCase().split(",");
-            trustHostSet = new HashSet<>(Arrays.asList(trustHostArray));
-            ConfigConstants.setTrustHostSet(trustHostSet);
+            trustHostSet = new CopyOnWriteArraySet<>(Arrays.asList(trustHostArray));
+            setTrustHostSet(trustHostSet);
         }
-        ConfigConstants.setTrustHostSet(trustHostSet);
+        setTrustHostSet(trustHostSet);
     }
 
     public static Set<String> getTrustHostSet() {
-        return trustHostSet;
+        return TRUST_HOST_SET;
     }
 
-    private static void setTrustHostSet(Set<String> trustHostSet) {
-        ConfigConstants.trustHostSet = trustHostSet;
+    private static void setTrustHostSet(CopyOnWriteArraySet<String> trustHostSet) {
+        ConfigConstants.TRUST_HOST_SET = trustHostSet;
     }
 }
