@@ -35,11 +35,9 @@ public class ChinesePathFilter implements Filter {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String baseUrl;
-        String localBaseUrl;
         StringBuilder pathBuilder = new StringBuilder();
         pathBuilder.append(request.getScheme()).append("://").append(request.getServerName()).append(":")
                 .append(request.getServerPort()).append(((HttpServletRequest) request).getContextPath()).append("/");
-        localBaseUrl = pathBuilder.toString();
         String baseUrlTmp = ConfigConstants.getBaseUrl();
         if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equals(baseUrlTmp.toLowerCase())) {
             if (!baseUrlTmp.endsWith("/")) {
@@ -47,11 +45,10 @@ public class ChinesePathFilter implements Filter {
             }
             baseUrl = baseUrlTmp;
         } else {
-            baseUrl = localBaseUrl;
+            baseUrl = pathBuilder.toString();
         }
         BASE_URL = baseUrl;
         request.setAttribute("baseUrl", baseUrl);
-        request.setAttribute("localBaseUrl", localBaseUrl);
         chain.doFilter(request, response);
     }
 
