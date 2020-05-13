@@ -2,7 +2,8 @@ package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
-import cn.keking.web.filter.ChinesePathFilter;
+import cn.keking.web.filter.BaseUrlFilter;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.junrar.Archive;
@@ -62,7 +63,7 @@ public class ZipReader {
         String archiveSeparator = "/";
         Map<String, FileNode> appender = Maps.newHashMap();
         List imgUrls=Lists.newArrayList();
-        String baseUrl = ChinesePathFilter.getBaseUrl();
+        String baseUrl = BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
             ZipFile zipFile = new ZipFile(filePath, fileUtils.getFileEncodeUTFGBK(filePath));
@@ -120,7 +121,7 @@ public class ZipReader {
     public String unRar(String filePath,String fileKey){
         Map<String, FileNode> appender = Maps.newHashMap();
         List imgUrls=Lists.newArrayList();
-        String baseUrl = ChinesePathFilter.getBaseUrl();
+        String baseUrl = BaseUrlFilter.getBaseUrl();
         try {
             Archive archive = new Archive(new FileInputStream(new File(filePath)));
             List<FileHeader> headers = archive.getFileHeaders();
@@ -172,7 +173,7 @@ public class ZipReader {
         String archiveSeparator = "/";
         Map<String, FileNode> appender = Maps.newHashMap();
         List imgUrls=Lists.newArrayList();
-        String baseUrl= ChinesePathFilter.getBaseUrl();
+        String baseUrl= BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
             SevenZFile zipFile = new SevenZFile(new File(filePath));

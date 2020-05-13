@@ -10,7 +10,6 @@ $(centerChildrenA).each(function (a, b) {
     // 获取a标签对应的target的name值，并设置name对应标签的样式以避免锚点标签标题被覆盖
     var href = $(b).attr("href");
     var name = href.substr(1);
-    console.log(href + ":" + name);
     $("[name=" + name + "]").css({"display":"block","padding-top":"14.01px"});
     $(b).css({"padding":"5px","border-right":"1px solid white","color":"#f9f9f9"});
     $("#excel-header-nav").append(b);

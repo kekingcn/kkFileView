@@ -6,14 +6,16 @@
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
     <link href="css/zTreeStyle.css" rel="stylesheet" type="text/css">
     <style type="text/css">
-        html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
-            margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 100%;font-family: inherit;vertical-align: baseline;}
-        body {color: #2f332a;font: 15px/21px Arial, Helvetica, simsun, sans-serif;background: #f0f6e4 \9;}
-        body{
-            margin:0 auto;
-            width: 600px;
-            background-color: #333333;
-            font-size: 4em;
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+        body {
+            background-color: #404040;
         }
         h1, h2, h3, h4, h5, h6 {color: #2f332a;font-weight: bold;font-family: Helvetica, Arial, sans-serif;padding-bottom: 5px;}
         h1 {font-size: 24px;line-height: 34px;text-align: center;}
@@ -25,7 +27,7 @@
         input.radio.first {margin-left:0;}
         input.empty {color: lightgray;}
         code {color: #2f332a;}
-        div.zTreeDemoBackground {width:600px;text-align:center;background-color: #ffffff;}
+        div.zTreeDemoBackground {width:600px;text-align:center;margin: 0 auto;background-color: #ffffff;}
     </style>
 </head>
 <body>
@@ -33,7 +35,7 @@
 <div class="zTreeDemoBackground left">
     <ul id="treeDemo" class="ztree"></ul>
 </div>
-</body>
+<script src="js/watermark.js" type="text/javascript"></script>
 <script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
 <script type="text/javascript" src="js/jquery.ztree.core.js"></script>
 <script type="text/javascript">
@@ -83,6 +85,29 @@
         $(".zTreeDemoBackground").css("height", height);
     });
 
+    /*初始化水印*/
+    window.onload = function() {
+        var watermarkTxt = '${watermarkTxt}';
+        if (watermarkTxt !== '') {
+            watermark.init({
+                watermark_txt: '${watermarkTxt}',
+                watermark_x: 0,
+                watermark_y: 0,
+                watermark_rows: 0,
+                watermark_cols: 0,
+                watermark_x_space: ${watermarkXSpace},
+                watermark_y_space: ${watermarkYSpace},
+                watermark_font: '${watermarkFont}',
+                watermark_fontsize: '${watermarkFontsize}',
+                watermark_color:'${watermarkColor}',
+                watermark_alpha: ${watermarkAlpha},
+                watermark_width: ${watermarkWidth},
+                watermark_height: ${watermarkHeight},
+                watermark_angle: ${watermarkAngle},
+            });
+        }
+    }
+
     /**
      *  计算ztreedom的高度
      */
@@ -105,4 +130,5 @@
         $(".zTreeDemoBackground").css("height", height);
     }
 </script>
+</body>
 </html>

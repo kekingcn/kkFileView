@@ -7,7 +7,7 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.PdfUtils;
-import cn.keking.web.filter.ChinesePathFilter;
+import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -38,7 +38,7 @@ public class PdfFilePreviewImpl implements FilePreview{
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
-        String baseUrl = ChinesePathFilter.getBaseUrl();
+        String baseUrl = BaseUrlFilter.getBaseUrl();
         model.addAttribute("pdfUrl", url);
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = fileDir + pdfName;
