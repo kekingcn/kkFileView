@@ -212,12 +212,15 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
                     // 上传完成，刷新table
                     if (1 == data.code) {
                         alert(data.msg);
-                    }else{
+                    } else {
                         $('#table').bootstrapTable('refresh', {});
                     }
                     $(".loading_container").hide();
                 },
-                error: function (error) { alert(error); $(".loading_container").hide();},
+                error: function () {
+                    alert('上传失败，请联系管理员');
+                    $(".loading_container").hide();
+                },
                 url: 'fileUpload', /*设置post提交到的页面*/
                 type: "post", /*设置表单以post方法提交*/
                 dataType: "json" /*设置返回值类型为文本*/
