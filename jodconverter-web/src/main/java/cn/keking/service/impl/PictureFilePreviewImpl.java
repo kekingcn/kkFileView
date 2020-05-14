@@ -1,7 +1,10 @@
 package cn.keking.service.impl;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
+import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
+import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,18 +24,35 @@ public class PictureFilePreviewImpl implements FilePreview {
     @Autowired
     FileUtils fileUtils;
 
+    @Autowired
+    DownloadUtils downloadUtils;
+
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileKey = (String) RequestContextHolder.currentRequestAttributes().getAttribute("fileKey",0);
         List imgUrls = Lists.newArrayList(url);
-        try{
+        try {
             imgUrls.clear();
             imgUrls.addAll(fileUtils.getImgCache(fileKey));
-        }catch (Exception e){
+        } catch (Exception e){
             imgUrls = Lists.newArrayList(url);
         }
-        model.addAttribute("imgurls", imgUrls);
-        model.addAttribute("currentUrl",url);
+        // 不是http开头，浏览器不能直接访问，需下载到本地
+        if (url != null && !url.toLowerCase().startsWith("http")) {
+            ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
+            if (0 != response.getCode()) {
+                model.addAttribute("fileType", fileAttribute.getSuffix());
+                model.addAttribute("msg", response.getMsg());
+                return "fileNotSupported";
+            } else {
+                String file = fileUtils.getRelativePath(response.getContent());
+                model.addAttribute("imgurls", Lists.newArrayList(file));
+                model.addAttribute("currentUrl", file);
+            }
+        } else {
+            model.addAttribute("imgurls", imgUrls);
+            model.addAttribute("currentUrl", url);
+        }
         return "picture";
     }
 }
