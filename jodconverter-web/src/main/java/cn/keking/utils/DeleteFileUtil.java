@@ -70,6 +70,7 @@ public class DeleteFileUtil {
                     break;
             }
         }
+        dirFile.delete();
         if (!flag) {
             LOGGER.info("删除目录失败！");
             return false;
