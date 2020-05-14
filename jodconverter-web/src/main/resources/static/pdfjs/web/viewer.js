@@ -1932,10 +1932,12 @@ function webViewerInitialized() {
   var appConfig = PDFViewerApplication.appConfig;
   var file = void 0;
   var base = void 0;
+  var disableDownload = void 0;
   var queryString = document.location.search.substring(1);
   var params = (0, _ui_utils.parseQueryString)(queryString);
   file = 'file' in params ? params.file : appConfig.defaultUrl;
   base = 'base' in params ? params.base : appConfig.defaultUrl;
+  disableDownload = 'disabledownload' in params ? params.disabledownload : 'false';
   file = validateFileURL(file,base);
   var waitForBeforeOpening = [];
   var fileInput = document.createElement('input');
@@ -2036,6 +2038,9 @@ function webViewerInitialized() {
       PDFViewerApplication.error(msg, reason);
     });
   });
+  if ('true' === disableDownload) {
+    document.getElementById("download").style.display='none';
+  }
 }
 var webViewerOpenFileViaURL = void 0;
 {

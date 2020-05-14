@@ -44,6 +44,7 @@ public class ConfigRefreshComponent {
                 String configFilePath = OfficeUtils.getCustomizedConfigPath();
                 String baseUrl;
                 String trustHost;
+                String pdfDownloadDisable;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -60,6 +61,7 @@ public class ConfigRefreshComponent {
                     mediaArray = media.split(",");
                     baseUrl = properties.getProperty("base.url", ConfigConstants.DEFAULT_BASE_URL);
                     trustHost = properties.getProperty("trust.host", ConfigConstants.DEFAULT_TRUST_HOST);
+                    pdfDownloadDisable = properties.getProperty("pdf.download.disable", ConfigConstants.DEFAULT_PDF_DOWNLOAD_DISABLE);
                     ConfigConstants.setCacheEnabled(cacheEnabled);
                     ConfigConstants.setSimText(textArray);
                     ConfigConstants.setMedia(mediaArray);
@@ -69,6 +71,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setFtpControlEncoding(ftpControlEncoding);
                     ConfigConstants.setBaseUrl(baseUrl);
                     ConfigConstants.setTrustHost(trustHost);
+                    ConfigConstants.setPdfDownloadDisableValue(pdfDownloadDisable);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();
