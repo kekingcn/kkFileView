@@ -27,6 +27,7 @@ public class ConfigConstants {
     private static String BASE_URL;
     private static String FILE_DIR = OfficeUtils.getHomePath() + File.separator + "file" + File.separator;
     private static CopyOnWriteArraySet<String> TRUST_HOST_SET;
+    private static String PDF_DOWNLOAD_DISABLE;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -38,6 +39,7 @@ public class ConfigConstants {
     public static final String DEFAULT_BASE_URL = "default";
     public static final String DEFAULT_FILE_DIR_VALUE = "default";
     public static final String DEFAULT_TRUST_HOST = "default";
+    public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
 
     public static Boolean isCacheEnabled() {
         return CACHE_ENABLED;
@@ -140,5 +142,19 @@ public class ConfigConstants {
 
     private static void setTrustHostSet(CopyOnWriteArraySet<String> trustHostSet) {
         ConfigConstants.TRUST_HOST_SET = trustHostSet;
+    }
+
+
+    public static String getPdfDownloadDisable() {
+        return PDF_DOWNLOAD_DISABLE;
+    }
+
+    public static void setPdfDownloadDisableValue(String pdfDownloadDisable) {
+        PDF_DOWNLOAD_DISABLE = pdfDownloadDisable;
+    }
+
+    @Value("${pdf.download.disable:true}")
+    public void setPdfDownloadDisable(String pdfDownloadDisable) {
+        PDF_DOWNLOAD_DISABLE = pdfDownloadDisable;
     }
 }

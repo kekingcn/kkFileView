@@ -26,11 +26,10 @@
 
     <img src="images/jpg.svg" width="63" height="63" style="position: fixed; cursor: pointer; top: 40%; right: 48px; z-index: 999;" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>
 
-
 </body>
 <script src="js/watermark.js" type="text/javascript"></script>
 <script type="text/javascript">
-    document.getElementsByTagName('iframe')[0].src = "${baseUrl}pdfjs/web/viewer.html?base=${baseUrl}&file="+encodeURIComponent('${finalUrl}');
+    document.getElementsByTagName('iframe')[0].src = "${baseUrl}pdfjs/web/viewer.html?base=${baseUrl}&file="+encodeURIComponent('${finalUrl}')+"&disabledownload=${pdfDownloadDisable}";
     document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight-10;
     /**
      * 页面变化调整高度
