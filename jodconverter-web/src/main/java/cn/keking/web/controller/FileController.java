@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,15 +30,17 @@ import java.util.UUID;
  */
 @RestController
 public class FileController {
-    String fileDir = ConfigConstants.getFileDir();
+
+    private final Logger logger = LoggerFactory.getLogger(FileController.class);
+
+    private String fileDir = ConfigConstants.getFileDir();
     @Autowired
-    FileUtils fileUtils;
-    String demoDir = "demo";
-    String demoPath = demoDir + File.separator;
+    private FileUtils fileUtils;
+    private String demoDir = "demo";
+    private String demoPath = demoDir + File.separator;
 
     @RequestMapping(value = "fileUpload", method = RequestMethod.POST)
-    public String fileUpload(@RequestParam("file") MultipartFile file,
-                             HttpServletRequest request) throws JsonProcessingException {
+    public String fileUpload(@RequestParam("file") MultipartFile file) throws JsonProcessingException {
         // 获取文件名
         String fileName = file.getOriginalFilename();
         //判断是否为IE浏览器的文件名，IE浏览器下文件名会带有盘符信息
@@ -49,15 +53,15 @@ public class FileController {
         if (pos != -1)  {
             fileName = fileName.substring(pos + 1);
         }
-
-        // 判断该文件类型是否有上传过，如果上传过则提示不允许再次上传
-        if (existsTypeFile(fileName)) {
-            return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(1, "每一种类型只可以上传一个文件，请先删除原有文件再次上传", null));
+        // 判断是否存在同名文件
+        if (existsFile(fileName)) {
+            return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(1, "存在同名文件，请先删除原有文件再次上传", null));
         }
         File outFile = new File(fileDir + demoPath);
         if (!outFile.exists()) {
             outFile.mkdirs();
         }
+        logger.info("上传文件：{}", outFile.getAbsolutePath());
         try(InputStream in = file.getInputStream();
             OutputStream ot = new FileOutputStream(fileDir + demoPath + fileName)){
             byte[] buffer = new byte[1024];
@@ -67,7 +71,7 @@ public class FileController {
             }
             return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(0, "SUCCESS", null));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("文件上传失败", e);
             return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(1, "FAILURE", null));
         }
     }
@@ -78,6 +82,7 @@ public class FileController {
             fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
         }
         File file = new File(fileDir + demoPath + fileName);
+        logger.info("删除文件：{}", file.getAbsolutePath());
         if (file.exists()) {
             file.delete();
         }
@@ -106,18 +111,11 @@ public class FileController {
      * @return
      * @param fileName
      */
-    private boolean existsTypeFile(String fileName) {
+    private boolean existsFile(String fileName) {
         boolean result = false;
-        String suffix = fileUtils.getSuffixFromFileName(fileName);
-        File file = new File(fileDir + demoPath);
+        File file = new File(fileDir + demoPath + fileName);
         if (file.exists()) {
-            for(File file1 : file.listFiles()){
-                String existsFileSuffix = fileUtils.getSuffixFromFileName(file1.getName());
-                if (suffix.equals(existsFileSuffix)) {
-                    result = true;
-                    break;
-                }
-            }
+            return true;
         }
         return result;
     }
