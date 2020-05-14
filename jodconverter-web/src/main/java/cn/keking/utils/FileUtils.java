@@ -36,7 +36,7 @@ public class FileUtils {
     String fileDir = ConfigConstants.getFileDir();
 
     /**
-     * 已转换过的文件集合(redis缓存)
+     * 已转换过的文件集合(缓存)
      * @return
      */
     public Map<String, String> listConvertedFiles() {

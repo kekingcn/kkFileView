@@ -43,7 +43,7 @@ public class CadToPdf {
             cadImage.close();
             return true;
         } catch (FileNotFoundException e) {
-            logger.error("PDFFileNotFoundException", e);
+            logger.error("PDFFileNotFoundException，inputFilePath：{}", inputFilePath, e);
             return false;
         }
     }

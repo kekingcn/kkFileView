@@ -1,5 +1,6 @@
 package cn.keking.web.controller;
 
+import cn.keking.hutool.URLUtil;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
@@ -30,7 +31,7 @@ import java.util.List;
 @Controller
 public class OnlinePreviewController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OnlinePreviewController.class);
+    private final Logger logger = LoggerFactory.getLogger(OnlinePreviewController.class);
 
     @Autowired
     private FilePreviewFactory previewFactory;
@@ -52,22 +53,20 @@ public class OnlinePreviewController {
         req.setAttribute("fileKey", req.getParameter("fileKey"));
         model.addAttribute("officePreviewType", req.getParameter("officePreviewType"));
         FilePreview filePreview = previewFactory.get(fileAttribute);
+        logger.info("预览文件url：{}，previewType：{}", url, fileAttribute.getType());
         return filePreview.filePreviewHandle(url, model, fileAttribute);
     }
 
 
     @RequestMapping(value = "/picturesPreview")
-    public String picturesPreview(Model model, HttpServletRequest req) throws UnsupportedEncodingException {
+    public String picturesPreview(Model model, HttpServletRequest req)  {
         String urls = req.getParameter("urls");
         String currentUrl = req.getParameter("currentUrl");
-        // 路径转码
-        String decodedUrl = URLDecoder.decode(urls, "utf-8");
-        String decodedCurrentUrl = URLDecoder.decode(currentUrl, "utf-8");
-        // 抽取文件并返回文件列表
-        String[] imgs = decodedUrl.split("\\|");
+        logger.info("预览文件url：{}，urls：{}", currentUrl, urls);
+        String[] imgs = urls.split("\\|");
         List imgurls = Arrays.asList(imgs);
         model.addAttribute("imgurls", imgurls);
-        model.addAttribute("currentUrl",decodedCurrentUrl);
+        model.addAttribute("currentUrl", currentUrl);
         return "picture";
     }
     /**
@@ -80,9 +79,9 @@ public class OnlinePreviewController {
     @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
     public void getCorsFile(String urlPath, HttpServletResponse resp) {
         InputStream inputStream = null;
+        logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
-            String strUrl = urlPath.trim();
-            URL url = new URL(new URI(strUrl).toASCIIString());
+            URL url = new URL(URLUtil.normalize(urlPath, true));
             //打开请求连接
             URLConnection connection = url.openConnection();
             HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
@@ -93,8 +92,8 @@ public class OnlinePreviewController {
             while (-1 != (len = inputStream.read(bs))) {
                 resp.getOutputStream().write(bs, 0, len);
             }
-        } catch (IOException | URISyntaxException e) {
-            LOGGER.error("下载pdf文件失败", e);
+        } catch (IOException e) {
+            logger.error("下载跨域pdf文件异常，url：{}", urlPath, e);
         } finally {
             if (inputStream != null) {
                 IOUtils.closeQuietly(inputStream);
@@ -109,6 +108,7 @@ public class OnlinePreviewController {
     @GetMapping("/addTask")
     @ResponseBody
     public String addQueueTask(String url) {
+        logger.info("添加转码队列url：{}", url);
         cacheService.addQueueTask(url);
         return "success";
     }

@@ -33,10 +33,7 @@ public class ConverterUtils {
 
     private final Logger logger = LoggerFactory.getLogger(ConverterUtils.class);
 
-//    @Value("${office.home}")
-//    String officeHome;
-//    OpenOfficeConnection connection;
-    OfficeManager officeManager;
+    private OfficeManager officeManager;
 
     @PostConstruct
     public void initOfficeManager() {

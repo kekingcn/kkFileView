@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 public class PdfUtils {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(PdfUtils.class);
+    private final Logger logger = LoggerFactory.getLogger(PdfUtils.class);
 
     @Autowired
     FileUtils fileUtils;
@@ -57,7 +57,7 @@ public class PdfUtils {
             doc.close();
             fileUtils.addConvertedPdfImage(pdfFilePath, pageCount);
         } catch (IOException e) {
-            LOGGER.error("Convert pdf to jpg exception", e);
+            logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
         }
         return imageUrls;
     }

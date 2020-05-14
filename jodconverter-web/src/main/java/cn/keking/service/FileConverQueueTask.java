@@ -56,24 +56,27 @@ public class FileConverQueueTask {
         @Override
         public void run() {
             while (true) {
+                String url = null;
                 try {
-                    String url = cacheService.takeQueueTask();
+                    url = cacheService.takeQueueTask();
                     if(url != null){
                         FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
-                        logger.info("正在处理转换任务，文件名称【{}】",fileAttribute.getName());
-                        FileType fileType=fileAttribute.getType();
-                        if(fileType.equals(FileType.compress) || fileType.equals(FileType.office) || fileType.equals(FileType.cad)){
-                            FilePreview filePreview=previewFactory.get(fileAttribute);
+                        FileType fileType = fileAttribute.getType();
+                        logger.info("正在处理预览转换任务，url：{}，预览类型：{}", url, fileType);
+                        if(fileType.equals(FileType.compress) || fileType.equals(FileType.office) || fileType.equals(FileType.cad)) {
+                            FilePreview filePreview = previewFactory.get(fileAttribute);
                             filePreview.filePreviewHandle(url, new ExtendedModelMap(), fileAttribute);
+                        } else {
+                            logger.info("预览类型无需处理，url：{}，预览类型：{}", url, fileType);
                         }
                     }
                 } catch (Exception e) {
                     try {
                         Thread.sleep(1000*10);
-                    }catch (Exception ex){
+                    } catch (Exception ex){
                         ex.printStackTrace();
                     }
-                    e.printStackTrace();
+                    logger.info("处理预览转换任务异常，url：{}", url, e);
                 }
             }
         }
