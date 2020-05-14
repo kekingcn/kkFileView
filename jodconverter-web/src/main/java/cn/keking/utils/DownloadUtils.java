@@ -84,7 +84,7 @@ public class DownloadUtils {
             }
             return response;
         } catch (IOException e) {
-            LOGGER.error("文件下载失败", e);
+            LOGGER.error("文件下载失败，url：{}", urlAddress, e);
             response.setCode(1);
             response.setContent(null);
             if (e instanceof FileNotFoundException) {

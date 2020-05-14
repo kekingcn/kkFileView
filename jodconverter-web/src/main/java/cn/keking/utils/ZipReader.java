@@ -427,7 +427,6 @@ public class ZipReader {
 
         @Override
         public void run() {
-            System.out.println("解析压缩文件开始《《《《《《《《《《《《《《《《《《《《《《《");
             for (Map<String, ZipArchiveEntry> entryMap : entriesToBeExtracted) {
                 String childName = entryMap.keySet().iterator().next();
                 ZipArchiveEntry entry = entryMap.values().iterator().next();
@@ -445,7 +444,6 @@ public class ZipReader {
             if (new File(filePath).exists()) {
                 new File(filePath).delete();
             }
-            System.out.println("解析压缩文件结束《《《《《《《《《《《《《《《《《《《《《《《");
         }
 
 

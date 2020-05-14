@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnExpression("'${cache.clean.enabled:false}'.equals('true')")
 public class ShedulerClean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShedulerClean.class);
+    private final Logger logger = LoggerFactory.getLogger(ShedulerClean.class);
 
     @Autowired
     private CacheService cacheService;
@@ -27,9 +27,9 @@ public class ShedulerClean {
     //默认每晚3点执行一次
     @Scheduled(cron = "${cache.clean.cron:0 0 3 * * ?}")
     public void clean() {
-        LOGGER.info("Cache clean start");
+        logger.info("Cache clean start");
         cacheService.cleanCache();
         DeleteFileUtil.deleteDirectory(fileDir);
-        LOGGER.info("Cache clean end");
+        logger.info("Cache clean end");
     }
 }
