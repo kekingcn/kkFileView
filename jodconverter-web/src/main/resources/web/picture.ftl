@@ -24,6 +24,11 @@
 <body>
 <ul id="dowebok">
     <#list imgurls as img>
+        <#if img?contains("http://") || img?contains("https://")>
+            <#assign img="${img}">
+        <#else>
+            <#assign img="${baseUrl}${img}">
+        </#if>
         <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
     </#list>
 </ul>

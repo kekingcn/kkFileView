@@ -39,7 +39,6 @@ public class PdfFilePreviewImpl implements FilePreview{
         String fileName=fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        model.addAttribute("pdfUrl", url);
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = fileDir + pdfName;
         if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType)) {
@@ -63,6 +62,20 @@ public class PdfFilePreviewImpl implements FilePreview{
                 return "officePicture";
             } else {
                 return "picture";
+            }
+        } else {
+            // 不是http开头，浏览器不能直接访问，需下载到本地
+            if (url != null && !url.toLowerCase().startsWith("http")) {
+                ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, pdfName);
+                if (0 != response.getCode()) {
+                    model.addAttribute("fileType", suffix);
+                    model.addAttribute("msg", response.getMsg());
+                    return "fileNotSupported";
+                } else {
+                    model.addAttribute("pdfUrl", fileUtils.getRelativePath(response.getContent()));
+                }
+            } else {
+                model.addAttribute("pdfUrl", url);
             }
         }
         return "pdf";
