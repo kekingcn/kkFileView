@@ -10,9 +10,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.Set;
 
 /**
- * @auther: chenjh
- * @time: 2019/4/10 17:22
- * @description
+ * @author: chenjh
+ * @since: 2019/4/10 17:22
  */
 @Component
 public class ConfigConstants {
@@ -30,7 +29,7 @@ public class ConfigConstants {
     private static String PDF_DOWNLOAD_DISABLE;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
-    public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
+    public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
     public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
     public static final String DEFAULT_OFFICE_PREVIEW_TYPE = "image";
     public static final String DEFAULT_FTP_USERNAME = null;
@@ -45,7 +44,12 @@ public class ConfigConstants {
         return CACHE_ENABLED;
     }
 
-    public static void setCacheEnabled(Boolean cacheEnabled) {
+    @Value("${cache.enabled:true}")
+    public static void setCacheEnabled(String cacheEnabled) {
+        setCacheEnabledValueValue(Boolean.parseBoolean(cacheEnabled));
+    }
+
+    public static void setCacheEnabledValueValue(Boolean cacheEnabled) {
         CACHE_ENABLED = cacheEnabled;
     }
 
@@ -53,7 +57,13 @@ public class ConfigConstants {
         return SIM_TEXT;
     }
 
-    public static void setSimText(String[] simText) {
+    @Value("${simText:txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd}")
+    public void setSimText(String simText) {
+        String[] simTextArr = simText.split(",");
+        setSimTextValue(simTextArr);
+    }
+
+    public static void setSimTextValue(String[] simText) {
         SIM_TEXT = simText;
     }
 
@@ -61,15 +71,26 @@ public class ConfigConstants {
         return MEDIA;
     }
 
-    public static void setMedia(String[] Media) {
-        ConfigConstants.MEDIA = Media;
+    @Value("${media:mp3,wav,mp4,flv}")
+    public void setMedia(String media) {
+        String[] mediaArr = media.split(",");
+        setMediaValue(mediaArr);
+    }
+
+    public static void setMediaValue(String[] Media) {
+        MEDIA = Media;
     }
 
     public static String getOfficePreviewType() {
         return OFFICE_PREVIEW_TYPE;
     }
 
-    public static void setOfficePreviewType(String officePreviewType) {
+    @Value("${office.preview.type:image}")
+    public void setOfficePreviewType(String officePreviewType) {
+        setOfficePreviewTypeValue(officePreviewType);
+    }
+
+    public static void setOfficePreviewTypeValue(String officePreviewType) {
         OFFICE_PREVIEW_TYPE = officePreviewType;
     }
 
@@ -77,7 +98,12 @@ public class ConfigConstants {
         return FTP_USERNAME;
     }
 
-    public static void setFtpUsername(String ftpUsername) {
+    @Value("${ftp.username:}")
+    public void setFtpUsername(String ftpUsername) {
+        setFtpUsernameValue(ftpUsername);
+    }
+
+    public static void setFtpUsernameValue(String ftpUsername) {
         FTP_USERNAME = ftpUsername;
     }
 
@@ -85,7 +111,12 @@ public class ConfigConstants {
         return FTP_PASSWORD;
     }
 
-    public static void setFtpPassword(String ftpPassword) {
+    @Value("${ftp.password:}")
+    public void setFtpPassword(String ftpPassword) {
+        setFtpPasswordValue(ftpPassword);
+    }
+
+    public static void setFtpPasswordValue(String ftpPassword) {
         FTP_PASSWORD = ftpPassword;
     }
 
@@ -93,7 +124,12 @@ public class ConfigConstants {
         return FTP_CONTROL_ENCODING;
     }
 
-    public static void setFtpControlEncoding(String ftpControlEncoding) {
+    @Value("${ftp.control.encoding:UTF-8}")
+    public void setFtpControlEncoding(String ftpControlEncoding) {
+        setFtpControlEncodingValue(ftpControlEncoding);
+    }
+
+    public static void setFtpControlEncodingValue(String ftpControlEncoding) {
         FTP_CONTROL_ENCODING = ftpControlEncoding;
     }
 
@@ -101,7 +137,12 @@ public class ConfigConstants {
         return BASE_URL;
     }
 
-    public static void setBaseUrl(String baseUrl) {
+    @Value("${base.url:default}")
+    public void setBaseUrl(String baseUrl) {
+        setBaseUrlValue(baseUrl);
+    }
+
+    public static void setBaseUrlValue(String baseUrl) {
         BASE_URL = baseUrl;
     }
 
@@ -111,6 +152,10 @@ public class ConfigConstants {
 
     @Value("${file.dir:default}")
     public void setFileDir(String fileDir) {
+        setFileDirValue(fileDir);
+    }
+
+    public static void setFileDirValue(String fileDir) {
         if (!DEFAULT_FILE_DIR_VALUE.equals(fileDir.toLowerCase())) {
             if (!fileDir.endsWith(File.separator)) {
                 fileDir = fileDir + File.separator;
@@ -120,11 +165,11 @@ public class ConfigConstants {
     }
 
     @Value("${trust.host:default}")
-    public void setTrustHostStr(String trustHost) {
-        setTrustHost(trustHost);
+    public void setTrustHost(String trustHost) {
+        setTrustHostValue(trustHost);
     }
 
-    public static void setTrustHost(String trustHost) {
+    public static void setTrustHostValue(String trustHost) {
         CopyOnWriteArraySet<String> trustHostSet;
         if (DEFAULT_TRUST_HOST.equals(trustHost.toLowerCase())) {
             trustHostSet = new CopyOnWriteArraySet<>();
@@ -144,17 +189,17 @@ public class ConfigConstants {
         ConfigConstants.TRUST_HOST_SET = trustHostSet;
     }
 
-
     public static String getPdfDownloadDisable() {
         return PDF_DOWNLOAD_DISABLE;
     }
 
+
+    @Value("${pdf.download.disable:true}")
+    public void setPdfDownloadDisable(String pdfDownloadDisable) {
+        setPdfDownloadDisableValue(pdfDownloadDisable);
+    }
     public static void setPdfDownloadDisableValue(String pdfDownloadDisable) {
         PDF_DOWNLOAD_DISABLE = pdfDownloadDisable;
     }
 
-    @Value("${pdf.download.disable:true}")
-    public void setPdfDownloadDisable(String pdfDownloadDisable) {
-        PDF_DOWNLOAD_DISABLE = pdfDownloadDisable;
-    }
 }

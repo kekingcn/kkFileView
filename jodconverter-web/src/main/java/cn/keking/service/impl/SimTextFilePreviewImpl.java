@@ -3,9 +3,7 @@ package cn.keking.service.impl;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
-import cn.keking.utils.FileUtils;
-import cn.keking.utils.SimTextUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import cn.keking.utils.DownloadUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -18,19 +16,18 @@ import java.nio.file.Files;
  * Content :处理文本文件
  */
 @Service
-public class SimTextFilePreviewImpl implements FilePreview{
+public class SimTextFilePreviewImpl implements FilePreview {
 
-    @Autowired
-    SimTextUtil simTextUtil;
+    private final DownloadUtils downloadUtils;
 
-    @Autowired
-    FileUtils fileUtils;
+    public SimTextFilePreviewImpl(DownloadUtils downloadUtils) {
+        this.downloadUtils = downloadUtils;
+    }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute){
-        String decodedUrl=fileAttribute.getDecodedUrl();
-        String fileName=fileAttribute.getName();
-        ReturnResponse<String> response = simTextUtil.readSimText(decodedUrl, fileName);
+        String fileName = fileAttribute.getName();
+        ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
         if (0 != response.getCode()) {
             model.addAttribute("msg", response.getMsg());
             model.addAttribute("fileType",fileAttribute.getSuffix());

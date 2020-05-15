@@ -14,7 +14,8 @@ public enum FileType {
     media("mediaFilePreviewImpl"),
     cad("cadFilePreviewImpl");
 
-    private String instanceName;
+    private final String instanceName;
+
     FileType(String instanceName){
         this.instanceName=instanceName;
     }
@@ -23,7 +24,4 @@ public enum FileType {
         return instanceName;
     }
 
-    public void setInstanceName(String instanceName) {
-        this.instanceName = instanceName;
-    }
 }

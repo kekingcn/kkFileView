@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
+import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 
 /**
  * @author chenjh
@@ -52,7 +52,7 @@ public class CadFilePreviewImpl implements FilePreview {
         String outFilePath = fileDir + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
-            String filePath = fileDir + fileName;
+            String filePath;
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
@@ -74,19 +74,7 @@ public class CadFilePreviewImpl implements FilePreview {
             }
         }
         if (baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
-            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
-            if (imageUrls == null || imageUrls.size() < 1) {
-                model.addAttribute("msg", "office转图片异常，请联系管理员");
-                model.addAttribute("fileType",fileAttribute.getSuffix());
-                return "fileNotSupported";
-            }
-            model.addAttribute("imgurls", imageUrls);
-            model.addAttribute("currentUrl", imageUrls.get(0));
-            if (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType)) {
-                return "officePicture";
-            } else {
-                return "picture";
-            }
+            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, pdfUtils, OFFICE_PREVIEW_TYPE_IMAGE);
         }
         model.addAttribute("pdfUrl", pdfName);
         return "pdf";

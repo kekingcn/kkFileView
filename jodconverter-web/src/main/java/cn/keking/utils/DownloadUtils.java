@@ -3,13 +3,15 @@ package cn.keking.utils;
 import cn.keking.config.ConfigConstants;
 import cn.keking.hutool.URLUtil;
 import cn.keking.model.FileAttribute;
+import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
@@ -18,32 +20,29 @@ import java.util.UUID;
 @Component
 public class DownloadUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadUtils.class);
+    private final Logger logger = LoggerFactory.getLogger(DownloadUtils.class);
 
-    private String fileDir = ConfigConstants.getFileDir();
+    private final String fileDir = ConfigConstants.getFileDir();
 
-    @Autowired
-    private FileUtils fileUtils;
+    private final FileUtils fileUtils;
+
+    public DownloadUtils(FileUtils fileUtils) {
+        this.fileUtils = fileUtils;
+    }
 
     private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
     private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
 
     /**
-     * @param fileAttribute
-     * @return
+     * @param fileAttribute fileAttribute
+     * @param fileName 文件名
+     * @return 本地文件绝对路径
      */
     public ReturnResponse<String> downLoad(FileAttribute fileAttribute, String  fileName) {
-        String urlAddress = fileAttribute.getDecodedUrl();
+        String urlStr = fileAttribute.getUrl();
         String type = fileAttribute.getSuffix();
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
-        URL url = null;
-        try {
-            urlAddress = URLUtil.normalize(urlAddress, true);
-            url = new URL(urlAddress);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
         UUID uuid = UUID.randomUUID();
         if (null == fileName) {
             fileName = uuid+ "."+type;
@@ -56,35 +55,28 @@ public class DownloadUtils {
             dirFile.mkdirs();
         }
         try {
-            if ("ftp".equals(url.getProtocol())) {
+            URL url = new URL(urlStr);
+            OutputStream os = new FileOutputStream(new File(realPath));
+            if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
+                saveToOutputStreamFormUrl(urlStr, os);
+            } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
                 String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
                 String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
                 FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
             } else {
-                URLConnection connection = url.openConnection();
-                InputStream in = connection.getInputStream();
-
-                FileOutputStream os = new FileOutputStream(realPath);
-                byte[] buffer = new byte[4 * 1024];
-                int read;
-                while ((read = in.read(buffer)) > 0) {
-                    os.write(buffer, 0, read);
-                }
-                os.close();
-                in.close();
+                response.setCode(1);
+                response.setContent(null);
+                response.setMsg("url不能识别url" + urlStr);
             }
             response.setContent(realPath);
-            // 同样针对类txt文件，如果成功msg包含的是转换后的文件名
             response.setMsg(fileName);
-
-             // txt转换文件编码为utf8
-            if("txt".equals(type)){
+            if(FileType.simText.equals(fileAttribute.getType())){
                 convertTextPlainFileCharsetToUtf8(realPath);
             }
             return response;
         } catch (IOException e) {
-            LOGGER.error("文件下载失败，url：{}", urlAddress, e);
+            logger.error("文件下载失败，url：{}", urlStr, e);
             response.setCode(1);
             response.setContent(null);
             if (e instanceof FileNotFoundException) {
@@ -94,6 +86,47 @@ public class DownloadUtils {
             }
             return response;
         }
+    }
+
+    public boolean saveToOutputStreamFormUrl(String urlStr, OutputStream os) throws IOException {
+        InputStream is = getInputStreamFromUrl(urlStr);
+        if (is != null) {
+            copyStream(is, os);
+        } else {
+            urlStr = URLUtil.normalize(urlStr, true);
+            is = getInputStreamFromUrl(urlStr);
+            if (is != null) {
+                copyStream(is, os);
+            } else {
+                os.close();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private InputStream getInputStreamFromUrl(String urlStr) {
+        try {
+            URL url = new URL(urlStr);
+            URLConnection connection = url.openConnection();
+            if (connection instanceof HttpURLConnection) {
+                connection.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+            }
+            return connection.getInputStream();
+        } catch (IOException e) {
+            logger.warn("连接url异常：url：{}", urlStr);
+            return null;
+        }
+    }
+
+    private void copyStream(InputStream is, OutputStream os) throws IOException {
+        byte[] bs = new byte[1024];
+        int len;
+        while (-1 != (len = is.read(bs))) {
+            os.write(bs, 0, len);
+        }
+        is.close();
+        os.close();
     }
 
   /**
@@ -117,7 +150,7 @@ public class DownloadUtils {
       if(encoding != null && !"UTF-8".equals(encoding)){
         // 不为utf8,进行转码
         File tmpUtf8File = new File(filePath+".utf8");
-        Writer writer = new OutputStreamWriter(new FileOutputStream(tmpUtf8File),"UTF-8");
+        Writer writer = new OutputStreamWriter(new FileOutputStream(tmpUtf8File), StandardCharsets.UTF_8);
         Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile),encoding));
         char[] buf = new char[1024];
         int read;

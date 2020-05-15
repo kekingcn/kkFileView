@@ -1,8 +1,6 @@
 package cn.keking.service;
 
 import cn.keking.model.FileAttribute;
-import cn.keking.utils.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +13,11 @@ import java.util.Map;
 @Service
 public class FilePreviewFactory {
 
-    @Autowired
-    FileUtils fileUtils;
+    private final ApplicationContext context;
 
-    @Autowired
-    ApplicationContext context;
+    public FilePreviewFactory(ApplicationContext context) {
+        this.context = context;
+    }
 
     public FilePreview get(FileAttribute fileAttribute) {
         Map<String, FilePreview> filePreviewMap = context.getBeansOfType(FilePreview.class);

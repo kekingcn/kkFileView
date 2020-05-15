@@ -6,22 +6,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import cn.keking.model.ReturnResponse;
-import cn.keking.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
 
 /**
  *
@@ -33,11 +31,11 @@ public class FileController {
 
     private final Logger logger = LoggerFactory.getLogger(FileController.class);
 
-    private String fileDir = ConfigConstants.getFileDir();
-    @Autowired
-    private FileUtils fileUtils;
-    private String demoDir = "demo";
-    private String demoPath = demoDir + File.separator;
+    private final String fileDir = ConfigConstants.getFileDir();
+
+    private final String demoDir = "demo";
+
+    private final String demoPath = demoDir + File.separator;
 
     @RequestMapping(value = "fileUpload", method = RequestMethod.POST)
     public String fileUpload(@RequestParam("file") MultipartFile file) throws JsonProcessingException {
@@ -49,7 +47,7 @@ public class FileController {
         // Check for Windows-style path
         int winSep = fileName.lastIndexOf('\\');
         // Cut off at latest possible point
-        int pos = (winSep > unixSep ? winSep : unixSep);
+        int pos = (Math.max(winSep, unixSep));
         if (pos != -1)  {
             fileName = fileName.substring(pos + 1);
         }
@@ -62,13 +60,8 @@ public class FileController {
             outFile.mkdirs();
         }
         logger.info("上传文件：{}", outFile.getAbsolutePath());
-        try(InputStream in = file.getInputStream();
-            OutputStream ot = new FileOutputStream(fileDir + demoPath + fileName)){
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((-1 != (len = in.read(buffer)))) {
-                ot.write(buffer, 0, len);
-            }
+        try(InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(fileDir + demoPath + fileName)) {
+            StreamUtils.copy(in, out);
             return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(0, "SUCCESS", null));
         } catch (IOException e) {
             logger.error("文件上传失败", e);
@@ -94,29 +87,13 @@ public class FileController {
         List<Map<String, String>> list = Lists.newArrayList();
         File file = new File(fileDir + demoPath);
         if (file.exists()) {
-            Arrays.stream(file.listFiles()).forEach(file1 -> list.add(ImmutableMap.of("fileName", demoDir + "/" + file1.getName())));
+            Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(file1 -> list.add(ImmutableMap.of("fileName", demoDir + "/" + file1.getName())));
         }
         return new ObjectMapper().writeValueAsString(list);
     }
 
-    private String getFileName(String name) {
-        String suffix = name.substring(name.lastIndexOf("."));
-        String nameNoSuffix = name.substring(0, name.lastIndexOf("."));
-        String uuid = UUID.randomUUID().toString();
-        return uuid + "-" + nameNoSuffix + suffix;
-    }
-
-    /**
-     * 是否存在该类型的文件
-     * @return
-     * @param fileName
-     */
     private boolean existsFile(String fileName) {
-        boolean result = false;
         File file = new File(fileDir + demoPath + fileName);
-        if (file.exists()) {
-            return true;
-        }
-        return result;
+        return file.exists();
     }
 }

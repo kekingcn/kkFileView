@@ -20,7 +20,7 @@ public class TrustHostFilter implements Filter {
     private String notTrustHost;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         ClassPathResource classPathResource = new ClassPathResource("web/notTrustHost.html");
         try {
             classPathResource.getInputStream();
@@ -35,7 +35,7 @@ public class TrustHostFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String url = getSourceUrl(request);
         String host = getHost(url);
-        if (!ConfigConstants.getTrustHostSet().isEmpty() && !ConfigConstants.getTrustHostSet().contains(host)) {
+        if (host != null &&!ConfigConstants.getTrustHostSet().isEmpty() && !ConfigConstants.getTrustHostSet().contains(host)) {
             String html = this.notTrustHost.replace("${current_host}", host);
             response.getWriter().write(html);
             response.getWriter().close();
@@ -68,7 +68,7 @@ public class TrustHostFilter implements Filter {
         try {
             URL url = new URL(urlStr);
             return url.getHost().toLowerCase();
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException ignored) {
         }
         return null;
     }

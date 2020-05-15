@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Objects;
 
 public class DeleteFileUtil {
 
@@ -55,19 +56,19 @@ public class DeleteFileUtil {
         boolean flag = true;
         // 删除文件夹中的所有文件包括子目录
         File[] files = dirFile.listFiles();
-        for (int i = 0; i < files.length; i++) {
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
             // 删除子文件
             if (files[i].isFile()) {
                 flag = DeleteFileUtil.deleteFile(files[i].getAbsolutePath());
-                if (!flag)
+                if (!flag) {
                     break;
-            }
-            // 删除子目录
-            else if (files[i].isDirectory()) {
-                flag = DeleteFileUtil.deleteDirectory(files[i]
-                        .getAbsolutePath());
-                if (!flag)
+                }
+            }  else if (files[i].isDirectory()) {
+                // 删除子目录
+                flag = DeleteFileUtil.deleteDirectory(files[i].getAbsolutePath());
+                if (!flag) {
                     break;
+                }
             }
         }
         dirFile.delete();

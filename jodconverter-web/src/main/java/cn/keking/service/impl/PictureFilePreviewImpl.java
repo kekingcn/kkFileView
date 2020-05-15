@@ -1,6 +1,5 @@
 package cn.keking.service.impl;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
@@ -30,7 +29,7 @@ public class PictureFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileKey = (String) RequestContextHolder.currentRequestAttributes().getAttribute("fileKey",0);
-        List imgUrls = Lists.newArrayList(url);
+        List<String> imgUrls = Lists.newArrayList(url);
         try {
             imgUrls.clear();
             imgUrls.addAll(fileUtils.getImgCache(fileKey));
