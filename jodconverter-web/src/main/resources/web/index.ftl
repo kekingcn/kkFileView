@@ -3,14 +3,18 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0" />
     <title>kkFileView演示首页</title>
-    <link rel="stylesheet" href="css/viewer.min.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css">
-    <style type="text/css">
-    </style>
+    <link rel="stylesheet" href="css/viewer.min.css" />
+    <link rel="stylesheet" href="css/loading.css" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css" />
+    <link rel="stylesheet" href="gitalk/gitalk.css" />
+    <script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery.form.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="bootstrap-table/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="gitalk/gitalk.min.js"></script>
 </head>
 
 <body>
@@ -68,7 +72,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
             </div>
         </div>
     </div>
-    <div class="panel">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion"
@@ -115,18 +119,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
             </div>
         </div>
         <div class="panel-body">
-            <div style="width: 80%">
-                <!-- 多说评论框 start -->
-                <div id="SOHUCS" sid="kkfileView"></div>
-                <script charset="utf-8" type="text/javascript" src="//changyan.sohu.com/upload/changyan.js" ></script>
-                <script type="text/javascript">
-                    window.changyan.api.config({
-                        appid: 'cytx6wU4N',
-                        conf: 'prod_c53858654f21b8f813c14b7681f5405a'
-                    });
-                </script>
-                <!-- 多说评论框 end -->
-            </div>
+            <div id = "comments"></div>
         </div>
 
     </div>
@@ -154,10 +147,6 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         </div>
     </div>
 </div>
-<script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
-<script src="js/jquery.form.min.js" type="text/javascript"></script>
-<script src="bootstrap/js/bootstrap.min.js"></script>
-<script src="bootstrap-table/bootstrap-table.min.js"></script>
 <script>
     function deleteFile(fileName) {
         $.ajax({
@@ -196,9 +185,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
             return data;
         });
 
-        /**
-         *
-         */
+
         function showLoadingDiv() {
             var height = window.document.documentElement.clientHeight - 1;
             $(".loading_container").css("height", height).show();
@@ -225,6 +212,17 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
                 dataType: "json" /*设置返回值类型为文本*/
             });
         });
+        var gitalk = new Gitalk({
+            clientID: '525d7f16e17aab08cef5',
+            clientSecret: 'd1154e3aee5c8f1cbdc918b5c97a4f4157e0bfd9',
+            repo: 'kkFileView',
+            owner: 'kekingcn',
+            admin: ['kekingcn,klboke,gitchenjh'],
+            language: 'zh-CN',
+            id: location.pathname,
+            distractionFreeMode: false
+        })
+        gitalk.render((document.getElementById('comments')))
     });
 </script>
 </body>
