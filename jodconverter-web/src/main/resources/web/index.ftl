@@ -56,7 +56,6 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         </div>
         <div id="collapseTwo" class="panel-collapse collapse">
             <div class="panel-body">
-                <p style="color: red;">因为是测试所以一种文件只允许上传一个</p>
                 <div style="padding: 10px">
                     <form enctype="multipart/form-data" id="fileUpload">
                         <input type="file" name="file" />
