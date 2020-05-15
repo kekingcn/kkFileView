@@ -27,14 +27,14 @@ public class ConfigRefreshComponent {
         configRefreshThread.start();
     }
 
-    class ConfigRefreshThread implements Runnable {
+    static class ConfigRefreshThread implements Runnable {
         @Override
         public void run() {
             try {
                 Properties properties = new Properties();
                 String text;
                 String media;
-                Boolean cacheEnabled;
+                boolean cacheEnabled;
                 String[] textArray;
                 String[] mediaArray;
                 String officePreviewType;
@@ -50,7 +50,7 @@ public class ConfigRefreshComponent {
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
                     properties.load(bufferedReader);
                     OfficeUtils.restorePropertiesFromEnvFormat(properties);
-                    cacheEnabled = new Boolean(properties.getProperty("cache.enabled", ConfigConstants.DEFAULT_CACHE_ENABLED));
+                    cacheEnabled = Boolean.parseBoolean(properties.getProperty("cache.enabled", ConfigConstants.DEFAULT_CACHE_ENABLED));
                     text = properties.getProperty("simText", ConfigConstants.DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", ConfigConstants.DEFAULT_MEDIA_TYPE);
                     officePreviewType = properties.getProperty("office.preview.type", ConfigConstants.DEFAULT_OFFICE_PREVIEW_TYPE);
@@ -62,15 +62,15 @@ public class ConfigRefreshComponent {
                     baseUrl = properties.getProperty("base.url", ConfigConstants.DEFAULT_BASE_URL);
                     trustHost = properties.getProperty("trust.host", ConfigConstants.DEFAULT_TRUST_HOST);
                     pdfDownloadDisable = properties.getProperty("pdf.download.disable", ConfigConstants.DEFAULT_PDF_DOWNLOAD_DISABLE);
-                    ConfigConstants.setCacheEnabled(cacheEnabled);
-                    ConfigConstants.setSimText(textArray);
-                    ConfigConstants.setMedia(mediaArray);
-                    ConfigConstants.setOfficePreviewType(officePreviewType);
-                    ConfigConstants.setFtpUsername(ftpUsername);
-                    ConfigConstants.setFtpPassword(ftpPassword);
-                    ConfigConstants.setFtpControlEncoding(ftpControlEncoding);
-                    ConfigConstants.setBaseUrl(baseUrl);
-                    ConfigConstants.setTrustHost(trustHost);
+                    ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
+                    ConfigConstants.setSimTextValue(textArray);
+                    ConfigConstants.setMediaValue(mediaArray);
+                    ConfigConstants.setOfficePreviewTypeValue(officePreviewType);
+                    ConfigConstants.setFtpUsernameValue(ftpUsername);
+                    ConfigConstants.setFtpPasswordValue(ftpPassword);
+                    ConfigConstants.setFtpControlEncodingValue(ftpControlEncoding);
+                    ConfigConstants.setBaseUrlValue(baseUrl);
+                    ConfigConstants.setTrustHostValue(trustHost);
                     ConfigConstants.setPdfDownloadDisableValue(pdfDownloadDisable);
                     setWatermarkConfig(properties);
                     bufferedReader.close();

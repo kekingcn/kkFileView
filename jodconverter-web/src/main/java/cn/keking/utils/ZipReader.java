@@ -3,7 +3,6 @@ package cn.keking.utils;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
 import cn.keking.web.filter.BaseUrlFilter;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.junrar.Archive;
@@ -15,7 +14,6 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -37,32 +35,20 @@ import java.util.regex.Pattern;
 public class ZipReader {
     static Pattern pattern = Pattern.compile("^\\d+");
 
-    @Autowired
-    FileUtils fileUtils;
-    String fileDir = ConfigConstants.getFileDir();
+    private final FileUtils fileUtils;
 
-    ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private final String fileDir = ConfigConstants.getFileDir();
 
-    /**
-     * 读取压缩文件
-     * 文件压缩到统一目录fileDir下，并且命名使用压缩文件名+文件名因为文件名
-     * 可能会重复(在系统中对于同一种类型的材料压缩文件内的文件是一样的，如果文件名
-     * 重复，那么这里会被覆盖[同一个压缩文件中的不同目录中的相同文件名暂时不考虑])
-     * <b>注：</b>
-     * <p>
-     *     文件名命名中的参数的说明：
-     *     1.archiveName，为避免解压的文件中有重名的文件会彼此覆盖，所以加上了archiveName，因为在ufile中archiveName
-     *     是不会重复的。
-     *     2.level，这里层级结构的列表我是通过一个map来构造的，map的key是文件的名字，值是对应的文件，这样每次向map中
-     *     加入节点的时候都会获取父节点是否存在，存在则会获取父节点的value并将当前节点加入到父节点的childList中(这里利用
-     *     的是java语言的引用的特性)。
-     * </p>
-     * @param filePath
-     */
+    private final ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    public ZipReader(FileUtils fileUtils) {
+        this.fileUtils = fileUtils;
+    }
+
     public String readZipFile(String filePath,String fileKey) {
         String archiveSeparator = "/";
         Map<String, FileNode> appender = Maps.newHashMap();
-        List imgUrls=Lists.newArrayList();
+        List<String> imgUrls = Lists.newArrayList();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
@@ -89,7 +75,7 @@ public class ZipReader {
                 if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
-                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);
+                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory, fileKey);
                 addNodes(appender, parentName, node);
                 appender.put(childName, node);
             }
@@ -103,24 +89,18 @@ public class ZipReader {
         }
     }
 
-
-
-    /**
-     * 排序zipEntries(对原来列表倒序)
-     * @param entries
-     */
     private Enumeration<ZipArchiveEntry> sortZipEntries(Enumeration<ZipArchiveEntry> entries) {
         List<ZipArchiveEntry> sortedEntries = Lists.newArrayList();
         while(entries.hasMoreElements()){
             sortedEntries.add(entries.nextElement());
         }
-        Collections.sort(sortedEntries, Comparator.comparingInt(o -> o.getName().length()));
+        sortedEntries.sort(Comparator.comparingInt(o -> o.getName().length()));
         return Collections.enumeration(sortedEntries);
     }
 
     public String unRar(String filePath,String fileKey){
         Map<String, FileNode> appender = Maps.newHashMap();
-        List imgUrls=Lists.newArrayList();
+        List<String> imgUrls = Lists.newArrayList();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         try {
             Archive archive = new Archive(new FileInputStream(new File(filePath)));
@@ -144,35 +124,27 @@ public class ZipReader {
                     headersToBeExtracted.add(Collections.singletonMap(childName, header));
                 }
                 String parentName = getLast2FileName(fullName, "\\", archiveFileName);
-                FileType type=fileUtils.typeFromUrl(childName);
+                FileType type = fileUtils.typeFromUrl(childName);
                 if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
-                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);
+                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory, fileKey);
                 addNodes(appender, parentName, node);
                 appender.put(childName, node);
             }
             executors.submit(new RarExtractorWorker(headersToBeExtracted, archive, filePath));
             fileUtils.putImgCache(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
-        } catch (RarException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (RarException | IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    /**
-     * 解压7z文件
-     * @param filePath
-     * @param fileKey
-     * @return
-     */
     public String read7zFile(String filePath,String fileKey) {
         String archiveSeparator = "/";
         Map<String, FileNode> appender = Maps.newHashMap();
-        List imgUrls=Lists.newArrayList();
+        List<String> imgUrls = Lists.newArrayList();
         String baseUrl= BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
@@ -199,7 +171,7 @@ public class ZipReader {
                 if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
-                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory,fileKey);
+                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory, fileKey);
                 addNodes(appender, parentName, node);
                 appender.put(childName, node);
             }
@@ -211,29 +183,23 @@ public class ZipReader {
             e.printStackTrace();
             return null;
         }
-
     }
 
-    /**
-     * 排序7ZEntries(对原来列表倒序)
-     * @param entries
-     */
+
     private Enumeration<SevenZArchiveEntry> sortSevenZEntries(Iterable<SevenZArchiveEntry> entries) {
         List<SevenZArchiveEntry> sortedEntries = Lists.newArrayList();
-        Iterator<SevenZArchiveEntry> iterator = entries.iterator();
-        while(iterator.hasNext()){
-            sortedEntries.add(iterator.next());
+        for (SevenZArchiveEntry entry : entries) {
+            sortedEntries.add(entry);
         }
-//        Collections.sort(sortedEntries, Comparator.comparingInt(o -> o.getName().length()));
         return Collections.enumeration(sortedEntries);
     }
 
     private void addNodes(Map<String, FileNode> appender, String parentName, FileNode node) {
         if (appender.containsKey(parentName)) {
             appender.get(parentName).getChildList().add(node);
-            Collections.sort(appender.get(parentName).getChildList(), sortComparator);
-//            appender.get(parentName).getChildList().sort((final FileNode h1, final FileNode h2) -> h1.getOriginName().compareTo(h2.getOriginName()));//排序
-        }else { // 根节点
+            appender.get(parentName).getChildList().sort(sortComparator);
+        } else {
+            // 根节点
             FileNode nodeRoot = new FileNode(parentName, parentName, "", new ArrayList<>(), true);
             nodeRoot.getChildList().add(node);
             appender.put("", nodeRoot);
@@ -255,15 +221,6 @@ public class ZipReader {
         return sortedHeaders;
     }
 
-    /**
-     * 获取倒数第二个文件(夹)名
-     * @param fullName
-     * @param seperator
-     *       压缩文件解压后，不同的压缩格式分隔符不一样zip是/，而rar是\
-     * @param rootName
-     *      根目录名:如果倒数第二个路径为空，那么赋值为rootName
-     * @return
-     */
     private static String getLast2FileName(String fullName, String seperator, String rootName) {
         if (fullName.endsWith(seperator)) {
             fullName = fullName.substring(0, fullName.length()-1);
@@ -271,34 +228,27 @@ public class ZipReader {
         // 1.获取剩余部分
         int endIndex = fullName.lastIndexOf(seperator);
         String leftPath = fullName.substring(0, endIndex == -1 ? 0 : endIndex);
-        if (null != leftPath && leftPath.length() > 1) {
+        if (leftPath.length() > 1) {
             // 2.获取倒数第二个
             return getLastFileName(leftPath, seperator);
-        }else {
+        } else {
             return rootName;
         }
     }
 
-    /**
-     * 获取最后一个文件(夹)的名字
-     * @param fullName
-     * @param seperator
-     *       压缩文件解压后，不同的压缩格式分隔符不一样zip是/，而rar是\
-     * @return
-     */
     private static String getLastFileName(String fullName, String seperator) {
         if (fullName.endsWith(seperator)) {
             fullName = fullName.substring(0, fullName.length()-1);
         }
         String newName = fullName;
-        if (null != fullName && fullName.contains(seperator)) {
+        if (fullName.contains(seperator)) {
             newName = fullName.substring(fullName.lastIndexOf(seperator) + 1);
         }
         return newName;
     }
 
     public static Comparator<FileNode> sortComparator = new Comparator<FileNode>() {
-        Collator cmp = Collator.getInstance(Locale.US);
+        final Collator cmp = Collator.getInstance(Locale.US);
         @Override
         public int compare(FileNode o1, FileNode o2) {
             // 判断两个对比对象是否是开头包含数字，如果包含数字则获取数字并按数字真正大小进行排序
@@ -321,20 +271,15 @@ public class ZipReader {
         return null;
     }
 
-    /**
-     * 文件节点(区分文件上下级)
-     */
-    public class FileNode{
+    public static class FileNode {
 
         private String originName;
         private String fileName;
         private String parentFileName;
         private boolean directory;
-        private String fileKey;//用于图片预览时寻址
+        //用于图片预览时寻址
+        private String fileKey;
         private List<FileNode> childList;
-
-        public FileNode() {
-        }
 
         public FileNode(String originName, String fileName, String parentFileName, List<FileNode> childList, boolean directory) {
             this.originName = originName;
@@ -410,14 +355,11 @@ public class ZipReader {
         }
     }
 
-    /**
-     * Zip文件抽取线程
-     */
     class ZipExtractorWorker implements Runnable {
 
-        private List<Map<String, ZipArchiveEntry>> entriesToBeExtracted;
-        private ZipFile zipFile;
-        private String filePath;
+        private final List<Map<String, ZipArchiveEntry>> entriesToBeExtracted;
+        private final ZipFile zipFile;
+        private final String filePath;
 
         public ZipExtractorWorker(List<Map<String, ZipArchiveEntry>> entriesToBeExtracted, ZipFile zipFile, String filePath) {
             this.entriesToBeExtracted = entriesToBeExtracted;
@@ -446,12 +388,6 @@ public class ZipReader {
             }
         }
 
-
-        /**
-         * 读取压缩文件并写入到fileDir文件夹下
-         * @param childName
-         * @param zipFile
-         */
         private void extractZipFile(String childName, InputStream zipFile) {
             String outPath = fileDir + childName;
             try (OutputStream ot = new FileOutputStream(outPath)){
@@ -460,21 +396,16 @@ public class ZipReader {
                 while ((-1 != (len = zipFile.read(inByte)))){
                     ot.write(inByte, 0, len);
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    /**
-     * 7z文件抽取线程
-     */
     class SevenZExtractorWorker implements Runnable {
 
-        private List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted;
-        private String filePath;
+        private final List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted;
+        private final String filePath;
 
         public SevenZExtractorWorker(List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted, String filePath) {
             this.entriesToBeExtracted = entriesToBeExtracted;
@@ -483,7 +414,6 @@ public class ZipReader {
 
         @Override
         public void run() {
-            System.out.println("解析压缩文件开始《《《《《《《《《《《《《《《《《《《《《《《");
             try {
                 SevenZFile sevenZFile = new SevenZFile(new File(filePath));
                 SevenZArchiveEntry entry = sevenZFile.getNextEntry();
@@ -493,7 +423,7 @@ public class ZipReader {
                         continue;
                     }
                     String childName = "default_file";
-                    SevenZArchiveEntry entry1 = null;
+                    SevenZArchiveEntry entry1;
                     for (Map<String, SevenZArchiveEntry> entryMap : entriesToBeExtracted) {
                         childName = entryMap.keySet().iterator().next();
                         entry1 = entryMap.values().iterator().next();
@@ -509,8 +439,6 @@ public class ZipReader {
                     entry = sevenZFile.getNextEntry();
                 }
                 sevenZFile.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -518,20 +446,16 @@ public class ZipReader {
             if (new File(filePath).exists()) {
                 new File(filePath).delete();
             }
-            System.out.println("解析压缩文件结束《《《《《《《《《《《《《《《《《《《《《《《");
         }
     }
 
-    /**
-     * Rar文件抽取
-     */
     class RarExtractorWorker implements Runnable {
-        private List<Map<String, FileHeader>> headersToBeExtracted;
-        private Archive archive;
+        private final List<Map<String, FileHeader>> headersToBeExtracted;
+        private final Archive archive;
         /**
          * 用以删除源文件
          */
-        private String filePath;
+        private final String filePath;
 
         public RarExtractorWorker(List<Map<String, FileHeader>> headersToBeExtracted, Archive archive, String filePath) {
             this.headersToBeExtracted = headersToBeExtracted;
@@ -541,7 +465,6 @@ public class ZipReader {
 
         @Override
         public void run() {
-            System.out.println("解析压缩文件开始《《《《《《《《《《《《《《《《《《《《《《《");
             for (Map<String, FileHeader> entryMap : headersToBeExtracted) {
                 String childName = entryMap.keySet().iterator().next();
                 extractRarFile(childName, entryMap.values().iterator().next(), archive);
@@ -554,24 +477,13 @@ public class ZipReader {
             if (new File(filePath).exists()) {
                 new File(filePath).delete();
             }
-            System.out.println("解析压缩文件结束《《《《《《《《《《《《《《《《《《《《《《《");
         }
 
-        /**
-         * 抽取rar文件到指定目录下
-         * @param childName
-         * @param header
-         * @param archive
-         */
         private void extractRarFile(String childName, FileHeader header, Archive archive) {
             String outPath = fileDir + childName;
             try(OutputStream ot = new FileOutputStream(outPath)) {
                 archive.extractFile(header, ot);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (RarException e) {
+            } catch (IOException | RarException e) {
                 e.printStackTrace();
             }
         }

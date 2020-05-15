@@ -4,7 +4,6 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.service.cache.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,10 +18,13 @@ public class ShedulerClean {
 
     private final Logger logger = LoggerFactory.getLogger(ShedulerClean.class);
 
-    @Autowired
-    private CacheService cacheService;
+    private final CacheService cacheService;
 
-    private String fileDir = ConfigConstants.getFileDir();
+    public ShedulerClean(CacheService cacheService) {
+        this.cacheService = cacheService;
+    }
+
+    private final String fileDir = ConfigConstants.getFileDir();
 
     //默认每晚3点执行一次
     @Scheduled(cron = "${cache.clean.cron:0 0 3 * * ?}")

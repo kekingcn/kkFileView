@@ -14,17 +14,14 @@ public class FileAttribute {
 
     private String url;
 
-    private String decodedUrl;
-
     public FileAttribute() {
     }
 
-    public FileAttribute(FileType type, String suffix, String name, String url, String decodedUrl) {
+    public FileAttribute(FileType type, String suffix, String name, String url) {
         this.type = type;
         this.suffix = suffix;
         this.name = name;
         this.url = url;
-        this.decodedUrl = decodedUrl;
     }
 
     public FileType getType() {
@@ -57,13 +54,5 @@ public class FileAttribute {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getDecodedUrl() {
-        return decodedUrl;
-    }
-
-    public void setDecodedUrl(String decodedUrl) {
-        this.decodedUrl = decodedUrl;
     }
 }

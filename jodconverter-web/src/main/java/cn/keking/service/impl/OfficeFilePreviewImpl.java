@@ -74,21 +74,25 @@ public class OfficeFilePreviewImpl implements FilePreview {
             }
         }
         if (!isHtml && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
-            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
-            if (imageUrls == null || imageUrls.size() < 1) {
-                model.addAttribute("msg", "office转图片异常，请联系管理员");
-                model.addAttribute("fileType",fileAttribute.getSuffix());
-                return "fileNotSupported";
-            }
-            model.addAttribute("imgurls", imageUrls);
-            model.addAttribute("currentUrl", imageUrls.get(0));
-            if (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType)) {
-                return "officePicture";
-            } else {
-                return "picture";
-            }
+            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, pdfUtils, OFFICE_PREVIEW_TYPE_IMAGE);
         }
         model.addAttribute("pdfUrl", pdfName);
         return isHtml ? "html" : "pdf";
+    }
+
+    static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, PdfUtils pdfUtils, String officePreviewTypeImage) {
+        List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
+        if (imageUrls == null || imageUrls.size() < 1) {
+            model.addAttribute("msg", "office转图片异常，请联系管理员");
+            model.addAttribute("fileType",fileAttribute.getSuffix());
+            return "fileNotSupported";
+        }
+        model.addAttribute("imgurls", imageUrls);
+        model.addAttribute("currentUrl", imageUrls.get(0));
+        if (officePreviewTypeImage.equals(officePreviewType)) {
+            return "officePicture";
+        } else {
+            return "picture";
+        }
     }
 }

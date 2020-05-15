@@ -6,7 +6,6 @@ import cn.keking.service.cache.CacheService;
 import cn.keking.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ExtendedModelMap;
 import javax.annotation.PostConstruct;
@@ -18,36 +17,44 @@ import java.util.concurrent.Executors;
  * Content :消费队列中的转换文件
  */
 @Service
-public class FileConverQueueTask {
+public class FileConvertQueueTask {
 
-    Logger logger= LoggerFactory.getLogger(getClass());
-    public static final String queueTaskName="FileConverQueueTask";
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    FilePreviewFactory previewFactory;
+    private final FilePreviewFactory previewFactory;
 
-    @Autowired
-    CacheService cacheService;
+    private final CacheService cacheService;
 
-    @Autowired
-    FileUtils fileUtils;
+    private final FileUtils fileUtils;
+
+    public FileConvertQueueTask(FilePreviewFactory previewFactory,
+                                CacheService cacheService,
+                                FileUtils fileUtils) {
+        this.previewFactory = previewFactory;
+        this.cacheService = cacheService;
+        this.fileUtils=fileUtils;
+    }
 
     @PostConstruct
     public void startTask(){
         ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.submit(new ConverTask(previewFactory, cacheService, fileUtils));
+        executorService.submit(new ConvertTask(previewFactory, cacheService, fileUtils));
         logger.info("队列处理文件转换任务启动完成 ");
     }
 
-    class  ConverTask implements Runnable{
+    class ConvertTask implements Runnable {
 
-        FilePreviewFactory previewFactory;
+        private final Logger logger = LoggerFactory.getLogger(ConvertTask.class);
 
-        CacheService cacheService;
+        private final FilePreviewFactory previewFactory;
 
-        FileUtils fileUtils;
+        private final CacheService cacheService;
 
-        public ConverTask(FilePreviewFactory previewFactory, CacheService cacheService, FileUtils fileUtils) {
+        private final FileUtils fileUtils;
+
+        public ConvertTask(FilePreviewFactory previewFactory,
+                           CacheService cacheService,
+                           FileUtils fileUtils) {
             this.previewFactory = previewFactory;
             this.cacheService = cacheService;
             this.fileUtils=fileUtils;

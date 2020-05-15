@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @auther: chenjh
@@ -47,7 +48,7 @@ public class FtpUtils {
         FTPClient ftpClient = connect(host, port, username, password, controlEncoding);
         OutputStream outputStream = new FileOutputStream(localFilePath);
         ftpClient.enterLocalPassiveMode();
-        boolean downloadResult = ftpClient.retrieveFile(new String(remoteFilePath.getBytes(controlEncoding), "ISO-8859-1"), outputStream);
+        boolean downloadResult = ftpClient.retrieveFile(new String(remoteFilePath.getBytes(controlEncoding), StandardCharsets.ISO_8859_1), outputStream);
         LOGGER.debug("FTP download result {}", downloadResult);
         outputStream.flush();
         outputStream.close();

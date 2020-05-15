@@ -36,7 +36,7 @@ public class CadToPdf {
         PdfOptions pdfOptions = new PdfOptions();
         pdfOptions.setVectorRasterizationOptions(cadRasterizationOptions);
         File outputFile = new File(outputFilePath);
-        OutputStream stream = null;
+        OutputStream stream;
         try {
             stream = new FileOutputStream(outputFile);
             cadImage.save(stream, pdfOptions);

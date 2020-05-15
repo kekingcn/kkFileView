@@ -7,9 +7,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
- * @auther: chenjh
- * @time: 2019/4/16 20:04
- * @description
+ * @author: chenjh
+ * @since: 2019/4/16 20:04
  */
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {

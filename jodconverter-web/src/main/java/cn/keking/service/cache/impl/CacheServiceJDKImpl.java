@@ -3,7 +3,6 @@ package cn.keking.service.cache.impl;
 import cn.keking.service.cache.CacheService;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.googlecode.concurrentlinkedhashmap.Weighers;
-import org.rocksdb.RocksDB;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,7 @@ public class CacheServiceJDKImpl implements CacheService {
 
     private static final int QUEUE_SIZE = 500000;
 
-    private BlockingQueue blockingQueue = new ArrayBlockingQueue(QUEUE_SIZE);
+    private final BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     @Override
     public void initPDFCachePool(Integer capacity) {
@@ -130,6 +129,6 @@ public class CacheServiceJDKImpl implements CacheService {
 
     @Override
     public String takeQueueTask() throws InterruptedException {
-        return String.valueOf(blockingQueue.take());
+        return blockingQueue.take();
     }
 }
