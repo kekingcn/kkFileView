@@ -84,6 +84,24 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         <div id="collapseThree" class="panel-collapse collapse in">
             <div class="panel-body">
                 <div>
+                    2020年05月20日 ：<br>
+                        1. 新增支持全局水印，并支持通过参数动态改变水印内容<br>
+                        2. 新增支持CAD文件预览<br>
+                        3. 新增base.url配置，支持使用nginx反向代理和使用context-path<br>
+                        4. 支持所有配置项支持从环境变量里读取，方便Docker镜像部署和集群中大规模使用<br>
+                        5. 支持配置限信任站点（只能预览来自信任点的文件源），保护预览服务不被滥用<br>
+                        6. 支持配置自定义缓存清理时间（cron表达式）<br>
+                        7. 全部能识别的纯文本直接预览，不用再转跳下载，如.md .java .py等<br>
+                        8. 支持配置限制转换后的PDF文件下载<br>
+                        9. 优化maven打包配置，解决 .sh 脚本可能出现换行符问题<br>
+                        10. 将前端所有CDN依赖放到本地，方便没有外网连接的用户使用<br>
+                        11. 首页评论服务由搜狐畅言切换到Gitalk<br>
+                        12. 修复url中包含特殊字符可能会引起的预览异常<br>
+                        13. 修复转换文件队列addTask异常<br>
+                        14. 修复其他已经问题<br>
+                        15. 官网建设：<a href="https://kkfileview.keking.cn">https://kkfileview.keking.cn</a><br>
+                        16. 官方Docker镜像仓库建设：<a href="https://hub.docker.com/r/keking/kkfileview">https://hub.docker.com/r/keking/kkfileview</a><br><br>
+
                     2019年06月18日 ：<br>
                         1. 支持自动清理缓存及预览文件<br>
                         2. 支持http/https下载流url文件预览<br>

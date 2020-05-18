@@ -11,10 +11,14 @@
 1. 抽象预览服务接口，方便二次开发，非常方便添加其他类型文件预览支持
 1. 最最重要Apache协议开源，代码pull下来想干嘛就干嘛
 
+### 官网及文档
+
+地址：[https://kkfileview.keking.cn](https://kkfileview.keking.cn)
+
 ### 在线体验
 > 请善待公共服务，会不定时停用
 
-地址：http://file.keking.cn/
+地址：[https://file.keking.cn](https://file.keking.cn)
 
 ### 项目文档（Project documentation）
 1. 详细wiki文档：https://gitee.com/kekingcn/file-online-preview/wikis/pages
@@ -61,6 +65,24 @@ QQ群号：613025121
 ![输入图片说明](https://gitee.com/uploads/images/2017/1213/100221_ea15202e_492218.png "屏幕截图.png")
 
 ### 历史更新记录
+
+> 2020年05月20日 ：
+1. 新增支持全局水印，并支持通过参数动态改变水印内容
+2. 新增支持CAD文件预览
+3. 新增base.url配置，支持使用nginx反向代理和使用context-path
+4. 支持所有配置项支持从环境变量里读取，方便Docker镜像部署和集群中大规模使用
+5. 支持配置限信任站点（只能预览来自信任点的文件源），保护预览服务不被滥用
+6. 支持配置自定义缓存清理时间（cron表达式）
+7. 全部能识别的纯文本直接预览，不用再转跳下载，如.md .java .py等
+8. 支持配置限制转换后的PDF文件下载
+9. 优化maven打包配置，解决 .sh 脚本可能出现换行符问题
+10. 将前端所有CDN依赖放到本地，方便没有外网连接的用户使用
+11. 首页评论服务由搜狐畅言切换到Gitalk
+12. 修复url中包含特殊字符可能会引起的预览异常
+13. 修复转换文件队列addTask异常
+14. 修复其他已经问题
+15. 官网建设：[https://kkfileview.keking.cn](https://kkfileview.keking.cn)
+16. 官方Docker镜像仓库建设：[https://hub.docker.com/r/keking/kkfileview](https://hub.docker.com/r/keking/kkfileview)
 
 > 2019年06月18日 ：
 1. 支持自动清理缓存及预览文件
