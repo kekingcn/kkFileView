@@ -4,12 +4,11 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
-import cn.keking.utils.CadToPdf;
+import cn.keking.utils.CadUtils;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -23,23 +22,29 @@ import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 @Service
 public class CadFilePreviewImpl implements FilePreview {
 
-    private String fileDir = ConfigConstants.getFileDir();
+    private final FileUtils fileUtils;
 
-    @Autowired
-    private FileUtils fileUtils;
+    private final DownloadUtils downloadUtils;
 
-    @Autowired
-    private DownloadUtils downloadUtils;
+    private final CadUtils cadUtils;
 
-    @Autowired
-    private CadToPdf cadToPdf;
+    private final PdfUtils pdfUtils;
 
-    @Autowired
-    private PdfUtils pdfUtils;
+    public CadFilePreviewImpl(FileUtils fileUtils,
+                              DownloadUtils downloadUtils,
+                              CadUtils cadUtils,
+                              PdfUtils pdfUtils) {
+        this.fileUtils = fileUtils;
+        this.downloadUtils = downloadUtils;
+        this.cadUtils = cadUtils;
+        this.pdfUtils = pdfUtils;
 
-    public static final String OFFICE_PREVIEW_TYPE_PDF = "pdf";
-    public static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
-    public static final String OFFICE_PREVIEW_TYPE_ALLIMAGES = "allImages";
+    }
+
+    private static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
+    private static final String OFFICE_PREVIEW_TYPE_ALL_IMAGES = "allImages";
+    private static final String FILE_DIR = ConfigConstants.getFileDir();
+
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
@@ -49,7 +54,7 @@ public class CadFilePreviewImpl implements FilePreview {
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
-        String outFilePath = fileDir + pdfName;
+        String outFilePath = FILE_DIR + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath;
@@ -61,7 +66,7 @@ public class CadFilePreviewImpl implements FilePreview {
             }
             filePath = response.getContent();
             if (StringUtils.hasText(outFilePath)) {
-                boolean convertResult = cadToPdf.cadToPdf(filePath, outFilePath);
+                boolean convertResult = cadUtils.cadToPdf(filePath, outFilePath);
                 if (!convertResult) {
                     model.addAttribute("fileType", suffix);
                     model.addAttribute("msg", "cad文件转换异常，请联系管理员");
@@ -73,7 +78,7 @@ public class CadFilePreviewImpl implements FilePreview {
                 }
             }
         }
-        if (baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
+        if (baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
             return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, pdfUtils, OFFICE_PREVIEW_TYPE_IMAGE);
         }
         model.addAttribute("pdfUrl", pdfName);

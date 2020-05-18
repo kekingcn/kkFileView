@@ -59,7 +59,7 @@ public class FileController {
         if (!outFile.exists()) {
             outFile.mkdirs();
         }
-        logger.info("上传文件：{}", outFile.getAbsolutePath());
+        logger.info("上传文件：{}", fileDir + demoPath + fileName);
         try(InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(fileDir + demoPath + fileName)) {
             StreamUtils.copy(in, out);
             return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(0, "SUCCESS", null));

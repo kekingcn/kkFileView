@@ -6,7 +6,6 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import com.google.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -20,11 +19,15 @@ import java.util.List;
 @Service
 public class PictureFilePreviewImpl implements FilePreview {
 
-    @Autowired
-    FileUtils fileUtils;
+    private final FileUtils fileUtils;
 
-    @Autowired
-    DownloadUtils downloadUtils;
+    private final DownloadUtils downloadUtils;
+
+    public PictureFilePreviewImpl(FileUtils fileUtils,
+                                  DownloadUtils downloadUtils) {
+        this.fileUtils = fileUtils;
+        this.downloadUtils = downloadUtils;
+    }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {

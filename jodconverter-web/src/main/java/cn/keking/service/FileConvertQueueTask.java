@@ -42,7 +42,7 @@ public class FileConvertQueueTask {
         logger.info("队列处理文件转换任务启动完成 ");
     }
 
-    class ConvertTask implements Runnable {
+    static class ConvertTask implements Runnable {
 
         private final Logger logger = LoggerFactory.getLogger(ConvertTask.class);
 

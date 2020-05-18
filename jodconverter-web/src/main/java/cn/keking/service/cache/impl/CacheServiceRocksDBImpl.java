@@ -99,6 +99,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, String> getPDFCache() {
         Map<String, String> result = new HashMap<>();
         try{
@@ -110,6 +111,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public String getPDFCache(String key) {
         String result = "";
         try{
@@ -122,6 +124,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, List<String>> getImgCache() {
         Map<String, List<String>> result = new HashMap<>();
         try{
@@ -133,6 +136,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> getImgCache(String key) {
         List<String> result = new ArrayList<>();
         Map<String, List<String>> map;
@@ -145,17 +149,8 @@ public class CacheServiceRocksDBImpl implements CacheService {
         return result;
     }
 
-    public Map<String, Integer> getPdfImageCaches() {
-        Map<String, Integer> map = new HashMap<>();
-        try{
-            map = (Map<String, Integer>) toObject(db.get(FILE_PREVIEW_PDF_IMGS_KEY.getBytes()));
-        } catch (RocksDBException | IOException | ClassNotFoundException e) {
-            LOGGER.error("Get from RocksDB Exception" + e);
-        }
-        return map;
-    }
-
     @Override
+    @SuppressWarnings("unchecked")
     public Integer getPdfImageCache(String key) {
         Integer result = 0;
         Map<String, Integer> map;
@@ -199,6 +194,18 @@ public class CacheServiceRocksDBImpl implements CacheService {
     public String takeQueueTask() throws InterruptedException {
         return blockingQueue.take();
     }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Integer> getPdfImageCaches() {
+        Map<String, Integer> map = new HashMap<>();
+        try{
+            map = (Map<String, Integer>) toObject(db.get(FILE_PREVIEW_PDF_IMGS_KEY.getBytes()));
+        } catch (RocksDBException | IOException | ClassNotFoundException e) {
+            LOGGER.error("Get from RocksDB Exception" + e);
+        }
+        return map;
+    }
+
 
     private byte[] toByteArray (Object obj) throws IOException {
         byte[] bytes;
