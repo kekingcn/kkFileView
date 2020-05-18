@@ -7,7 +7,6 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.ZipReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -17,16 +16,21 @@ import org.springframework.util.StringUtils;
  * Content :处理压缩包文件
  */
 @Service
-public class CompressFilePreviewImpl implements FilePreview{
+public class CompressFilePreviewImpl implements FilePreview {
 
-    @Autowired
-    FileUtils fileUtils;
+    private final FileUtils fileUtils;
 
-    @Autowired
-    DownloadUtils downloadUtils;
+    private final DownloadUtils downloadUtils;
 
-    @Autowired
-    ZipReader zipReader;
+    private final ZipReader zipReader;
+
+    public CompressFilePreviewImpl(FileUtils fileUtils,
+                                   DownloadUtils downloadUtils,
+                                   ZipReader zipReader) {
+        this.fileUtils = fileUtils;
+        this.downloadUtils = downloadUtils;
+        this.zipReader = zipReader;
+    }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {

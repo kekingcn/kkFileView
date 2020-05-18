@@ -9,7 +9,6 @@ import cn.keking.utils.FileUtils;
 import cn.keking.utils.OfficeToPdf;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -23,23 +22,27 @@ import java.util.List;
 @Service
 public class OfficeFilePreviewImpl implements FilePreview {
 
-    @Autowired
-    FileUtils fileUtils;
+    private final FileUtils fileUtils;
 
-    @Autowired
-    PdfUtils pdfUtils;
+    private final PdfUtils pdfUtils;
 
-    @Autowired
-    DownloadUtils downloadUtils;
+    private final DownloadUtils downloadUtils;
 
-    @Autowired
-    private OfficeToPdf officeToPdf;
+    private final OfficeToPdf officeToPdf;
 
-    String fileDir = ConfigConstants.getFileDir();
+    public OfficeFilePreviewImpl(FileUtils fileUtils,
+                                 PdfUtils pdfUtils,
+                                 DownloadUtils downloadUtils,
+                                 OfficeToPdf officeToPdf) {
+        this.fileUtils = fileUtils;
+        this.pdfUtils = pdfUtils;
+        this.downloadUtils = downloadUtils;
+        this.officeToPdf = officeToPdf;
+    }
 
-    public static final String OFFICE_PREVIEW_TYPE_PDF = "pdf";
     public static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
-    public static final String OFFICE_PREVIEW_TYPE_ALLIMAGES = "allImages";
+    public static final String OFFICE_PREVIEW_TYPE_ALL_IMAGES = "allImages";
+    private static final String FILE_DIR = ConfigConstants.getFileDir();
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
@@ -50,10 +53,10 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String fileName=fileAttribute.getName();
         boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx");
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
-        String outFilePath = fileDir + pdfName;
+        String outFilePath = FILE_DIR + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
-            String filePath = fileDir + fileName;
+            String filePath;
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
@@ -73,7 +76,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 }
             }
         }
-        if (!isHtml && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType))) {
+        if (!isHtml && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
             return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, pdfUtils, OFFICE_PREVIEW_TYPE_IMAGE);
         }
         model.addAttribute("pdfUrl", pdfName);

@@ -8,7 +8,6 @@ import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -19,19 +18,21 @@ import java.util.List;
  * Content :处理pdf文件
  */
 @Service
-public class PdfFilePreviewImpl implements FilePreview{
+public class PdfFilePreviewImpl implements FilePreview {
 
+    private final FileUtils fileUtils;
 
-    @Autowired
-    FileUtils fileUtils;
+    private final PdfUtils pdfUtils;
 
-    @Autowired
-    PdfUtils pdfUtils;
+    private final DownloadUtils downloadUtils;
 
-    @Autowired
-    DownloadUtils downloadUtils;
-
-    String fileDir = ConfigConstants.getFileDir();
+    public PdfFilePreviewImpl(FileUtils fileUtils,
+                              PdfUtils pdfUtils,
+                              DownloadUtils downloadUtils) {
+        this.fileUtils = fileUtils;
+        this.pdfUtils = pdfUtils;
+        this.downloadUtils = downloadUtils;
+    }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
@@ -40,8 +41,8 @@ public class PdfFilePreviewImpl implements FilePreview{
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
-        String outFilePath = fileDir + pdfName;
-        if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALLIMAGES.equals(officePreviewType)) {
+        String outFilePath;
+        if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType)) {
             //当文件不存在时，就去下载
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
             if (0 != response.getCode()) {

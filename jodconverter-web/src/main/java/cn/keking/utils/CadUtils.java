@@ -18,9 +18,9 @@ import java.io.OutputStream;
  * @since 2019/11/21 14:34
  */
 @Component
-public class CadToPdf {
+public class CadUtils {
 
-    private final Logger logger = LoggerFactory.getLogger(CadToPdf.class);
+    private final Logger logger = LoggerFactory.getLogger(CadUtils.class);
 
     public boolean cadToPdf(String inputFilePath, String outputFilePath)  {
         com.aspose.cad.Image cadImage = com.aspose.cad.Image.load(inputFilePath);

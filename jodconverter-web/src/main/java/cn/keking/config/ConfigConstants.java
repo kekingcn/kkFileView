@@ -45,7 +45,7 @@ public class ConfigConstants {
     }
 
     @Value("${cache.enabled:true}")
-    public static void setCacheEnabled(String cacheEnabled) {
+    public void setCacheEnabled(String cacheEnabled) {
         setCacheEnabledValueValue(Boolean.parseBoolean(cacheEnabled));
     }
 
