@@ -16,10 +16,14 @@ special thanks to the supports of @唐老大 and the contributions of @端木详
 - REST API
 - Abstract file preview interface so that it is easy to extend more file extensions and develop this project on your own
 
+### Official website and DOCS
+
+URL：[https://kkfileview.keking.cn](https://kkfileview.keking.cn)
+
 ### Live demo
 > Please treat public service kindly, or this would stop at any time.
 
-URL：http://file.keking.cn/
+URL：[https://file.keking.cn](https://file.keking.cn)
 
 ### Documentation
 1. 中文文档：https://gitee.com/kekingcn/file-online-preview/blob/master/README.md
@@ -67,6 +71,23 @@ If everything is ok,you will see the picture below.
 ![输入图片说明](https://gitee.com/uploads/images/2017/1213/100221_ea15202e_492218.png "屏幕截图.png")
 
 ### Changelog
+> May 20th 2020 ：
+1. Support for global watermark and dynamic change of watermark content through parameters
+2. Support for CAD file Preview
+3. Add configuration item base.url, support using nginx reverse proxy and set context-path
+4. All configuration items can be read from environment variables, which is convenient for docker image deployment and large-scale use in cluster
+5. Support the configuration of TrustHost  (only the file source from the trust site can be previewed), and protect the preview service from abuse
+6. Support configuration of customize cache cleanup time (cron expression)
+7. All recognizable plain text can be previewed directly without downloading, such as .md .java .py, etc
+8. Support configuration to limit PDF file download after conversion
+9. Optimize Maven packaging configuration to solve the problem of line break in .sh script
+10. Place all CDN dependencies on the front end locally for users without external network connection
+11. Comment Service on home page switched from Sohu ChangYan to gitalk
+12. Fixed preview exceptions that may be caused by special characters in the URL
+13. Fixed the addtask exception of the transformation file queue
+14. Fixed other known issues
+15. Official website build: [https://kkfileview.keking.cn](https://kkfileview.keking.cn)
+16. Official docker image repository build: [https://hub.docker.com/r/keking/kkfileview](https://hub.docker.com/r/keking/kkfileview)
 
 > June 18th 2019 ：
 1. Support automatic cleaning of cache and preview files
