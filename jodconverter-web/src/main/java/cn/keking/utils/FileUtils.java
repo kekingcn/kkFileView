@@ -24,15 +24,15 @@ import java.util.Map;
 @Component
 public class FileUtils {
 
-    public static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
+    private static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
+
+    private final String fileDir = ConfigConstants.getFileDir();
 
     private final CacheService cacheService;
 
     public FileUtils(CacheService cacheService) {
         this.cacheService = cacheService;
     }
-
-    String fileDir = ConfigConstants.getFileDir();
 
     /**
      * @return 已转换过的文件集合(缓存)
