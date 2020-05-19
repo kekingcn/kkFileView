@@ -26,8 +26,9 @@ URL：[https://kkfileview.keking.cn](https://kkfileview.keking.cn)
 URL：[https://file.keking.cn](https://file.keking.cn)
 
 ### Documentation
+1. Full wiki document：https://gitee.com/kekingcn/file-online-preview/wikis/pages
 1. 中文文档：https://gitee.com/kekingcn/file-online-preview/blob/master/README.md
-1. English document：https://github.com/kekingcn/kkFileView/blob/master/README.en.md
+1. English document：https://gitee.com/kekingcn/file-online-preview/blob/master/README.en.md
 
 ### Contact us && Join us
 > We will answer everyone's questions in use of this project.
@@ -38,20 +39,62 @@ Cherish life away from ineffective communication.
 QQ group：613025121
 
 ### Pictures for some samples
-> Excel
+#### 1. Text Preview  
+It supports preview of all types of text documents. Because there are too many types of text documents, it is impossible to enumerate them. The default open types are as follows:  txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd  
+The text preview effect is as follows    
+![text](https://kkfileview.keking.cn/img/preview/preview-text.png)      
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/093051_cd55b3ec_492218.png "屏幕截图.png")
-> doc
+#### 2. Picture preview  
+Support jpg, jpeg, png, gif and other picture previews (flip, zoom, mirror). The preview effect is as follows   
+![image](https://kkfileview.keking.cn/img/preview/preview-image.png)  
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/092350_5b2ecbe5_492218.png "屏幕截图.png")
+#### 3. Word document preview
+Doc and docx document previews are supported. There are two modes of word previews: one is that each page of word is converted to picture previews, the other is that the whole word document is converted to PDF, and then previews PDF. The applicable scenarios of the two modes are as follows  
+* Picture preview modes: the word file is large, and the whole PDF loaded in the foreground is too slow  
+* Pdf Preview modes: intranet access, loading PDF fast  
+The preview effect of picture preview mode is as follows  
+![word1](https://kkfileview.keking.cn/img/preview/preview-doc-image.png)  
+The preview effect of PDF preview mode is as follows  
+![word2](https://kkfileview.keking.cn/img/preview/preview-doc-pdf.png)  
 
-> zip,rar
+#### 4. PPT document preview  
+ppt and pptx document preview are supported. Like word documents, there are two preview modes  
+The preview effect of picture preview mode is as follows  
+![ppt1](https://kkfileview.keking.cn/img/preview/preview-ppt-image.png)  
+The preview effect of PDF preview mode is as follows 
+![ppt2](https://kkfileview.keking.cn/img/preview/preview-ppt-pdf.png)  
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/093806_46cede06_492218.png "屏幕截图.png")
+#### 5. PDF document preview  
+Pdf document preview is supported. Like word document, there are two preview modes  
+The preview effect of picture preview mode is as follows    
+![pdf1](https://kkfileview.keking.cn/img/preview/preview-pdf-image.png)  
+The preview effect of PDF preview mode is as follows     
+![pdf2](https://kkfileview.keking.cn/img/preview/preview-pdf-pdf.png)    
 
-> png,jpeg,jpg,etc., support for zooming with mouse scroll, rotation, inversion,etc.
+#### 6. EXCEL document preview  
+Support XLS, xlsx document preview, the preview effect is as follows  
+![excel](https://kkfileview.keking.cn/img/preview/preview-xls.png)  
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/094335_657a6f60_492218.png "屏幕截图.png")
+#### 7. Compressed file Preview  
+Support zip, rar, jar, tar, gzip and other compressed packages. The preview effect is as follows  
+![compress1](https://kkfileview.keking.cn/img/preview/preview-zip.png)  
+Click the file name in the compressed package to preview the file directly. The preview effect is as follows  
+![compress2](https://kkfileview.keking.cn/img/preview/preview-zip-inner.png)  
+
+#### 8. Multimedia file Preview  
+Theoretically, all video and audio files are supported. Since all file formats cannot be enumerated, the default open type is as follows  
+mp3,wav,mp4,flv  
+The video preview effect is as follows  
+![media1](https://kkfileview.keking.cn/img/preview/preview-video.png)  
+The audio preview effect is as follows    
+![media2](https://kkfileview.keking.cn/img/preview/preview-audio.png)  
+
+#### 9. CAD document preview 
+CAD DWG document preview is supported. Like word document, there are two preview modes  
+The preview effect of Picture preview mode is as follows  
+![cad1](https://kkfileview.keking.cn/img/preview/preview-cad-image.png)  
+The preview effect of PDF preview mode is as follows  
+![cad2](https://kkfileview.keking.cn/img/preview/preview-cad-pdf.png)  
 Considering space issues, the pictures of other types of documents will not be shown here.You can deploy it by yourself if you are interested in our project.There is a way to deploy it as below.
 
 ### Quick Start

@@ -58,7 +58,7 @@ public class DownloadUtils {
             URL url = new URL(urlStr);
             OutputStream os = new FileOutputStream(new File(realPath));
             if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
-                saveToOutputStreamFormUrl(urlStr, os);
+                saveToOutputStreamFromUrl(urlStr, os);
             } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
                 String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
@@ -88,12 +88,12 @@ public class DownloadUtils {
         }
     }
 
-    public boolean saveToOutputStreamFormUrl(String urlStr, OutputStream os) throws IOException {
+    public boolean saveToOutputStreamFromUrl(String urlStr, OutputStream os) throws IOException {
         InputStream is = getInputStreamFromUrl(urlStr);
         if (is != null) {
             copyStream(is, os);
         } else {
-            urlStr = URLUtil.normalize(urlStr, true);
+            urlStr = URLUtil.normalize(urlStr, true, true);
             is = getInputStreamFromUrl(urlStr);
             if (is != null) {
                 copyStream(is, os);
