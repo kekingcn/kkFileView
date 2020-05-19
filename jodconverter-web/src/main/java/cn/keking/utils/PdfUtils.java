@@ -38,7 +38,7 @@ public class PdfUtils {
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
         String urlPrefix = null;
         try {
-            urlPrefix = baseUrl + URLEncoder.encode(URLEncoder.encode(pdfFolder, uriEncoding), uriEncoding);
+            urlPrefix = baseUrl + URLEncoder.encode(URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20"), uriEncoding);
         } catch (UnsupportedEncodingException e) {
             logger.error("UnsupportedEncodingException", e);
             urlPrefix = baseUrl + pdfFolder;
