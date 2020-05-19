@@ -29,4 +29,4 @@ echo "Starting kkFileView..."
 echo "Please execute ./showlog.sh to check log for more information"
 echo "You can get help in our official homesite: https://kkFileView.keking.cn"
 echo "If this project is helpful to you, please star it on https://gitee.com/kekingcn/file-online-preview/stargazers"
-nohup java -Dfile.encoding=UTF-8 -Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider -Dspring.config.location=../config/application.properties -jar kkFileView-2.2.0-SNAPSHOT.jar > ../log/kkFileView.log 2>&1 &
+nohup java -Dfile.encoding=UTF-8 -Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider -Dspring.config.location=../config/application.properties -jar kkFileView-2.2.0.jar > ../log/kkFileView.log 2>&1 &
