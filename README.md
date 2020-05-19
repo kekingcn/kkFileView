@@ -2,7 +2,7 @@
 此项目为文件文档在线预览项目解决方案，对标业内付费产品有【[永中office](http://dcs.yozosoft.com/)】【[office365](http://www.officeweb365.com/)】【[idocv](https://www.idocv.com/)】等，在取得公司高层同意后以Apache协议开源出来反哺社区，在此特别感谢@唐老大的支持以及@端木详笑的贡献。该项目使用流行的spring boot搭建，易上手和部署，基本支持主流办公文档的在线预览，如doc,docx,Excel,pdf,txt,zip,rar,图片等等
 ### 项目特性
 
-1. 支持office，pdf等办公文档
+1. 支持office，pdf, cad等办公文档
 1. 支持txt,java,php,py,md,js,css等所有纯文本
 1. 支持zip,rar,jar,tar,gzip等压缩包
 1. 支持jpg，jpeg，png，gif等图片预览（翻转，缩放，镜像）
@@ -23,7 +23,7 @@
 ### 项目文档（Project documentation）
 1. 详细wiki文档：https://gitee.com/kekingcn/file-online-preview/wikis/pages
 1. 中文文档：https://gitee.com/kekingcn/file-online-preview/blob/master/README.md
-1. English document：https://github.com/kekingcn/kkFileView/blob/master/README.en.md
+1. English document：https://gitee.com/kekingcn/file-online-preview/blob/master/README.en.md
 
 ### 联系我们，加入组织
 > 我们会用心回答解决大家在项目使用中的问题，也请大家在提问前至少Google或baidu过，珍爱生命远离无效的交流沟通
@@ -32,20 +32,62 @@
 QQ群号：613025121
 
 ### 文档预览效果
-> Excel预览效果
+#### 1. 文本预览
+支持所有类型的文本文档预览， 由于文本文档类型过多，无法全部枚举，默认开启的类型如下 txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd  
+文本预览效果如下  
+![文本预览效果如下](https://kkfileview.keking.cn/img/preview/preview-text.png)      
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/093051_cd55b3ec_492218.png "屏幕截图.png")
-> doc预览效果
+#### 2. 图片预览
+支持jpg，jpeg，png，gif等图片预览（翻转，缩放，镜像），预览效果如下  
+![图片预览](https://kkfileview.keking.cn/img/preview/preview-image.png)  
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/092350_5b2ecbe5_492218.png "屏幕截图.png")
+#### 3. word文档预览
+支持doc，docx文档预览，word预览有两种模式：一种是每页word转为图片预览，另一种是整个word文档转成pdf，再预览pdf。两种模式的适用场景如下  
+* 图片预览：word文件大，前台加载整个pdf过慢
+* pdf预览：内网访问，加载pdf快
+图片预览模式预览效果如下  
+![word文档预览1](https://kkfileview.keking.cn/img/preview/preview-doc-image.png)  
+pdf预览模式预览效果如下  
+![word文档预览2](https://kkfileview.keking.cn/img/preview/preview-doc-pdf.png)  
 
-> zip,rar压缩预览效果
+#### 4. ppt文档预览
+支持ppt，pptx文档预览，和word文档一样，有两种预览模式  
+图片预览模式预览效果如下  
+![ppt文档预览1](https://kkfileview.keking.cn/img/preview/preview-ppt-image.png)  
+pdf预览模式预览效果如下  
+![ppt文档预览2](https://kkfileview.keking.cn/img/preview/preview-ppt-pdf.png)  
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/093806_46cede06_492218.png "屏幕截图.png")
+#### 5. pdf文档预览
+支持pdf文档预览，和word文档一样，有两种预览模式   
+图片预览模式预览效果如下  
+![pdf文档预览1](https://kkfileview.keking.cn/img/preview/preview-pdf-image.png)  
+pdf预览模式预览效果如下   
+![pdf文档预览2](https://kkfileview.keking.cn/img/preview/preview-pdf-pdf.png)    
 
-> png,jpeg,jpg等图片预览效果，支持滚轮缩放，旋转，倒置等
+#### 6. excel文档预览
+支持xls，xlsx文档预览，预览效果如下  
+![excel文档预览](https://kkfileview.keking.cn/img/preview/preview-xls.png)  
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1213/094335_657a6f60_492218.png "屏幕截图.png")
+#### 7. 压缩文件预览
+支持zip,rar,jar,tar,gzip等压缩包，预览效果如下  
+![压缩文件预览1](https://kkfileview.keking.cn/img/preview/preview-zip.png)  
+可点击压缩包中的文件名，直接预览文件，预览效果如下  
+![压缩文件预览2](https://kkfileview.keking.cn/img/preview/preview-zip-inner.png)  
+
+#### 8. 多媒体文件预览
+理论上支持所有的视频、音频文件，由于无法枚举所有文件格式，默认开启的类型如下  
+mp3,wav,mp4,flv  
+视频预览效果如下  
+![多媒体文件预览1](https://kkfileview.keking.cn/img/preview/preview-video.png)  
+音频预览效果如下  
+![多媒体文件预览2](https://kkfileview.keking.cn/img/preview/preview-audio.png)  
+
+#### 9. CAD文档预览
+支持CAD dwg文档预览，和word文档一样，有两种预览模式  
+图片预览模式预览效果如下  
+![cad文档预览1](https://kkfileview.keking.cn/img/preview/preview-cad-image.png)  
+pdf预览模式预览效果如下  
+![cad文档预览2](https://kkfileview.keking.cn/img/preview/preview-cad-pdf.png)  
 考虑说明篇幅原因，就不贴其他格式文件的预览效果了，感兴趣的可以参考下面的实例搭建下
 
 ### 快速开始

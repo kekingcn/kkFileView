@@ -21,7 +21,7 @@ public class URLUtil {
 	 * @return 标准化后的URL字符串
 	 */
 	public static String normalize(String url) {
-		return normalize(url, false);
+		return normalize(url, false, false);
 	}
 
 	/**
@@ -33,10 +33,11 @@ public class URLUtil {
 	 *
 	 * @param url URL字符串
 	 * @param isEncodeBody 是否对URL中body部分的中文和特殊字符做转义（不包括http:和/）
+	 * @param isEncodeParam 是否对URL中参数部分的中文和特殊字符做转义
 	 * @return 标准化后的URL字符串
 	 * @since 4.4.1
 	 */
-	public static String normalize(String url, boolean isEncodeBody) {
+	public static String normalize(String url, boolean isEncodeBody, boolean isEncodeParam) {
 		if (StrUtil.isBlank(url)) {
 			return url;
 		}
@@ -54,7 +55,7 @@ public class URLUtil {
 		final int paramsSepIndex = StrUtil.indexOf(body, '?');
 		String params = null;
 		if (paramsSepIndex > 0) {
-			params = StrUtil.subSuf(body, paramsSepIndex);
+			params = StrUtil.subSuf(body, paramsSepIndex + 1);
 			body = StrUtil.subPre(body, paramsSepIndex);
 		}
 
@@ -64,6 +65,9 @@ public class URLUtil {
 		body = body.replace("\\", "/").replaceAll("//+", "/");
 		if (isEncodeBody) {
 			body = URLEncoder.DEFAULT.encode(body, StandardCharsets.UTF_8);
+			if (params != null) {
+				params = "?" + URLEncoder.DEFAULT.encode(params, StandardCharsets.UTF_8);
+			}
 		}
 		return pre + body + StrUtil.nullToEmpty(params);
 	}
