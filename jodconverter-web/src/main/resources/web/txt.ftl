@@ -45,7 +45,7 @@
             type: 'GET',
             url: '${ordinaryUrl}',
             success: function (data) {
-                $("#text").html(data);
+                $("#text").html("<pre>" + data + "</pre>");
             }
         });
     }
