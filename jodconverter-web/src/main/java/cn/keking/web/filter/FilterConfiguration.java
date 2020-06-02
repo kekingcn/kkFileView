@@ -40,6 +40,20 @@ public class FilterConfiguration {
     }
 
     @Bean
+    public FilterRegistrationBean getXSSFilter() {
+        Set<String> filterUri = new HashSet<>();
+        filterUri.add("/onlinePreview");
+        filterUri.add("/picturesPreview");
+        filterUri.add("/getCorsFile");
+        filterUri.add("/addTask");
+        XSSFilter filter = new XSSFilter();
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        registrationBean.setFilter(filter);
+        registrationBean.setUrlPatterns(filterUri);
+        return registrationBean;
+    }
+
+    @Bean
     public FilterRegistrationBean getBaseUrlFilter() {
         Set<String> filterUri = new HashSet<>();
         filterUri.add("/index");
@@ -63,4 +77,6 @@ public class FilterConfiguration {
         registrationBean.setUrlPatterns(filterUri);
         return registrationBean;
     }
+
+
 }
