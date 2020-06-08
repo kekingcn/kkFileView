@@ -4,6 +4,7 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
+import org.owasp.esapi.ESAPI;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -25,12 +26,12 @@ public class SimTextFilePreviewImpl implements FilePreview {
     }
 
     @Override
-    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute){
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
         ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
         if (0 != response.getCode()) {
-            model.addAttribute("msg", response.getMsg());
-            model.addAttribute("fileType",fileAttribute.getSuffix());
+            model.addAttribute("msg", ESAPI.encoder().encodeForHTML(response.getMsg()));
+            model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(fileAttribute.getSuffix()));
             return "fileNotSupported";
         }
         try {
@@ -41,11 +42,11 @@ public class SimTextFilePreviewImpl implements FilePreview {
             }
             Files.copy(originFile.toPath(), previewFile.toPath());
         } catch (IOException e) {
-            model.addAttribute("msg", e.getLocalizedMessage());
-            model.addAttribute("fileType",fileAttribute.getSuffix());
+            model.addAttribute("msg", ESAPI.encoder().encodeForHTML(e.getLocalizedMessage()));
+            model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(fileAttribute.getSuffix()));
             return "fileNotSupported";
         }
-        model.addAttribute("ordinaryUrl", response.getMsg());
+        model.addAttribute("ordinaryUrl", ESAPI.encoder().encodeForHTML(response.getMsg()));
         return "txt";
     }
 

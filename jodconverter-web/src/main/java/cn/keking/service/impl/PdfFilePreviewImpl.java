@@ -8,6 +8,7 @@ import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
+import org.owasp.esapi.ESAPI;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -38,8 +39,8 @@ public class PdfFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String suffix=fileAttribute.getSuffix();
-        String fileName=fileAttribute.getName();
+        String suffix = fileAttribute.getSuffix();
+        String fileName = fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
@@ -62,7 +63,7 @@ public class PdfFilePreviewImpl implements FilePreview {
             List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "pdf转图片异常，请联系管理员");
-                model.addAttribute("fileType",fileAttribute.getSuffix());
+                model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(fileAttribute.getSuffix()));
                 return "fileNotSupported";
             }
             model.addAttribute("imgurls", imageUrls);
@@ -78,7 +79,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                 if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                     ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, pdfName);
                     if (0 != response.getCode()) {
-                        model.addAttribute("fileType", suffix);
+                        model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(suffix));
                         model.addAttribute("msg", response.getMsg());
                         return "fileNotSupported";
                     }

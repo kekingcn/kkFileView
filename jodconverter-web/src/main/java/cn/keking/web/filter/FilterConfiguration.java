@@ -32,6 +32,7 @@ public class FilterConfiguration {
         filterUri.add("/picturesPreview");
         filterUri.add("/getCorsFile");
         filterUri.add("/addTask");
+        filterUri.add("/fileUpload");
         TrustHostFilter filter = new TrustHostFilter();
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(filter);
@@ -46,6 +47,7 @@ public class FilterConfiguration {
         filterUri.add("/picturesPreview");
         filterUri.add("/getCorsFile");
         filterUri.add("/addTask");
+        filterUri.add("/fileUpload");
         XSSFilter filter = new XSSFilter();
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(filter);

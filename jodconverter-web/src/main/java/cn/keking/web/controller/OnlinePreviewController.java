@@ -4,10 +4,10 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
-
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
+import org.owasp.esapi.ESAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -19,9 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yudian-it
@@ -63,21 +64,22 @@ public class OnlinePreviewController {
 
 
     @RequestMapping(value = "/picturesPreview")
-    public String picturesPreview(Model model, HttpServletRequest req)  {
+    public String picturesPreview(Model model, HttpServletRequest req) {
         String urls = req.getParameter("urls");
         String currentUrl = req.getParameter("currentUrl");
         logger.info("预览文件url：{}，urls：{}", currentUrl, urls);
         String[] imgs = urls.split("\\|");
-        List<String> imgurls = Arrays.asList(imgs);
+        List<String> imgurls = Arrays.asList(imgs).stream().map(orig -> ESAPI.encoder().encodeForHTML(orig)).collect(Collectors.toList());
         model.addAttribute("imgurls", imgurls);
-        model.addAttribute("currentUrl", currentUrl);
+        model.addAttribute("currentUrl", ESAPI.encoder().encodeForHTML(currentUrl));
         return "picture";
     }
+
     /**
      * 根据url获取文件内容
      * 当pdfjs读取存在跨域问题的文件时将通过此接口读取
      *
-     * @param urlPath url
+     * @param urlPath  url
      * @param response response
      */
     @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
@@ -92,6 +94,7 @@ public class OnlinePreviewController {
 
     /**
      * 通过api接口入队
+     *
      * @param url 请编码后在入队
      */
     @GetMapping("/addTask")

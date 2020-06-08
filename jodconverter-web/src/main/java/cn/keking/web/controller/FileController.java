@@ -82,15 +82,15 @@ public class FileController {
         return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(0, "SUCCESS", null));
     }
 
-    @RequestMapping(value = "listFiles", method = RequestMethod.GET)
-    public String getFiles() throws JsonProcessingException {
-        List<Map<String, String>> list = Lists.newArrayList();
-        File file = new File(fileDir + demoPath);
-        if (file.exists()) {
-            Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(file1 -> list.add(ImmutableMap.of("fileName", demoDir + "/" + file1.getName())));
-        }
-        return new ObjectMapper().writeValueAsString(list);
-    }
+//    @RequestMapping(value = "listFiles", method = RequestMethod.GET)
+//    public String getFiles() throws JsonProcessingException {
+//        List<Map<String, String>> list = Lists.newArrayList();
+//        File file = new File(fileDir + demoPath);
+//        if (file.exists()) {
+//            Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(file1 -> list.add(ImmutableMap.of("fileName", demoDir + "/" + file1.getName())));
+//        }
+//        return new ObjectMapper().writeValueAsString(list);
+//    }
 
     private boolean existsFile(String fileName) {
         File file = new File(fileDir + demoPath + fileName);

@@ -9,6 +9,7 @@ import cn.keking.utils.FileUtils;
 import cn.keking.utils.OfficeToPdf;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
+import org.owasp.esapi.ESAPI;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -49,8 +50,8 @@ public class OfficeFilePreviewImpl implements FilePreview {
         // 预览Type，参数传了就取参数的，没传取系统默认
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        String suffix=fileAttribute.getSuffix();
-        String fileName=fileAttribute.getName();
+        String suffix = fileAttribute.getSuffix();
+        String fileName = fileAttribute.getName();
         boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx");
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
         String outFilePath = FILE_DIR + pdfName;
@@ -59,7 +60,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             String filePath;
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
-                model.addAttribute("fileType", suffix);
+                model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(suffix));
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
             }
@@ -87,7 +88,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
         if (imageUrls == null || imageUrls.size() < 1) {
             model.addAttribute("msg", "office转图片异常，请联系管理员");
-            model.addAttribute("fileType",fileAttribute.getSuffix());
+            model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(fileAttribute.getSuffix()));
             return "fileNotSupported";
         }
         model.addAttribute("imgurls", imageUrls);

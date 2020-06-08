@@ -9,6 +9,7 @@ import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
+import org.owasp.esapi.ESAPI;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -51,8 +52,8 @@ public class CadFilePreviewImpl implements FilePreview {
         // 预览Type，参数传了就取参数的，没传取系统默认
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        String suffix=fileAttribute.getSuffix();
-        String fileName=fileAttribute.getName();
+        String suffix = fileAttribute.getSuffix();
+        String fileName = fileAttribute.getName();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = FILE_DIR + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
@@ -60,7 +61,7 @@ public class CadFilePreviewImpl implements FilePreview {
             String filePath;
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
-                model.addAttribute("fileType", suffix);
+                model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(suffix));
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
             }
@@ -68,7 +69,7 @@ public class CadFilePreviewImpl implements FilePreview {
             if (StringUtils.hasText(outFilePath)) {
                 boolean convertResult = cadUtils.cadToPdf(filePath, outFilePath);
                 if (!convertResult) {
-                    model.addAttribute("fileType", suffix);
+                    model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(suffix));
                     model.addAttribute("msg", "cad文件转换异常，请联系管理员");
                     return "fileNotSupported";
                 }

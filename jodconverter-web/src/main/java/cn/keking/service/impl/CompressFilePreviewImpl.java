@@ -7,6 +7,7 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.ZipReader;
+import org.owasp.esapi.ESAPI;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -34,14 +35,14 @@ public class CompressFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String fileName=fileAttribute.getName();
-        String suffix=fileAttribute.getSuffix();
+        String fileName = fileAttribute.getName();
+        String suffix = fileAttribute.getSuffix();
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
-        if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
+        if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName)) || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
             if (0 != response.getCode()) {
-                model.addAttribute("fileType", suffix);
+                model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(suffix));
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
             }
@@ -63,7 +64,7 @@ public class CompressFilePreviewImpl implements FilePreview {
             model.addAttribute("fileTree", fileTree);
             return "compress";
         } else {
-            model.addAttribute("fileType", suffix);
+            model.addAttribute("fileType", ESAPI.encoder().encodeForHTML(suffix));
             model.addAttribute("msg", "压缩文件类型不受支持，尝试在压缩的时候选择RAR4格式");
             return "fileNotSupported";
         }
