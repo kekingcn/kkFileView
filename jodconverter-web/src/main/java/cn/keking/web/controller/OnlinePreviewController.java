@@ -7,6 +7,7 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
+import cn.keking.web.exception.ForbiddenException;
 import org.owasp.esapi.ESAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,6 +61,9 @@ public class OnlinePreviewController {
         model.addAttribute("officePreviewType", req.getParameter("officePreviewType"));
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", url, fileAttribute.getType());
+        if (!isValid(url)) {
+            throw new ForbiddenException();
+        }
         return filePreview.filePreviewHandle(url, model, fileAttribute);
     }
 
@@ -69,10 +74,27 @@ public class OnlinePreviewController {
         String currentUrl = req.getParameter("currentUrl");
         logger.info("预览文件url：{}，urls：{}", currentUrl, urls);
         String[] imgs = urls.split("\\|");
-        List<String> imgurls = Arrays.asList(imgs).stream().map(orig -> ESAPI.encoder().encodeForHTML(orig)).collect(Collectors.toList());
-        model.addAttribute("imgurls", imgurls);
+        List<String> imgurls = Arrays.asList(imgs);
+        if (imgurls.stream().anyMatch(orig -> !isValid(orig)) || !isValid(currentUrl)) {
+            throw new ForbiddenException();
+        }
+        model.addAttribute("imgurls", imgurls.stream().map(orig -> ESAPI.encoder().encodeForHTML(orig)).collect(Collectors.toList()));
         model.addAttribute("currentUrl", ESAPI.encoder().encodeForHTML(currentUrl));
         return "picture";
+    }
+
+    public static boolean isValid(String url) {
+        /* Try creating a valid URL */
+        try {
+            new URL(url).toURI();
+            return true;
+        }
+
+        // If there was an Exception
+        // while creating URL object
+        catch (Exception e) {
+            return false;
+        }
     }
 
     /**
