@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class OnlinePreviewController {
     }
 
 
-    @RequestMapping(value = "/onlinePreview", method = RequestMethod.GET)
+    @RequestMapping(value = "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
         req.setAttribute("fileKey", req.getParameter("fileKey"));
@@ -61,18 +61,22 @@ public class OnlinePreviewController {
         return filePreview.filePreviewHandle(url, model, fileAttribute);
     }
 
-
-    @RequestMapping(value = "/picturesPreview")
-    public String picturesPreview(Model model, HttpServletRequest req)  {
+    @RequestMapping(value = "picturesPreview")
+    public String picturesPreview(Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String urls = req.getParameter("urls");
         String currentUrl = req.getParameter("currentUrl");
         logger.info("预览文件url：{}，urls：{}", currentUrl, urls);
-        String[] imgs = urls.split("\\|");
-        List<String> imgurls = Arrays.asList(imgs);
+        // 路径转码
+        String decodedUrl = URLDecoder.decode(urls, "utf-8");
+        String decodedCurrentUrl = URLDecoder.decode(currentUrl, "utf-8");
+        // 抽取文件并返回文件列表
+        String[] imgs = decodedUrl.split("\\|");
+        List imgurls = Arrays.asList(imgs);
         model.addAttribute("imgurls", imgurls);
-        model.addAttribute("currentUrl", currentUrl);
+        model.addAttribute("currentUrl",decodedCurrentUrl);
         return "picture";
     }
+
     /**
      * 根据url获取文件内容
      * 当pdfjs读取存在跨域问题的文件时将通过此接口读取
@@ -94,7 +98,7 @@ public class OnlinePreviewController {
      * 通过api接口入队
      * @param url 请编码后在入队
      */
-    @GetMapping("/addTask")
+    @RequestMapping("/addTask")
     @ResponseBody
     public String addQueueTask(String url) {
         logger.info("添加转码队列url：{}", url);
