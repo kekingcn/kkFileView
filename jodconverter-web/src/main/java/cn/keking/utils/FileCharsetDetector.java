@@ -76,18 +76,17 @@ public class FileCharsetDetector {
     byte[] buf = new byte[1024];
     int len;
     boolean done = false;
-    boolean isAscii = false;
+    boolean isAscii = true;
 
     while ((len = imp.read(buf, 0, buf.length)) != -1) {
       // Check if the stream is only ascii.
-      isAscii = det.isAscii(buf, len);
-      if (isAscii) {
-        break;
+      if (isAscii){
+        isAscii = det.isAscii(buf,len);
       }
+
       // DoIt if non-ascii and not done yet.
-      done = det.DoIt(buf, len, false);
-      if (done) {
-        break;
+      if (!isAscii && !done){
+        done = det.DoIt(buf,len, false);
       }
     }
     imp.close();
