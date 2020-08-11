@@ -88,7 +88,8 @@ public class OnlinePreviewController {
     public void getCorsFile(String urlPath, HttpServletResponse response) {
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
-            downloadUtils.saveToOutputStreamFromUrl(urlPath, response.getOutputStream());
+            byte[] bytes = downloadUtils.getBytesFromUrl(urlPath);
+            downloadUtils.saveBytesToOutStream(bytes, response.getOutputStream());
         } catch (IOException e) {
             logger.error("下载跨域pdf文件异常，url：{}", urlPath, e);
         }
