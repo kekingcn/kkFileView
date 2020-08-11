@@ -56,9 +56,10 @@ public class DownloadUtils {
         }
         try {
             URL url = new URL(urlStr);
-            OutputStream os = new FileOutputStream(new File(realPath));
             if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
-                saveToOutputStreamFromUrl(urlStr, os);
+                byte[] bytes = getBytesFromUrl(urlStr);
+                OutputStream os = new FileOutputStream(new File(realPath));
+                saveBytesToOutStream(bytes, os);
             } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
                 String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
@@ -88,21 +89,24 @@ public class DownloadUtils {
         }
     }
 
-    public boolean saveToOutputStreamFromUrl(String urlStr, OutputStream os) throws IOException {
+    public byte[] getBytesFromUrl(String urlStr) throws IOException {
         InputStream is = getInputStreamFromUrl(urlStr);
         if (is != null) {
-            copyStream(is, os);
+            return getBytesFromStream(is);
         } else {
             urlStr = URLUtil.normalize(urlStr, true, true);
             is = getInputStreamFromUrl(urlStr);
-            if (is != null) {
-                copyStream(is, os);
-            } else {
-                os.close();
-                return false;
+            if (is == null) {
+                logger.error("文件下载异常：url：{}", urlStr);
+                throw new IOException("文件下载异常：url：" + urlStr);
             }
+            return getBytesFromStream(is);
         }
-        return true;
+    }
+
+    public void saveBytesToOutStream(byte[] b, OutputStream os) throws IOException {
+        os.write(b);
+        os.close();
     }
 
     private InputStream getInputStreamFromUrl(String urlStr) {
@@ -119,14 +123,17 @@ public class DownloadUtils {
         }
     }
 
-    private void copyStream(InputStream is, OutputStream os) throws IOException {
-        byte[] bs = new byte[1024];
-        int len;
-        while (-1 != (len = is.read(bs))) {
-            os.write(bs, 0, len);
+    private byte[] getBytesFromStream(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = 0;
+        while ((len = is.read(buffer)) != -1) {
+            baos.write(buffer, 0, len);
         }
+        byte[] b = baos.toByteArray();
         is.close();
-        os.close();
+        baos.close();
+        return b;
     }
 
   /**
