@@ -41,13 +41,23 @@
                 watermark_angle: ${watermarkAngle},
             });
         }
-        $.ajax({
-            type: 'GET',
-            url: '${ordinaryUrl}',
-            success: function (data) {
-                $("#text").html("<pre>" + data + "</pre>");
-            }
-        });
+        fetch('${ordinaryUrl}')
+        .then(function(response){
+            return response.text();
+        }).then(function(text){
+             $("#text").html("<pre>" + escapeXml(text) + "</pre>");
+        })
+        function escapeXml(unsafe) {
+            return unsafe.replace(/[<>&'"]/g, function (c) {
+                switch (c) {
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '&': return '&amp;';
+                    case '\'': return '&apos;';
+                    case '"': return '&quot;';
+                }
+            });
+        }
     }
 
 </script>
