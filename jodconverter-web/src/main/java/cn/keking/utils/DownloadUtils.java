@@ -5,6 +5,7 @@ import cn.keking.hutool.URLUtil;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
+import io.minio.MinioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -55,27 +56,41 @@ public class DownloadUtils {
             dirFile.mkdirs();
         }
         try {
-            URL url = new URL(urlStr);
-            if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
-                byte[] bytes = getBytesFromUrl(urlStr);
+            //表明不是通过htpp来进行的,这里就进行的扩展
+            //这里初步是支持 minio 获取
+            if(!urlStr.contains("http")){
+                //获取minio
+                byte[] bytes = getBytesFromMinioUrl(urlStr);
                 OutputStream os = new FileOutputStream(new File(realPath));
                 saveBytesToOutStream(bytes, os);
-            } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
-                String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
-                String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
-                String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
-                FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
-            } else {
-                response.setCode(1);
-                response.setContent(null);
-                response.setMsg("url不能识别url" + urlStr);
+            }else{
+
+                //这里是以前的方式
+                URL url = new URL(urlStr);
+                if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
+                    byte[] bytes = getBytesFromUrl(urlStr);
+                    OutputStream os = new FileOutputStream(new File(realPath));
+                    saveBytesToOutStream(bytes, os);
+                } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
+                    String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
+                    String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
+                    String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
+                    FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
+                } else {
+                    response.setCode(1);
+                    response.setContent(null);
+                    response.setMsg("url不能识别url" + urlStr);
+                }
             }
+
+
             response.setContent(realPath);
             response.setMsg(fileName);
             if(FileType.simText.equals(fileAttribute.getType())){
                 convertTextPlainFileCharsetToUtf8(realPath);
             }
             return response;
+
         } catch (IOException e) {
             logger.error("文件下载失败，url：{}", urlStr, e);
             response.setCode(1);
@@ -104,6 +119,21 @@ public class DownloadUtils {
         }
     }
 
+    public byte[] getBytesFromMinioUrl(String urlStr) throws IOException {
+        InputStream is = getInputStreamFromUrl2(urlStr);
+        if (is != null) {
+            return getBytesFromStream(is);
+        } else {
+            urlStr = URLUtil.normalize(urlStr, true, true);
+            is = getInputStreamFromUrl2(urlStr);
+            if (is == null) {
+                logger.error("minio文件下载异常：url：{}", urlStr);
+                throw new IOException("minio文件下载异常：url：" + urlStr);
+            }
+            return getBytesFromStream(is);
+        }
+    }
+
     public void saveBytesToOutStream(byte[] b, OutputStream os) throws IOException {
         os.write(b);
         os.close();
@@ -118,6 +148,19 @@ public class DownloadUtils {
             }
             return connection.getInputStream();
         } catch (IOException e) {
+            logger.warn("连接url异常：url：{}", urlStr);
+            return null;
+        }
+    }
+
+    //通过minio获取
+    private InputStream getInputStreamFromUrl2(String urlStr) {
+        try {
+            //目前这里定死了，后面可以用配置文件来读取
+            MinioClient  minioClient = new MinioClient("http://192.168.56.1:9000/", "zhengyu123", "zhengyu123");
+            //目前附件的信息全部放到 attach里面，否则有
+            return minioClient.getObject("attach",urlStr);
+        } catch (Exception e) {
             logger.warn("连接url异常：url：{}", urlStr);
             return null;
         }

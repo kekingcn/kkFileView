@@ -7,6 +7,7 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
 import cn.keking.utils.PdfUtils;
+import cn.keking.utils.TransferUtil;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -59,7 +60,16 @@ public class PdfFilePreviewImpl implements FilePreview {
                     fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
                 }
             }
-            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
+            // 用以前的方式 转换 pdf 很慢，而且图片也很大
+            //List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
+            //改造成多线程的，效率更快，而且转变后的图片也会比以前小
+            List<String> imageUrls = null;
+            try {
+                //用新的方法
+                imageUrls = TransferUtil.transferPdfToImage(outFilePath, pdfName, baseUrl);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "pdf转图片异常，请联系管理员");
                 model.addAttribute("fileType",fileAttribute.getSuffix());
