@@ -22,10 +22,19 @@
         width: 1024px;
         margin: 0 auto;
     }
+    @media all and (max-width: 768px) {
+        .m {
+            width: 100%;
+            margin: 0 auto;
+        }
+        video {
+            width: 100%;
+        }
+    }
 </style>
 <body>
 <div class="m">
-    <video width="1024" id="videoElement"></video>
+    <video width="100%" id="videoElement"></video>
 </div>
 <script>
     if (flvjs.isSupported()) {

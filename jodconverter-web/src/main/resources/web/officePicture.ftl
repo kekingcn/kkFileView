@@ -23,6 +23,27 @@
         .img-area {
             text-align: center
         }
+        .img-change {
+            position: fixed;
+            cursor: pointer;
+            top: 40%;
+            right: 48px;
+            z-index: 999;
+        }
+        @media all and (max-width: 768px) {
+            .my-photo {
+                width: 100%;
+            }
+            .img-change {
+                width: 40px;
+                height: 40px;
+                position: fixed;
+                cursor: pointer;
+                top: 48%;
+                right: 10px;
+                z-index: 999;
+            }
+        }
 
     </style>
 </head>
@@ -34,7 +55,7 @@
         </div>
     </#list>
 </div>
-<img src="images/pdf.svg" width="63" height="63" style="position: fixed; cursor: pointer; top: 40%; right: 48px; z-index: 999;" alt="使用PDF预览" title="使用PDF预览" onclick="changePreviewType('pdf')"/>
+<img class="img-change" src="images/pdf.svg" width="63" height="63" alt="使用PDF预览" title="使用PDF预览" onclick="changePreviewType('pdf')"/>
 <script src="js/watermark.js" type="text/javascript"></script>
 <script>
     window.onload = function () {

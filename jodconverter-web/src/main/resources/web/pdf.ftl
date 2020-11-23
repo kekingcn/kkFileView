@@ -14,6 +14,24 @@
             height: 100%;
             width: 100%;
         }
+        .img-change {
+            position: fixed;
+            cursor: pointer;
+            top: 40%;
+            right: 48px;
+            z-index: 999;
+        }
+        @media all and (max-width: 768px) {
+            .img-change {
+                width: 40px;
+                height: 40px;
+                position: fixed;
+                cursor: pointer;
+                top: 48%;
+                right: 10px;
+                z-index: 999;
+            }
+        }
     </style>
 </head>
 <body>
@@ -24,7 +42,7 @@
     </#if>
     <iframe src="" width="100%" frameborder="0"></iframe>
 
-    <img src="images/jpg.svg" width="63" height="63" style="position: fixed; cursor: pointer; top: 40%; right: 48px; z-index: 999;" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>
+    <img class="img-change" src="images/jpg.svg" width="63" height="63" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>
 
 </body>
 <script src="js/watermark.js" type="text/javascript"></script>
