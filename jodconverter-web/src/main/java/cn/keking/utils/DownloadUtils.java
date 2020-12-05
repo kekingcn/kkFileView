@@ -33,6 +33,7 @@ public class DownloadUtils {
     private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
     private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
+    private static final String[] URL_PARAM_LOCALURL_START={"c:","d:","e:","f:","g:","/"};
 
     /**
      * @param fileAttribute fileAttribute
@@ -55,20 +56,26 @@ public class DownloadUtils {
             dirFile.mkdirs();
         }
         try {
-            URL url = new URL(urlStr);
-            if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
-                byte[] bytes = getBytesFromUrl(urlStr);
+            if(isLocalUrl(urlStr)){
+                byte[] bytes = getBytesFromLocalUrl(urlStr);
                 OutputStream os = new FileOutputStream(new File(realPath));
                 saveBytesToOutStream(bytes, os);
-            } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
-                String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
-                String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
-                String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
-                FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
-            } else {
-                response.setCode(1);
-                response.setContent(null);
-                response.setMsg("url不能识别url" + urlStr);
+            }else{
+                URL url = new URL(urlStr);
+                if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
+                    byte[] bytes = getBytesFromUrl(urlStr);
+                    OutputStream os = new FileOutputStream(new File(realPath));
+                    saveBytesToOutStream(bytes, os);
+                } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
+                    String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
+                    String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
+                    String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
+                    FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
+                } else {
+                    response.setCode(1);
+                    response.setContent(null);
+                    response.setMsg("url不能识别url" + urlStr);
+                }
             }
             response.setContent(realPath);
             response.setMsg(fileName);
@@ -102,6 +109,21 @@ public class DownloadUtils {
             }
             return getBytesFromStream(is);
         }
+    }
+
+    public byte[] getBytesFromLocalUrl(String urlStr) throws IOException {
+        File file = new File(urlStr);
+        FileInputStream fis = new FileInputStream(file);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+        byte[] b = new byte[1024];
+        int n;
+        while ((n = fis.read(b)) != -1) {
+            bos.write(b, 0, n);
+        }
+        fis.close();
+        byte[] data = bos.toByteArray();
+        bos.close();
+        return data;
     }
 
     public void saveBytesToOutStream(byte[] b, OutputStream os) throws IOException {
@@ -172,5 +194,17 @@ public class DownloadUtils {
         tmpUtf8File.renameTo(sourceFile);
       }
     }
+  }
+
+  /**
+  * @param url url
+  * @return 是否是本地文件的绝对路径
+  */
+  private boolean isLocalUrl(String url){
+      for(String str:URL_PARAM_LOCALURL_START){
+          if(url.toLowerCase().startsWith(str))
+              return true;
+      }
+      return false;
   }
 }
