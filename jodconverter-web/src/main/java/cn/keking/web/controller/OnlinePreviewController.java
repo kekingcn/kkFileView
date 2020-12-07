@@ -56,6 +56,8 @@ public class OnlinePreviewController {
         req.setAttribute("fileKey", req.getParameter("fileKey"));
         model.addAttribute("pdfDownloadDisable", ConfigConstants.getPdfDownloadDisable());
         model.addAttribute("officePreviewType", req.getParameter("officePreviewType"));
+        model.addAttribute("cors", req.getParameter("cors"));
+        logger.info("cors={}", req.getParameter("cors"));
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", url, fileAttribute.getType());
         return filePreview.filePreviewHandle(url, model, fileAttribute);

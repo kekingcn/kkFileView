@@ -22,11 +22,21 @@
             width: 1024px;
             margin: 0 auto;
         }
+        video {
+            width: 100%;
+        }
+        /* 手机 */
+        @media all and (max-width: 768px) {
+            .m {
+                width: 100%;
+                margin: 0 auto;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="m">
-    <video>
+    <video width="100%">
         <source src="${mediaUrl}" />
     </video>
 </div>

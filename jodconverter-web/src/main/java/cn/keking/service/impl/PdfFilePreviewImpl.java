@@ -10,6 +10,8 @@ import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Service
 public class PdfFilePreviewImpl implements FilePreview {
+
+    private final Logger logger = LoggerFactory.getLogger(PdfFilePreviewImpl.class);
 
     private final FileUtils fileUtils;
 
@@ -41,10 +45,13 @@ public class PdfFilePreviewImpl implements FilePreview {
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
+        //是pdf地址是否允许跨域
+        String disabledCors = model.asMap().get("cors") == null ? "": model.asMap().get("cors").toString();
+        Boolean isDisabledCors = disabledCors.equals("disabled") ? true:false;
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = FILE_DIR + pdfName;
-        if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType)) {
+        if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType) || isDisabledCors) {
             //当文件不存在时，就去下载
             if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                 ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
@@ -59,6 +66,13 @@ public class PdfFilePreviewImpl implements FilePreview {
                     fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
                 }
             }
+
+            //pdf预览会存在跨域问题，如果禁止跨域，下载后返回pdf
+            if (isDisabledCors && OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_PDF.equals(officePreviewType)) {
+                model.addAttribute("pdfUrl", pdfName);
+                return "pdf";
+            }
+
             List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "pdf转图片异常，请联系管理员");

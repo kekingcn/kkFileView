@@ -26,12 +26,24 @@
             font-size:20px;
             color:blue;
         }
+        @media all and (max-width: 768px) {
+            body{
+                margin: 0 auto;
+                width: 100%;
+                background-color: #CCB;
+            }
+            .container{
+                width: 95%;
+                height: 100%;
+                margin: 0 auto;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <img src="images/sorry.jpg" />
-    <span>
+    <span style="word-break:break-all;">
         该文件类型(${fileType})系统暂时不支持在线预览，<b>说明</b>：
         <p style="color: red;">${msg}</p>
         有任何疑问，请加&nbsp;<a href="https://jq.qq.com/?_wv=1027&k=5c0UAtu">官方QQ群：613025121</a>&nbsp;咨询

@@ -42,6 +42,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
 
     public static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
     public static final String OFFICE_PREVIEW_TYPE_ALL_IMAGES = "allImages";
+    public static final String OFFICE_PREVIEW_TYPE_PDF = "pdf";
     private static final String FILE_DIR = ConfigConstants.getFileDir();
 
     @Override
