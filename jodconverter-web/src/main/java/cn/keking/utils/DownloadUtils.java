@@ -56,7 +56,7 @@ public class DownloadUtils {
         }
         try {
             URL url = new URL(urlStr);
-            if (url.getProtocol() != null && url.getProtocol().toLowerCase().startsWith("http")) {
+            if (url.getProtocol() != null && (url.getProtocol().toLowerCase().startsWith("file")||url.getProtocol().toLowerCase().startsWith("http"))) {
                 byte[] bytes = getBytesFromUrl(urlStr);
                 OutputStream os = new FileOutputStream(new File(realPath));
                 saveBytesToOutStream(bytes, os);
