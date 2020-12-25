@@ -58,9 +58,9 @@ public class DownloadUtils {
             URL url = new URL(urlStr);
             if (url.getProtocol() != null && (url.getProtocol().toLowerCase().startsWith("file")||url.getProtocol().toLowerCase().startsWith("http"))) {
                 byte[] bytes = getBytesFromUrl(urlStr);
-                OutputStream os = new FileOutputStream(new File(realPath));
+                OutputStream os = new FileOutputStream(realPath);
                 saveBytesToOutStream(bytes, os);
-            } else if (url.getProtocol() != null && "ftp".equals(url.getProtocol().toLowerCase())) {
+            } else if (url.getProtocol() != null && "ftp".equalsIgnoreCase(url.getProtocol())) {
                 String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
                 String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);

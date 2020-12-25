@@ -63,12 +63,12 @@
     window.onscroll = throttle(checkImgs);
     function changePreviewType(previewType) {
         var url = window.location.href;
-        if (url.indexOf("officePreviewType=image") != -1) {
+        if (url.indexOf("officePreviewType=image") !== -1) {
             url = url.replace("officePreviewType=image", "officePreviewType="+previewType);
         } else {
             url = url + "&officePreviewType="+previewType;
         }
-        if ('allImages' == previewType) {
+        if ('allImages' === previewType) {
             window.open(url)
         } else {
             window.location.href = url;
