@@ -1,5 +1,6 @@
 package cn.keking.service.impl;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
@@ -33,6 +34,7 @@ public class PictureFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileKey = (String) RequestContextHolder.currentRequestAttributes().getAttribute("fileKey",0);
         List<String> imgUrls = Lists.newArrayList(url);
+        model.addAttribute("switchDisabled", ConfigConstants.getOfficePreviewSwitchDisabled());
         try {
             imgUrls.clear();
             imgUrls.addAll(fileUtils.getImgCache(fileKey));
