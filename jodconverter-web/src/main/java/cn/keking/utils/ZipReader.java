@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.rarfile.FileHeader;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -47,8 +45,8 @@ public class ZipReader {
 
     public String readZipFile(String filePath,String fileKey) {
         String archiveSeparator = "/";
-        Map<String, FileNode> appender = Maps.newHashMap();
-        List<String> imgUrls = Lists.newArrayList();
+        Map<String, FileNode> appender = new HashMap<>();
+        List<String> imgUrls = new LinkedList<>();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
@@ -56,7 +54,7 @@ public class ZipReader {
             Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
             // 排序
             entries = sortZipEntries(entries);
-            List<Map<String, ZipArchiveEntry>> entriesToBeExtracted = Lists.newArrayList();
+            List<Map<String, ZipArchiveEntry>> entriesToBeExtracted = new LinkedList<>();
             while (entries.hasMoreElements()){
                 ZipArchiveEntry entry = entries.nextElement();
                 String fullName = entry.getName();
@@ -90,7 +88,7 @@ public class ZipReader {
     }
 
     private Enumeration<ZipArchiveEntry> sortZipEntries(Enumeration<ZipArchiveEntry> entries) {
-        List<ZipArchiveEntry> sortedEntries = Lists.newArrayList();
+        List<ZipArchiveEntry> sortedEntries = new LinkedList<>();
         while(entries.hasMoreElements()){
             sortedEntries.add(entries.nextElement());
         }
@@ -99,15 +97,15 @@ public class ZipReader {
     }
 
     public String unRar(String filePath,String fileKey){
-        Map<String, FileNode> appender = Maps.newHashMap();
-        List<String> imgUrls = Lists.newArrayList();
+        Map<String, FileNode> appender = new HashMap<>();
+        List<String> imgUrls = new ArrayList<>();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         try {
             Archive archive = new Archive(new FileInputStream(new File(filePath)));
             List<FileHeader> headers = archive.getFileHeaders();
             headers = sortedHeaders(headers);
             String archiveFileName = fileUtils.getFileNameFromPath(filePath);
-            List<Map<String, FileHeader>> headersToBeExtracted = Lists.newArrayList();
+            List<Map<String, FileHeader>> headersToBeExtracted =new ArrayList<>();
             for (FileHeader header : headers) {
                 String fullName;
                 if (header.isUnicode()) {
@@ -143,8 +141,8 @@ public class ZipReader {
 
     public String read7zFile(String filePath,String fileKey) {
         String archiveSeparator = "/";
-        Map<String, FileNode> appender = Maps.newHashMap();
-        List<String> imgUrls = Lists.newArrayList();
+        Map<String, FileNode> appender = new HashMap<>();
+        List<String> imgUrls = new ArrayList<>();
         String baseUrl= BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileUtils.getFileNameFromPath(filePath);
         try {
@@ -152,7 +150,7 @@ public class ZipReader {
             Iterable<SevenZArchiveEntry> entries = zipFile.getEntries();
             // 排序
             Enumeration<SevenZArchiveEntry> newEntries = sortSevenZEntries(entries);
-            List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted = Lists.newArrayList();
+            List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted = new ArrayList<>();
             while (newEntries.hasMoreElements()){
                 SevenZArchiveEntry entry = newEntries.nextElement();
                 String fullName = entry.getName();
@@ -187,7 +185,7 @@ public class ZipReader {
 
 
     private Enumeration<SevenZArchiveEntry> sortSevenZEntries(Iterable<SevenZArchiveEntry> entries) {
-        List<SevenZArchiveEntry> sortedEntries = Lists.newArrayList();
+        List<SevenZArchiveEntry> sortedEntries = new ArrayList<>();
         for (SevenZArchiveEntry entry : entries) {
             sortedEntries.add(entry);
         }

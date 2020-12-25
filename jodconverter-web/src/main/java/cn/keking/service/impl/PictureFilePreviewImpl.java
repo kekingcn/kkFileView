@@ -1,16 +1,14 @@
 package cn.keking.service.impl;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
-import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.web.context.request.RequestContextHolder;
-
+import org.springframework.util.CollectionUtils;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,14 +30,12 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String fileKey = (String) RequestContextHolder.currentRequestAttributes().getAttribute("fileKey",0);
-        List<String> imgUrls = Lists.newArrayList(url);
-        model.addAttribute("switchDisabled", ConfigConstants.getOfficePreviewSwitchDisabled());
-        try {
-            imgUrls.clear();
-            imgUrls.addAll(fileUtils.getImgCache(fileKey));
-        } catch (Exception e){
-            imgUrls = Lists.newArrayList(url);
+        List<String> imgUrls = new ArrayList<>();
+        imgUrls.add(url);
+        String fileKey = fileAttribute.getFileKey();
+        List<String> zipImgUrls = fileUtils.getImgCache(fileKey);
+        if (!CollectionUtils.isEmpty(zipImgUrls)) {
+            imgUrls.addAll(zipImgUrls);
         }
         // 不是http开头，浏览器不能直接访问，需下载到本地
         if (url != null && !url.toLowerCase().startsWith("http")) {
@@ -50,7 +46,9 @@ public class PictureFilePreviewImpl implements FilePreview {
                 return "fileNotSupported";
             } else {
                 String file = fileUtils.getRelativePath(response.getContent());
-                model.addAttribute("imgurls", Lists.newArrayList(file));
+                imgUrls.clear();
+                imgUrls.add(file);
+                model.addAttribute("imgurls", imgUrls);
                 model.addAttribute("currentUrl", file);
             }
         } else {

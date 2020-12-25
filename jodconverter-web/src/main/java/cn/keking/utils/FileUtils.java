@@ -4,7 +4,6 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
-import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -12,10 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author yudian-it
@@ -125,7 +121,7 @@ public class FileUtils {
     }
 
     public List<String> listPictureTypes() {
-        List<String> list = Lists.newArrayList();
+        List<String> list = new LinkedList<>();
         list.add("jpg");
         list.add("jpeg");
         list.add("png");
@@ -137,7 +133,7 @@ public class FileUtils {
     }
 
     public List<String> listArchiveTypes() {
-        List<String> list = Lists.newArrayList();
+        List<String> list = new LinkedList<>();
         list.add("rar");
         list.add("zip");
         list.add("jar");
@@ -149,7 +145,7 @@ public class FileUtils {
     }
 
     public List<String> listOfficeTypes() {
-        List<String> list = Lists.newArrayList();
+        List<String> list = new LinkedList<>();
         list.add("docx");
         list.add("doc");
         list.add("xls");
@@ -358,8 +354,12 @@ public class FileUtils {
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
+            String fileKey =  req.getParameter("fileKey");
             if(StringUtils.hasText(officePreviewType)){
                 attribute.setOfficePreviewType(officePreviewType);
+            }
+            if(StringUtils.hasText(fileKey)){
+                attribute.setFileKey(fileKey);
             }
         }
         return attribute;

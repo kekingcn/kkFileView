@@ -3,8 +3,7 @@ package cn.keking.web.controller;
 import cn.keking.config.ConfigConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+
 import cn.keking.model.ReturnResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  *
@@ -84,10 +80,14 @@ public class FileController {
 
     @RequestMapping(value = "listFiles", method = RequestMethod.GET)
     public String getFiles() throws JsonProcessingException {
-        List<Map<String, String>> list = Lists.newArrayList();
+        List<Map<String, String>> list = new ArrayList<>();
         File file = new File(fileDir + demoPath);
         if (file.exists()) {
-            Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(file1 -> list.add(ImmutableMap.of("fileName", demoDir + "/" + file1.getName())));
+            Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(file1 -> {
+                Map<String, String> fileName = new HashMap();
+                fileName.put("fileName", demoDir + "/" + file1.getName());
+                list.add(fileName);
+            });
         }
         return new ObjectMapper().writeValueAsString(list);
     }
