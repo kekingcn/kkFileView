@@ -10,18 +10,18 @@ import org.springframework.ui.Model;
  * @since 2020/12/25
  */
 @Service
-public class MarkdownFilePreviewImpl implements FilePreview {
+public class XmlFilePreviewImpl implements FilePreview {
 
     private final SimTextFilePreviewImpl simTextFilePreview;
 
-    public MarkdownFilePreviewImpl(SimTextFilePreviewImpl simTextFilePreview) {
+    public XmlFilePreviewImpl(SimTextFilePreviewImpl simTextFilePreview) {
         this.simTextFilePreview = simTextFilePreview;
     }
 
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        model.addAttribute("textType","markdown");
+        model.addAttribute("textType","xml");
         return simTextFilePreview.filePreviewHandle(url, model, fileAttribute);
     }
 }

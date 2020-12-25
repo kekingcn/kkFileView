@@ -83,6 +83,9 @@ public class FileUtils {
         if("md".equalsIgnoreCase(fileType)){
             return FileType.markdown;
         }
+        if("xml".equalsIgnoreCase(fileType)){
+            return FileType.xml;
+        }
         if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
             return FileType.simText;
         }

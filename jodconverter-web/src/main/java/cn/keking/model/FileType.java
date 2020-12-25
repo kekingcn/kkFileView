@@ -13,6 +13,7 @@ public enum FileType {
     other("otherFilePreviewImpl"),
     media("mediaFilePreviewImpl"),
     markdown("markdownFilePreviewImpl"),
+    xml("xmlFilePreviewImpl"),
     cad("cadFilePreviewImpl");
 
 
