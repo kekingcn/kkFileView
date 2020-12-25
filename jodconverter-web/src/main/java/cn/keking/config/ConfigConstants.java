@@ -158,7 +158,7 @@ public class ConfigConstants {
     }
 
     public static void setFileDirValue(String fileDir) {
-        if (!DEFAULT_FILE_DIR_VALUE.equals(fileDir.toLowerCase())) {
+        if (!DEFAULT_FILE_DIR_VALUE.equalsIgnoreCase(fileDir)) {
             if (!fileDir.endsWith(File.separator)) {
                 fileDir = fileDir + File.separator;
             }
@@ -173,7 +173,7 @@ public class ConfigConstants {
 
     public static void setTrustHostValue(String trustHost) {
         CopyOnWriteArraySet<String> trustHostSet;
-        if (DEFAULT_TRUST_HOST.equals(trustHost.toLowerCase())) {
+        if (DEFAULT_TRUST_HOST.equalsIgnoreCase(trustHost)) {
             trustHostSet = new CopyOnWriteArraySet<>();
         } else {
             String[] trustHostArray = trustHost.toLowerCase().split(",");
@@ -207,9 +207,11 @@ public class ConfigConstants {
     public static String getOfficePreviewSwitchDisabled() {
         return OFFICE_PREVIEW_SWITCH_DISABLED;
     }
-
     @Value("${office.preview.switch.disabled:true}")
-    public static void setOfficePreviewSwitchDisabled(String officePreviewSwitchDisabled) {
+    public void setOfficePreviewSwitchDisabled(String officePreviewSwitchDisabled) {
+        OFFICE_PREVIEW_SWITCH_DISABLED = officePreviewSwitchDisabled;
+    }
+    public static void setOfficePreviewSwitchDisabledValue(String officePreviewSwitchDisabled) {
         OFFICE_PREVIEW_SWITCH_DISABLED = officePreviewSwitchDisabled;
     }
 }

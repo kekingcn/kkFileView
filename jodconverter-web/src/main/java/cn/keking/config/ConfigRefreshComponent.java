@@ -73,7 +73,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setFtpControlEncodingValue(ftpControlEncoding);
                     ConfigConstants.setBaseUrlValue(baseUrl);
                     ConfigConstants.setTrustHostValue(trustHost);
-                    ConfigConstants.setOfficePreviewSwitchDisabled(officePreviewSwitchDisabled);
+                    ConfigConstants.setOfficePreviewSwitchDisabledValue(officePreviewSwitchDisabled);
                     ConfigConstants.setPdfDownloadDisableValue(pdfDownloadDisable);
                     setWatermarkConfig(properties);
                     bufferedReader.close();

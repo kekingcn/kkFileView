@@ -23,17 +23,11 @@ import java.util.List;
 public class OfficeFilePreviewImpl implements FilePreview {
 
     private final FileUtils fileUtils;
-
     private final PdfUtils pdfUtils;
-
     private final DownloadUtils downloadUtils;
-
     private final OfficeToPdf officeToPdf;
 
-    public OfficeFilePreviewImpl(FileUtils fileUtils,
-                                 PdfUtils pdfUtils,
-                                 DownloadUtils downloadUtils,
-                                 OfficeToPdf officeToPdf) {
+    public OfficeFilePreviewImpl(FileUtils fileUtils, PdfUtils pdfUtils, DownloadUtils downloadUtils, OfficeToPdf officeToPdf) {
         this.fileUtils = fileUtils;
         this.pdfUtils = pdfUtils;
         this.downloadUtils = downloadUtils;
@@ -47,7 +41,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         // 预览Type，参数传了就取参数的，没传取系统默认
-        String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
+        String officePreviewType = fileAttribute.getOfficePreviewType();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String suffix=fileAttribute.getSuffix();
         String fileName=fileAttribute.getName();

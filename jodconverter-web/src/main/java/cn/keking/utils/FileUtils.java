@@ -104,7 +104,7 @@ public class FileUtils {
     /**
      * 从url中剥离出文件名
      *
-     * @param url 格式如：http://keking.ufile.ucloud.com.cn/20171113164107_月度绩效表模板(新).xls?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=I D1NOFtAJSPT16E6imv6JWuq0k=
+     * @param url 格式如：http://www.com.cn/20171113164107_月度绩效表模板(新).xls?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=I D1NOFtAJSPT16E6imv6JWuq0k=
      * @return 文件名
      */
     public String getFileNameFromURL(String url) {
@@ -340,25 +340,27 @@ public class FileUtils {
     public FileAttribute getFileAttribute(String url, HttpServletRequest req) {
         FileAttribute attribute = new FileAttribute();
         String suffix;
-        String fullFileName = getUrlParameterReg(url, "fullfilename");
+        FileType type;
+        String fileName;
+        String fullFileName = this.getUrlParameterReg(url, "fullfilename");
         if (StringUtils.hasText(fullFileName)) {
-            attribute.setName(fullFileName);
-            FileType type = typeFromFileName(fullFileName);
-            attribute.setType(type);
+            fileName = fullFileName;
+            type = typeFromFileName(fullFileName);
             suffix = suffixFromFileName(fullFileName);
         } else {
-
-            String fileName = getFileNameFromURL(url);
-            FileType type = typeFromUrl(url);
-            attribute.setName(fileName);
-            attribute.setType(type);
+            fileName = getFileNameFromURL(url);
+            type = typeFromUrl(url);
             suffix = suffixFromUrl(url);
         }
+        attribute.setType(type);
+        attribute.setName(fileName);
         attribute.setSuffix(suffix);
+        attribute.setUrl(url);
         if (req != null) {
-          String officePreviewType = req.getParameter("officePreviewType");
-
-          attribute.setOfficePreviewType(officePreviewType);
+            String officePreviewType = req.getParameter("officePreviewType");
+            if(StringUtils.hasText(officePreviewType)){
+                attribute.setOfficePreviewType(officePreviewType);
+            }
         }
         return attribute;
     }
