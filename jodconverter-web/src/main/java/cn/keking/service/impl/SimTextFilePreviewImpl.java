@@ -29,32 +29,23 @@ public class SimTextFilePreviewImpl implements FilePreview {
     }
 
     @Override
-    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute){
+    public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
         ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
         if (0 != response.getCode()) {
             model.addAttribute("msg", response.getMsg());
-            model.addAttribute("fileType",fileAttribute.getSuffix());
+            model.addAttribute("fileType", fileAttribute.getSuffix());
             return "fileNotSupported";
         }
         try {
             File originFile = new File(response.getContent());
-            File previewFile = new File(response.getContent() + ".txt");
-            if (previewFile.exists()) {
-                previewFile.delete();
-            }
-            Files.copy(originFile.toPath(), previewFile.toPath());
-            if(fileAttribute.getType().equals(FileType.xml)){
-                String xmlString = FileUtils.readFileToString(previewFile, StandardCharsets.UTF_8);
-
-                model.addAttribute("xmlContent", Base64Utils.encodeToString(xmlString.getBytes()));
-            }
+            String xmlString = FileUtils.readFileToString(originFile, StandardCharsets.UTF_8);
+            model.addAttribute("textData", Base64Utils.encodeToString(xmlString.getBytes()));
         } catch (IOException e) {
             model.addAttribute("msg", e.getLocalizedMessage());
-            model.addAttribute("fileType",fileAttribute.getSuffix());
+            model.addAttribute("fileType", fileAttribute.getSuffix());
             return "fileNotSupported";
         }
-        model.addAttribute("ordinaryUrl", response.getMsg());
         return "txt";
     }
 
