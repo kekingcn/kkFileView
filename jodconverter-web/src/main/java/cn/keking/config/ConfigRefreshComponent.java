@@ -38,6 +38,7 @@ public class ConfigRefreshComponent {
                 String[] textArray;
                 String[] mediaArray;
                 String officePreviewType;
+                String officePreviewSwitchDisabled;
                 String ftpUsername;
                 String ftpPassword;
                 String ftpControlEncoding;
@@ -54,6 +55,7 @@ public class ConfigRefreshComponent {
                     text = properties.getProperty("simText", ConfigConstants.DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", ConfigConstants.DEFAULT_MEDIA_TYPE);
                     officePreviewType = properties.getProperty("office.preview.type", ConfigConstants.DEFAULT_OFFICE_PREVIEW_TYPE);
+                    officePreviewSwitchDisabled = properties.getProperty("office.preview.switch.disabled", ConfigConstants.DEFAULT_OFFICE_PREVIEW_TYPE);
                     ftpUsername = properties.getProperty("ftp.username", ConfigConstants.DEFAULT_FTP_USERNAME);
                     ftpPassword = properties.getProperty("ftp.password", ConfigConstants.DEFAULT_FTP_PASSWORD);
                     ftpControlEncoding = properties.getProperty("ftp.control.encoding", ConfigConstants.DEFAULT_FTP_CONTROL_ENCODING);
@@ -71,6 +73,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setFtpControlEncodingValue(ftpControlEncoding);
                     ConfigConstants.setBaseUrlValue(baseUrl);
                     ConfigConstants.setTrustHostValue(trustHost);
+                    ConfigConstants.setOfficePreviewSwitchDisabled(officePreviewSwitchDisabled);
                     ConfigConstants.setPdfDownloadDisableValue(pdfDownloadDisable);
                     setWatermarkConfig(properties);
                     bufferedReader.close();

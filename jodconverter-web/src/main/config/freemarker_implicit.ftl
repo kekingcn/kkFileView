@@ -1,5 +1,6 @@
 [#ftl]
 [#-- @implicitly included --]
+[#-- @ftlvariable name="switchDisabled" type="String" --]
 [#-- @ftlvariable name="imgurls" type="String" --]
 [#-- @ftlvariable name="watermarkAngle" type="String" --]
 [#-- @ftlvariable name="watermarkHeight" type="String" --]

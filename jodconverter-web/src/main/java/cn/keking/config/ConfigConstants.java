@@ -20,6 +20,7 @@ public class ConfigConstants {
     private static String[] SIM_TEXT = {};
     private static String[] MEDIA = {};
     private static String OFFICE_PREVIEW_TYPE;
+    private static String OFFICE_PREVIEW_SWITCH_DISABLED;
     private static String FTP_USERNAME;
     private static String FTP_PASSWORD;
     private static String FTP_CONTROL_ENCODING;
@@ -32,6 +33,7 @@ public class ConfigConstants {
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
     public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
     public static final String DEFAULT_OFFICE_PREVIEW_TYPE = "image";
+    public static final String DEFAULT_OFFICE_PREVIEW_SWITCH_DISABLED = "false";
     public static final String DEFAULT_FTP_USERNAME = null;
     public static final String DEFAULT_FTP_PASSWORD = null;
     public static final String DEFAULT_FTP_CONTROL_ENCODING = "UTF-8";
@@ -202,4 +204,12 @@ public class ConfigConstants {
         PDF_DOWNLOAD_DISABLE = pdfDownloadDisable;
     }
 
+    public static String getOfficePreviewSwitchDisabled() {
+        return OFFICE_PREVIEW_SWITCH_DISABLED;
+    }
+
+    @Value("${office.preview.switch.disabled:true}")
+    public static void setOfficePreviewSwitchDisabled(String officePreviewSwitchDisabled) {
+        OFFICE_PREVIEW_SWITCH_DISABLED = officePreviewSwitchDisabled;
+    }
 }
