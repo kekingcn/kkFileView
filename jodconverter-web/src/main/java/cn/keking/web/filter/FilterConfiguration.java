@@ -57,7 +57,7 @@ public class FilterConfiguration {
         Set<String> filterUri = new HashSet<>();
         filterUri.add("/onlinePreview");
         filterUri.add("/picturesPreview");
-        WatermarkConfigFilter filter = new WatermarkConfigFilter();
+        AttributeSetFilter filter = new AttributeSetFilter();
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(filter);
         registrationBean.setUrlPatterns(filterUri);

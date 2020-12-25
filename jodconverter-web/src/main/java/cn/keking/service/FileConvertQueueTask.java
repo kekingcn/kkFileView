@@ -67,7 +67,7 @@ public class FileConvertQueueTask {
                 try {
                     url = cacheService.takeQueueTask();
                     if(url != null){
-                        FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
+                        FileAttribute fileAttribute = fileUtils.getFileAttribute(url,null);
                         FileType fileType = fileAttribute.getType();
                         logger.info("正在处理预览转换任务，url：{}，预览类型：{}", url, fileType);
                         if(fileType.equals(FileType.compress) || fileType.equals(FileType.office) || fileType.equals(FileType.cad)) {
