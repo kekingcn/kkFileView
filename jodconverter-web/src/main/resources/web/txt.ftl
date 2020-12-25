@@ -7,6 +7,7 @@
 </head>
 <body>
 <input hidden id="textType" value="${textType}">
+<input hidden id="textData" value="${textData}">
 
 <div class="container">
     <#if textType?? && textType == "markdown">
@@ -16,7 +17,6 @@
         </p>
         <div id="markdown" style="padding: 18px;"></div>
     <#elseif textType?? && textType == "xml" >
-        <input hidden id="xmlContent" value="${xmlContent}">
         <div id="xml" style="padding: 18px;"></div>
     <#else>
         <div id="text"></div>
@@ -42,6 +42,9 @@
         $("#markdown_btn").hide()
         initWaterMark();
         fetchData();
+        loadText();
+        loadXmlData()
+        loadMarkdown();
     }
 
     /**
@@ -73,17 +76,8 @@
      * 获取文本数据
      */
     function fetchData() {
-        $.ajax({
-            type: 'GET',
-            url: '${ordinaryUrl}',
-            success: function (data) {
-                window.textData = data;
-                window.textPreData = "<pre>" + data + "</pre>";
-                loadText();
-                loadXmlData()
-                loadMarkdown();
-            }
-        });
+        window.textData = Base64.decode($("#textData").val())
+        window.textPreData = "<pre>" + window.textData + "</pre>";
     }
 
     /**
@@ -108,8 +102,7 @@
      */
     function loadXmlData() {
         if ($("#textType").val() === "xml") {
-            var xmlStr = Base64.decode($("#xmlContent").val());
-            var xmlNode = xmlTreeViewer.parseXML(xmlStr);
+            var xmlNode = xmlTreeViewer.parseXML(window.textData);
             var retNode = xmlTreeViewer.getXMLViewerNode(xmlNode.xml);
             $("#xml").html(retNode);
         }

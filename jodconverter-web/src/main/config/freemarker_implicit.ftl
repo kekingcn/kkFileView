@@ -1,5 +1,6 @@
 [#ftl]
 [#-- @implicitly included --]
+[#-- @ftlvariable name="textData" type="java.lang.String" --]
 [#-- @ftlvariable name="xmlContent" type="java.lang.String" --]
 [#-- @ftlvariable name="textContent" type="java.lang.String" --]
 [#-- @ftlvariable name="textType" type="java.lang.String" --]
