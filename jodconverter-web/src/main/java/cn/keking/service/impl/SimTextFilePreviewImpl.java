@@ -1,14 +1,18 @@
 package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
+import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.util.Base64Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 /**
@@ -40,6 +44,11 @@ public class SimTextFilePreviewImpl implements FilePreview {
                 previewFile.delete();
             }
             Files.copy(originFile.toPath(), previewFile.toPath());
+            if(fileAttribute.getType().equals(FileType.xml)){
+                String xmlString = FileUtils.readFileToString(previewFile, StandardCharsets.UTF_8);
+
+                model.addAttribute("xmlContent", Base64Utils.encodeToString(xmlString.getBytes()));
+            }
         } catch (IOException e) {
             model.addAttribute("msg", e.getLocalizedMessage());
             model.addAttribute("fileType",fileAttribute.getSuffix());

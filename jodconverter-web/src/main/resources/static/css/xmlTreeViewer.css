@@ -1,0 +1,110 @@
+/* Copyright 2014 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+div.header {
+    border-bottom: 2px solid black;
+    padding-bottom: 5px;
+    margin: 10px;
+}
+
+div.collapsible > div.hidden {
+    display:none;
+}
+
+.pretty-print {
+    margin-top: 1em;
+    margin-left: 20px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+#xml-viewer-source-xml {
+    display: none;
+}
+
+.collapsible-content {
+    margin-left: 2em;
+}
+.comment {
+    white-space: pre;
+}
+
+.button {
+    -webkit-user-select: none;
+    cursor: pointer;
+    display: inline-block;
+    margin-left: -10px;
+    width: 10px;
+    background-repeat: no-repeat;
+    background-position: left top;
+    vertical-align: bottom;
+}
+
+.collapse-button {
+    /*background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' fill='#909090' width='10' height='10'><path d='M0 0 L8 0 L4 7 Z'/></svg>");*/
+    background: url("./img/Expanded.gif");
+    height: 12px;
+}
+
+.expand-button {
+    /*background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' fill='#909090' width='10' height='10'><path d='M0 0 L0 8 L7 4 Z'/></svg>");*/
+    background: url("./img/Collapsed.gif");
+    height: 12px;
+}
+
+.line-content {
+    padding: 0 5px !important;
+}
+
+.highlight {
+    background-color: rgb(100%, 42%, 42%);
+    border: 2px solid rgb(100%, 31%, 31%);
+}
+
+.html-tag {
+    /* Keep this in sync with inspector.css (.webkit-html-tag) */
+    color: rgb(136, 18, 128);
+}
+
+.html-attribute-name {
+    /* Keep this in sync with inspector.css (.webkit-html-attribute-name) */
+    color: rgb(153, 69, 0);
+}
+
+.html-attribute-value {
+    /* Keep this in sync with inspector.css (.webkit-html-attribute-value) */
+    color: rgb(26, 26, 166);
+}
+
+.html-external-link, .html-resource-link {
+    /* Keep this in sync with inspectorSyntaxHighlight.css (.webkit-html-external-link, .webkit-html-resource-link) */
+    color: #00e;
+}
+
+.html-external-link {
+    /* Keep this in sync with inspectorSyntaxHighlight.css (.webkit-html-external-link) */
+    text-decoration: none;
+}
+
+.html-external-link:hover {
+    /* Keep this in sync with inspectorSyntaxHighlight.css (.webkit-html-external-link:hover) */
+    text-decoration: underline;
+}
+
+.html-comment {
+    /* Keep this in sync with inspectorSyntaxHighlight.css (.webkit-html-comment) */
+    color: rgb(35, 110, 37);
+}
+
+.html-doctype {
+    /* Keep this in sync with inspectorSyntaxHighlight.css (.webkit-html-doctype) */
+    color: rgb(192, 192, 192);
+}
+
+.html-end-of-file {
+    /* Keep this in sync with inspectorSyntaxHighlight.css (.webkit-html-end-of-file) */
+    color: rgb(255, 0, 0);
+    font-weight: bold;
+}
