@@ -24,6 +24,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
 
     private final DownloadUtils downloadUtils;
 
+
     public SimTextFilePreviewImpl(DownloadUtils downloadUtils) {
         this.downloadUtils = downloadUtils;
     }
@@ -45,6 +46,9 @@ public class SimTextFilePreviewImpl implements FilePreview {
             model.addAttribute("msg", e.getLocalizedMessage());
             model.addAttribute("fileType", fileAttribute.getSuffix());
             return "fileNotSupported";
+        }
+        if (!model.containsAttribute(TEXT_TYPE)) {
+            model.addAttribute(TEXT_TYPE, DEFAULT_TEXT_TYPE);
         }
         return "txt";
     }

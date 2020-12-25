@@ -1,5 +1,7 @@
 package cn.keking.model;
 
+import cn.keking.config.ConfigConstants;
+
 /**
  * Created by kl on 2018/1/17.
  * Content :
@@ -14,6 +16,8 @@ public class FileAttribute {
 
     private String url;
 
+    private String officePreviewType = ConfigConstants.getOfficePreviewType();
+
     public FileAttribute() {
     }
 
@@ -22,6 +26,22 @@ public class FileAttribute {
         this.suffix = suffix;
         this.name = name;
         this.url = url;
+    }
+
+    public FileAttribute(FileType type, String suffix, String name, String url, String officePreviewType) {
+        this.type = type;
+        this.suffix = suffix;
+        this.name = name;
+        this.url = url;
+        this.officePreviewType = officePreviewType;
+    }
+
+    public String getOfficePreviewType() {
+        return officePreviewType;
+    }
+
+    public void setOfficePreviewType(String officePreviewType) {
+        this.officePreviewType = officePreviewType;
     }
 
     public FileType getType() {
