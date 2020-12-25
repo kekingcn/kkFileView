@@ -1,6 +1,5 @@
 package cn.keking.web.controller;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
@@ -49,10 +48,7 @@ public class OnlinePreviewController {
 
     @RequestMapping(value = "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
-        FileAttribute fileAttribute = fileUtils.getFileAttribute(url);
-        req.setAttribute("fileKey", req.getParameter("fileKey"));
-        model.addAttribute("pdfDownloadDisable", ConfigConstants.getPdfDownloadDisable());
-        model.addAttribute("officePreviewType", req.getParameter("officePreviewType"));
+        FileAttribute fileAttribute = fileUtils.getFileAttribute(url,req);
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", url, fileAttribute.getType());
         return filePreview.filePreviewHandle(url, model, fileAttribute);

@@ -21,7 +21,7 @@ public class XmlFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        model.addAttribute("textType","xml");
+        model.addAttribute(TEXT_TYPE,"xml");
         return simTextFilePreview.filePreviewHandle(url, model, fileAttribute);
     }
 }

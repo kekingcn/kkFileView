@@ -21,7 +21,7 @@ public class MarkdownFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        model.addAttribute("textType","markdown");
+        model.addAttribute(TEXT_TYPE,"markdown");
         return simTextFilePreview.filePreviewHandle(url, model, fileAttribute);
     }
 }
