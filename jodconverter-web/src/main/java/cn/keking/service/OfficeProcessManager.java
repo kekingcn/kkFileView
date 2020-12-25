@@ -1,4 +1,4 @@
-package cn.keking.utils;
+package cn.keking.service;
 
 import com.sun.star.document.UpdateDocMode;
 import cn.keking.extend.ControlDocumentFormatRegistry;
@@ -9,6 +9,8 @@ import org.artofsolving.jodconverter.office.OfficeManager;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -29,16 +31,23 @@ import java.util.Properties;
  * @date 2017/11/13
  */
 @Component
-public class ConverterUtils {
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class OfficeProcessManager {
 
-    private final Logger logger = LoggerFactory.getLogger(ConverterUtils.class);
+    private final Logger logger = LoggerFactory.getLogger(OfficeProcessManager.class);
 
     private OfficeManager officeManager;
 
     @PostConstruct
     public void initOfficeManager() {
-        File officeHome;
-        officeHome = OfficeUtils.getDefaultOfficeHome();
+        new Thread(this::startOfficeManager).start();
+    }
+
+    /**
+     * 启动Office组件进程
+     */
+    private void startOfficeManager(){
+        File officeHome = OfficeUtils.getDefaultOfficeHome();
         if (officeHome == null) {
             throw new RuntimeException("找不到office组件，请确认'office.home'配置是否有误");
         }

@@ -6,7 +6,7 @@ import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.FileUtils;
-import cn.keking.utils.OfficeToPdf;
+import cn.keking.service.OfficeToPdfService;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,13 @@ public class OfficeFilePreviewImpl implements FilePreview {
     private final FileUtils fileUtils;
     private final PdfUtils pdfUtils;
     private final DownloadUtils downloadUtils;
-    private final OfficeToPdf officeToPdf;
+    private final OfficeToPdfService officeToPdfService;
 
-    public OfficeFilePreviewImpl(FileUtils fileUtils, PdfUtils pdfUtils, DownloadUtils downloadUtils, OfficeToPdf officeToPdf) {
+    public OfficeFilePreviewImpl(FileUtils fileUtils, PdfUtils pdfUtils, DownloadUtils downloadUtils, OfficeToPdfService officeToPdfService) {
         this.fileUtils = fileUtils;
         this.pdfUtils = pdfUtils;
         this.downloadUtils = downloadUtils;
-        this.officeToPdf = officeToPdf;
+        this.officeToPdfService = officeToPdfService;
     }
 
     public static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
@@ -59,7 +59,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             }
             filePath = response.getContent();
             if (StringUtils.hasText(outFilePath)) {
-                officeToPdf.openOfficeToPDF(filePath, outFilePath);
+                officeToPdfService.openOfficeToPDF(filePath, outFilePath);
                 if (isHtml) {
                     // 对转换后的文件进行操作(改变编码方式)
                     fileUtils.doActionConvertedFile(outFilePath);
