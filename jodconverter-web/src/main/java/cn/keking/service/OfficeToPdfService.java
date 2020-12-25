@@ -1,4 +1,4 @@
-package cn.keking.utils;
+package cn.keking.service;
 
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.springframework.stereotype.Component;
@@ -9,11 +9,11 @@ import java.io.File;
  * @author yudian-it
  */
 @Component
-public class OfficeToPdf {
-    private final ConverterUtils converterUtils;
+public class OfficeToPdfService {
+    private final OfficeProcessManager officeProcessManager;
 
-    public OfficeToPdf(ConverterUtils converterUtils) {
-        this.converterUtils = converterUtils;
+    public OfficeToPdfService(OfficeProcessManager officeProcessManager) {
+        this.officeProcessManager = officeProcessManager;
     }
 
     public void openOfficeToPDF(String inputFilePath, String outputFilePath) {
@@ -33,7 +33,7 @@ public class OfficeToPdf {
 
 
     public void office2pdf(String inputFilePath, String outputFilePath) {
-        OfficeDocumentConverter converter = converterUtils.getDocumentConverter();
+        OfficeDocumentConverter converter = officeProcessManager.getDocumentConverter();
         if (null != inputFilePath) {
             File inputFile = new File(inputFilePath);
             // 判断目标文件路径是否为空
