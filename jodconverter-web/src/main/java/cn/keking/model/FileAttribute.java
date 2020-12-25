@@ -9,13 +9,10 @@ import cn.keking.config.ConfigConstants;
 public class FileAttribute {
 
     private FileType type;
-
     private String suffix;
-
     private String name;
-
     private String url;
-
+    private String fileKey;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
 
     public FileAttribute() {
@@ -34,6 +31,14 @@ public class FileAttribute {
         this.name = name;
         this.url = url;
         this.officePreviewType = officePreviewType;
+    }
+
+    public String getFileKey() {
+        return fileKey;
+    }
+
+    public void setFileKey(String fileKey) {
+        this.fileKey = fileKey;
     }
 
     public String getOfficePreviewType() {

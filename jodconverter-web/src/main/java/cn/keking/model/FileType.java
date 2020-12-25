@@ -5,7 +5,7 @@ package cn.keking.model;
  * Content :文件类型，文本，office，压缩包等等
  */
 public enum FileType {
-    picture("picturefilepreviewimpl"),
+    picture("pictureFilePreviewImpl"),
     compress("compressFilePreviewImpl"),
     office("officeFilePreviewImpl"),
     simText("simTextFilePreviewImpl"),
