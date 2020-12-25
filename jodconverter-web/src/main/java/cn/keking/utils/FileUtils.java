@@ -27,7 +27,6 @@ public class FileUtils {
     private static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
 
     private final String fileDir = ConfigConstants.getFileDir();
-
     private final CacheService cacheService;
 
     public FileUtils(CacheService cacheService) {
@@ -80,6 +79,9 @@ public class FileUtils {
         }
         if (listOfficeTypes().contains(fileType.toLowerCase())) {
             return FileType.office;
+        }
+        if("md".equalsIgnoreCase(fileType)){
+            return FileType.markdown;
         }
         if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
             return FileType.simText;
@@ -323,7 +325,7 @@ public class FileUtils {
         FileType type;
         String suffix;
         String fullFileName = getUrlParameterReg(url, "fullfilename");
-        if (!StringUtils.isEmpty(fullFileName)) {
+        if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
             type = typeFromFileName(fileName);
             suffix = suffixFromFileName(fileName);

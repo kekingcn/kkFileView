@@ -32,11 +32,8 @@ public class OnlinePreviewController {
     private final Logger logger = LoggerFactory.getLogger(OnlinePreviewController.class);
 
     private final FilePreviewFactory previewFactory;
-
     private final CacheService cacheService;
-
     private final FileUtils fileUtils;
-
     private final DownloadUtils downloadUtils;
 
     public OnlinePreviewController(FilePreviewFactory filePreviewFactory,
