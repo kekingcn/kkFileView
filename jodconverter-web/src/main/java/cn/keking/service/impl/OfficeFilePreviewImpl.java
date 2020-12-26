@@ -5,7 +5,7 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.utils.FileUtils;
+import cn.keking.service.FilePreviewCommonService;
 import cn.keking.service.OfficeToPdfService;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
@@ -22,13 +22,13 @@ import java.util.List;
 @Service
 public class OfficeFilePreviewImpl implements FilePreview {
 
-    private final FileUtils fileUtils;
+    private final FilePreviewCommonService filePreviewCommonService;
     private final PdfUtils pdfUtils;
     private final DownloadUtils downloadUtils;
     private final OfficeToPdfService officeToPdfService;
 
-    public OfficeFilePreviewImpl(FileUtils fileUtils, PdfUtils pdfUtils, DownloadUtils downloadUtils, OfficeToPdfService officeToPdfService) {
-        this.fileUtils = fileUtils;
+    public OfficeFilePreviewImpl(FilePreviewCommonService filePreviewCommonService, PdfUtils pdfUtils, DownloadUtils downloadUtils, OfficeToPdfService officeToPdfService) {
+        this.filePreviewCommonService = filePreviewCommonService;
         this.pdfUtils = pdfUtils;
         this.downloadUtils = downloadUtils;
         this.officeToPdfService = officeToPdfService;
@@ -49,7 +49,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
         String outFilePath = FILE_DIR + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
-        if (!fileUtils.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+        if (!filePreviewCommonService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath;
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
@@ -62,11 +62,11 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 officeToPdfService.openOfficeToPDF(filePath, outFilePath);
                 if (isHtml) {
                     // 对转换后的文件进行操作(改变编码方式)
-                    fileUtils.doActionConvertedFile(outFilePath);
+                    filePreviewCommonService.doActionConvertedFile(outFilePath);
                 }
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
-                    fileUtils.addConvertedFile(pdfName, fileUtils.getRelativePath(outFilePath));
+                    filePreviewCommonService.addConvertedFile(pdfName, filePreviewCommonService.getRelativePath(outFilePath));
                 }
             }
         }

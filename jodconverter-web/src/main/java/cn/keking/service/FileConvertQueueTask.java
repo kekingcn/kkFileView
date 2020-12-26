@@ -3,7 +3,6 @@ package cn.keking.service;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
-import cn.keking.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,44 +19,36 @@ import java.util.concurrent.Executors;
 public class FileConvertQueueTask {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private final FilePreviewFactory previewFactory;
-
     private final CacheService cacheService;
+    private final FilePreviewCommonService filePreviewCommonService;
 
-    private final FileUtils fileUtils;
-
-    public FileConvertQueueTask(FilePreviewFactory previewFactory,
-                                CacheService cacheService,
-                                FileUtils fileUtils) {
+    public FileConvertQueueTask(FilePreviewFactory previewFactory, CacheService cacheService, FilePreviewCommonService filePreviewCommonService) {
         this.previewFactory = previewFactory;
         this.cacheService = cacheService;
-        this.fileUtils=fileUtils;
+        this.filePreviewCommonService = filePreviewCommonService;
     }
 
     @PostConstruct
     public void startTask(){
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.submit(new ConvertTask(previewFactory, cacheService, fileUtils));
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        executorService.submit(new ConvertTask(previewFactory, cacheService, filePreviewCommonService));
         logger.info("队列处理文件转换任务启动完成 ");
     }
 
     static class ConvertTask implements Runnable {
 
         private final Logger logger = LoggerFactory.getLogger(ConvertTask.class);
-
         private final FilePreviewFactory previewFactory;
-
         private final CacheService cacheService;
-
-        private final FileUtils fileUtils;
+        private final FilePreviewCommonService filePreviewCommonService;
 
         public ConvertTask(FilePreviewFactory previewFactory,
                            CacheService cacheService,
-                           FileUtils fileUtils) {
+                           FilePreviewCommonService filePreviewCommonService) {
             this.previewFactory = previewFactory;
             this.cacheService = cacheService;
-            this.fileUtils=fileUtils;
+            this.filePreviewCommonService = filePreviewCommonService;
         }
 
         @Override
@@ -67,7 +58,7 @@ public class FileConvertQueueTask {
                 try {
                     url = cacheService.takeQueueTask();
                     if(url != null){
-                        FileAttribute fileAttribute = fileUtils.getFileAttribute(url,null);
+                        FileAttribute fileAttribute = filePreviewCommonService.getFileAttribute(url,null);
                         FileType fileType = fileAttribute.getType();
                         logger.info("正在处理预览转换任务，url：{}，预览类型：{}", url, fileType);
                         if(fileType.equals(FileType.compress) || fileType.equals(FileType.office) || fileType.equals(FileType.cad)) {

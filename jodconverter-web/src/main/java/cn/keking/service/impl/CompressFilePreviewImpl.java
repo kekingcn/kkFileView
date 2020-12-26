@@ -5,7 +5,7 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.utils.FileUtils;
+import cn.keking.service.FilePreviewCommonService;
 import cn.keking.utils.ZipReader;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -18,16 +18,16 @@ import org.springframework.util.StringUtils;
 @Service
 public class CompressFilePreviewImpl implements FilePreview {
 
-    private final FileUtils fileUtils;
+    private final FilePreviewCommonService filePreviewCommonService;
 
     private final DownloadUtils downloadUtils;
 
     private final ZipReader zipReader;
 
-    public CompressFilePreviewImpl(FileUtils fileUtils,
+    public CompressFilePreviewImpl(FilePreviewCommonService filePreviewCommonService,
                                    DownloadUtils downloadUtils,
                                    ZipReader zipReader) {
-        this.fileUtils = fileUtils;
+        this.filePreviewCommonService = filePreviewCommonService;
         this.downloadUtils = downloadUtils;
         this.zipReader = zipReader;
     }
@@ -38,7 +38,7 @@ public class CompressFilePreviewImpl implements FilePreview {
         String suffix=fileAttribute.getSuffix();
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
-        if (!StringUtils.hasText(fileUtils.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
+        if (!StringUtils.hasText(filePreviewCommonService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
@@ -54,10 +54,10 @@ public class CompressFilePreviewImpl implements FilePreview {
                 fileTree = zipReader.read7zFile(filePath, fileName);
             }
             if (fileTree != null && !"null".equals(fileTree) && ConfigConstants.isCacheEnabled()) {
-                fileUtils.addConvertedFile(fileName, fileTree);
+                filePreviewCommonService.addConvertedFile(fileName, fileTree);
             }
         } else {
-            fileTree = fileUtils.getConvertedFile(fileName);
+            fileTree = filePreviewCommonService.getConvertedFile(fileName);
         }
         if (fileTree != null && !"null".equals(fileTree)) {
             model.addAttribute("fileTree", fileTree);

@@ -6,8 +6,8 @@
     <title>普通文本预览</title>
 </head>
 <body>
-<input hidden id="textType" value="${textType}">
-<input hidden id="textData" value="${textData}">
+<input hidden id="textType" value="${textType}"/>
+<input hidden id="textData" value="${textData}"/>
 
 <div class="container">
     <#if textType?? && textType == "markdown">
