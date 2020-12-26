@@ -23,7 +23,7 @@
 </head>
 <body>
 <ul id="dowebok">
-    <#list imgurls as img>
+    <#list imgUrls as img>
         <#if img?contains("http://") || img?contains("https://")>
             <#assign img="${img}">
         <#else>

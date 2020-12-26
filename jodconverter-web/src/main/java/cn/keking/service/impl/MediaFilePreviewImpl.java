@@ -4,7 +4,7 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.utils.FileUtils;
+import cn.keking.service.FilePreviewCommonService;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -19,12 +19,12 @@ public class MediaFilePreviewImpl implements FilePreview {
 
     private final DownloadUtils downloadUtils;
 
-    private final FileUtils fileUtils;
+    private final FilePreviewCommonService filePreviewCommonService;
 
     public MediaFilePreviewImpl(DownloadUtils downloadUtils,
-                                FileUtils fileUtils) {
+                                FilePreviewCommonService filePreviewCommonService) {
         this.downloadUtils = downloadUtils;
-        this.fileUtils = fileUtils;
+        this.filePreviewCommonService = filePreviewCommonService;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class MediaFilePreviewImpl implements FilePreview {
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
             } else {
-                model.addAttribute("mediaUrl", BaseUrlFilter.getBaseUrl() + fileUtils.getRelativePath(response.getContent()));
+                model.addAttribute("mediaUrl", BaseUrlFilter.getBaseUrl() + filePreviewCommonService.getRelativePath(response.getContent()));
             }
         } else {
             model.addAttribute("mediaUrl", url);

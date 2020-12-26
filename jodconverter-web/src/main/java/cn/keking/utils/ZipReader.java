@@ -2,6 +2,7 @@ package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
+import cn.keking.service.FilePreviewCommonService;
 import cn.keking.web.filter.BaseUrlFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,14 +34,14 @@ import java.util.regex.Pattern;
 public class ZipReader {
     static Pattern pattern = Pattern.compile("^\\d+");
 
-    private final FileUtils fileUtils;
+    private final FilePreviewCommonService filePreviewCommonService;
 
     private final String fileDir = ConfigConstants.getFileDir();
 
     private final ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public ZipReader(FileUtils fileUtils) {
-        this.fileUtils = fileUtils;
+    public ZipReader(FilePreviewCommonService filePreviewCommonService) {
+        this.filePreviewCommonService = filePreviewCommonService;
     }
 
     public String readZipFile(String filePath,String fileKey) {
@@ -48,9 +49,9 @@ public class ZipReader {
         Map<String, FileNode> appender = new HashMap<>();
         List<String> imgUrls = new LinkedList<>();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        String archiveFileName = fileUtils.getFileNameFromPath(filePath);
+        String archiveFileName = filePreviewCommonService.getFileNameFromPath(filePath);
         try {
-            ZipFile zipFile = new ZipFile(filePath, fileUtils.getFileEncodeUTFGBK(filePath));
+            ZipFile zipFile = new ZipFile(filePath, filePreviewCommonService.getFileEncodeUTFGBK(filePath));
             Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
             // 排序
             entries = sortZipEntries(entries);
@@ -69,7 +70,7 @@ public class ZipReader {
                 }
                 String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level-1) + "_" + parentName;
-                FileType type=fileUtils.typeFromUrl(childName);
+                FileType type= filePreviewCommonService.typeFromUrl(childName);
                 if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
@@ -79,7 +80,7 @@ public class ZipReader {
             }
             // 开启新的线程处理文件解压
             executors.submit(new ZipExtractorWorker(entriesToBeExtracted, zipFile, filePath));
-            fileUtils.putImgCache(fileKey,imgUrls);
+            filePreviewCommonService.putImgCache(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (IOException e) {
             e.printStackTrace();
@@ -104,7 +105,7 @@ public class ZipReader {
             Archive archive = new Archive(new FileInputStream(new File(filePath)));
             List<FileHeader> headers = archive.getFileHeaders();
             headers = sortedHeaders(headers);
-            String archiveFileName = fileUtils.getFileNameFromPath(filePath);
+            String archiveFileName = filePreviewCommonService.getFileNameFromPath(filePath);
             List<Map<String, FileHeader>> headersToBeExtracted =new ArrayList<>();
             for (FileHeader header : headers) {
                 String fullName;
@@ -122,7 +123,7 @@ public class ZipReader {
                     headersToBeExtracted.add(Collections.singletonMap(childName, header));
                 }
                 String parentName = getLast2FileName(fullName, "\\", archiveFileName);
-                FileType type = fileUtils.typeFromUrl(childName);
+                FileType type = filePreviewCommonService.typeFromUrl(childName);
                 if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
@@ -131,7 +132,7 @@ public class ZipReader {
                 appender.put(childName, node);
             }
             executors.submit(new RarExtractorWorker(headersToBeExtracted, archive, filePath));
-            fileUtils.putImgCache(fileKey,imgUrls);
+            filePreviewCommonService.putImgCache(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (RarException | IOException e) {
             e.printStackTrace();
@@ -144,7 +145,7 @@ public class ZipReader {
         Map<String, FileNode> appender = new HashMap<>();
         List<String> imgUrls = new ArrayList<>();
         String baseUrl= BaseUrlFilter.getBaseUrl();
-        String archiveFileName = fileUtils.getFileNameFromPath(filePath);
+        String archiveFileName = filePreviewCommonService.getFileNameFromPath(filePath);
         try {
             SevenZFile zipFile = new SevenZFile(new File(filePath));
             Iterable<SevenZArchiveEntry> entries = zipFile.getEntries();
@@ -165,7 +166,7 @@ public class ZipReader {
                 }
                 String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level-1) + "_" + parentName;
-                FileType type=fileUtils.typeFromUrl(childName);
+                FileType type= filePreviewCommonService.typeFromUrl(childName);
                 if (type.equals(FileType.picture)){//添加图片文件到图片列表
                     imgUrls.add(baseUrl+childName);
                 }
@@ -175,7 +176,7 @@ public class ZipReader {
             }
             // 开启新的线程处理文件解压
             executors.submit(new SevenZExtractorWorker(entriesToBeExtracted, filePath));
-            fileUtils.putImgCache(fileKey,imgUrls);
+            filePreviewCommonService.putImgCache(fileKey,imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (IOException e) {
             e.printStackTrace();

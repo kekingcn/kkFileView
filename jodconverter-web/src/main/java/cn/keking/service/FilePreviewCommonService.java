@@ -1,4 +1,4 @@
-package cn.keking.utils;
+package cn.keking.service;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
@@ -18,14 +18,14 @@ import java.util.*;
  * @date 2017/11/13
  */
 @Component
-public class FileUtils {
+public class FilePreviewCommonService {
 
     private static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
 
     private final String fileDir = ConfigConstants.getFileDir();
     private final CacheService cacheService;
 
-    public FileUtils(CacheService cacheService) {
+    public FilePreviewCommonService(CacheService cacheService) {
         this.cacheService = cacheService;
     }
 
@@ -60,41 +60,12 @@ public class FileUtils {
     public FileType typeFromUrl(String url) {
         String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
-        return typeFromFileName(fileName);
+        return this.typeFromFileName(fileName);
     }
 
     private FileType typeFromFileName(String fileName) {
-        String[] simText = ConfigConstants.getSimText();
-        String[] media = ConfigConstants.getMedia();
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (listPictureTypes().contains(fileType.toLowerCase())) {
-            return FileType.picture;
-        }
-        if (listArchiveTypes().contains(fileType.toLowerCase())) {
-            return FileType.compress;
-        }
-        if (listOfficeTypes().contains(fileType.toLowerCase())) {
-            return FileType.office;
-        }
-        if ("md".equalsIgnoreCase(fileType)) {
-            return FileType.markdown;
-        }
-        if ("xml".equalsIgnoreCase(fileType)) {
-            return FileType.xml;
-        }
-        if (Arrays.asList(simText).contains(fileType.toLowerCase())) {
-            return FileType.simText;
-        }
-        if (Arrays.asList(media).contains(fileType.toLowerCase())) {
-            return FileType.media;
-        }
-        if ("pdf".equalsIgnoreCase(fileType)) {
-            return FileType.pdf;
-        }
-        if ("dwg".equalsIgnoreCase(fileType)) {
-            return FileType.cad;
-        }
-        return FileType.other;
+        return FileType.to(fileType);
     }
 
     /**
@@ -118,41 +89,6 @@ public class FileUtils {
      */
     public String getFileNameFromPath(String path) {
         return path.substring(path.lastIndexOf(File.separator) + 1);
-    }
-
-    public List<String> listPictureTypes() {
-        List<String> list = new LinkedList<>();
-        list.add("jpg");
-        list.add("jpeg");
-        list.add("png");
-        list.add("gif");
-        list.add("bmp");
-        list.add("ico");
-        list.add("RAW");
-        return list;
-    }
-
-    public List<String> listArchiveTypes() {
-        List<String> list = new LinkedList<>();
-        list.add("rar");
-        list.add("zip");
-        list.add("jar");
-        list.add("7-zip");
-        list.add("tar");
-        list.add("gzip");
-        list.add("7z");
-        return list;
-    }
-
-    public List<String> listOfficeTypes() {
-        List<String> list = new LinkedList<>();
-        list.add("docx");
-        list.add("doc");
-        list.add("xls");
-        list.add("xlsx");
-        list.add("ppt");
-        list.add("pptx");
-        return list;
     }
 
     /**
@@ -341,7 +277,7 @@ public class FileUtils {
         String fullFileName = this.getUrlParameterReg(url, "fullfilename");
         if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
-            type = typeFromFileName(fullFileName);
+            type = this.typeFromFileName(fullFileName);
             suffix = suffixFromFileName(fullFileName);
         } else {
             fileName = getFileNameFromURL(url);

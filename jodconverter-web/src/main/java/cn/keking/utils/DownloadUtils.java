@@ -5,6 +5,7 @@ import cn.keking.hutool.URLUtil;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.FilePreviewCommonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,10 +25,10 @@ public class DownloadUtils {
 
     private final String fileDir = ConfigConstants.getFileDir();
 
-    private final FileUtils fileUtils;
+    private final FilePreviewCommonService filePreviewCommonService;
 
-    public DownloadUtils(FileUtils fileUtils) {
-        this.fileUtils = fileUtils;
+    public DownloadUtils(FilePreviewCommonService filePreviewCommonService) {
+        this.filePreviewCommonService = filePreviewCommonService;
     }
 
     private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
@@ -61,9 +62,9 @@ public class DownloadUtils {
                 OutputStream os = new FileOutputStream(realPath);
                 saveBytesToOutStream(bytes, os);
             } else if (url.getProtocol() != null && "ftp".equalsIgnoreCase(url.getProtocol())) {
-                String ftpUsername = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
-                String ftpPassword = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
-                String ftpControlEncoding = fileUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
+                String ftpUsername = filePreviewCommonService.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
+                String ftpPassword = filePreviewCommonService.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
+                String ftpControlEncoding = filePreviewCommonService.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
                 FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
             } else {
                 response.setCode(1);

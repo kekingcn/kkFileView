@@ -4,7 +4,7 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.utils.FileUtils;
+import cn.keking.service.FilePreviewCommonService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -18,13 +18,13 @@ import java.util.List;
 @Service
 public class PictureFilePreviewImpl implements FilePreview {
 
-    private final FileUtils fileUtils;
+    private final FilePreviewCommonService filePreviewCommonService;
 
     private final DownloadUtils downloadUtils;
 
-    public PictureFilePreviewImpl(FileUtils fileUtils,
+    public PictureFilePreviewImpl(FilePreviewCommonService filePreviewCommonService,
                                   DownloadUtils downloadUtils) {
-        this.fileUtils = fileUtils;
+        this.filePreviewCommonService = filePreviewCommonService;
         this.downloadUtils = downloadUtils;
     }
 
@@ -33,7 +33,7 @@ public class PictureFilePreviewImpl implements FilePreview {
         List<String> imgUrls = new ArrayList<>();
         imgUrls.add(url);
         String fileKey = fileAttribute.getFileKey();
-        List<String> zipImgUrls = fileUtils.getImgCache(fileKey);
+        List<String> zipImgUrls = filePreviewCommonService.getImgCache(fileKey);
         if (!CollectionUtils.isEmpty(zipImgUrls)) {
             imgUrls.addAll(zipImgUrls);
         }
@@ -45,7 +45,7 @@ public class PictureFilePreviewImpl implements FilePreview {
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
             } else {
-                String file = fileUtils.getRelativePath(response.getContent());
+                String file = filePreviewCommonService.getRelativePath(response.getContent());
                 imgUrls.clear();
                 imgUrls.add(file);
                 model.addAttribute("imgurls", imgUrls);
