@@ -1,14 +1,18 @@
 package cn.keking.utils;
 
+import cpdetector.CharsetPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
-public class DeleteFileUtil {
+public class FileUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteFileUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+
+    public static final String DEFAULT_FILE_ENCODING = "UTF-8";
 
     /**
      * 删除单个文件
@@ -17,7 +21,7 @@ public class DeleteFileUtil {
      *            要删除的文件的文件名
      * @return 单个文件删除成功返回true，否则返回false
      */
-    public static boolean deleteFile(String fileName) {
+    public static boolean deleteFileByName(String fileName) {
         File file = new File(fileName);
         // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
         if (file.exists() && file.isFile()) {
@@ -34,6 +38,36 @@ public class DeleteFileUtil {
         }
     }
 
+    /**
+     * 判断文件编码格式
+     *
+     * @param filePath 绝对路径
+     * @return 编码格式
+     */
+    public static String getFileEncode(String filePath) {
+        File file = new File(filePath);
+        CharsetPrinter cp = new CharsetPrinter();
+        try {
+            String encoding = cp.guessEncoding(file);
+            LOGGER.info("检测到文件【{}】编码: {}", filePath, encoding);
+            return encoding;
+        } catch (IOException e) {
+            LOGGER.warn("文件编码获取失败，采用默认的编码格式：UTF-8", e);
+            return DEFAULT_FILE_ENCODING;
+        }
+    }
+
+    /**
+     * 根据文件路径删除文件
+     *
+     * @param filePath 绝对路径
+     */
+    public static void deleteFileByPath(String filePath) {
+        File file = new File(filePath);
+        if (file.exists() && !file.delete()) {
+            LOGGER.warn("压缩包源文件删除失败:{}！", filePath);
+        }
+    }
 
     /**
      * 删除目录及目录下的文件
@@ -59,20 +93,20 @@ public class DeleteFileUtil {
         for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
             // 删除子文件
             if (files[i].isFile()) {
-                flag = DeleteFileUtil.deleteFile(files[i].getAbsolutePath());
+                flag = FileUtils.deleteFileByName(files[i].getAbsolutePath());
                 if (!flag) {
                     break;
                 }
             }  else if (files[i].isDirectory()) {
                 // 删除子目录
-                flag = DeleteFileUtil.deleteDirectory(files[i].getAbsolutePath());
+                flag = FileUtils.deleteDirectory(files[i].getAbsolutePath());
                 if (!flag) {
                     break;
                 }
             }
         }
-        dirFile.delete();
-        if (!flag) {
+
+        if (!dirFile.delete() || !flag) {
             LOGGER.info("删除目录失败！");
             return false;
         }

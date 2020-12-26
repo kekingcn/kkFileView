@@ -1,7 +1,6 @@
 package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
-import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
@@ -13,7 +12,6 @@ import org.springframework.util.Base64Utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 /**
  * Created by kl on 2018/1/17.
@@ -22,8 +20,10 @@ import java.nio.file.Files;
 @Service
 public class SimTextFilePreviewImpl implements FilePreview {
 
-    private final DownloadUtils downloadUtils;
+    public static final String TEXT_TYPE = "textType";
+    public static final String DEFAULT_TEXT_TYPE = "simText";
 
+    private final DownloadUtils downloadUtils;
 
     public SimTextFilePreviewImpl(DownloadUtils downloadUtils) {
         this.downloadUtils = downloadUtils;

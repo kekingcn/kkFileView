@@ -10,10 +10,10 @@ import java.io.File;
  */
 @Component
 public class OfficeToPdfService {
-    private final OfficeProcessManager officeProcessManager;
+    private final OfficePluginManager officePluginManager;
 
-    public OfficeToPdfService(OfficeProcessManager officeProcessManager) {
-        this.officeProcessManager = officeProcessManager;
+    public OfficeToPdfService(OfficePluginManager officePluginManager) {
+        this.officePluginManager = officePluginManager;
     }
 
     public void openOfficeToPDF(String inputFilePath, String outputFilePath) {
@@ -33,7 +33,7 @@ public class OfficeToPdfService {
 
 
     public void office2pdf(String inputFilePath, String outputFilePath) {
-        OfficeDocumentConverter converter = officeProcessManager.getDocumentConverter();
+        OfficeDocumentConverter converter = officePluginManager.getDocumentConverter();
         if (null != inputFilePath) {
             File inputFile = new File(inputFilePath);
             // 判断目标文件路径是否为空

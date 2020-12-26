@@ -6,7 +6,7 @@ import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.CadUtils;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FilePreviewCommonService;
+import cn.keking.service.FileHandlerService;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 @Service
 public class CadFilePreviewImpl implements FilePreview {
 
-    private final FilePreviewCommonService filePreviewCommonService;
+    private final FileHandlerService fileHandlerService;
 
     private final DownloadUtils downloadUtils;
 
@@ -30,11 +30,11 @@ public class CadFilePreviewImpl implements FilePreview {
 
     private final PdfUtils pdfUtils;
 
-    public CadFilePreviewImpl(FilePreviewCommonService filePreviewCommonService,
+    public CadFilePreviewImpl(FileHandlerService fileHandlerService,
                               DownloadUtils downloadUtils,
                               CadUtils cadUtils,
                               PdfUtils pdfUtils) {
-        this.filePreviewCommonService = filePreviewCommonService;
+        this.fileHandlerService = fileHandlerService;
         this.downloadUtils = downloadUtils;
         this.cadUtils = cadUtils;
         this.pdfUtils = pdfUtils;
@@ -56,7 +56,7 @@ public class CadFilePreviewImpl implements FilePreview {
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = FILE_DIR + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
-        if (!filePreviewCommonService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+        if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath;
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
@@ -74,7 +74,7 @@ public class CadFilePreviewImpl implements FilePreview {
                 }
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
-                    filePreviewCommonService.addConvertedFile(pdfName, filePreviewCommonService.getRelativePath(outFilePath));
+                    fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                 }
             }
         }

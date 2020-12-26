@@ -1,6 +1,5 @@
 package cn.keking.service;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import org.springframework.ui.Model;
 
@@ -9,9 +8,5 @@ import org.springframework.ui.Model;
  * Content :
  */
 public interface FilePreview {
-
-    String TEXT_TYPE = "textType";
-    String DEFAULT_TEXT_TYPE = "simText";
-
     String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);
 }

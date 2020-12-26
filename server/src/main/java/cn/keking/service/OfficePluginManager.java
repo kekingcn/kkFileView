@@ -32,9 +32,9 @@ import java.util.Properties;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class OfficeProcessManager {
+public class OfficePluginManager {
 
-    private final Logger logger = LoggerFactory.getLogger(OfficeProcessManager.class);
+    private final Logger logger = LoggerFactory.getLogger(OfficePluginManager.class);
 
     private OfficeManager officeManager;
 

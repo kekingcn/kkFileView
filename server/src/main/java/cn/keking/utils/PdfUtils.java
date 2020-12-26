@@ -1,6 +1,6 @@
 package cn.keking.utils;
 
-import cn.keking.service.FilePreviewCommonService;
+import cn.keking.service.FileHandlerService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -23,18 +23,18 @@ public class PdfUtils {
 
     private final Logger logger = LoggerFactory.getLogger(PdfUtils.class);
 
-    private final FilePreviewCommonService filePreviewCommonService;
+    private final FileHandlerService fileHandlerService;
 
     @Value("${server.tomcat.uri-encoding:UTF-8}")
     private String uriEncoding;
 
-    public PdfUtils(FilePreviewCommonService filePreviewCommonService) {
-        this.filePreviewCommonService = filePreviewCommonService;
+    public PdfUtils(FileHandlerService fileHandlerService) {
+        this.fileHandlerService = fileHandlerService;
     }
 
     public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl) {
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = filePreviewCommonService.getConvertedPdfImage(pdfFilePath);
+        Integer imageCount = fileHandlerService.getConvertedPdfImage(pdfFilePath);
         String imageFileSuffix = ".jpg";
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
         String urlPrefix = null;
@@ -70,7 +70,7 @@ public class PdfUtils {
                 imageUrls.add(urlPrefix + "/" + pageIndex + imageFileSuffix);
             }
             doc.close();
-            filePreviewCommonService.addConvertedPdfImage(pdfFilePath, pageCount);
+            fileHandlerService.addConvertedPdfImage(pdfFilePath, pageCount);
         } catch (IOException e) {
             logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
         }

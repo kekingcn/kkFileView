@@ -6,7 +6,7 @@ import cn.keking.service.FilePreviewFactory;
 
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FilePreviewCommonService;
+import cn.keking.service.FileHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -32,12 +32,12 @@ public class OnlinePreviewController {
 
     private final FilePreviewFactory previewFactory;
     private final CacheService cacheService;
-    private final FilePreviewCommonService filePreviewCommonService;
+    private final FileHandlerService fileHandlerService;
     private final DownloadUtils downloadUtils;
 
-    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FilePreviewCommonService filePreviewCommonService, CacheService cacheService, DownloadUtils downloadUtils) {
+    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService, DownloadUtils downloadUtils) {
         this.previewFactory = filePreviewFactory;
-        this.filePreviewCommonService = filePreviewCommonService;
+        this.fileHandlerService = fileHandlerService;
         this.cacheService = cacheService;
         this.downloadUtils = downloadUtils;
     }
@@ -45,7 +45,7 @@ public class OnlinePreviewController {
 
     @RequestMapping(value = "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
-        FileAttribute fileAttribute = filePreviewCommonService.getFileAttribute(url,req);
+        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(url,req);
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", url, fileAttribute.getType());
         return filePreview.filePreviewHandle(url, model, fileAttribute);

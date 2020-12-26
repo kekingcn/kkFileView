@@ -21,18 +21,18 @@ public class FileConvertQueueTask {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final FilePreviewFactory previewFactory;
     private final CacheService cacheService;
-    private final FilePreviewCommonService filePreviewCommonService;
+    private final FileHandlerService fileHandlerService;
 
-    public FileConvertQueueTask(FilePreviewFactory previewFactory, CacheService cacheService, FilePreviewCommonService filePreviewCommonService) {
+    public FileConvertQueueTask(FilePreviewFactory previewFactory, CacheService cacheService, FileHandlerService fileHandlerService) {
         this.previewFactory = previewFactory;
         this.cacheService = cacheService;
-        this.filePreviewCommonService = filePreviewCommonService;
+        this.fileHandlerService = fileHandlerService;
     }
 
     @PostConstruct
     public void startTask(){
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        executorService.submit(new ConvertTask(previewFactory, cacheService, filePreviewCommonService));
+        executorService.submit(new ConvertTask(previewFactory, cacheService, fileHandlerService));
         logger.info("队列处理文件转换任务启动完成 ");
     }
 
@@ -41,14 +41,14 @@ public class FileConvertQueueTask {
         private final Logger logger = LoggerFactory.getLogger(ConvertTask.class);
         private final FilePreviewFactory previewFactory;
         private final CacheService cacheService;
-        private final FilePreviewCommonService filePreviewCommonService;
+        private final FileHandlerService fileHandlerService;
 
         public ConvertTask(FilePreviewFactory previewFactory,
                            CacheService cacheService,
-                           FilePreviewCommonService filePreviewCommonService) {
+                           FileHandlerService fileHandlerService) {
             this.previewFactory = previewFactory;
             this.cacheService = cacheService;
-            this.filePreviewCommonService = filePreviewCommonService;
+            this.fileHandlerService = fileHandlerService;
         }
 
         @Override
@@ -58,7 +58,7 @@ public class FileConvertQueueTask {
                 try {
                     url = cacheService.takeQueueTask();
                     if(url != null){
-                        FileAttribute fileAttribute = filePreviewCommonService.getFileAttribute(url,null);
+                        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(url,null);
                         FileType fileType = fileAttribute.getType();
                         logger.info("正在处理预览转换任务，url：{}，预览类型：{}", url, fileType);
                         if(fileType.equals(FileType.compress) || fileType.equals(FileType.office) || fileType.equals(FileType.cad)) {

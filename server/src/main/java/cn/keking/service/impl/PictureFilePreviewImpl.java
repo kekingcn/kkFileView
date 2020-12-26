@@ -4,7 +4,7 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FilePreviewCommonService;
+import cn.keking.service.FileHandlerService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -18,13 +18,13 @@ import java.util.List;
 @Service
 public class PictureFilePreviewImpl implements FilePreview {
 
-    private final FilePreviewCommonService filePreviewCommonService;
+    private final FileHandlerService fileHandlerService;
 
     private final DownloadUtils downloadUtils;
 
-    public PictureFilePreviewImpl(FilePreviewCommonService filePreviewCommonService,
+    public PictureFilePreviewImpl(FileHandlerService fileHandlerService,
                                   DownloadUtils downloadUtils) {
-        this.filePreviewCommonService = filePreviewCommonService;
+        this.fileHandlerService = fileHandlerService;
         this.downloadUtils = downloadUtils;
     }
 
@@ -33,7 +33,7 @@ public class PictureFilePreviewImpl implements FilePreview {
         List<String> imgUrls = new ArrayList<>();
         imgUrls.add(url);
         String fileKey = fileAttribute.getFileKey();
-        List<String> zipImgUrls = filePreviewCommonService.getImgCache(fileKey);
+        List<String> zipImgUrls = fileHandlerService.getImgCache(fileKey);
         if (!CollectionUtils.isEmpty(zipImgUrls)) {
             imgUrls.addAll(zipImgUrls);
         }
@@ -45,7 +45,7 @@ public class PictureFilePreviewImpl implements FilePreview {
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
             } else {
-                String file = filePreviewCommonService.getRelativePath(response.getContent());
+                String file = fileHandlerService.getRelativePath(response.getContent());
                 imgUrls.clear();
                 imgUrls.add(file);
                 model.addAttribute("imgurls", imgUrls);
