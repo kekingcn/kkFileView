@@ -24,13 +24,11 @@ public class OfficeFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final PdfUtils pdfUtils;
-    private final DownloadUtils downloadUtils;
     private final OfficeToPdfService officeToPdfService;
 
-    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, PdfUtils pdfUtils, DownloadUtils downloadUtils, OfficeToPdfService officeToPdfService) {
+    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, PdfUtils pdfUtils, OfficeToPdfService officeToPdfService) {
         this.fileHandlerService = fileHandlerService;
         this.pdfUtils = pdfUtils;
-        this.downloadUtils = downloadUtils;
         this.officeToPdfService = officeToPdfService;
     }
 
@@ -51,7 +49,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath;
-            ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
+            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
                 model.addAttribute("msg", response.getMsg());

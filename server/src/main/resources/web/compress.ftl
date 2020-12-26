@@ -38,8 +38,11 @@
 <script src="js/watermark.js" type="text/javascript"></script>
 <script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
 <script type="text/javascript" src="js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="js/base64.min.js" ></script>
+
 <script type="text/javascript">
     var data = JSON.parse('${fileTree}');
+    var baseUrl = "${baseUrl}";
     var setting = {
         view: {
             fontCss : {"color":"blue"},
@@ -71,8 +74,8 @@
                     } else {
                         fulls += ",resizable"; // 对于不支持screen属性的浏览器，可以手工进行最大化。 manually
                     }
-                    window.open("onlinePreview?url="
-                            + encodeURIComponent("${baseUrl}" + treeNode.fileName)+"&fileKey="+ encodeURIComponent(treeNode.fileKey), "_blank",fulls);
+                    var previewUrl = baseUrl + treeNode.fileName +"&fileKey="+ treeNode.fileKey;
+                    window.open("onlinePreview?url=" + encodeURIComponent(Base64.encode(previewUrl)), "_blank",fulls);
                 }
             }
         }

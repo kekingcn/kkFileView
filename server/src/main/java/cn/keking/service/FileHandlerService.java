@@ -4,13 +4,13 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
+import cn.keking.utils.WebUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -190,55 +190,6 @@ public class FileHandlerService {
     }
 
     /**
-     * 获取url中的参数
-     *
-     * @param url  url
-     * @param name 参数名
-     * @return 参数值
-     */
-    public String getUrlParameterReg(String url, String name) {
-        Map<String, String> mapRequest = new HashMap<>();
-        String strUrlParam = truncateUrlPage(url);
-        if (strUrlParam == null) {
-            return "";
-        }
-        //每个键值为一组
-        String[] arrSplit = strUrlParam.split("[&]");
-        for (String strSplit : arrSplit) {
-            String[] arrSplitEqual = strSplit.split("[=]");
-            //解析出键值
-            if (arrSplitEqual.length > 1) {
-                //正确解析
-                mapRequest.put(arrSplitEqual[0], arrSplitEqual[1]);
-            } else if (!arrSplitEqual[0].equals("")) {
-                //只有参数没有值，不加入
-                mapRequest.put(arrSplitEqual[0], "");
-            }
-        }
-        return mapRequest.get(name);
-    }
-
-    /**
-     * 去掉url中的路径，留下请求参数部分
-     *
-     * @param strURL url地址
-     * @return url请求参数部分
-     */
-    private String truncateUrlPage(String strURL) {
-        String strAllParam = null;
-        strURL = strURL.trim();
-        String[] arrSplit = strURL.split("[?]");
-        if (strURL.length() > 1) {
-            if (arrSplit.length > 1) {
-                if (arrSplit[1] != null) {
-                    strAllParam = arrSplit[1];
-                }
-            }
-        }
-        return strAllParam;
-    }
-
-    /**
      * 获取文件属性
      *
      * @param url url
@@ -249,7 +200,7 @@ public class FileHandlerService {
         String suffix;
         FileType type;
         String fileName;
-        String fullFileName = this.getUrlParameterReg(url, "fullfilename");
+        String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
         if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
             type = this.typeFromFileName(fullFileName);

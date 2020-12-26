@@ -1,14 +1,11 @@
 package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
-import cn.keking.hutool.URLUtil;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.FileHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.*;
@@ -18,27 +15,20 @@ import java.util.UUID;
 /**
  * @author yudian-it
  */
-@Component
 public class DownloadUtils {
 
     private final static Logger logger = LoggerFactory.getLogger(DownloadUtils.class);
-    private final String fileDir = ConfigConstants.getFileDir();
+    private static final String fileDir = ConfigConstants.getFileDir();
     private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
     private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
-
-    private final FileHandlerService fileHandlerService;
-
-    public DownloadUtils(FileHandlerService fileHandlerService) {
-        this.fileHandlerService = fileHandlerService;
-    }
 
     /**
      * @param fileAttribute fileAttribute
      * @param fileName      文件名
      * @return 本地文件绝对路径
      */
-    public ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
+    public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
         String urlStr = fileAttribute.getUrl();
         String type = fileAttribute.getSuffix();
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
@@ -60,9 +50,9 @@ public class DownloadUtils {
                 OutputStream os = new FileOutputStream(realPath);
                 saveBytesToOutStream(bytes, os);
             } else if (url.getProtocol() != null && "ftp".equalsIgnoreCase(url.getProtocol())) {
-                String ftpUsername = fileHandlerService.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
-                String ftpPassword = fileHandlerService.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
-                String ftpControlEncoding = fileHandlerService.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
+                String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
+                String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
+                String ftpControlEncoding = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
                 FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
             } else {
                 response.setCode(1);
@@ -72,7 +62,7 @@ public class DownloadUtils {
             response.setContent(realPath);
             response.setMsg(fileName);
             if (FileType.simText.equals(fileAttribute.getType())) {
-                this.convertTextPlainFileCharsetToUtf8(realPath);
+                convertTextPlainFileCharsetToUtf8(realPath);
             }
             return response;
         } catch (IOException e) {
@@ -88,10 +78,10 @@ public class DownloadUtils {
         }
     }
 
-    public byte[] getBytesFromUrl(String urlStr) throws IOException {
+    public static byte[] getBytesFromUrl(String urlStr) throws IOException {
         InputStream is = getInputStreamFromUrl(urlStr);
         if (is == null) {
-            urlStr = URLUtil.normalize(urlStr, true, true);
+         //   urlStr = URLUtil.normalize(urlStr, true, true);
             is = getInputStreamFromUrl(urlStr);
             if (is == null) {
                 logger.error("文件下载异常：url：{}", urlStr);
@@ -101,12 +91,12 @@ public class DownloadUtils {
         return getBytesFromStream(is);
     }
 
-    public void saveBytesToOutStream(byte[] b, OutputStream os) throws IOException {
+    public static void saveBytesToOutStream(byte[] b, OutputStream os) throws IOException {
         os.write(b);
         os.close();
     }
 
-    private InputStream getInputStreamFromUrl(String urlStr) {
+    private static InputStream getInputStreamFromUrl(String urlStr) {
         try {
             URL url = new URL(urlStr);
             URLConnection connection = url.openConnection();
@@ -120,7 +110,7 @@ public class DownloadUtils {
         }
     }
 
-    private byte[] getBytesFromStream(InputStream is) throws IOException {
+    private static byte[] getBytesFromStream(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int len;
@@ -139,7 +129,7 @@ public class DownloadUtils {
      *
      * @param filePath 文件路径
      */
-    private void convertTextPlainFileCharsetToUtf8(String filePath) throws IOException {
+    private static void convertTextPlainFileCharsetToUtf8(String filePath) throws IOException {
         File sourceFile = new File(filePath);
         if (sourceFile.exists() && sourceFile.isFile() && sourceFile.canRead()) {
             String encoding = FileUtils.getFileEncode(filePath);

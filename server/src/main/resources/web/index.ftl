@@ -15,6 +15,7 @@
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="bootstrap-table/bootstrap-table.min.js"></script>
     <script type="text/javascript" src="gitalk/gitalk.min.js"></script>
+    <script type="text/javascript" src="js/base64.min.js" ></script>
 </head>
 
 <body>
@@ -36,14 +37,14 @@
                     成功实现：
                     <pre style="background-color: #2f332a;color: #cccccc">
 var url = 'http://127.0.0.1:8080/file/test.txt'; //要预览文件的访问地址
-window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(url));
+window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(base64Encode(url)));
                     </pre>
                 </div>
                 <div>
                     新增多图片同时预览功能，接口如下：
                     <pre style="background-color: #2f332a;color: #cccccc">
 var fileUrl =url1+"|"+"url2";//多文件使用“|”字符隔开
-window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fileUrl));
+window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(base64Encode(fileUrl)));
                     </pre>
                 </div>
             </div>
@@ -195,7 +196,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         }).on('pre-body.bs.table', function (e,data) {
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
-                item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url="+ encodeURIComponent('${baseUrl}' + item.fileName) +"'>预览</a>" +
+                item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url="+ encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) +"'>预览</a>" +
                     "<a class='btn btn-default' href='javascript:void(0);' onclick='deleteFile(\""+item.fileName+"\")'>删除</a>";
             });
             return data;

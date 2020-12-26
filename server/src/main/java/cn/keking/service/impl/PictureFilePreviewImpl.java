@@ -20,12 +20,8 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
 
-    private final DownloadUtils downloadUtils;
-
-    public PictureFilePreviewImpl(FileHandlerService fileHandlerService,
-                                  DownloadUtils downloadUtils) {
+    public PictureFilePreviewImpl(FileHandlerService fileHandlerService) {
         this.fileHandlerService = fileHandlerService;
-        this.downloadUtils = downloadUtils;
     }
 
     @Override
@@ -39,7 +35,7 @@ public class PictureFilePreviewImpl implements FilePreview {
         }
         // 不是http开头，浏览器不能直接访问，需下载到本地
         if (url != null && !url.toLowerCase().startsWith("http")) {
-            ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
+            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", fileAttribute.getSuffix());
                 model.addAttribute("msg", response.getMsg());

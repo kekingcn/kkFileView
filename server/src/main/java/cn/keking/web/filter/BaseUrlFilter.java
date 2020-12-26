@@ -38,7 +38,7 @@ public class BaseUrlFilter implements Filter {
         pathBuilder.append(request.getScheme()).append("://").append(request.getServerName()).append(":")
                 .append(request.getServerPort()).append(((HttpServletRequest) request).getContextPath()).append("/");
         String baseUrlTmp = ConfigConstants.getBaseUrl();
-        if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equals(baseUrlTmp.toLowerCase())) {
+        if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(baseUrlTmp)) {
             if (!baseUrlTmp.endsWith("/")) {
                 baseUrlTmp = baseUrlTmp.concat("/");
             }

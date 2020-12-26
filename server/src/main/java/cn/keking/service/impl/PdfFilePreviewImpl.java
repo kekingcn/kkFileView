@@ -21,19 +21,12 @@ import java.util.List;
 public class PdfFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
-
     private final PdfUtils pdfUtils;
-
-    private final DownloadUtils downloadUtils;
-
     private static final String FILE_DIR = ConfigConstants.getFileDir();
 
-    public PdfFilePreviewImpl(FileHandlerService fileHandlerService,
-                              PdfUtils pdfUtils,
-                              DownloadUtils downloadUtils) {
+    public PdfFilePreviewImpl(FileHandlerService fileHandlerService, PdfUtils pdfUtils) {
         this.fileHandlerService = fileHandlerService;
         this.pdfUtils = pdfUtils;
-        this.downloadUtils = downloadUtils;
     }
 
     @Override
@@ -47,7 +40,7 @@ public class PdfFilePreviewImpl implements FilePreview {
         if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType)) {
             //当文件不存在时，就去下载
             if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
-                ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
+                ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
                 if (0 != response.getCode()) {
                     model.addAttribute("fileType", suffix);
                     model.addAttribute("msg", response.getMsg());
@@ -76,7 +69,7 @@ public class PdfFilePreviewImpl implements FilePreview {
             // 不是http开头，浏览器不能直接访问，需下载到本地
             if (url != null && !url.toLowerCase().startsWith("http")) {
                 if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
-                    ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, pdfName);
+                    ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, pdfName);
                     if (0 != response.getCode()) {
                         model.addAttribute("fileType", suffix);
                         model.addAttribute("msg", response.getMsg());
