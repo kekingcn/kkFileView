@@ -5,7 +5,7 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FilePreviewCommonService;
+import cn.keking.service.FileHandlerService;
 import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 public class PdfFilePreviewImpl implements FilePreview {
 
-    private final FilePreviewCommonService filePreviewCommonService;
+    private final FileHandlerService fileHandlerService;
 
     private final PdfUtils pdfUtils;
 
@@ -28,10 +28,10 @@ public class PdfFilePreviewImpl implements FilePreview {
 
     private static final String FILE_DIR = ConfigConstants.getFileDir();
 
-    public PdfFilePreviewImpl(FilePreviewCommonService filePreviewCommonService,
+    public PdfFilePreviewImpl(FileHandlerService fileHandlerService,
                               PdfUtils pdfUtils,
                               DownloadUtils downloadUtils) {
-        this.filePreviewCommonService = filePreviewCommonService;
+        this.fileHandlerService = fileHandlerService;
         this.pdfUtils = pdfUtils;
         this.downloadUtils = downloadUtils;
     }
@@ -46,7 +46,7 @@ public class PdfFilePreviewImpl implements FilePreview {
         String outFilePath = FILE_DIR + pdfName;
         if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType)) {
             //当文件不存在时，就去下载
-            if (!filePreviewCommonService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+            if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                 ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
                 if (0 != response.getCode()) {
                     model.addAttribute("fileType", suffix);
@@ -56,7 +56,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                 outFilePath = response.getContent();
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
-                    filePreviewCommonService.addConvertedFile(pdfName, filePreviewCommonService.getRelativePath(outFilePath));
+                    fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                 }
             }
             List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
@@ -75,17 +75,17 @@ public class PdfFilePreviewImpl implements FilePreview {
         } else {
             // 不是http开头，浏览器不能直接访问，需下载到本地
             if (url != null && !url.toLowerCase().startsWith("http")) {
-                if (!filePreviewCommonService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+                if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                     ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, pdfName);
                     if (0 != response.getCode()) {
                         model.addAttribute("fileType", suffix);
                         model.addAttribute("msg", response.getMsg());
                         return "fileNotSupported";
                     }
-                    model.addAttribute("pdfUrl", filePreviewCommonService.getRelativePath(response.getContent()));
+                    model.addAttribute("pdfUrl", fileHandlerService.getRelativePath(response.getContent()));
                     if (ConfigConstants.isCacheEnabled()) {
                         // 加入缓存
-                        filePreviewCommonService.addConvertedFile(pdfName, filePreviewCommonService.getRelativePath(outFilePath));
+                        fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                     }
                 } else {
                     model.addAttribute("pdfUrl", pdfName);

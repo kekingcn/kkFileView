@@ -5,8 +5,8 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FilePreviewCommonService;
-import cn.keking.utils.ZipReader;
+import cn.keking.service.FileHandlerService;
+import cn.keking.service.CompressFileReader;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -18,18 +18,14 @@ import org.springframework.util.StringUtils;
 @Service
 public class CompressFilePreviewImpl implements FilePreview {
 
-    private final FilePreviewCommonService filePreviewCommonService;
-
+    private final FileHandlerService fileHandlerService;
     private final DownloadUtils downloadUtils;
+    private final CompressFileReader compressFileReader;
 
-    private final ZipReader zipReader;
-
-    public CompressFilePreviewImpl(FilePreviewCommonService filePreviewCommonService,
-                                   DownloadUtils downloadUtils,
-                                   ZipReader zipReader) {
-        this.filePreviewCommonService = filePreviewCommonService;
+    public CompressFilePreviewImpl(FileHandlerService fileHandlerService, DownloadUtils downloadUtils, CompressFileReader compressFileReader) {
+        this.fileHandlerService = fileHandlerService;
         this.downloadUtils = downloadUtils;
-        this.zipReader = zipReader;
+        this.compressFileReader = compressFileReader;
     }
 
     @Override
@@ -38,7 +34,7 @@ public class CompressFilePreviewImpl implements FilePreview {
         String suffix=fileAttribute.getSuffix();
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
-        if (!StringUtils.hasText(filePreviewCommonService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
+        if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
@@ -47,17 +43,17 @@ public class CompressFilePreviewImpl implements FilePreview {
             }
             String filePath = response.getContent();
             if ("zip".equalsIgnoreCase(suffix) || "jar".equalsIgnoreCase(suffix) || "gzip".equalsIgnoreCase(suffix)) {
-                fileTree = zipReader.readZipFile(filePath, fileName);
+                fileTree = compressFileReader.readZipFile(filePath, fileName);
             } else if ("rar".equalsIgnoreCase(suffix)) {
-                fileTree = zipReader.unRar(filePath, fileName);
+                fileTree = compressFileReader.unRar(filePath, fileName);
             } else if ("7z".equalsIgnoreCase(suffix)) {
-                fileTree = zipReader.read7zFile(filePath, fileName);
+                fileTree = compressFileReader.read7zFile(filePath, fileName);
             }
             if (fileTree != null && !"null".equals(fileTree) && ConfigConstants.isCacheEnabled()) {
-                filePreviewCommonService.addConvertedFile(fileName, fileTree);
+                fileHandlerService.addConvertedFile(fileName, fileTree);
             }
         } else {
-            fileTree = filePreviewCommonService.getConvertedFile(fileName);
+            fileTree = fileHandlerService.getConvertedFile(fileName);
         }
         if (fileTree != null && !"null".equals(fileTree)) {
             model.addAttribute("fileTree", fileTree);

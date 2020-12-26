@@ -31,7 +31,7 @@ public class ShedulerClean {
     public void clean() {
         logger.info("Cache clean start");
         cacheService.cleanCache();
-        DeleteFileUtil.deleteDirectory(fileDir);
+        FileUtils.deleteDirectory(fileDir);
         logger.info("Cache clean end");
     }
 }

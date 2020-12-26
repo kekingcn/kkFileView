@@ -9,23 +9,23 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author yudian-it
  * @date 2017/11/13
  */
 @Component
-public class FilePreviewCommonService {
+public class FileHandlerService {
 
     private static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
-
     private final String fileDir = ConfigConstants.getFileDir();
     private final CacheService cacheService;
 
-    public FilePreviewCommonService(CacheService cacheService) {
+    public FileHandlerService(CacheService cacheService) {
         this.cacheService = cacheService;
     }
 
@@ -139,31 +139,6 @@ public class FilePreviewCommonService {
      */
     public void putImgCache(String fileKey, List<String> imgs) {
         cacheService.putImgCache(fileKey, imgs);
-    }
-
-    /**
-     * 判断文件编码格式
-     *
-     * @param path 绝对路径
-     * @return 编码格式
-     */
-    public String getFileEncodeUTFGBK(String path) {
-        String enc = Charset.forName("GBK").name();
-        File file = new File(path);
-        InputStream in;
-        try {
-            in = new FileInputStream(file);
-            byte[] b = new byte[3];
-            in.read(b);
-            in.close();
-            if (b[0] == -17 && b[1] == -69 && b[2] == -65) {
-                enc = StandardCharsets.UTF_8.name();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("文件编码格式为:" + enc);
-        return enc;
     }
 
     /**
@@ -290,11 +265,11 @@ public class FilePreviewCommonService {
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
-            String fileKey =  req.getParameter("fileKey");
-            if(StringUtils.hasText(officePreviewType)){
+            String fileKey = req.getParameter("fileKey");
+            if (StringUtils.hasText(officePreviewType)) {
                 attribute.setOfficePreviewType(officePreviewType);
             }
-            if(StringUtils.hasText(fileKey)){
+            if (StringUtils.hasText(fileKey)) {
                 attribute.setFileKey(fileKey);
             }
         }
