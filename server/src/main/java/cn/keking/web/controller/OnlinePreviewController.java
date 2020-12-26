@@ -7,10 +7,12 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
+import com.thoughtworks.xstream.core.util.Base64JavaUtilCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,22 +35,20 @@ public class OnlinePreviewController {
     private final FilePreviewFactory previewFactory;
     private final CacheService cacheService;
     private final FileHandlerService fileHandlerService;
-    private final DownloadUtils downloadUtils;
 
-    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService, DownloadUtils downloadUtils) {
+    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService) {
         this.previewFactory = filePreviewFactory;
         this.fileHandlerService = fileHandlerService;
         this.cacheService = cacheService;
-        this.downloadUtils = downloadUtils;
     }
-
 
     @RequestMapping(value = "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
-        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(url,req);
+        String fileUrl = new String(Base64Utils.decodeFromString(url));
+        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl,req);
         FilePreview filePreview = previewFactory.get(fileAttribute);
-        logger.info("预览文件url：{}，previewType：{}", url, fileAttribute.getType());
-        return filePreview.filePreviewHandle(url, model, fileAttribute);
+        logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
+        return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
     }
 
     @RequestMapping(value = "/picturesPreview")
@@ -78,8 +78,8 @@ public class OnlinePreviewController {
     public void getCorsFile(String urlPath, HttpServletResponse response) {
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
-            byte[] bytes = downloadUtils.getBytesFromUrl(urlPath);
-            downloadUtils.saveBytesToOutStream(bytes, response.getOutputStream());
+            byte[] bytes = DownloadUtils.getBytesFromUrl(urlPath);
+            DownloadUtils.saveBytesToOutStream(bytes, response.getOutputStream());
         } catch (IOException e) {
             logger.error("下载跨域pdf文件异常，url：{}", urlPath, e);
         }

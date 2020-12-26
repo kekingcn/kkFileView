@@ -23,19 +23,11 @@ import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 public class CadFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
-
-    private final DownloadUtils downloadUtils;
-
     private final CadUtils cadUtils;
-
     private final PdfUtils pdfUtils;
 
-    public CadFilePreviewImpl(FileHandlerService fileHandlerService,
-                              DownloadUtils downloadUtils,
-                              CadUtils cadUtils,
-                              PdfUtils pdfUtils) {
+    public CadFilePreviewImpl(FileHandlerService fileHandlerService, CadUtils cadUtils, PdfUtils pdfUtils) {
         this.fileHandlerService = fileHandlerService;
-        this.downloadUtils = downloadUtils;
         this.cadUtils = cadUtils;
         this.pdfUtils = pdfUtils;
 
@@ -58,7 +50,7 @@ public class CadFilePreviewImpl implements FilePreview {
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath;
-            ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, null);
+            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
                 model.addAttribute("msg", response.getMsg());

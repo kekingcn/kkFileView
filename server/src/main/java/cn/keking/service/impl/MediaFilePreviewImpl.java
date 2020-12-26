@@ -17,13 +17,9 @@ import org.springframework.ui.Model;
 @Service
 public class MediaFilePreviewImpl implements FilePreview {
 
-    private final DownloadUtils downloadUtils;
-
     private final FileHandlerService fileHandlerService;
 
-    public MediaFilePreviewImpl(DownloadUtils downloadUtils,
-                                FileHandlerService fileHandlerService) {
-        this.downloadUtils = downloadUtils;
+    public MediaFilePreviewImpl(FileHandlerService fileHandlerService) {
         this.fileHandlerService = fileHandlerService;
     }
 
@@ -31,7 +27,7 @@ public class MediaFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         // 不是http开头，浏览器不能直接访问，需下载到本地
         if (url != null && !url.toLowerCase().startsWith("http")) {
-            ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileAttribute.getName());
+            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", fileAttribute.getSuffix());
                 model.addAttribute("msg", response.getMsg());

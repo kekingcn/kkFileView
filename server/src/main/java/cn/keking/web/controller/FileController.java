@@ -52,8 +52,8 @@ public class FileController {
             return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(1, "存在同名文件，请先删除原有文件再次上传", null));
         }
         File outFile = new File(fileDir + demoPath);
-        if (!outFile.exists()) {
-            outFile.mkdirs();
+        if (!outFile.exists() && !outFile.mkdirs()) {
+            logger.error("创建文件夹【{}】失败，请检查目录权限！",fileDir + demoPath);
         }
         logger.info("上传文件：{}", fileDir + demoPath + fileName);
         try(InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(fileDir + demoPath + fileName)) {
@@ -72,8 +72,8 @@ public class FileController {
         }
         File file = new File(fileDir + demoPath + fileName);
         logger.info("删除文件：{}", file.getAbsolutePath());
-        if (file.exists()) {
-            file.delete();
+        if (file.exists() && !file.delete()) {
+           logger.error("删除文件【{}】失败，请检查目录权限！",file.getPath());
         }
         return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(0, "SUCCESS", null));
     }
@@ -84,7 +84,7 @@ public class FileController {
         File file = new File(fileDir + demoPath);
         if (file.exists()) {
             Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(file1 -> {
-                Map<String, String> fileName = new HashMap();
+                Map<String, String> fileName = new HashMap<>();
                 fileName.put("fileName", demoDir + "/" + file1.getName());
                 list.add(fileName);
             });

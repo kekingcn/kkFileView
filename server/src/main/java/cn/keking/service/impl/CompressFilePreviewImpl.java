@@ -19,12 +19,10 @@ import org.springframework.util.StringUtils;
 public class CompressFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
-    private final DownloadUtils downloadUtils;
     private final CompressFileReader compressFileReader;
 
-    public CompressFilePreviewImpl(FileHandlerService fileHandlerService, DownloadUtils downloadUtils, CompressFileReader compressFileReader) {
+    public CompressFilePreviewImpl(FileHandlerService fileHandlerService, CompressFileReader compressFileReader) {
         this.fileHandlerService = fileHandlerService;
-        this.downloadUtils = downloadUtils;
         this.compressFileReader = compressFileReader;
     }
 
@@ -35,7 +33,7 @@ public class CompressFilePreviewImpl implements FilePreview {
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
         if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
-            ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
+            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
             if (0 != response.getCode()) {
                 model.addAttribute("fileType", suffix);
                 model.addAttribute("msg", response.getMsg());

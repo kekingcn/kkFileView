@@ -23,16 +23,10 @@ public class SimTextFilePreviewImpl implements FilePreview {
     public static final String TEXT_TYPE = "textType";
     public static final String DEFAULT_TEXT_TYPE = "simText";
 
-    private final DownloadUtils downloadUtils;
-
-    public SimTextFilePreviewImpl(DownloadUtils downloadUtils) {
-        this.downloadUtils = downloadUtils;
-    }
-
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
-        ReturnResponse<String> response = downloadUtils.downLoad(fileAttribute, fileName);
+        ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
         if (0 != response.getCode()) {
             model.addAttribute("msg", response.getMsg());
             model.addAttribute("fileType", fileAttribute.getSuffix());
