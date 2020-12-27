@@ -5,7 +5,7 @@ import cn.keking.service.FilePreview;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import static com.sun.glass.ui.Clipboard.TEXT_TYPE;
+import static cn.keking.service.impl.SimTextFilePreviewImpl.TEXT_TYPE;
 
 /**
  * @author kl (http://kailing.pub)

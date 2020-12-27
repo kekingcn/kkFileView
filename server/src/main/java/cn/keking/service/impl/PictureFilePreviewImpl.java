@@ -44,11 +44,11 @@ public class PictureFilePreviewImpl implements FilePreview {
                 String file = fileHandlerService.getRelativePath(response.getContent());
                 imgUrls.clear();
                 imgUrls.add(file);
-                model.addAttribute("imgurls", imgUrls);
+                model.addAttribute("imgUrls", imgUrls);
                 model.addAttribute("currentUrl", file);
             }
         } else {
-            model.addAttribute("imgurls", imgUrls);
+            model.addAttribute("imgUrls", imgUrls);
             model.addAttribute("currentUrl", url);
         }
         return PICTURE_FILE_PREVIEW_PAGE;
