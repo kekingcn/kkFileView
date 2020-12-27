@@ -27,10 +27,12 @@ public class OfficeFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OfficeToPdfService officeToPdfService;
+    private final OtherFilePreviewImpl otherFilePreview;
 
-    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, OfficeToPdfService officeToPdfService) {
+    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, OfficeToPdfService officeToPdfService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.officeToPdfService = officeToPdfService;
+        this.otherFilePreview = otherFilePreview;
     }
 
     @Override
@@ -38,8 +40,8 @@ public class OfficeFilePreviewImpl implements FilePreview {
         // 预览Type，参数传了就取参数的，没传取系统默认
         String officePreviewType = fileAttribute.getOfficePreviewType();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        String suffix=fileAttribute.getSuffix();
-        String fileName=fileAttribute.getName();
+        String suffix = fileAttribute.getSuffix();
+        String fileName = fileAttribute.getName();
         boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx");
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
         String outFilePath = FILE_DIR + pdfName;
@@ -48,9 +50,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             String filePath;
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (response.isFailure()) {
-                model.addAttribute("fileType", suffix);
-                model.addAttribute("msg", response.getMsg());
-                return "fileNotSupported";
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
             filePath = response.getContent();
             if (StringUtils.hasText(outFilePath)) {
@@ -66,18 +66,16 @@ public class OfficeFilePreviewImpl implements FilePreview {
             }
         }
         if (!isHtml && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
-            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE);
+            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE, otherFilePreview);
         }
         model.addAttribute("pdfUrl", pdfName);
         return isHtml ? "html" : "pdf";
     }
 
-    static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage) {
+    static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {
         List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
         if (imageUrls == null || imageUrls.size() < 1) {
-            model.addAttribute("msg", "office转图片异常，请联系管理员");
-            model.addAttribute("fileType",fileAttribute.getSuffix());
-            return "fileNotSupported";
+            return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
         }
         model.addAttribute("imgurls", imageUrls);
         model.addAttribute("currentUrl", imageUrls.get(0));

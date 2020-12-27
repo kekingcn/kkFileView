@@ -25,9 +25,11 @@ public class CadFilePreviewImpl implements FilePreview {
     private static final String FILE_DIR = ConfigConstants.getFileDir();
 
     private final FileHandlerService fileHandlerService;
+    private final OtherFilePreviewImpl otherFilePreview;
 
-    public CadFilePreviewImpl(FileHandlerService fileHandlerService) {
+    public CadFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
+        this.otherFilePreview = otherFilePreview;
     }
 
     @Override
@@ -35,7 +37,6 @@ public class CadFilePreviewImpl implements FilePreview {
         // 预览Type，参数传了就取参数的，没传取系统默认
         String officePreviewType = model.asMap().get("officePreviewType") == null ? ConfigConstants.getOfficePreviewType() : model.asMap().get("officePreviewType").toString();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        String suffix = fileAttribute.getSuffix();
         String fileName = fileAttribute.getName();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = FILE_DIR + pdfName;
@@ -44,17 +45,13 @@ public class CadFilePreviewImpl implements FilePreview {
             String filePath;
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (response.isFailure()) {
-                model.addAttribute("fileType", suffix);
-                model.addAttribute("msg", response.getMsg());
-                return "fileNotSupported";
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
             filePath = response.getContent();
             if (StringUtils.hasText(outFilePath)) {
                 boolean convertResult = fileHandlerService.cadToPdf(filePath, outFilePath);
                 if (!convertResult) {
-                    model.addAttribute("fileType", suffix);
-                    model.addAttribute("msg", "cad文件转换异常，请联系管理员");
-                    return "fileNotSupported";
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, "cad文件转换异常，请联系管理员");
                 }
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
@@ -63,7 +60,7 @@ public class CadFilePreviewImpl implements FilePreview {
             }
         }
         if (baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
-            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE);
+            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE,otherFilePreview);
         }
         model.addAttribute("pdfUrl", pdfName);
         return "pdf";

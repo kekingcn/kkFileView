@@ -19,9 +19,11 @@ import java.util.List;
 public class PictureFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
+    private final OtherFilePreviewImpl otherFilePreview;
 
-    public PictureFilePreviewImpl(FileHandlerService fileHandlerService) {
+    public PictureFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
+        this.otherFilePreview = otherFilePreview;
     }
 
     @Override
@@ -37,9 +39,7 @@ public class PictureFilePreviewImpl implements FilePreview {
         if (url != null && !url.toLowerCase().startsWith("http")) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (response.isFailure()) {
-                model.addAttribute("fileType", fileAttribute.getSuffix());
-                model.addAttribute("msg", response.getMsg());
-                return "fileNotSupported";
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             } else {
                 String file = fileHandlerService.getRelativePath(response.getContent());
                 imgUrls.clear();

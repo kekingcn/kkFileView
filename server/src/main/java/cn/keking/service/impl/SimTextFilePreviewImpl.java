@@ -23,23 +23,25 @@ public class SimTextFilePreviewImpl implements FilePreview {
     public static final String TEXT_TYPE = "textType";
     public static final String DEFAULT_TEXT_TYPE = "simText";
 
+    private final OtherFilePreviewImpl otherFilePreview;
+
+    public SimTextFilePreviewImpl(OtherFilePreviewImpl otherFilePreview) {
+        this.otherFilePreview = otherFilePreview;
+    }
+
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
         ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
         if (response.isFailure()) {
-            model.addAttribute("msg", response.getMsg());
-            model.addAttribute("fileType", fileAttribute.getSuffix());
-            return "fileNotSupported";
+            return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
         }
         try {
             File originFile = new File(response.getContent());
             String xmlString = FileUtils.readFileToString(originFile, StandardCharsets.UTF_8);
             model.addAttribute("textData", Base64Utils.encodeToString(xmlString.getBytes()));
         } catch (IOException e) {
-            model.addAttribute("msg", e.getLocalizedMessage());
-            model.addAttribute("fileType", fileAttribute.getSuffix());
-            return "fileNotSupported";
+            return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
         }
         if (!model.containsAttribute(TEXT_TYPE)) {
             model.addAttribute(TEXT_TYPE, DEFAULT_TEXT_TYPE);

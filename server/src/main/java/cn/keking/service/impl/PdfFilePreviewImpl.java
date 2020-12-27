@@ -20,16 +20,17 @@ import java.util.List;
 public class PdfFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
+    private final OtherFilePreviewImpl otherFilePreview;
     private static final String FILE_DIR = ConfigConstants.getFileDir();
 
-    public PdfFilePreviewImpl(FileHandlerService fileHandlerService) {
+    public PdfFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
+        this.otherFilePreview = otherFilePreview;
     }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String suffix=fileAttribute.getSuffix();
-        String fileName=fileAttribute.getName();
+        String fileName = fileAttribute.getName();
         String officePreviewType = fileAttribute.getOfficePreviewType();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
@@ -39,9 +40,7 @@ public class PdfFilePreviewImpl implements FilePreview {
             if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                 ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
                 if (response.isFailure()) {
-                    model.addAttribute("fileType", suffix);
-                    model.addAttribute("msg", response.getMsg());
-                    return "fileNotSupported";
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                 }
                 outFilePath = response.getContent();
                 if (ConfigConstants.isCacheEnabled()) {
@@ -51,9 +50,7 @@ public class PdfFilePreviewImpl implements FilePreview {
             }
             List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
             if (imageUrls == null || imageUrls.size() < 1) {
-                model.addAttribute("msg", "pdf转图片异常，请联系管理员");
-                model.addAttribute("fileType",fileAttribute.getSuffix());
-                return "fileNotSupported";
+                return otherFilePreview.notSupportedFile(model, fileAttribute, "pdf转图片异常，请联系管理员");
             }
             model.addAttribute("imgurls", imageUrls);
             model.addAttribute("currentUrl", imageUrls.get(0));
@@ -68,9 +65,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                 if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                     ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, pdfName);
                     if (response.isFailure()) {
-                        model.addAttribute("fileType", suffix);
-                        model.addAttribute("msg", response.getMsg());
-                        return "fileNotSupported";
+                        return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                     }
                     model.addAttribute("pdfUrl", fileHandlerService.getRelativePath(response.getContent()));
                     if (ConfigConstants.isCacheEnabled()) {
