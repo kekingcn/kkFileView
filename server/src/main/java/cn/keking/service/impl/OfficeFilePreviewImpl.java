@@ -7,7 +7,6 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.OfficeToPdfService;
-import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -22,19 +21,17 @@ import java.util.List;
 @Service
 public class OfficeFilePreviewImpl implements FilePreview {
 
-    private final FileHandlerService fileHandlerService;
-    private final PdfUtils pdfUtils;
-    private final OfficeToPdfService officeToPdfService;
-
-    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, PdfUtils pdfUtils, OfficeToPdfService officeToPdfService) {
-        this.fileHandlerService = fileHandlerService;
-        this.pdfUtils = pdfUtils;
-        this.officeToPdfService = officeToPdfService;
-    }
-
     public static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
     public static final String OFFICE_PREVIEW_TYPE_ALL_IMAGES = "allImages";
     private static final String FILE_DIR = ConfigConstants.getFileDir();
+
+    private final FileHandlerService fileHandlerService;
+    private final OfficeToPdfService officeToPdfService;
+
+    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, OfficeToPdfService officeToPdfService) {
+        this.fileHandlerService = fileHandlerService;
+        this.officeToPdfService = officeToPdfService;
+    }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
@@ -50,7 +47,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
             String filePath;
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
-            if (0 != response.getCode()) {
+            if (response.isFailure()) {
                 model.addAttribute("fileType", suffix);
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
@@ -69,14 +66,14 @@ public class OfficeFilePreviewImpl implements FilePreview {
             }
         }
         if (!isHtml && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
-            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, pdfUtils, OFFICE_PREVIEW_TYPE_IMAGE);
+            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE);
         }
         model.addAttribute("pdfUrl", pdfName);
         return isHtml ? "html" : "pdf";
     }
 
-    static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, PdfUtils pdfUtils, String officePreviewTypeImage) {
-        List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
+    static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage) {
+        List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
         if (imageUrls == null || imageUrls.size() < 1) {
             model.addAttribute("msg", "office转图片异常，请联系管理员");
             model.addAttribute("fileType",fileAttribute.getSuffix());

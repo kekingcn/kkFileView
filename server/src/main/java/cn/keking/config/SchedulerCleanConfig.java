@@ -1,7 +1,7 @@
-package cn.keking.utils;
+package cn.keking.config;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.service.cache.CacheService;
+import cn.keking.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConditionalOnExpression("'${cache.clean.enabled:false}'.equals('true')")
-public class ShedulerClean {
+public class SchedulerCleanConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(ShedulerClean.class);
+    private final Logger logger = LoggerFactory.getLogger(SchedulerCleanConfig.class);
 
     private final CacheService cacheService;
 
-    public ShedulerClean(CacheService cacheService) {
+    public SchedulerCleanConfig(CacheService cacheService) {
         this.cacheService = cacheService;
     }
 

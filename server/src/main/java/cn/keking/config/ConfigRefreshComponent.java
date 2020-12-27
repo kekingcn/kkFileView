@@ -1,7 +1,5 @@
-package cn.keking.service;
+package cn.keking.config;
 
-import cn.keking.config.ConfigConstants;
-import cn.keking.config.WatermarkConfigConstants;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.artofsolving.jodconverter.util.ConfigUtils;
 import org.slf4j.Logger;
@@ -13,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @auther: chenjh
@@ -81,7 +80,7 @@ public class ConfigRefreshComponent {
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();
-                    Thread.sleep(1000L);
+                    TimeUnit.SECONDS.sleep(1);
                 }
             } catch (IOException | InterruptedException e) {
                 LOGGER.error("读取配置文件异常", e);

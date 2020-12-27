@@ -58,6 +58,16 @@ public class FileUtils {
     }
 
     /**
+     * 通过文件名获取文件后缀
+     * @param fileName 文件名称
+     * @return 文件后缀
+     */
+    public static String suffixFromFileName(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
+
+    /**
      * 根据文件路径删除文件
      *
      * @param filePath 绝对路径

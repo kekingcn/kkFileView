@@ -6,7 +6,6 @@ import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
-import cn.keking.utils.PdfUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -21,12 +20,10 @@ import java.util.List;
 public class PdfFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
-    private final PdfUtils pdfUtils;
     private static final String FILE_DIR = ConfigConstants.getFileDir();
 
-    public PdfFilePreviewImpl(FileHandlerService fileHandlerService, PdfUtils pdfUtils) {
+    public PdfFilePreviewImpl(FileHandlerService fileHandlerService) {
         this.fileHandlerService = fileHandlerService;
-        this.pdfUtils = pdfUtils;
     }
 
     @Override
@@ -41,7 +38,7 @@ public class PdfFilePreviewImpl implements FilePreview {
             //当文件不存在时，就去下载
             if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                 ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
-                if (0 != response.getCode()) {
+                if (response.isFailure()) {
                     model.addAttribute("fileType", suffix);
                     model.addAttribute("msg", response.getMsg());
                     return "fileNotSupported";
@@ -52,7 +49,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                     fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                 }
             }
-            List<String> imageUrls = pdfUtils.pdf2jpg(outFilePath, pdfName, baseUrl);
+            List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
             if (imageUrls == null || imageUrls.size() < 1) {
                 model.addAttribute("msg", "pdf转图片异常，请联系管理员");
                 model.addAttribute("fileType",fileAttribute.getSuffix());
@@ -70,7 +67,7 @@ public class PdfFilePreviewImpl implements FilePreview {
             if (url != null && !url.toLowerCase().startsWith("http")) {
                 if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                     ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, pdfName);
-                    if (0 != response.getCode()) {
+                    if (response.isFailure()) {
                         model.addAttribute("fileType", suffix);
                         model.addAttribute("msg", response.getMsg());
                         return "fileNotSupported";

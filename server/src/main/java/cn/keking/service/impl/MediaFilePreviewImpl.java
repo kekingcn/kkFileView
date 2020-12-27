@@ -8,6 +8,7 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+
 /**
  * @author : kl
  * @authorboke : kailing.pub
@@ -28,7 +29,7 @@ public class MediaFilePreviewImpl implements FilePreview {
         // 不是http开头，浏览器不能直接访问，需下载到本地
         if (url != null && !url.toLowerCase().startsWith("http")) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
-            if (0 != response.getCode()) {
+            if (!response.isSuccess()) {
                 model.addAttribute("fileType", fileAttribute.getSuffix());
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";
@@ -39,7 +40,7 @@ public class MediaFilePreviewImpl implements FilePreview {
             model.addAttribute("mediaUrl", url);
         }
         model.addAttribute("mediaUrl", url);
-        String suffix=fileAttribute.getSuffix();
+        String suffix = fileAttribute.getSuffix();
         if ("flv".equalsIgnoreCase(suffix)) {
             return "flv";
         }

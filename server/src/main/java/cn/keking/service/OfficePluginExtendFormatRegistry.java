@@ -1,4 +1,4 @@
-package cn.keking.extend;
+package cn.keking.service;
 
 import org.artofsolving.jodconverter.document.DocumentFamily;
 import org.artofsolving.jodconverter.document.DocumentFormat;
@@ -13,9 +13,9 @@ import java.util.Map;
  * @author yudian-it
  * @date 2017/12/5
  */
-public class ControlDocumentFormatRegistry extends SimpleDocumentFormatRegistry {
+public class OfficePluginExtendFormatRegistry extends SimpleDocumentFormatRegistry {
 
-    public ControlDocumentFormatRegistry() {
+    public OfficePluginExtendFormatRegistry() {
         DocumentFormat pdf = new DocumentFormat("Portable Document Format", "pdf", "application/pdf");
         pdf.setStoreProperties(DocumentFamily.TEXT, Collections.singletonMap("FilterName", "writer_pdf_Export"));
         pdf.setStoreProperties(DocumentFamily.SPREADSHEET, Collections.singletonMap("FilterName", "calc_pdf_Export"));

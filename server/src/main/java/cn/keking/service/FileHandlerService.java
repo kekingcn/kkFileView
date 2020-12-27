@@ -4,13 +4,28 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
+import cn.keking.utils.FileUtils;
 import cn.keking.utils.WebUtils;
+import com.aspose.cad.Color;
+import com.aspose.cad.fileformats.cad.CadDrawTypeMode;
+import com.aspose.cad.imageoptions.CadRasterizationOptions;
+import com.aspose.cad.imageoptions.PdfOptions;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +36,14 @@ import java.util.Map;
 @Component
 public class FileHandlerService {
 
+    private final Logger logger = LoggerFactory.getLogger(FileHandlerService.class);
+
     private static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
     private final String fileDir = ConfigConstants.getFileDir();
     private final CacheService cacheService;
+
+    @Value("${server.tomcat.uri-encoding:UTF-8}")
+    private String uriEncoding;
 
     public FileHandlerService(CacheService cacheService) {
         this.cacheService = cacheService;
@@ -51,35 +71,6 @@ public class FileHandlerService {
         return cacheService.getPdfImageCache(key);
     }
 
-    /**
-     * 查看文件类型(防止参数中存在.点号或者其他特殊字符，所以先抽取文件名，然后再获取文件类型)
-     *
-     * @param url url
-     * @return 文件类型
-     */
-    public FileType typeFromUrl(String url) {
-        String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
-        String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
-        return this.typeFromFileName(fileName);
-    }
-
-    private FileType typeFromFileName(String fileName) {
-        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-        return FileType.to(fileType);
-    }
-
-    /**
-     * 从url中剥离出文件名
-     *
-     * @param url 格式如：http://www.com.cn/20171113164107_月度绩效表模板(新).xls?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=I D1NOFtAJSPT16E6imv6JWuq0k=
-     * @return 文件名
-     */
-    public String getFileNameFromURL(String url) {
-        // 因为url的参数中可能会存在/的情况，所以直接url.lastIndexOf("/")会有问题
-        // 所以先从？处将url截断，然后运用url.lastIndexOf("/")获取文件名
-        String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
-        return noQueryUrl.substring(noQueryUrl.lastIndexOf("/") + 1);
-    }
 
     /**
      * 从路径中获取文件负
@@ -174,19 +165,87 @@ public class FileHandlerService {
     }
 
     /**
-     * 获取文件后缀
-     *
-     * @param url url
-     * @return 文件后缀
+     *  pdf文件转换成jpg图片集
+     * @param pdfFilePath pdf文件路径
+     * @param pdfName pdf文件名称
+     * @param baseUrl 基础访问地址
+     * @return 图片访问集合
      */
-    private String suffixFromUrl(String url) {
-        String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
-        String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
-        return suffixFromFileName(fileName);
+    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl) {
+        List<String> imageUrls = new ArrayList<>();
+        Integer imageCount = this.getConvertedPdfImage(pdfFilePath);
+        String imageFileSuffix = ".jpg";
+        String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
+        String urlPrefix;
+        try {
+            urlPrefix = baseUrl + URLEncoder.encode(URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20"), uriEncoding);
+        } catch (UnsupportedEncodingException e) {
+            logger.error("UnsupportedEncodingException", e);
+            urlPrefix = baseUrl + pdfFolder;
+        }
+        if (imageCount != null && imageCount > 0) {
+            for (int i = 0; i < imageCount; i++)
+                imageUrls.add(urlPrefix + "/" + i + imageFileSuffix);
+            return imageUrls;
+        }
+        try {
+            File pdfFile = new File(pdfFilePath);
+            PDDocument doc = PDDocument.load(pdfFile);
+            int pageCount = doc.getNumberOfPages();
+            PDFRenderer pdfRenderer = new PDFRenderer(doc);
+
+            int index = pdfFilePath.lastIndexOf(".");
+            String folder = pdfFilePath.substring(0, index);
+
+            File path = new File(folder);
+            if (!path.exists() && !path.mkdirs()) {
+                logger.error("创建转换文件【{}】目录失败，请检查目录权限！", folder);
+            }
+            String imageFilePath;
+            for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+                imageFilePath = folder + File.separator + pageIndex + imageFileSuffix;
+                BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, 105, ImageType.RGB);
+                ImageIOUtil.writeImage(image, imageFilePath, 105);
+                imageUrls.add(urlPrefix + "/" + pageIndex + imageFileSuffix);
+            }
+            doc.close();
+            this.addConvertedPdfImage(pdfFilePath, pageCount);
+        } catch (IOException e) {
+            logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
+        }
+        return imageUrls;
     }
 
-    private String suffixFromFileName(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    /**
+     * cad文件转pdf
+     * @param inputFilePath cad文件路径
+     * @param outputFilePath pdf输出文件路径
+     * @return 转换是否成功
+     */
+    public boolean cadToPdf(String inputFilePath, String outputFilePath)  {
+        com.aspose.cad.Image cadImage = com.aspose.cad.Image.load(inputFilePath);
+        CadRasterizationOptions cadRasterizationOptions = new CadRasterizationOptions();
+        cadRasterizationOptions.setLayouts(new String[]{"Model"});
+        cadRasterizationOptions.setNoScaling(true);
+        cadRasterizationOptions.setBackgroundColor(Color.getWhite());
+        cadRasterizationOptions.setPageWidth(cadImage.getWidth());
+        cadRasterizationOptions.setPageHeight(cadImage.getHeight());
+        cadRasterizationOptions.setPdfProductLocation("center");
+        cadRasterizationOptions.setAutomaticLayoutsScaling(true);
+        cadRasterizationOptions.setDrawType(CadDrawTypeMode.UseObjectColor);
+        PdfOptions pdfOptions = new PdfOptions();
+        pdfOptions.setVectorRasterizationOptions(cadRasterizationOptions);
+        File outputFile = new File(outputFilePath);
+        OutputStream stream;
+        try {
+            stream = new FileOutputStream(outputFile);
+            cadImage.save(stream, pdfOptions);
+            cadImage.close();
+            return true;
+        } catch (FileNotFoundException e) {
+            logger.error("PDFFileNotFoundException，inputFilePath：{}", inputFilePath, e);
+            return false;
+        }
     }
 
     /**
@@ -203,12 +262,12 @@ public class FileHandlerService {
         String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
         if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
-            type = this.typeFromFileName(fullFileName);
-            suffix = suffixFromFileName(fullFileName);
+            type = FileType.typeFromFileName(fullFileName);
+            suffix = FileUtils.suffixFromFileName(fullFileName);
         } else {
-            fileName = getFileNameFromURL(url);
-            type = typeFromUrl(url);
-            suffix = suffixFromUrl(url);
+            fileName = WebUtils.getFileNameFromURL(url);
+            type = FileType.typeFromUrl(url);
+            suffix = WebUtils.suffixFromUrl(url);
         }
         attribute.setType(type);
         attribute.setName(fileName);

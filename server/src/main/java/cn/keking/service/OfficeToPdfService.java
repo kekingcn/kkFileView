@@ -1,6 +1,8 @@
 package cn.keking.service;
 
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -10,6 +12,8 @@ import java.io.File;
  */
 @Component
 public class OfficeToPdfService {
+
+    private final static Logger logger = LoggerFactory.getLogger(OfficeToPdfService.class);
     private final OfficePluginManager officePluginManager;
 
     public OfficeToPdfService(OfficePluginManager officePluginManager) {
@@ -21,12 +25,11 @@ public class OfficeToPdfService {
     }
 
 
-    public static void converterFile(File inputFile, String outputFilePath_end,
-                                     OfficeDocumentConverter converter) {
+    public static void converterFile(File inputFile, String outputFilePath_end, OfficeDocumentConverter converter) {
         File outputFile = new File(outputFilePath_end);
         // 假如目标路径不存在,则新建该路径
-        if (!outputFile.getParentFile().exists()) {
-            outputFile.getParentFile().mkdirs();
+        if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs()) {
+            logger.error("创建目录【{}】失败，请检查目录权限！",outputFilePath_end);
         }
         converter.convert(inputFile, outputFile);
     }
