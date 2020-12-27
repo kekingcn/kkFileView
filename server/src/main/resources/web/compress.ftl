@@ -23,9 +23,6 @@
         h6 {font-weight: normal;font-size: 12px;letter-spacing: 1px;line-height: 24px;text-align: center;}
         a {color:#3C6E31;text-decoration: underline;}
         a:hover {background-color:#3C6E31;color:white;}
-        input.radio {margin: 0 2px 0 8px;}
-        input.radio.first {margin-left:0;}
-        input.empty {color: lightgray;}
         code {color: #2f332a;}
         div.zTreeDemoBackground {width:600px;text-align:center;margin: 0 auto;background-color: #ffffff;}
     </style>
@@ -41,7 +38,7 @@
 <script type="text/javascript" src="js/base64.min.js" ></script>
 
 <script type="text/javascript">
-    var data = JSON.parse('${fileTree}');
+    const data = JSON.parse('${fileTree}');
     var baseUrl = "${baseUrl}";
     var setting = {
         view: {
@@ -74,7 +71,7 @@
                     } else {
                         fulls += ",resizable"; // 对于不支持screen属性的浏览器，可以手工进行最大化。 manually
                     }
-                    var previewUrl = baseUrl + treeNode.fileName +"&fileKey="+ treeNode.fileKey;
+                    var previewUrl = baseUrl + treeNode.fileName +"?fileKey="+ treeNode.fileKey;
                     window.open("onlinePreview?url=" + encodeURIComponent(Base64.encode(previewUrl)), "_blank",fulls);
                 }
             }
