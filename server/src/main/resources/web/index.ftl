@@ -85,6 +85,24 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(bas
         <div id="collapseThree" class="panel-collapse collapse in">
             <div class="panel-body">
                 <div>
+                     2020年12月27日 ：<br>
+                        2020年年终大版本更新，架构全面设计，代码全面重构，代码质量全面提升，二次开发更便捷，欢迎拉源码品鉴，提issue、pr共同建设
+                        1. 架构模块调整,大量的代码重构，代码质量提升N个等级，欢迎品鉴<br>
+                        2. 增强XML文件预览效果，新增XML文档数结构预览<br>
+                        3. 新增markdown文件预览支持，预览支持md渲染和源文本切换支持<br>
+                        4. 切换底层web server为jetty，解决这个issue：<a href="https://github.com/kekingcn/kkFileView/issues/168">#issues/168</a><br>
+                        5. 引入cpdetector，解决文件编码识别问题<br>
+                        6. url采用base64+urlencode双编码，彻底解决各种奇葩文件名预览问题<br>
+                        7. 新增配置项office.preview.switch.disabled，控制offic文件预览切换开关<br>
+                        8. 优化文本类型文件预览逻辑，采用Base64传输内容，避免预览时再次请求文件内容<br>
+                        9. office预览图片模式禁用图片放大效果，达到图片和pdf预览效果一致的体验<br>
+                        10. 直接代码静态设置pdfbox兼容低版本jdk，在IDEA中运行也不会有警告提示<br>
+                        11. 移除guava、hutool等非必须的工具包，减少代码体积<br>
+                        12. Office组件加载异步化，提速应用启动速度最快到5秒内<br>
+                        13. 合理设置预览消费队列的线程数<br>
+                        14. 修复压缩包里文件再次预览失败的bug<br>
+                        15. 修复图片预览的bug<br><br>
+
                     2020年05月20日 ：<br>
                         1. 新增支持全局水印，并支持通过参数动态改变水印内容<br>
                         2. 新增支持CAD文件预览<br>

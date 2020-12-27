@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+
+import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
 
 /**
  * @author yudian-it
@@ -52,16 +55,18 @@ public class OnlinePreviewController {
     @RequestMapping(value = "/picturesPreview")
     public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String fileUrls = new String(Base64Utils.decodeFromString(urls));
-        String currentUrl = req.getParameter("currentUrl");
         logger.info("预览文件url：{}，urls：{}", fileUrls, urls);
-        // 路径转码
-        String decodedCurrentUrl = new String(Base64Utils.decodeFromString(currentUrl));
         // 抽取文件并返回文件列表
         String[] imgs = fileUrls.split("\\|");
         List<String> imgUrls = Arrays.asList(imgs);
         model.addAttribute("imgUrls", imgUrls);
-        model.addAttribute("currentUrl", decodedCurrentUrl);
-        return "picture";
+
+        String currentUrl = req.getParameter("currentUrl");
+        if(StringUtils.hasText(currentUrl)){
+            String decodedCurrentUrl = new String(Base64Utils.decodeFromString(currentUrl));
+            model.addAttribute("currentUrl", decodedCurrentUrl);
+        }
+        return PICTURE_FILE_PREVIEW_PAGE;
     }
 
     /**
