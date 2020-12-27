@@ -39,7 +39,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
         try {
             File originFile = new File(response.getContent());
             String xmlString = FileUtils.readFileToString(originFile, StandardCharsets.UTF_8);
-            model.addAttribute("textData", Base64Utils.encodeToString(xmlString.getBytes()));
+            model.addAttribute("textData", Base64Utils.encodeToString(xmlString.getBytes(StandardCharsets.UTF_8)));
         } catch (IOException e) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
         }

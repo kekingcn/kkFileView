@@ -65,6 +65,8 @@ public class OnlinePreviewController {
         if(StringUtils.hasText(currentUrl)){
             String decodedCurrentUrl = new String(Base64Utils.decodeFromString(currentUrl));
             model.addAttribute("currentUrl", decodedCurrentUrl);
+        }else {
+            model.addAttribute("currentUrl", imgUrls.get(0));
         }
         return PICTURE_FILE_PREVIEW_PAGE;
     }
