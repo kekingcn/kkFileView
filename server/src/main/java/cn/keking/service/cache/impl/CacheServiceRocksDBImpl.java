@@ -31,11 +31,8 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     private static final String DB_PATH = ConfigUtils.getHomePath() + File.separator + "cache";
-
     private static final int QUEUE_SIZE = 500000;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceRocksDBImpl.class);
-
     private final BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     private RocksDB db;

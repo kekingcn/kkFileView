@@ -10,6 +10,7 @@ import org.springframework.ui.ExtendedModelMap;
 import javax.annotation.PostConstruct;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kl on 2018/1/19.
@@ -70,7 +71,7 @@ public class FileConvertQueueTask {
                     }
                 } catch (Exception e) {
                     try {
-                        Thread.sleep(1000*10);
+                        TimeUnit.SECONDS.sleep(10);
                     } catch (Exception ex){
                         ex.printStackTrace();
                     }

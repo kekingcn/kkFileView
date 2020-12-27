@@ -28,9 +28,7 @@ public class FileController {
     private final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     private final String fileDir = ConfigConstants.getFileDir();
-
     private final String demoDir = "demo";
-
     private final String demoPath = demoDir + File.separator;
 
     @RequestMapping(value = "fileUpload", method = RequestMethod.POST)
@@ -49,7 +47,7 @@ public class FileController {
         }
         // 判断是否存在同名文件
         if (existsFile(fileName)) {
-            return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(1, "存在同名文件，请先删除原有文件再次上传", null));
+            return new ObjectMapper().writeValueAsString(ReturnResponse.failure("存在同名文件，请先删除原有文件再次上传"));
         }
         File outFile = new File(fileDir + demoPath);
         if (!outFile.exists() && !outFile.mkdirs()) {
@@ -58,10 +56,10 @@ public class FileController {
         logger.info("上传文件：{}", fileDir + demoPath + fileName);
         try(InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(fileDir + demoPath + fileName)) {
             StreamUtils.copy(in, out);
-            return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(0, "SUCCESS", null));
+            return new ObjectMapper().writeValueAsString(ReturnResponse.success(null));
         } catch (IOException e) {
             logger.error("文件上传失败", e);
-            return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(1, "FAILURE", null));
+            return new ObjectMapper().writeValueAsString(ReturnResponse.failure());
         }
     }
 
@@ -75,7 +73,7 @@ public class FileController {
         if (file.exists() && !file.delete()) {
            logger.error("删除文件【{}】失败，请检查目录权限！",file.getPath());
         }
-        return new ObjectMapper().writeValueAsString(new ReturnResponse<String>(0, "SUCCESS", null));
+        return new ObjectMapper().writeValueAsString(ReturnResponse.success());
     }
 
     @RequestMapping(value = "listFiles", method = RequestMethod.GET)

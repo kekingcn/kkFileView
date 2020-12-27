@@ -67,7 +67,7 @@ public class CompressFileReader {
                 }
                 String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level - 1) + "_" + parentName;
-                FileType type = fileHandlerService.typeFromUrl(childName);
+                FileType type = FileType.typeFromUrl(childName);
                 if (type.equals(FileType.picture)) {//添加图片文件到图片列表
                     imgUrls.add(baseUrl + childName);
                 }
@@ -120,7 +120,7 @@ public class CompressFileReader {
                     headersToBeExtracted.add(Collections.singletonMap(childName, header));
                 }
                 String parentName = getLast2FileName(fullName, "\\", archiveFileName);
-                FileType type = fileHandlerService.typeFromUrl(childName);
+                FileType type = FileType.typeFromUrl(childName);
                 if (type.equals(FileType.picture)) {//添加图片文件到图片列表
                     imgUrls.add(baseUrl + childName);
                 }
@@ -163,7 +163,7 @@ public class CompressFileReader {
                 }
                 String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level - 1) + "_" + parentName;
-                FileType type = fileHandlerService.typeFromUrl(childName);
+                FileType type = FileType.typeFromUrl(childName);
                 if (type.equals(FileType.picture)) {//添加图片文件到图片列表
                     imgUrls.add(baseUrl + childName);
                 }

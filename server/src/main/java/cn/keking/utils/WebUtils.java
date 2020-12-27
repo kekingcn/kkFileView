@@ -57,4 +57,30 @@ public class WebUtils {
         }
         return strAllParam;
     }
+
+    /**
+     * 从url中剥离出文件名
+     *
+     * @param url 格式如：http://www.com.cn/20171113164107_月度绩效表模板(新).xls?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=I D1NOFtAJSPT16E6imv6JWuq0k=
+     * @return 文件名
+     */
+    public static String getFileNameFromURL(String url) {
+        // 因为url的参数中可能会存在/的情况，所以直接url.lastIndexOf("/")会有问题
+        // 所以先从？处将url截断，然后运用url.lastIndexOf("/")获取文件名
+        String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
+        return noQueryUrl.substring(noQueryUrl.lastIndexOf("/") + 1);
+    }
+
+
+    /**
+     * 从url中获取文件后缀
+     *
+     * @param url url
+     * @return 文件后缀
+     */
+    public static String suffixFromUrl(String url) {
+        String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
+        String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
+        return FileUtils.suffixFromFileName(fileName);
+    }
 }

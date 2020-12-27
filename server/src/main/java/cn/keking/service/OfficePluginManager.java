@@ -1,7 +1,6 @@
 package cn.keking.service;
 
 import com.sun.star.document.UpdateDocMode;
-import cn.keking.extend.ControlDocumentFormatRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
@@ -72,7 +71,7 @@ public class OfficePluginManager {
     }
 
     public OfficeDocumentConverter getDocumentConverter() {
-        OfficeDocumentConverter converter = new OfficeDocumentConverter(officeManager, new ControlDocumentFormatRegistry());
+        OfficeDocumentConverter converter = new OfficeDocumentConverter(officeManager, new OfficePluginExtendFormatRegistry());
         converter.setDefaultLoadProperties(getLoadProperties());
         return converter;
     }

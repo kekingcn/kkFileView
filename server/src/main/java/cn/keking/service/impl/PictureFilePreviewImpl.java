@@ -36,7 +36,7 @@ public class PictureFilePreviewImpl implements FilePreview {
         // 不是http开头，浏览器不能直接访问，需下载到本地
         if (url != null && !url.toLowerCase().startsWith("http")) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
-            if (0 != response.getCode()) {
+            if (response.isFailure()) {
                 model.addAttribute("fileType", fileAttribute.getSuffix());
                 model.addAttribute("msg", response.getMsg());
                 return "fileNotSupported";

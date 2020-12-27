@@ -50,8 +50,24 @@ public enum FileType {
         FILE_TYPE_MAPPER.put("dwg", FileType.cad);
     }
 
-    public static FileType to(String fileType){
+    private static FileType to(String fileType){
         return FILE_TYPE_MAPPER.getOrDefault(fileType,other);
+    }
+    /**
+     * 查看文件类型(防止参数中存在.点号或者其他特殊字符，所以先抽取文件名，然后再获取文件类型)
+     *
+     * @param url url
+     * @return 文件类型
+     */
+    public static FileType typeFromUrl(String url) {
+        String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
+        String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
+        return typeFromFileName(fileName);
+    }
+
+    public static FileType typeFromFileName(String fileName) {
+        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+        return FileType.to(fileType);
     }
 
     private final String instanceName;

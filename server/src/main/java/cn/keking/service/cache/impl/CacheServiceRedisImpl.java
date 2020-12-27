@@ -28,19 +28,11 @@ public class CacheServiceRedisImpl implements CacheService {
     }
 
     @Override
-    public void initPDFCachePool(Integer capacity) {
-
-    }
-
+    public void initPDFCachePool(Integer capacity) { }
     @Override
-    public void initIMGCachePool(Integer capacity) {
-
-    }
-
+    public void initIMGCachePool(Integer capacity) { }
     @Override
-    public void initPdfImagesCachePool(Integer capacity) {
-
-    }
+    public void initPdfImagesCachePool(Integer capacity) { }
 
     @Override
     public void putPDFCache(String key, String value) {
