@@ -8,5 +8,16 @@ import org.springframework.ui.Model;
  * Content :
  */
 public interface FilePreview {
+
+    String FLV_FILE_PREVIEW_PAGE = "flv";
+    String PDF_FILE_PREVIEW_PAGE = "pdf";
+    String COMPRESS_FILE_PREVIEW_PAGE = "compress";
+    String MEDIA_FILE_PREVIEW_PAGE = "media";
+    String PICTURE_FILE_PREVIEW_PAGE = "picture";
+    String OFFICE_PICTURE_FILE_PREVIEW_PAGE = "officePicture";
+    String TXT_FILE_PREVIEW_PAGE = "txt";
+    String EXEL_FILE_PREVIEW_PAGE = "html";
+    String NOT_SUPPORTED_FILE_PAGE = "fileNotSupported";
+
     String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);
 }

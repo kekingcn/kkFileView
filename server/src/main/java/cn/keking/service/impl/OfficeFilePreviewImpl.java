@@ -69,7 +69,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE, otherFilePreview);
         }
         model.addAttribute("pdfUrl", pdfName);
-        return isHtml ? "html" : "pdf";
+        return isHtml ? EXEL_FILE_PREVIEW_PAGE : PDF_FILE_PREVIEW_PAGE;
     }
 
     static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {
@@ -80,9 +80,9 @@ public class OfficeFilePreviewImpl implements FilePreview {
         model.addAttribute("imgurls", imageUrls);
         model.addAttribute("currentUrl", imageUrls.get(0));
         if (officePreviewTypeImage.equals(officePreviewType)) {
-            return "officePicture";
+            return OFFICE_PICTURE_FILE_PREVIEW_PAGE;
         } else {
-            return "picture";
+            return PICTURE_FILE_PREVIEW_PAGE;
         }
     }
 }

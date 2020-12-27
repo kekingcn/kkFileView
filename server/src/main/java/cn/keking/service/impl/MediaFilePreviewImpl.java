@@ -40,11 +40,7 @@ public class MediaFilePreviewImpl implements FilePreview {
             model.addAttribute("mediaUrl", url);
         }
         model.addAttribute("mediaUrl", url);
-        String suffix = fileAttribute.getSuffix();
-        if ("flv".equalsIgnoreCase(suffix)) {
-            return "flv";
-        }
-        return "media";
+        return MEDIA_FILE_PREVIEW_PAGE;
     }
 
 

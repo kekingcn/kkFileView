@@ -55,7 +55,7 @@ public class CompressFilePreviewImpl implements FilePreview {
         }
         if (fileTree != null && !"null".equals(fileTree)) {
             model.addAttribute("fileTree", fileTree);
-            return "compress";
+            return COMPRESS_FILE_PREVIEW_PAGE;
         } else {
             return otherFilePreview.notSupportedFile(model, fileAttribute, "压缩文件类型不受支持，尝试在压缩的时候选择RAR4格式");
         }

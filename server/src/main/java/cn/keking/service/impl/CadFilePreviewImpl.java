@@ -63,7 +63,7 @@ public class CadFilePreviewImpl implements FilePreview {
             return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE,otherFilePreview);
         }
         model.addAttribute("pdfUrl", pdfName);
-        return "pdf";
+        return PDF_FILE_PREVIEW_PAGE;
     }
 
 
