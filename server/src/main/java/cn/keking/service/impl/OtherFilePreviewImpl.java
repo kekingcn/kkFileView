@@ -12,7 +12,6 @@ import org.springframework.ui.Model;
 @Service
 public class OtherFilePreviewImpl implements FilePreview {
 
-    public static final String NOT_SUPPORTED_FILE_PAGE = "fileNotSupported";
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {

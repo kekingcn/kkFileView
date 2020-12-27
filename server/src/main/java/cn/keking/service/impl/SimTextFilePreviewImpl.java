@@ -46,7 +46,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
         if (!model.containsAttribute(TEXT_TYPE)) {
             model.addAttribute(TEXT_TYPE, DEFAULT_TEXT_TYPE);
         }
-        return "txt";
+        return TXT_FILE_PREVIEW_PAGE;
     }
 
 }

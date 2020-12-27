@@ -51,6 +51,6 @@ public class PictureFilePreviewImpl implements FilePreview {
             model.addAttribute("imgurls", imgUrls);
             model.addAttribute("currentUrl", url);
         }
-        return "picture";
+        return PICTURE_FILE_PREVIEW_PAGE;
     }
 }

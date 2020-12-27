@@ -55,9 +55,9 @@ public class PdfFilePreviewImpl implements FilePreview {
             model.addAttribute("imgurls", imageUrls);
             model.addAttribute("currentUrl", imageUrls.get(0));
             if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType)) {
-                return "officePicture";
+                return OFFICE_PICTURE_FILE_PREVIEW_PAGE;
             } else {
-                return "picture";
+                return PICTURE_FILE_PREVIEW_PAGE;
             }
         } else {
             // 不是http开头，浏览器不能直接访问，需下载到本地
@@ -79,6 +79,6 @@ public class PdfFilePreviewImpl implements FilePreview {
                 model.addAttribute("pdfUrl", url);
             }
         }
-        return "pdf";
+        return PDF_FILE_PREVIEW_PAGE;
     }
 }

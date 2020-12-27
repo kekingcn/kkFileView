@@ -10,6 +10,7 @@ import java.util.Map;
  * Content :文件类型，文本，office，压缩包等等
  */
 public enum FileType {
+
     picture("pictureFilePreviewImpl"),
     compress("compressFilePreviewImpl"),
     office("officeFilePreviewImpl"),
@@ -19,12 +20,13 @@ public enum FileType {
     media("mediaFilePreviewImpl"),
     markdown("markdownFilePreviewImpl"),
     xml("xmlFilePreviewImpl"),
+    flv("flvFilePreviewImpl"),
     cad("cadFilePreviewImpl");
 
     private static final String[] OFFICE_TYPES = {"docx", "doc", "xls", "xlsx", "ppt", "pptx"};
     private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "RAW"};
     private static final String[] ARCHIVE_TYPES = {"rar", "zip", "jar", "7-zip", "tar", "gzip", "7z"};
-    private static final String[] SIMTEXT_TYPES = ConfigConstants.getSimText();
+    private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
     private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
 
@@ -38,7 +40,7 @@ public enum FileType {
         for (String archive : ARCHIVE_TYPES) {
             FILE_TYPE_MAPPER.put(archive, FileType.compress);
         }
-        for (String text : SIMTEXT_TYPES) {
+        for (String text : SSIM_TEXT_TYPES) {
             FILE_TYPE_MAPPER.put(text, FileType.simText);
         }
         for (String media : MEDIA_TYPES) {
@@ -48,6 +50,8 @@ public enum FileType {
         FILE_TYPE_MAPPER.put("xml", FileType.xml);
         FILE_TYPE_MAPPER.put("pdf", FileType.pdf);
         FILE_TYPE_MAPPER.put("dwg", FileType.cad);
+        FILE_TYPE_MAPPER.put("flv", FileType.flv);
+
     }
 
     private static FileType to(String fileType){
