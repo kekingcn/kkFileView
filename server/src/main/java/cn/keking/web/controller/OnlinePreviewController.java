@@ -7,7 +7,6 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
-import com.thoughtworks.xstream.core.util.Base64JavaUtilCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,25 +43,24 @@ public class OnlinePreviewController {
     @RequestMapping(value = "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl = new String(Base64Utils.decodeFromString(url));
-        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl,req);
+        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
         return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
     }
 
     @RequestMapping(value = "/picturesPreview")
-    public String picturesPreview(Model model, HttpServletRequest req) throws UnsupportedEncodingException {
-        String urls = req.getParameter("urls");
+    public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
+        String fileUrls = new String(Base64Utils.decodeFromString(urls));
         String currentUrl = req.getParameter("currentUrl");
-        logger.info("预览文件url：{}，urls：{}", currentUrl, urls);
+        logger.info("预览文件url：{}，urls：{}", fileUrls, urls);
         // 路径转码
-        String decodedUrl = URLDecoder.decode(urls, "utf-8");
-        String decodedCurrentUrl = URLDecoder.decode(currentUrl, "utf-8");
+        String decodedCurrentUrl = new String(Base64Utils.decodeFromString(currentUrl));
         // 抽取文件并返回文件列表
-        String[] imgs = decodedUrl.split("\\|");
+        String[] imgs = fileUrls.split("\\|");
         List<String> imgUrls = Arrays.asList(imgs);
         model.addAttribute("imgUrls", imgUrls);
-        model.addAttribute("currentUrl",decodedCurrentUrl);
+        model.addAttribute("currentUrl", decodedCurrentUrl);
         return "picture";
     }
 
@@ -71,7 +68,7 @@ public class OnlinePreviewController {
      * 根据url获取文件内容
      * 当pdfjs读取存在跨域问题的文件时将通过此接口读取
      *
-     * @param urlPath url
+     * @param urlPath  url
      * @param response response
      */
     @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
@@ -87,6 +84,7 @@ public class OnlinePreviewController {
 
     /**
      * 通过api接口入队
+     *
      * @param url 请编码后在入队
      */
     @RequestMapping("/addTask")

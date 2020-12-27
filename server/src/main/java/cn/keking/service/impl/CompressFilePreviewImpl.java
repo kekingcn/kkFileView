@@ -20,10 +20,12 @@ public class CompressFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final CompressFileReader compressFileReader;
+    private final OtherFilePreviewImpl otherFilePreview;
 
-    public CompressFilePreviewImpl(FileHandlerService fileHandlerService, CompressFileReader compressFileReader) {
+    public CompressFilePreviewImpl(FileHandlerService fileHandlerService, CompressFileReader compressFileReader, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.compressFileReader = compressFileReader;
+        this.otherFilePreview = otherFilePreview;
     }
 
     @Override
@@ -35,9 +37,7 @@ public class CompressFilePreviewImpl implements FilePreview {
         if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
             if (response.isFailure()) {
-                model.addAttribute("fileType", suffix);
-                model.addAttribute("msg", response.getMsg());
-                return "fileNotSupported";
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
             String filePath = response.getContent();
             if ("zip".equalsIgnoreCase(suffix) || "jar".equalsIgnoreCase(suffix) || "gzip".equalsIgnoreCase(suffix)) {
@@ -57,9 +57,7 @@ public class CompressFilePreviewImpl implements FilePreview {
             model.addAttribute("fileTree", fileTree);
             return "compress";
         } else {
-            model.addAttribute("fileType", suffix);
-            model.addAttribute("msg", "压缩文件类型不受支持，尝试在压缩的时候选择RAR4格式");
-            return "fileNotSupported";
+            return otherFilePreview.notSupportedFile(model, fileAttribute, "压缩文件类型不受支持，尝试在压缩的时候选择RAR4格式");
         }
     }
 }
