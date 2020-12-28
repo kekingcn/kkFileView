@@ -1,5 +1,7 @@
 [#ftl]
 [#-- @implicitly included --]
+[#-- @ftlvariable name="file" type="cn.keking.model.FileAttribute" --]
+[#-- @ftlvariable name="fileName" type="java.lang.String" --]
 [#-- @ftlvariable name="fileTree" type="java.lang.String" --]
 [#-- @ftlvariable name="baseUrl" type="java.lang.String" --]
 [#-- @ftlvariable name="imgUrls" type="String" --]

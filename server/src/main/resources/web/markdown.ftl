@@ -9,7 +9,25 @@
 <input hidden id="textData" value="${textData}"/>
 
 <div class="container">
-    <div id="text"></div>
+    <div class="panel panel-default">
+        <div id="markdown_btn" class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                    ${file.name}
+                </a>
+            </h4>
+        </div>
+        <div id="text_btn" class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                    ${file.name}
+                </a>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div id="markdown"></div>
+        </div>
+    </div>
 </div>
 
 <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
@@ -18,6 +36,7 @@
 <script src="js/jquery.form.min.js" type="text/javascript"></script>
 <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="js/watermark.js" type="text/javascript"></script>
+<script src="js/marked.min.js" type="text/javascript"></script>
 <script src="js/base64.min.js" type="text/javascript"></script>
 
 <script>
@@ -25,8 +44,9 @@
      * 初始化
      */
     window.onload = function () {
+        $("#markdown_btn").hide()
         initWaterMark();
-        loadText();
+        loadMarkdown();
     }
 
     /**
@@ -54,15 +74,31 @@
         }
     }
 
-    /**
-     *加载普通文本
-     */
-    function loadText() {
-        var textData = Base64.decode($("#textData").val())
-        var textPreData = "<pre style='background-color: #FFFFFF;border:none'>" + textData + "</pre>";
 
-        $("#text").html(textPreData);
+    /**
+     * 加载markdown
+     */
+    function loadMarkdown() {
+        var textData = Base64.decode($("#textData").val())
+        window.textPreData = "<pre style='background-color: #FFFFFF;border:none'>" + textData + "</pre>";
+        window.textMarkdownData = marked(textData);
+        $("#markdown").html(window.textMarkdownData);
     }
+
+
+    $(function () {
+        $("#markdown_btn").click(function () {
+            $("#markdown").html(window.textMarkdownData);
+            $("#text_btn").show()
+            $("#markdown_btn").hide()
+        });
+
+        $("#text_btn").click(function () {
+            $("#markdown_btn").show()
+            $("#text_btn").hide();
+            $("#markdown").html(window.textPreData);
+        });
+    });
 
 </script>
 <style>

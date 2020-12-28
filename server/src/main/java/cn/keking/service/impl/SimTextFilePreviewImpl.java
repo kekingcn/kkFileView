@@ -20,9 +20,6 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class SimTextFilePreviewImpl implements FilePreview {
 
-    public static final String TEXT_TYPE = "textType";
-    public static final String DEFAULT_TEXT_TYPE = "simText";
-
     private final OtherFilePreviewImpl otherFilePreview;
 
     public SimTextFilePreviewImpl(OtherFilePreviewImpl otherFilePreview) {
@@ -42,9 +39,6 @@ public class SimTextFilePreviewImpl implements FilePreview {
             model.addAttribute("textData", Base64Utils.encodeToString(xmlString.getBytes(StandardCharsets.UTF_8)));
         } catch (IOException e) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
-        }
-        if (!model.containsAttribute(TEXT_TYPE)) {
-            model.addAttribute(TEXT_TYPE, DEFAULT_TEXT_TYPE);
         }
         return TXT_FILE_PREVIEW_PAGE;
     }

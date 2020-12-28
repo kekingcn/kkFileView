@@ -5,8 +5,6 @@ import cn.keking.service.FilePreview;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import static cn.keking.service.impl.SimTextFilePreviewImpl.TEXT_TYPE;
-
 /**
  * @author kl (http://kailing.pub)
  * @since 2020/12/25
@@ -22,7 +20,7 @@ public class XmlFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        model.addAttribute(TEXT_TYPE,"xml");
-        return simTextFilePreview.filePreviewHandle(url, model, fileAttribute);
+        simTextFilePreview.filePreviewHandle(url, model, fileAttribute);
+        return XML_FILE_PREVIEW_PAGE;
     }
 }

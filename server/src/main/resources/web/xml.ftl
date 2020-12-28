@@ -7,17 +7,30 @@
 </head>
 <body>
 <input hidden id="textData" value="${textData}"/>
-
 <div class="container">
-    <div id="text"></div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                     ${file.name}
+                </a>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div id="xml"></div>
+        </div>
+    </div>
 </div>
 
+<link rel="stylesheet" href="css/xmlTreeViewer.css"/>
 <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
 
 <script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
 <script src="js/jquery.form.min.js" type="text/javascript"></script>
 <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="js/watermark.js" type="text/javascript"></script>
+<script src="js/marked.min.js" type="text/javascript"></script>
+<script src="js/xmlTreeViewer.js" type="text/javascript"></script>
 <script src="js/base64.min.js" type="text/javascript"></script>
 
 <script>
@@ -26,7 +39,7 @@
      */
     window.onload = function () {
         initWaterMark();
-        loadText();
+        loadXmlData()
     }
 
     /**
@@ -54,14 +67,16 @@
         }
     }
 
-    /**
-     *加载普通文本
-     */
-    function loadText() {
-        var textData = Base64.decode($("#textData").val())
-        var textPreData = "<pre style='background-color: #FFFFFF;border:none'>" + textData + "</pre>";
 
-        $("#text").html(textPreData);
+    /**
+     * 加载xml数据
+     */
+    function loadXmlData() {
+        var textData = Base64.decode($("#textData").val())
+        var xmlNode = xmlTreeViewer.parseXML(textData);
+        var retNode = xmlTreeViewer.getXMLViewerNode(xmlNode.xml);
+        $("#xml").html(retNode);
+
     }
 
 </script>

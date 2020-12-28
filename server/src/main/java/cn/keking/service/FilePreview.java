@@ -17,6 +17,8 @@ public interface FilePreview {
     String OFFICE_PICTURE_FILE_PREVIEW_PAGE = "officePicture";
     String TXT_FILE_PREVIEW_PAGE = "txt";
     String EXEL_FILE_PREVIEW_PAGE = "html";
+    String XML_FILE_PREVIEW_PAGE = "xml";
+    String MARKDOWN_FILE_PREVIEW_PAGE = "markdown";
     String NOT_SUPPORTED_FILE_PAGE = "fileNotSupported";
 
     String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);
