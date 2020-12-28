@@ -2,7 +2,7 @@ package cn.keking.service;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
-import cn.keking.utils.FileUtils;
+import cn.keking.utils.KkFileUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +48,7 @@ public class CompressFileReader {
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileHandlerService.getFileNameFromPath(filePath);
         try {
-            ZipFile zipFile = new ZipFile(filePath, FileUtils.getFileEncode(filePath));
+            ZipFile zipFile = new ZipFile(filePath, KkFileUtils.getFileEncode(filePath));
             Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
             // 排序
             entries = sortZipEntries(entries);
@@ -382,7 +382,7 @@ public class CompressFileReader {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            FileUtils.deleteFileByPath(filePath);
+            KkFileUtils.deleteFileByPath(filePath);
         }
 
         private void extractZipFile(String childName, InputStream zipFile) {
@@ -439,7 +439,7 @@ public class CompressFileReader {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            FileUtils.deleteFileByPath(filePath);
+            KkFileUtils.deleteFileByPath(filePath);
         }
     }
 
@@ -468,7 +468,7 @@ public class CompressFileReader {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            FileUtils.deleteFileByPath(filePath);
+            KkFileUtils.deleteFileByPath(filePath);
         }
 
         private void extractRarFile(String childName, FileHeader header, Archive archive) {

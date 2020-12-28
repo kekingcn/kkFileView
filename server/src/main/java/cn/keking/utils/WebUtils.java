@@ -1,5 +1,9 @@
 package cn.keking.utils;
 
+import io.mola.galimatias.GalimatiasParseException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +12,16 @@ import java.util.Map;
  * create : 2020-12-27 1:30 上午
  **/
 public class WebUtils {
+
+    /**
+     * 获取标准的URL
+     * @param urlStr url
+     * @return 标准的URL
+     */
+    public static URL normalizedURL(String urlStr) throws GalimatiasParseException, MalformedURLException {
+        return io.mola.galimatias.URL.parse(urlStr).toJavaURL();
+    }
+
     /**
      * 获取url中的参数
      *
@@ -81,6 +95,6 @@ public class WebUtils {
     public static String suffixFromUrl(String url) {
         String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
-        return FileUtils.suffixFromFileName(fileName);
+        return KkFileUtils.suffixFromFileName(fileName);
     }
 }

@@ -6,19 +6,39 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
 
-public class FileUtils {
+public class KkFileUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KkFileUtils.class);
 
     public static final String DEFAULT_FILE_ENCODING = "UTF-8";
 
     /**
+     * 判断url是否是http资源
+     *
+     * @param url url
+     * @return 是否http
+     */
+    public static boolean isHttpUrl(URL url) {
+        return url.getProtocol().toLowerCase().startsWith("file") || url.getProtocol().toLowerCase().startsWith("http");
+    }
+
+    /**
+     * 判断url是否是ftp资源
+     *
+     * @param url url
+     * @return 是否ftp
+     */
+    public static boolean isFtpUrl(URL url) {
+        return "ftp".equalsIgnoreCase(url.getProtocol());
+    }
+
+    /**
      * 删除单个文件
      *
-     * @param fileName
-     *            要删除的文件的文件名
+     * @param fileName 要删除的文件的文件名
      * @return 单个文件删除成功返回true，否则返回false
      */
     public static boolean deleteFileByName(String fileName) {
@@ -39,17 +59,26 @@ public class FileUtils {
     }
 
     /**
-     * 判断文件编码格式
+     * 检测文件编码格式
      *
      * @param filePath 绝对路径
      * @return 编码格式
      */
     public static String getFileEncode(String filePath) {
-        File file = new File(filePath);
+        return getFileEncode(new File(filePath));
+    }
+
+    /**
+     * 检测文件编码格式
+     *
+     * @param file 检测的文件
+     * @return 编码格式
+     */
+    public static String getFileEncode(File file) {
         CharsetPrinter cp = new CharsetPrinter();
         try {
             String encoding = cp.guessEncoding(file);
-            LOGGER.info("检测到文件【{}】编码: {}", filePath, encoding);
+            LOGGER.info("检测到文件【{}】编码: {}", file.getAbsolutePath(), encoding);
             return encoding;
         } catch (IOException e) {
             LOGGER.warn("文件编码获取失败，采用默认的编码格式：UTF-8", e);
@@ -59,6 +88,7 @@ public class FileUtils {
 
     /**
      * 通过文件名获取文件后缀
+     *
      * @param fileName 文件名称
      * @return 文件后缀
      */
@@ -82,8 +112,7 @@ public class FileUtils {
     /**
      * 删除目录及目录下的文件
      *
-     * @param dir
-     *            要删除的目录的文件路径
+     * @param dir 要删除的目录的文件路径
      * @return 目录删除成功返回true，否则返回false
      */
     public static boolean deleteDirectory(String dir) {
@@ -103,13 +132,13 @@ public class FileUtils {
         for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
             // 删除子文件
             if (files[i].isFile()) {
-                flag = FileUtils.deleteFileByName(files[i].getAbsolutePath());
+                flag = KkFileUtils.deleteFileByName(files[i].getAbsolutePath());
                 if (!flag) {
                     break;
                 }
-            }  else if (files[i].isDirectory()) {
+            } else if (files[i].isDirectory()) {
                 // 删除子目录
-                flag = FileUtils.deleteDirectory(files[i].getAbsolutePath());
+                flag = KkFileUtils.deleteDirectory(files[i].getAbsolutePath());
                 if (!flag) {
                     break;
                 }

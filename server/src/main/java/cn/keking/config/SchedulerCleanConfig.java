@@ -1,7 +1,7 @@
 package cn.keking.config;
 
 import cn.keking.service.cache.CacheService;
-import cn.keking.utils.FileUtils;
+import cn.keking.utils.KkFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -31,7 +31,7 @@ public class SchedulerCleanConfig {
     public void clean() {
         logger.info("Cache clean start");
         cacheService.cleanCache();
-        FileUtils.deleteDirectory(fileDir);
+        KkFileUtils.deleteDirectory(fileDir);
         logger.info("Cache clean end");
     }
 }
