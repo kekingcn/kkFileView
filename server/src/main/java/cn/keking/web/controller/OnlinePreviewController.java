@@ -5,6 +5,7 @@ import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
 
 import cn.keking.service.cache.CacheService;
+import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
 import org.slf4j.Logger;
@@ -31,21 +32,30 @@ import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
 @Controller
 public class OnlinePreviewController {
 
+    public static final String BASE64_DECODE_ERROR_MSG = "Base64解码失败，请检查你的 %s 是否采用 Base64 + urlEncode 双重编码了！";
     private final Logger logger = LoggerFactory.getLogger(OnlinePreviewController.class);
 
     private final FilePreviewFactory previewFactory;
     private final CacheService cacheService;
     private final FileHandlerService fileHandlerService;
+    private final OtherFilePreviewImpl otherFilePreview;
 
-    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService) {
+    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService, OtherFilePreviewImpl otherFilePreview) {
         this.previewFactory = filePreviewFactory;
         this.fileHandlerService = fileHandlerService;
         this.cacheService = cacheService;
+        this.otherFilePreview = otherFilePreview;
     }
 
     @RequestMapping(value = "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
-        String fileUrl = new String(Base64Utils.decodeFromString(url));
+        String fileUrl;
+        try {
+            fileUrl = new String(Base64Utils.decodeFromString(url));
+        } catch (Exception ex) {
+            String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
+            return otherFilePreview.notSupportedFile(model, errorMsg);
+        }
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
@@ -54,18 +64,24 @@ public class OnlinePreviewController {
 
     @RequestMapping(value = "/picturesPreview")
     public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
-        String fileUrls = new String(Base64Utils.decodeFromString(urls));
+        String fileUrls;
+        try {
+            fileUrls = new String(Base64Utils.decodeFromString(urls));
+        } catch (Exception ex) {
+            String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "urls");
+            return otherFilePreview.notSupportedFile(model, errorMsg);
+        }
         logger.info("预览文件url：{}，urls：{}", fileUrls, urls);
         // 抽取文件并返回文件列表
-        String[] imgs = fileUrls.split("\\|");
-        List<String> imgUrls = Arrays.asList(imgs);
+        String[] images = fileUrls.split("\\|");
+        List<String> imgUrls = Arrays.asList(images);
         model.addAttribute("imgUrls", imgUrls);
 
         String currentUrl = req.getParameter("currentUrl");
-        if(StringUtils.hasText(currentUrl)){
+        if (StringUtils.hasText(currentUrl)) {
             String decodedCurrentUrl = new String(Base64Utils.decodeFromString(currentUrl));
             model.addAttribute("currentUrl", decodedCurrentUrl);
-        }else {
+        } else {
             model.addAttribute("currentUrl", imgUrls.get(0));
         }
         return PICTURE_FILE_PREVIEW_PAGE;
