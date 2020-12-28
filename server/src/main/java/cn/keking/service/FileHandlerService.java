@@ -275,7 +275,7 @@ public class FileHandlerService {
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
-            String fileKey = req.getParameter("fileKey");
+            String fileKey = WebUtils.getUrlParameterReg(url,"fileKey");
             if (StringUtils.hasText(officePreviewType)) {
                 attribute.setOfficePreviewType(officePreviewType);
             }
