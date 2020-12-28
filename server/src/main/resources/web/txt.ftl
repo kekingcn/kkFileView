@@ -9,7 +9,18 @@
 <input hidden id="textData" value="${textData}"/>
 
 <div class="container">
-    <div id="text"></div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                    ${file.name}
+                </a>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div id="text"></div>
+        </div>
+    </div>
 </div>
 
 <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
