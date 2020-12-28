@@ -6,8 +6,10 @@ import cn.keking.service.FilePreviewFactory;
 
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
-import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
+import cn.keking.utils.WebUtils;
+import io.mola.galimatias.GalimatiasParseException;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -99,9 +102,10 @@ public class OnlinePreviewController {
     public void getCorsFile(String urlPath, HttpServletResponse response) {
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
-            byte[] bytes = DownloadUtils.getBytesFromUrl(urlPath);
-            DownloadUtils.saveBytesToOutStream(bytes, response.getOutputStream());
-        } catch (IOException e) {
+            URL url = WebUtils.normalizedURL(urlPath);
+            byte[] bytes = IOUtils.toByteArray(url);
+            IOUtils.write(bytes, response.getOutputStream());
+        } catch (IOException | GalimatiasParseException e) {
             logger.error("下载跨域pdf文件异常，url：{}", urlPath, e);
         }
     }

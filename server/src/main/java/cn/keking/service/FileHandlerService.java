@@ -4,7 +4,7 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
-import cn.keking.utils.FileUtils;
+import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
 import com.aspose.cad.Color;
 import com.aspose.cad.fileformats.cad.CadDrawTypeMode;
@@ -263,7 +263,7 @@ public class FileHandlerService {
         if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
             type = FileType.typeFromFileName(fullFileName);
-            suffix = FileUtils.suffixFromFileName(fullFileName);
+            suffix = KkFileUtils.suffixFromFileName(fullFileName);
         } else {
             fileName = WebUtils.getFileNameFromURL(url);
             type = FileType.typeFromUrl(url);
