@@ -4,6 +4,7 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
+import io.mola.galimatias.GalimatiasParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,6 @@ public class DownloadUtils {
     public static byte[] getBytesFromUrl(String urlStr) throws IOException {
         InputStream is = getInputStreamFromUrl(urlStr);
         if (is == null) {
-         //   urlStr = URLUtil.normalize(urlStr, true, true);
             is = getInputStreamFromUrl(urlStr);
             if (is == null) {
                 logger.error("文件下载异常：url：{}", urlStr);
@@ -98,13 +98,14 @@ public class DownloadUtils {
 
     private static InputStream getInputStreamFromUrl(String urlStr) {
         try {
-            URL url = new URL(urlStr);
+
+            URL url = io.mola.galimatias.URL.parse(urlStr).toJavaURL();
             URLConnection connection = url.openConnection();
             if (connection instanceof HttpURLConnection) {
                 connection.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
             }
             return connection.getInputStream();
-        } catch (IOException e) {
+        } catch (IOException | GalimatiasParseException e) {
             logger.warn("连接url异常：url：{}", urlStr);
             return null;
         }
