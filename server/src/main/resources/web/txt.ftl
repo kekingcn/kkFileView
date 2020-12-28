@@ -11,11 +11,25 @@
 
 <div class="container">
     <#if textType?? && textType == "markdown">
-        <p>
-            <button id="markdown_btn" type="button" class="btn btn-primary">切换markdown</button>
-            <button id="text_btn" type="button" class="btn btn-primary">切换text</button>
-        </p>
-        <div id="markdown" style="padding: 18px;"></div>
+        <div class="panel panel-default">
+            <div id="markdown_btn" class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                        切换markdown
+                    </a>
+                </h4>
+            </div>
+            <div id="text_btn" class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                        切换text
+                    </a>
+                </h4>
+            </div>
+            <div class="panel-body">
+                <div id="markdown"></div>
+            </div>
+        </div>
     <#elseif textType?? && textType == "xml" >
         <div id="xml" style="padding: 18px;"></div>
     <#else>
@@ -77,7 +91,7 @@
      */
     function fetchData() {
         window.textData = Base64.decode($("#textData").val())
-        window.textPreData = "<pre>" + window.textData + "</pre>";
+        window.textPreData = "<pre style='background-color: #FFFFFF;border:none'>" + window.textData + "</pre>";
     }
 
     /**
@@ -134,13 +148,6 @@
         width: 100%;
     }
 
-    #markdown, #xml {
-        height: 97%;
-        max-height: 97%;
-        border: 1px solid #ece7e7;
-        overflow-y: scroll;
-        width: 100%;
-    }
 </style>
 </body>
 
