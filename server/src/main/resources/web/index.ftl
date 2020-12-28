@@ -61,7 +61,7 @@
             <div style="padding: 10px">
                 <form enctype="multipart/form-data" id="fileUpload">
                     <input type="file" name="file"/>
-                    <input type="button" id="btnubmit" value=" 上 传 "/>
+                    <input type="button" id="btnSubmit" value=" 上 传 "/>
                 </form>
             </div>
             <div>
