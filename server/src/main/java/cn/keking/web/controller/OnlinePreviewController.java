@@ -9,12 +9,12 @@ import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.service.FileHandlerService;
 import cn.keking.utils.WebUtils;
 import io.mola.galimatias.GalimatiasParseException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,7 +54,7 @@ public class OnlinePreviewController {
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl;
         try {
-            fileUrl = new String(Base64Utils.decodeFromString(url));
+            fileUrl = new String(Base64.decodeBase64(url));
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
@@ -70,7 +70,7 @@ public class OnlinePreviewController {
     public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String fileUrls;
         try {
-            fileUrls = new String(Base64Utils.decodeFromString(urls));
+            fileUrls = new String(Base64.decodeBase64(urls));
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "urls");
             return otherFilePreview.notSupportedFile(model, errorMsg);
@@ -83,7 +83,7 @@ public class OnlinePreviewController {
 
         String currentUrl = req.getParameter("currentUrl");
         if (StringUtils.hasText(currentUrl)) {
-            String decodedCurrentUrl = new String(Base64Utils.decodeFromString(currentUrl));
+            String decodedCurrentUrl = new String(Base64.decodeBase64(currentUrl));
             model.addAttribute("currentUrl", decodedCurrentUrl);
         } else {
             model.addAttribute("currentUrl", imgUrls.get(0));
