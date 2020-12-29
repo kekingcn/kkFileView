@@ -39,10 +39,10 @@
      *加载普通文本
      */
     function loadText() {
-        var textData = Base64.decode($("#textData").val())
-        var textPreData = "<pre style='background-color: #FFFFFF;border:none'>" + textData + "</pre>";
-
-        $("#text").html(textPreData);
+        var base64data = $("#textData").val()
+        var textData = Base64.decode(base64data);
+        var textPreData = "<xmp style='background-color: #FFFFFF;overflow-y: scroll;border:none'>" + textData + "</xmp>";
+        $("#text").append(textPreData);
     }
 
 </script>
