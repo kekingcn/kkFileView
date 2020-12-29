@@ -24,7 +24,7 @@ public enum FileType {
     cad("cadFilePreviewImpl");
 
     private static final String[] OFFICE_TYPES = {"docx", "doc", "xls", "xlsx", "ppt", "pptx"};
-    private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "RAW"};
+    private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "raw"};
     private static final String[] ARCHIVE_TYPES = {"rar", "zip", "jar", "7-zip", "tar", "gzip", "7z"};
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
     private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
@@ -71,7 +71,8 @@ public enum FileType {
 
     public static FileType typeFromFileName(String fileName) {
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-        return FileType.to(fileType);
+        String lowerCaseFileType = fileType.toLowerCase();
+        return FileType.to(lowerCaseFileType);
     }
 
     private final String instanceName;
