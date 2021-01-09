@@ -8,9 +8,10 @@ import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.service.FileHandlerService;
 import cn.keking.utils.WebUtils;
+import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
+import jodd.io.NetUtil;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -103,7 +104,7 @@ public class OnlinePreviewController {
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
             URL url = WebUtils.normalizedURL(urlPath);
-            byte[] bytes = IOUtils.toByteArray(url);
+            byte[] bytes = NetUtil.downloadBytes(url.toString());
             IOUtils.write(bytes, response.getOutputStream());
         } catch (IOException | GalimatiasParseException e) {
             logger.error("下载跨域pdf文件异常，url：{}", urlPath, e);
