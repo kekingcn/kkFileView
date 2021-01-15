@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.*;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  *
@@ -36,6 +37,9 @@ public class FileController {
         // 获取文件名
         String fileName = file.getOriginalFilename();
         //判断是否为IE浏览器的文件名，IE浏览器下文件名会带有盘符信息
+        
+        // escaping dangerous characters to prevent XSS
+        fileName = StringEscapeUtils.escapeHtml4(fileName);
         // Check for Unix-style path
         int unixSep = fileName.lastIndexOf('/');
         // Check for Windows-style path
