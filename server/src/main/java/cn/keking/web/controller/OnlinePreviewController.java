@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class OnlinePreviewController {
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl;
         try {
-            fileUrl = new String(Base64.decodeBase64(url));
+            fileUrl = new String(Base64.decodeBase64(url), StandardCharsets.UTF_8);
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);

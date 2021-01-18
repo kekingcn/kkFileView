@@ -4,7 +4,6 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import io.mola.galimatias.GalimatiasParseException;
-import jodd.io.FileUtil;
 import jodd.io.NetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
