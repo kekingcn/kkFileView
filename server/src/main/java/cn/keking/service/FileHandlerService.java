@@ -178,14 +178,15 @@ public class FileHandlerService {
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
         String urlPrefix;
         try {
-            urlPrefix = baseUrl + URLEncoder.encode(URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20"), uriEncoding);
+            urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException e) {
             logger.error("UnsupportedEncodingException", e);
             urlPrefix = baseUrl + pdfFolder;
         }
         if (imageCount != null && imageCount > 0) {
-            for (int i = 0; i < imageCount; i++)
+            for (int i = 0; i < imageCount; i++) {
                 imageUrls.add(urlPrefix + "/" + i + imageFileSuffix);
+            }
             return imageUrls;
         }
         try {
