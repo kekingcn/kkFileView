@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
-import org.apache.commons.text.StringEscapeUtils;
+import org.springframework.web.util.HtmlUtils;
 
 /**
  *
@@ -39,7 +40,8 @@ public class FileController {
         //判断是否为IE浏览器的文件名，IE浏览器下文件名会带有盘符信息
         
         // escaping dangerous characters to prevent XSS
-        fileName = StringEscapeUtils.escapeHtml4(fileName);
+        fileName = HtmlUtils.htmlEscape(fileName, StandardCharsets.UTF_8.name());
+
         // Check for Unix-style path
         int unixSep = fileName.lastIndexOf('/');
         // Check for Windows-style path
