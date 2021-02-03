@@ -109,6 +109,29 @@ pdf预览模式预览效果如下
 
 ### 历史更新记录
 
+> 2021年1月28日 ：
+
+2020农历年最后一个版本发布，主要包含了部分 UI 改进，和解决了 QQ 群友、 Issue 里反馈的 Bug 修复，最最重要的是发个新版，过个好年
+
+1. 引入galimatias,解决不规范文件名导致文件下载异常
+2. 更新index接入演示界面UI风格
+3. 更新markdown文件预览UI风格
+4. 更新XML文件预览UI风格，调整类文本预览架构，更方便扩展
+5. 更新simTxT文件预览UI风格
+6. 调整多图连续预览上下翻图的UI
+7. 采用apache-common-io包简化所有的文件下载io操作
+8. XML文件预览支持切换纯文本模式
+9. 增强url base64解码失败时的提示信息
+10. 修复导包错误以及图片预览 bug
+11. 修复发行包运行时找不到日志目录的问题
+12. 修复压缩包内多图连续预览的bug
+13. 修复大小写文件类型后缀没通用匹配的问题
+14. 指定Base64转码采用Apache Commons-code中的实现，修复base64部分jdk版本下出现的异常
+15. 修复类文本类型HTML文件预览的bug
+16. 修复：dwg文件预览时无法在jpg和pdf两种类型之间切换
+17. escaping of dangerous characters to prevent reflected xss
+18. 修复重复编码导致文档转图片预览失败的问题&编码规范
+
 > 2020年12月27日 ：
 
 2020年年终大版本更新，架构全面设计，代码全面重构，代码质量全面提升，二次开发更便捷，欢迎拉源码品鉴，提issue、pr共同建设
@@ -185,3 +208,8 @@ pdf预览模式预览效果如下
 ### 使用登记
 如果这个项目解决了你的实际问题，可在https://gitee.com/kekingcn/file-online-preview/issues/IGSBV
 登记下，如果节省了你的三方预览服务费用，也愿意支持下的话，可点击下方【捐助】请作者喝杯咖啡，也是非常感谢
+
+### Stars 趋势图
+
+[![Stargazers over time](https://whnb.wang/img/kekingcn/file-online-preview)](https://whnb.wang/kekingcn/file-online-preview)
+
