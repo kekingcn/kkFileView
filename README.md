@@ -9,7 +9,7 @@
 1. 使用spring boot开发，预览服务搭建部署非常简便
 1. rest接口提供服务，跨平台特性(java,php,python,go,php，....)都支持，应用接入简单方便
 1. 抽象预览服务接口，方便二次开发，非常方便添加其他类型文件预览支持
-1. 最最重要Apache协议开源，代码pull下来想干嘛就干嘛
+1. 最最重要 Apache 协议开源，代码 pull 下来想干嘛就干嘛
 
 ### 官网及文档
 
@@ -26,7 +26,7 @@
 1. English document：https://gitee.com/kekingcn/file-online-preview/blob/master/README.en.md
 
 ### 联系我们，加入组织
-> 我们会用心回答解决大家在项目使用中的问题，也请大家在提问前至少Google或baidu过，珍爱生命远离无效的交流沟通
+> 我们会用心回答解决大家在项目使用中的问题，也请大家在提问前至少 Google 或 baidu 过，珍爱生命远离无效的交流沟通
 
 ![](./doc/KK开源技术交流2群群聊二维码.png) 
 
@@ -99,12 +99,13 @@ pdf预览模式预览效果如下
 - jodconverter
 > 依赖外部环境
 - redis (可选，默认不用)
-- OpenOffice或者LibreOffice(Windows下已内置，Linux会自动安装，Mac OS下需要手动安装)
+- OpenOffice 或者 LibreOffice( Windows 下已内置，Linux 脚本启动模式会自动安装，Mac OS 下需要手动安装)
 
-1. 第一步：pull项目https://github.com/kekingcn/file-online-preview.git
+1. 第一步：pull 项目 https://github.com/kekingcn/file-online-preview.git
 
-3. 第二步：运行FilePreviewApplication的main方法，服务启动后，访问http://localhost:8012/
+3. 第二步：运行 ServerMain 的 main 方法，服务启动后，访问 http://localhost:8012/
 会看到如下界面，代表服务启动成功
+   
 ![输入图片说明](https://gitee.com/uploads/images/2017/1213/100221_ea15202e_492218.png "屏幕截图.png")
 
 ### 历史更新记录
@@ -206,7 +207,7 @@ pdf预览模式预览效果如下
 1. 引入pdf.js预览doc等文件，支持doc标题生成pdf预览菜单，支持手机端预览
 
 ### 使用登记
-如果这个项目解决了你的实际问题，可在https://gitee.com/kekingcn/file-online-preview/issues/IGSBV
+如果这个项目解决了你的实际问题，可在 https://gitee.com/kekingcn/file-online-preview/issues/IGSBV
 登记下，如果节省了你的三方预览服务费用，也愿意支持下的话，可点击下方【捐助】请作者喝杯咖啡，也是非常感谢
 
 ### Stars 趋势图
