@@ -212,7 +212,7 @@ pdf预览模式预览效果如下
 
 ### Stars 趋势图
 #### Gitee
-[![Stargazers over time](https://whnb.wang/img/kekingcn/file-online-preview)](https://whnb.wang/kekingcn/file-online-preview)
+[![Stargazers over time](https://whnb.wang/img/kekingcn/file-online-preview)](https://whnb.wang/kekingcn/file-online-preview?e=86400)
 
 #### GitHub
 
