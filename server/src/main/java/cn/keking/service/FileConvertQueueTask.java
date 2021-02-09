@@ -62,7 +62,7 @@ public class FileConvertQueueTask {
                         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(url,null);
                         FileType fileType = fileAttribute.getType();
                         logger.info("正在处理预览转换任务，url：{}，预览类型：{}", url, fileType);
-                        if(fileType.equals(FileType.compress) || fileType.equals(FileType.office) || fileType.equals(FileType.cad)) {
+                        if(fileType.equals(FileType.COMPRESS) || fileType.equals(FileType.OFFICE) || fileType.equals(FileType.CAD)) {
                             FilePreview filePreview = previewFactory.get(fileAttribute);
                             filePreview.filePreviewHandle(url, new ExtendedModelMap(), fileAttribute);
                         } else {

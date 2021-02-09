@@ -1,22 +1,33 @@
 package cn.keking;
 
-import org.springframework.boot.SpringApplication;
+import cn.keking.config.AppBanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.util.StopWatch;
 
 @SpringBootApplication
 @EnableScheduling
 @ComponentScan(value = "cn.keking.*")
 public class ServerMain {
 
-	public static void main(String[] args) {
-		ServerMain.staticInitSystemProperty();
-        SpringApplication.run(ServerMain.class, args);
-	}
+    private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
 
-	private static void staticInitSystemProperty(){
-		//pdfbox兼容低版本jdk
-		System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
-	}
+    public static void main(String[] args) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(ServerMain.class)
+                .logStartupInfo(false)
+                .banner(new AppBanner())
+                .run(args);
+        stopWatch.stop();
+        Integer port = context.getBean(ServerProperties.class).getPort();
+        logger.info("kkFileView 服务启动完成，耗时:{}s，演示页请访问: http://127.0.0.1:{} ", stopWatch.getTotalTimeSeconds(), port);
+    }
+
 }

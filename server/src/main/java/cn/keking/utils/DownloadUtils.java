@@ -4,7 +4,7 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import io.mola.galimatias.GalimatiasParseException;
-import jodd.io.NetUtil;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class DownloadUtils {
             URL url = WebUtils.normalizedURL(urlStr);
             if (isHttpUrl(url)) {
                 File realFile = new File(realPath);
-                NetUtil.downloadFile(url.toString(),realFile);
+                FileUtils.copyURLToFile(url,realFile);
             } else if (isFtpUrl(url)) {
                 String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);

@@ -11,52 +11,57 @@ import java.util.Map;
  */
 public enum FileType {
 
-    picture("pictureFilePreviewImpl"),
-    compress("compressFilePreviewImpl"),
-    office("officeFilePreviewImpl"),
-    simText("simTextFilePreviewImpl"),
-    pdf("pdfFilePreviewImpl"),
-    other("otherFilePreviewImpl"),
-    media("mediaFilePreviewImpl"),
-    markdown("markdownFilePreviewImpl"),
-    xml("xmlFilePreviewImpl"),
-    flv("flvFilePreviewImpl"),
-    cad("cadFilePreviewImpl");
+    PICTURE("pictureFilePreviewImpl"),
+    COMPRESS("compressFilePreviewImpl"),
+    OFFICE("officeFilePreviewImpl"),
+    SIMTEXT("simTextFilePreviewImpl"),
+    PDF("pdfFilePreviewImpl"),
+    OTHER("otherFilePreviewImpl"),
+    MEDIA("mediaFilePreviewImpl"),
+    MARKDOWN("markdownFilePreviewImpl"),
+    XML("xmlFilePreviewImpl"),
+    FLV("flvFilePreviewImpl"),
+    CAD("cadFilePreviewImpl"),
+    TIFF("tiffFilePreviewImpl");
 
     private static final String[] OFFICE_TYPES = {"docx", "doc", "xls", "xlsx", "ppt", "pptx"};
     private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "raw"};
     private static final String[] ARCHIVE_TYPES = {"rar", "zip", "jar", "7-zip", "tar", "gzip", "7z"};
+    private static final String[] TIFF_TYPES = {"tif", "tiff"};
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
     private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
 
     static {
         for (String office : OFFICE_TYPES) {
-            FILE_TYPE_MAPPER.put(office, FileType.office);
+            FILE_TYPE_MAPPER.put(office, FileType.OFFICE);
         }
         for (String picture : PICTURE_TYPES) {
-            FILE_TYPE_MAPPER.put(picture, FileType.picture);
+            FILE_TYPE_MAPPER.put(picture, FileType.PICTURE);
         }
         for (String archive : ARCHIVE_TYPES) {
-            FILE_TYPE_MAPPER.put(archive, FileType.compress);
+            FILE_TYPE_MAPPER.put(archive, FileType.COMPRESS);
         }
         for (String text : SSIM_TEXT_TYPES) {
-            FILE_TYPE_MAPPER.put(text, FileType.simText);
+            FILE_TYPE_MAPPER.put(text, FileType.SIMTEXT);
         }
         for (String media : MEDIA_TYPES) {
-            FILE_TYPE_MAPPER.put(media, FileType.media);
+            FILE_TYPE_MAPPER.put(media, FileType.MEDIA);
         }
-        FILE_TYPE_MAPPER.put("md", FileType.markdown);
-        FILE_TYPE_MAPPER.put("xml", FileType.xml);
-        FILE_TYPE_MAPPER.put("pdf", FileType.pdf);
-        FILE_TYPE_MAPPER.put("dwg", FileType.cad);
-        FILE_TYPE_MAPPER.put("flv", FileType.flv);
-
+        for (String tif : TIFF_TYPES) {
+            FILE_TYPE_MAPPER.put(tif, FileType.TIFF);
+        }
+        FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
+        FILE_TYPE_MAPPER.put("xml", FileType.XML);
+        FILE_TYPE_MAPPER.put("pdf", FileType.PDF);
+        FILE_TYPE_MAPPER.put("dwg", FileType.CAD);
+        FILE_TYPE_MAPPER.put("flv", FileType.FLV);
     }
 
-    private static FileType to(String fileType){
-        return FILE_TYPE_MAPPER.getOrDefault(fileType,other);
+    private static FileType to(String fileType) {
+        return FILE_TYPE_MAPPER.getOrDefault(fileType, OTHER);
     }
+
     /**
      * 查看文件类型(防止参数中存在.点号或者其他特殊字符，所以先抽取文件名，然后再获取文件类型)
      *

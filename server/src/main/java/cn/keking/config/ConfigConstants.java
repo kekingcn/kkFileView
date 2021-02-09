@@ -16,6 +16,11 @@ import java.util.Set;
 @Component
 public class ConfigConstants {
 
+    static {
+        //pdfbox兼容低版本jdk
+        System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
+    }
+
     private static Boolean CACHE_ENABLED;
     private static String[] SIM_TEXT = {};
     private static String[] MEDIA = {};
