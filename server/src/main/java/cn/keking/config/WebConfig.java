@@ -4,14 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author: chenjh
  * @since: 2019/4/16 20:04
  */
 @Configuration
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig implements WebMvcConfigurer {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(WebConfig.class);
     /**
@@ -22,6 +22,5 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         String filePath = ConfigConstants.getFileDir();
         LOGGER.info("Add resource locations: {}", filePath);
         registry.addResourceHandler("/**").addResourceLocations("classpath:/META-INF/resources/","classpath:/resources/","classpath:/static/","classpath:/public/","file:" + filePath);
-        super.addResourceHandlers(registry);
     }
 }
