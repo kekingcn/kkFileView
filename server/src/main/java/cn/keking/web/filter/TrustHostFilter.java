@@ -34,6 +34,9 @@ public class TrustHostFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String url = getSourceUrl(request);
+        if(url != null){
+            url = new String(Base64Utils.decodeFromString(url), StandardCharsets.UTF_8);
+        }
         String host = getHost(url);
         if (host != null &&!ConfigConstants.getTrustHostSet().isEmpty() && !ConfigConstants.getTrustHostSet().contains(host)) {
             String html = this.notTrustHost.replace("${current_host}", host);
