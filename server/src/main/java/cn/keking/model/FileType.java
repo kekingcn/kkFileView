@@ -16,6 +16,7 @@ public enum FileType {
     OFFICE("officeFilePreviewImpl"),
     SIMTEXT("simTextFilePreviewImpl"),
     PDF("pdfFilePreviewImpl"),
+    CODE("codeFilePreviewImpl"),
     OTHER("otherFilePreviewImpl"),
     MEDIA("mediaFilePreviewImpl"),
     MARKDOWN("markdownFilePreviewImpl"),
@@ -24,11 +25,13 @@ public enum FileType {
     CAD("cadFilePreviewImpl"),
     TIFF("tiffFilePreviewImpl");
 
+
     private static final String[] OFFICE_TYPES = {"docx", "doc", "xls", "xlsx", "ppt", "pptx"};
     private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "raw"};
     private static final String[] ARCHIVE_TYPES = {"rar", "zip", "jar", "7-zip", "tar", "gzip", "7z"};
     private static final String[] TIFF_TYPES = {"tif", "tiff"};
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
+    private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "h", "cpp", "cs", "aspx", "jsp"};
     private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
 
@@ -50,6 +53,9 @@ public enum FileType {
         }
         for (String tif : TIFF_TYPES) {
             FILE_TYPE_MAPPER.put(tif, FileType.TIFF);
+        }
+        for (String code : CODES) {
+            FILE_TYPE_MAPPER.put(code, FileType.CODE);
         }
         FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
         FILE_TYPE_MAPPER.put("xml", FileType.XML);
