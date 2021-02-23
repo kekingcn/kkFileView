@@ -31,12 +31,7 @@ public class PreviewUrlSwitch {
         this.paths = paths;
     }
 
-    // https://welife.hdec.com:8013/minio/wlc/upload/20210201/a8eba15d7cde1997b73461e96e986a36.png
-    // http://172.23.0.75:9000/wlc/upload/20210201/a8eba15d7cde1997b73461e96e986a36.png
-
-    //
-    // https://welife.hdec.com:8013/fileview/onlinePreview?url=http://172.23.0.75:9000/wlc/upload/20210201/a8eba15d7cde1997b73461e96e986a36.png
-    // 处理url
+  // 处理url
     public String urlOutToIn(String url) {
         if (paths != null && paths.size() > 0) {
             for (PreviewPath path : paths) {

@@ -59,9 +59,7 @@ public class OnlinePreviewController {
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl;
         try {
-//            fileUrl = new String(Base64.decodeBase64(url));
-            fileUrl = previewUrlSwitch.urlOutToIn(url);
-
+            fileUrl = previewUrlSwitch.urlOutToIn(new String(Base64.decodeBase64(url)));
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
