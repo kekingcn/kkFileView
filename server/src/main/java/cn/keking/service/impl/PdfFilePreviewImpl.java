@@ -6,6 +6,7 @@ import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
+import cn.keking.web.controller.PreviewUrlSwitch;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -19,11 +20,13 @@ import java.util.List;
 @Service
 public class PdfFilePreviewImpl implements FilePreview {
 
+    private final PreviewUrlSwitch previewUrlSwitch;
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
     private static final String FILE_DIR = ConfigConstants.getFileDir();
 
-    public PdfFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
+    public PdfFilePreviewImpl(PreviewUrlSwitch previewUrlSwitch, FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
+        this.previewUrlSwitch = previewUrlSwitch;
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
     }
@@ -52,8 +55,8 @@ public class PdfFilePreviewImpl implements FilePreview {
             if (imageUrls == null || imageUrls.size() < 1) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, "pdf转图片异常，请联系管理员");
             }
-            model.addAttribute("imgurls", imageUrls);
-            model.addAttribute("currentUrl", imageUrls.get(0));
+            model.addAttribute("imgurls", previewUrlSwitch.urlsInToOut(imageUrls));
+            model.addAttribute("currentUrl", previewUrlSwitch.urlInToOut(imageUrls.get(0)));
             if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType)) {
                 return OFFICE_PICTURE_FILE_PREVIEW_PAGE;
             } else {
@@ -76,7 +79,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                     model.addAttribute("pdfUrl", pdfName);
                 }
             } else {
-                model.addAttribute("pdfUrl", url);
+                model.addAttribute("pdfUrl", previewUrlSwitch.urlInToOut(url));
             }
         }
         return PDF_FILE_PREVIEW_PAGE;

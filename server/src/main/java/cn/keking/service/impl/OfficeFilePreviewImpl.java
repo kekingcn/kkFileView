@@ -7,11 +7,14 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.OfficeToPdfService;
+import cn.keking.web.controller.PreviewPath;
+import cn.keking.web.controller.PreviewUrlSwitch;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,11 +31,13 @@ public class OfficeFilePreviewImpl implements FilePreview {
     private final FileHandlerService fileHandlerService;
     private final OfficeToPdfService officeToPdfService;
     private final OtherFilePreviewImpl otherFilePreview;
+    private final PreviewUrlSwitch previewUrlSwitch;
 
-    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, OfficeToPdfService officeToPdfService, OtherFilePreviewImpl otherFilePreview) {
+    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, OfficeToPdfService officeToPdfService, OtherFilePreviewImpl otherFilePreview, PreviewUrlSwitch previewUrlSwitch) {
         this.fileHandlerService = fileHandlerService;
         this.officeToPdfService = officeToPdfService;
         this.otherFilePreview = otherFilePreview;
+        this.previewUrlSwitch = previewUrlSwitch;
     }
 
     @Override
@@ -72,17 +77,19 @@ public class OfficeFilePreviewImpl implements FilePreview {
         return isHtml ? EXEL_FILE_PREVIEW_PAGE : PDF_FILE_PREVIEW_PAGE;
     }
 
-    static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {
+    String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {
         List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
         if (imageUrls == null || imageUrls.size() < 1) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
         }
-        model.addAttribute("imgurls", imageUrls);
-        model.addAttribute("currentUrl", imageUrls.get(0));
+        model.addAttribute("imgurls", previewUrlSwitch.urlsInToOut(imageUrls));
+        model.addAttribute("currentUrl", previewUrlSwitch.urlInToOut(imageUrls.get(0)));
         if (officePreviewTypeImage.equals(officePreviewType)) {
             return OFFICE_PICTURE_FILE_PREVIEW_PAGE;
         } else {
             return PICTURE_FILE_PREVIEW_PAGE;
         }
     }
+
+
 }

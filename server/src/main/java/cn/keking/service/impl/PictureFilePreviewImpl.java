@@ -5,6 +5,7 @@ import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
+import cn.keking.web.controller.PreviewUrlSwitch;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -20,10 +21,12 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
+    private final PreviewUrlSwitch previewUrlSwitch;
 
-    public PictureFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
+    public PictureFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview, PreviewUrlSwitch previewUrlSwitch) {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
+        this.previewUrlSwitch = previewUrlSwitch;
     }
 
     @Override
@@ -48,8 +51,8 @@ public class PictureFilePreviewImpl implements FilePreview {
                 model.addAttribute("currentUrl", file);
             }
         } else {
-            model.addAttribute("imgUrls", imgUrls);
-            model.addAttribute("currentUrl", url);
+            model.addAttribute("imgUrls", previewUrlSwitch.urlsInToOut(imgUrls));
+            model.addAttribute("currentUrl", previewUrlSwitch.urlInToOut(url));
         }
         return PICTURE_FILE_PREVIEW_PAGE;
     }

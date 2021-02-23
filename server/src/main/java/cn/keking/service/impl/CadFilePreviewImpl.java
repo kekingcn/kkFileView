@@ -3,15 +3,14 @@ package cn.keking.service.impl;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FileHandlerService;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 
-import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 
 /**
  * @author chenjh
@@ -26,10 +25,12 @@ public class CadFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
+    private final OfficeFilePreviewImpl officeFilePreview;
 
-    public CadFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
+    public CadFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview, OfficeFilePreviewImpl officeFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
+        this.officeFilePreview = officeFilePreview;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class CadFilePreviewImpl implements FilePreview {
             }
         }
         if (baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
-            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE,otherFilePreview);
+            return officeFilePreview.getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE,otherFilePreview);
         }
         model.addAttribute("pdfUrl", pdfName);
         return PDF_FILE_PREVIEW_PAGE;

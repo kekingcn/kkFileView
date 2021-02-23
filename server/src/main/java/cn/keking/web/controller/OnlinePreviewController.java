@@ -1,16 +1,16 @@
 package cn.keking.web.controller;
 
 import cn.keking.model.FileAttribute;
+import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
-
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
-import cn.keking.service.FileHandlerService;
 import cn.keking.utils.WebUtils;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
 import jodd.io.NetUtil;
+import jodd.util.ArraysUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,18 +45,23 @@ public class OnlinePreviewController {
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
 
-    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService, OtherFilePreviewImpl otherFilePreview) {
+    private final PreviewUrlSwitch previewUrlSwitch;
+
+    public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService, OtherFilePreviewImpl otherFilePreview, PreviewUrlSwitch previewUrlSwitch) {
         this.previewFactory = filePreviewFactory;
         this.fileHandlerService = fileHandlerService;
         this.cacheService = cacheService;
         this.otherFilePreview = otherFilePreview;
+        this.previewUrlSwitch = previewUrlSwitch;
     }
 
     @RequestMapping(value = "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl;
         try {
-            fileUrl = new String(Base64.decodeBase64(url), StandardCharsets.UTF_8);
+//            fileUrl = new String(Base64.decodeBase64(url));
+            fileUrl = previewUrlSwitch.urlOutToIn(url);
+
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
@@ -81,14 +86,14 @@ public class OnlinePreviewController {
         // 抽取文件并返回文件列表
         String[] images = fileUrls.split("\\|");
         List<String> imgUrls = Arrays.asList(images);
-        model.addAttribute("imgUrls", imgUrls);
+        model.addAttribute("imgUrls", previewUrlSwitch.urlsInToOut(imgUrls));
 
         String currentUrl = req.getParameter("currentUrl");
         if (StringUtils.hasText(currentUrl)) {
             String decodedCurrentUrl = new String(Base64.decodeBase64(currentUrl));
-            model.addAttribute("currentUrl", decodedCurrentUrl);
+            model.addAttribute("currentUrl", previewUrlSwitch.urlInToOut(decodedCurrentUrl));
         } else {
-            model.addAttribute("currentUrl", imgUrls.get(0));
+            model.addAttribute("currentUrl", previewUrlSwitch.urlInToOut(imgUrls.get(0)));
         }
         return PICTURE_FILE_PREVIEW_PAGE;
     }
