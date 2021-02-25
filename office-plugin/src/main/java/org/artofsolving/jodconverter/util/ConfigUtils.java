@@ -9,6 +9,7 @@ import java.io.File;
 public class ConfigUtils {
 
     private static final String MAIN_DIRECTORY_NAME = "server";
+    private static final String OFFICE_PLUGIN_NAME = "office-plugin";
 
     public static String getHomePath() {
         String userDir = System.getenv("KKFILEVIEW_BIN_FOLDER");
@@ -23,6 +24,23 @@ public class ConfigUtils {
                 userDir = userDir + separator + "src" + separator +  "main";
             } else {
                 userDir = userDir + separator + MAIN_DIRECTORY_NAME + separator + "src" + separator + "main";
+            }
+        }
+        return userDir;
+    }
+
+
+    public static String getOfficePluginPath() {
+        String userDir = System.getenv("KKFILEVIEW_BIN_FOLDER");
+        if (userDir == null) {
+            userDir = System.getProperty("user.dir");
+        }
+        if (userDir.endsWith("bin")) {
+            userDir = userDir.substring(0, userDir.length() - 4);
+        } else {
+            String separator = File.separator;
+            if (!userDir.contains(OFFICE_PLUGIN_NAME)) {
+                userDir = userDir + separator + OFFICE_PLUGIN_NAME;
             }
         }
         return userDir;

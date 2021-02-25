@@ -3,6 +3,7 @@ package cn.keking.web.filter;
 import cn.keking.config.ConfigConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.FileCopyUtils;
 
 import javax.servlet.*;
