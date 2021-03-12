@@ -8,6 +8,8 @@ import org.artofsolving.jodconverter.office.OfficeManager;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.convert.DurationStyle;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -19,7 +21,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -36,6 +42,12 @@ public class OfficePluginManager {
     private final Logger logger = LoggerFactory.getLogger(OfficePluginManager.class);
 
     private OfficeManager officeManager;
+
+    @Value("${office.plugin.server.ports:2001,2002}")
+    private String serverPorts;
+
+    @Value("${office.plugin.task.timeout:5m}")
+    private String timeOut;
 
     @PostConstruct
     public void initOfficeManager() {
@@ -57,9 +69,14 @@ public class OfficePluginManager {
         try {
             DefaultOfficeManagerConfiguration configuration = new DefaultOfficeManagerConfiguration();
             configuration.setOfficeHome(officeHome);
-            configuration.setPortNumber(8100);
+            String []portsString = serverPorts.split(",");
+
+            int[] ports = Arrays.stream(portsString).mapToInt(Integer::parseInt).toArray();
+
+            configuration.setPortNumbers(ports);
+            long timeout = DurationStyle.detectAndParse(timeOut).toMillis();
             // 设置任务执行超时为5分钟
-            configuration.setTaskExecutionTimeout(1000 * 60 * 5L);
+            configuration.setTaskExecutionTimeout(timeout);
             // 设置任务队列超时为24小时
             //configuration.setTaskQueueTimeout(1000 * 60 * 60 * 24L);
             officeManager = configuration.buildOfficeManager();
