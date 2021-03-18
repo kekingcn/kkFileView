@@ -205,9 +205,6 @@
             </resource>
             <resource>
                 <directory>src/main/config</directory>
-                <excludes>
-                    <exclude>${build.exclude.resource}</exclude>
-                </excludes>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -215,6 +212,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
                 <configuration>
                     <includeSystemScope>true</includeSystemScope>
                 </configuration>
