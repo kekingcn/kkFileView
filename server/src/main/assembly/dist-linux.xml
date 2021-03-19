@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+    <id>make-assembly</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>src/main/bin</directory>
+            <outputDirectory>${file.separator}bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <fileMode>755</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/config</directory>
+            <outputDirectory>${file.separator}config</outputDirectory>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/log</directory>
+            <outputDirectory>${file.separator}log</outputDirectory>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>${file.separator}bin</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
