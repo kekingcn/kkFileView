@@ -30,6 +30,9 @@
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'arraybuffer';
     xhr.open('GET', $("#currentUrl").val());
+    var config = {};
+    config.TOTAL_MEMORY = ${initializeMemorySize};
+    Tiff.initialize(config)
     xhr.onload = function (e) {
         var tiff = new Tiff({buffer: xhr.response});
         var canvas = tiff.toCanvas();
