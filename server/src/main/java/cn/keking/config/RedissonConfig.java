@@ -1,6 +1,7 @@
 package cn.keking.config;
 
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.client.codec.Codec;
 import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -63,7 +64,7 @@ public class RedissonConfig {
                 .setConnectTimeout(connectTimeout)
                 .setIdleConnectionTimeout(idleConnectionTimeout)
                 .setPingTimeout(pingTimeout)
-                .setPassword(password);
+                .setPassword(StringUtils.trimToNull(password));
         Codec codec=(Codec) ClassUtils.forName(getCodec(), ClassUtils.getDefaultClassLoader()).newInstance();
         config.setCodec(codec);
         config.setThreads(thread);
