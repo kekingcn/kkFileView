@@ -2019,7 +2019,7 @@ var validateFileURL;
 {
   var HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io"];
 
-  validateFileURL = function validateFileURL(file, base) {
+  validateFileURL = function validateFileURL(file) {
     if (file === undefined) {
       return;
     }
@@ -2036,7 +2036,7 @@ var validateFileURL;
           protocol = _ref11.protocol;
 
       if (origin !== viewerOrigin && protocol !== "blob:") {
-        return (base.endsWith('/') ? base : base + '/') + 'getCorsFile?urlPath=' + encodeURIComponent(file);
+        throw new Error("file origin does not match viewer's");
       }
     } catch (ex) {
       var message = ex && ex.message;
@@ -2089,14 +2089,12 @@ function loadAndEnablePDFBug(enabledTabs) {
 function webViewerInitialized() {
   var appConfig = PDFViewerApplication.appConfig;
   var file;
-  var base;
   var disableDownload;
   var queryString = document.location.search.substring(1);
   var params = (0, _ui_utils.parseQueryString)(queryString);
   file = "file" in params ? params.file : _app_options.AppOptions.get("defaultUrl");
-  base = 'base' in params ? params.base : appConfig.defaultUrl;
   disableDownload = 'disabledownload' in params ? params.disabledownload : 'false';
-  validateFileURL(file, base);
+  validateFileURL(file);
   var fileInput = document.createElement("input");
   fileInput.id = appConfig.openFileInputName;
   fileInput.className = "fileInput";
