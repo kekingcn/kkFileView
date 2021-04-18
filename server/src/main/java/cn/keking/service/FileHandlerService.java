@@ -286,4 +286,27 @@ public class FileHandlerService {
         }
         return attribute;
     }
+
+    /**
+     * @return 已转换过的视频文件集合(缓存)
+     */
+    public Map<String, String> listConvertedMedias() {
+        return cacheService.getMediaConvertCache();
+    }
+
+    /**
+     * 添加转换后的视频文件缓存
+     * @param fileName
+     * @param value
+     */
+    public void addConvertedMedias(String fileName, String value) {
+        cacheService.putMediaConvertCache(fileName, value);
+    }
+
+    /**
+     * @return 已转换视频文件缓存，根据文件名获取
+     */
+    public String getConvertedMedias(String key) {
+        return cacheService.getMediaConvertCache(key);
+    }
 }

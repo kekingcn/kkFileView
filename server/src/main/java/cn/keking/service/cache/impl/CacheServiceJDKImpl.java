@@ -26,6 +26,7 @@ public class CacheServiceJDKImpl implements CacheService {
     private Map<String, String> pdfCache;
     private Map<String, List<String>> imgCache;
     private Map<String, Integer> pdfImagesCache;
+    private Map<String, String> mediaConvertCache;
     private static final int QUEUE_SIZE = 500000;
     private final BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
@@ -34,6 +35,7 @@ public class CacheServiceJDKImpl implements CacheService {
         initPDFCachePool(CacheService.DEFAULT_PDF_CAPACITY);
         initIMGCachePool(CacheService.DEFAULT_IMG_CAPACITY);
         initPdfImagesCachePool(CacheService.DEFAULT_PDFIMG_CAPACITY);
+        initMediaConvertCachePool(CacheService.DEFAULT_MEDIACONVERT_CAPACITY);
     }
 
     @Override
@@ -80,6 +82,21 @@ public class CacheServiceJDKImpl implements CacheService {
     }
 
     @Override
+    public Map<String, String> getMediaConvertCache() {
+        return mediaConvertCache;
+    }
+
+    @Override
+    public void putMediaConvertCache(String key, String value) {
+        mediaConvertCache.put(key, value);
+    }
+
+    @Override
+    public String getMediaConvertCache(String key) {
+        return mediaConvertCache.get(key);
+    }
+
+    @Override
     public void cleanCache() {
         initPDFCachePool(CacheService.DEFAULT_PDF_CAPACITY);
         initIMGCachePool(CacheService.DEFAULT_IMG_CAPACITY);
@@ -116,4 +133,12 @@ public class CacheServiceJDKImpl implements CacheService {
                 .maximumWeightedCapacity(capacity).weigher(Weighers.singleton())
                 .build();
     }
+
+    @Override
+    public void initMediaConvertCachePool(Integer capacity) {
+        mediaConvertCache = new ConcurrentLinkedHashMap.Builder<String, String>()
+                .maximumWeightedCapacity(capacity).weigher(Weighers.singleton())
+                .build();
+    }
+
 }
