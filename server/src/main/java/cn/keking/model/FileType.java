@@ -33,6 +33,7 @@ public enum FileType {
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
     private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "yml", "json", "h", "cpp", "cs", "aspx", "jsp"};
     private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
+    public static final String[] MEDIA_TYPES_CONVERT = ConfigConstants.getConvertMedias();
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
 
     static {
@@ -49,6 +50,9 @@ public enum FileType {
             FILE_TYPE_MAPPER.put(text, FileType.SIMTEXT);
         }
         for (String media : MEDIA_TYPES) {
+            FILE_TYPE_MAPPER.put(media, FileType.MEDIA);
+        }
+        for (String media : MEDIA_TYPES_CONVERT) {
             FILE_TYPE_MAPPER.put(media, FileType.MEDIA);
         }
         for (String tif : TIFF_TYPES) {

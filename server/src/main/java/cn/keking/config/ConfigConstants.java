@@ -24,6 +24,8 @@ public class ConfigConstants {
     private static Boolean cacheEnabled;
     private static String[] simTexts = {};
     private static String[] medias = {};
+    private static String[] convertMedias = {};
+    private static String mediaConvertDisable;
     private static String officePreviewType;
     private static String officePreviewSwitchDisabled;
     private static String ftpUsername;
@@ -87,6 +89,33 @@ public class ConfigConstants {
 
     public static void setMediaValue(String[] Media) {
         ConfigConstants.medias = Media;
+    }
+
+    public static String[] getConvertMedias() {
+        return convertMedias;
+    }
+
+    @Value("${convertMedias:avi,mov,wmv,mkv,3gp,rm}")
+    public void setConvertMedias(String convertMedia) {
+        String[] mediaArr = convertMedia.split(",");
+        setConvertMediaValue(mediaArr);
+    }
+
+    public static void setConvertMediaValue(String[] ConvertMedia) {
+        ConfigConstants.convertMedias = ConvertMedia;
+    }
+
+    public static String getMediaConvertDisable() {
+        return mediaConvertDisable;
+    }
+
+
+    @Value("${media.convert.disable:true}")
+    public void setMediaConvertDisable(String mediaConvertDisable) {
+        setMediaConvertDisableValue(mediaConvertDisable);
+    }
+    public static void setMediaConvertDisableValue(String mediaConvertDisable) {
+        ConfigConstants.mediaConvertDisable = mediaConvertDisable;
     }
 
     public static String getOfficePreviewType() {

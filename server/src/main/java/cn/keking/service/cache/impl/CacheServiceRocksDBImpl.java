@@ -74,6 +74,11 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    public void initMediaConvertCachePool(Integer capacity) {
+
+    }
+
+    @Override
     public void putPDFCache(String key, String value) {
         try {
             Map<String, String> pdfCacheItem = getPDFCache();
@@ -169,6 +174,40 @@ public class CacheServiceRocksDBImpl implements CacheService {
         } catch (RocksDBException | IOException e) {
             LOGGER.error("Put into RocksDB Exception" + e);
         }
+    }
+
+    @Override
+    public Map<String, String> getMediaConvertCache() {
+        Map<String, String> result = new HashMap<>();
+        try{
+            result = (Map<String, String>) toObject(db.get(FILE_PREVIEW_MEDIA_CONVERT_KEY.getBytes()));
+        } catch (RocksDBException | IOException | ClassNotFoundException e) {
+            LOGGER.error("Get from RocksDB Exception" + e);
+        }
+        return result;
+    }
+
+    @Override
+    public void putMediaConvertCache(String key, String value) {
+        try {
+            Map<String, String> mediaConvertCacheItem = getMediaConvertCache();
+            mediaConvertCacheItem.put(key, value);
+            db.put(FILE_PREVIEW_MEDIA_CONVERT_KEY.getBytes(), toByteArray(mediaConvertCacheItem));
+        } catch (RocksDBException | IOException e) {
+            LOGGER.error("Put into RocksDB Exception" + e);
+        }
+    }
+
+    @Override
+    public String getMediaConvertCache(String key) {
+        String result = "";
+        try{
+            Map<String, String> map = (Map<String, String>) toObject(db.get(FILE_PREVIEW_MEDIA_CONVERT_KEY.getBytes()));
+            result = map.get(key);
+        } catch (RocksDBException | IOException | ClassNotFoundException e) {
+            LOGGER.error("Get from RocksDB Exception" + e);
+        }
+        return result;
     }
 
     @Override
