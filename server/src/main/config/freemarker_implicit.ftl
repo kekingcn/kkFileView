@@ -25,4 +25,4 @@
 [#-- @ftlvariable name="watermarkYSpace" type="String" --]
 [#-- @ftlvariable name="watermarkXSpace" type="String" --]
 [#-- @ftlvariable name="watermarkTxt" type="String" --]
-[#-- @ftlvariable name="ordinaryUrl" type="String" --]
+[#-- @ftlvariable name="ordinaryUrl" type="String" --].bat
