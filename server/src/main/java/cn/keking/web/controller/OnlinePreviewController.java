@@ -1,17 +1,21 @@
 package cn.keking.web.controller;
 
 import cn.keking.model.FileAttribute;
+import cn.keking.model.FileType;
+import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
 
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.service.FileHandlerService;
+import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.WebUtils;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
 import jodd.io.NetUtil;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -26,6 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,7 +59,7 @@ public class OnlinePreviewController {
     }
 
     @RequestMapping(value = "/onlinePreview")
-    public String onlinePreview(String url, Model model, HttpServletRequest req) {
+    public String onlinePreview(String url, Model model, HttpServletRequest req) throws IOException {
         String fileUrl;
         try {
             fileUrl = new String(Base64.decodeBase64(url), StandardCharsets.UTF_8);
@@ -61,10 +67,44 @@ public class OnlinePreviewController {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
         }
+
+
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         model.addAttribute("file", fileAttribute);
-        FilePreview filePreview = previewFactory.get(fileAttribute);
+
+        ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
+
+        FilePreview filePreview = null;
+
+        if (response.getCode() == 0) {
+
+            Tika tika = new Tika();
+            String type = tika.detect(new File(response.getContent()));
+
+            if ("application/pdf".equals(type)) {
+
+                filePreview = previewFactory.get(FileType.PDF);
+
+            } else if (type.contains("excel") ||
+                    type.contains("powerpoint") ||
+                    type.contains("openxmlformats") ||
+                    type.contains("msword") ||
+                    type.contains("ms-word")
+            ) {
+                filePreview = previewFactory.get(FileType.OFFICE);
+            }
+
+            if (filePreview != null) {
+
+                logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
+                return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+            }
+        }
+
+
+        filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
+
         return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
     }
 

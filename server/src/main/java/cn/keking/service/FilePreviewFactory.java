@@ -1,6 +1,7 @@
 package cn.keking.service;
 
 import cn.keking.model.FileAttribute;
+import cn.keking.model.FileType;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +23,10 @@ public class FilePreviewFactory {
     public FilePreview get(FileAttribute fileAttribute) {
         Map<String, FilePreview> filePreviewMap = context.getBeansOfType(FilePreview.class);
         return filePreviewMap.get(fileAttribute.getType().getInstanceName());
+    }
+ 
+    public FilePreview get(FileType type) {
+        Map<String, FilePreview> filePreviewMap = context.getBeansOfType(FilePreview.class);
+        return filePreviewMap.get(type.getInstanceName());
     }
 }
