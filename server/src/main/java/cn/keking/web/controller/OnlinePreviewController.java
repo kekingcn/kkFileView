@@ -72,32 +72,39 @@ public class OnlinePreviewController {
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         model.addAttribute("file", fileAttribute);
 
-        ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
-
         FilePreview filePreview = null;
 
-        if (response.getCode() == 0) {
+        if(fileAttribute.getUrl().startsWith("http")){
 
-            Tika tika = new Tika();
-            String type = tika.detect(new File(response.getContent()));
+            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
 
-            if ("application/pdf".equals(type)) {
+            if (response.getCode() == 0) {
 
-                filePreview = previewFactory.get(FileType.PDF);
+                Tika tika = new Tika();
+                String type = tika.detect(new File(response.getContent()));
 
-            } else if (type.contains("excel") ||
-                    type.contains("powerpoint") ||
-                    type.contains("openxmlformats") ||
-                    type.contains("msword") ||
-                    type.contains("ms-word")
-            ) {
-                filePreview = previewFactory.get(FileType.OFFICE);
-            }
+                String previewType = null;
 
-            if (filePreview != null) {
+                if ("application/pdf".equals(type)) {
 
-                logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
-                return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+                    filePreview = previewFactory.get(FileType.PDF);
+                    previewType = "PDF";
+
+                } else if (type.contains("excel") ||
+                        type.contains("powerpoint") ||
+                        type.contains("openxmlformats") ||
+                        type.contains("msword") ||
+                        type.contains("ms-word")
+                ) {
+                    filePreview = previewFactory.get(FileType.OFFICE);
+                    previewType = "OFFICE";
+                }
+
+                if (filePreview != null) {
+
+                    logger.info("预览文件url：{}，previewType：{}", fileUrl, previewType);
+                    return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+                }
             }
         }
 
