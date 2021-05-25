@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
+import static cn.keking.service.FilePreview.*;
 
 /**
  * @author yudian-it
@@ -89,6 +89,7 @@ public class OnlinePreviewController {
 
                     filePreview = previewFactory.get(FileType.PDF);
                     previewType = "PDF";
+                    fileAttribute.setOfficePreviewType(PDF_FILE_PREVIEW_PAGE);
 
                 } else if (type.contains("excel") ||
                         type.contains("powerpoint") ||
@@ -98,6 +99,7 @@ public class OnlinePreviewController {
                 ) {
                     filePreview = previewFactory.get(FileType.OFFICE);
                     previewType = "OFFICE";
+                    fileAttribute.setOfficePreviewType(OFFICE_PICTURE_FILE_PREVIEW_PAGE);
                 }
 
                 if (filePreview != null) {
