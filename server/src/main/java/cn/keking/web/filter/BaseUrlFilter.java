@@ -18,7 +18,7 @@ public class BaseUrlFilter implements Filter {
     public static String getBaseUrl() {
         String baseUrl;
         try {
-            baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+            baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl", 0);
         } catch (Exception e) {
             baseUrl = BASE_URL;
         }
@@ -34,9 +34,6 @@ public class BaseUrlFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String baseUrl;
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(request.getScheme()).append("://").append(request.getServerName()).append(":")
-                .append(request.getServerPort()).append(((HttpServletRequest) request).getContextPath()).append("/");
         String baseUrlTmp = ConfigConstants.getBaseUrl();
         if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(baseUrlTmp)) {
             if (!baseUrlTmp.endsWith("/")) {
@@ -44,7 +41,8 @@ public class BaseUrlFilter implements Filter {
             }
             baseUrl = baseUrlTmp;
         } else {
-            baseUrl = pathBuilder.toString();
+            baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                    + ((HttpServletRequest) request).getContextPath() + "/";
         }
         BASE_URL = baseUrl;
         request.setAttribute("baseUrl", baseUrl);
