@@ -37,5 +37,5 @@ ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 ENV PATH $PATH:$JAVA_HOME/bin
 ENV LANG zh_CN.UTF-8
 ENV LC_ALL zh_CN.UTF-8
-ENV KKFILEVIEW_BIN_FOLDER /opt/kkFileView-3.5.1/bin
-ENTRYPOINT ["java","-Dfile.encoding=UTF-8","-Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider","-Dspring.config.location=/opt/kkFileView-3.5.1/config/application.properties","-jar","/opt/kkFileView-3.5.1/bin/kkFileView-3.5.1.jar"]
+ENV KKFILEVIEW_BIN_FOLDER /opt/kkFileView-3.6.0/bin
+ENTRYPOINT ["java","-Dfile.encoding=UTF-8","-Dsun.java2d.cmm=sun.java2d.cmm.kcms.KcmsServiceProvider","-Dspring.config.location=/opt/kkFileView-3.6.0/config/application.properties","-jar","/opt/kkFileView-3.6.0/bin/kkFileView-3.6.0.jar"]

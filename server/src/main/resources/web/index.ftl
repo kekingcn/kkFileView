@@ -79,6 +79,13 @@
         </div>
         <div class="panel-body">
             <div>
+                2021年6月17日，v3.6.0版本 ：<br>
+                ofd 类型文件支持版本，本次版本重要功能均由社区开发贡献，感谢 @gaoxingzaq、@zhangxiaoxiao9527 的代码贡献<br>
+                1、新增 ofd 类型文件预览支持，ofd 是国产的类似 pdf 格式的文件<br>
+                2、新增了 ffmpeg 视频文件转码预览支持，打开转码功能后，理论上支持所有主流视频的预览，如 rm、rmvb、flv 等<br>
+                3、美化了 ppt、pptx 类型文件预览效果，比之前版本好看太多<br>
+                4、更新了 pdfbox、xstream、common-io 等依赖的版本<br><br>
+
                 2021年1月28日 ：<br>
                 2020农历年最后一个版本发布，主要包含了部分 UI 改进，和解决了 QQ 群友、 Issue 里反馈的 Bug 修复，最最重要的是发个新版，过个好年<br>
                 1、引入galimatias,解决不规范文件名导致文件下载异常<br>
