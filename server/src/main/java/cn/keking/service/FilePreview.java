@@ -11,6 +11,7 @@ public interface FilePreview {
 
     String FLV_FILE_PREVIEW_PAGE = "flv";
     String PDF_FILE_PREVIEW_PAGE = "pdf";
+    String PPT_FILE_PREVIEW_PAGE = "ppt";
     String COMPRESS_FILE_PREVIEW_PAGE = "compress";
     String MEDIA_FILE_PREVIEW_PAGE = "media";
     String PICTURE_FILE_PREVIEW_PAGE = "picture";

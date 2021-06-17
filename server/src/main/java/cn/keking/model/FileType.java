@@ -24,18 +24,20 @@ public enum FileType {
     FLV("flvFilePreviewImpl"),
     CAD("cadFilePreviewImpl"),
     TIFF("tiffFilePreviewImpl"),
+    PPT("pptFilePreviewImpl"),
     OFD("ofdFilePreviewImpl");
 
 
-    private static final String[] OFFICE_TYPES = {"docx", "wps", "doc", "xls", "xlsx", "ppt", "pptx"};
+    private static final String[] OFFICE_TYPES = {"docx", "wps", "doc", "xls", "xlsx"};
+    private static final String[] PPT_TYPES = {"ppt", "pptx"};
     private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "raw"};
     private static final String[] ARCHIVE_TYPES = {"rar", "zip", "jar", "7-zip", "tar", "gzip", "7z"};
     private static final String[] TIFF_TYPES = {"tif", "tiff"};
     private static final String[] OFD_TYPES = {"ofd"};
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
-    private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "yml", "json", "h", "cpp", "cs", "aspx", "jsp"};
+    private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "yaml", "yml", "json", "h", "cpp", "cs", "aspx", "jsp"};
     private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
-    public static final String[] MEDIA_TYPES_CONVERT = ConfigConstants.getConvertMedias();
+    private static final String[] MEDIA_TYPES_CONVERT = ConfigConstants.getConvertMedias();
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
 
     static {
@@ -65,6 +67,9 @@ public enum FileType {
         }
         for (String ofd : OFD_TYPES) {
             FILE_TYPE_MAPPER.put(ofd, FileType.OFD);
+        }
+        for (String ppt : PPT_TYPES) {
+            FILE_TYPE_MAPPER.put(ppt, FileType.PPT);
         }
         FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
         FILE_TYPE_MAPPER.put("xml", FileType.XML);
