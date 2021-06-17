@@ -1,4 +1,4 @@
-package cn.keking.service.impl;
+package cn.keking.utils;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -7,9 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ExtendedModelMap;
+
 import javax.annotation.PostConstruct;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,9 +30,9 @@ public class FileConvertQueueTask {
     }
 
     @PostConstruct
-    public void startTask(){
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        executorService.submit(new ConvertTask(previewFactory, cacheService, fileHandlerService));
+    public void startTask() {
+        new Thread(new ConvertTask(previewFactory, cacheService, fileHandlerService))
+                .start();
         logger.info("队列处理文件转换任务启动完成 ");
     }
 
@@ -58,11 +57,11 @@ public class FileConvertQueueTask {
                 String url = null;
                 try {
                     url = cacheService.takeQueueTask();
-                    if(url != null){
-                        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(url,null);
+                    if (url != null) {
+                        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(url, null);
                         FileType fileType = fileAttribute.getType();
                         logger.info("正在处理预览转换任务，url：{}，预览类型：{}", url, fileType);
-                        if(fileType.equals(FileType.COMPRESS) || fileType.equals(FileType.OFFICE) || fileType.equals(FileType.CAD)) {
+                        if (isNeedConvert(fileType)) {
                             FilePreview filePreview = previewFactory.get(fileAttribute);
                             filePreview.filePreviewHandle(url, new ExtendedModelMap(), fileAttribute);
                         } else {
@@ -72,12 +71,18 @@ public class FileConvertQueueTask {
                 } catch (Exception e) {
                     try {
                         TimeUnit.SECONDS.sleep(10);
-                    } catch (Exception ex){
+                    } catch (Exception ex) {
+                        Thread.currentThread().interrupt();
                         ex.printStackTrace();
                     }
                     logger.info("处理预览转换任务异常，url：{}", url, e);
                 }
             }
+        }
+
+        public boolean isNeedConvert(FileType fileType) {
+            return fileType.equals(FileType.COMPRESS) || fileType.equals(FileType.OFFICE) || fileType.equals(FileType.CAD) || fileType.equals(FileType.PPT);
+
         }
     }
 

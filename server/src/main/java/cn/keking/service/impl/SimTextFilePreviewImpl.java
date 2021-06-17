@@ -5,15 +5,13 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.utils.KkFileUtils;
-import jodd.io.FileUtil;
+import cn.keking.utils.EncodingDetects;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.util.HtmlUtils;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Created by kl on 2018/1/17.
@@ -33,7 +31,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
 
         String fileName = fileAttribute.getName();
         String baseUrll = FILE_DIR + fileName;
-      //  String suffix = fileAttribute.getSuffix();
+        //  String suffix = fileAttribute.getSuffix();
         ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
         if (response.isFailure()) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
