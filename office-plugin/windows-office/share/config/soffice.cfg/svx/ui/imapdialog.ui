@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="svx">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkDialog" id="ImapDialog">
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="default_width">0</property>
+    <property name="default_height">0</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkStatusbar" id="statusbar">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">end</property>
+                <property name="hexpand">True</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="statussize">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">100%</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="separator4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="statuspos">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">100%</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="separator5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="statusurl">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">100%</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="cancel">
+                <property name="label">gtk-cancel</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="mainbox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkToolbar" id="toolbar">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="no_show_all">True</property>
+                <property name="hexpand">True</property>
+                <property name="toolbar_style">icons</property>
+                <property name="show_arrow">False</property>
+                <property name="icon_size">2</property>
+                <child>
+                  <object class="GtkToolButton" id="TBI_APPLY">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_APPLY">Apply</property>
+                    <property name="icon_name">svx/res/id01.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_APPLY-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_APPLY">Applies the changes that you made to the image map.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="TBI_OPEN">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_OPEN">Open...</property>
+                    <property name="icon_name">svx/res/id02.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_OPEN-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_OPEN">Loads an existing image map in the MAP-CERN, MAP-NCSA or SIP StarView ImageMap file format.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="TBI_SAVEAS">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_SAVEAS">Save...</property>
+                    <property name="icon_name">svx/res/id03.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_SAVEAS-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_SAVEAS">Saves the image map in the MAP-CERN, MAP-NCSA or SIP StarView ImageMap file format.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="TBI_CLOSE">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_CLOSE">Close</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_SELECT">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_SELECT">Select</property>
+                    <property name="icon_name">svx/res/id04.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_SELECT-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_SELECT">Selects a hotspot in the image map for editing.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_RECT">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_RECT">Rectangle</property>
+                    <property name="icon_name">svx/res/id05.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_RECT-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_RECT">Draws a rectangular hotspot where you drag in the graphic. After, you can enter the Address and the Text for the hotspot, and then select the Frame where you want the URL to open.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_CIRCLE">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_CIRCLE">Ellipse</property>
+                    <property name="icon_name">svx/res/id06.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_CIRCLE-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_CIRCLE">Draws an elliptical hotspot where you drag in the graphic. After, you can enter the Address and the Text for the hotspot, and then select the Frame where you want the URL to open.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_POLY">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_POLY">Polygon</property>
+                    <property name="icon_name">svx/res/id07.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_POLY-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_POLY">Draws a polygonal hotspot in the graphic. Click this icon, drag in the graphic, and then click to define one side of the polygon. Move to where you want to place the end of the next side, and then click. Repeat until you have drawn all of the sides of the polygon. When you are finished, double-click to close the polygon. After, you can enter the Address and the Text for the hotspot, and then select the Frame where you want the URL to open.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_FREEPOLY">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_FREEPOLY">Freeform Polygon</property>
+                    <property name="icon_name">svx/res/id08.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_FREEPOLY-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_FREEPOLY">Draws a hotspot that is based on a freeform polygon. Click this icon and move to where you want to draw the hotspot. Drag a freeform line and release to close the shape. After, you can enter the Address and the Text for the hotspot, and then select the Frame where you want the URL to open.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_POLYEDIT">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_POLYEDIT">Edit Points</property>
+                    <property name="icon_name">svx/res/id030.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_POLYEDIT-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_POLYEDIT">Lets you change the shape of the selected hotspot by editing the anchor points.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_POLYMOVE">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_POLYMOVE">Move Points</property>
+                    <property name="icon_name">svx/res/id031.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_POLYMOVE-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_POLYMOVE">Lets you move the individual anchor points of the selected hotspot.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_POLYINSERT">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_POLYINSERT">Insert Points</property>
+                    <property name="icon_name">svx/res/id032.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_POLYINSERT-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_POLYINSERT">Adds an anchor point where you click on the outline of the hotspot.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_POLYDELETE">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_POLYDELETE">Delete Points</property>
+                    <property name="icon_name">svx/res/id033.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_POLYDELETE-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_POLYDELETE">Deletes the selected anchor point.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="TBI_UNDO">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_UNDO">Undo </property>
+                    <property name="icon_name">svx/res/id040.png</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="TBI_REDO">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_REDO">Redo</property>
+                    <property name="icon_name">svx/res/id041.png</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="TBI_ACTIVE">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_ACTIVE">Active</property>
+                    <property name="icon_name">svx/res/id016.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_ACTIVE-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_ACTIVE">Disables or enables the hyperlink for the selected hotspot. A disabled hotspot is transparent.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="TBI_MACRO">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_MACRO">Macro...</property>
+                    <property name="icon_name">svx/res/id018.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_MACRO-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_MACRO">Lets you assign a macro that runs when you click the selected hotspot in a browser.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="TBI_PROPERTY">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|TBI_PROPERTY">Properties...</property>
+                    <property name="icon_name">svx/res/id019.png</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="TBI_PROPERTY-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|TBI_PROPERTY">Allows you to define the properties of the selected hotspot.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="row_spacing">6</property>
+                <property name="column_spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="urlft">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|urlft">Address:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">url</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="grid2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="row_spacing">6</property>
+                    <property name="column_spacing">12</property>
+                    <child>
+                      <object class="GtkLabel" id="targetft">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes" context="imapdialog|targetft">Frame:</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">target</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="text">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="activates_default">True</property>
+                        <property name="truncate-multiline">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="text-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|text">Enter the text that you want to display when the mouse rests on the hotspot in a browser.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="target">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="has_entry">True</property>
+                        <child internal-child="entry">
+                          <object class="GtkEntry">
+                            <property name="can_focus">True</property>
+                            <property name="truncate-multiline">True</property>
+                            <property name="activates_default">True</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="textft">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes" context="imapdialog|textft">Text:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">text</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="url">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="has_entry">True</property>
+                    <child internal-child="entry">
+                      <object class="GtkEntry">
+                        <property name="can_focus">True</property>
+                        <property name="truncate-multiline">True</property>
+                        <property name="activates_default">True</property>
+                      </object>
+                    </child>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="url-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|url">Enter the URL for the file that you want to open when you click the selected hotspot.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hscrollbar_policy">never</property>
+                <property name="vscrollbar_policy">never</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkViewport">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkDrawingArea" id="container">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="events">GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="container-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|container">Displays the image map, so that you can click and edit the hotspots.</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">cancel</action-widget>
+    </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="ImapDialog-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="imapdialog|extended_tip|ImapDialog">Allows you to attach URLs to specific areas, called hotspots, on a graphic or a group of graphics. An image map is a group of one or more hotspots.</property>
+      </object>
+    </child>
+  </object>
+</interface>

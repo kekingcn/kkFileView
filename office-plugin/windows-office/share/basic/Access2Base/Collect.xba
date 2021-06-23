@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Collect" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM MODULE NAME &lt;&gt; COLLECTION (is a reserved name for ... collections)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private _Type			As String		&apos;	Must be COLLECTION
+Private _This			As Object		&apos;	Workaround for absence of This builtin function
+Private _CollType		As String
+Private _Parent			As Object
+Private _Count			As Long
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJCOLLECTION
+	Set _This = Nothing
+	_CollType = &quot;&quot;
+	Set _Parent = Nothing
+	_Count = 0
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Property Get Count() As Long
+	Count = _PropertyGet(&quot;Count&quot;)
+End Property		&apos;	Count (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Function Item(ByVal Optional pvItem As Variant) As Variant
+&apos;Return property value.
+&apos;pvItem either numeric index or property name
+
+Const cstThisSub = &quot;Collection.getItem&quot;
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+
+	Utils._SetCalledSub(cstThisSub)
+	If IsMissing(pvItem) Then Goto Exit_Function	&apos;	To allow object watching in Basic IDE, do not generate error
+	Select Case _CollType
+		Case COLLCOMMANDBARCONTROLS					&apos;	Have no name
+			If Not Utils._CheckArgument(pvItem, 1, Utils._AddNumeric()) Then Goto Exit_Function
+		Case Else
+			If Not Utils._CheckArgument(pvItem, 1, Utils._AddNumeric(vbString)) Then Goto Exit_Function
+	End Select
+
+Dim vNames() As Variant, oProperty As Object
+
+	Set Item = Nothing
+	Select Case _CollType
+		Case COLLALLDIALOGS
+			Set Item = Application.AllDialogs(pvItem)
+		Case COLLALLFORMS
+			Set Item = Application.AllForms(pvItem)
+		Case COLLALLMODULES
+			Set Item = Application.AllModules(pvItem)
+		Case COLLCOMMANDBARS
+			Set Item = Application.CommandBars(pvItem)
+		Case COLLCOMMANDBARCONTROLS
+			If IsNull(_Parent) Then GoTo Error_Parent
+			Set Item = _Parent.CommandBarControls(pvItem)
+		Case COLLCONTROLS
+			If IsNull(_Parent) Then GoTo Error_Parent
+			Set Item = _Parent.Controls(pvItem)
+		Case COLLFORMS
+			Set Item = Application.Forms(pvItem)
+		Case COLLFIELDS
+			If IsNull(_Parent) Then GoTo Error_Parent
+			Set Item = _Parent.Fields(pvItem)
+		Case COLLPROPERTIES
+			If IsNull(_Parent) Then GoTo Error_Parent
+			Select Case _Parent._Type
+				Case OBJCONTROL, OBJSUBFORM, OBJDATABASE, OBJDIALOG, OBJFIELD _
+						, OBJFORM, OBJQUERYDEF, OBJRECORDSET, OBJTABLEDEF
+					Set Item = _Parent.Properties(pvItem)
+				Case OBJCOLLECTION, OBJEVENT, OBJOPTIONGROUP, OBJPROPERTY
+					&apos; NOT SUPPORTED
+			End Select
+		Case COLLQUERYDEFS
+			Set Item = _Parent.QueryDefs(pvItem)
+		Case COLLRECORDSETS
+			Set Item = _Parent.Recordsets(pvItem)
+		Case COLLTABLEDEFS
+			Set Item = _Parent.TableDefs(pvItem)
+		Case COLLTEMPVARS
+			Set Item = Application.TempVars(pvItem)
+		Case Else
+	End Select
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, Utils._CalledSub(), Erl)
+	Set Item = Nothing
+	GoTo Exit_Function
+Error_Parent:
+	TraceError(TRACEFATAL, ERROBJECTNOTFOUND, Utils._CalledSub(), 0, True, Array(_GetLabel(&quot;OBJECT&quot;), _GetLabel(&quot;PARENT&quot;)))
+	Set Item = Nothing
+	GoTo Exit_Function
+End Function		&apos;	Item V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Public Function Add(Optional pvNew As Variant, Optional pvValue As Variant) As Boolean
+&apos;	Append a new TableDef or TempVar object to the TableDefs/TempVars collections
+
+Const cstThisSub = &quot;Collection.Add&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+Dim odbDatabase As Object, oConnection As Object, oTables As Object, oTable As Object
+Dim vObject As Variant, oTempVar As Object
+	Add = False
+	If IsMissing(pvNew) Then Call _TraceArguments()
+
+	Select Case _CollType
+		Case COLLTABLEDEFS
+			If Not Utils._CheckArgument(pvNew, 1, vbObject) Then Goto Exit_Function
+			Set vObject = pvNew
+			With vObject
+				Set odbDatabase = ._ParentDatabase
+				If odbDatabase._DbConnect &lt;&gt; DBCONNECTBASE Then Goto Error_NotApplicable
+				Set oConnection = odbDatabase.Connection
+				If IsNull(.TableDescriptor) Or .TableFieldsCount = 0 Then Goto Error_Sequence
+				Set oTables = oConnection.getTables()
+				oTables.appendByDescriptor(.TableDescriptor)
+				Set .Table = oTables.getByName(._Name)
+				.CatalogName = .Table.CatalogName
+				.SchemaName = .Table.SchemaName
+				.TableName = .Table.Name
+				.TableDescriptor.dispose()
+				Set .TableDescriptor = Nothing
+				.TableFieldsCount = 0
+				.TableKeysCount = 0
+			End With
+		Case COLLTEMPVARS
+			If Not Utils._CheckArgument(pvNew, 1, vbString) Then Goto Exit_Function
+			If pvNew = &quot;&quot; Then Goto Error_Name
+			If IsMissing(pvValue) Then Call _TraceArguments()
+			If _A2B_.hasItem(COLLTEMPVARS, pvNew) Then Goto Error_Name
+			Set oTempVar = New TempVar
+			oTempVar._This = oTempVar
+			oTempVar._Name = pvNew
+			oTempVar._Value = pvValue
+			_A2B_.TempVars.Add(oTempVar, UCase(pvNew))
+		Case Else
+			Goto Error_NotApplicable
+	End Select
+
+	_Count = _Count + 1
+	Add = True
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	GoTo Exit_Function
+Error_NotApplicable:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, 1, cstThisSub)
+	Goto Exit_Function
+Error_Sequence:
+	TraceError(TRACEFATAL, ERRTABLECREATION, Utils._CalledSub(), 0, 1, vObject._Name)
+	Goto Exit_Function
+Error_Name:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), False, ,Array(1, pvNew))
+	AddItem = False
+	Goto Exit_Function
+End Function		&apos;	Add	V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Delete(ByVal Optional pvName As Variant) As Boolean
+&apos;	Delete a TableDef or QueryDef object in the TableDefs/QueryDefs collections
+
+Const cstThisSub = &quot;Collection.Delete&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+Dim odbDatabase As Object, oColl As Object, vName As Variant
+	Delete = False
+	If IsMissing(pvName) Then pvName = &quot;&quot;
+	If Not Utils._CheckArgument(pvName, 1, vbString) Then Goto Exit_Function
+	If pvName = &quot;&quot; Then Call _TraceArguments()
+
+	Select Case _CollType
+		Case COLLTABLEDEFS, COLLQUERYDEFS
+			If _A2B_.CurrentDocIndex() &lt;&gt; 0 Then Goto Error_NotApplicable 
+			Set odbDatabase = Application._CurrentDb()
+			If odbDatabase._DbConnect &lt;&gt; DBCONNECTBASE Then Goto Error_NotApplicable
+			If _CollType = COLLTABLEDEFS Then Set oColl = odbDatabase.Connection.getTables() Else Set oColl = odbDatabase.Connection.getQueries()
+			With oColl
+				vName = _InList(pvName, .getElementNames(), True)
+				If vName = False Then Goto trace_NotFound
+				.dropByName(vName)
+			End With
+			odbDatabase.Document.store()
+		Case Else
+			Goto Error_NotApplicable
+	End Select
+
+	_Count = _Count - 1
+	Delete = True
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	GoTo Exit_Function
+Error_NotApplicable:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, 1, cstThisSub)
+	Goto Exit_Function
+Trace_NotFound:
+	TraceError(TRACEFATAL, ERROBJECTNOTFOUND, Utils._CalledSub(), 0, , Array(_GetLabel(Left(_CollType, 5)), pvName))
+	Goto Exit_Function
+End Function		&apos;	Delete	V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+	Utils._SetCalledSub(&quot;Collection.getProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(&quot;Collection.getProperty&quot;)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Remove(ByVal Optional pvName As Variant) As Boolean
+&apos;	Remove a TempVar from the TempVars collection
+
+Const cstThisSub = &quot;Collection.Remove&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+Dim oColl As Object, vName As Variant
+	Remove = False
+	If IsMissing(pvName) Then pvName = &quot;&quot;
+	If Not Utils._CheckArgument(pvName, 1, vbString) Then Goto Exit_Function
+	If pvName = &quot;&quot; Then Call _TraceArguments()
+
+	Select Case _CollType
+		Case COLLTEMPVARS
+			If Not _A2B_.hasItem(COLLTEMPVARS, pvName) Then Goto Error_Name
+			_A2B_.TempVars.Remove(UCase(pvName))
+		Case Else
+			Goto Error_NotApplicable
+	End Select
+
+	_Count = _Count - 1
+	Remove = True
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	GoTo Exit_Function
+Error_NotApplicable:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, 1, cstThisSub)
+	Goto Exit_Function
+Error_Name:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), False, ,Array(1, pvName))
+	AddItem = False
+	Goto Exit_Function
+End Function		&apos;	Remove	V1.2.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function RemoveAll() As Boolean
+&apos;	Remove the whole TempVars collection
+
+Const cstThisSub = &quot;Collection.Remove&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+
+	Select Case _CollType
+		Case COLLTEMPVARS
+			Set _A2B_.TempVars = New Collection
+			_Count = 0
+		Case Else
+			Goto Error_NotApplicable
+	End Select
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	GoTo Exit_Function
+Error_NotApplicable:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, 1, cstThisSub)
+	Goto Exit_Function
+End Function	&apos;	RemoveAll V1.2.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+	 _PropertiesList = Array(&quot;Count&quot;, &quot;Item&quot;, &quot;ObjectType&quot;)
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Collection.get&quot; &amp; psProperty)
+	_PropertyGet = Nothing
+	
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Count&quot;)
+			_PropertyGet = _Count
+		Case UCase(&quot;Item&quot;)
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Collection.get&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEWARNING, ERRPROPERTY, Utils._CalledSub(), 0, , psProperty)
+	_PropertyGet = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Collection._PropertyGet&quot;, Erl)
+	_PropertyGet = Nothing
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet
+
+</script:module>

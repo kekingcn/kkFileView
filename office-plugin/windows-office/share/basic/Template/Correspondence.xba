@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Correspondence" script:language="StarBasic">Option Explicit
 
 Public msgNoTextmark$, msgError$
@@ -62,16 +59,16 @@ End Sub
 
 
 Function LoadLanguageCorrespondence() as Boolean
-	If InitResources(&quot;&apos;Template&apos;&quot;, &quot;tpl&quot;) Then
-		msgNoTextmark$ = GetResText(1303) &amp; Chr(13) &amp; Chr(10) &amp; GetResText(1301)
-		msgError$ = GetResText(1302)
+	If InitResources(&quot;&apos;Template&apos;&quot;) Then
+		msgNoTextmark$ = GetResText(&quot;CorrespondenceDialog_0&quot;) &amp; Chr(13) &amp; Chr(10) &amp; GetResText(&quot;CorrespondenceNoTextmark_1&quot;)
+		msgError$ = GetResText(&quot;CorrespondenceMsgError&quot;)
 		If bTemplate Then
-			DialogModel.Title = GetResText(1303+3)
-			DialogModel.CmdCancel.Label = GetResText(1102)
-			DialogModel.CmdCorrGoOn.Label = GetResText(1103)
-			DialogModel.OptSingle.Label = GetResText(1303 + 1)
-			DialogModel.Optmerge.Label = GetResText(1303 + 2)
-			DialogModel.FrmLetter.Label = GetResText(1303)
+			DialogModel.Title = GetResText(&quot;CorrespondenceDialog_3&quot;)
+			DialogModel.CmdCancel.Label = GetResText(&quot;STYLES_2&quot;)
+			DialogModel.CmdCorrGoOn.Label = GetResText(&quot;STYLES_3&quot;)
+			DialogModel.OptSingle.Label = GetResText(&quot;CorrespondenceDialog_1&quot;)
+			DialogModel.Optmerge.Label = GetResText(&quot;CorrespondenceDialog_2&quot;)
+			DialogModel.FrmLetter.Label = GetResText(&quot;CorrespondenceDialog_0&quot;)
 		End If
 		LoadLanguageCorrespondence() = True
 	Else
@@ -133,7 +130,7 @@ Dim bDBvalid as Boolean
 			oDBAccess = GetRegistryKeyContent(&quot;org.openoffice.Office.DataAccess/AddressBook/&quot;)
 			sAddressbook = oDBAccess.DataSourceName
 			If sAddressbook = &quot;&quot; Then
-				MsgBox(GetResText(1301))
+				MsgBox(GetResText(&quot;CorrespondenceNoTextmark_1&quot;))
 				Exit Sub
 			End If
 		End If
@@ -233,72 +230,72 @@ Dim bCorrectField as Boolean
 		oFieldMaster = oDocument.createInstance(&quot;com.sun.star.text.TextField.JumpEdit&quot;)
 		Select Case sColName
 			Case &quot;Company&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+1)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_1&quot;)
 			Case &quot;Department&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+2)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_2&quot;)
 			Case &quot;FirstName&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+3)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_3&quot;)
 			Case &quot;LastName&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+4)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_4&quot;)
 			Case &quot;Street&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+5)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_5&quot;)
 			Case &quot;Country&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+6)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_6&quot;)
 			Case &quot;Zip&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+7)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_7&quot;)
 			Case &quot;City&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+8)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_8&quot;)
 			Case &quot;Title&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+9)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_9&quot;)
 			Case &quot;Position&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+10)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_10&quot;)
 			Case &quot;AddrForm&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+11)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_11&quot;)
 			Case &quot;Code&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+12)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_12&quot;)
 			Case &quot;AddrFormMail&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+13)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_13&quot;)
 			Case &quot;PhonePriv&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+14)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_14&quot;)
 			Case &quot;PhoneComp&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+15)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_15&quot;)
 			Case &quot;Fax&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+16)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_16&quot;)
 			Case &quot;EMail&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+17)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_17&quot;)
 			Case &quot;URL&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+18)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_18&quot;)
 			Case &quot;Note&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+19)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_19&quot;)
 			Case &quot;Altfield1&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+20)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_20&quot;)
 			Case &quot;Altfield2&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+21)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_21&quot;)
 			Case &quot;Altfield3&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+22)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_22&quot;)
 			Case &quot;Altfield4&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+23)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_23&quot;)
 			Case &quot;Id&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+24)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_24&quot;)
 			Case &quot;State&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+25)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_25&quot;)
 			Case &quot;PhoneOffice&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+26)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_26&quot;)
 			Case &quot;Pager&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+27)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_27&quot;)
 			Case &quot;PhoneCell&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+28)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_28&quot;)
 			Case &quot;PhoneOther&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+29)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_29&quot;)
 			Case &quot;CalendarURL&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+30)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_30&quot;)
 			Case &quot;InviteParticipant&quot;
-				oFieldMaster.PlaceHolder = getResText(1350+31)
+				oFieldMaster.PlaceHolder = getResText(&quot;CorrespondenceFields_31&quot;)
 			Case Else
 				bCorrectField = False
 		End Select
 		If bCorrectField Then
-			oFieldMaster.Hint = getResText(1350)
+			oFieldMaster.Hint = getResText(&quot;CorrespondenceFields_0&quot;)
 			oBookText.InsertTextContent(oBookMarkCursor, oFieldMaster, True)
 		End If
 	End If

@@ -1,27 +1,24 @@
-// *************************************************************
-//  
-//  Licensed to the Apache Software Foundation (ASF) under one
-//  or more contributor license agreements.  See the NOTICE file
-//  distributed with this work for additional information
-//  regarding copyright ownership.  The ASF licenses this file
-//  to you under the Apache License, Version 2.0 (the
-//  "License"); you may not use this file except in compliance
-//  with the License.  You may obtain a copy of the License at
-//  
-//    http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing,
-//  software distributed under the License is distributed on an
-//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-//  KIND, either express or implied.  See the License for the
-//  specific language governing permissions and limitations
-//  under the License.
-//  
-// *************************************************************
-// When this script is run on an existing, saved, spreadsheet, 
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+ */
+// When this script is run on an existing, saved, spreadsheet,
 // eg. /home/testuser/myspreadsheet.sxc, the script will export
-// each sheet to a separate html file, 
-// eg. /home/testuser/myspreadsheet_sheet1.html, 
+// each sheet to a separate html file,
+// eg. /home/testuser/myspreadsheet_sheet1.html,
 // /home/testuser/myspreadsheet_sheet2.html etc
 importClass(Packages.com.sun.star.uno.UnoRuntime);
 importClass(Packages.com.sun.star.sheet.XSpreadsheetDocument);
@@ -42,15 +39,15 @@ oDoc = XSCRIPTCONTEXT.getDocument();
 xSDoc = UnoRuntime.queryInterface(XSpreadsheetDocument, oDoc);
 //get the XModel interface from the document
 xModel = UnoRuntime.queryInterface(XModel,oDoc);
-//get the XIndexAccess interface used to access each sheet 
+//get the XIndexAccess interface used to access each sheet
 xSheetsIndexAccess = UnoRuntime.queryInterface(XIndexAccess, xSDoc.getSheets());
 //get the XStorable interface used to save the document
 xStorable = UnoRuntime.queryInterface(XStorable,xSDoc);
-//get the XModifiable interface used to indicate if the document has been 
+//get the XModifiable interface used to indicate if the document has been
 //changed
 xModifiable = UnoRuntime.queryInterface(XModifiable,xSDoc);
 
-//set up an array of PropertyValue objects used to save each sheet in the 
+//set up an array of PropertyValue objects used to save each sheet in the
 //document
 storeProps = new Array;//PropertyValue[1];
 storeProps[0] = new PropertyValue();
@@ -71,7 +68,7 @@ for(var i=0;i<xSheetsIndexAccess.getCount();i++)
 for(var i=0;i<xSheetsIndexAccess.getCount();i++)
 {
 	xPropSet = AnyConverter.toObject( new Type(XPropertySet), xSheetsIndexAccess.getByIndex(i));
-	xPropSet.setPropertyValue("IsVisible", true);	
+	xPropSet.setPropertyValue("IsVisible", true);
 }
 
 function setAllButOneHidden(xSheetsIndexAccess,vis) {
@@ -88,4 +85,4 @@ function setAllButOneHidden(xSheetsIndexAccess,vis) {
 			xPropSet.setPropertyValue("IsVisible", false);
 		}
 	}
-} 
+}

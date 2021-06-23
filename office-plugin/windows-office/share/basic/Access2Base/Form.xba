@@ -1,0 +1,1129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Form" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private	_Type					As String				&apos;	Must be FORM
+Private _This					As Object				&apos;	Workaround for absence of This builtin function
+Private _Parent					As Object
+Private	_Shortcut				As String
+Private	_Name					As String
+Private _DocEntry				As Integer				&apos;	Doc- and DbContainer entries in Root structure
+Private _DbEntry				As Integer
+Private _MainForms				As Variant
+Private _PersistentName			As String
+Private	_IsLoaded				As Boolean
+Private	_OpenArgs				As Variant
+Private _OrderBy				As String
+Public	Component				As Object				&apos;	com.sun.star.text.TextDocument
+Public	ContainerWindow			As Object				&apos;	(No name)
+Public	FormsCollection			As Object				&apos;	com.sun.star.form.OFormsCollection
+Public	DatabaseForm			As Object				&apos;	com.sun.star.form.component.DataForm and com.sun.star.sdb.ResultSet (a.o.)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJFORM
+	Set _This = Nothing
+	Set _Parent = Nothing
+	_Shortcut = &quot;&quot;
+	_Name = &quot;&quot;
+	_DocEntry = -1
+	_DbEntry = -1
+	_MainForms = Array()
+	_PersistentName = &quot;&quot;
+	_IsLoaded = False
+	_OpenArgs = &quot;&quot;
+	_OrderBy = &quot;&quot;
+	Set Component = Nothing
+	Set ContainerWindow = Nothing
+	Set FormsCollection = Nothing
+	Set DatabaseForm = Nothing
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+Dim ofForm As Object
+	If Not IsLoaded(True) Then
+		If Not IsNull(DatabaseForm) Then DatabaseForm.Dispose()
+	End If
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get AllowAdditions() As Variant
+	AllowAdditions = _PropertyGet(&quot;AllowAdditions&quot;)
+End Property	&apos;	AllowAdditions (get)
+
+Property Let AllowAdditions(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;AllowAdditions&quot;, pvValue)
+End Property	&apos;	AllowAdditions (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get AllowDeletions() As Variant
+	AllowDeletions = _PropertyGet(&quot;AllowDeletions&quot;)
+End Property	&apos;	AllowDeletions (get)
+
+Property Let AllowDeletions(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;AllowDeletions&quot;, pvValue)
+End Property	&apos;	AllowDeletions (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get AllowEdits() As Variant
+	AllowEdits = _PropertyGet(&quot;AllowEdits&quot;)
+End Property	&apos;	AllowEdits (get)
+
+Property Let AllowEdits(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;AllowEdits&quot;, pvValue)
+End Property	&apos;	AllowEdits (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Bookmark() As Variant
+	Bookmark = _PropertyGet(&quot;Bookmark&quot;)
+End Property	&apos;	Bookmark (get)
+
+Property Let Bookmark(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Bookmark&quot;, pvValue)
+End Property	&apos;	Bookmark (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Caption() As Variant
+	Caption = _PropertyGet(&quot;Caption&quot;)
+End Property	&apos;	Caption (get)
+
+Property Let Caption(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Caption&quot;, pvValue)
+End Property	&apos;	Caption (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get CurrentRecord() As Variant
+	CurrentRecord = _PropertyGet(&quot;CurrentRecord&quot;)
+End Property	&apos;	CurrentRecord (get)
+
+Property Let CurrentRecord(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;CurrentRecord&quot;, pvValue)
+End Property	&apos;	CurrentRecord (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Filter() As Variant
+	Filter = _PropertyGet(&quot;Filter&quot;)
+End Property	&apos;	Filter (get)
+
+Property Let Filter(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Filter&quot;, pvValue)
+End Property	&apos;	Filter (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FilterOn() As Variant
+	FilterOn = _PropertyGet(&quot;FilterOn&quot;)
+End Property	&apos;	FilterOn (get)
+
+Property Let FilterOn(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;FilterOn&quot;, pvValue)
+End Property	&apos;	FilterOn (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Height() As Variant
+	Height = _PropertyGet(&quot;Height&quot;)
+End Property	&apos;	Height (get)
+
+Property Let Height(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Height&quot;, pvValue)
+End Property	&apos;	Height (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Function IsLoaded(ByVal Optional pbForce As Boolean) As Boolean
+&apos;Return True if form open
+&apos;pbForce = True forbids bypass on value of _IsLoaded
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Form.getIsLoaded&quot;)
+	If IsMissing(pbForce) Then pbForce = False
+	If ( Not pbForce ) And _IsLoaded Then			&apos;	For performance reasons, a form object, once detected as loaded, is presumed remaining loaded. Except if pbForce = True
+		IsLoaded = True
+		Goto Exit_Function
+	End If
+	IsLoaded = False
+	
+Dim oDoc As Object, oDatabase As Object, oEnum As Object, oDesk As Object, oComp As Object, vPersistent As Variant
+Dim i As Integer
+	Set oDoc = _A2B_.CurrentDocument()
+	Select Case oDoc.DbConnect
+		Case DBCONNECTBASE
+			Set oDesk = CreateUnoService(&quot;com.sun.star.frame.Desktop&quot;)
+			Set oEnum = oDesk.Components().createEnumeration
+			Do While oEnum.hasMoreElements			&apos;	Search in all open components if one corresponds with current form
+				oComp = oEnum.nextElement
+				If _hasUNOProperty(oComp, &quot;Identifier&quot;) Then
+					If oComp.Identifier = &quot;com.sun.star.sdb.FormDesign&quot; Then
+						vPersistent = Split(oComp.StringValue, &quot;/&quot;)
+						If vPersistent(UBound(vPersistent) - 1) = _PersistentName Then
+							_IsLoaded = True
+							Set Component = oComp
+							Exit Do
+						End If
+					End If
+				End If
+			Loop
+		Case DBCONNECTFORM
+			Set Component = oDoc.Document	&apos;	Form
+			_IsLoaded = True				&apos;	Interactive form always loaded by design
+	End Select
+	Set oComp = Nothing
+	IsLoaded = _IsLoaded
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Form.getIsLoaded&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Form.getIsLoaded&quot;, Erl)
+	GoTo Exit_Function
+End Function	&apos;	IsLoaded	V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Name() As String
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property	&apos;	Name (get)
+
+Public Function pName() As String		&apos;	For compatibility with &lt; V0.9.0
+	pName = _PropertyGet(&quot;Name&quot;)
+End Function	&apos;	pName (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveCursorMove() As Variant
+	OnApproveCursorMove = _PropertyGet(&quot;OnApproveCursorMove&quot;)
+End Property	&apos;	OnApproveCursorMove (get)
+
+Property Let OnApproveCursorMove(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveCursorMove&quot;, pvValue)
+End Property	&apos;	OnApproveCursorMove (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveParameter() As Variant
+	OnApproveParameter = _PropertyGet(&quot;OnApproveParameter&quot;)
+End Property	&apos;	OnApproveParameter (get)
+
+Property Let OnApproveParameter(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveParameter&quot;, pvValue)
+
+End Property	&apos;	OnApproveParameter (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveReset() As Variant
+	OnApproveReset = _PropertyGet(&quot;OnApproveReset&quot;)
+End Property	&apos;	OnApproveReset (get)
+
+Property Let OnApproveReset(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveReset&quot;, pvValue)
+End Property	&apos;	OnApproveReset (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveRowChange() As Variant
+	OnApproveRowChange = _PropertyGet(&quot;OnApproveRowChange&quot;)
+End Property	&apos;	OnApproveRowChange (get)
+
+Property Let OnApproveRowChange(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveRowChange&quot;, pvValue)
+End Property	&apos;	OnApproveRowChange (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveSubmit() As Variant
+	OnApproveSubmit = _PropertyGet(&quot;OnApproveSubmit&quot;)
+End Property	&apos;	OnApproveSubmit (get)
+
+Property Let OnApproveSubmit(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveSubmit&quot;, pvValue)
+End Property	&apos;	OnApproveSubmit (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnConfirmDelete() As Variant
+	OnConfirmDelete = _PropertyGet(&quot;OnConfirmDelete&quot;)
+End Property	&apos;	OnConfirmDelete (get)
+
+Property Let OnConfirmDelete(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnConfirmDelete&quot;, pvValue)
+End Property	&apos;	OnConfirmDelete (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnCursorMoved() As Variant
+	OnCursorMoved = _PropertyGet(&quot;OnCursorMoved&quot;)
+End Property	&apos;	OnCursorMoved (get)
+
+Property Let OnCursorMoved(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnCursorMoved&quot;, pvValue)
+End Property	&apos;	OnCursorMoved (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnErrorOccurred() As Variant
+	OnErrorOccurred = _PropertyGet(&quot;OnErrorOccurred&quot;)
+End Property	&apos;	OnErrorOccurred (get)
+
+Property Let OnErrorOccurred(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnErrorOccurred&quot;, pvValue)
+End Property	&apos;	OnErrorOccurred (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnLoaded() As Variant
+	OnLoaded = _PropertyGet(&quot;OnLoaded&quot;)
+End Property	&apos;	OnLoaded (get)
+
+Property Let OnLoaded(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnLoaded&quot;, pvValue)
+End Property	&apos;	OnLoaded (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnReloaded() As Variant
+	OnReloaded = _PropertyGet(&quot;OnReloaded&quot;)
+End Property	&apos;	OnReloaded (get)
+
+Property Let OnReloaded(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnReloaded&quot;, pvValue)
+End Property	&apos;	OnReloaded (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnReloading() As Variant
+	OnReloading = _PropertyGet(&quot;OnReloading&quot;)
+End Property	&apos;	OnReloading (get)
+
+Property Let OnReloading(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnReloading&quot;, pvValue)
+End Property	&apos;	OnReloading (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnResetted() As Variant
+	OnResetted = _PropertyGet(&quot;OnResetted&quot;)
+End Property	&apos;	OnResetted (get)
+
+Property Let OnResetted(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnResetted&quot;, pvValue)
+End Property	&apos;	OnResetted (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnRowChanged() As Variant
+	OnRowChanged = _PropertyGet(&quot;OnRowChanged&quot;)
+End Property	&apos;	OnRowChanged (get)
+
+Property Let OnRowChanged(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnRowChanged&quot;, pvValue)
+End Property	&apos;	OnRowChanged (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnUnloaded() As Variant
+	OnUnloaded = _PropertyGet(&quot;OnUnloaded&quot;)
+End Property	&apos;	OnUnloaded (get)
+
+Property Let OnUnloaded(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnUnloaded&quot;, pvValue)
+End Property	&apos;	OnUnloaded (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnUnloading() As Variant
+	OnUnloading = _PropertyGet(&quot;OnUnloading&quot;)
+End Property	&apos;	OnUnloading (get)
+
+Property Let OnUnloading(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnUnloading&quot;, pvValue)
+End Property	&apos;	OnUnloading (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OpenArgs() As Variant
+	OpenArgs = _PropertyGet(&quot;OpenArgs&quot;)
+End Property	&apos;	OpenArgs (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OrderBy() As Variant
+	OrderBy = _PropertyGet(&quot;OrderBy&quot;)
+End Property	&apos;	OrderBy (get) V1.2.0
+
+Property Let OrderBy(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OrderBy&quot;, pvValue)
+End Property	&apos;	OrderBy (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OrderByOn() As Variant
+	OrderByOn = _PropertyGet(&quot;OrderByOn&quot;)
+End Property	&apos;	OrderByOn (get) V1.2.0
+
+Property Let OrderByOn(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OrderByOn&quot;, pvValue)
+End Property	&apos;	OrderByOn (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function OptionGroup(ByVal Optional pvGroupName As Variant) As Variant
+&apos;	Return either an error or an object of type OPTIONGROUP based on its name
+
+Const cstThisSub = &quot;Form.OptionGroup&quot;
+Dim ogGroup As Object
+	Utils._SetCalledSub(cstThisSub)
+	If IsMissing(pvGroupName) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+	Set ogGroup = _OptionGroup(pvGroupName, CTLPARENTISFORM, Component, FormsCollection)
+	If Not IsNull(ogGroup) Then
+		ogGroup._DocEntry = _DocEntry
+		ogGroup._DbEntry = _DbEntry
+	End If
+	Set OptionGroup = ogGroup
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, Form.OptionGroup, Erl)
+	GoTo Exit_Function
+End Function		&apos;	OptionGroup	V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Parent() As Object
+	Parent = _Parent
+End Function		&apos;	Parent (get)	V6.4.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Recordset() As Object
+	Recordset = _PropertyGet(&quot;Recordset&quot;)
+End Property		&apos;	Recordset (get)	V0.9.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get RecordSource() As Variant
+	RecordSource = _PropertyGet(&quot;RecordSource&quot;)
+End Property	&apos;	RecordSource (get)
+
+Property Let RecordSource(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;RecordSource&quot;, pvValue)
+End Property	&apos;	RecordSource (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Visible() As Variant
+	Visible = _PropertyGet(&quot;Visible&quot;)
+End Property	&apos;	Visible (get)
+
+Property Let Visible(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Visible&quot;, pvValue)
+End Property	&apos;	Visible (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Width() As Variant
+	Width = _PropertyGet(&quot;Width&quot;)
+End Property	&apos;	Width (get)
+
+Property Let Width(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Width&quot;, pvValue)
+End Property	&apos;	Width (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Public Function mClose() As Variant
+&apos;	Close the form
+
+If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Form.Close&quot;)
+	mClose = False
+Dim oDatabase As Object, oController As Object
+	Set oDatabase = Application._CurrentDb()
+	If oDatabase._DbConnect &lt;&gt; DBCONNECTBASE Then Goto Error_NotApplicable
+
+	Set oController = oDatabase.Document.getFormDocuments.getByHierarchicalName(_Name)
+	oController.close()
+	Dispose()
+	mClose = True
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Form.Close&quot;)
+	Exit Function
+Error_NotApplicable:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, 1, cstThisSub)
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Form.Close&quot;, Erl)
+	GoTo Exit_Function
+End Function	&apos;	Close
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Controls(Optional ByVal pvIndex As Variant) As Variant
+&apos;	Return a Control object with name or index = pvIndex
+
+If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Form.Controls&quot;)
+
+Dim ocControl As Variant, iControlCount As Integer
+Dim oCounter As Variant, sControls() As Variant, i As Integer, bFound As Boolean, sIndex As String
+Dim j As Integer, iCount As Integer, sName As String, iAddCount As Integer
+Dim oDatabaseForm As Object, iCtlCount As Integer
+
+	Set ocControl = Nothing
+	If Not IsLoaded Then Goto Trace_Error_NotOpen
+	&apos;Count number of controls thru the forms collection
+	iControlCount = 0
+
+	iCount = FormsCollection.Count
+	For i = 0 To iCount - 1
+		If i = 0 Then Set oDatabaseForm = DatabaseForm Else Set oDatabaseForm = FormsCollection.getByIndex(i)
+		If Not IsNull(oDatabaseForm) Then iControlCount = iControlCount + oDatabaseForm.getCount()
+	Next i
+	
+	If IsMissing(pvIndex) Then					&apos;	No argument, return Collection pseudo-object
+		Set oCounter = New Collect
+		Set oCounter._This = oCounter
+		oCounter._CollType = COLLCONTROLS
+		Set oCounter._Parent = _This
+		oCounter._Count = iControlCount
+		Set Controls = oCounter
+		Goto Exit_Function
+	End If
+	
+	If Not Utils._CheckArgument(pvIndex, 1, Utils._AddNumeric(vbString)) Then Goto Exit_Function
+				
+	&apos;	Start building the ocControl object
+	&apos;	Determine exact name
+
+	sName = &quot;&quot;
+	Select Case VarType(pvIndex)
+		Case vbInteger, vbLong, vbSingle, vbDouble, vbCurrency, vbBigint, vbDecimal
+			If pvIndex &lt; 0 Or pvIndex &gt; iControlCount - 1 Then Goto Trace_Error_Index
+			iAddCount = 0
+			For i = 0 To iCount - 1
+				If i = 0 Then Set oDatabaseForm = DatabaseForm Else Set oDatabaseForm = FormsCollection.getByIndex(i)
+				If Not IsNull(oDatabaseForm) Then
+					iCtlCount = oDatabaseForm.getCount()
+					If pvIndex &gt;= iAddCount And pvIndex &lt;= iAddcount + iCtlCount - 1 Then
+						sName = oDatabaseForm.ElementNames(pvIndex - iAddCount)
+						Exit For
+					End If
+					iAddCount = iAddcount +iCtlCount
+				End If
+			Next i
+		Case vbString			&apos;	Check control name validity (non case sensitive)
+			sIndex = UCase(Utils._Trim(pvIndex))
+			bFound = False
+			For i = 0 To iCount - 1
+				If i = 0 Then Set oDatabaseForm = DatabaseForm Else Set oDatabaseForm = FormsCollection.getByIndex(i)
+				If Not IsNull(oDatabaseForm) Then
+					sControls() = oDatabaseForm.getElementNames()
+					For j = 0 To UBound(sControls)
+						If UCase(sControls(j)) = sIndex Then
+							sName = sControls(j)
+							bFound = True
+							Exit For
+						End If
+					Next j
+					If bFound Then Exit For
+				End If
+			Next i
+			If Not bFound Then Goto Trace_NotFound
+	End Select
+
+	&apos;Initialize a new Control object
+	Set ocControl = New Control
+	With ocControl
+		Set ._This = ocControl
+		Set ._Parent = _This
+		._ParentType = CTLPARENTISFORM
+		._Name = sName
+		._Shortcut = _Shortcut &amp; &quot;!&quot; &amp; Utils._Surround(sName)
+		If IsNull(oDatabaseForm) Then ._MainForm = &quot;&quot; Else ._MainForm = oDatabaseForm.Name
+		Set .ControlModel = oDatabaseForm.getByName(sName)
+		._ImplementationName = .ControlModel.getImplementationName()
+		._FormComponent = Component
+		If Utils._hasUNOProperty(.ControlModel, &quot;ClassId&quot;) Then ._ClassId = .ControlModel.ClassId
+		If ._ClassId &gt; 0 And ._ClassId &lt;&gt; acHiddenControl Then
+			Set .ControlView = Component.CurrentController.getControl(.ControlModel)
+		End If
+
+		._Initialize()
+		._DocEntry = _DocEntry
+		._DbEntry = _DbEntry
+	End With
+	Set Controls = ocControl
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Form.Controls&quot;)
+	Exit Function
+Trace_Error_NotOpen:
+	TraceError(TRACEFATAL, ERRFORMNOTOPEN, Utils._CalledSub(), 0, , _Name)
+	Set Controls = Nothing
+	Goto Exit_Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRCOLLECTION, Utils._CalledSub(), 0, 1)
+	Set Controls = Nothing
+	Goto Exit_Function
+Trace_NotFound:
+	TraceError(TRACEFATAL, ERRCONTROLNOTFOUND, Utils._CalledSub(), 0, , Array(pvIndex, pvIndex))
+	Set Controls = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Form.Controls&quot;, Erl)
+	Set Controls = Nothing
+	GoTo Exit_Function
+End Function		&apos;	Controls
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function CurrentDb() As Object
+&apos;	Returns Database object related to current form
+
+Const cstThisSub = &quot;Form.CurrentDb&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+	Set CurrentDb = Application._CurrentDb(_DocEntry, _DbEntry)
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	CurrentDb		V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+	Utils._SetCalledSub(&quot;Form.getProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(&quot;Form.getProperty&quot;)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Move(	  ByVal Optional pvLeft As Variant _
+						, ByVal Optional pvTop As Variant _
+						, ByVal Optional pvWidth As Variant _
+						, ByVal Optional pvHeight As Variant _
+						) As Variant
+&apos;	Execute Move method
+	Utils._SetCalledSub(&quot;Form.Move&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Move = False
+Dim iArgNr As Integer
+	Select Case UCase(_A2B_.CalledSub)
+		Case UCase(&quot;Move&quot;)				:	iArgNr = 1
+		Case UCase(&quot;Form.Move&quot;)			:	iArgNr = 0
+	End Select
+	If IsMissing(pvLeft) Then pvLeft = -1
+	If IsMissing(pvTop) Then pvTop = -1
+	If IsMissing(pvWidth) Then pvWidth = -1
+	If IsMissing(pvHeight) Then pvHeight = -1
+	If Not Utils._CheckArgument(pvLeft,	iArgNr + 1, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvTop,	iArgNr + 2, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvWidth,	iArgNr + 3, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvHeight, iArgNr + 4, Utils._AddNumeric()) Then Goto Exit_Function
+	
+Dim iArg As Integer, iWrong As Integer		&apos;	Check arguments values
+	iArg = 0
+	If pvHeight &lt; -1 Then
+		iArg = 4		:		iWrong = pvHeight
+	ElseIf pvWidth &lt; -1 Then
+		iArg = 3		:		iWrong = pvWidth
+	ElseIf pvTop &lt; -1 Then
+		iArg = 2		:		iWrong = pvTop
+	ElseIf pvLeft &lt; -1 Then
+		iArg = 1		:		iWrong = pvLeft
+	End If
+	If iArg &gt; 0 Then
+		TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, 1, Array(iArgNr + iArg, iWrong))
+		Goto Exit_Function
+	End If
+	
+Dim iPosSize As Integer
+	iPosSize = 0
+	If pvLeft &gt;= 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.X
+	If pvTop &gt;= 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.Y
+	If pvWidth &gt; 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.WIDTH
+	If pvHeight &gt; 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.HEIGHT
+	If iPosSize &gt; 0 Then
+		If Utils._hasUNOProperty(ContainerWindow, &quot;IsMaximized&quot;) Then	&apos;	Ignored when &lt;= OO3.2
+			ContainerWindow.IsMaximized = False
+			ContainerWindow.IsMinimized = False
+		End If
+		ContainerWindow.setPosSize(pvLeft, pvTop, pvWidth, pvHeight, iPosSize)
+	End If
+	Move = True
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Form.Move&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Form.Move&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	Move
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Refresh() As Boolean
+&apos;	Refresh data with its most recent value in the database in a form or subform
+	Utils._SetCalledSub(&quot;Form.Refresh&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Refresh = False
+
+Dim oSet As Object	
+	Set oSet = DatabaseForm.createResultSet()
+	If Not IsNull(oSet) Then
+		oSet.refreshRow()
+		Refresh = True
+	End If
+
+Exit_Function:
+	Set oSet = Nothing
+	Utils._ResetCalledSub(&quot;Form.Refresh&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;SubForm.Refresh&quot;, Erl)
+	GoTo Exit_Function
+End Function	&apos;	Refresh
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Requery() As Boolean
+&apos;	Refresh data displayed in a form, subform, combobox or listbox
+	Utils._SetCalledSub(&quot;Form.Requery&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Requery = False
+
+	DatabaseForm.reload()
+	Requery = True	
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Form.Requery&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Form.Requery&quot;, Erl)
+	GoTo Exit_Function
+End Function	&apos;	Requery
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFocus() As Boolean
+&apos;	Execute setFocus method
+Const cstThisSub = &quot;Form.setFocus&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	setFocus = False
+
+	With ContainerWindow
+		If .isVisible() = False Then .setVisible(True)
+		.IsMinimized = False
+		.setFocus()
+		.setEnable(True)		&apos;	Added to try to bypass desynchro issue in Linux
+		.toFront()				&apos;	Added to force window change in Linux
+	End With
+	setFocus = True
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	Goto Exit_Function
+End Function	&apos;	setFocus	V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setProperty(ByVal Optional psProperty As String, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Return True if property setting OK
+	Utils._SetCalledSub(&quot;Form.setProperty&quot;)
+	setProperty = _PropertySet(psProperty, pvValue)
+	Utils._ResetCalledSub(&quot;Form.setProperty&quot;)
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _GetListener(ByVal psProperty As String) As String
+&apos;	Return the X...Listener corresponding with the property in argument
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;OnApproveCursorMove&quot;)
+			_GetListener = &quot;XRowSetApproveListener&quot;
+		Case UCase(&quot;OnApproveParameter&quot;)
+			_GetListener = &quot;XDatabaseParameterListener&quot;
+		Case UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnResetted&quot;)
+			_GetListener = &quot;XResetListener&quot;
+		Case UCase(&quot;OnApproveRowChange&quot;)
+			_GetListener = &quot;XRowSetApproveListener&quot;
+		Case UCase(&quot;OnApproveSubmit&quot;)
+			_GetListener = &quot;XSubmitListener&quot;
+		Case UCase(&quot;OnConfirmDelete&quot;)
+			_GetListener = &quot;XConfirmDeleteListener&quot;
+		Case UCase(&quot;OnCursorMoved&quot;), UCase(&quot;OnRowChanged&quot;)
+			_GetListener = &quot;XRowSetListener&quot;
+		Case UCase(&quot;OnErrorOccurred&quot;)
+			_GetListener = &quot;XSQLErrorListener&quot;
+		Case UCase(&quot;OnLoaded&quot;), UCase(&quot;OnReloaded&quot;), UCase(&quot;OnReloading&quot;), UCase(&quot;OnUnloaded&quot;), UCase(&quot;OnUnloading&quot;)
+			_GetListener = &quot;XLoadListener&quot;
+	End Select
+	
+End Function	&apos;	_GetListener	V1.7.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub _Initialize(psName As String)
+&apos;	Set pointers to UNO objects
+
+Dim oDoc As Object, oDatabase As Object
+	If _ErrorHandler() Then On Local Error Goto Trace_Error
+	_Name = psName
+	_Shortcut = &quot;Forms!&quot; &amp; Utils._Surround(psName)
+	Set oDoc = _A2B_.CurrentDocument()
+	If oDoc.DbConnect = DBCONNECTBASE Then _PersistentName = oDoc.Document.getFormDocuments().getByHierarchicalName(psName).PersistentName
+	If IsLoaded Then
+		Select Case oDoc.DbConnect
+			Case DBCONNECTBASE
+				If Not IsNull(Component.CurrentController) Then		&apos;	A form opened then closed afterwards keeps a Component attribute
+					Set ContainerWindow = Component.CurrentController.Frame.ContainerWindow
+					Set FormsCollection = Component.getDrawPage.Forms
+					If FormsCollection.Count = 0 Then
+						Set DatabaseForm = Nothing
+					Else
+						&apos;Only first member of the collection can be reached with A2B
+						&apos;Compliant with MSAccess which has 1 datasource by form, while LO might have many
+						_MainForms = FormsCollection.ElementNames()
+						Set DatabaseForm = FormsCollection.getByIndex(0)
+					End If
+				End If
+			Case DBCONNECTFORM
+				Set ContainerWindow = oDoc.Document.CurrentController.Frame.ContainerWindow
+				Set FormsCollection = oDoc.Document.getDrawPage.Forms
+				Set oDatabase = Application._CurrentDb(_DocEntry, _DbEntry)
+				With oDatabase
+					Set DatabaseForm = .Form
+					If IsNull(.Connection) Then
+						Set .Connection = DatabaseForm.ActiveConnection
+						If Not IsNull(.Connection) Then
+							Set .MetaData = .Connection.MetaData
+							oDatabase._ReadOnly = .Connection.isReadOnly()
+						End If
+					End If
+				End With
+		End Select
+		If IsNull(DatabaseForm) Then _OrderBy = &quot;&quot; Else _OrderBy = DatabaseForm.Order
+	Else
+		Set Component = Nothing
+		Set ContainerWindow = Nothing
+		Set DatabaseForm = Nothing
+	End If
+	
+Exit_Sub:
+	Exit Sub
+Trace_Error:
+	TraceError(TRACEABORT, Err, &quot;Form.Initialize&quot;, Erl)
+	Goto Exit_Sub
+Trace_Internal_Error:
+	TraceError(TRACEABORT, ERRFORMNOTIDENTIFIED, Utils._CalledSub(), 0, , _Name)
+	Goto Exit_Sub
+End Sub			&apos;	_Initialize		V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+
+	If _IsLoaded Then
+		_PropertiesList =  Array(&quot;AllowAdditions&quot;, &quot;AllowDeletions&quot;, &quot;AllowEdits&quot;, &quot;Bookmark&quot; _
+										, &quot;Caption&quot;, &quot;CurrentRecord&quot;, &quot;Filter&quot;, &quot;FilterOn&quot;, &quot;Height&quot;, &quot;IsLoaded&quot; _
+										, &quot;Name&quot;, &quot;ObjectType&quot;, &quot;OnApproveCursorMove&quot;, &quot;OnApproveParameter&quot; _
+										, &quot;OnApproveReset&quot;, &quot;OnApproveRowChange&quot;, &quot;OnApproveSubmit&quot;, &quot;OnConfirmDelete&quot; _
+										, &quot;OnCursorMoved&quot;, &quot;OnErrorOccurred&quot;, &quot;OnLoaded&quot;, &quot;OnReloaded&quot;, &quot;OnReloading&quot; _
+										, &quot;OnResetted&quot;, &quot;OnRowChanged&quot;, &quot;OnUnloaded&quot;, &quot;OnUnloading&quot;, &quot;OpenArgs&quot; _
+										, &quot;OrderBy&quot;, &quot;OrderByOn&quot;, &quot;RecordSource&quot;, &quot;Visible&quot;, &quot;Width&quot; _
+									)	&apos;	Recordset removed
+	Else
+		 _PropertiesList = Array(&quot;IsLoaded&quot;, &quot;Name&quot; _
+									)
+	End If
+	
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Form.get&quot; &amp; psProperty)
+	
+&apos;Execute
+Dim oDatabase As Object, vBookmark As Variant
+Dim i As Integer, oObject As Object
+
+	_PropertyGet = EMPTY
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Name&quot;), UCase(&quot;IsLoaded&quot;)
+		Case Else		:	If Not IsLoaded Then Goto Trace_Error_Form
+	End Select
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;AllowAdditions&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = False Else _PropertyGet = DatabaseForm.AllowInserts
+		Case UCase(&quot;AllowDeletions&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = False Else _PropertyGet = DatabaseForm.AllowDeletes
+		Case UCase(&quot;AllowEdits&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = False Else _PropertyGet = DatabaseForm.AllowUpdates
+		Case UCase(&quot;Bookmark&quot;)
+			If IsNull(DatabaseForm) Then
+				_PropertyGet = 0
+			Else
+				On Local Error Resume Next			&apos;	Disable error handler because bookmarking does not always react well in events ...
+				If DatabaseForm.IsBookmarkable Then vBookmark = DatabaseForm.getBookmark() Else vBookmark = Nothing
+				If _ErrorHandler() Then On Local Error Goto Error_Function Else On Local Error Goto 0
+				If IsNull(vBookmark) Then Goto Trace_Error
+				_PropertyGet = vBookmark
+			End If
+		Case UCase(&quot;Caption&quot;)
+			Set odatabase = Application._CurrentDb(_DocEntry, _DbEntry)
+			Select Case oDatabase._DbConnect
+				Case DBCONNECTFORM		:	_PropertyGet = oDatabase.Document.CurrentController.Frame.Title
+				Case DBCONNECTBASE		:	_PropertyGet = Component.CurrentController.Frame.Title
+			End Select
+		Case UCase(&quot;CurrentRecord&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = 0 Else _PropertyGet = DatabaseForm.Row
+		Case UCase(&quot;Filter&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = &quot;&quot; Else _PropertyGet = DatabaseForm.Filter
+		Case UCase(&quot;FilterOn&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = False Else _PropertyGet = DatabaseForm.ApplyFilter
+		Case UCase(&quot;Height&quot;)
+			_PropertyGet = ContainerWindow.getPosSize().Height
+		Case UCase(&quot;IsLoaded&quot;)		&apos;	Only for indirect access from property object
+			_PropertyGet = IsLoaded
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;OnApproveCursorMove&quot;), UCase(&quot;OnApproveParameter&quot;), UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnApproveRowChange&quot;) _
+					, UCase(&quot;OnApproveSubmit&quot;), UCase(&quot;OnConfirmDelete&quot;), UCase(&quot;OnCursorMoved&quot;), UCase(&quot;OnErrorOccurred&quot;) _
+					, UCase(&quot;OnLoaded&quot;), UCase(&quot;OnReloaded&quot;), UCase(&quot;OnReloading&quot;), UCase(&quot;OnResetted&quot;), UCase(&quot;OnRowChanged&quot;) _
+					, UCase(&quot;OnUnloaded&quot;), UCase(&quot;OnUnloading&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = &quot;&quot; Else _PropertyGet = Utils._GetEventScriptCode(DatabaseForm, psProperty, _Name, True)
+		Case UCase(&quot;OpenArgs&quot;)
+			_PropertyGet = _OpenArgs
+		Case UCase(&quot;OrderBy&quot;)
+			_PropertyGet = _OrderBy
+		Case UCase(&quot;OrderByOn&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = False Else _PropertyGet = ( DatabaseForm.Order &lt;&gt; &quot;&quot; )
+		Case UCase(&quot;Recordset&quot;)
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			If DatabaseForm.Command = &quot;&quot; Then Goto Trace_Error		&apos;	No underlying data ??
+			Set oObject = New Recordset
+			With DatabaseForm
+				oObject._This = oObject
+				oObject._CommandType = .CommandType
+				oObject._Command = .Command
+				oObject._ParentName = _Name
+				oObject._ParentType = _Type
+				Set oDatabase = Application._CurrentDb(_DocEntry, _DbEntry)
+				Set oObject._ParentDatabase = oDatabase
+				Set oObject._ParentDatabase.Connection = .ActiveConnection
+				oObject._ForwardOnly = ( .ResultSetType = com.sun.star.sdbc.ResultSetType.FORWARD_ONLY )
+				oObject._PassThrough = ( .EscapeProcessing = False )
+				oObject._ReadOnly = ( .ResultSetConcurrency = com.sun.star.sdbc.ResultSetConcurrency.READ_ONLY )
+				Call oObject._Initialize()
+			End With
+			With oDatabase
+				.RecordsetMax = .RecordsetMax + 1
+				oObject._Name = Format(.RecordsetMax, &quot;0000000&quot;)
+				.RecordsetsColl.Add(oObject, UCase(oObject._Name))
+			End With
+			If Not ( oObject._BOF And oObject._EOF ) Then oObject.MoveFirst()		&apos;	Do nothing if resultset empty
+			Set _PropertyGet = oObject
+		Case UCase(&quot;RecordSource&quot;)
+			If IsNull(DatabaseForm) Then _PropertyGet = &quot;&quot; Else _PropertyGet = DatabaseForm.Command
+		Case UCase(&quot;Visible&quot;)
+			_PropertyGet = ContainerWindow.IsVisible()
+		Case UCase(&quot;Width&quot;)
+			_PropertyGet = ContainerWindow.getPosSize().Width
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Form.get&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEWARNING, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Trace_Error_Form:
+	TraceError(TRACEFATAL, ERRFORMNOTOPEN, Utils._CalledSub(), 0, 1, _Name)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Form._PropertyGet&quot;, Erl)
+	_PropertyGet = EMPTY
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertySet(ByVal psProperty As String, ByVal pvValue As Variant) As Boolean
+
+	Utils._SetCalledSub(&quot;Form.set&quot; &amp; psProperty)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	_PropertySet = True
+
+&apos;Execute
+Dim iArgNr As Integer, i As Integer
+Dim oDatabase As Object
+
+	If _Isleft(_A2B_.CalledSub, &quot;Form.&quot;) Then iArgNr = 1 Else iArgNr = 2
+	If Not IsLoaded Then Goto Trace_Error_Form
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;AllowAdditions&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.AllowInserts = pvValue
+			DatabaseForm.reload()
+		Case UCase(&quot;AllowDeletions&quot;)
+			If Not Utils._CheckArgument(pvValue,iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.AllowDeletes = pvValue
+			DatabaseForm.reload()
+		Case UCase(&quot;AllowEdits&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.AllowUpdates = pvValue
+			DatabaseForm.reload()
+		Case UCase(&quot;Bookmark&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(vbObject), , False) Then Goto Trace_Error_Value
+			If IsNull(pvValue) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.MoveToBookmark(pvValue)
+		Case UCase(&quot;Caption&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			Set oDatabase = Application._CurrentDb(_DocEntry, _DbEntry)
+			Select Case oDatabase._DbConnect
+				Case DBCONNECTFORM		:	oDatabase.Document.CurrentController.Frame.Title = pvValue
+				Case DBCONNECTBASE		:	Component.CurrentController.Frame.Title = pvValue
+			End Select
+		Case UCase(&quot;CurrentRecord&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 1 Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.absolute(pvValue)
+		Case UCase(&quot;Filter&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.Filter = Application._CurrentDb(_DocEntry, _DbEntry)._ReplaceSquareBrackets(pvValue)
+		Case UCase(&quot;FilterOn&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.ApplyFilter = pvValue
+			DatabaseForm.reload()
+		Case UCase(&quot;Height&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If Utils._hasUNOProperty(ContainerWindow, &quot;IsMaximized&quot;) Then	&apos;	Ignored when &lt;= OO3.2
+				ContainerWindow.IsMaximized = False
+				ContainerWindow.IsMinimized = False
+			End If
+			ContainerWindow.setPosSize(0, 0, 0, pvValue, com.sun.star.awt.PosSize.HEIGHT)
+		Case UCase(&quot;OnApproveCursorMove&quot;), UCase(&quot;OnApproveParameter&quot;), UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnApproveRowChange&quot;) _
+					, UCase(&quot;OnApproveSubmit&quot;), UCase(&quot;OnConfirmDelete&quot;), UCase(&quot;OnCursorMoved&quot;), UCase(&quot;OnErrorOccurred&quot;) _
+					, UCase(&quot;OnLoaded&quot;), UCase(&quot;OnReloaded&quot;), UCase(&quot;OnReloading&quot;), UCase(&quot;OnResetted&quot;), UCase(&quot;OnRowChanged&quot;) _
+					, UCase(&quot;OnUnloaded&quot;), UCase(&quot;OnUnloading&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			If Not Utils._RegisterEventScript(DatabaseForm _
+						, psProperty _
+						, _GetListener(psProperty) _
+						, pvValue, _Name, True _
+						) Then GoTo Trace_Error
+		Case UCase(&quot;OrderBy&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			_OrderBy = Application._CurrentDb(_DocEntry, _DbEntry)._ReplaceSquareBrackets(pvValue)
+		Case UCase(&quot;OrderByOn&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			If pvValue Then DatabaseForm.Order = _OrderBy Else DatabaseForm.Order = &quot;&quot;
+			DatabaseForm.reload()
+		Case UCase(&quot;RecordSource&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If IsNull(DatabaseForm) Then Goto Trace_Error
+			DatabaseForm.Command = Application._CurrentDb(_DocEntry, _DbEntry)._ReplaceSquareBrackets(pvValue)
+			DatabaseForm.CommandType = com.sun.star.sdb.CommandType.COMMAND
+			DatabaseForm.Filter = &quot;&quot;
+			DatabaseForm.reload()
+		Case UCase(&quot;Visible&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			ContainerWindow.setVisible(pvValue)
+		Case UCase(&quot;Width&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric()) Then Goto Trace_Error_Value
+			If Utils._hasUNOProperty(ContainerWindow, &quot;IsMaximized&quot;) Then	&apos;	Ignored when &lt;= OO3.2
+				ContainerWindow.IsMaximized = False
+				ContainerWindow.IsMinimized = False
+			End If
+			ContainerWindow.setPosSize(0, 0,  pvValue, 0, com.sun.star.awt.PosSize.WIDTH)
+		Case Else
+			Goto Trace_Error
+	End Select
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Form.set&quot; &amp; psProperty)
+	Exit Function
+Trace_Error_Form:
+	TraceError(TRACEFATAL, ERRFORMNOTOPEN, Utils._CalledSub(), 0, 1, _Name)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Value:
+	TraceError(TRACEFATAL, ERRPROPERTYVALUE, Utils._CalledSub(), 0, 1, Array(pvValue, psProperty))
+	_PropertySet = False
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Form._PropertySet&quot;, Erl)
+	_PropertySet = False
+	GoTo Exit_Function
+End Function		&apos;	_PropertySet
+
+</script:module>

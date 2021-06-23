@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+* This file is part of the LibreOffice project.
+*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<!--
+    entry attributes:
+    os - "all", "7", "8", "8_1", "10"
+    vendor - "all", "intel", "amd", "nvidia", "microsoft"
+    compare - "less", "less_equal", "greater", "greater_equal", "equal", "not_equal", "between_exclusive", "between_inclusive", "between_inclusive_start"
+    version
+    minVersion
+    maxVersion
+-->
+
+<root>
+    <allowlist>
+    </allowlist>
+    <denylist>
+        <entry os="all" vendor="intel" compare="less" version="10.18.14.4264">
+            <device id="all"/>
+        </entry>
+        <!-- tdf#99919 -->
+        <entry os="all" vendor="intel" compare="equal" version="20.19.15.4352">
+            <device id="0x1927"/>
+        </entry>
+        <!-- tdf#100243 -->
+        <!-- tdf#117477 -->
+        <entry os="all" vendor="intel" compare="equal" version="21.20.16.4664">
+            <device id="0x591b"/>
+            <device id="0x5916"/>
+        </entry>
+        <!-- tdf#115092 -->
+        <entry os="all" vendor="intel" compare="equal" version="22.20.16.4735">
+            <device id="0x1912"/>
+        </entry>
+        <entry os="7" vendor="intel">
+            <device id="all"/>
+        </entry>
+        <entry os="8" vendor="intel" compare="equal" version="10.18.10.3308"><!-- Intel(R) HD Graphics 4000 -->
+            <device id="0x0166"/>
+        </entry>
+        <entry os="10" vendor="intel" compare="between_inclusive_start" minVersion="26.20.100.6861" maxVersion="26.20.100.7584"><!-- tdf#125516 -->
+            <device id="all"/>
+        </entry>
+        <!-- tdf#131221 -->
+        <entry os="10" vendor="intel">
+            <device id="0x5917"/>
+        </entry>
+        <entry os="all" vendor="amd" compare="less" version="15.200.1062.1004"> <!-- 150.200 -->
+            <device id="all"/>
+        </entry>
+        <entry os="all" vendor="nvidia" compare="less" version="10.18.13.5362"> <!-- 353.62 -->
+            <device id="all"/>
+        </entry>
+        <entry os="10" vendor="nvidia"> <!-- tdf#128441 -->
+            <device id="0x2182"/>
+        </entry>
+        <entry os="all" vendor="microsoft" compare="less" version="6.2.0.0"> <!-- 6.2.0.0 -->
+            <device id="all"/>
+        </entry>
+    </denylist>
+</root>

@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Samples" script:language="StarBasic">Option Explicit
 
-Const SAMPLES = 1000
-Const STYLES = 1100
+Const NumStyles = 18
 Const aTempFileName = &quot;Berend_Ilko_Tom_Stella_Volker.stc&quot;
-Public Const Twip = 425
 Dim oUcbObject as Object
 Public StylesDir as String
 Public StylesDialog as Object
@@ -38,52 +33,6 @@ Public aTempURL as String
 
 Public Files(100) as String
 
-
-&apos;--------------------------------------------------------------------------------------
-&apos;Miscellaneous Section starts here
-
-Function PrepareForEditing(Optional ByVal oDocument)
-&apos;This sub is called when sample documents are loaded (load event).
-&apos;It checks whether the documents is read-only, in which case it
-&apos;offers the user to create a new (writable) document using the original
-&apos;as a template.
-Dim DocPath as String
-Dim MMessage as String
-Dim MTitle as String
-Dim RValue as Integer
-Dim oNewDocument as Object
-Dim mFileProperties(1) as New com.sun.star.beans.PropertyValue
-	PrepareForEditing = NULL
-        BasicLibraries.LoadLibrary( &quot;Tools&quot; )
-	If InitResources(&quot;&apos;Template&apos;&quot;, &quot;tpl&quot;) then
-		If IsMissing(oDocument) Then
-      		oDocument = ThisComponent
-		End If
-		If oDocument.IsReadOnly then
-			MMessage = GetResText(SAMPLES)
-			MTitle = GetResText(SAMPLES + 1)
-			RValue = Msgbox(MMessage, (128+48+1), MTitle)
-			If RValue = 1 Then
-				DocPath = oDocument.URL
-				mFileProperties(0).Name = &quot;AsTemplate&quot;
-				mFileProperties(0).Value = True
-				mFileProperties(1).Name = &quot;MacroExecutionMode&quot;
-				mFileProperties(1).Value = com.sun.star.document.MacroExecMode.USE_CONFIG	
-				
-				oNewDocument = StarDesktop.LoadComponentFromURL(DocPath,&quot;_default&quot;,0, mFileProperties())
-				PrepareForEditing() = oNewDocument
-				DisposeDocument(oDocument)
-			Else
-				PrepareForEditing() = NULL
-			End If
-		Else
-			PrepareForEditing() = oDocument
-		End If
-	End If
-End Function
-
-
-
 &apos;--------------------------------------------------------------------------------------
 &apos;Calc Style Section starts here
 
@@ -92,11 +41,14 @@ Sub ShowStyles
 Dim TemplateDir, ActFileTitle, DisplayDummy as String
 Dim sFilterName(0) as String
 Dim StyleNames() as String
+Dim LocalizedStyleNames(NumStyles,2) As String
+Dim LocalizedStyleName As String
 Dim t as Integer
 Dim MaxIndex as Integer
-        BasicLibraries.LoadLibrary(&quot;Tools&quot;)
-	If InitResources(&quot;&apos;Template&apos;&quot;, &quot;tpl&quot;) then
-    oDocument = ThisComponent
+Dim StyleNameDef As Variant
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	If InitResources(&quot;&apos;Template&apos;&quot;) then
+	oDocument = ThisComponent
 		If oDocument.SupportsService(&quot;com.sun.star.sheet.SpreadsheetDocument&quot;) Then
 			ToggleWindow(False)
 			oUcbObject = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
@@ -107,11 +59,22 @@ Dim MaxIndex as Integer
 			TemplateDir = GetPathSettings(&quot;Template&quot;, False, 0)
 			StylesDir = GetOfficeSubPath(&quot;Template&quot;, &quot;wizard/styles/&quot;)
 			sQueryPath = GetOfficeSubPath(&quot;Template&quot;, &quot;../wizard/bitmap/&quot;)
-			DialogModel.Title = GetResText(STYLES)
-			DialogModel.cmdCancel.Label = GetResText(STYLES+2)
-			DialogModel.cmdOk.Label = GetResText(STYLES+3)
+			DialogModel.Title = GetResText(&quot;STYLES_0&quot;)
+			DialogModel.cmdCancel.Label = GetResText(&quot;STYLES_2&quot;)
+			DialogModel.cmdOk.Label = GetResText(&quot;STYLES_3&quot;)
+			StyleNameDef = Array("(Standard)", "Autumn Leaves", "Be", "Black and White", "Blackberry Bush", "Blue Jeans", "Fifties Diner", "Glacier", "Green Grapes", "Marine", "Millennium", "Nature", "Neon", "Night", "PC Nostalgia", "Pastel", "Pool Party", "Pumpkin")
+			For t = 0 to NumStyles - 1
+				LocalizedStyleNames(t,0) = StyleNameDef(t)
+				LocalizedStyleNames(t,1) = GetResText(&quot;STYLENAME_&quot; &amp; Trim(Str(t)))
+			Next t
 			Stylenames() = ReadDirectories(StylesDir, False, False, True,)
 			MaxIndex = Ubound(Stylenames())
+			For t = 0 to MaxIndex
+				LocalizedStyleName = StringInMultiArray(LocalizedStyleNames(), StyleNames(t,1), 0, 1)
+				If LocalizedStyleName &lt;&gt; "" Then
+					StyleNames(t,1) = LocalizedStyleName
+				End If
+			Next t
 			BubbleSortList(Stylenames(),True)
 			Dim cStyles(MaxIndex)
 			For t = 0 to MaxIndex
@@ -137,8 +100,8 @@ Dim Position as Integer
 	If Position &gt; -1 Then
 		ToggleWindow(False)
 		StylePath = Files(Position)
-	  	aOptions(0).Name = &quot;OverwriteStyles&quot;
- 		aOptions(0).Value = true
+		aOptions(0).Name = &quot;OverwriteStyles&quot;
+		aOptions(0).Value = true
 		oFamilies.loadStylesFromURL(StylePath, aOptions())
 		ToggleWindow(True)
 	End If
@@ -146,9 +109,9 @@ End Sub
 
 
 Sub SaveCurrentStyles(oDocument as Object)
-&apos;This sub stores the current document in the user work directory
-	On Error Goto ErrorOcurred
-	aTempURL = GetPathSettings(&quot;Work&quot;, False)
+&apos;This sub stores the current document in the directory to hold temporary files.
+	On Error Goto ErrorOccurred
+	aTempURL = GetPathSettings(&quot;Temp&quot;, False)
 	Dim aRightMost as String
 	aRightMost = Right(aTempURL, 1)
 	if aRightMost = &quot;/&quot; Then
@@ -163,8 +126,8 @@ Sub SaveCurrentStyles(oDocument as Object)
 	oDocument.storeToURL(aTempURL, NoArgs())
 	Exit Sub
 
-ErrorOcurred:
-	MsgBox(GetResText( STYLES+1 ), 16, GetResText( STYLES ))
+ErrorOccurred:
+	MsgBox(GetResText(&quot;STYLES_1&quot;), 16, GetResText(&quot;STYLES_0&quot;))
 	On Local Error Goto 0
 End Sub
 
@@ -174,8 +137,8 @@ Sub RestoreCurrentStyles
 	ToggleWindow(False)
 	On Local Error Goto NoFile
 	If FileExists(aTempURL) Then
-	  	aOptions(0).Name = &quot;OverwriteStyles&quot;
-  		aOptions(0).Value = true
+		aOptions(0).Name = &quot;OverwriteStyles&quot;
+		aOptions(0).Value = true
 		oFamilies.LoadStylesFromURL(aTempURL, aOptions())
 		KillTempFile()
 	End If

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Register" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Register
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		The ScriptForge framework includes
+&apos;&apos;&apos;			the master ScriptForge library
+&apos;&apos;&apos;			a number of &quot;associated&quot; libraries SF*
+&apos;&apos;&apos;			any user/contributor extension wanting to fit into the framework 
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The main methods in this module allow the current library to cling to ScriptForge
+&apos;&apos;&apos;			- RegisterScriptServices
+&apos;&apos;&apos;				Register the list of services implemented by the current library
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Sub RegisterScriptServices() As Variant
+&apos;&apos;&apos;	Register into ScriptForge the list of the services implemented by the current library
+&apos;&apos;&apos;	Each library pertaining to the framework must implement its own version of this method
+&apos;&apos;&apos;
+&apos;&apos;&apos;	It consists in successive calls to the RegisterService() and RegisterEventManager() methods
+&apos;&apos;&apos;	with 2 arguments:
+&apos;&apos;&apos;		ServiceName: the name of the service as a case-insensitive string
+&apos;&apos;&apos;		ServiceReference: the reference as an object
+&apos;&apos;&apos;			If the reference refers to a module, then return the module as an object:
+&apos;&apos;&apos;				GlobalScope.Library.Module
+&apos;&apos;&apos;			If the reference is a class instance, then return a string referring to the method
+&apos;&apos;&apos;			containing the New statement creating the instance
+&apos;&apos;&apos;				&quot;libraryname.modulename.function&quot;
+
+	With GlobalScope.ScriptForge.SF_Services
+		.RegisterService(&quot;Document&quot;,			&quot;SFDocuments.SF_Register._NewDocument&quot;)		&apos;	Reference to the function initializing the service
+		.RegisterService(&quot;Calc&quot;,				&quot;SFDocuments.SF_Register._NewDocument&quot;)		&apos;	Same references, distinction is made inside the function
+		.RegisterService(&quot;Base&quot;,				&quot;SFDocuments.SF_Register._NewDocument&quot;)		&apos;	Same references, distinction is made inside the function
+		.RegisterEventManager(&quot;DocumentEvent&quot;,	&quot;SFDocuments.SF_Register._EventManager&quot;)	&apos;	Reference to the events manager
+		&apos;TODO
+	End With
+
+End Sub			&apos;	SFDocuments.SF_Register.RegisterScriptServices
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Function _EventManager(Optional ByRef pvArgs As Variant) As Object
+&apos;&apos;&apos;	Returns a Document or Calc object corresponding with the active component
+&apos;&apos;&apos;	which triggered the event in argument
+&apos;&apos;&apos;	This method should be triggered only thru the invocation of CreateScriptService
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvEvent: com.sun.star.document.DocumentEvent
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		the output of a Document, Calc, ... service or Nothing
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Sub TriggeredByEvent(ByRef poEvent As Object)
+&apos;&apos;&apos;			Dim oDoc As Object
+&apos;&apos;&apos;			Set oDoc = CreateScriptService(&quot;SFDocuments.DocumentEvent&quot;, poEvent)
+&apos;&apos;&apos;			If Not IsNull(oDoc) Then
+&apos;&apos;&apos;				&apos; ... (a valid document has been identified)
+&apos;&apos;&apos;		End Sub
+
+Dim oSource As Object			&apos;	Return value
+Dim vEvent As Variant			&apos;	Alias of pvArgs(0)
+
+	&apos;	Never abort while an event is processed
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Finally
+	Set oSource = Nothing
+
+Check:
+	If IsMissing(pvArgs) Or IsEmpty(pvArgs) Then pvArgs = Array()
+	If UBound(pvArgs) &gt;= 0 Then vEvent = pvArgs(0) Else Set vEvent = Empty
+	If VarType(vEvent) &lt;&gt; ScriptForge.V_OBJECT Then GoTo Finally
+
+Try:
+	If ScriptForge.SF_Session.UnoObjectType(vEvent) = &quot;com.sun.star.document.DocumentEvent&quot; Then
+		If ScriptForge.SF_Session.UnoObjectType(vEvent.Source) = &quot;SwXTextDocument&quot; Then
+			Set oSource = SF_Register._NewDocument(vEvent.Source)
+		End If
+	End If
+
+Finally:
+	Set _EventManager = oSource
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Documents._EventManager
+
+REM -----------------------------------------------------------------------------
+Public Function _NewDocument(Optional ByVal pvArgs As Variant) As Object
+&apos;&apos;&apos;	Create a new instance of the (super) SF_Document class or of one of its subclasses (SF_Calc, ...)
+&apos;	Args:
+&apos;&apos;&apos;		WindowName: see the definition of WindowName in the description of the UI service
+&apos;&apos;&apos;			If absent, the document is presumed to be in the active window
+&apos;&apos;&apos;			If WindowName is an object, it must be a component
+&apos;&apos;&apos;				(com.sun.star.lang.XComponent or com.sun.star.comp.dba.ODatabaseDocument)
+&apos;&apos;&apos;	Returns: the instance or Nothing
+
+Dim oDocument As Object				&apos;	Return value
+Dim oSuperDocument As Object		&apos;	Companion superclass document
+Dim vWindowName As Variant			&apos;	Alias of pvArgs(0)
+Dim oEnum As Object					&apos;	com.sun.star.container.XEnumeration
+Dim oComp As Object					&apos;	com.sun.star.lang.XComponent
+Dim vWindow As Window				&apos;	A single component
+Dim oUi As Object					&apos;	&quot;UI&quot; service
+Dim bFound As Boolean				&apos;	True if the document is found on the desktop
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(pvArgs) Or IsEmpty(pvArgs) Then pvArgs = Array()
+	If Not IsArray(pvArgs) Then pvArgs = Array(pvArgs)		&apos;	Needed when _NewDocument called from _EventManager
+	If UBound(pvArgs) &gt;= 0 Then vWindowName = pvArgs(0) Else vWindowName = &quot;&quot;
+	If Not ScriptForge.SF_Utils._Validate(vWindowName, &quot;WindowName&quot;, Array(V_STRING, ScriptForge.V_OBJECT)) Then GoTo Finally
+	Set oDocument = Nothing
+
+Try:
+	Set oUi = ScriptForge.SF_Register.CreateScriptService(&quot;UI&quot;)
+	Select Case VarType(vWindowName)
+		Case V_STRING
+			If Len(vWindowName) &gt; 0 Then
+				bFound = False
+				Set oEnum = StarDesktop.Components().createEnumeration
+				Do While oEnum.hasMoreElements
+					Set oComp = oEnum.nextElement
+					vWindow = oUi._IdentifyWindow(oComp)
+					With vWindow
+						&apos;	Does the current window match the argument ?
+						If	(Len(.WindowFileName) &gt; 0 And .WindowFileName = ScriptForge.SF_FileSystem._ConvertToUrl(vWindowName)) _
+							Or (Len(.WindowName) &gt; 0 And .WindowName = vWindowName) _
+							Or (Len(.WindowTitle) &gt; 0 And .WindowTitle = vWindowName) Then
+								bFound = True
+								Exit Do
+							End If
+					End With
+				Loop
+			Else
+				bFound = True
+				vWindow = oUi._IdentifyWindow(StarDesktop.CurrentComponent)
+			End If
+		Case ScriptForge.V_OBJECT	&apos;	com.sun.star.lang.XComponent
+			bFound = True
+			vWindow = oUi._IdentifyWindow(vWindowName)
+	End Select
+
+	If bFound And Not IsNull(vWindow.Frame) And Len(vWindow.DocumentType) &gt; 0 Then
+		&apos;	Create the right subclass and associate to it a new instance of the superclass
+		Select Case vWindow.DocumentType
+			Case &quot;Base&quot;
+				Set oDocument = New SF_Base
+				Set oSuperDocument = New SF_Document
+				Set oDocument.[_Super] = oSuperDocument		&apos;	Now both super and subclass are twinned
+			Case &quot;Calc&quot;
+				Set oDocument = New SF_Calc
+				Set oSuperDocument = New SF_Document
+				Set oDocument.[_Super] = oSuperDocument		&apos;	Now both super and subclass are twinned
+			Case Else		&apos;	Only superclass
+				Set oDocument = New SF_Document
+				Set oSuperDocument = oDocument
+		End Select
+		With oDocument		&apos;	Initialize attributes of subclass
+			Set .[Me] = oDocument
+			Set ._Component = vWindow.Component
+			&apos;	Initialize specific attributes
+			Select Case vWindow.DocumentType
+				Case &quot;Base&quot;
+					Set ._DataSource = ._Component.DataSource
+				Case Else
+			End Select
+		End With
+		With oSuperDocument	&apos;	Initialize attributes of superclass
+			Set .[Me] = oSuperDocument
+			Set ._Component = vWindow.Component
+			Set ._Frame = vWindow.Frame
+			._WindowName = vWindow.WindowName
+			._WindowTitle = vWindow.WindowTitle
+			._WindowFileName = vWindow.WindowFileName
+			._DocumentType = vWindow.DocumentType
+		End With
+	End If
+
+Finally:
+	Set _NewDocument = oDocument
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Register._NewDocument
+
+REM ============================================== END OF SFDOCUMENTS.SF_REGISTER
+</script:module>

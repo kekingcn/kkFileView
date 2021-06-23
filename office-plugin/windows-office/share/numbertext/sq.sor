@@ -1,0 +1,90 @@
+^0$ zero
+1 një
+2 dy
+3 tre
+4 katër
+5 pesë
+6 gjashtë
+7 shtatë
+8 tetë
+9 nëntë
+1(\d) [$1mbë]dhjetë
+2(\d) njëzet[ e $1]
+4(\d) dyzet[ e $1]
+(\d)(\d) $(cardinal-feminine \1)dhjetë[ e $2]
+(\d)(\d\d) $1qind[ e $2]
+(\d{1,3})(\d{3}) $1 mijë[ $2]
+(1)(\d{6}) $(cardinal-feminine \1) milion[ $2]
+(\d{1,3})(\d{6}) $(cardinal-feminine \1) milionë[ $2]
+(1)(\d{9}) $(cardinal-feminine \1) miliar[ $2]
+(\d{1,3})(\d{9}) $(cardinal-feminine \1) miliarë[ $2]
+(1)(\d{12}) $(cardinal-feminine \1) trilion[ $2]
+(\d{1,3})(\d{12}) $(cardinal-feminine \1) trilionë[ $2]
+
+# negative number
+
+[-−](\d+) minus |$1
+
+# decimals
+
+"([-−]?\d+)[.,]" "$1| presje"
+"([-−]?\d+[.,]\d*)(\d)" $1| |$2
+
+# currency
+
+# unit/subunit singular/plural
+
+us:([^,]*),([^,]*),([^,]*),([^,]*) \1
+up:([^,]*),([^,]*),([^,]*),([^,]*) \2
+ss:([^,]*),([^,]*),([^,]*),([^,]*) \3
+sp:([^,]*),([^,]*),([^,]*),([^,]*) \4
+
+ALL:(\D+) $(\1: lek, lekë, qindarka, qindarka)
+EUR:(\D+) $(\1: euro, euro, cent, cent)
+GBP:(\D+) $(\1: paund sterlina, paund sterlina, peni, peni)
+USD:(\D+) $(\1: dollari amerikan, dollarë amerikanë, cent, cent)
+
+"([A-Z]{3}) ([-−]?1)" $2$(\1:us)
+"([A-Z]{3}) ([-−]?\d+)" $2$(\1:up)
+
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 |$(1)$(\2:ss)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 |$(\30)$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 |$3$(\2:sp)
+
+
+== cardinal-feminine ==
+
+3 tri
+(\d+) $(cardinal-feminine $1)
+(.*)tre \1tri
+(.*) \1
+
+== cardinal(-masculine)? ==
+
+(\d+) $2
+
+== ordinal-feminine ==
+
+(\d+)	e $(ordinal-feminine $1)
+(.*)një \1para
+(.*)të	\1ta
+(.*)ë	\1ta
+(.*)	\1ta
+
+== ordinal(-masculine)? ==
+
+(\d+)	i $(ordinal $2)
+(.*)një \2pari
+(.*)të	\2ti
+(.*)ë	\2ti
+(.*)	\2ti
+
+== ordinal-number ==
+
+(.*) \1.
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help cardinal-feminine)$(help cardinal-masculine)$(help ordinal-feminine)$(help ordinal-masculine)$(help ordinal-number)
+(.*) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n
+

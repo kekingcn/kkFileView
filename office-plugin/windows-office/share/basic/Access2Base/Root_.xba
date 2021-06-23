@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Root_" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- FOR INTERNAL USE ONLY								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private ErrorHandler		As Boolean
+Private MinimalTraceLevel	As Integer
+Private TraceLogs()			As Variant
+Private TraceLogCount		As Integer
+Private TraceLogLast		As Integer
+Private TraceLogMaxEntries	As Integer
+Private LastErrorCode		As Integer
+Private LastErrorLevel		As String
+Private ErrorText			As String
+Private ErrorLongText		As String
+Private CalledSub			As String
+Private DebugPrintShort		As Boolean
+Private Introspection		As Object				&apos;	com.sun.star.beans.Introspection	
+Private VersionNumber		As String				&apos;	Actual Access2Base version number
+Private Locale				As String
+Private ExcludeA2B			As Boolean
+Private TextSearch			As Object
+Private SearchOptions		As Variant
+Private FindRecord			As Object
+Private StatusBar			As Object
+Private Dialogs				As Object				&apos;	Collection
+Private TempVars			As Object				&apos;	Collection
+Private CurrentDoc()		As Variant				&apos;	Array of document containers - [0] = Base document, [1 ... N] = other documents
+Private PythonCache()		As Variant				&apos;	Array of objects created in Python scripts
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	VersionNumber = Access2Base_Version
+	ErrorHandler = True
+	MinimalTraceLevel = 0
+	TraceLogs() = Array()
+	TraceLogCount = 0
+	TraceLogLast = 0
+	TraceLogMaxEntries = 0
+	LastErrorCode = 0
+	LastErrorLevel = &quot;&quot;
+	ErrorText = &quot;&quot;
+	ErrorLongText = &quot;&quot;
+	CalledSub = &quot;&quot;
+	DebugPrintShort = True
+	Locale = L10N._GetLocale()
+	ExcludeA2B = True
+	Set Introspection = CreateUnoService(&quot;com.sun.star.beans.Introspection&quot;)
+	Set TextSearch = CreateUnoService(&quot;com.sun.star.util.TextSearch&quot;)
+	SearchOptions = New com.sun.star.util.SearchOptions
+	With SearchOptions
+		.algorithmType = com.sun.star.util.SearchAlgorithms.REGEXP
+		.searchFlag = 0
+		.transliterateFlags = com.sun.star.i18n.TransliterationModules.IGNORE_CASE
+	End With
+	Set FindRecord = Nothing
+	Set StatusBar = Nothing
+	Set Dialogs = New Collection
+	Set TempVars = New Collection
+	CurrentDoc = Array()
+	ReDim CurrentDoc(0 To 0)
+	Set CurrentDoc(0) = Nothing
+	PythonCache = Array()
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function AddPython(ByRef pvObject As Variant) As Long
+&apos;	Store the object as a new entry in PythonCache and return its entry number
+
+Dim lVars As Long, vObject As Variant
+
+	lVars = UBound(PythonCache) + 1
+	ReDim Preserve PythonCache(0 To lVars)
+	PythonCache(lVars) = pvObject
+
+	AddPython = lVars
+
+End Function	&apos;	AddPython V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub CloseConnection()
+&apos;	Close all connections established by current document to free memory.
+&apos;	- if Base document =&gt; close the one concerned database connection
+&apos;	- if non-Base documents =&gt; close the connections of each individual standalone form
+
+Dim i As Integer, iCurrentDoc As Integer
+Dim vDbContainer As Variant, vDbContainers() As Variant, vDocContainer As Variant
+
+	If ErrorHandler Then On Local Error Goto Error_Sub
+
+	If Not IsArray(CurrentDoc) Then Goto Exit_Sub
+	If UBound(CurrentDoc) &lt; 0 Then Goto Exit_Sub
+	iCurrentDoc = CurrentDocIndex( , False)			&apos;	False prevents error raising if not found
+	If iCurrentDoc &lt; 0 Then GoTo Exit_Sub			&apos;	If not found ignore
+	
+	vDocContainer = CurrentDocument(iCurrentDoc)
+	With vDocContainer
+		If Not .Active Then GoTo Exit_Sub		&apos;	e.g. if multiple calls to CloseConnection()
+		For i = 0 To UBound(.DbContainers)
+			If Not IsNull(.DbContainers(i).Database) Then
+				.DbContainers(i).Database.Dispose()
+				Set .DbContainers(i).Database = Nothing
+			End If
+			TraceLog(TRACEANY, UCase(CalledSub) &amp; &quot; &quot; &amp; .URL &amp; Iif(i = 0, &quot;&quot;, &quot; Form=&quot; &amp; .DbContainers(i).FormName), False)
+			Set .DbContainers(i) = Nothing
+		Next i
+		.DbContainers = Array()
+		.URL = &quot;&quot;
+		.DbConnect = 0
+		.Active = False
+		Set .Document = Nothing
+	End With
+	CurrentDoc(iCurrentDoc) = vDocContainer
+	
+Exit_Sub:
+	Exit Sub
+Error_Sub:
+	TraceError(TRACEABORT, Err, CalledSub, Erl, False)		&apos;	No error message addressed to the user, only stored in console
+	GoTo Exit_Sub
+End Sub			&apos;	CloseConnection
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function CurrentDb() As Object
+&apos;	Returns _A2B_.CurrentDocument().Database as an object to allow access to its properties
+
+Dim iCurrentDoc As Integer
+
+	Set CurrentDb = Nothing
+
+	If Not IsArray(CurrentDoc) Then Goto Exit_Function
+	If UBound(CurrentDoc) &lt; 0 Then Goto Exit_Function
+	iCurrentDoc = CurrentDocIndex(, False)		&apos;	False = no abort
+	If iCurrentDoc &gt;= 0 Then
+		If UBound(CurrentDoc(iCurrentDoc).DbContainers) &gt;= 0 Then Set CurrentDb = CurrentDoc(iCurrentDoc).DbContainers(0).Database
+	End If
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	CurrentDb
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function CurrentDocIndex(Optional pvURL As Variant, Optional pbAbort As Variant) As Integer
+&apos;	Returns the entry in CurrentDoc(...) referring to the current document
+
+Dim i As Integer, bFound As Boolean, sURL As String
+Const cstBase = &quot;com.sun.star.comp.dba.ODatabaseDocument&quot;
+
+	bFound = False
+	CurrentDocIndex = -1
+
+	If Not IsArray(CurrentDoc) Then Goto Trace_Error
+	If UBound(CurrentDoc) &lt; 0 Then Goto Trace_Error
+	For i = 1 To UBound(CurrentDoc)					&apos;	[0] reserved to database .odb document
+		If IsMissing(pvURL) Then						&apos;	Not on 1 single line ?!?
+			If Utils._hasUNOProperty(ThisComponent, &quot;URL&quot;) Then
+				sURL = ThisComponent.URL
+			Else
+				Exit For	&apos;	f.i. ThisComponent = Basic IDE ...
+			End If
+		Else
+			sURL = pvURL	&apos;	To support the SelectObject action
+		End If
+		If CurrentDoc(i).Active And CurrentDoc(i).URL = sURL Then
+			CurrentDocIndex = i
+			bFound = True
+			Exit For
+		End If
+	Next  i
+
+	If Not bFound Then
+		If IsNull(CurrentDoc(0)) Then GoTo Trace_Error
+		With CurrentDoc(0)
+			If Not .Active Then GoTo Trace_Error
+			If IsNull(.Document) Then GoTo Trace_Error
+		End With
+		CurrentDocIndex = 0
+	End If
+
+Exit_Function:
+	Exit Function
+Trace_Error:
+	If IsMissing(pbAbort) Then pbAbort = True
+	If pbAbort Then TraceError(TRACEABORT, ERRDBNOTCONNECTED, Utils._CalledSub(), 0, 1) Else CurrentDocIndex = -1
+	Goto Exit_Function
+End Function	&apos;	CurrentDocIndex
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function CurrentDocument(ByVal Optional piDocIndex As Integer) As Variant
+&apos;	Returns the CurrentDoc(...) referring to the current document or to the argument
+
+Dim iDocIndex As Integer
+	If IsMissing(piDocIndex) Then iDocIndex = CurrentDocIndex(, False) Else iDocIndex = piDocIndex
+	If iDocIndex &gt;= 0 And iDocIndex &lt;= UBound(CurrentDoc) Then Set CurrentDocument = CurrentDoc(iDocIndex) Else Set CurrentDocument = Nothing
+
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dump()
+&apos;	For debugging purposes
+Dim i As Integer, j As Integer, vCurrentDoc As Variant
+	On Local Error Resume Next
+
+	DebugPrint &quot;Version&quot;, VersionNumber
+	DebugPrint &quot;TraceLevel&quot;, MinimalTraceLevel
+	DebugPrint &quot;TraceCount&quot;, TraceLogCount
+	DebugPrint &quot;CalledSub&quot;, CalledSub
+	If IsArray(CurrentDoc) Then
+		For i = 0 To UBound(CurrentDoc)
+			vCurrentDoc = CurrentDoc(i)
+			If Not IsNull(vCurrentDoc) Then
+				DebugPrint i, &quot;URL&quot;, vCurrentDoc.URL
+				For j = 0 To UBound(vCurrentDoc.DbContainers)
+					DebugPrint i, j, &quot;Form&quot;, vCurrentDoc.DbContainers(j).FormName
+					DebugPrint i, j, &quot;Database&quot;, vCurrentDoc.DbContainers(j).Database.Title
+				Next j
+			End If
+		Next i
+	End If
+
+End Sub
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasItem(psCollType As String, ByVal psName As String) As Boolean
+&apos;	Return True if psName if in the collection
+
+Dim oItem As Object
+	On Local Error Goto Error_Function		&apos;	Whatever ErrorHandler !
+
+	hasItem = True
+	Select Case psCollType
+		Case COLLALLDIALOGS
+			Set oItem = Dialogs.Item(UCase(psName))
+		Case COLLTEMPVARS
+			Set oItem = TempVars.Item(UCase(psName))
+		Case Else
+			hasItem = False
+	End Select
+
+Exit_Function:
+	Exit Function
+Error_Function:		&apos;	Item by key aborted
+	hasItem = False
+	GoTo Exit_Function
+End Function	&apos;	hasItem
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _CurrentDb(ByVal Optional piDocEntry As Integer, ByVal Optional piDbEntry As Integer) As Variant
+REM Without arguments same as CurrentDb() except that it generates an error if database not connected (internal use)
+REM With 2 arguments return the corresponding entry in Root
+
+Dim odbDatabase As Variant
+	If IsMissing(piDocEntry) Then
+		Set odbDatabase = CurrentDb()
+	Else
+		If Not IsArray(CurrentDoc) Then Goto Trace_Error
+		If piDocEntry &lt; 0 Or piDbEntry &lt; 0 Then Goto Trace_Error
+		If piDocEntry &gt; UBound(CurrentDoc) Then Goto Trace_Error
+		If piDbEntry &gt; UBound(CurrentDoc(piDocEntry).DbContainers) Then Goto Trace_Error
+		Set odbDatabase = CurrentDoc(piDocEntry).DbContainers(piDbEntry).Database
+	End If
+	If IsNull(odbDatabase) Then GoTo Trace_Error
+
+Exit_Function:
+	Set _CurrentDb = odbDatabase
+	Exit Function	
+Trace_Error:
+	TraceError(TRACEABORT, ERRDBNOTCONNECTED, Utils._CalledSub(), 0, 1)
+	Goto Exit_Function
+End Function		&apos;	_CurrentDb
+
+</script:module>

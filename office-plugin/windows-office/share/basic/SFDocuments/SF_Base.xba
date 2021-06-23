@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Base" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Base
+&apos;&apos;&apos;	=======
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SFDocuments library gathers a number of methods and properties making easy
+&apos;&apos;&apos;		the management and several manipulations of LibreOffice documents
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Some methods are generic for all types of documents: they are combined in the SF_Document module.
+&apos;&apos;&apos;		Specific properties and methods are implemented in the concerned subclass(es) SF_Calc, SF_Writer, ...
+&apos;&apos;&apos;
+&apos;&apos;&apos;		To workaround the absence of class inheritance in LibreOffice Basic, some redundancy is necessary
+&apos;&apos;&apos;		Each subclass MUST implement also the generic methods and properties, even if they only call
+&apos;&apos;&apos;		the parent methods and properties.
+&apos;&apos;&apos;		They should also duplicate some generic private members as a subset of their own set of members
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SF_Base module is provided only to block parent properties that are NOT applicable to Base documents
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The current module is closely related to the &quot;UI&quot; service of the ScriptForge library
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation examples:
+&apos;&apos;&apos;		1) From the UI service
+&apos;&apos;&apos;			Dim ui As Object, oDoc As Object
+&apos;&apos;&apos;			Set ui = CreateScriptService(&quot;UI&quot;)
+&apos;&apos;&apos;			Set oDoc = ui.CreateBaseDocument(&quot;C:\Me\MyFile.odb&quot;, ...)
+&apos;&apos;&apos;				&apos; or Set oDoc = ui.OpenDocument(&quot;C:\Me\MyFile.odb&quot;)
+&apos;&apos;&apos;		2) Directly if the document is already opened
+&apos;&apos;&apos;			Dim oDoc As Object
+&apos;&apos;&apos;			Set oDoc = CreateScriptService(&quot;SFDocuments.Base&quot;, &quot;MyFile.odb&quot;)
+&apos;&apos;&apos;			&apos; The substring &quot;SFDocuments.&quot; in the service name is optional
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const DBCONNECTERROR			=	&quot;DBCONNECTERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]					As Object
+Private [_Parent]				As Object
+Private [_Super]				As Object		&apos;	Document superclass, which the current instance is a subclass of
+Private ObjectType				As String		&apos;	Must be BASE
+Private ServiceName				As String
+
+&apos;	Window component
+Private _Component				As Object		&apos;	com.sun.star.comp.dba.ODatabaseDocument
+Private _DataSource				As Object		&apos;	com.sun.star.comp.dba.ODatabaseSource
+Private _Database				As Object		&apos;	SFDatabases.Database service instance
+
+REM ============================================================ MODULE CONSTANTS
+
+REM ===================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	Set [_Super] = Nothing
+	ObjectType = &quot;BASE&quot;
+	ServiceName = &quot;SFDocuments.Base&quot;
+	Set _Component = Nothing
+	Set _DataSource = Nothing
+	Set _Database = Nothing
+End Sub		&apos;	SFDocuments.SF_Base Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDocuments.SF_Base Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	If Not IsNull([_Super]) Then Set [_Super] = [_Super].Dispose()
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDocuments.SF_Base Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function CloseDocument(Optional ByVal SaveAsk As Variant) As Boolean
+&apos;&apos;&apos;	The closure of a Base document requires the closures of
+&apos;&apos;&apos;		1) the connection =&gt; done in the CloseDatabase() method
+&apos;&apos;&apos;		2) the data source
+&apos;&apos;&apos;		3) the document itself =&gt; done in the superclass
+
+Const cstThisSub = &quot;SFDocuments.Base.CloseDocument&quot;
+Const cstSubArgs = &quot;[SaveAsk=True]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(SaveAsk) Or IsEmpty(SaveAsk) Then SaveAsk = True
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not [_Super]._IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(SaveAsk, &quot;SaveAsk&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	If Not IsNull(_Database) Then _Database.CloseDatabase()
+	If Not IsNull(_DataSource) Then _DataSource.dispose()
+	CloseDocument = [_Super].CloseDocument(SaveAsk)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Base.CloseDocument
+
+REM -----------------------------------------------------------------------------
+Public Function GetDatabase(Optional ByVal User As Variant _
+								, Optional ByVal Password As Variant _
+								) As Object
+&apos;&apos;&apos;	Returns a Database instance (service = SFDatabases.Database) giving access
+&apos;&apos;&apos;	to the execution of SQL commands on the database defined and/or stored in
+&apos;&apos;&apos;	the actual Base document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		User, Password: the login parameters as strings. Defaults = &quot;&quot;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A SFDatabases.Database instance or Nothing
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim myDb As Object
+&apos;&apos;&apos;			Set myDb = oDoc.GetDatabase()
+
+Const cstThisSub = &quot;SFDocuments.Base.GetDatabase&quot;
+Const cstSubArgs = &quot;[User=&quot;&quot;&quot;&quot;], [Password=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set GetDatabase = Nothing
+
+Check:
+	If IsMissing(User) Or IsEmpty(User) Then User = &quot;&quot;
+	If IsMissing(Password) Or IsEmpty(Password) Then Password = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not [_Super]._IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(User, &quot;User&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Password, &quot;Password&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If IsNull(_Database) Then		&apos;	1st connection from the current document instance
+		If IsNull(_DataSource) Then GoTo CatchConnect
+		Set _Database = ScriptForge.SF_Services.CreateScriptService(&quot;SFDatabases.DatabaseFromDocument&quot; _
+							, _DataSource, User, Password)
+		If IsNull(_Database) Then GoTo CatchConnect
+		_Database._Location = [_Super]._WindowFileName
+	EndIf
+
+Finally:
+	Set GetDatabase = _Database
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchConnect:
+	ScriptForge.SF_Exception.RaiseFatal(DBCONNECTERROR, &quot;User&quot;, User, &quot;Password&quot;, Password, [_Super]._FileIdent())
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.GetDatabase
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Base.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	&apos;	Superclass or subclass property ?
+	If ScriptForge.SF_Array.Contains([_Super].Properties(), PropertyName) Then
+		GetProperty = [_Super].GetProperty(PropertyName)
+	Else
+		GetProperty = _PropertyGet(PropertyName)
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Model service as an array
+
+	Methods = Array( _
+					&quot;Activate&quot; _
+					, &quot;CloseDocument&quot; _
+					, &quot;GetDatabase&quot; _
+					, &quot;RunCommand&quot; _
+					, &quot;Save&quot; _
+					, &quot;SaveAs&quot; _
+					, &quot;SaveCopyAs&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Base.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Timer class as an array
+
+	Properties = Array( _
+					&quot;DocumentType&quot; _
+					, &quot;IsBase&quot; _
+					, &quot;IsCalc&quot; _
+					, &quot;IsDraw &quot; _
+					, &quot;IsImpress&quot; _
+					, &quot;IsMath&quot; _
+					, &quot;IsWriter&quot; _
+					, &quot;XComponent&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Base.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Base.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	Select Case UCase(PropertyName)
+		Case Else
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Documents.SetProperty
+
+REM ======================================================= SUPERCLASS PROPERTIES
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get CustomProperties() As Variant
+&apos;	CustomProperties = [_Super].GetProperty(&quot;CustomProperties&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.CustomProperties
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let CustomProperties(Optional ByVal pvCustomProperties As Variant)
+&apos;	[_Super].CustomProperties = pvCustomProperties
+&apos;End Property	&apos;	SFDocuments.SF_Base.CustomProperties
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Description() As Variant
+&apos;	Description = [_Super].GetProperty(&quot;Description&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Description
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Description(Optional ByVal pvDescription As Variant)
+&apos;	[_Super].Description = pvDescription
+&apos;End Property	&apos;	SFDocuments.SF_Base.Description
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get DocumentProperties() As Variant
+&apos;	DocumentProperties = [_Super].GetProperty(&quot;DocumentProperties&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.DocumentProperties
+
+REM -----------------------------------------------------------------------------
+Property Get DocumentType() As String
+	DocumentType = [_Super].GetProperty(&quot;DocumentType&quot;)
+End Property	&apos;	SFDocuments.SF_Base.DocumentType
+
+REM -----------------------------------------------------------------------------
+Property Get IsBase() As Boolean
+	IsBase = [_Super].GetProperty(&quot;IsBase&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsBase
+
+REM -----------------------------------------------------------------------------
+Property Get IsCalc() As Boolean
+	IsCalc = [_Super].GetProperty(&quot;IsCalc&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsCalc
+
+REM -----------------------------------------------------------------------------
+Property Get IsDraw() As Boolean
+	IsDraw = [_Super].GetProperty(&quot;IsDraw&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsDraw
+
+REM -----------------------------------------------------------------------------
+Property Get IsImpress() As Boolean
+	IsImpress = [_Super].GetProperty(&quot;IsImpress&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsImpress
+
+REM -----------------------------------------------------------------------------
+Property Get IsMath() As Boolean
+	IsMath = [_Super].GetProperty(&quot;IsMath&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsMath
+
+REM -----------------------------------------------------------------------------
+Property Get IsWriter() As Boolean
+	IsWriter = [_Super].GetProperty(&quot;IsWriter&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsWriter
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Keywords() As Variant
+&apos;	Keywords = [_Super].GetProperty(&quot;Keywords&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Keywords
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Keywords(Optional ByVal pvKeywords As Variant)
+&apos;	[_Super].Keywords = pvKeywords
+&apos;End Property	&apos;	SFDocuments.SF_Base.Keywords
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Readonly() As Variant
+&apos;	Readonly = [_Super].GetProperty(&quot;Readonly&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Readonly
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Subject() As Variant
+&apos;	Subject = [_Super].GetProperty(&quot;Subject&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Subject
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Subject(Optional ByVal pvSubject As Variant)
+&apos;	[_Super].Subject = pvSubject
+&apos;End Property	&apos;	SFDocuments.SF_Base.Subject
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Title() As Variant
+&apos;	Title = [_Super].GetProperty(&quot;Title&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Title
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Title(Optional ByVal pvTitle As Variant)
+&apos;	[_Super].Title = pvTitle
+&apos;End Property	&apos;	SFDocuments.SF_Base.Title
+
+REM -----------------------------------------------------------------------------
+Property Get XComponent() As Variant
+	XComponent = [_Super].GetProperty(&quot;XComponent&quot;)
+End Property	&apos;	SFDocuments.SF_Base.XComponent
+
+REM ========================================================== SUPERCLASS METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Activate() As Boolean
+	Activate = [_Super].Activate()
+End Function    &apos;   SFDocuments.SF_Base.Activate
+
+REM -----------------------------------------------------------------------------
+Public Sub RunCommand(Optional ByVal Command As Variant)
+	[_Super].RunCommand(Command)
+End Sub		  &apos;   SFDocuments.SF_Base.RunCommand
+
+REM -----------------------------------------------------------------------------
+Public Function Save() As Boolean
+	Save = [_Super].Save()
+End Function   &apos;   SFDocuments.SF_Base.Save
+
+REM -----------------------------------------------------------------------------
+Public Function SaveAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+	SaveAs = [_Super].SaveAs(FileName, Overwrite, Password, FilterName, FilterOptions)
+End Function   &apos;   SFDocuments.SF_Base.SaveAs
+
+REM -----------------------------------------------------------------------------
+Public Function SaveCopyAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+	SaveCopyAs = [_Super].SaveCopyAs(FileName, Overwrite, Password, FilterName, FilterOptions)
+End Function   &apos;   SFDocuments.SF_Base.SaveCopyAs
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String _
+								, Optional ByVal pvArg As Variant _
+								) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim oProperties As Object			&apos;	Document or Custom properties
+Dim vLastCell As Variant			&apos;	Coordinates of last used cell in a sheet
+Dim oSelect As Object				&apos;	Current selection
+Dim vRanges As Variant				&apos;	List of selected ranges
+Dim i As Long
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	_PropertyGet = False
+
+	cstThisSub = &quot;SFDocuments.SF_Base.get&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not [_Super]._IsStillAlive() Then GoTo Finally
+
+	Select Case psProperty
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Base._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the SF_Base instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[Base]: Type/File&quot;
+
+	_Repr = &quot;[Base]: &quot; &amp; [_Super]._FileIdent()
+
+End Function	&apos;	SFDocuments.SF_Base._Repr
+
+REM ============================================ END OF SFDOCUMENTS.SF_BASE
+</script:module>

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<baf:BusinessAuthorization xmlns:baf="urn:tscp:names:baf:1.1">
+    <baf:PolicyAuthorityName>TSCP példa irányelv-szolgáltató</baf:PolicyAuthorityName>
+    <baf:PolicyName>TSCP példa irányelv</baf:PolicyName>
+    <baf:AdministrativeData>
+        <baf:ProgramID>urn:example:tscp:1</baf:ProgramID>
+    </baf:AdministrativeData>
+    <baf:Included>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:non-business" Name="Nem üzleti">
+            <baf:LabelingRules/>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>0</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:general-business" Name="Általános üzleti">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Besorolás: Általános üzleti</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>1</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:confidential" Name="Bizalmas">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Besorolás: bizalmas</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <baf:Value>Ez a tartalom bizalmasként van megjelölve. Ne terjessze külső feleknek vezetői jóváhagyás nélkül.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <baf:Value>Bizalmas</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>2</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:internal-only" Name="Csak belső">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Besorolás: csak belső</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <baf:Value>Ez a tartalom csak belső felhasználásúként van megjelölve. Ne terjessze a szervezeten kívüli feleknek.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <baf:Value>Csak belső</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>3</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+    </baf:Included>
+</baf:BusinessAuthorization>
+<!-- vim:set shiftwidth=4 softtabstop=4 expandtab:
+-->

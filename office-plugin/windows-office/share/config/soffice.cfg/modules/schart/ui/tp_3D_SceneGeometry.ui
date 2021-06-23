@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="chart">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustmentPERSPECTIVE">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentROTATION1">
+    <property name="lower">-180</property>
+    <property name="upper">180</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentROTATION2">
+    <property name="lower">-180</property>
+    <property name="upper">180</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentROTATION3">
+    <property name="lower">-180</property>
+    <property name="upper">180</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <!-- n-columns=1 n-rows=1 -->
+  <object class="GtkGrid" id="tp_3DSceneGeometry">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="row_spacing">6</property>
+    <property name="column_spacing">12</property>
+    <child>
+      <object class="GtkCheckButton" id="CBX_RIGHT_ANGLED_AXES">
+        <property name="label" translatable="yes" context="tp_3D_SceneGeometry|CBX_RIGHT_ANGLED_AXES">_Right-angled axes</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="CBX_RIGHT_ANGLED_AXES-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneGeometry|extended_tip|CBX_RIGHT_ANGLED_AXES">If Right-angled axes is enabled, you can rotate the chart contents only in X and Y direction, that is, parallel to the chart borders. Right-angled axes is enabled by default for newly created 3D charts. Pie and Donut charts do not support right-angled axes.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
+        <property name="width">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="FT_X_ROTATION">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="tp_3D_SceneGeometry|FT_X_ROTATION">_X rotation</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">MTR_FLD_X_ROTATION</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="FT_Y_ROTATION">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="tp_3D_SceneGeometry|FT_Y_ROTATION">_Y rotation</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">MTR_FLD_Y_ROTATION</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="FT_Z_ROTATION">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="tp_3D_SceneGeometry|FT_Z_ROTATION">_Z rotation</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">MTR_FLD_Z_ROTATION</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="CBX_PERSPECTIVE">
+        <property name="label" translatable="yes" context="tp_3D_SceneGeometry|CBX_PERSPECTIVE">_Perspective</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <accessibility>
+          <relation type="label-for" target="MTR_FLD_PERSPECTIVE"/>
+        </accessibility>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="CBX_PERSPECTIVE-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneGeometry|extended_tip|CBX_PERSPECTIVE">Mark the Perspective box to view the chart as through a camera lens. Use the spin button to set the percentage. With a high percentage nearer objects look bigger than more distant objects.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSpinButton" id="MTR_FLD_PERSPECTIVE">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="activates_default">True</property>
+        <property name="adjustment">adjustmentPERSPECTIVE</property>
+        <accessibility>
+          <relation type="labelled-by" target="CBX_PERSPECTIVE"/>
+        </accessibility>
+        <property name="truncate-multiline">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="MTR_FLD_PERSPECTIVE-atkobject">
+            <property name="AtkObject::accessible-name" translatable="yes" context="tp_3D_SceneGeometry|MTR_FLD_PERSPECTIVE-atkobject">Perspective</property>
+            <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneGeometry|extended_tip|MTR_FLD_PERSPECTIVE">Mark the Perspective box to view the chart as through a camera lens. Use the spin button to set the percentage. With a high percentage nearer objects look bigger than more distant objects.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSpinButton" id="MTR_FLD_Z_ROTATION">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="activates_default">True</property>
+        <property name="input_purpose">alpha</property>
+        <property name="adjustment">adjustmentROTATION3</property>
+        <property name="truncate-multiline">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="MTR_FLD_Z_ROTATION-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneGeometry|extended_tip|MTR_FLD_Z_ROTATION">Sets the rotation of the chart on the z axis. The preview responds to the new settings.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSpinButton" id="MTR_FLD_Y_ROTATION">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="activates_default">True</property>
+        <property name="adjustment">adjustmentROTATION2</property>
+        <property name="truncate-multiline">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="MTR_FLD_Y_ROTATION-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneGeometry|extended_tip|MTR_FLD_Y_ROTATION">Sets the rotation of the chart on the y axis. The preview responds to the new settings.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSpinButton" id="MTR_FLD_X_ROTATION">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="activates_default">True</property>
+        <property name="adjustment">adjustmentROTATION1</property>
+        <property name="truncate-multiline">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="MTR_FLD_X_ROTATION-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneGeometry|extended_tip|MTR_FLD_X_ROTATION">Sets the rotation of the chart on the x axis. The preview responds to the new settings.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">1</property>
+      </packing>
+    </child>
+  </object>
+</interface>

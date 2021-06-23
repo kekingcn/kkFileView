@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Module" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private	_Type					As String				&apos;	Must be MODULE
+Private _This					As Object				&apos;	Workaround for absence of This builtin function
+Private _Parent					As Object
+Private	_Name					As String
+Private _Library				As Object				&apos;	com.sun.star.container.XNameAccess
+Private _LibraryName			As String
+Private _Storage				As String				&apos;	GLOBAL or DOCUMENT
+Private _Script					As String				&apos;	Full script (string with vbLf&apos;s)
+Private _Lines					As Variant				&apos;	Array of script lines
+Private _CountOfLines			As Long
+Private _ProcsParsed			As Boolean				&apos;	To test before use of proc arrays
+Private _ProcNames()			As Variant				&apos;	All procedure names
+Private _ProcDecPositions()		As Variant				&apos;	All procedure declarations
+Private _ProcEndPositions()		As Variant				&apos;	All end procedure statements
+Private _ProcTypes()			As Variant				&apos;	One of the vbext_pk_* constants
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJMODULE
+	Set _This = Nothing
+	Set _Parent = Nothing
+	_Name = &quot;&quot;
+	Set _Library = Nothing
+	_LibraryName = &quot;&quot;
+	_Storage = &quot;&quot;
+	_Script = &quot;&quot;
+	_Lines = Array()
+	_CountOfLines = 0
+	_ProcsParsed = False
+	_ProcNames = Array()
+	_ProcDecPositions = Array()
+	_ProcEndPositions = Array()
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get CountOfDeclarationLines() As Long
+	CountOfDeclarationLines = _PropertyGet(&quot;CountOfDeclarationLines&quot;)
+End Property		&apos;	CountOfDeclarationLines (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get CountOfLines() As Long
+	CountOfLines = _PropertyGet(&quot;CountOfLines&quot;)
+End Property		&apos;	CountOfLines (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Name() As String
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property		&apos;	Name (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Lines(Optional ByVal pvLine As Variant, Optional ByVal pvNumLines As Variant) As String
+&apos;	Returns a string containing the contents of a specified line or lines in a standard module or a class module
+
+Const cstThisSub = &quot;Module.Lines&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim sLines As String, lLine As Long
+	sLines = &quot;&quot;
+
+	If IsMissing(pvLine) Or IsMissing(pvNumLines) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvLine, 1, _AddNumeric()) Then GoTo Exit_Function
+	If Not Utils._CheckArgument(pvNumLines, 1, _AddNumeric()) Then GoTo Exit_Function
+	
+	lLine = pvLine
+	Do While lLine &lt; _CountOfLines And lLine &lt; pvLine + pvNumLines
+		sLines = sLines &amp; _Lines(lLine - 1) &amp; vbLf
+		lLine = lLine + 1
+	Loop
+	If Len(sLines) &gt; 0 Then sLines = Left(sLines, Len(sLines) - 1)
+
+Exit_Function:
+	Lines = sLines
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	Lines
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function ProcBodyLine(Optional ByVal pvProc As Variant, Optional ByVal pvProcType As Variant) As Long
+&apos;	Return the number of the line at which the body of a specified procedure begins
+
+Const cstThisSub = &quot;Module.ProcBodyLine&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim iIndex As Integer
+
+	If IsMissing(pvProc) Or IsMissing(pvProcType) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvProc, 1, vbString) Then GoTo Exit_Function
+	If Not Utils._CheckArgument(pvProcType, 2, _AddNumeric()) Then GoTo Exit_Function
+
+	iIndex = _FindProcIndex(pvProc, pvProcType)
+	If iIndex &gt;= 0 Then ProcBodyLine = _LineOfPosition(_ProcDecPositions(iIndex)) Else ProcBodyLine = iIndex
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	ProcBodyline
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function ProcCountLines(Optional ByVal pvProc As Variant, Optional ByVal pvProcType As Variant) As Long
+&apos;	Return the number of lines in the specified procedure
+
+Const cstThisSub = &quot;Module.ProcCountLines&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim iIndex As Integer, lStart As Long, lEnd As Long
+
+	If IsMissing(pvProc) Or IsMissing(pvProcType) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvProc, 1, vbString) Then GoTo Exit_Function
+	If Not Utils._CheckArgument(pvProcType, 2, _AddNumeric()) Then GoTo Exit_Function
+
+	iIndex = _FindProcIndex(pvProc, pvProcType)
+	lStart = ProcStartLine(pvProc, pvProcType)
+	lEnd = _LineOfPosition(_ProcEndPositions(iIndex))
+	ProcCountLines = lEnd - lStart + 1
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	ProcCountLines
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function ProcOfLine(Optional ByVal pvLine As Variant, Optional ByRef pvProcType As Variant) As String
+&apos;	Return the name and type of the procedure containing line pvLine
+
+Const cstThisSub = &quot;Module.ProcOfLine&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim sProcedure As String, iProc As Integer, lLineDec As Long, lLineEnd As Long
+
+	If IsMissing(pvLine) Or IsMissing(pvProcType) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvLine, 1, _AddNumeric()) Then GoTo Exit_Function
+	If Not Utils._CheckArgument(pvProcType, 2, _AddNumeric()) Then GoTo Exit_Function
+
+	If Not _ProcsParsed Then _ParseProcs()
+
+	sProcedure = &quot;&quot;
+	For iProc = 0 To UBound(_ProcNames)
+		lLineEnd = _LineOfPosition(_ProcEndPositions(iProc))
+		If pvLine &lt;= lLineEnd Then
+			lLineDec = _LineOfPosition(_ProcDecPositions(iProc))
+			If pvLine &lt; lLineDec Then		&apos;	Line between 2 procedures
+				sProcedure = &quot;&quot;
+			Else
+		 		sProcedure = _ProcNames(iProc)
+				pvProcType = _ProcTypes(iProc)
+			End If
+			Exit For
+		End If
+	Next iProc
+
+Exit_Function:
+	ProcOfLine = sProcedure
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	ProcOfline
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function ProcStartLine(Optional ByVal pvProc As Variant, Optional ByVal pvProcType As Variant) As Long
+&apos;	Return the number of the line at which the specified procedure begins
+
+Const cstThisSub = &quot;Module.ProcStartLine&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim lLine As Long, lIndex As Long, sLine As String
+
+	If IsMissing(pvProc) Or IsMissing(pvProcType) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvProc, 1, vbString) Then GoTo Exit_Function
+	If Not Utils._CheckArgument(pvProcType, 2, _AddNumeric()) Then GoTo Exit_Function
+
+	lLine = ProcBodyLine(pvProc, pvProcType)
+	&apos;	Search baclIndexward for comment lines
+	lIndex = lLine - 1
+	Do While lIndex &gt; 0
+		sLine = _Trim(_Lines(lIndex - 1))
+		If UCase(Left(sLine, 4)) = &quot;REM &quot; Or Left(sLine, 1) = &quot;&apos;&quot; Then
+			lLine = lIndex
+		Else
+			Exit Do
+		End If
+		lIndex = lIndex - 1
+	Loop
+
+	ProcStartLine = lLine
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	ProcStartLine
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Const cstThisSub = &quot;Module.Properties&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get pType() As String
+	pType = _PropertyGet(&quot;Type&quot;)
+End Property		&apos;	Type (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Find(Optional ByVal pvTarget As Variant _
+					, Optional ByRef pvStartLine As Variant _
+					, Optional ByRef pvStartColumn As Variant _
+					, Optional ByRef pvEndLine As Variant _
+					, Optional ByRef pvEndColumn As Variant _
+					, Optional ByVal pvWholeWord As Boolean _
+					, Optional ByVal pvMatchCase As Boolean _
+					, Optional ByVal pvPatternSearch As Boolean _
+					) As Boolean
+&apos;	Finds specified text in the module
+&apos;	xxLine and xxColumn arguments are mainly to return the position of the found string
+&apos;		If they are initialized but nonsense, the function returns False
+
+Const cstThisSub = &quot;Module.Find&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+
+Dim bFound As Boolean, lPosition As Long, lStartLine As Long, lStartColumn As Long, lStartPosition As Long
+Dim lEndLine As Long, lEndColumn As Long, lEndPosition As Long
+Dim sMatch As String, vOptions As Variant, sPattern As String
+Dim i As Integer, sSpecChar As String
+
+Const cstSpecialCharacters = &quot;\[^$.|?*+()&quot;
+
+	bFound = False
+
+	If IsMissing(pvTarget) Or IsMissing(pvStartLine) Or IsMissing(pvStartColumn) Or IsMissing(pvEndLine) Or IsMissing(pvEndColumn) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvTarget, 1, vbString) Then GoTo Exit_Function
+	If Len(pvTarget) = 0 Then GoTo Exit_Function
+	If Not IsEmpty(pvStartLine) Then
+		If Not Utils._CheckArgument(pvStartLine, 2, _AddNumeric()) Then GoTo Exit_Function
+	End If
+	If Not IsEmpty(pvStartColumn) Then
+		If Not Utils._CheckArgument(pvStartColumn, 3, _AddNumeric()) Then GoTo Exit_Function
+	End If
+	If Not IsEmpty(pvEndLine) Then
+		If Not Utils._CheckArgument(pvEndLine, 4, _AddNumeric()) Then GoTo Exit_Function
+	End If
+	If Not IsEmpty(pvEndColumn) Then
+		If Not Utils._CheckArgument(pvEndColumn, 5, _AddNumeric()) Then GoTo Exit_Function
+	End If
+	If IsMissing(pvWholeWord) Then pvWholeWord = False
+	If Not Utils._CheckArgument(pvWholeWord, 6, vbBoolean) Then GoTo Exit_Function
+	If IsMissing(pvMatchCase) Then pvMatchCase = False
+	If Not Utils._CheckArgument(pvMatchCase, 7, vbBoolean) Then GoTo Exit_Function
+	If IsMissing(pvPatternSearch) Then pvPatternSearch = False
+	If Not Utils._CheckArgument(pvPatternSearch, 8, vbBoolean) Then GoTo Exit_Function
+
+	&apos;	Initialize starting values
+	If IsEmpty(pvStartLine) Then lStartLine = 1 Else lStartLine = pvStartLine
+	If lStartLine &lt;= 0 Or lStartLine &gt; UBound(_Lines) + 1 Then GoTo Exit_Function
+	If IsEmpty(pvStartColumn) Then lStartColumn = 1 Else lStartColumn = pvStartColumn
+	If lStartColumn &lt;= 0 Then GoTo Exit_Function
+	If lStartColumn &gt; 1 And lStartColumn &gt; Len(_Lines(lStartLine + 1)) Then GoTo Exit_Function
+	lStartPosition = _PositionOfLine(lStartline) + lStartColumn - 1
+	If IsEmpty(pvEndLine) Then lEndLine = UBound(_Lines) + 1 Else lEndLine = pvEndLine
+	If lEndLine &lt; lStartLine Or lEndLine &gt; UBound(_Lines) + 1 Then GoTo Exit_Function
+	If IsEmpty(pvEndColumn) Then lEndColumn = Len(_Lines(lEndLine - 1)) Else lEndColumn = pvEndColumn
+	If lEndColumn &lt; 0 Then GoTo Exit_Function
+	If lEndColumn = 0 Then lEndColumn = 1
+	If lEndColumn &gt; Len(_Lines(lEndLine - 1)) + 1 Then GoTo Exit_Function
+	lEndPosition = _PositionOfLine(lEndline) + lEndColumn - 1
+
+	If pvMatchCase Then
+		Set vOptions = _A2B_.SearchOptions
+		vOptions.transliterateFlags = 0
+	End If
+
+	&apos;	Define pattern to search for
+	sPattern = pvTarget
+	&apos;	Protect special characters in regular expressions
+	For i = 1 To Len(cstSpecialCharacters)
+		sSpecChar = Mid(cstSpecialCharacters, i, 1)
+		sPattern = Replace(sPattern, sSpecChar, &quot;\&quot; &amp; sSpecChar)
+	Next i
+	If pvPatternSearch Then sPattern = Replace(Replace(sPattern, &quot;\*&quot;, &quot;.*&quot;), &quot;\?&quot;, &quot;.&quot;)
+	If pvWholeWord Then sPattern = &quot;\b&quot; &amp; sPattern &amp; &quot;\b&quot;
+
+	lPosition = lStartPosition
+	sMatch = Utils._RegexSearch(_Script, sPattern, lPosition)
+	&apos;	Re-establish default options for later searches
+	If pvMatchCase Then vOptions.transliterateFlags = com.sun.star.i18n.TransliterationModules.IGNORE_CASE
+
+	&apos;	Found within requested bounds ?
+	If sMatch &lt;&gt; &quot;&quot; And lPosition &gt;= lStartPosition And lPosition &lt;= lEndPosition Then
+		pvStartLine = _LineOfPosition(lPosition)
+		pvStartColumn = lPosition - _PositionOfLine(pvStartLine) + 1
+		pvEndLine = _LineOfPosition(lPosition + Len(sMatch) - 1)
+		If pvEndLine &gt; pvStartLine Then
+			pvEndColumn = lPosition + Len(sMatch) - 1 - _PositionOfLine(pvEndLine)
+		Else
+			pvEndColumn = pvStartColumn + Len(sMatch) - 1
+		End If
+		bFound = True
+	End If
+
+Exit_Function:
+	Find = bFound
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Module.Find&quot;, Erl)
+	bFound = False
+	GoTo Exit_Function
+End Function	&apos;	Find
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+Const cstThisSub = &quot;Module.Properties&quot;
+
+	Utils._SetCalledSub(cstThisSub)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(cstThisSub)
+	
+End Function		&apos;	getProperty
+
+REM --------------------------------Mid(a._Script, iCtl, 25)---------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+Const cstThisSub = &quot;Module.hasProperty&quot;
+
+	Utils._SetCalledSub(cstThisSub)
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _BeginStatement(ByVal plStart As Long) As Long
+&apos;	Return the position in _Script of the beginning of the current statement as defined by plStart
+
+Dim sProc As String, iProc As Integer, iType As Integer
+Dim lPosition As Long, lPrevious As Long, sFind As String
+
+	sProc = ProcOfLine(_LineOfPosition(plStart), iType)
+	iProc = _FindProcIndex(sProc, iType)
+	If iProc &lt; 0 Then lPosition = 1 Else lPosition = _ProcDecPositions(iProc)
+
+	sFind = &quot;Any&quot;
+	Do While lPosition &lt; plStart And sFind &lt;&gt; &quot;&quot;
+		lPrevious = lPosition
+		sFind = _FindPattern(&quot;%^\w&quot;, lPosition)
+		If sFind = &quot;&quot; Then Exit Do
+	Loop
+
+	_BeginStatement = lPrevious
+
+End Function	&apos;	_EndStatement
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _EndStatement(ByVal plStart As Long) As Long
+&apos;	Return the position in _Script of the end of the current statement as defined by plStart
+&apos;	plStart is assumed not to be in the middle of a comment or a string
+
+Dim sMatch As String, lPosition As Long
+	lPosition = plStart
+	sMatch = _FindPattern(&quot;%$&quot;, lPosition)
+	_EndStatement = lPosition
+
+End Function	&apos;	_EndStatement
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _FindPattern(ByVal psPattern As Variant, Optional ByRef plStart As Long) As String
+&apos;	Find first occurrence of any of the patterns in |-delimited string psPattern
+&apos;	Special escapes
+&apos;				- for word breaks: &quot;%B&quot; (f.i. for searching &quot;END%BFUNCTION&quot;)
+&apos;				- for statement start: &quot;%^&quot; (f.i. for searching &quot;%^END%BFUNCTION&quot;). Necessarily first 2 characters of pattern
+&apos;				- for statement end: &quot;%$&quot;. Pattern should not contain anything else
+&apos;	If quoted string searched, pattern should start and end with a double quote
+&apos;	Return &quot;&quot; if none found, otherwise returns the matching string
+&apos;	plStart = start position of _Script to search (starts at 1)
+&apos;	In output plStart contains the first position of the matching string or is left unchanged
+&apos;	To search again the same or another pattern =&gt; plStart = plStart + Len(matching string)
+&apos;	Comments and strings are skipped
+
+&apos;	Common patterns
+Const cstComment = &quot;(&apos;|\bREM\b)[^\n]*$&quot;
+Const cstString = &quot;&quot;&quot;[^&quot;&quot;\n]*&quot;&quot;&quot;
+Const cstBeginStatement = &quot;(^|:|\bthen\b|\belse\b|\n)[ \t]*&quot;
+Const cstEndStatement = &quot;[ \t]*($|:|\bthen\b|\belse\b|\n)&quot;
+Const cstContinuation = &quot;[ \t]_\n&quot;
+Const cstWordBreak = &quot;\b[ \t]+(_\n[ \t]*)?\b&quot;
+Const cstAlt = &quot;|&quot;
+
+Dim sRegex As String, lStart As Long, bContinue As Boolean, sMatch As String
+Dim bEndStatement As Boolean, bQuote As Boolean
+
+	If psPattern = &quot;%$&quot; Then
+		sRegex = cstEndStatement
+	Else
+		sRegex = psPattern
+		If Left(psPattern, 2) = &quot;%^&quot; Then sRegex = cstBeginStatement &amp; Right(sRegex, Len(sregex) - 2)
+		sregex = Replace(sregex, &quot;%B&quot;, cstWordBreak)
+	End If
+	&apos;	Add all to ignore patterns to regex. If pattern = quoted string do not add cstString
+	If Len(psPattern) &gt; 2 And Left(psPattern, 1) = &quot;&quot;&quot;&quot; And Right(psPattern, 1) = &quot;&quot;&quot;&quot; Then
+		bQuote = True
+		sRegex = sRegex &amp; cstAlt &amp; cstComment &amp; cstAlt &amp; cstContinuation
+	Else
+		bQuote = False
+		sRegex = sRegex &amp; cstAlt &amp; cstComment &amp; cstAlt &amp; cstString &amp; cstAlt &amp; cstContinuation
+	End If
+
+	If IsMissing(plStart) Then plStart = 1
+	lStart = plStart
+
+	bContinue = True
+	Do While bContinue
+		bEndStatement = False
+		sMatch = Utils._RegexSearch(_Script, sRegex, lStart)
+		Select Case True
+			Case sMatch = &quot;&quot;
+				bContinue = False
+			Case Left(sMatch, 1) = &quot;&apos;&quot;
+				bEndStatement = True
+			Case Left(sMatch, 1) = &quot;&quot;&quot;&quot;
+				If bQuote Then
+					plStart = lStart
+					bContinue = False
+				End If
+			Case Left(smatch, 1) = &quot;:&quot; Or Left(sMatch, 1) = vbLf
+				If psPattern = &quot;%$&quot; Then
+					bEndStatement = True
+				Else
+					bContinue = False
+					plStart = lStart + 1
+					sMatch = Right(sMatch, Len(sMatch) - 1)
+				End If
+			Case UCase(Left(sMatch, 4)) = &quot;REM &quot; Or UCase(Left(sMatch, 4)) = &quot;REM&quot; &amp; vbTab Or UCase(Left(sMatch, 4)) = &quot;REM&quot; &amp; vbNewLine
+				bEndStatement = True
+			Case UCase(Left(sMatch, 4)) = &quot;THEN&quot; Or UCase(Left(sMatch, 4)) = &quot;ELSE&quot;
+				If psPattern = &quot;%$&quot; Then
+					bEndStatement = True
+				Else
+					bContinue = False
+					plStart = lStart + 4
+					sMatch = Right(sMatch, Len(sMatch) - 4)
+				End If
+			Case sMatch = &quot; _&quot; &amp; vbLf
+			Case Else		&apos;	Found
+				plStart = lStart
+				bContinue = False
+		End Select
+		If bEndStatement And psPattern = &quot;%$&quot; Then
+			bContinue = False
+			plStart = lStart - 1
+			sMatch = &quot;&quot;
+		End If
+		lStart = lStart + Len(sMatch)
+	Loop
+	
+	_FindPattern = sMatch
+
+End Function	&apos;	_FindPattern
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _FindProcIndex(ByVal psProc As String, ByVal piType As Integer) As Integer
+&apos;	Return index of entry in _Procnames corresponding with pvProc
+
+Dim i As Integer, iIndex As Integer
+
+	If Not _ProcsParsed Then _ParseProcs
+
+	iIndex = -1
+	For i = 0 To UBound(_ProcNames)
+		If UCase(psProc) = UCase(_ProcNames(i)) And piType = _ProcTypes(i) Then
+			iIndex = i
+			Exit For
+		End If
+	Next i
+	If iIndex &lt; 0 Then TraceError(TRACEFATAL, ERRPROCEDURENOTFOUND, Utils._CalledSub(), 0, , Array(psProc, _Name))
+
+Exit_Function:
+	_FindProcIndex = iIndex
+	Exit Function
+End Function	&apos;	_FindProcIndex
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub _Initialize()
+
+	_Script = Replace(_Script, vbCr, &quot;&quot;)
+	_Lines = Split(_Script, vbLf)
+	_CountOfLines = UBound(_Lines) + 1
+
+End Sub		&apos;	_Initialize
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _LineOfPosition(ByVal plPosition) As Long
+&apos;	Return the line number of a position in _Script
+
+Dim lLine As Long, lLength As Long
+	&apos;	Start counting from start or end depending on how close position is
+	If plPosition &lt;= Len(_Script) / 2 Then
+		lLength = 0
+		For lLine = 0 To UBound(_Lines)
+			lLength = lLength + Len(_Lines(lLine)) + 1		&apos;	+ 1 for line feed
+			If lLength &gt;= plPosition Then
+				_LineOfPosition = lLine + 1
+				Exit Function
+			End If
+		Next lLine
+	Else
+		If Right(_Script, 1) = vbLf Then lLength = Len(_Script) + 1 Else lLength = Len(_Script)
+		For lLine = UBound(_Lines) To 0 Step -1
+			lLength = lLength - Len(_Lines(lLine)) - 1		&apos;	- 1 for line feed
+			If lLength &lt;= plPosition Then
+				_LineOfPosition = lLine + 1
+				Exit Function
+			End If
+		Next lLine
+	End If
+
+End Function	&apos;	_LineOfPosition
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub _ParseProcs()
+&apos;	Fills the Proc arrays: name, start and end position
+&apos;	Executed at first request needing this processing
+
+Dim lPosition As Long, iProc As Integer, sDecProc As String, sEndProc As String, sNameProc As String, sType As String
+Const cstDeclaration = &quot;%^(private%B|public%B)?\b(property%Bget|property%Blet|property%Bset|function|sub)\b&quot;
+Const cstEnd = &quot;%^end%B(property|function|sub)\b&quot;
+Const cstName = &quot;\w*&quot;	&apos;&quot;[A-Za-z_][A-Za-z_0-9]*&quot;
+
+	If _ProcsParsed Then Exit Sub		&apos;	Do not redo if already done
+	_ProcNames = Array()
+	_ProcDecPositions = Array()
+	_ProcEndPositions = Array()
+	_ProcTypes = Array()
+	
+	lPosition = 1
+	iProc = -1
+	sDecProc = &quot;???&quot;
+	Do While sDecProc &lt;&gt; &quot;&quot;
+		&apos;	Identify Function/Sub declaration string
+		sDecProc = _FindPattern(cstDeclaration, lPosition)
+		If sDecProc &lt;&gt; &quot;&quot; Then
+			iProc = iProc + 1
+			ReDim Preserve _ProcNames(0 To iProc)
+			ReDim Preserve _ProcDecPositions(0 To iProc)
+			ReDim Preserve _ProcEndPositions(0 To iProc)
+			ReDim Preserve _ProcTypes(0 To iProc)
+			_ProcDecPositions(iProc) = lPosition
+			lPosition = lPosition + Len(sDecProc)
+			&apos;	Identify procedure type
+			Select Case True
+				Case InStr(UCase(sDecProc), &quot;FUNCTION&quot;) &gt; 0			:		_ProcTypes(iProc) = vbext_pk_Proc
+				Case InStr(UCase(sDecProc), &quot;SUB&quot;) &gt; 0				:		_ProcTypes(iProc) = vbext_pk_Proc
+				Case InStr(UCase(sDecProc), &quot;GET&quot;) &gt; 0				:		_ProcTypes(iProc) = vbext_pk_Get
+				Case InStr(UCase(sDecProc), &quot;LET&quot;) &gt; 0				:		_ProcTypes(iProc) = vbext_pk_Let
+				Case InStr(UCase(sDecProc), &quot;SET&quot;) &gt; 0				:		_ProcTypes(iProc) = vbext_pk_Set
+			End Select
+			&apos;	Identify name of Function/Sub
+			sNameProc = _FindPattern(cstName, lPosition)
+			If sNameProc = &quot;&quot; Then Exit Do					&apos;	Should never happen
+			_ProcNames(iProc) = sNameProc
+			lPosition = lPosition + Len(sNameProc)
+			&apos;	Identify End statement
+			sEndProc = _FindPattern(cstEnd, lPosition)
+			If sEndProc = &quot;&quot; Then Exit Do					&apos;	Should never happen
+			_ProcEndPositions(iProc) = lPosition
+			lPosition = lPosition + Len(sEndProc)
+		End If
+	Loop
+	
+	_ProcsParsed = True
+	
+End Sub
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PositionOfLine(ByVal plLine) As Long
+&apos;	Return the position of the first character of the given line in _Script
+
+Dim lLine As Long, lPosition As Long
+	&apos;	Start counting from start or end depending on how close line is
+	If plLine &lt;= (UBound(_Lines) + 1) / 2 Then
+		lPosition = 0
+		For lLine = 0 To plLine - 1
+			lPosition = lPosition + 1							&apos;	+ 1 for line feed
+			If lLine &lt; plLine - 1 Then lPosition = lPosition + Len(_Lines(lLine))
+		Next lLine
+	Else
+		lPosition = Len(_Script) + 2	&apos;	Anticipate an ending null-string and a line feed
+		For lLine = UBound(_Lines) To plLine - 1 Step -1
+			lPosition = lPosition - Len(_Lines(lLine)) - 1		&apos;	- 1 for line feed
+		Next lLine
+	End If
+
+	_PositionOfLine = lPosition
+
+End Function	&apos;	_LineOfPosition
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+
+	 _PropertiesList = Array(&quot;CountOfDeclarationLines&quot;, &quot;CountOfLines&quot;, &quot;Name&quot;, &quot;ObjectType&quot;, &quot;Type&quot;)
+
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+Dim cstThisSub As String
+Const cstDot = &quot;.&quot;
+
+Dim sText As String
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	cstThisSub = &quot;Module.get&quot; &amp; psProperty
+	Utils._SetCalledSub(cstThisSub)
+	_PropertyGet = Null
+	
+	Select Case UCase(psProperty)
+		Case UCase(&quot;CountOfDeclarationLines&quot;)
+			If Not _ProcsParsed Then _ParseProcs()
+			If UBound(_ProcNames) &gt;= 0 Then
+					_PropertyGet = ProcStartLine(_ProcNames(0), _ProcTypes(0)) - 1
+				Else
+					_PropertyGet = _CountOfLines
+				End If
+		Case UCase(&quot;CountOfLines&quot;)
+			_PropertyGet = _CountOfLines
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Storage &amp; cstDot &amp; _LibraryName &amp; cstDot &amp; _Name
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;Type&quot;)
+			&apos;	Find option statement before any procedure declaration
+			sText = _FindPattern(&quot;%^option%Bclassmodule\b|\bfunction\b|\bsub\b|\bproperty\b&quot;)
+			If UCase(Left(sText, 6)) = &quot;OPTION&quot; Then _PropertyGet = acClassModule Else _PropertyGet = acStandardModule
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertyGet = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Module._PropertyGet&quot;, Erl)
+	_PropertyGet = Null
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet
+
+</script:module>

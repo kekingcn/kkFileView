@@ -1,0 +1,50 @@
+^0 náid
+1 aon
+2$ dó
+2 dhá
+3 trí
+4 ceathair
+5 cúig
+6 sé
+7 seacht
+8 ocht
+9 naoi
+10 deich
+12 dó dhéag
+1(\d) $1 déag
+(\d)([18]) $(\10) a h$2
+2(\d) fiche[ a $1]
+3(\d) tríócha[ a $1]
+4(\d) ceathracha[ a $1]
+# 4(\d) daichead[ a $1] # alternative
+5(\d) caoga[ a $1]
+6(\d) seasca[ a $1]
+([78])(\d) $1ó[ a $2]
+9(\d) nócha[ a $1]
+(\d)(\d\d) $1 céad[ $2]
+(\d{1,3})(\d\d\d) $1 míle[ $2]
+(\d{1,3})(\d{6}) $1 milliún$(:\2)$2
+(\d{1,3})(\d{9}) $1 billiún$(:\2)$2
+(\d{1,3})(\d{12}) $1 trilliún$(:\2)$2
+
+== ordinal ==
+
+# chapter one -> caibidil a haon
+
+([18]) a h$1
+(\d|10) a $1
+([23]0) $1
+([4-9]0) $1dú
+([234])(\d) $(ordinal \2) is $(\10)
+(\d\d) a $1
+(.*) $1
+
+== ordinal-number ==
+
+(.*)	\1.
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help ordinal)$(help ordinal-number)
+(.*) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n
+

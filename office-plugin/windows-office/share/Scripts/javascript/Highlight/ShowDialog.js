@@ -1,23 +1,20 @@
-// *************************************************************
-//  
-//  Licensed to the Apache Software Foundation (ASF) under one
-//  or more contributor license agreements.  See the NOTICE file
-//  distributed with this work for additional information
-//  regarding copyright ownership.  The ASF licenses this file
-//  to you under the Apache License, Version 2.0 (the
-//  "License"); you may not use this file except in compliance
-//  with the License.  You may obtain a copy of the License at
-//  
-//    http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing,
-//  software distributed under the License is distributed on an
-//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-//  KIND, either express or implied.  See the License for the
-//  specific language governing permissions and limitations
-//  under the License.
-//  
-// *************************************************************
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+ */
 importClass(Packages.com.sun.star.uno.UnoRuntime);
 importClass(Packages.com.sun.star.lang.XMultiComponentFactory);
 importClass(Packages.com.sun.star.awt.XDialogProvider);
@@ -30,7 +27,7 @@ importClass(java.lang.System);
 
 function tryLoadingLibrary( xmcf, context, name )
 {
-    try 
+    try
     {
         obj = xmcf.createInstanceWithContext(
                "com.sun.star.script.Application" + name + "LibraryContainer",
@@ -46,14 +43,13 @@ function tryLoadingLibrary( xmcf, context, name )
         xme = AnyConverter.toObject(new Type(XMacroExpander), serviceObj);
 
         bootstrapName = "bootstraprc";
-        if (System.getProperty("os.name").startsWith("Windows")) 
+        if (System.getProperty("os.name").startsWith("Windows"))
         {
             bootstrapName = "bootstrap.ini";
         }
 
         libURL = xme.expandMacros(
-                "${$OOO_BASE_DIR/program/" + bootstrapName + "::BaseInstallation}" +
-                    "/share/basic/ScriptBindingLibrary/" +
+                "$BRAND_BASE_DIR/$BRAND_SHARE_SUBDIR/basic/ScriptBindingLibrary/" +
                     name.toLowerCase() + ".xlb/");
 
         System.err.println("libURL is: " + libURL);
@@ -63,8 +59,8 @@ function tryLoadingLibrary( xmcf, context, name )
 
         System.err.println("liblink created");
 
-    } 
-    catch (e) 
+    }
+    catch (e)
     {
         System.err.println("Got an exception loading lib: " + e.getMessage());
         return false;
@@ -102,7 +98,7 @@ xDialogProvider = getDialogProvider();
 if (xDialogProvider != null)
 {
     //try to create the Highlight dialog (found in the ScriptBinding library)
-    try 
+    try
     {
         findDialog = xDialogProvider.createDialog("vnd.sun.star.script:" +
             "ScriptBindingLibrary.Highlight?location=application");
@@ -115,7 +111,7 @@ if (xDialogProvider != null)
             }
             else
             {
-                // try to create the Highlight dialog (found in the 
+                // try to create the Highlight dialog (found in the
                 // ScriptBindingLibrary)
                 findDialog = xDialogProvider.createDialog("vnd.sun.star.script:" +
                     "ScriptBindingLibrary.Highlight?location=application");

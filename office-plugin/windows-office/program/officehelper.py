@@ -1,23 +1,21 @@
-#**************************************************************
-#  
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#  
-#    http://www.apache.org/licenses/LICENSE-2.0
-#  
-#  Unless required by applicable law or agreed to in writing,
-#  software distributed under the License is distributed on an
-#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-#  specific language governing permissions and limitations
-#  under the License.
-#  
-#**************************************************************
+# -*- tab-width: 4; indent-tabs-mode: nil; py-indent-offset: 4 -*-
+#
+# This file is part of the LibreOffice project.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# This file incorporates work covered by the following license notice:
+#
+#   Licensed to the Apache Software Foundation (ASF) under one or more
+#   contributor license agreements. See the NOTICE file distributed
+#   with this work for additional information regarding copyright
+#   ownership. The ASF licenses this file to you under the Apache
+#   License, Version 2.0 (the "License"); you may not use this file
+#   except in compliance with the License. You may obtain a copy of
+#   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+#
 
 #
 # Translated to python from "Bootstrap.java" by Kim Kulak
@@ -39,11 +37,11 @@ class BootstrapException(UnoException):
 def bootstrap():
     """Bootstrap OOo and PyUNO Runtime.
     The soffice process is started opening a named pipe of random name, then the local context is used
-        to access the pipe. This function directly returns the remote component context, from whereon you can
-        get the ServiceManager by calling getServiceManager() on the returned object.
-        """
+	to access the pipe. This function directly returns the remote component context, from whereon you can
+	get the ServiceManager by calling getServiceManager() on the returned object.
+	"""
     try:
-        # soffice script used on *ix, Mac; soffice.exe used on Windoof
+       # soffice script used on *ix, Mac; soffice.exe used on Win
         if "UNO_PATH" in os.environ:
             sOffice = os.environ["UNO_PATH"]
         else:
@@ -56,15 +54,15 @@ def bootstrap():
         random.seed()
         sPipeName = "uno" + str(random.random())[2:]
 
-        # Start the office proces, don't check for exit status since an exception is caught anyway if the office terminates unexpectedly.
-        cmdArray = (sOffice, "-nologo", "-nodefault", "".join(["-accept=pipe,name=", sPipeName, ";urp;"]))
+        # Start the office process, don't check for exit status since an exception is caught anyway if the office terminates unexpectedly.
+        cmdArray = (sOffice, "--nologo", "--nodefault", "".join(["--accept=pipe,name=", sPipeName, ";urp;"]))
         os.spawnv(os.P_NOWAIT, sOffice, cmdArray)
 
         # ---------
 
         xLocalContext = uno.getComponentContext()
         resolver = xLocalContext.ServiceManager.createInstanceWithContext(
-                        "com.sun.star.bridge.UnoUrlResolver", xLocalContext)
+            "com.sun.star.bridge.UnoUrlResolver", xLocalContext)
         sConnect = "".join(["uno:pipe,name=", sPipeName, ";urp;StarOffice.ComponentContext"])
 
         # Wait until an office is started, but loop only nLoop times (can we do this better???)
@@ -85,3 +83,5 @@ def bootstrap():
         raise BootstrapException("Caught exception " + str(e), None)
 
     return xContext
+
+# vim: set shiftwidth=4 softtabstop=4 expandtab:

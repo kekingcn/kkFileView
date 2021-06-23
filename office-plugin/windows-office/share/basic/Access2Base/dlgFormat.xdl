@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="dlgFormat" dlg:left="246" dlg:top="119" dlg:width="153" dlg:height="40" dlg:help-text="Export the form" dlg:closeable="true" dlg:moveable="true" dlg:title="OutputTo">
+ <dlg:bulletinboard>
+  <dlg:combobox dlg:id="cboFormat" dlg:tab-index="0" dlg:left="4" dlg:top="18" dlg:width="71" dlg:height="8" dlg:help-text="Format in which the form should be exported" dlg:value="PDF" dlg:spin="true">
+   <dlg:menupopup>
+    <dlg:menuitem dlg:value="PDF"/>
+    <dlg:menuitem dlg:value="ODT"/>
+    <dlg:menuitem dlg:value="DOC"/>
+    <dlg:menuitem dlg:value="HTML"/>
+   </dlg:menupopup>
+  </dlg:combobox>
+  <dlg:text dlg:id="lblFormat" dlg:tab-index="1" dlg:left="4" dlg:top="7" dlg:width="100" dlg:height="9" dlg:help-text="Format in which the form should be exported" dlg:value="Select the output format"/>
+  <dlg:button dlg:id="cmdOK" dlg:tab-index="2" dlg:left="111" dlg:top="5" dlg:width="35" dlg:height="12" dlg:help-text="Validate your choice" dlg:default="true" dlg:value="OK" dlg:button-type="ok">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Access2Base.Trace._TraceOK?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="3" dlg:left="111" dlg:top="20" dlg:width="35" dlg:height="12" dlg:help-text="Cancel and close the dialog" dlg:value="Cancel" dlg:button-type="cancel"/>
+ </dlg:bulletinboard>
+</dlg:window>

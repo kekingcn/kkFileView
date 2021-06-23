@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Field" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private	_Type					As String				&apos;	Must be FIELD
+Private _This					As Object				&apos;	Workaround for absence of This builtin function
+Private _Parent					As Object
+Private _Name					As String
+Private _Precision				As Long
+Private _ParentName				As String
+Private _ParentType				As String
+Private _ParentDatabase			As Object
+Private _ParentRecordset		As Object
+Private _DefaultValue			As String
+Private _DefaultValueSet		As Boolean
+Private Column					As Object				&apos;	com.sun.star.sdb.OTableColumnWrapper
+											&apos;			or	org.openoffice.comp.dbaccess.OQueryColumn
+											&apos;			or	com.sun.star.sdb.ODataColumn
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJFIELD
+	Set _This = Nothing
+	Set _Parent = Nothing
+	_Name = &quot;&quot;
+	_ParentName = &quot;&quot;
+	_ParentType = &quot;&quot;
+	_DefaultValue = &quot;&quot;
+	_DefaultValueSet = False
+	Set Column = Nothing
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Property Get DataType() As Long		&apos;	AOO/LibO type
+	DataType = _PropertyGet(&quot;DataType&quot;)
+End Property		&apos;	DataType (get)
+
+Property Get DataUpdatable() As Boolean
+	DataUpdatable = _PropertyGet(&quot;DataUpdatable&quot;)
+End Property		&apos;	DataUpdatable (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get DbType() As Long		&apos;	MSAccess type
+	DbType = _PropertyGet(&quot;DbType&quot;)
+End Property		&apos;	DbType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get DefaultValue() As Variant
+	DefaultValue = _PropertyGet(&quot;DefaultValue&quot;)
+End Property		&apos;	DefaultValue (get)
+
+Property Let DefaultValue(ByVal pvDefaultValue As Variant)
+	Call _PropertySet(&quot;DefaultValue&quot;, pvDefaultValue)
+End Property		&apos;	DefaultValue (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Description() As Variant
+	Description = _PropertyGet(&quot;Description&quot;)
+End Property		&apos;	Description (get)
+
+Property Let Description(ByVal pvDescription As Variant)
+	Call _PropertySet(&quot;Description&quot;, pvDescription)
+End Property		&apos;	Description (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FieldSize() As Long
+	FieldSize = _PropertyGet(&quot;FieldSize&quot;)
+End Property		&apos;	FieldSize (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Name() As String
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property		&apos;	Name (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Size() As Long
+	Size = _PropertyGet(&quot;Size&quot;)
+End Property		&apos;	Size (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SourceField() As String
+	SourceField = _PropertyGet(&quot;SourceField&quot;)
+End Property		&apos;	SourceField (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SourceTable() As String
+	SourceTable = _PropertyGet(&quot;SourceTable&quot;)
+End Property		&apos;	SourceTable (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get TypeName() As String
+	TypeName = _PropertyGet(&quot;TypeName&quot;)
+End Property		&apos;	TypeName (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Value() As Variant
+	Value = _PropertyGet(&quot;Value&quot;)
+End Property		&apos;	Value (get)
+
+Property Let Value(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Value&quot;, pvValue)
+End Property		&apos;	Value (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function AppendChunk(ByRef Optional pvValue As Variant) As Boolean
+&apos;	Store a chunk of string or binary characters into the current field, presumably a large object (CLOB or BLOB)
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+Const cstThisSub = &quot;Field.AppendChunk&quot;
+	Utils._SetCalledSub(cstThisSub)
+	AppendChunk = False
+
+	If IsMissing(pvValue) Then Call _TraceArguments()
+
+	If _ParentType &lt;&gt; OBJRECORDSET Then Goto Trace_Error		&apos;	Not on table- or querydefs ... !
+	If Not Column.IsWritable Then Goto Trace_Error_Updatable
+	If Column.IsReadOnly Then Goto Trace_Error_Updatable
+	If _ParentDatabase.Recordsets(_ParentName)._EditMode = dbEditNone Then Goto Trace_Error_Update
+
+Dim iChunkType As Integer
+
+	With com.sun.star.sdbc.DataType
+		Select Case Column.Type			&apos;	DOES NOT WORK FOR CHARACTER TYPES
+&apos;			Case .CHAR, .VARCHAR, .LONGVARCHAR, .CLOB
+&apos;				iChunkType = vbString
+			Case .BINARY, .VARBINARY, .LONGVARBINARY, .BLOB, .CHAR	&apos;	.CHAR added for Sqlite3
+				iChunkType = vbByte
+			Case Else
+				Goto Trace_Error
+		End Select
+	End With
+	
+	AppendChunk = _ParentRecordset._AppendChunk(_Name, pvValue, iChunkType)
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error_Update:
+	TraceError(TRACEFATAL, ERRUPDATESEQUENCE, Utils._CalledSub(), 0, 1)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Updatable:
+	TraceError(TRACEFATAL, ERRNOTUPDATABLE, Utils._CalledSub(), 0, 1)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, , cstThisSub)
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	_PropertySet = False
+	GoTo Exit_Function
+End Function		&apos;	AppendChunk	V1.5.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function GetChunk(ByVal Optional pvOffset As Variant, ByVal Optional pvBytes As Variant) As Variant
+&apos;	Get a chunk of string or binary characters from the current field, presumably a large object (CLOB or BLOB)
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+Const cstThisSub = &quot;Field.GetChunk&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim oValue As Object, bNullable As Boolean, bNull As Boolean, vValue() As Variant
+Dim lLength As Long, lOffset As Long, lValue As Long
+
+	If IsMissing(pvOffset) Or IsMissing(pvBytes) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvOffset, 1, _AddNumeric()) Then Goto Exit_Function
+	If pvOffset &lt; 0 Then
+		TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, , Array(1, pvOffset))
+		Goto Exit_Function
+	End If
+	If Not Utils._CheckArgument(pvBytes, 2, _AddNumeric()) Then Goto Exit_Function
+	If pvBytes &lt; 0 Then
+		TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, , Array(2, pvBytes))
+		Goto Exit_Function
+	End If
+
+	bNullable = ( Column.IsNullable = com.sun.star.sdbc.ColumnValue.NULLABLE )
+	bNull = False
+	GetChunk = Null
+	vValue = Array()
+	With com.sun.star.sdbc.DataType
+		Select Case Column.Type			&apos;	DOES NOT WORK FOR CHARACTER TYPES
+&apos;			Case .CHAR, .VARCHAR, .LONGVARCHAR
+&apos;				Set oValue = Column.getCharacterStream()
+&apos;			Case .CLOB
+&apos;				Set oValue = Column.getClob.getCharacterStream()
+			Case .BINARY, .VARBINARY, .LONGVARBINARY
+				Set oValue = Column.getBinaryStream()
+			Case .BLOB
+				Set oValue = Column.getBlob.getBinaryStream()
+			Case Else
+				Goto Trace_Error
+		End Select
+		If bNullable Then bNull = Column.wasNull()
+		If Not bNull Then
+			lOffset = CLng(pvOffset)
+			If lOffset &gt; 0 Then oValue.skipBytes(lOffset)
+			lValue = oValue.readBytes(vValue, pvBytes)
+		End If
+		oValue.closeInput()
+	End With
+	GetChunk = vValue
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, , cstThisSub)
+	Goto Exit_Function
+Trace_Argument:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, , Array(iArg, pvIndex))
+	Set vForms = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	GoTo Exit_Function
+End Function		&apos;	GetChunk	V1.5.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+Const cstThisSub = &quot;Field.getProperty&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(cstThisSub)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+Const cstThisSub = &quot;Field.hasProperty&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String, sName As String
+Const cstThisSub = &quot;Field.Properties&quot;
+	Utils._SetCalledSub(cstThisSub)
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	sName = _ParentType &amp; &quot;/&quot; &amp; _ParentName &amp; &quot;/&quot; &amp; _Name
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+		Set vProperty._ParentDatabase = _ParentDatabase
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function ReadAllBytes(ByVal Optional pvFile As Variant) As Boolean
+&apos;	Read the whole content of a file into Long Binary Field object
+
+Const cstThisSub = &quot;Field.ReadAllBytes&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If Not Utils._CheckArgument(pvFile, 1, vbString) Then Goto Exit_Function
+	ReadAllBytes = _ReadAll(pvFile, &quot;ReadAllBytes&quot;)
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function		&apos;	ReadAllBytes
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function ReadAllText(ByVal Optional pvFile As Variant) As Boolean
+&apos;	Read the whole content of a file into a Long Char Field object
+
+Const cstThisSub = &quot;Field.ReadAllText&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If Not Utils._CheckArgument(pvFile, 1, vbString) Then Goto Exit_Function
+	ReadAllText = _ReadAll(pvFile, &quot;ReadAllText&quot;)
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function		&apos;	ReadAllText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setProperty(ByVal Optional psProperty As String, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Return True if property setting OK
+Const cstThisSub = &quot;Field.setProperty&quot;
+	Utils._SetCalledSub(cstThisSub)
+	setProperty = _PropertySet(psProperty, pvValue)
+	Utils._ResetCalledSub(cstThisSub)
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function WriteAllBytes(ByVal Optional pvFile As Variant) As Boolean
+&apos;	Write the whole content of a Long Binary Field object to a file
+
+Const cstThisSub = &quot;Field.WriteAllBytes&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If Not Utils._CheckArgument(pvFile, 1, vbString) Then Goto Exit_Function
+	WriteAllBytes = _WriteAll(pvFile, &quot;WriteAllBytes&quot;)
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function		&apos;	WriteAllBytes
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function WriteAllText(ByVal Optional pvFile As Variant) As Boolean
+&apos;	Write the whole content of a Long Char Field object to a file
+
+Const cstThisSub = &quot;Field.WriteAllText&quot;
+	Utils._SetCalledSub(cstThisSub)
+	If Not Utils._CheckArgument(pvFile, 1, vbString) Then Goto Exit_Function
+	WriteAllText = _WriteAll(pvFile, &quot;WriteAllText&quot;)
+
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function		&apos;	WriteAllText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+
+	Select Case _ParentType
+		Case OBJTABLEDEF
+			_PropertiesList =Array(&quot;DataType&quot;, &quot;dbType&quot;, &quot;DefaultValue&quot; _
+								, &quot;Description&quot;, &quot;Name&quot;, &quot;ObjectType&quot;, &quot;Size&quot;, &quot;SourceField&quot;, &quot;SourceTable&quot; _
+								, &quot;TypeName&quot; _
+								)
+		Case OBJQUERYDEF
+			_PropertiesList = Array(&quot;DataType&quot;, &quot;dbType&quot;, &quot;DefaultValue&quot; _
+								, &quot;Description&quot;, &quot;Name&quot;, &quot;ObjectType&quot;, &quot;Size&quot;, &quot;SourceField&quot;, &quot;SourceTable&quot; _
+								, &quot;TypeName&quot; _
+								)
+		Case OBJRECORDSET
+			_PropertiesList = Array(&quot;DataType&quot;, &quot;DataUpdatable&quot;,  &quot;dbType&quot;, &quot;DefaultValue&quot; _
+								, &quot;Description&quot; , &quot;FieldSize&quot;, &quot;Name&quot;, &quot;ObjectType&quot; _
+								, &quot;Size&quot;, &quot;SourceTable&quot;, &quot;TypeName&quot;, &quot;Value&quot; _
+								)
+	End Select
+
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+Dim cstThisSub As String
+	cstThisSub = &quot;Field.get&quot; &amp; psProperty
+	Utils._SetCalledSub(cstThisSub)
+
+	If Not hasProperty(psProperty) Then Goto Trace_Error
+
+Dim bCond1 As Boolean, bCond2 As Boolean, vValue As Variant, oValue As Object, sValue As String
+Dim oSize As Object, lSize As Long, bNullable As Boolean, bNull As Boolean
+Const cstMaxBinlength = 2 * 65535
+
+	_PropertyGet = EMPTY
+	
+	Select Case UCase(psProperty)
+		Case UCase(&quot;DataType&quot;)
+			_PropertyGet = Column.Type
+		Case UCase(&quot;DbType&quot;)
+			With com.sun.star.sdbc.DataType
+				Select Case Column.Type
+					Case .BIT				:	_PropertyGet = dbBoolean
+					Case .TINYINT			:	_PropertyGet = dbInteger
+					Case .SMALLINT			:	_PropertyGet = dbLong
+					Case .INTEGER			:	_PropertyGet = dbLong
+					Case .BIGINT			:	_PropertyGet = dbBigInt
+					Case .FLOAT				:	_PropertyGet = dbFloat
+					Case .REAL				:	_PropertyGet = dbSingle
+					Case .DOUBLE			:	_PropertyGet = dbDouble
+					Case .NUMERIC			:	_PropertyGet = dbNumeric
+					Case .DECIMAL			:	_PropertyGet = dbDecimal
+					Case .CHAR				:	_PropertyGet = dbChar
+					Case .VARCHAR			:	_PropertyGet = dbText
+					Case .LONGVARCHAR		:	_PropertyGet = dbMemo
+					Case .CLOB				:	_PropertyGet = dbMemo
+					Case .DATE				:	_PropertyGet = dbDate
+					Case .TIME				:	_PropertyGet = dbTime
+					Case .TIMESTAMP			:	_PropertyGet = dbTimeStamp
+					Case .BINARY			:	_PropertyGet = dbBinary
+					Case .VARBINARY			:	_PropertyGet = dbVarBinary
+					Case .LONGVARBINARY		:	_PropertyGet = dbLongBinary
+					Case .BLOB				:	_PropertyGet = dbLongBinary
+					Case .BOOLEAN			:	_PropertyGet = dbBoolean
+					Case Else				:	_PropertyGet = dbUndefined
+				End Select
+			End With
+		Case UCase(&quot;DataUpdatable&quot;)
+			If Utils._hasUNOProperty(Column, &quot;IsWritable&quot;) Then
+				_PropertyGet = Column.IsWritable
+			ElseIf Utils._hasUNOProperty(Column, &quot;IsReadOnly&quot;) Then
+				_PropertyGet = Not Column.IsReadOnly
+			ElseIf Utils._hasUNOProperty(Column, &quot;IsDefinitelyWritable&quot;) Then
+				_PropertyGet = Column.IsDefinitelyWritable
+			Else
+				_PropertyGet = False
+			End If
+			If Utils._hasUNOProperty(Column, &quot;IsAutoIncrement&quot;) Then
+				If Column.IsAutoIncrement Then _PropertyGet = False			&apos;	Forces False if auto-increment (MSAccess)
+			End If
+		Case UCase(&quot;DefaultValue&quot;)
+			&apos;	default value buffered to avoid multiple calls
+			If Not _DefaultValueSet Then
+				If Utils._hasUNOProperty(Column, &quot;DefaultValue&quot;) Then			&apos;	Default value in database set via SQL statement
+					_DefaultValue = Column.DefaultValue
+				ElseIf Utils._hasUNOProperty(Column, &quot;ControlDefault&quot;) Then		&apos;	Default value set in Base via table edition
+				 	If IsEmpty(Column.ControlDefault) Then _DefaultValue = &quot;&quot; Else _DefaultValue = Column.ControlDefault
+				Else
+				 	_DefaultValue = &quot;&quot;
+				End If
+				_DefaultValueSet = True
+			End If
+			_PropertyGet = _DefaultValue
+		Case UCase(&quot;Description&quot;)
+			bCond1 = Utils._hasUNOProperty(Column, &quot;Description&quot;)
+			bCond2 = Utils._hasUNOProperty(Column, &quot;HelpText&quot;)
+			Select Case True
+				Case ( bCond1 And bCond2 )
+					If IsEmpty(Column.HelpText) Then _PropertyGet = Column.Description Else _PropertyGet = Column.HelpText
+				Case ( bCond1 And ( Not bCond2 ) )
+					_PropertyGet = Column.Description
+				Case ( ( Not bCond1 ) And bCond2 )
+					_PropertyGet = Column.HelpText
+				Case Else
+					_PropertyGet = &quot;&quot;
+			End Select
+		Case UCase(&quot;FieldSize&quot;)
+			With com.sun.star.sdbc.DataType
+				Select Case Column.Type
+					Case .VARCHAR, .LONGVARCHAR, .CLOB
+						Set oSize = Column.getCharacterStream
+					Case .LONGVARBINARY, .VARBINARY, .BINARY, .BLOB
+						Set oSize = Column.getBinaryStream
+					Case Else
+						Set oSize = Nothing
+				End Select
+			End With
+			If Not IsNull(oSize) Then
+				bNullable = ( Column.IsNullable = com.sun.star.sdbc.ColumnValue.NULLABLE )
+				If bNullable Then
+					If Column.wasNull() Then _PropertyGet = 0 Else _PropertyGet = CLng(oSize.getLength())
+				Else
+					_PropertyGet = CLng(oSize.getLength())
+				End If
+				oSize.closeInput()
+			Else
+				_PropertyGet = EMPTY
+			End If
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;Size&quot;)
+			With com.sun.star.sdbc.DataType
+				Select Case Column.Type
+					Case .LONGVARCHAR, .LONGVARBINARY, .VARBINARY, .BINARY, .BLOB, .CLOB
+						_PropertyGet = 0											&apos;	Always 0 (MSAccess)
+					Case Else
+						If Utils._hasUNOProperty(Column, &quot;Precision&quot;) Then _PropertyGet = Column.Precision Else _PropertyGet = 0
+				End Select
+			End With
+		Case UCase(&quot;SourceField&quot;)
+			Select Case _ParentType
+				Case OBJTABLEDEF
+					_PropertyGet = _Name
+				Case OBJQUERYDEF				&apos;	RealName = not documented ?!?
+					If Utils._hasUNOProperty(Column, &quot;RealName&quot;) Then _PropertyGet = Column.RealName Else _PropertyGet = _Name
+			End Select
+		Case UCase(&quot;SourceTable&quot;)
+			Select Case _ParentType
+				Case OBJTABLEDEF
+					_PropertyGet = _ParentName
+				Case OBJQUERYDEF, OBJRECORDSET
+					_PropertyGet = Column.TableName
+			End Select
+		Case UCase(&quot;TypeName&quot;)
+			_PropertyGet = Column.TypeName
+		Case UCase(&quot;Value&quot;)
+			bNullable = ( Column.IsNullable = com.sun.star.sdbc.ColumnValue.NULLABLE )
+			bNull = False
+			With com.sun.star.sdbc.DataType
+				Select Case Column.Type
+					Case .BIT, .BOOLEAN		:	vValue = Column.getBoolean()			&apos;	vbBoolean
+					Case .TINYINT			:	vValue = Column.getShort()				&apos;	vbInteger			
+					Case .SMALLINT, .INTEGER:	vValue = Column.getInt()				&apos;	vbLong
+					Case .BIGINT			:	vValue = Column.getLong()				&apos;	vbBigint
+					Case .FLOAT				:	vValue = Column.getFloat()				&apos;	vbSingle
+					Case .REAL, .DOUBLE		:	vValue = Column.getDouble()				&apos;	vbDouble
+					Case .NUMERIC, .DECIMAL
+						If Utils._hasUNOProperty(Column, &quot;Scale&quot;) Then
+							If Column.Scale &gt; 0 Then
+								vValue = Column.getDouble()
+							Else	&apos;	Try Long otherwise Double (CDec not implemented anymore in LO ?!?)
+								On Local Error Resume Next	&apos;	Avoid overflow error
+								&apos;	CLng checks local decimal point, getString does not !
+								sValue = Join(Split(Column.getString(), &quot;.&quot;), Utils._DecimalPoint())
+								vValue = CLng(sValue)
+								If Err &lt;&gt; 0 Then
+									vValue = CDbl(sValue)
+									Err.Clear
+									On Local Error Goto Error_Function
+								End If
+							End If
+						Else
+							vValue = CDbl(Column.getString())
+						End If
+					Case .CHAR				:	vValue = Column.getString()
+					Case .VARCHAR			:	vValue = Column.getString()				&apos;	vbString
+					Case .LONGVARCHAR, .CLOB
+						Set oValue = Column.getCharacterStream()
+						If bNullable Then bNull = Column.wasNull()
+						If Not bNull Then
+							lSize = CLng(oValue.getLength())
+							oValue.closeInput()
+							vValue = Column.getString()									&apos;	vbString
+						Else
+							oValue.closeInput()
+						End If
+					Case .DATE				:	Set oValue = Column.getDate()			&apos;	vbObject with members VarType Unsigned Short = 18
+												If bNullable Then bNull = Column.wasNull()
+												If Not bNull Then vValue = DateSerial(CInt(oValue.Year), CInt(oValue.Month), CInt(oValue.Day))
+					Case .TIME				:	Set oValue = Column.getTime()			&apos;	vbObject with members VarType Unsigned Short = 18
+												If bNullable Then bNull = Column.wasNull()
+												If Not bNull Then vValue = TimeSerial(oValue.Hours, oValue.Minutes, oValue.Seconds)&apos;, oValue.HundredthSeconds)
+					Case .TIMESTAMP			:	Set oValue = Column.getTimeStamp()
+												If bNullable Then bNull = Column.wasNull()
+												If Not bNull Then vValue = DateSerial(CInt(oValue.Year), CInt(oValue.Month), CInt(oValue.Day)) _
+															+ TimeSerial(oValue.Hours, oValue.Minutes, oValue.Seconds)&apos;, oValue.HundredthSeconds)
+					Case .BINARY, .VARBINARY, .LONGVARBINARY, .BLOB
+						Set oValue = Column.getBinaryStream()
+						If bNullable Then bNull = Column.wasNull()
+						If Not bNull Then
+							lSize = CLng(oValue.getLength())								&apos;	vbLong =&gt; equivalent to FieldSize
+							If lSize &gt; cstMaxBinlength Then Goto Trace_Length
+							vValue = Array()
+							oValue.readBytes(vValue, lSize)
+						End If
+						oValue.closeInput()
+					Case Else
+						vValue = Column.getString()							&apos;GIVE STRING A TRY
+						If IsNumeric(vValue) Then vValue = Val(vValue)		&apos;Required when type = &quot;&quot;, sometimes numeric fields are returned as strings (query/MSAccess)
+				End Select
+				If bNullable Then
+					If Column.wasNull() Then vValue = Null				&apos;getXXX must precede wasNull()
+				End If
+			End With
+			_PropertyGet = vValue
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEWARNING, ERRPROPERTY, Utils._CalledSub(), 0, , psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Trace_Length:
+	TraceError(TRACEFATAL, ERROVERFLOW, Utils._CalledSub(), 0, , Array(lSize, &quot;GetChunk&quot;))
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	_PropertyGet = EMPTY
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet	V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertySet(ByVal psProperty As String, ByVal pvValue As Variant) As Boolean
+&apos;	Return True if property setting OK
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+Dim cstThisSub As String
+	cstThisSub = &quot;Field.set&quot; &amp; psProperty
+	Utils._SetCalledSub(cstThisSub)
+	_PropertySet = True
+Dim iArgNr As Integer, vTemp As Variant
+Dim oParent As Object
+
+	Select Case UCase(_A2B_.CalledSub)
+		Case UCase(&quot;setProperty&quot;)			:	iArgNr = 3
+		Case UCase(&quot;Field.setProperty&quot;)		:	iArgNr = 2
+		Case UCase(cstThisSub)				:	iArgNr = 1
+	End Select
+	
+	If Not hasProperty(psProperty) Then Goto Trace_Error
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;DefaultValue&quot;)
+			If _ParentType &lt;&gt; OBJTABLEDEF Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If Utils._hasUNOProperty(Column, &quot;ControlDefault&quot;) Then			&apos;	Default value set in Base via table edition
+			 	Column.ControlDefault = pvValue
+			 	_DefaultValue = pvValue
+			 	_DefaultValueSet = True
+			End If
+		Case UCase(&quot;Description&quot;)
+			If _ParentType &lt;&gt; OBJTABLEDEF Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			Column.HelpText = pvValue
+		Case UCase(&quot;Value&quot;)
+			If _ParentType &lt;&gt; OBJRECORDSET Then Goto Trace_Error		&apos;	Not on table- or querydefs ... !
+			If Not Column.IsWritable Then Goto Trace_Error_Updatable
+			If Column.IsReadOnly Then Goto Trace_Error_Updatable
+			If _ParentDatabase.Recordsets(_ParentName)._EditMode = dbEditNone Then Goto Trace_Error_Update
+			With com.sun.star.sdbc.DataType
+				If IsNull(pvValue) Then
+					If Column.IsNullable = com.sun.star.sdbc.ColumnValue.NULLABLE Then Column.updateNull() Else Goto Trace_Null
+				Else
+					Select Case Column.Type
+						Case .BIT, .BOOLEAN
+							If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+							Column.updateBoolean(pvValue)
+						Case .TINYINT
+							If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+							If pvValue &lt; -128 Or pvValue &gt; +127 Then Goto Trace_Error_Value
+							Column.updateShort(CInt(pvValue))
+						Case .SMALLINT
+							If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+							If pvValue &lt; -32768 Or pvValue &gt; 32767 Then Goto trace_Error_Value
+							Column.updateInt(CLng(pvValue))
+						Case .INTEGER
+							If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+							If pvValue &lt; -2147483648 Or pvValue &gt; 2147483647 Then Goto trace_Error_Value
+							Column.updateInt(CLng(pvValue))
+						Case .BIGINT
+							If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+							Column.updateLong(pvValue)		&apos;	No proper type conversion for HYPER data type
+						Case .FLOAT
+							If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+							If Abs(pvValue) &lt; 3.402823E38 And Abs(pvValue) &gt; 1.401298E-45 Then Column.updateFloat(CSng(pvValue)) Else Goto trace_Error_Value
+						Case .REAL, .DOUBLE
+							If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+							&apos;If Abs(pvValue) &lt; 1.79769313486232E308 And Abs(pvValue) &gt; 4.94065645841247E-307 Then Column.updateDouble(CDbl(pvValue)) Else Goto trace_Error_Value
+							Column.updateDouble(CDbl(pvValue))
+						Case .NUMERIC, .DECIMAL
+							If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+							If Utils._hasUNOProperty(Column, &quot;Scale&quot;) Then
+								If Column.Scale &gt; 0 Then
+									&apos;If Abs(pvValue) &lt; 1.79769313486232E308 And Abs(pvValue) &gt; 4.94065645841247E-307 Then Column.updateDouble(CDbl(pvValue)) Else Goto trace_Error_Value
+									Column.updateDouble(CDbl(pvValue))
+								Else
+									Column.updateString(CStr(pvValue))
+								End If
+							Else
+								Column.updateString(CStr(pvValue))
+							End If
+						Case .CHAR, .VARCHAR, .LONGVARCHAR, .CLOB
+							If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+							If _Precision &gt; 0 And Len(pvValue) &gt; _Precision Then Goto Trace_Error_Length
+							Column.updateString(pvValue)						&apos;	vbString
+						Case .DATE
+							If Not Utils._CheckArgument(pvValue, iArgNr, vbDate, , False) Then Goto Trace_Error_Value
+							vTemp = New com.sun.star.util.Date
+							With vTemp
+								.Day = Day(pvValue)
+								.Month = Month(pvValue)
+								.Year = Year(pvValue)
+							End With
+							Column.updateDate(vTemp)
+						Case .TIME
+							If Not Utils._CheckArgument(pvValue, iArgNr, vbDate, , False) Then Goto Trace_Error_Value
+							vTemp = New com.sun.star.util.Time
+							With vTemp
+								.Hours = Hour(pvValue)
+								.Minutes = Minute(pvValue)
+								.Seconds = Second(pvValue)
+								&apos;.HundredthSeconds = 0		&apos;	replaced with Long nanoSeconds in LO 4.1 ??
+							End With
+							Column.updateTime(vTemp)
+						Case .TIMESTAMP
+							If Not Utils._CheckArgument(pvValue, iArgNr, vbDate, , False) Then Goto Trace_Error_Value
+							vTemp = New com.sun.star.util.DateTime
+							With vTemp
+								.Day = Day(pvValue)
+								.Month = Month(pvValue)
+								.Year = Year(pvValue)
+								.Hours = Hour(pvValue)
+								.Minutes = Minute(pvValue)
+								.Seconds = Second(pvValue)
+								&apos;.HundredthSeconds = 0
+							End With
+							Column.updateTimestamp(vTemp)
+						Case .BINARY, .VARBINARY, .LONGVARBINARY, .BLOB
+							If Not IsArray(pvValue) Then Goto Trace_Error_Value
+							If UBound(pvValue) &lt; LBound(pvValue) Then Goto Trace_Error_Value
+							If Not Utils._CheckArgument(pvValue(LBound(pvValue)), iArgNr, vbInteger, , False) Then Goto Trace_Error_Value
+							Column.updateBytes(pvValue)
+						Case Else
+							Goto trace_Error
+					End Select
+				End If
+			End With
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, , psProperty)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Value:
+	TraceError(TRACEFATAL, ERRPROPERTYVALUE, Utils._CalledSub(), 0, 1, Array(pvValue, psProperty))
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Null:
+	TraceError(TRACEFATAL, ERRNOTNULLABLE, Utils._CalledSub(), 0, 1, _Name)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Update:
+	TraceError(TRACEFATAL, ERRUPDATESEQUENCE, Utils._CalledSub(), 0, 1)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Updatable:
+	TraceError(TRACEFATAL, ERRNOTUPDATABLE, Utils._CalledSub(), 0, 1)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Length:
+	TraceError(TRACEFATAL, ERROVERFLOW, Utils._CalledSub(), 0, , Array(Len(pvValue), &quot;AppendChunk&quot;))
+	_PropertySet = False
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	_PropertySet = False
+	GoTo Exit_Function
+End Function			&apos;	_PropertySet
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _ReadAll(ByVal psFile As String, ByVal psMethod As String) As Boolean
+&apos;	Write the whole content of a file into a stream object
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	_ReadAll = False
+
+	If _ParentType &lt;&gt; OBJRECORDSET Then Goto Trace_Error		&apos;	Not on table- or querydefs ... !
+	If Not Column.IsWritable Then Goto Trace_Error_Updatable
+	If Column.IsReadOnly Then Goto Trace_Error_Updatable
+	If _ParentDatabase.Recordsets(_ParentName)._EditMode = dbEditNone Then Goto Trace_Error_Update
+
+Dim sFile As String, oSimpleFileAccess As Object, sMethod As String, oStream As Object
+Dim lFileLength As Long, sBuffer As String, sMemo As String, iFile As Integer
+Const cstMaxLength = 64000
+	sFile = ConvertToURL(psFile)
+
+	oSimpleFileAccess = CreateUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	If Not oSimpleFileAccess.exists(sFile) Then Goto Trace_File
+
+	With com.sun.star.sdbc.DataType
+		Select Case Column.Type
+			Case .BINARY, .VARBINARY, .LONGVARBINARY, .BLOB
+				If psMethod &lt;&gt; &quot;ReadAllBytes&quot; Then Goto Trace_Error
+				Set oStream = oSimpleFileAccess.openFileRead(sFile)
+				lFileLength = oStream.getLength()
+				If lFileLength = 0 Then Goto Trace_File
+				Column.updateBinaryStream(oStream, lFileLength)
+				oStream.closeInput()
+			Case .VARCHAR, .LONGVARCHAR, .CLOB
+				If psMethod &lt;&gt; &quot;ReadAllText&quot; Then Goto Trace_Error
+				sMemo = &quot;&quot;
+				lFileLength = 0
+				iFile = FreeFile()
+				Open sFile For Input Access Read Shared As iFile
+				Do While Not Eof(iFile)
+					Line Input #iFile, sBuffer
+					lFileLength = lFileLength + Len(sBuffer) + 1
+					If lFileLength &gt; cstMaxLength Then Exit Do
+					sMemo = sMemo &amp; sBuffer &amp; vbNewLine
+				Loop
+				If lFileLength = 0 Or lFileLength &gt; cstMaxLength Then
+					Close #iFile
+					Goto Trace_File
+				End If
+				sMemo = Left(sMemo, lFileLength - 1)
+				Column.updateString(sMemo)				
+				&apos;Column.updateCharacterStream(oStream, lFileLength)		&apos;	DOES NOT WORK ?!?
+			Case Else
+				Goto Trace_Error
+		End Select
+	End With
+
+	_ReadAll = True
+	
+Exit_Function:
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, , psMethod)
+	Goto Exit_Function
+Trace_File:
+	TraceError(TRACEFATAL, ERRFILEACCESS, Utils._CalledSub(), 0, , sFile)
+	If Not IsNull(oStream) Then oStream.closeInput()
+	Goto Exit_Function
+Trace_Error_Update:
+	TraceError(TRACEFATAL, ERRUPDATESEQUENCE, Utils._CalledSub(), 0, 1)
+	If Not IsNull(oStream) Then oStream.closeInput()
+	Goto Exit_Function
+Trace_Error_Updatable:
+	TraceError(TRACEFATAL, ERRNOTUPDATABLE, Utils._CalledSub(), 0, 1)
+	If Not IsNull(oStream) Then oStream.closeInput()
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, _CalledSub, Erl)
+	GoTo Exit_Function
+End Function		&apos;	ReadAll
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _WriteAll(ByVal psFile As String, ByVal psMethod As String) As Boolean
+&apos;	Write the whole content of a stream object to a file
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	_WriteAll = False
+
+Dim sFile As String, oSimpleFileAccess As Object, sMethod As String, oStream As Object
+	sFile = ConvertToURL(psFile)
+
+	oSimpleFileAccess = CreateUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	With com.sun.star.sdbc.DataType
+		Select Case Column.Type
+			Case .BINARY, .VARBINARY, .LONGVARBINARY, .BLOB
+				If psMethod &lt;&gt; &quot;WriteAllBytes&quot; Then Goto Trace_Error
+				Set oStream = Column.getBinaryStream()
+			Case .VARCHAR, .LONGVARCHAR, .CLOB
+				If psMethod &lt;&gt; &quot;WriteAllText&quot; Then Goto Trace_Error
+				Set oStream = Column.getCharacterStream()
+			Case Else
+				Goto Trace_Error
+		End Select
+	End With
+
+	If Column.IsNullable = com.sun.star.sdbc.ColumnValue.NULLABLE Then
+		If Column.wasNull() Then Goto Trace_Null
+	End If
+	If oStream.getLength() = 0 Then Goto Trace_Null
+	On Local Error Goto Trace_File
+	If oSimpleFileAccess.exists(sFile) Then oSimpleFileAccess.kill(sFile)
+	oSimpleFileAccess.writeFile(sFile, oStream)
+	On Local Error Goto Error_Function
+	oStream.closeInput()
+
+	_WriteAll = True
+	
+Exit_Function:
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, , psMethod)
+	Goto Exit_Function
+Trace_File:
+	TraceError(TRACEFATAL, ERRFILEACCESS, Utils._CalledSub(), 0, , sFile)
+	If Not IsNull(oStream) Then oStream.closeInput()
+	Goto Exit_Function
+Trace_Null:
+	TraceError(TRACEFATAL, ERRFIELDNULL, _CalledSub, 0)
+	If Not IsNull(oStream) Then oStream.closeInput()
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, _CalledSub, Erl)
+	GoTo Exit_Function
+End Function		&apos;	WriteAll
+
+</script:module>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="SendToMediaWiki" dlg:left="62" dlg:top="57" dlg:width="242" dlg:height="164" dlg:closeable="true" dlg:moveable="true" dlg:title="TOREPLACE" dlg:help-url="vnd.com.sun.star.wiki:sendDialog">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="Label1" dlg:tab-index="0" dlg:left="5" dlg:top="8" dlg:width="65" dlg:height="10" dlg:value="MediaWiki Server"/>
+  <dlg:text dlg:id="Label2" dlg:tab-index="3" dlg:left="11" dlg:top="38" dlg:width="59" dlg:height="10" dlg:value="Title"/>
+  <dlg:text dlg:id="Label3" dlg:tab-index="5" dlg:left="11" dlg:top="57" dlg:width="59" dlg:height="10" dlg:value="Summary"/>
+  <dlg:menulist dlg:id="WikiList" dlg:tab-index="1" dlg:left="75" dlg:top="6" dlg:width="116" dlg:height="14" dlg:spin="true" dlg:help-url="com.sun.star.wiki.MediaWiki.SendToMediaWiki.WikiList">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.UNO:WikiListChange" script:language="UNO"/>
+  </dlg:menulist>
+  <dlg:combobox dlg:id="ArticleText" dlg:tab-index="4" dlg:left="75" dlg:top="36" dlg:width="160" dlg:height="14" dlg:spin="true" dlg:help-url="com.sun.star.wiki.MediaWiki.SendToMediaWiki.ArticleText">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.UNO:ArticleTextChange" script:language="UNO"/>
+  </dlg:combobox>
+  <dlg:textfield dlg:id="CommentText" dlg:tab-index="6" dlg:left="75" dlg:top="55" dlg:width="160" dlg:height="48" dlg:multiline="true" dlg:help-url="com.sun.star.wiki.MediaWiki.SendToMediaWiki.CommentText"/>
+  <dlg:button dlg:id="AddButton" dlg:tab-index="2" dlg:left="195" dlg:top="6" dlg:width="40" dlg:height="14" dlg:value="Add..." dlg:help-url="com.sun.star.wiki.MediaWiki.SendToMediaWiki.AddButton">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:AddWiki" script:language="UNO"/>
+  </dlg:button>
+  <dlg:checkbox dlg:id="MinorCheck" dlg:tab-index="7" dlg:left="75" dlg:top="109" dlg:width="141" dlg:height="10" dlg:value="Minor edit" dlg:checked="false" dlg:help-url="com.sun.star.wiki.MediaWiki.SendToMediaWiki.MinorCheck"/>
+  <dlg:checkbox dlg:id="BrowserCheck" dlg:tab-index="8" dlg:left="75" dlg:top="122" dlg:width="141" dlg:height="10" dlg:value="Show in browser" dlg:checked="false" dlg:help-url="com.sun.star.wiki.MediaWiki.SendToMediaWiki.BrowserCheck"/>
+  <dlg:fixedline dlg:id="FixedLine1" dlg:tab-index="9" dlg:left="-2" dlg:top="138" dlg:width="246" dlg:height="4"/>
+  <dlg:button dlg:id="CancelButton" dlg:tab-index="10" dlg:left="187" dlg:top="145" dlg:width="50" dlg:height="14" dlg:button-type="cancel"/>
+  <dlg:button dlg:id="SendButton" dlg:tab-index="11" dlg:disabled="true" dlg:left="134" dlg:top="145" dlg:width="50" dlg:height="14" dlg:default="true" dlg:value="Send" dlg:help-url="com.sun.star.wiki.MediaWiki.SendToMediaWiki.SendButton">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:Send" script:language="UNO"/>
+  </dlg:button>
+  <dlg:button dlg:id="HelpButton" dlg:tab-index="12" dlg:left="5" dlg:top="145" dlg:width="50" dlg:height="14" dlg:button-type="help"/>
+  <dlg:fixedline dlg:id="FixedLine2" dlg:tab-index="13" dlg:left="5" dlg:top="25" dlg:width="234" dlg:height="6" dlg:value="MediaWiki"/>
+ </dlg:bulletinboard>
+</dlg:window>

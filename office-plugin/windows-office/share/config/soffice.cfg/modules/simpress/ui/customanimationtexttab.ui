@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="sd">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">999.99</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkBox" id="TextAnimationTab">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <!-- n-columns=1 n-rows=1 -->
+      <object class="GtkGrid" id="grid1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="row_spacing">6</property>
+        <property name="column_spacing">12</property>
+        <child>
+          <object class="GtkLabel" id="group_text_label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes" context="customanimationtexttab|group_text_label">_Group text:</property>
+            <property name="use_underline">True</property>
+            <property name="mnemonic_widget">group_text_list</property>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSpinButton" id="auto_after_value">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="halign">start</property>
+            <property name="hexpand">True</property>
+            <property name="activates_default">True</property>
+            <property name="adjustment">adjustment1</property>
+            <property name="digits">1</property>
+            <property name="truncate-multiline">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="auto_after_value-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="customanimationtexttab|extended_tip|auto_after_value">Enter an additional delay in seconds to animate subsequent paragraphs.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="auto_after">
+            <property name="label" translatable="yes" context="customanimationtexttab|auto_after">_Automatically after:</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="auto_after-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="customanimationtexttab|extended_tip|auto_after">If "Group text - By 1st level paragraphs" is selected, the paragraphs are animated one after the other.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="group_text_list">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <items>
+              <item translatable="yes" context="customanimationtexttab|group_text_list">As one object</item>
+              <item translatable="yes" context="customanimationtexttab|group_text_list">All paragraphs at once</item>
+              <item translatable="yes" context="customanimationtexttab|group_text_list">By 1st level paragraphs</item>
+              <item translatable="yes" context="customanimationtexttab|group_text_list">By 2nd level paragraphs</item>
+              <item translatable="yes" context="customanimationtexttab|group_text_list">By 3rd level paragraphs</item>
+              <item translatable="yes" context="customanimationtexttab|group_text_list">By 4th level paragraphs</item>
+              <item translatable="yes" context="customanimationtexttab|group_text_list">By 5th level paragraphs</item>
+            </items>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="group_text_list-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="customanimationtexttab|extended_tip|group_text_list">Specifies how multiple paragraphs are animated</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="animate_shape">
+        <property name="label" translatable="yes" context="customanimationtexttab|animate_shape">Animate attached _shape</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="animate_shape-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="customanimationtexttab|extended_tip|animate_shape">Deselect this box to animate only the text, not the shape.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="reverse_order">
+        <property name="label" translatable="yes" context="customanimationtexttab|reverse_order">_In reverse order</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="reverse_order-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="customanimationtexttab|extended_tip|reverse_order">Animates the paragraphs in reverse order.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+  </object>
+</interface>

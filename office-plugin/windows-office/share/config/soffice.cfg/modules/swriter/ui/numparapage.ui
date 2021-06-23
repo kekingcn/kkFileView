@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="sw">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustmentNF_RESTART_PARA">
+    <property name="lower">1</property>
+    <property name="upper">65000</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentSTART_WITH">
+    <property name="upper">9999</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkBox" id="NumParaPage">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkFrame" id="frameFL_OUTLINE_START">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <object class="GtkBox" id="boxOUTLINE">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkLabel" id="labelFT_OUTLINE_LEVEL">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="numparapage|labelFT_OUTLINE_LEVEL">Outline level:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">comboLB_OUTLINE_LEVEL</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="comboLB_OUTLINE_LEVEL">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Text Body</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 1</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 2</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 3</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 4</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 5</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 6</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 7</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 8</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 9</item>
+                      <item translatable="yes" context="numparapage|comboLB_OUTLINE_LEVEL">Level 10</item>
+                    </items>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="comboLB_OUTLINE_LEVEL-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|comboLB_OUTLINE_LEVEL">Assigns an outline level from 1 to 10 to the selected paragraphs or Paragraph Style.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="labelOutline">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="numparapage|labelOutline">Outline</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="frameFL_NEW_START">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <object class="GtkBox" id="box2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkBox" id="boxNUMBER_STYLE">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="labelFT_NUMBER_STYLE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="numparapage|labelFT_NUMBER_STYLE">_Numbering style:</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">comboLB_NUMBER_STYLE</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="boxSubNumber_Style">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkComboBoxText" id="comboLB_NUMBER_STYLE">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <items>
+                              <item translatable="yes" context="numparapage|comboLB_NUMBER_STYLE">None</item>
+                            </items>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="comboLB_NUMBER_STYLE-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|comboLB_NUMBER_STYLE">Select the Numbering Style that you want to apply to the paragraph.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="editnumstyle">
+                            <property name="label" translatable="yes" context="numparapage|editnumstyle">Edit Style</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="editnumstyle-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|editnumstyle">Edit the properties of the selected numbering style.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkCB_NEW_START">
+                    <property name="label" translatable="yes" context="numparapage|checkCB_NEW_START">R_estart at this paragraph</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="no_show_all">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="relief">none</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="inconsistent">True</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="checkCB_NEW_START-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|checkCB_NEW_START">Restarts the numbering at the current paragraph.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="boxNEW_START">
+                    <property name="can_focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkBox" id="box4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkCheckButton" id="checkCB_NUMBER_NEW_START">
+                            <property name="label" translatable="yes" context="numparapage|checkCB_NUMBER_NEW_START">S_tart with:</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="margin_left">12</property>
+                            <property name="use_underline">True</property>
+                            <property name="xalign">0</property>
+                            <property name="inconsistent">True</property>
+                            <property name="draw_indicator">True</property>
+                            <accessibility>
+                              <relation type="label-for" target="spinNF_NEW_START"/>
+                            </accessibility>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="checkCB_NUMBER_NEW_START-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|checkCB_NUMBER_NEW_START">Select this check box, and then enter the number that you want to assign to the paragraph.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="spinNF_NEW_START">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="activates_default">True</property>
+                        <property name="adjustment">adjustmentSTART_WITH</property>
+                        <property name="truncate-multiline">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="spinNF_NEW_START-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|spinNF_NEW_START">Enter the number that you want to assign to the paragraph.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="numparapage|label2">Numbering</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="frameFL_COUNT_PARA">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <object class="GtkBox" id="box1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="checkCB_COUNT_PARA">
+                    <property name="label" translatable="yes" context="numparapage|checkCB_COUNT_PARA">_Include this paragraph in line numbering</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="inconsistent">True</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="checkCB_COUNT_PARA-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|checkCB_COUNT_PARA">Includes the current paragraph in the line numbering.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkCB_RESTART_PARACOUNT">
+                    <property name="label" translatable="yes" context="numparapage|checkCB_RESTART_PARACOUNT">Rest_art at this paragraph</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="inconsistent">True</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="checkCB_RESTART_PARACOUNT-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|checkCB_RESTART_PARACOUNT">Restarts the line numbering at the current paragraph, or at the number that you enter.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="boxRESTART_NO">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can_focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkBox" id="box3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkLabel" id="labelFT_RESTART_NO">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="margin_left">12</property>
+                            <property name="label" translatable="yes" context="numparapage|labelFT_RESTART_NO">_Start with:</property>
+                            <property name="use_underline">True</property>
+                            <property name="mnemonic_widget">spinNF_RESTART_PARA</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="spinNF_RESTART_PARA">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="activates_default">True</property>
+                        <property name="adjustment">adjustmentNF_RESTART_PARA</property>
+                        <property name="truncate-multiline">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="spinNF_RESTART_PARA-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|spinNF_RESTART_PARA">Enter the number at which to restart the line numbering</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="labelLINE_NUMBERING">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="numparapage|labelLINE_NUMBERING">Line Numbering</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="NumParaPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="numparapage|extended_tip|NumParaPage">Adds or removes outline level, numbering, or bullets from the paragraph. You can also select the style of numbering to use, and reset the numbering in a numbered list.</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroupLabel">
+    <widgets>
+      <widget name="labelFT_OUTLINE_LEVEL"/>
+      <widget name="labelFT_NUMBER_STYLE"/>
+      <widget name="box4"/>
+      <widget name="box3"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroupWidget">
+    <widgets>
+      <widget name="comboLB_OUTLINE_LEVEL"/>
+      <widget name="boxSubNumber_Style"/>
+    </widgets>
+  </object>
+</interface>

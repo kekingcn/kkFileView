@@ -1,0 +1,967 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Utils" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Explicit
+Option Private Module
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Utils
+&apos;&apos;&apos;	========
+&apos;&apos;&apos;		FOR INTERNAL USE ONLY
+&apos;&apos;&apos;		Groups all private functions used by the official modules
+&apos;&apos;&apos;		Declares the Global variable _SF_
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ===================================================================== GLOBALS
+
+Global _SF_		As Variant		&apos;	SF_Root (Basic) object)
+
+&apos;&apos;&apos;	ScriptForge version
+Const SF_Version = &quot;7.1&quot;
+
+&apos;&apos;&apos;	Standard symbolic names for VarTypes
+&apos;				V_EMPTY = 0
+&apos;				V_NULL = 1
+&apos;				V_INTEGER = 2
+&apos;				V_LONG = 3
+&apos;				V_SINGLE = 4
+&apos;				V_DOUBLE = 5
+&apos;				V_CURRENCY = 6
+&apos;				V_DATE = 7
+&apos;				V_STRING = 8
+&apos;&apos;&apos;	Additional symbolic names for VarTypes
+Global Const	V_OBJECT = 9
+Global Const	V_BOOLEAN = 11
+Global Const	V_VARIANT = 12
+Global Const	V_BYTE = 17
+Global Const	V_USHORT = 18
+Global Const	V_ULONG = 19
+Global Const	V_BIGINT = 35
+Global Const	V_DECIMAL = 37
+Global Const	V_ARRAY = 8192
+Global Const	V_NUMERIC = 99		&apos; Fictive VarType synonym of any numeric value
+
+REM ================================================================== EXCEPTIONS
+
+Const MISSINGARGERROR			=	&quot;MISSINGARGERROR&quot;	&apos;	A mandatory argument is missing
+Const ARGUMENTERROR				=	&quot;ARGUMENTERROR&quot;		&apos;	An argument does not pass the _Validate() validation
+Const ARRAYERROR				=	&quot;ARRAYERROR&quot;		&apos;	An argument does not pass the _ValidateArray() validation
+Const FILEERROR					=	&quot;FILEERROR&quot;			&apos;	An argument does not pass the _ValidateFile() validation
+
+REM =========================================pvA==================== PRIVATE METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function _CDateToIso(pvDate As Variant) As Variant
+&apos;&apos;&apos;	Returns a string representation of the given Basic date
+&apos;&apos;&apos;	Dates as strings are essential in property values, where Basic dates are evil
+
+Dim sIsoDate As Variant			&apos;	Return value
+
+	If VarType(pvDate) = V_DATE Then
+		If Year(pvDate) &lt; 1900 Then		&apos;	Time only
+			sIsoDate = Right(&quot;0&quot; &amp; Hour(pvDate), 2) &amp; &quot;:&quot; &amp; Right(&quot;0&quot; &amp; Minute(pvDate), 2) &amp; &quot;:&quot; &amp; Right(&quot;0&quot; &amp; Second(pvDate), 2)
+		ElseIf Hour(pvDate) + Minute(pvDate) + Second(pvDate) = 0 Then		&apos;	Date only
+			sIsoDate = Year(pvDate) &amp; &quot;-&quot; &amp; Right(&quot;0&quot; &amp; Month(pvDate), 2) &amp; &quot;-&quot; &amp; Right(&quot;0&quot; &amp; Day(pvDate), 2)
+		Else
+			sIsoDate = Year(pvDate) &amp; &quot;-&quot; &amp; Right(&quot;0&quot; &amp; Month(pvDate), 2) &amp; &quot;-&quot; &amp; Right(&quot;0&quot; &amp; Day(pvDate), 2) _
+							&amp; &quot; &quot; &amp; Right(&quot;0&quot; &amp; Hour(pvDate), 2) &amp; &quot;:&quot; &amp; Right(&quot;0&quot; &amp; Minute(pvDate), 2) _
+							&amp; &quot;:&quot; &amp; Right(&quot;0&quot; &amp; Second(pvDate), 2)
+		End If
+	Else
+		sIsoDate = pvDate
+	End If
+
+	_CDateToIso = sIsoDate
+
+End Function	&apos;	ScriptForge.SF_Utils._CDateToIso
+
+REM -----------------------------------------------------------------------------
+Public Function _CDateToUnoDate(pvDate As Variant) As Variant
+&apos;&apos;&apos;	Returns a UNO com.sun.star.util.DateTime/Date/Time object depending on the given date
+&apos;&apos;&apos;	by using the appropriate CDateToUnoDateXxx builtin function
+&apos;&apos;&apos;	UNO dates are essential in property values, where Basic dates are evil
+
+Dim vUnoDate As Variant			&apos;	Return value
+
+	If VarType(pvDate) = V_DATE Then
+		If Year(pvDate) &lt; 1900 Then
+			vUnoDate = CDateToUnoTime(pvDate)
+		ElseIf Hour(pvDate) + Minute(pvDate) + Second(pvDate) = 0 Then
+			vUnoDate = CDateToUnoDate(pvDate)
+		Else
+			vUnoDate = CDateToUnoDateTime(pvDate)
+		End If
+	Else
+		vUnoDate = pvDate
+	End If
+
+	_CDateToUnoDate = vUnoDate
+
+End Function	&apos;	ScriptForge.SF_Utils._CDateToUnoDate
+
+REM -----------------------------------------------------------------------------
+Public Function _CPropertyValue(ByRef pvValue As Variant) As Variant
+&apos;&apos;&apos;	Set a value of a correct type in a com.sun.star.beans.PropertyValue
+&apos;&apos;&apos;		Date BASIC variables give error. Change them to UNO types
+&apos;&apos;&apos;		Empty arrays should be replaced by Null
+
+Dim vValue As Variant		&apos;	Return value
+
+	If VarType(pvValue) = V_DATE Then
+		vValue = SF_Utils._CDateToUnoDate(pvValue)
+	ElseIf IsArray(pvValue) Then
+		If UBound(pvValue, 1) &lt; LBound(pvValue, 1) Then vValue = Null Else vValue = pvValue
+	Else
+		vValue = pvValue
+	End If
+	_CPropertyValue() = vValue
+	
+End Function	&apos;	ScriptForge.SF_Utils._CPropertyValue
+
+REM -----------------------------------------------------------------------------
+Public Function _CStrToDate(ByRef pvStr As String) As Date
+&apos;&apos;&apos;	Attempt to convert the input string to a Date variable with the CDate builtin function
+&apos;&apos;&apos;	If not successful, returns conventionally -1 (29/12/1899)
+&apos;&apos;&apos;	Date patterns: YYYY-MM-DD, HH:MM:DD and YYYY-MM-DD HH:MM:DD
+
+Dim dDate As Date			&apos;	Return value 
+Const cstNoDate = -1
+
+	dDate = cstNoDate
+Try:
+	On Local Error Resume Next
+	dDate = CDate(pvStr)
+
+Finally:
+	_CStrToDate = dDate
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Utils._CStrToDate
+
+REM -----------------------------------------------------------------------------
+Public Function _EnterFunction(ByVal psSub As String, Optional ByVal psArgs As String)
+&apos;&apos;&apos;	Called on top of each public function
+&apos;&apos;&apos;	Used to trace routine in/outs (debug mode)
+&apos;&apos;&apos;		and to allow the explicit mention of the user call which caused an error
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psSub = the called Sub/Function/Property, usually something like &quot;service.sub&quot;
+&apos;&apos;&apos;	Return: True when psSub is called from a user script
+&apos;&apos;&apos;		Used to bypass the validation of the arguments when unnecessary
+
+		If IsEmpty(_SF_) Or IsNull(_SF_) Then SF_Utils._InitializeRoot()	&apos;	First use of ScriptForge during current LibO session
+		If IsMissing(psArgs) Then psArgs = &quot;&quot;
+		With _SF_
+			If .StackLevel = 0 Then
+				.MainFunction = psSub
+				.MainFunctionArgs = psArgs
+				_EnterFunction = True
+			Else
+				_EnterFunction = False
+			End If
+			.StackLevel = .StackLevel + 1
+			If .DebugMode Then ._AddToConsole(&quot;==&gt; &quot; &amp; psSub &amp; &quot;(&quot; &amp; .StackLevel &amp; &quot;)&quot;)
+		End With
+
+End Function		&apos;	ScriptForge.SF_Utils._EnterFunction
+
+REM -----------------------------------------------------------------------------
+Public Function _ErrorHandling(Optional ByVal pbErrorHandler As Boolean) As Boolean
+&apos;&apos;&apos;	Error handling is normally ON and can be set OFF for debugging purposes
+&apos;&apos;&apos;	Each user visible routine starts with a call to this function to enable/disable
+&apos;&apos;&apos;		standard handling of internal errors
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbErrorHandler = if present, set its value
+&apos;&apos;&apos;	Return: the current value of the error handler
+
+	If IsEmpty(_SF_) Or IsNull(_SF_) Then SF_Utils._InitializeRoot()	&apos;	First use of ScriptForge during current LibO session
+	If Not IsMissing(pbErrorHandler) Then _SF_.ErrorHandler = pbErrorHandler
+	_ErrorHandling = _SF_.ErrorHandler
+
+End Function	&apos;	ScriptForge.SF_Utils._ErrorHandling
+
+REM -----------------------------------------------------------------------------
+Public Sub _ExitFunction(ByVal psSub As String)
+&apos;&apos;&apos;	Called in the Finally block of each public function
+&apos;&apos;&apos; Manage ScriptForge internal aborts
+&apos;&apos;&apos; Resets MainFunction (root) when exiting the method called by a user script
+&apos;&apos;&apos;	Used to trace routine in/outs (debug mode)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psSub = the called Sub/Function/Property, usually something like &quot;service.sub&quot;
+
+		If IsEmpty(_SF_) Or IsNull(_SF_) Then SF_Utils._InitializeRoot()	&apos;	Useful only when current module has been recompiled
+		With _SF_
+			If Err &gt; 0 Then
+				SF_Exception.RaiseAbort(psSub)
+			End If
+			If .StackLevel = 1 Then
+				.MainFunction = &quot;&quot;
+				.MainFunctionArgs = &quot;&quot;
+			End If
+			If .DebugMode Then ._AddToConsole(&quot;&lt;== &quot; &amp; psSub &amp; &quot;(&quot; &amp; .StackLevel &amp; &quot;)&quot;)
+			If .StackLevel &gt; 0 Then .StackLevel = .StackLevel - 1
+		End With
+	
+End Sub			&apos;	ScriptForge.SF_Utils._ExitFunction
+
+REM -----------------------------------------------------------------------------
+Public Sub _ExportScriptForgePOTFile(ByVal FileName As String)
+&apos;&apos;&apos;	Export the ScriptForge POT file related to its own user interface
+&apos;&apos;&apos;	Should be called only before issuing new ScriptForge releases only
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FileName: the resulting file. If it exists, is overwritten without warning
+
+Dim sHeader As String			&apos;	The specific header to insert
+
+	sHeader = &quot;&quot; _
+				&amp; &quot;*********************************************************************\n&quot; _
+				&amp; &quot;*** The ScriptForge library and its associated libraries          ***\n&quot; _
+				&amp; &quot;*** are part of the LibreOffice project.                          ***\n&quot; _
+				&amp; &quot;*********************************************************************\n&quot; _
+				&amp; &quot;\n&quot; _
+				&amp; &quot;ScriptForge Release &quot; &amp; SF_Version &amp; &quot;\n&quot; _
+				&amp; &quot;-----------------------&quot;
+
+Try:
+	With _SF_
+		.Interface.ExportToPOTFile(FileName, Header := sHeader)
+	End With
+
+Finally:
+	Exit Sub
+End Sub			&apos;	ScriptForge.SF_Utils._ExportScriptForgePOTFile
+
+REM -----------------------------------------------------------------------------
+Public Function _GetPropertyValue(ByRef pvArgs As Variant, ByVal psName As String) As Variant
+&apos;&apos;&apos;	Returns the Value corresponding to the given name
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		pvArgs: a zero_based array of PropertyValues
+&apos;&apos;&apos;		psName: the comparison is not case-sensitive
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		Zero-length string if not found
+
+Dim vValue As Variant			&apos;	Return value
+Dim i As Long
+
+	vValue = &quot;&quot;
+	If IsArray(pvArgs) Then
+		For i = LBound(pvArgs) To UBound(pvArgs)
+			If UCase(psName) = UCase(pvArgs(i).Name) Then
+				vValue = pvArgs(i).Value
+				Exit For
+			End If
+		Next i
+	End If
+	_GetPropertyValue = vValue
+
+End Function	&apos;	ScriptForge.SF_Utils._GetPropertyValue
+
+REM -----------------------------------------------------------------------------
+Public Function _GetRegistryKeyContent(ByVal psKeyName as string _
+										, Optional pbForUpdate as Boolean _
+										) As Variant
+&apos;&apos;&apos;	Implement a ConfigurationProvider service
+&apos;&apos;&apos;	Derived from the Tools library
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psKeyName: the name of the node in the configuration tree
+&apos;&apos;&apos;		pbForUpdate: default = False
+
+Dim oConfigProvider as Object		&apos;	com.sun.star.configuration.ConfigurationProvider
+Dim vNodePath(0) as New com.sun.star.beans.PropertyValue
+Dim sConfig As String				&apos;	One of next 2 constants
+Const cstConfig			= &quot;com.sun.star.configuration.ConfigurationAccess&quot;
+Const cstConfigUpdate	= &quot;com.sun.star.configuration.ConfigurationUpdateAccess&quot;
+
+	Set oConfigProvider = _GetUNOService(&quot;ConfigurationProvider&quot;)
+	vNodePath(0).Name = &quot;nodepath&quot;
+	vNodePath(0).Value = psKeyName
+
+	If IsMissing(pbForUpdate) Then pbForUpdate = False
+	If pbForUpdate Then sConfig = cstConfigUpdate Else sConfig = cstConfig
+
+	Set _GetRegistryKeyContent = oConfigProvider.createInstanceWithArguments(sConfig, vNodePath())
+
+End Function	&apos;	ScriptForge.SF_Utils._GetRegistryKeyContent
+
+REM -----------------------------------------------------------------------------
+Public Function _GetUNOService(ByVal psService As String _
+									, Optional ByVal pvArg As Variant _
+									) As Object
+&apos;&apos;&apos;	Create a UNO service
+&apos;&apos;&apos;	Each service is called only once
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psService: shortcut to service
+&apos;&apos;&apos;		pvArg: some services might require an argument
+
+Dim sLocale As String			&apos;	fr-BE f.i.
+Dim oConfigProvider As Object
+Dim oDefaultContext As Object
+Dim vNodePath As Variant
+
+	Set _GetUNOService = Nothing
+	With _SF_
+		Select Case psService
+			Case &quot;BrowseNodeFactory&quot;
+				Set oDefaultContext = GetDefaultContext()
+				If Not IsNull(oDefaultContext) Then Set _GetUNOService = oDefaultContext.getValueByName(&quot;/singletons/com.sun.star.script.browse.theBrowseNodeFactory&quot;)
+			Case &quot;CharacterClass&quot;
+				If IsEmpty(.CharacterClass) Or IsNull(.CharacterClass) Then
+					Set .CharacterClass = CreateUnoService(&quot;com.sun.star.i18n.CharacterClassification&quot;)
+				End If
+				Set _GetUNOService = .CharacterClass
+			Case &quot;ConfigurationProvider&quot;
+				If IsEmpty(.ConfigurationProvider) Or IsNull(.ConfigurationProvider) Then
+					Set .ConfigurationProvider = CreateUnoService(&quot;com.sun.star.configuration.ConfigurationProvider&quot;)
+				End If
+				Set _GetUNOService = .ConfigurationProvider
+			Case &quot;CoreReflection&quot;
+				If IsEmpty(.CoreReflection) Or IsNull(.CoreReflection) Then
+					Set .CoreReflection = CreateUnoService(&quot;com.sun.star.reflection.CoreReflection&quot;)
+				End If
+				Set _GetUNOService = .CoreReflection
+			Case &quot;DatabaseContext&quot;
+				If IsEmpty(.DatabaseContext) Or IsNull(.DatabaseContext) Then
+					Set .DatabaseContext = CreateUnoService(&quot;com.sun.star.sdb.DatabaseContext&quot;)
+				End If
+				Set _GetUNOService = .DatabaseContext
+			Case &quot;DispatchHelper&quot;
+				If IsEmpty(.DispatchHelper) Or IsNull(.DispatchHelper) Then
+					Set .DispatchHelper = CreateUnoService(&quot;com.sun.star.frame.DispatchHelper&quot;)
+				End If
+				Set _GetUNOService = .DispatchHelper
+			Case &quot;FileAccess&quot;
+				If IsEmpty(.FileAccess) Or IsNull(.FileAccess) Then
+					Set .FileAccess = CreateUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+				End If
+				Set _GetUNOService = .FileAccess
+			Case &quot;FilePicker&quot;
+				If IsEmpty(.FilePicker) Or IsNull(.FilePicker) Then
+					Set .FilePicker = CreateUnoService(&quot;com.sun.star.ui.dialogs.FilePicker&quot;)
+				End If
+				Set _GetUNOService = .FilePicker
+			Case &quot;FilterFactory&quot;
+				If IsEmpty(.FilterFactory) Or IsNull(.FilterFactory) Then
+					Set .FilterFactory = CreateUnoService(&quot;com.sun.star.document.FilterFactory&quot;)
+				End If
+				Set _GetUNOService = .FilterFactory
+			Case &quot;FolderPicker&quot;
+				If IsEmpty(.FolderPicker) Or IsNull(.FolderPicker) Then
+					Set .FolderPicker = CreateUnoService(&quot;com.sun.star.ui.dialogs.FolderPicker&quot;)
+				End If
+				Set _GetUNOService = .FolderPicker
+			Case &quot;FunctionAccess&quot;
+				If IsEmpty(.FunctionAccess) Or IsNull(.FunctionAccess) Then
+					Set .FunctionAccess = CreateUnoService(&quot;com.sun.star.sheet.FunctionAccess&quot;)
+				End If
+				Set _GetUNOService = .FunctionAccess
+			Case &quot;Introspection&quot;
+				If IsEmpty(.Introspection) Or IsNull(.Introspection) Then
+					Set .Introspection = CreateUnoService(&quot;com.sun.star.beans.Introspection&quot;)
+				End If
+				Set _GetUNOService = .Introspection
+			Case &quot;Locale&quot;
+				If IsEmpty(.Locale) Or IsNull(.Locale) Then
+					.Locale = CreateUnoStruct(&quot;com.sun.star.lang.Locale&quot;)
+					&apos;	Derived from the Tools library
+					Set oConfigProvider = createUnoService(&quot;com.sun.star.configuration.ConfigurationProvider&quot;)
+					vNodePath = Array()	:	ReDim vNodePath(0)
+					vNodePath(0) = New com.sun.star.beans.PropertyValue
+					vNodePath(0).Name = &quot;nodepath&quot;	:	vNodePath(0).Value = &quot;org.openoffice.Setup/L10N&quot;
+					sLocale = oConfigProvider.createInstanceWithArguments(&quot;com.sun.star.configuration.ConfigurationAccess&quot;, vNodePath()).getByName(&quot;ooLocale&quot;)
+					.Locale.Language = Left(sLocale, 2)
+					.Locale.Country = Right(sLocale, 2)
+				End If
+				Set _GetUNOService = .Locale
+			Case &quot;MacroExpander&quot;
+				Set oDefaultContext = GetDefaultContext()
+				If Not IsNull(oDefaultContext) Then Set _GetUNOService = oDefaultContext.getValueByName(&quot;/singletons/com.sun.star.util.theMacroExpander&quot;)
+			Case &quot;MailService&quot;
+				If IsEmpty(.MailService) Or IsNull(.MailService) Then
+					If GetGuiType = 1 Then		&apos;	Windows
+						Set .MailService = CreateUnoService(&quot;com.sun.star.system.SimpleSystemMail&quot;)
+					Else
+						Set .MailService = CreateUnoService(&quot;com.sun.star.system.SimpleCommandMail&quot;)
+					End If
+				End If
+				Set _GetUNOService = .MailService
+			Case &quot;PathSettings&quot;
+				If IsEmpty(.PathSettings) Or IsNull(.PathSettings) Then
+					Set .PathSettings = CreateUnoService(&quot;com.sun.star.util.PathSettings&quot;)
+				End If
+				Set _GetUNOService = .PathSettings
+			Case &quot;PathSubstitution&quot;
+				If IsEmpty(.PathSubstitution) Or IsNull(.PathSubstitution) Then
+					Set .PathSubstitution = CreateUnoService(&quot;com.sun.star.util.PathSubstitution&quot;)
+				End If
+				Set _GetUNOService = .PathSubstitution
+			Case &quot;ScriptProvider&quot;
+				If IsMissing(pvArg) Then pvArg = SF_Session.SCRIPTISAPPLICATION
+				Select Case LCase(pvArg)
+					Case SF_Session.SCRIPTISEMBEDDED	&apos;	Document
+						If Not IsNull(ThisComponent) Then Set _GetUNOService = ThisComponent.getScriptProvider()
+					Case Else
+						If IsEmpty(.ScriptProvider) Or IsNull(.ScriptProvider) Then
+							Set .ScriptProvider =  _
+								CreateUnoService(&quot;com.sun.star.script.provider.MasterScriptProviderFactory&quot;).createScriptProvider(&quot;&quot;)
+						End If
+						Set _GetUNOService = .ScriptProvider
+				End Select
+			Case &quot;SearchOptions&quot;
+				If IsEmpty(.SearchOptions) Or IsNull(.SearchOptions) Then
+					Set .SearchOptions = New com.sun.star.util.SearchOptions
+					With .SearchOptions
+						.algorithmType = com.sun.star.util.SearchAlgorithms.REGEXP
+						.searchFlag = 0
+					End With
+				End If
+				Set _GetUNOService = .SearchOptions
+			Case &quot;SystemShellExecute&quot;
+				If IsEmpty(.SystemShellExecute) Or IsNull(.SystemShellExecute) Then
+					Set .SystemShellExecute = CreateUnoService(&quot;com.sun.star.system.SystemShellExecute&quot;)
+				End If
+				Set _GetUNOService = .SystemShellExecute
+			Case &quot;TextSearch&quot;
+				If IsEmpty(.TextSearch) Or IsNull(.TextSearch) Then
+					Set .TextSearch = CreateUnoService(&quot;com.sun.star.util.TextSearch&quot;)
+				End If
+				Set _GetUNOService = .TextSearch
+			Case &quot;URLTransformer&quot;
+				If IsEmpty(.URLTransformer) Or IsNull(.URLTransformer) Then
+					Set .URLTransformer = CreateUnoService(&quot;com.sun.star.util.URLTransformer&quot;)
+				End If
+				Set _GetUNOService = .URLTransformer
+			Case Else
+		End Select
+	End With
+
+End Function	&apos;	ScriptForge.SF_Utils._GetUNOService
+
+REM -----------------------------------------------------------------------------
+Public Sub _InitializeRoot(Optional ByVal pbForce As Boolean)
+&apos;&apos;&apos;	Initialize _SF_ as SF_Root basic object
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbForce = True forces the reinit (default = False)
+
+	If IsMissing(pbForce) Then pbForce = False
+	If pbForce Then Set _SF_ = Nothing
+	If IsEmpty(_SF_) Or IsNull(_SF_) Then
+		Set _SF_ = New SF_Root
+		Set _SF_.[Me] = _SF_
+		&apos;	Localization
+		_SF_._LoadLocalizedInterface()
+	End If
+	
+End Sub		&apos;	ScriptForge.SF_Utils._InitializeRoot
+
+REM -----------------------------------------------------------------------------
+Public Function _MakePropertyValue(ByVal psName As String _
+									, ByRef pvValue As Variant _
+									) As com.sun.star.beans.PropertyValue
+&apos;&apos;&apos;	Create and return a new com.sun.star.beans.PropertyValue
+
+Dim oPropertyValue As New com.sun.star.beans.PropertyValue
+
+	With oPropertyValue
+		.Name = psName
+		.Value = SF_Utils._CPropertyValue(pvValue)
+	End With
+	_MakePropertyValue() = oPropertyValue
+	
+End Function	&apos;	ScriptForge.SF_Utils._MakePropertyValue
+
+REM -----------------------------------------------------------------------------
+Public Function _Repr(ByVal pvArg As Variant, Optional ByVal plMax As Long) As String
+&apos;&apos;&apos;	Convert pvArg into a readable string (truncated if length &gt; plMax)
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		pvArg: may be of any type
+&apos;&apos;&apos;		plMax: maximum length of the resulting string (default = 32K)
+
+Dim sArg As String			&apos;	Return value
+Dim oObject As Object		&apos;	Alias of argument to avoid &quot;Object variable not set&quot;
+Dim sObject As String		&apos;	Object representation
+Dim sObjectType As String	&apos;	ObjectType attribute of Basic objects
+Dim sLength As String		&apos;	String length as a string
+Dim i As Long
+Const cstBasicObject = &quot;com.sun.star.script.NativeObjectWrapper&quot;
+
+Const cstMaxLength = 2^15 - 1	&apos;	32767
+Const cstByteLength = 25
+Const cstEtc = &quot; … &quot;
+
+	If IsMissing(plMax) Or plMax = 0 Then plMax = cstMaxLength
+	If IsArray(pvArg) Then
+		sArg = SF_Array._Repr(pvArg)
+	Else
+		Select Case VarType(pvArg)
+			Case V_EMPTY			:		sArg = &quot;[EMPTY]&quot;
+			Case V_NULL				:		sArg = &quot;[NULL]&quot;
+			Case V_OBJECT
+				If IsNull(pvArg) Then
+					sArg = &quot;[NULL]&quot;
+				Else
+					sObject = SF_Session.UnoObjectType(pvArg)
+					If sObject = &quot;&quot; Or sObject = cstBasicObject Then	&apos;	Not a UNO object
+						&apos;	Test if argument is a ScriptForge object
+						sObjectType = &quot;&quot;
+						On Local Error Resume Next
+						Set oObject = pvArg
+						sObjectType = oObject.ObjectType
+						On Error GoTo 0
+						If sObjectType = &quot;&quot; Then
+							sArg = &quot;[OBJECT]&quot;
+						ElseIf Left(sObjectType, 3) = &quot;SF_&quot; Then
+							sArg = &quot;[&quot; &amp; sObjectType &amp; &quot;]&quot;
+						Else
+							sArg = oObject._Repr()
+						End If
+					Else
+						sArg = &quot;[&quot; &amp; sObject &amp; &quot;]&quot;
+					End If
+				End If
+			Case V_VARIANT			:		sArg = &quot;[VARIANT]&quot;
+			Case V_STRING
+				sArg = SF_String._Repr(pvArg)
+			Case V_BOOLEAN			:		sArg = Iif(pvArg, &quot;[TRUE]&quot;, &quot;[FALSE]&quot;)
+			Case V_BYTE				:		sArg = Right(&quot;00&quot; &amp; Hex(pvArg), 2)
+			Case V_SINGLE, V_DOUBLE, V_CURRENCY
+				sArg = Format(pvArg)
+				If InStr(1, sArg, &quot;E&quot;, 1) = 0 Then sArg = Format(pvArg, &quot;##0.0##&quot;)
+				sArg = Replace(sArg, &quot;,&quot;, &quot;.&quot;)	&apos;Force decimal point
+			Case V_BIGINT			:		sArg = CStr(CLng(pvArg))
+			Case V_DATE				:		sArg = _CDateToIso(pvArg)
+			Case Else				:		sArg = CStr(pvArg)
+		End Select
+	End If
+	If Len(sArg) &gt; plMax Then 
+		sLength = &quot;(&quot; &amp; Len(sArg) &amp; &quot;)&quot;
+		sArg = Left(sArg, plMax - Len(cstEtc) - Len(slength)) &amp; cstEtc &amp; sLength
+	End If
+	_Repr = sArg
+	
+End Function	&apos;	ScriptForge.SF_Utils._Repr
+
+REM -----------------------------------------------------------------------------
+Private Function _ReprValues(Optional ByVal pvArgs As Variant _
+								, Optional ByVal plMax As Long _
+								) As String
+&apos;&apos;&apos;	Convert an array of values to a comma-separated list of readable strings
+
+Dim sValues As String			&apos;	Return value
+Dim sValue As String			&apos;	A single value
+Dim vValue As Variant			&apos;	A single item in the argument
+Dim i As Long					&apos;	Items counter
+Const cstMax = 20				&apos;	Maximum length of single string
+Const cstContinue = &quot;…&quot;			&apos;	Unicode continuation char U+2026
+
+	_ReprValues = &quot;&quot;
+	If IsMissing(pvArgs) Then Exit Function
+	If Not IsArray(pvArgs) Then pvArgs = Array(pvArgs)
+	sValues = &quot;&quot;
+	For i = 0 To UBound(pvArgs)
+		vValue = pvArgs(i)
+		If i &lt; plMax Then
+			If VarType(vValue) = V_STRING Then sValue = &quot;&quot;&quot;&quot; &amp; vValue &amp; &quot;&quot;&quot;&quot; Else sValue = SF_Utils._Repr(vValue, cstMax)
+			If Len(sValues) = 0 Then sValues = sValue Else sValues = sValues &amp; &quot;, &quot; &amp; sValue
+		ElseIf i &lt; UBound(pvArgs) Then
+			sValues = sValues &amp; &quot;, &quot; &amp; cstContinue
+			Exit For
+		End If
+	Next i
+	_ReprValues = sValues
+	
+End Function	&apos;	ScriptForge.SF_Utils._ReprValues
+
+REM -----------------------------------------------------------------------------
+Public Sub _SetPropertyValue(ByRef pvPropertyValue As Variant _
+									, ByVal psName As String _
+									, ByRef pvValue As Variant _
+									)
+&apos;&apos;&apos;	Update the 1st argument (passed by reference), which is an array of property values
+&apos;&apos;&apos;	If the property psName exists, update it with pvValue, otherwise create it on top of the array
+
+Dim oPropertyValue As New com.sun.star.beans.PropertyValue
+Dim lIndex As Long				&apos;	Found entry
+Dim vValue As Variant			&apos;	Alias of pvValue
+Dim i As Long
+
+	lIndex = -1
+	For i = 0 To UBound(pvPropertyValue)
+		If pvPropertyValue(i).Name = psName Then
+			lIndex = i
+			Exit For
+		End If
+	Next i
+	If lIndex &lt; 0 Then		&apos;	Not found
+		lIndex = UBound(pvPropertyValue) + 1
+		ReDim Preserve pvPropertyValue(0 To lIndex)
+		Set oPropertyValue = SF_Utils._MakePropertyValue(psName, pvValue)
+		pvPropertyValue(lIndex) = oPropertyValue
+	Else					&apos;	psName exists already in array of property values
+		pvPropertyValue(lIndex).Value = SF_Utils._CPropertyValue(pvValue)
+	End If
+	
+End Sub			&apos;	ScriptForge.SF_Utils._SetPropertyValue
+
+REM -----------------------------------------------------------------------------
+Private Function _TypeNames(Optional ByVal pvArgs As Variant) As String
+&apos;&apos;&apos;	Converts the array of VarTypes to a comma-separated list of TypeNames
+
+Dim sTypes As String			&apos;	Return value
+Dim sType As String				&apos;	A single type
+Dim iType As Integer			&apos;	A single item of the argument
+
+	_TypeNames = &quot;&quot;
+	If IsMissing(pvArgs) Then Exit Function
+	If Not IsArray(pvArgs) Then pvArgs = Array(pvArgs)
+	sTypes = &quot;&quot;
+	For Each iType In pvArgs
+		Select Case iType
+			Case V_EMPTY	:	sType = &quot;Empty&quot;
+			Case V_NULL		:	sType = &quot;Null&quot;
+			Case V_INTEGER	:	sType = &quot;Integer&quot;
+			Case V_LONG		:	sType = &quot;Long&quot;
+			Case V_SINGLE	:	sType = &quot;Single&quot;
+			Case V_DOUBLE	:	sType = &quot;Double&quot;
+			Case V_CURRENCY	:	sType = &quot;Currency&quot;
+			Case V_DATE		:	sType = &quot;Date&quot;
+			Case V_STRING	:	sType = &quot;String&quot;
+			Case V_OBJECT	:	sType = &quot;Object&quot;
+			Case V_BOOLEAN	:	sType = &quot;Boolean&quot;
+			Case V_VARIANT	:	sType = &quot;Variant&quot;
+			Case V_DECIMAL	:	sType = &quot;Decimal&quot;
+			Case &gt;= V_ARRAY	:	sType = &quot;Array&quot;
+			Case V_NUMERIC	:	sType = &quot;Numeric&quot;
+		End Select
+		If Len(sTypes) = 0 Then sTypes = sType Else sTypes = sTypes &amp; &quot;, &quot; &amp; sType
+	Next iType
+	_TypeNames = sTypes
+
+End Function	&apos;	ScriptForge.SF_Utils._TypeNames
+
+REM -----------------------------------------------------------------------------
+Public Function _Validate(Optional ByRef pvArgument As Variant _
+							, ByVal psName As String _
+							, Optional ByVal pvTypes As Variant _
+							, Optional ByVal pvValues As Variant _
+							, Optional ByVal pvRegex As Variant _
+							, Optional ByVal pvObjectType As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Validate the arguments set by user scripts
+&apos;&apos;&apos;	The arguments of the function define the validation rules
+&apos;&apos;&apos; This function ignores arrays. Use _ValidateArray instead
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvArgument: the argument to (in)validate
+&apos;&apos;&apos;		psName: the documented name of the argument (can be inserted in an error message)
+&apos;&apos;&apos;		pvTypes: array of allowed VarTypes
+&apos;&apos;&apos;		pvValues: array of allowed values
+&apos;&apos;&apos;		pvRegex: regular expression to comply with
+&apos;&apos;&apos;		pvObjectType: mandatory Basic class
+&apos;&apos;&apos;	Return: True if validation OK
+&apos;&apos;&apos;			Otherwise an error is raised
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR
+
+Dim iVarType As Integer		&apos;	Extended VarType of argument
+Dim bValid As Boolean		&apos;	Returned value
+Dim oArgument As Variant	&apos;	Workaround &quot;Object variable not set&quot; error on 1st executable statement
+Const cstMaxLength = 256	&apos;	Maximum length of readable value
+Const cstMaxValues = 10		&apos;	Maximum number of allowed items to list in an error message 
+
+	&apos;	To avoid useless recursions, keep main function, only increase stack depth
+	_SF_.StackLevel = _SF_.StackLevel + 1
+	On Local Error GoTo Finally		&apos;	Do never interrupt
+
+Try:
+	bValid = True
+	If IsMissing(pvArgument) Then GoTo CatchMissing
+	If IsMissing(pvRegex) Or IsEmpty(pvRegex) Then pvRegex = &quot;&quot;
+	If IsMissing(pvObjectType) Or IsEmpty(pvObjectType) Then pvObjectType = &quot;&quot;
+	iVarType = SF_Utils._VarTypeExt(pvArgument)
+
+	&apos;	Arrays NEVER pass validation
+	If iVarType &gt;= V_ARRAY Then
+		bValid = False
+	Else
+		&apos;	Check existence of argument
+		bValid = iVarType &lt;&gt; V_NULL And iVarType &lt;&gt; V_EMPTY
+		&apos;	Check if argument&apos;s VarType is valid
+		If bValid And Not IsMissing(pvTypes) Then
+			If Not IsArray(pvTypes) Then bValid = ( pvTypes = iVarType ) Else bValid = SF_Array.Contains(pvTypes, iVarType)
+		End If
+		&apos;	Check if argument&apos;s value is valid
+		If bValid And Not IsMissing(pvValues) Then
+			If Not IsArray(pvValues) Then pvValues = Array(pvValues)
+			bValid = SF_Array.Contains(pvValues, pvArgument, CaseSensitive := False)
+		End If
+		&apos;	Check regular expression
+		If bValid And Len(pvRegex) &gt; 0 And iVarType = V_STRING Then
+			If Len(pvArgument) &gt; 0 Then bValid = SF_String.IsRegex(pvArgument, pvRegex, CaseSensitive := False)
+		End If
+		&apos;	Check instance types
+		If bValid And Len(pvObjectType) &gt; 0 And iVarType = V_OBJECT Then
+			Set oArgument = pvArgument
+			bValid = ( pvObjectType = oArgument.ObjectType )
+		End If
+	End If
+
+	If Not bValid Then
+		&apos;&apos;&apos;	Library:	ScriptForge
+		&apos;&apos;&apos;	Service:	Array
+		&apos;&apos;&apos;	Method:		Contains
+		&apos;&apos;&apos;	Arguments:	Array_1D, ToFind, [CaseSensitive=False], [SortOrder=&quot;&quot;]
+		&apos;&apos;&apos;	A serious error has been detected on argument SortOrder
+		&apos;&apos;&apos;		Rules:	SortOrder is of type String
+		&apos;&apos;&apos;				SortOrder must contain one of next values: &quot;ASC&quot;, &quot;DESC&quot;, &quot;&quot;
+		&apos;&apos;&apos;		Actual value:	&quot;Ascending&quot;
+		SF_Exception.RaiseFatal(ARGUMENTERROR _
+				, SF_Utils._Repr(pvArgument, cstMaxLength), psName, SF_Utils._TypeNames(pvTypes) _
+				, SF_Utils._ReprValues(pvValues, cstMaxValues), pvRegex, pvObjectType _
+				)
+	End If
+
+Finally:
+	_Validate = bValid
+	_SF_.StackLevel = _SF_.StackLevel - 1
+	Exit Function
+CatchMissing:
+	bValid = False
+	SF_Exception.RaiseFatal(MISSINGARGERROR, psName)
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Utils._Validate
+
+REM -----------------------------------------------------------------------------
+Public Function _ValidateArray(Optional ByRef pvArray As Variant _
+								, ByVal psName As String _
+								, Optional ByVal piDimensions As Integer _
+								, Optional ByVal piType As Integer _
+								, Optional ByVal pbNotNull As Boolean _
+								) As Boolean
+&apos;&apos;&apos;	Validate the (array) arguments set by user scripts
+&apos;&apos;&apos;	The arguments of the function define the validation rules
+&apos;&apos;&apos; This function ignores non-arrays. Use _Validate instead
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvArray: the argument to (in)validate
+&apos;&apos;&apos;		psName: the documented name of the array (can be inserted in an error message)
+&apos;&apos;&apos;		piDimensions: the # of dimensions the array must have. 0 = Any (default)
+&apos;&apos;&apos;		piType: (default = -1, i.e. not applicable)
+&apos;&apos;&apos;			For 2D arrays, the 1st column is checked
+&apos;&apos;&apos;			0 =&gt; all items must be any out of next types: string, date or numeric,
+&apos;&apos;&apos;					but homogeneously: all strings or all dates or all numeric
+&apos;&apos;&apos;			V_STRING or V_DATE or V_NUMERIC =&gt; that specific type is required
+&apos;&apos;&apos;		pbNotNull: piType must be &gt;=0, otherwise ignored
+&apos;&apos;&apos;			If True: Empty, Null items are rejected
+&apos;&apos;&apos;	Return: True if validation OK
+&apos;&apos;&apos;			Otherwise an error is raised
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARRAYERROR
+
+Dim iVarType As Integer			&apos;	VarType of argument
+Dim vItem As Variant			&apos;	Array item
+Dim iItemType As Integer		&apos;	VarType of individual items of argument
+Dim iDims As Integer			&apos;	Number of dimensions of the argument
+Dim bValid As Boolean			&apos;	Returned value
+Dim iArrayType As Integer		&apos;	Static array type
+Dim iFirstItemType As Integer	&apos;	Type of 1st non-null/empty item
+Dim sType As String				&apos;	Allowed item types as a string
+Dim i As Long
+Const cstMaxLength = 256		&apos;	Maximum length of readable value
+
+	&apos;	To avoid useless recursions, keep main function, only increase stack depth
+
+	_SF_.StackLevel = _SF_.StackLevel + 1
+	On Local Error GoTo Finally		&apos;	Do never interrupt
+
+Try:
+	bValid = True
+	If IsMissing(pvArray) Then GoTo CatchMissing
+	If IsMissing(piDimensions) Then piDimensions = 0
+	If IsMissing(piType) Then piType = -1
+	If IsMissing(pbNotNull) Then pbNotNull = False
+	iVarType = VarType(pvArray)
+
+	&apos;	Scalars NEVER pass validation
+	If iVarType &lt; V_ARRAY Then
+		bValid = False
+	Else
+		&apos;	Check dimensions
+		iDims = SF_Array.CountDims(pvArray)
+		If iDims &gt; 2 Then bValid = False		&apos;	Only 1D and 2D arrays
+		If bValid And piDimensions &gt; 0 Then
+			bValid = ( iDims = piDimensions Or (iDims = 0 And piDimensions = 1) )	&apos;	Allow empty vectors
+		End If
+		&apos;	Check VarType and Empty/Null status of the array items
+		If bValid And iDims = 1 And piType &gt;= 0 Then
+			iArrayType = SF_Array._StaticType(pvArray)
+			If (piType = 0 And iArrayType &gt; 0) Or (piType &gt; 0 And iArrayType = piType) Then
+				&apos;	If static array of the right VarType ..., OK
+			Else
+				&apos;	Go through array and check individual items
+				iFirstItemType = -1
+				For i = LBound(pvArray, 1) To UBound(pvArray, 1)
+					If iDims = 1 Then vItem = pvArray(i) Else vItem = pvArray(i, LBound(pvArray, 2))
+					iItemType = SF_Utils._VarTypeExt(vItem)
+					If iItemType &gt; V_NULL Then	&apos;	Exclude Empty and Null
+						&apos;	Initialization at first non-null item
+						If iFirstItemType &lt; 0 Then
+							iFirstItemType = iItemType
+							If piType &gt; 0 Then bValid = ( iFirstItemType = piType ) Else bValid = SF_Array.Contains(Array(V_STRING, V_DATE, V_NUMERIC), iFirstItemType)
+						Else
+							bValid = (iItemType = iFirstItemType)
+						End If
+					Else
+						bValid = Not pbNotNull
+					End If
+					If Not bValid Then Exit For
+				Next i
+			End If
+		End If
+	End If
+
+	If Not bValid Then
+		&apos;&apos;&apos;	Library:	ScriptForge
+		&apos;&apos;&apos;	Service:	Array
+		&apos;&apos;&apos;	Method:		Contains
+		&apos;&apos;&apos;	Arguments:	Array_1D, ToFind, [CaseSensitive=False], [SortOrder=&quot;&quot;|&quot;ASC&quot;|&quot;DESC&quot;]
+		&apos;&apos;&apos;	An error was detected on argument Array_1D
+		&apos;&apos;&apos;		Rules:	Array_1D is of type Array
+		&apos;&apos;&apos;				Array_1D must have maximum 1 dimension
+		&apos;&apos;&apos;				Array_1D must have all elements of the same type: either String, Date or Numeric
+		&apos;&apos;&apos;		Actual value: (0:2, 0:3)
+		sType = &quot;&quot;
+		If piType = 0 Then
+			sType = &quot;String, Date, Numeric&quot;
+		ElseIf piType &gt; 0 Then
+			sType = SF_Utils._TypeNames(piType)
+		End If
+		SF_Exception.RaiseFatal(ARRAYERROR _
+				, SF_Utils._Repr(pvArray, cstMaxLength), psName, piDimensions, sType, pbNotNull)
+	End If
+
+Finally:
+	_ValidateArray = bValid
+	_SF_.StackLevel = _SF_.StackLevel - 1
+	Exit Function
+CatchMissing:
+	bValid = False
+	SF_Exception.RaiseFatal(MISSINGARGERROR, psName)
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Utils._ValidateArray
+
+REM -----------------------------------------------------------------------------
+Public Function _ValidateFile(Optional ByRef pvArgument As Variant _
+								, ByVal psName As String _
+								, Optional ByVal pbWildCards As Boolean _
+								, Optional ByVal pbSpace As Boolean _
+								)
+&apos;&apos;&apos; Validate the argument as a valid FileName
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvArgument: the argument to (in)validate
+&apos;&apos;&apos;		pbWildCards: if True, wildcard characters are accepted in the last component of the 1st argument
+&apos;&apos;&apos;		pbSpace: if True, the argument may be an empty string. Default = False
+&apos;&apos;&apos;	Return: True if validation OK
+&apos;&apos;&apos;			Otherwise an error is raised
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR
+
+Dim iVarType As Integer		&apos;	VarType of argument
+Dim sFile As String			&apos;	Alias for argument
+Dim bValid As Boolean		&apos;	Returned value
+Dim sFileNaming As String	&apos;	Alias of SF_FileSystem.FileNaming
+Dim oArgument As Variant	&apos;	Workaround &quot;Object variable not set&quot; error on 1st executable statement
+Const cstMaxLength = 256	&apos;	Maximum length of readable value
+
+	&apos;	To avoid useless recursions, keep main function, only increase stack depth
+
+	_SF_.StackLevel = _SF_.StackLevel + 1
+	On Local Error GoTo Finally		&apos;	Do never interrupt
+
+Try:
+	bValid = True
+	If IsMissing(pvArgument) Then GoTo CatchMissing
+	If IsMissing(pbWildCards) Then pbWildCards = False
+	If IsMissing(pbSpace) Then pbSpace = False
+	iVarType = VarType(pvArgument)
+
+	&apos;	Arrays NEVER pass validation
+	If iVarType &gt;= V_ARRAY Then
+		bValid = False
+	Else
+		&apos;	Argument must be a string containing a valid file name
+		bValid = ( iVarType = V_STRING )
+		If bValid Then
+			bValid = ( Len(pvArgument) &gt; 0 Or pbSpace )
+			If bValid And Len(pvArgument) &gt; 0 Then
+				&apos;	 Wildcards are replaced by arbitrary alpha characters
+				If pbWildCards Then
+					sFile = Replace(Replace(pvArgument, &quot;?&quot;, &quot;Z&quot;), &quot;*&quot;, &quot;A&quot;)
+				Else
+					sFile = pvArgument
+					bValid = ( InStr(sFile, &quot;?&quot;) + InStr(sFile, &quot;*&quot;) = 0 )
+				End If
+				&apos;	Check file format without wildcards
+				If bValid Then
+					With SF_FileSystem
+						sFileNaming = .FileNaming
+						Select Case sFileNaming
+							Case &quot;ANY&quot;	:	bValid = SF_String.IsUrl(ConvertToUrl(sFile))
+							Case &quot;URL&quot;	:	bValid = SF_String.IsUrl(sFile)
+							Case &quot;SYS&quot;	:	bValid = SF_String.IsFileName(sFile)
+						End Select
+					End With
+				End If
+				&apos;	Check that wildcards are only present in last component
+				If bValid And pbWildCards Then
+					sFile = SF_FileSystem.GetParentFolderName(pvArgument)
+					bValid = ( InStr(sFile, &quot;*&quot;) + InStr(sFile, &quot;?&quot;) + InStr(sFile,&quot;%3F&quot;) = 0 )	&apos;	ConvertToUrl replaces ? by %3F
+				End If
+			End If
+		End If
+	End If
+
+	If Not bValid Then
+		&apos;&apos;&apos;	Library:	ScriptForge
+		&apos;&apos;&apos;	Service:	FileSystem
+		&apos;&apos;&apos;	Method:		CopyFile
+		&apos;&apos;&apos;	Arguments:	Source, Destination
+		&apos;&apos;&apos;	A serious error has been detected on argument Source
+		&apos;&apos;&apos;		Rules:	Source is of type String
+		&apos;&apos;&apos;				Source must be a valid file name expressed in operating system notation
+		&apos;&apos;&apos;				Source may contain one or more wildcard characters in its last component
+		&apos;&apos;&apos;		Actual value:	/home/jean-*/SomeFile.odt
+		SF_Exception.RaiseFatal(FILEERROR _
+				, SF_Utils._Repr(pvArgument, cstMaxLength), psName, pbWildCards)
+	End If
+
+Finally:
+	_ValidateFile = bValid
+	_SF_.StackLevel = _SF_.StackLevel - 1
+	Exit Function
+CatchMissing:
+	bValid = False
+	SF_Exception.RaiseFatal(MISSINGARGERROR, psName)
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Utils._ValidateFile
+
+REM -----------------------------------------------------------------------------
+Public Function _VarTypeExt(ByRef pvValue As Variant) As Integer
+&apos;&apos;&apos;	Return the VarType of the argument but all numeric types are aggregated into V_NUMERIC
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvValue: value to examine
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		The extended VarType
+
+Dim iType As Integer	&apos;	VarType of argument
+
+	iType = VarType(pvValue)
+	Select Case iType
+		Case V_INTEGER, V_LONG, V_SINGLE, V_DOUBLE, V_CURRENCY, V_BIGINT, V_DECIMAL
+			_VarTypeExt = V_NUMERIC
+		Case Else	:	_VarTypeExt = iType
+	End Select
+
+End Function	&apos;	ScriptForge.SF_Utils._VarTypeExt
+
+REM ================================================= END OF SCRIPTFORGE.SF_UTILS
+</script:module>

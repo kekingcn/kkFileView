@@ -1,0 +1,577 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="PropertiesSet" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setAbsolutePosition(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setAbsolutePosition&quot;)
+	setAbsolutePosition = PropertiesSet._setProperty(pvObject, &quot;AbsolutePosition&quot;, pvValue)
+End Function		&apos;	setAbsolutePosition
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setAllowAdditions(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setAllowAdditions&quot;)
+	setAllowAdditions = PropertiesSet._setProperty(pvObject, &quot;AllowAdditions&quot;, pvValue)
+End Function		&apos;	setAllowAdditions
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setAllowDeletions(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setAllowDeletions&quot;)
+	setAllowDeletions = PropertiesSet._setProperty(pvObject, &quot;AllowDeletions&quot;, pvValue)
+End Function		&apos;	setAllowDeletions
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setAllowEdits(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setAllowEdits&quot;)
+	setAllowEdits = PropertiesSet._setProperty(pvObject, &quot;AllowEdits&quot;, pvValue)
+End Function		&apos;	setAllowEdits
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setBackColor(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setBackColor&quot;)
+	setBackColor = PropertiesSet._setProperty(pvObject, &quot;BackColor&quot;, pvValue)
+End Function		&apos;	setBackColor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setBookmark(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setBookmark&quot;)
+	setBookmark = PropertiesSet._setProperty(pvObject, &quot;Bookmark&quot;, pvValue)
+End Function		&apos;	setBookmark
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setBorderColor (Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setBorderColor&quot;)
+	setBorderColor = PropertiesSet._setProperty(pvObject, &quot;BorderColor&quot;, pvValue)
+End Function		&apos;	setBorderColor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setBorderStyle(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setBorderStyle&quot;)
+	setBorderStyle = PropertiesSet._setProperty(pvObject, &quot;BorderStyle&quot;, pvValue)
+End Function		&apos;	setBorderStyle
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setCancel(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setCancel&quot;)
+	setCancel = PropertiesSet._setProperty(pvObject, &quot;Cancel&quot;, pvValue)
+End Function		&apos;	setCancel
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setCaption(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setCaption&quot;)
+	setCaption = PropertiesSet._setProperty(pvObject, &quot;Caption&quot;, pvValue)
+End Function		&apos;	setCaption
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setControlTipText(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setControlTipText&quot;)
+	setControlTipText = PropertiesSet._setProperty(pvObject, &quot;ControlTipText&quot;, pvValue)
+End Function		&apos;	setControlTipText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setCurrentRecord(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setCurrentRecord&quot;)
+	setCurrentRecord = PropertiesSet._setProperty(pvObject, &quot;CurrentRecord&quot;, pvValue)
+End Function		&apos;	setCurrentRecord
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setDefault(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setDefault&quot;)
+	setDefault = PropertiesSet._setProperty(pvObject, &quot;Default&quot;, pvValue)
+End Function		&apos;	setDefault
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setDefaultValue(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setDefaultValue&quot;)
+	setDefaultValue = PropertiesSet._setProperty(pvObject, &quot;DefaultValue&quot;, pvValue)
+End Function		&apos;	setDefaultValue
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setDescription(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setDescription&quot;)
+	setDescription = PropertiesSet._setProperty(pvObject, &quot;Description&quot;, pvValue)
+End Function		&apos;	setDescription
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setEnabled(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setEnabled&quot;)
+	setEnabled = PropertiesSet._setProperty(pvObject, &quot;Enabled&quot;, pvValue)
+End Function		&apos;	setEnabled
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFilter(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFilter&quot;)
+	setFilter = PropertiesSet._setProperty(pvObject, &quot;Filter&quot;, pvValue)
+End Function		&apos;	setFilter
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFilterOn(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFilterOn&quot;)
+	setFilterOn = PropertiesSet._setProperty(pvObject, &quot;FilterOn&quot;, pvValue)
+End Function		&apos;	setFilterOn
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFontBold(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFontBold&quot;)
+	setFontBold = PropertiesSet._setProperty(pvObject, &quot;FontBold&quot;, pvValue)
+End Function		&apos;	setFontBold
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFontItalic(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFontItalic&quot;)
+	setFontItalic = PropertiesSet._setProperty(pvObject, &quot;FontItalic&quot;, pvValue)
+End Function		&apos;	setFontItalic
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFontName(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFontName&quot;)
+	setFontName = PropertiesSet._setProperty(pvObject, &quot;FontName&quot;, pvValue)
+End Function		&apos;	setFontName
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFontSize(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFontSize&quot;)
+	setFontSize = PropertiesSet._setProperty(pvObject, &quot;FontSize&quot;, pvValue)
+End Function		&apos;	setFontSize
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFontUnderline(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFontUnderline&quot;)
+	setFontUnderline = PropertiesSet._setProperty(pvObject, &quot;FontUnderline&quot;, pvValue)
+End Function		&apos;	setFontUnderline
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setFontWeight(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setFontWeight&quot;)
+	setFontWeight = PropertiesSet._setProperty(pvObject, &quot;FontWeight&quot;, pvValue)
+End Function		&apos;	setFontWeight
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setForeColor(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setForeColor&quot;)
+	setForeColor = PropertiesSet._setProperty(pvObject, &quot;ForeColor&quot;, pvValue)
+End Function		&apos;	setForeColor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setHeight(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setHeight&quot;)
+	setHeight = PropertiesSet._setProperty(pvObject, &quot;Height&quot;, pvValue)
+End Function		&apos;	setHeight
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setListIndex(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setListIndex&quot;)
+	setListIndex = PropertiesSet._setProperty(pvObject, &quot;ListIndex&quot;, pvValue)
+End Function		&apos;	setListIndex
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setLocked(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setLocked&quot;)
+	setLocked = PropertiesSet._setProperty(pvObject, &quot;Locked&quot;, pvValue)
+End Function		&apos;	setLocked
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setMultiSelect(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setMultiSelect&quot;)
+	setMultiSelect = PropertiesSet._setProperty(pvObject, &quot;MultiSelect&quot;, pvValue)
+End Function		&apos;	setMultiSelect
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setOnAction(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setOnAction&quot;)
+	setOnAction = PropertiesSet._setProperty(pvObject, &quot;OnAction&quot;, pvValue)
+End Function		&apos;	setOnAction
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setOptionValue(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setOptionValue&quot;)
+	setOptionValue = PropertiesSet._setProperty(pvObject, &quot;OptionValue&quot;, pvValue)
+End Function		&apos;	setOptionValue
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setOrderBy(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setOrderBy&quot;)
+	setOrderBy = PropertiesSet._setProperty(pvObject, &quot;OrderBy&quot;, pvValue)
+End Function		&apos;	setOrderBy
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setOrderByOn(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setOrderByOn&quot;)
+	setOrderByOn = PropertiesSet._setProperty(pvObject, &quot;OrderByOn&quot;, pvValue)
+End Function		&apos;	setOrderByOn
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setPage(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setPage&quot;)
+	setPage = PropertiesSet._setProperty(pvObject, &quot;Page&quot;, pvValue)
+End Function		&apos;	setPage		V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setProperty(Optional pvItem As Variant, ByVal Optional psProperty As String, ByVal Optional pvValue As Variant, ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return True if property setting OK
+	Utils._SetCalledSub(&quot;setProperty&quot;)
+	If IsMissing(pvItem) Or IsMissing(psProperty) Or IsMissing(pvValue) Or IsEmpty(pvItem) Then Call _TraceArguments()
+	If IsMissing(pvIndex) Then
+		setProperty = PropertiesSet._setProperty(pvItem, psProperty, pvValue)
+	Else
+		setProperty = PropertiesSet._setProperty(pvItem, psProperty, pvValue, pvIndex)
+	End If
+	Utils._ResetCalledSub(&quot;setProperty&quot;)
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setRecordSource(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setRecordSource&quot;)
+	setRecordSource = PropertiesSet._setProperty(pvObject, &quot;RecordSource&quot;, pvValue)
+End Function		&apos;	setRecordSource
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setRequired(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setRequired&quot;)
+	setRequired = PropertiesSet._setProperty(pvObject, &quot;Required&quot;, pvValue)
+End Function		&apos;	setRequired
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setRowSource(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setRowSource&quot;)
+	setRowSource = PropertiesSet._setProperty(pvObject, &quot;RowSource&quot;, pvValue)
+End Function		&apos;	setRowSource
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setRowSourceType(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setRowSourceType&quot;)
+	setRowSourceType = PropertiesSet._setProperty(pvObject, &quot;RowSourceType&quot;, pvValue)
+End Function		&apos;	setRowSourceType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setSelected(Optional pvObject As Variant, ByVal Optional pvValue As Variant, ByVal Optional pvIndex As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Then Call _TraceArguments(&quot;setSelected&quot;)
+	If IsEmpty(pvObject) Then Call _TraceArguments(&quot;setSelected&quot;)
+	If IsMissing(pvIndex) Then
+		setSelected = PropertiesSet._setProperty(pvObject, &quot;Selected&quot;, pvValue)
+	Else
+		setSelected = PropertiesSet._setProperty(pvObject, &quot;Selected&quot;, pvValue, pvIndex)
+	End If
+End Function		&apos;	setSelected
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setSelLength(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setSelLength&quot;)
+	setSelLength = PropertiesSet._setProperty(pvObject, &quot;SelLength&quot;, pvValue)
+End Function		&apos;	setSelLength
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setSelStart(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setSelStart&quot;)
+	setSelStart = PropertiesSet._setProperty(pvObject, &quot;SelStart&quot;, pvValue)
+End Function		&apos;	setSelStart
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setSelText(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setSelText&quot;)
+	setSelText = PropertiesSet._setProperty(pvObject, &quot;SelText&quot;, pvValue)
+End Function		&apos;	setSelText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setSpecialEffect(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setSpecialEffect&quot;)
+	setSpecialEffect = PropertiesSet._setProperty(pvObject, &quot;SpecialEffect&quot;, pvValue)
+End Function		&apos;	setSpecialEffect
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setTabIndex(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setTabIndex&quot;)
+	setTabIndex = PropertiesSet._setProperty(pvObject, &quot;TabIndex&quot;, pvValue)
+End Function		&apos;	setTabIndex
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setTabStop(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setTabStop&quot;)
+	setTabStop = PropertiesSet._setProperty(pvObject, &quot;TabStop&quot;, pvValue)
+End Function		&apos;	setTabStop
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setTag(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setTag&quot;)
+	setTag = PropertiesSet._setProperty(pvObject, &quot;Tag&quot;, pvValue)
+End Function		&apos;	setTag
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setTextAlign(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setTextAlign&quot;)
+	setTextAlign = PropertiesSet._setProperty(pvObject, &quot;TextAlign&quot;, pvValue)
+End Function		&apos;	setTextAlign
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setTooltipText(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setTooltipText&quot;)
+	setTooltipText = PropertiesSet._setProperty(pvObject, &quot;TooltipText&quot;, pvValue)
+End Function		&apos;	setTooltipText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setTripleState(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setTripleState&quot;)
+	setTripleState = PropertiesSet._setProperty(pvObject, &quot;TripleState&quot;, pvValue)
+End Function		&apos;	setTripleState
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setVisible(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms and controls
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setVisible&quot;)
+	setVisible = PropertiesSet._setProperty(pvObject, &quot;Visible&quot;, pvValue)
+End Function		&apos;	setVisible
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setWidth(Optional pvObject As Variant, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Only for open forms
+	If IsMissing(pvObject) Or IsMissing(pvValue) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;setWidth&quot;)
+	setWidth = PropertiesSet._setProperty(pvObject, &quot;Width&quot;, pvValue)
+End Function		&apos;	setWidth
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private Function _CheckProperty(pvObject As Object, ByVal psProperty As String) As Boolean
+&apos;	Return False if psProperty not within the PropertyValues set of pvItem
+
+Dim i As Integer, oPropertyValues As Variant, oProperty As Variant
+	oPropertyValues = pvObject.PropertyValues
+	
+	For i = LBound(oPropertyValues) To UBound(oPropertyValues)
+		oProperty = oPropertyValues(i)
+		If UCase(oProperty.Name) = UCase(psProperty) Then
+			_CheckProperty = True
+			Exit Function
+		End If
+	Next i
+	
+	_CheckProperty = False
+	Exit Function
+
+End Function	&apos;	CheckProperty	V0.7.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _setProperty(pvItem As Variant, ByVal psProperty As String, ByVal pvValue As Variant, ByVal Optional pvIndex As Variant) As Boolean
+&apos;	Return True if property setting OK
+	Utils._SetCalledSub(&quot;set&quot; &amp; psProperty)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+
+&apos;pvItem must be an object and have the requested property
+	If Not Utils._CheckArgument(pvItem, 1, vbObject) Then Goto Exit_Function
+&apos;Check Index argument
+	If Not IsMissing(pvIndex) Then
+		If Not Utils._CheckArgument(pvIndex, 4, Utils._AddNumeric()) Then Goto Exit_Function
+	End If
+&apos;Execute
+Dim iArgNr As Integer, lFormat As Long
+Dim i As Integer, iCount As Integer, iSelectedItems() As Integer, bListboxBound As Boolean
+Dim odbDatabase As Object, vNames As Variant, bFound As Boolean, sName As String, oModel As Object
+Dim ocButton As Variant, iRadioIndex As Integer
+	_setProperty = True
+	If _A2B_.CalledSub = &quot;setProperty&quot; Then iArgNr = 3 Else iArgNr = 2
+	If Not PropertiesGet._hasProperty(pvItem._Type, pvItem._PropertiesList(), psProperty) Then Goto Trace_Error_Control
+	Select Case UCase(psProperty)
+		Case UCase(&quot;AbsolutePosition&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJRECORDSET) Then Goto Exit_Function
+			pvItem.AbsolutePosition = pvValue
+		Case UCase(&quot;AllowAdditions&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.AllowAdditions = pvValue
+		Case UCase(&quot;AllowDeletions&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.AllowDeletions = pvValue
+		Case UCase(&quot;AllowEdits&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.AllowEdits = pvValue
+		Case UCase(&quot;BackColor&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.BackColor = pvValue
+		Case UCase(&quot;Bookmark&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJRECORDSET)) Then Goto Exit_Function
+			pvItem.Bookmark = pvValue
+		Case UCase(&quot;BorderColor&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.BorderColor = pvValue
+		Case UCase(&quot;BorderStyle&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.BorderColor = pvValue
+		Case UCase(&quot;Cancel&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.Cancel = pvValue
+		Case UCase(&quot;Caption&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG, OBJCONTROL)) Then Goto Exit_Function
+			pvItem.Caption = pvValue
+		Case UCase(&quot;ControlTipText&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.ControlTipText = pvValue
+		Case UCase(&quot;CurrentRecord&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.CurrentRecord = pvValue
+		Case UCase(&quot;Default&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.Default = pvValue
+		Case UCase(&quot;DefaultValue&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJCONTROL, OBJFIELD)) Then Goto Exit_Function
+			pvItem.DefaultValue = pvValue
+		Case UCase(&quot;Description&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			pvItem.DefaultValue = pvValue
+		Case UCase(&quot;Enabled&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.Enabled = pvValue
+		Case UCase(&quot;Filter&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM, OBJRECORDSET)) Then Goto Exit_Function
+			pvItem.Filter = pvValue
+		Case UCase(&quot;FilterOn&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.FilterOn = pvValue
+		Case UCase(&quot;FontBold&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.FontBold = pvValue
+		Case UCase(&quot;FontItalic&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.FontItalic = pvValue
+		Case UCase(&quot;FontName&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.FontName = pvValue
+		Case UCase(&quot;FontSize&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.FontSize = pvValue
+		Case UCase(&quot;FontUnderline&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.FontUnderline = pvValue
+		Case UCase(&quot;FontWeight&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.FontWeight = pvValue
+		Case UCase(&quot;ForeColor&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.ForeColor = pvValue
+		Case UCase(&quot;Height&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG)) Then Goto Exit_Function
+			pvItem.Height = pvValue
+		Case UCase(&quot;ListIndex&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.ListIndex = pvValue
+		Case UCase(&quot;Locked&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.Locked = pvValue
+		Case UCase(&quot;MultiSelect&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.MultiSelect = pvValue
+		Case UCase(&quot;OnAction&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCOMMANDBARCONTROL) Then Goto Exit_Function
+			pvItem.OnAction = pvValue
+		Case UCase(&quot;OptionValue&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.OptionValue = pvValue
+		Case UCase(&quot;OrderBy&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.OrderBy = pvValue
+		Case UCase(&quot;OrderByOn&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.OrderByOn = pvValue
+		Case UCase(&quot;Page&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJDIALOG, OBJCONTROL)) Then Goto Exit_Function
+			pvItem.Page = pvValue
+		Case UCase(&quot;RecordSource&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			pvItem.RecordSource = pvValue
+		Case UCase(&quot;Required&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.Required = pvValue
+		Case UCase(&quot;RowSource&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.RowSource = pvValue
+		Case UCase(&quot;RowSourceType&quot;)		&apos;	Refresh done when RowSource changes, not RowSourceType
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.RowSourceType = pvValue
+		Case UCase(&quot;Selected&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			If IsMissing(pvIndex) Then pvItem.Selected = pvValue Else pvItem.SelectedI(pvValue, pvIndex)
+		Case UCase(&quot;SelLength&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.SelLength = pvValue
+		Case UCase(&quot;SelStart&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.SelStart = pvValue
+		Case UCase(&quot;SelText&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.SelText = pvValue
+		Case UCase(&quot;SpecialEffect&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.SpecialEffect = pvValue
+		Case UCase(&quot;TabIndex&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.TabIndex = pvValue
+		Case UCase(&quot;TabStop&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.TabStop = pvValue
+		Case UCase(&quot;Tag&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.Tag = pvValue
+		Case UCase(&quot;TextAlign&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.TextAlign = pvValue
+		Case UCase(&quot;TooltipText&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCOMMANDBARCONTROL) Then Goto Exit_Function
+			pvItem.TooltipText = pvValue
+		Case UCase(&quot;TripleState&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			pvItem.TripleState = pvValue
+		Case UCase(&quot;Value&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJCONTROL, OBJOPTIONGROUP, OBJFIELD, OBJTEMPVAR)) Then Goto Exit_Function
+			pvItem.Value = pvValue
+		Case UCase(&quot;Visible&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG, OBJCONTROL, OBJCOMMANDBAR, OBJCOMMANDBARCONTROL)) Then Goto Exit_Function
+			pvItem.Visible = pvValue
+		Case UCase(&quot;Width&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG)) Then Goto Exit_Function
+			pvItem.Width = pvValue
+		Case Else
+			Goto Trace_Error_Control
+	End Select
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;set&quot; &amp; psProperty)
+	Exit Function
+Trace_Error_Form:
+	TraceError(TRACEFATAL, ERRFORMNOTFOUND, Utils._CalledSub(), 0, 1, pvItem._Name)
+	_setProperty = False
+	Goto Exit_Function
+Trace_Error_Control:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_setProperty = False
+	Goto Exit_Function
+Trace_Error_Value:
+	TraceError(TRACEFATAL, ERRPROPERTYVALUE, Utils._CalledSub(), 0, 1, Array(pvValue, psProperty))
+	_setProperty = False
+	Goto Exit_Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRINDEXVALUE, Utils._CalledSub(), 0, 1, psProperty)
+	_setProperty = Nothing
+	Goto Exit_Function
+Trace_Error_Array:
+	TraceError(TRACEFATAL, ERRPROPERTYNOTARRAY, Utils._CalledSub(), 0, 1, iArgNr)
+	_setProperty = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;_setProperty&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	_setProperty	V0.9.1
+
+</script:module>

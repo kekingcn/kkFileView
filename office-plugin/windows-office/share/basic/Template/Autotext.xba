@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Autotext" script:language="StarBasic">Option Explicit
 
 Public UserfieldDataType(14) as String
@@ -44,9 +41,9 @@ Sub Main()
 	On Local Error Goto GENERALERROR
 	&apos; Initialization...
     BasicLibraries.LoadLibrary(&quot;Tools&quot;)
-	If InitResources(&quot;&apos;Template&apos;&quot;, &quot;tpl&quot;) Then
-		sGeneralError = GetResText(1302)
-		sTextFieldNotDefined = GetResText(1400)
+	If InitResources(&quot;&apos;Template&apos;&quot;) Then
+		sGeneralError = GetResText(&quot;CorrespondenceMsgError&quot;)
+		sTextFieldNotDefined = GetResText(&quot;TextField&quot;)
 	End If
 
 	UserfieldDatatype(0) = &quot;COMPANY&quot;
@@ -128,7 +125,7 @@ Sub	CreateUserDatafield(oCursor, sFoundContent as String)
 	oUserfield = oDocAuto.CreateInstance(&quot;com.sun.star.text.TextField.ExtendedUser&quot;)
 	sFoundList() = ArrayoutofString(sFoundContent,&quot;:&quot;,MaxIndex)
 	UserInfo = UCase(LTrim(sFoundList(1)))
-	UserIndex = IndexinArray(UserInfo, UserfieldDatatype())
+	UserIndex = IndexInArray(UserInfo, UserfieldDatatype())
 	If UserIndex &lt;&gt; -1 Then
 		oUserField.UserDatatype = UserIndex
 		oCursor.Text.InsertTextContent(oCursor,oUserField,True)

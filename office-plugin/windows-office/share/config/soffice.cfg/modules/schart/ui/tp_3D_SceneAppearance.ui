@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="chart">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkBox" id="tp_3D_SceneAppearance">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkBox" id="box1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">12</property>
+        <child>
+          <object class="GtkLabel" id="FT_SCHEME">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="tp_3D_SceneAppearance|FT_SCHEME">Sche_me</property>
+            <property name="use_underline">True</property>
+            <property name="mnemonic_widget">LB_SCHEME</property>
+            <property name="xalign">0</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="LB_SCHEME">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <items>
+              <item id="0" translatable="yes" context="tp_3D_SceneAppearance|liststoreSCHEME">Simple</item>
+              <item id="1" translatable="yes" context="tp_3D_SceneAppearance|liststoreSCHEME">Realistic</item>
+              <item id="2" translatable="yes" context="tp_3D_SceneAppearance|liststoreSCHEME">Custom</item>
+            </items>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="LB_SCHEME-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneAppearance|extended_tip|LB_SCHEME">Select a scheme from the list box, or click any of the check boxes below.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="box2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkSeparator" id="separator1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="CB_SHADING">
+            <property name="label" translatable="yes" context="tp_3D_SceneAppearance|CB_SHADING">_Shading</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="CB_SHADING-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneAppearance|extended_tip|CB_SHADING">Applies Gouraud shading if marked, or flat shading if unmarked.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="CB_OBJECTLINES">
+            <property name="label" translatable="yes" context="tp_3D_SceneAppearance|CB_OBJECTLINES">_Object borders</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="CB_OBJECTLINES-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneAppearance|extended_tip|CB_OBJECTLINES">Shows borders around the areas by setting the line style to Solid.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="CB_ROUNDEDEDGE">
+            <property name="label" translatable="yes" context="tp_3D_SceneAppearance|CB_ROUNDEDEDGE">_Rounded edges</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="CB_ROUNDEDEDGE-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="tp_3D_SceneAppearance|extended_tip|CB_ROUNDEDEDGE">Edges are rounded by 5%.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+  </object>
+</interface>

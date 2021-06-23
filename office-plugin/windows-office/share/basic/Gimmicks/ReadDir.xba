@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="ReadDir" script:language="StarBasic">Option Explicit
 Public Const SBPAGEX = 800
 Public Const SBPAGEY = 800
@@ -90,7 +87,7 @@ Dim FileNames() as String
 	ToggleDialogControls(False)
 	oProgressBar.ProgressValueMin = 0
 	oProgressBar.ProgressValueMax = 100
-	bStartUpRun  = True
+	bStartUpRun = True
 	nOldHeight = 200
 	nOldY = SBPAGEY
 	nOldX = SBPAGEX
@@ -159,7 +156,7 @@ Dim FileNames() as String
 		nOldLevel = iCurLevel
 	Next i
 	ToggleDialogControls(True)
-	DlgReadDir.Model.cmdGoOn.Enabled = False	
+	DlgReadDir.Model.cmdGoOn.Enabled = False
 End Sub
 
 
@@ -169,7 +166,7 @@ Dim aPoint As New com.sun.star.awt.Point
 
 	aPoint.X = CalculateXPoint()
 	aPoint.Y = nOldY + SBRELDIST * nOldHeight
-	nOldY  = aPoint.Y
+	nOldY = aPoint.Y
 
 	oTextShape = oDocument.createInstance(&quot;com.sun.star.drawing.TextShape&quot;)
 	oTextShape.LineStyle = 1
@@ -180,7 +177,7 @@ Dim aPoint As New com.sun.star.awt.Point
 	oTextShape.TextAutoGrowHeight = TRUE
 	oTextShape.String = FileName
 
-	&apos; Configure Size And Position of the TextShape  according to its Scripting
+	&apos; Configure Size And Position of the TextShape according to its Scripting
 	aPoint.X = iLevelPos(iCurLevel,SBBASEX)
 	oTextShape.Position = aPoint
 	CreateTextShape() = oTextShape
@@ -249,7 +246,7 @@ Dim MaxFileIndex as Integer
 		m = m + 1
 		DirContent() = oUcbObject.GetFolderContents(Source,True)
 		If Ubound(DirContent()) &lt;&gt; -1 Then
-			MaxFileIndex  = Ubound(DirContent()) 
+			MaxFileIndex = Ubound(DirContent())
 			For i = 0 to MaxFileIndex
 				FileName = DirContent(i)
 				FileNameList(n,0) = FileName
@@ -266,7 +263,7 @@ Dim MaxFileIndex as Integer
 				End If
 			Next i
 		End If
-	Loop Until m &gt; Ubound(DirList()
+	Loop Until m &gt; Ubound(DirList())
 	ReDim Preserve FileNameList(n-1,1) as String
 	ReadSourceDirectory() = FileNameList()
 End Function
@@ -277,16 +274,16 @@ Sub CloseDialog
 End Sub
 
 
-Sub	AdjustPageHeight(lShapeHeight, FileCount)
+Sub AdjustPageHeight(lShapeHeight, FileCount)
 Dim lNecHeight as Long
 Dim lBorders as Long
 	oDocument.LockControllers
 	lBorders = oPage.BorderTop + oPage.BorderBottom
 	lNecHeight = SBPAGEY + (FileCount * SBRELDIST * lShapeHeight)
 	If lNecHeight &gt; (oPage.Height - lBorders) Then
-		oPage.Height = lNecHeight + lBorders + 500 
+		oPage.Height = lNecHeight + lBorders + 500
 	End If
-	oDocument.UnlockControllers	
+	oDocument.UnlockControllers
 End Sub
 
 

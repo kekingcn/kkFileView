@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR_HOME=("/opt/openoffice.org3" "/opt/libreoffice" "/opt/openoffice4" "/usr/lib/openoffice" "/usr/lib/libreoffice")
+DIR_HOME=("/opt/openoffice.org3" "/opt/libreoffice" "/opt/libreoffice6.1" "/opt/libreoffice7.0" "/opt/libreoffice7.1" "/opt/openoffice4" "/usr/lib/openoffice" "/usr/lib/libreoffice")
 FLAG=
 OFFICE_HOME=
 KKFILEVIEW_BIN_FOLDER=$(cd "$(dirname "$0")";pwd)
@@ -29,4 +29,4 @@ echo "Starting kkFileView..."
 echo "Please execute ./showlog.sh to check log for more information"
 echo "You can get help in our official homesite: https://kkFileView.keking.cn"
 echo "If this project is helpful to you, please star it on https://gitee.com/kekingcn/file-online-preview/stargazers"
-nohup java -Dfile.encoding=UTF-8 -Dspring.config.location=../config/application.properties -jar kkFileView-3.6.0.jar > ../log/kkFileView.log 2>&1 &
+nohup java -Dfile.encoding=UTF-8 -Dspring.config.location=../config/application.properties -jar kkFileView-4.0.0-SNAPSHOT.jar > ../log/kkFileView.log 2>&1 &

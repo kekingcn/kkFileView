@@ -1,0 +1,94 @@
+^0 xejn # żero
+1 wieħed
+2 tnejn
+3 tlieta
+4 erbgħa
+5 ħamsa
+6 sitta
+7 sebgħa
+8 tmienja
+9 disgħa
+10 għaxra
+11 ħdax
+12 tnax
+13 tlettax
+14 erbatax
+15 ħmistax
+16 sittax
+17 sbatax
+18 tmintax
+19 dsatax
+2(\d) [$1 u ]għoxrin
+3(\d) [$1 u ]tletin
+4(\d) [$1 u ]erbgħin
+5(\d) [$1 u ]ħamsin
+6(\d) [$1 u ]sittin
+7(\d) [$1 u ]sebgħin
+8(\d) [$1 u ]tmenin
+9(\d) [$1 u ]disgħin
+1(\d\d) mija[ $1]
+2(\d\d) mitejn[ $1]
+3(\d\d) tliet mija[ $1]
+4(\d\d) erba’ mija[ $1]
+5(\d\d) hames mija[ $1]
+6(\d\d) sitt mija[ $1]
+7(\d\d) seba’ mija[ $1]
+8(\d\d) tminn mija[ $1]
+9(\d\d) disa’ mija[ $1]
+1(\d{1,3}) elf[ $1]
+2(\d{1,3}) elfejn[ $1]
+3(\d{1,3}) tlitt elef[ $1]
+4(\d{1,3}) erbat elef[ $1]
+5(\d{1,3}) ħamest elef[ $1]
+6(\d{1,3}) sitt elef[ $1]
+7(\d{1,3}) sebat elef[ $1]
+8(\d{1,3}) tmint elef[ $1]
+9(\d{1,3}) disat elef[ $1]
+(\d{1,3})(\d\d\d) $1 elf[ $2]
+(\d{1,3})(\d{6}) $1 miljun[ $2]
+(\d{1,3})(\d{9}) $1 biljun[ $2]
+(\d{1,3})(\d{12}) $1 triljun[ $2]
+
+== cardinal-feminine ==
+
+1 waħda
+(.*) $1
+
+== cardinal-masculine ==
+
+(.*) $1
+
+
+== ordinal ==
+
+1 l-ewwel
+2 it-tieni
+3 it-tielet
+4 ir-raba’g
+5 il-ħames
+6 is-sitt
+7 is-seba’g
+8 it-tmien
+9 id-disa’g
+10 l-għaxar
+11 il-ħdax
+12 it-tnax
+13 it-tlettax
+14 l-erbatax
+15 il-ħmistax
+16 is-sittax
+17 is-sbatax
+18 it-tmintax
+19 id-dsatax
+20 l-għoxrin
+(.*) \1
+
+== ordinal-number ==
+
+(.*)	\1.
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help cardinal-feminine)$(help cardinal-masculine)$(help ordinal)$(help ordinal-number)
+(cardinal(-feminine|-masculine)?|ordinal(-number)?) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n
+

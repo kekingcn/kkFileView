@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="cui">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="lower">1</property>
+    <property name="upper">60</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <!-- n-columns=1 n-rows=1 -->
+  <object class="GtkGrid" id="OptSavePage">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="row_spacing">12</property>
+    <child>
+      <object class="GtkFrame" id="frame1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="row_spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="load_docprinter">
+                    <property name="label" translatable="yes" context="optsavepage|load_docprinter">Load printer settings with the document</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="load_docprinter-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="load_docprinter">If enabled, the printer settings will be loaded with the document. This can cause a document to be printed on a distant printer, if you do not change the printer manually in the Print dialog. If disabled, your standard printer will be used to print this document. The current printer settings will be stored with the document whether or not this option is checked.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="load_settings">
+                    <property name="label" translatable="yes" context="optsavepage|load_settings">Load user-specific settings with the document</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="load_settings-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="load_settings">Loads the user-specific settings saved in a document with the document.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="optsavepage|label1">Load</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="frame2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="row_spacing">6</property>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="grid7">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="column_spacing">6</property>
+                    <child>
+                      <object class="GtkCheckButton" id="autosave">
+                        <property name="label" translatable="yes" context="optsavepage|autosave">Save _AutoRecovery information every:</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="autosave-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="autosave">Specifies that %PRODUCTNAME saves the information needed to restore all open documents in case of a crash. You can specify the saving time interval.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="autosave_spin">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="max_length">2</property>
+                        <property name="activates_default">True</property>
+                        <property name="adjustment">adjustment1</property>
+                        <property name="truncate-multiline">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="autosave_spin-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="autosave_spin">Specifies the time interval in minutes for the automatic recovery option.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="autosave_mins">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="optsavepage|autosave_mins">minutes</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="userautosave">
+                    <property name="label" translatable="yes" context="optsavepage|userautosave">Automatically save the document too</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="margin_left">12</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="userautosave-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="userautosave">Specifies that %PRODUCTNAME saves all open documents when saving auto recovery information. Uses the same time interval as AutoRecovery does.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="relative_fsys">
+                    <property name="label" translatable="yes" context="optsavepage|relative_fsys">Save URLs relative to file system</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="relative_fsys-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="relative_fsys">Select this box for relative saving of URLs in the file system.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="docinfo">
+                    <property name="label" translatable="yes" context="optsavepage|docinfo">_Edit document properties before saving</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="docinfo-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="docinfo">Specifies that the Properties dialog will appear every time you select the Save As command.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="relative_inet">
+                    <property name="label" translatable="yes" context="optsavepage|relative_inet">Save URLs relative to internet</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="relative_inet-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="relative_inet">Select this box for relative saving of URLs to the Internet.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="backup">
+                    <property name="label" translatable="yes" context="optsavepage|backup">Al_ways create backup copy</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="backup-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="backup">Saves the previous version of a document as a backup copy whenever you save a document. Every time %PRODUCTNAME creates a backup copy, the previous backup copy is replaced. The backup copy gets the extension .BAK.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">3</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="optsavepage|label2">Save</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="frame3">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="row_spacing">6</property>
+                <property name="column_spacing">12</property>
+                <child>
+                  <object class="GtkCheckButton" id="warnalienformat">
+                    <property name="label" translatable="yes" context="optsavepage|warnalienformat">Warn when not saving in ODF or default format</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="warnalienformat-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="warnalienformat">You can choose to get a warning message when you save a document in a format that is not OpenDocument or which you did not set as default format in Load/Save - General in the Options dialog box.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="grid11">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">12</property>
+                    <property name="column_spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="odfwarning_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="optsavepage|odfwarning_label" comments="EN-US, the term 'extended' must not be translated.">Not using ODF 1.3 Extended may cause information to be lost.</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="odfwarning_image">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="icon_name">svx/res/caution_11x16.png</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">4</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="odfversion">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item translatable="yes" context="optsavepage|odfversion">1.0/1.1</item>
+                      <item translatable="yes" context="optsavepage|odfversion">1.2</item>
+                      <item translatable="yes" context="optsavepage|odfversion">1.2 Extended (compatibility mode)</item>
+                      <item translatable="yes" context="optsavepage|odfversion">1.2 Extended</item>
+                      <item translatable="yes" context="optsavepage|odfversion">1.3</item>
+                      <item translatable="yes" context="optsavepage|odfversion">1.3 Extended (recommended)</item>
+                    </items>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="odfversion-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="odfversion">Some companies or organizations may require ODF documents in the ODF 1.0/1.1, or ODF 1.2 format. You can select these format to save in the listbox. These older formats cannot store all new features, so the new format ODF 1.3 (Extended) is recommended where possible.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="optsavepage|label5">ODF format version:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">odfversion</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="saveas_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="optsavepage|saveas_label">Always sa_ve as:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">saveas</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="doctype">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item translatable="yes" context="optsavepage|doctype">Text document</item>
+                      <item translatable="yes" context="optsavepage|doctype">HTML document</item>
+                      <item translatable="yes" context="optsavepage|doctype">Master document</item>
+                      <item translatable="yes" context="optsavepage|doctype">Spreadsheet</item>
+                      <item translatable="yes" context="optsavepage|doctype">Presentation</item>
+                      <item translatable="yes" context="optsavepage|doctype">Drawing</item>
+                      <item translatable="yes" context="optsavepage|doctype">Formula</item>
+                    </items>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="doctype-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="doctype">Specifies the document type for which you want to define the default file format.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="saveas">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="saveas-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="saveas">Specifies how documents of the type selected on the left will always be saved as this file type. You may select another file type for the current document in the Save as dialog.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label6">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="optsavepage|label6">D_ocument type:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">doctype</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="optsavepage|label3">Default File Format and ODF Settings</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">2</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="OptSavePage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="OptSavePage">In the General section, you can select default settings for saving documents, and can select default file formats.</property>
+      </object>
+    </child>
+  </object>
+</interface>

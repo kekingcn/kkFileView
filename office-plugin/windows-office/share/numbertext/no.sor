@@ -1,0 +1,128 @@
+^0 null
+1 éin # [:nn:] [:nn-NO:]
+1 én
+2 to
+3 tre
+4 fire
+5 fem
+6 seks
+7 sju
+8 åtte
+9 ni
+10 ti
+
+11 elleve
+12 tolv
+13 tretten
+14 fjorten
+15 femten
+16 seksten
+17 sytten
+18 atten
+19 nitten
+
+2(\d) tjue[$1]
+3(\d) tretti[$1]
+4(\d) førti[$1]
+5(\d) femti[$1]
+6(\d) seksti[$1]
+7(\d) sytti[$1]
+8(\d) åtti[$1]
+9(\d) nitti[$1]
+
+(\d)(\d\d) $(cardinal-neuter \1) hundre[ og $2]
+(\d{1,3})(\d{3}) $(cardinal-neuter \1) tusen[ og $2]
+
+a:1,0+
+a:\d+,0+ er
+a:1,(\d+) " og $1"
+a:\d+,(\d+) "er og $1"
+
+(\d{1,3})(\d{6}) $1 million$(a:\1,\2)
+(\d{1,3})(\d{9}) $1 milliard$(a:\1,\2)
+(\d{1,3})(\d{12}) $1 billion$(a:\1,\2)
+(\d{1,3})(\d{15}) $1 billiard$(a:\1,\2)
+(\d{1,3})(\d{18}) $1 trillion$(a:\1,\2)
+(\d{1,3})(\d{21}) $1 trilliard$(a:\1,\2)
+(\d{1,3})(\d{24}) $1 kvadrillion$(a:\1,\2)
+
+# negative number
+
+[-−](\d+) minus |$1
+
+# decimals
+
+([-−]?\d+)[.,] $1| komma
+"([-−]?\d+[.,]0*)(\d+)" $1 |$2
+([-−]?\d+[.,]\d*)(\d) $1| |$2
+
+# currency
+
+# unit/subunit singular/plural
+
+us:([^,]*),([^,]*),([^,]*),([^,]*) \1
+up:([^,]*),([^,]*),([^,]*),([^,]*) \2
+ss:([^,]*),([^,]*),([^,]*),([^,]*) \3
+sp:([^,]*),([^,]*),([^,]*),([^,]*) \4
+
+CHF:(\D+) $(\1: sveitsisk franc, sveitsisk franc, centime, centimes)
+CNY:(\D+) $(\1: renminbi yuan, renminbi yuan, fen, fen)
+DKK:(\D+) $(\1: dansk krone, danske kroner, øre, øre)
+EUR:(\D+) $(\1: euro, euro, cent, cent)
+GBP:(\D+) $(\1: britisk pund, britisk pund, penny, pence)
+ISK:(\D+) $(\1: islandsk krone, islandske kroner, eyrir, aurar)
+JPY:(\D+) $(\1: yen, yen, sen, sen)
+NOK:(\D+) $(\1: norsk krone, norske kroner, øre, øre)
+SEK:(\D+) $(\1: svensk krone, svenske kroner, øre,  øre)
+USD:(\D+) $(\1: amerikansk dollar, amerikansk dollar, cent, cent)
+
+"([A-Z]{3}) ([-−]?1)([.,]00?)?" $2$(\1:us)
+"([A-Z]{3}) ([-−]?\d+)([.,]00?)?" $2$(\1:up)
+
+"(CNY [-−]?\d+)[.,]10?" $1 $2 jiao
+"(CNY [-−]?\d+)[.,](\d)0?" $1 $2 jiao
+"(CNY [-−]?\d+[.,]\d)1" $1 $2 fen
+"(CNY [-−]?\d+[.,]\d)(\d)" $1 $2 fen
+
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 |$(1)$(\2:ss)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 |$(\30)$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 |$3$(\2:sp)
+
+== cardinal-feminine ==
+
+1 éi
+
+== cardinal-neuter ==
+
+1 eitt # [:nn:] [:nn-NO:]
+1 ett
+
+== cardinal(-feminine|-masculine|-neuter)? ==
+
+(.*\d+) $2
+
+== ordinal ==
+
+([-−]?\d+) $(ordinal |$1)
+
+null		nullte		# 0
+(éi?n)		første		# 1
+"(.*) én"	\1 først	# 1
+(.*)to		\1annen		# 2
+(.*)tre		\1tredje	# 3
+(.*)fire	\1fjerde	# 4
+(.*(fem|ellev|tolv|ard|on))(e|er)?	\1te # 5, 11, 12, 10^6, 10^9 etc.
+(.*)seks	\1sjette	# 6
+(.*)tres	\1tressende	# 60
+(.*(sju|ått|ni|ti|tju|ti))e?	\1ende # 7, 8, 9, 10, 20, 30, 40, 50, 70, 80, 90
+(.*(en|hundre|tusen))	\1de	# 13-19, 100, 1000
+
+== ordinal-number ==
+
+(\d+)	\1.
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help cardinal-feminine)$(help cardinal-masculine)$(help cardinal-neuter)$(help ordinal)$(help ordinal-number)
+(cardinal(-feminine|-masculine|-neuter)?|ordinal(-number)?) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n
+

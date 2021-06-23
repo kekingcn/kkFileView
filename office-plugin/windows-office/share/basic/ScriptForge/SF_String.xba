@@ -1,0 +1,2642 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_String" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_String
+&apos;&apos;&apos;	=========
+&apos;&apos;&apos;		Singleton class implementing the &quot;ScriptForge.String&quot; service
+&apos;&apos;&apos;		Implemented as a usual Basic module
+&apos;&apos;&apos;		Focus on string manipulation, regular expressions, encodings and hashing algorithms
+&apos;&apos;&apos;		The first argument of almost every method is the string to consider
+&apos;&apos;&apos;			It is always passed by reference and left unchanged
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	Definitions
+&apos;&apos;&apos;		Line breaks: symbolic name(Ascii number)
+&apos;&apos;&apos;			LF(10), VT(12), CR(13), LF+CR, File separator(28), Group separator(29), Record separator(30), 
+&apos;&apos;&apos;			Next Line(133), Line separator(8232), Paragraph separator(8233)
+&apos;&apos;&apos;		Whitespaces: symbolic name(Ascii number)
+&apos;&apos;&apos;			Space(32), HT(9), LF(10), VT(11), FF(12), CR(13), Next Line(133), No-break space(160),
+&apos;&apos;&apos;			Line separator(8232), Paragraph separator(8233)
+&apos;&apos;&apos;		A quoted string:
+&apos;&apos;&apos;			The quoting character must be the double quote (&quot;)
+&apos;&apos;&apos;			To preserve a quoting character inside the quoted substring, use (\) or (&quot;) as escape character
+&apos;&apos;&apos;					=&gt; [str\&quot;i&quot;&quot;ng]  means [str&quot;i&quot;ng]
+&apos;&apos;&apos;		Escape sequences: symbolic name(Ascii number) = escape sequence
+&apos;&apos;&apos;			Line feed(10) = &quot;\n&quot;
+&apos;&apos;&apos;			Carriage return(13) = &quot;\r&quot;
+&apos;&apos;&apos;			Horizontal tab(9) = &quot;\t&quot;
+&apos;&apos;&apos;			Double the backslash to ignore the sequence, e.g. &quot;\\n&quot; means &quot;\n&quot; (not &quot;\&quot; &amp; Chr(10)).
+&apos;&apos;&apos;		Not printable characters:
+&apos;&apos;&apos;			Defined in the Unicode character database as “Other” or “Separator”
+&apos;&apos;&apos;			In particular, &quot;control&quot; characters (ascii code &lt;= 0x1F) are not printable
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	Some references:
+&apos;&apos;&apos;		https://api.libreoffice.org/docs/idl/ref/namespacecom_1_1sun_1_1star_1_1i18n_1_1KCharacterType.html
+&apos;&apos;&apos;			com.sun.star.i18n.KCharacterType.###
+&apos;&apos;&apos;		https://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1i18n_1_1XCharacterClassification.html
+&apos;&apos;&apos;			com.sun.star.i18n.XCharacterClassification
+
+REM ============================================================ MODULE CONSTANTS
+
+&apos;&apos;&apos;	Most expressions below are derived from https://www.regular-expressions.info/
+
+Const REGEXALPHA			=	&quot;^[A-Za-z]+$&quot;			&apos;	Not used
+Const REGEXALPHANUM			=	&quot;^[\w]+$&quot;
+Const REGEXDATEDAY			=	&quot;(0[1-9]|[12][0-9]|3[01])&quot;
+Const REGEXDATEMONTH		=	&quot;(0[1-9]|1[012])&quot;
+Const REGEXDATEYEAR			=	&quot;(19|20)\d\d&quot;
+Const REGEXTIMEHOUR			=	&quot;(0[1-9]|1[0-9]|2[0123])&quot;
+Const REGEXTIMEMIN			=	&quot;([0-5][0-9])&quot;
+Const REGEXTIMESEC			=	REGEXTIMEMIN
+Const REGEXDIGITS			=	&quot;^[0-9]+$&quot;
+Const REGEXEMAIL			=	&quot;^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$&quot;
+Const REGEXFILELINUX		=	&quot;^[^&lt;&gt;:;,?&quot;&quot;*|\\]+$&quot;
+Const REGEXFILEWIN			=	&quot;^([A-Z]|[a-z]:)?[^&lt;&gt;:;,?&quot;&quot;*|]+$&quot;
+Const REGEXHEXA				=	&quot;^(0X|&amp;H)?[0-9A-F]+$&quot;	&apos;	Includes 0xFF and &amp;HFF
+Const REGEXIPV4				=	&quot;^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$&quot;
+Const REGEXNUMBER			=	&quot;^[-+]?(([0-9]+)?\.)?[0-9]+([eE][-+]?[0-9]+)?$&quot;
+Const REGEXURL				=	&quot;^(https?|ftp)://[^\s/$.?#].[^\s]*$&quot;
+Const REGEXWHITESPACES		=	&quot;^[\s]+$&quot;
+Const REGEXLTRIM			=	&quot;^[\s]+&quot;
+Const REGEXRTRIM			=	&quot;[\s]+$&quot;
+Const REGEXSPACES			=	&quot;[\s]+&quot;
+
+&apos;&apos;&apos;	Accented characters substitution: https://docs.google.com/spreadsheets/d/1pJKSueZK8RkAcJFQIiKpYUamWSC1u1xVQchK7Z7BIwc/edit#gid=0
+&apos;&apos;&apos;		(Many of them are in the list, but do not consider the list as closed vs. the Unicode database)
+
+Const cstCHARSWITHACCENT	=	&quot;ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïðñòóôõöùúûüýÿŠšŸŽž&quot; _
+								&amp; &quot;ĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ₫&quot;
+Const cstCHARSWITHOUTACCENT =	&quot;AAAAAACEEEEIIIIDNOOOOOUUUUYaaaaaaceeeeiiiidnooooouuuuyySsYZz&quot; _
+								&amp; &quot;AaDdIiUuOoUuAaAaAaAaAaAaAaAaAaAaAaAaEeEeEeEeEeEeEeEeIiIiOoOoOoOoOoOoOoOoOoOoOoOoUuUuUuUuUuUuUuYyYyYyYyd&quot;
+
+REM ===================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Set Dispose = Nothing
+End Function	&apos;	ScriptForge.SF_String Explicit destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get CHARSWITHACCENT() As String
+&apos;&apos;&apos;	Latin accents
+	CHARSWITHACCENT = cstCHARSWITHACCENT
+End Property	&apos;	ScriptForge.SF_String.CHARSWITHACCENT
+
+REM -----------------------------------------------------------------------------
+Property Get CHARSWITHOUTACCENT() As String
+&apos;&apos;&apos;	Latin accents
+	CHARSWITHOUTACCENT = cstCHARSWITHOUTACCENT
+End Property	&apos;	ScriptForge.SF_String.CHARSWITHOUTACCENT
+
+&apos;&apos;&apos;	Symbolic constants for linebreaks
+REM -----------------------------------------------------------------------------
+Property Get sfCR() As Variant
+&apos;&apos;&apos;	Carriage return
+	sfCR = Chr(13)
+End Property	&apos;	ScriptForge.SF_String.sfCR
+
+REM -----------------------------------------------------------------------------
+Property Get sfCRLF() As Variant
+&apos;&apos;&apos;	Carriage return
+	sfCRLF = Chr(13) &amp; Chr(10)
+End Property	&apos;	ScriptForge.SF_String.sfCRLF
+
+REM -----------------------------------------------------------------------------
+Property Get sfLF() As Variant
+&apos;&apos;&apos;	Linefeed
+	sfLF = Chr(10)
+End Property	&apos;	ScriptForge.SF_String.sfLF
+
+REM -----------------------------------------------------------------------------
+Property Get sfNEWLINE() As Variant
+&apos;&apos;&apos;	Linefeed or Carriage return + Linefeed
+	sfNEWLINE = Iif(GetGuiType() = 1, Chr(13), &quot;&quot;) &amp; Chr(10)
+End Property	&apos;	ScriptForge.SF_String.sfNEWLINE
+
+REM -----------------------------------------------------------------------------
+Property Get sfTAB() As Variant
+&apos;&apos;&apos;	Horizontal tabulation
+	sfTAB = Chr(9)
+End Property	&apos;	ScriptForge.SF_String.sfTAB
+
+REM -----------------------------------------------------------------------------
+Property Get ObjectType As String
+&apos;&apos;&apos;	Only to enable object representation
+	ObjectType = &quot;SF_String&quot;
+End Property	&apos;	ScriptForge.SF_String.ObjectType
+
+REM -----------------------------------------------------------------------------
+Property Get ServiceName As String
+&apos;&apos;&apos;	Internal use
+	ServiceName = &quot;ScriptForge.String&quot;
+End Property	&apos;	ScriptForge.SF_String.ServiceName
+
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Capitalize(Optional ByRef InputStr As Variant) As String
+&apos;&apos;&apos;	Return the input string with the 1st character of each word in title case
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string with the 1st character of each word in title case
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Capitalize(&quot;this is a title for jean-pierre&quot;) returns &quot;This Is A Title For Jean-Pierre&quot;
+
+Dim sCapital As String				&apos;	Return value
+Dim lLength As Long					&apos;	Length of input string
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim oChar As Object					&apos;	com.sun.star.i18n.CharacterClassification
+Const cstThisSub = &quot;String.Capitalize&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sCapital = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	lLength = Len(InputStr)
+	If lLength &gt; 0 Then
+		Set oLocale = SF_Utils._GetUNOService(&quot;Locale&quot;)
+		Set oChar = SF_Utils._GetUNOService(&quot;CharacterClass&quot;)
+		sCapital = oChar.toTitle(InputStr, 0, lLength * 4, oLocale)	&apos;	length * 4 because length is expressed in bytes
+	End If
+
+Finally:
+	Capitalize = sCapital
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Capitalize
+
+REM -----------------------------------------------------------------------------
+Public Function Count(Optional ByRef InputStr As Variant _
+								, Optional ByVal Substring As Variant _
+								, Optional ByRef IsRegex As Variant _
+								, Optional ByVal CaseSensitive As Variant _
+								) As Long
+&apos;&apos;&apos;	Counts the number of occurrences of a substring or a regular expression within a string
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input stringto examine
+&apos;&apos;&apos;		Substring: the substring to identify
+&apos;&apos;&apos;		IsRegex: True if Substring is a regular expression (default = False)
+&apos;&apos;&apos;		CaseSensitive: default = False
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The number of occurrences as a Long
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Count(&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit.&quot;, &quot;\b[a-z]+\b&quot;, IsRegex := True, CaseSensitive := True)
+&apos;&apos;&apos;				returns 7 (the number of words in lower case)
+&apos;&apos;&apos;		SF_String.Count(&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit.&quot;, &quot;or&quot;, CaseSensitive := False)
+&apos;&apos;&apos;				returns 2
+
+
+Dim lOccurrences As Long				&apos;	Return value
+Dim lStart As Long						&apos;	Start index of search
+Dim sSubstring As String				&apos;	Substring to replace
+Dim iCaseSensitive As Integer			&apos;	Integer alias for boolean CaseSensitive
+Const cstThisSub = &quot;String.Count&quot;
+Const cstSubArgs = &quot;InputStr, Substring, [IsRegex=False], [CaseSensitive=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	lOccurrences = 0
+
+Check:
+	If IsMissing(IsRegex) Or IsEmpty(IsRegex) Then IsRegex = False
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Substring, &quot;Substring&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(IsRegex, &quot;IsRegex&quot;, V_BOOLEAN) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	iCaseSensitive = Iif(CaseSensitive, 0, 1)				&apos;	1 = False ;)
+	lStart = 1
+
+	Do While lStart &gt;= 1 And lStart &lt;= Len(InputStr)
+		Select Case IsRegex
+			Case False	&apos;	Use InStr
+				lStart = InStr(lStart, InputStr, Substring, iCaseSensitive)
+				If lStart = 0 Then Exit Do
+				lStart = lStart + Len(Substring)
+			Case True	&apos;	Use FindRegex
+				sSubstring = SF_String.FindRegex(InputStr, Substring, lStart, CaseSensitive)
+				If lStart = 0 Then Exit Do
+				lStart = lStart + Len(sSubstring)
+		End Select
+		lOccurrences = lOccurrences + 1
+	Loop
+
+Finally:
+	Count = lOccurrences
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Count
+
+REM -----------------------------------------------------------------------------
+Public Function EndsWith(Optional ByRef InputStr As Variant _
+							, Optional ByVal Substring As Variant _
+							, Optional ByVal CaseSensitive As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Returns True if the last characters of InputStr are identical to Substring
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Substring: the suffixing characters
+&apos;&apos;&apos;		CaseSensitive: default = False
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the comparison is satisfactory
+&apos;&apos;&apos;		False if either InputStr or Substring have a length = 0
+&apos;&apos;&apos;		False if Substr is longer than InputStr
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.EndsWith(&quot;abcdefg&quot;, &quot;EFG&quot;) returns True
+&apos;&apos;&apos;		SF_String.EndsWith(&quot;abcdefg&quot;, &quot;EFG&quot;, CaseSensitive := True) returns False
+
+Dim bEndsWith As Boolean				&apos;	Return value
+Dim lSub As Long						&apos;	Length of SUbstring
+Const cstThisSub = &quot;String.EndsWith&quot;
+Const cstSubArgs = &quot;InputStr, Substring, [CaseSensitive=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bEndsWith = False
+
+Check:
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Substring, &quot;Substring&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	lSub = Len(Substring)
+	If Len(InputStr) &gt; 0 And lSub &gt; 0 And lSub &lt;= Len(InputStr) Then
+		bEndsWith = ( StrComp(Right(InputStr, lSub), Substring, Iif(CaseSensitive, 1, 0)) = 0 )
+	End If
+
+Finally:
+	EndsWith = bEndsWith
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.EndsWith
+
+REM -----------------------------------------------------------------------------
+Public Function Escape(Optional ByRef InputStr As Variant) As String
+&apos;&apos;&apos;	Convert any hard line breaks or tabs by their escaped equivalent
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string after replacement of &quot;\&quot;, Chr(10), Chr(13), Chr(9)characters
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Escape(&quot;abc&quot; &amp; Chr(10) &amp; Chr(9) &amp; &quot;def\n&quot;) returns &quot;abc\n\tdef\\n&quot;
+
+Dim sEscape As String					&apos;	Return value
+Const cstThisSub = &quot;String.Escape&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sEscape = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	sEscape = SF_String.ReplaceStr( InputStr _							
+							, Array(&quot;\&quot;, SF_String.sfLF, SF_String.sfCR, SF_String.sfTAB) _
+							, Array(&quot;\\&quot;, &quot;\n&quot;, &quot;\r&quot;, &quot;\t&quot;) _
+							)
+
+Finally:
+	Escape = sEscape
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Escape
+
+REM -----------------------------------------------------------------------------
+Public Function ExpandTabs(Optional ByRef InputStr As Variant _
+								, Optional ByVal TabSize As Variant _
+								) As String
+&apos;&apos;&apos;	Return the input string with each TAB (Chr(9)) character replaced by the adequate number of spaces
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		TabSize: defines the TAB positions at TabSize + 1, 2 * TabSize + 1 , ... N * TabSize + 1
+&apos;&apos;&apos;			Default = 8
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string with spaces replacing the TAB characters
+&apos;&apos;&apos;		If the input string contains line breaks, the TAB positions are reset
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.ExpandTabs(&quot;abc&quot; &amp; SF_String.sfTAB &amp; SF_String.sfTAB &amp; &quot;def&quot;, 4) returns &quot;abc     def&quot;
+&apos;&apos;&apos;		SF_String.ExpandTabs(&quot;abc&quot; &amp; SF_String.sfTAB &amp; &quot;def&quot; &amp; SF_String.sfLF &amp; SF_String.sfTAB &amp; &quot;ghi&quot;)
+&apos;&apos;&apos;				returns &quot;abc     def&quot; &amp; SF_String.sfLF &amp; &quot;        ghi&quot;
+
+Dim sExpanded As String				&apos;	Return value
+Dim lCharPosition As Long			&apos;	Position of current character in current line in expanded string
+Dim lSpaces As Long					&apos;	Spaces counter
+Dim sChar As String					&apos;	A single character
+Dim i As Long
+Const cstTabSize = 8
+Const cstThisSub = &quot;String.ExpandTabs&quot;
+Const cstSubArgs = &quot;InputStr, [TabSize=8]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sExpanded = &quot;&quot;
+
+Check:
+	If IsMissing(TabSize) Or IsEmpty(TabSize) Then TabSize = cstTabSize
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(TabSize, &quot;TabSize&quot;, V_NUMERIC) Then GoTo Finally
+	End If
+	If TabSize &lt;= 0 Then TabSize = cstTabSize
+
+Try:
+	lCharPosition = 0
+	If Len(InputStr) &gt; 0 Then
+		For i = 1 To Len(InputStr)
+			sChar = Mid(InputStr, i, 1)
+			Select Case sChar
+				Case SF_String.sfLF, Chr(12), SF_String.sfCR, Chr(28), Chr(29), Chr(30), Chr(133), Chr(8232), Chr(8233)
+					sExpanded = sExpanded &amp; sChar
+					lCharPosition = 0
+				Case SF_String.sfTAB
+					lSpaces = Int(lCharPosition / TabSize + 1) * TabSize - lCharPosition
+					sExpanded = sExpanded &amp; Space(lSpaces)
+					lCharPosition = lCharPosition + lSpaces
+				Case Else
+					sExpanded = sExpanded &amp; sChar
+					lCharPosition = lCharPosition + 1
+			End Select
+		Next i
+	End If
+
+Finally:
+	ExpandTabs = sExpanded
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.ExpandTabs
+
+REM -----------------------------------------------------------------------------
+Public Function FilterNotPrintable(Optional ByRef InputStr As Variant _
+										, Optional ByVal ReplacedBy As Variant _
+										) As String
+&apos;&apos;&apos;	Return the input string in which all the not printable characters are replaced by ReplacedBy
+&apos;&apos;&apos;	Among others, control characters (Ascii &lt;= 1F) are not printable
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		ReplacedBy: zero, one or more characters replacing the found not printable characters
+&apos;&apos;&apos;			Default = the zero-length string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string in which all the not printable characters are replaced by ReplacedBy
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.FilterNotPrintable(&quot;àén ΣlPµ&quot; &amp; Chr(10) &amp; &quot; Русский&quot;, &quot;\n&quot;) returns &quot;àén ΣlPµ\n Русский&quot;
+
+Dim sPrintable As String			&apos;	Return value
+Dim bPrintable As Boolean			&apos;	Is a single character printable ?
+Dim lLength As Long					&apos;	Length of InputStr
+Dim lReplace As Long				&apos;	Length of ReplacedBy
+Dim oChar As Object					&apos;	com.sun.star.i18n.CharacterClassification
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim lType As Long					&apos;	com.sun.star.i18n.KCharacterType
+Dim sChar As String					&apos;	A single character
+Dim lPRINTABLE As Long				:	lPRINTABLE = com.sun.star.i18n.KCharacterType.PRINTABLE
+Dim i As Long
+Const cstThisSub = &quot;String.FilterNotPrintable&quot;
+Const cstSubArgs = &quot;InputStr, [ReplacedBy=&quot;&quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sPrintable = &quot;&quot;
+
+Check:
+	If IsMissing(ReplacedBy) Or IsEmpty(ReplacedBy) Then ReplacedBy = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(ReplacedBy, &quot;ReplacedBy&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	lLength = Len(InputStr)
+	lReplace = Len(ReplacedBy)
+	If lLength &gt; 0 Then
+		Set oLocale = SF_Utils._GetUNOService(&quot;Locale&quot;)
+		Set oChar = SF_Utils._GetUNOService(&quot;CharacterClass&quot;)
+		For i = 0 To lLength - 1
+			sChar = Mid(InputStr, i + 1, 1)
+			lType = oChar.getCharacterType(sChar, 0, oLocale)
+			&apos;	Parenthses (), [], {} have a KCharacterType = 0
+			bPrintable = ( (lType And lPRINTABLE) = lPRINTABLE Or (lType = 0 And Asc(sChar) &lt;= 127) )
+			If Not bPrintable Then
+				If lReplace &gt; 0 Then sPrintable = sPrintable &amp; ReplacedBy
+			Else
+				sPrintable = sPrintable &amp; sChar
+			End If
+		Next i
+	End If
+
+Finally:
+	FilterNotPrintable = sPrintable
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.FilterNotPrintable
+
+REM -----------------------------------------------------------------------------
+Public Function FindRegex(Optional ByRef InputStr As Variant _
+								, Optional ByVal Regex As Variant _
+								, Optional ByRef Start As Variant _
+								, Optional ByVal CaseSensitive As Variant _
+								, Optional ByVal Forward As Variant _
+								) As String
+&apos;&apos;&apos;	Find in InputStr a substring matching a given regular expression
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string to be searched for the expression
+&apos;&apos;&apos;		Regex: the regular expression
+&apos;&apos;&apos;		Start (passed by reference): where to start searching from
+&apos;&apos;&apos;			Should be = 1 (Forward = True) or = Len(InputStr) (Forward = False) the 1st time
+&apos;&apos;&apos;			After execution points to the first character of the found substring
+&apos;&apos;&apos;		CaseSensitive: default = False
+&apos;&apos;&apos;		Forward: True (default) or False (backward)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The found substring matching the regular expression
+&apos;&apos;&apos;			A zero-length string if not found (Start is set to 0)
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Dim lStart As Long	:	lStart = 1
+&apos;&apos;&apos;		SF_String.FindRegex(&quot;abCcdefghHij&quot;, &quot;C.*H&quot;, lStart, CaseSensitive := True) returns &quot;CcdefghH&quot;
+&apos;&apos;&apos;			Above statement may be reexecuted for searching the same or another pattern
+&apos;&apos;&apos;				by starting from lStart + Len(matching string)
+
+Dim sOutput As String					&apos;	Return value
+Dim oTextSearch As Object				&apos;	com.sun.star.util.TextSearch
+Dim vOptions As Variant					&apos;	com.sun.star.util.SearchOptions
+Dim lEnd As Long						&apos;	Upper limit of search area
+Dim vResult As Object					&apos;	com.sun.star.util.SearchResult
+Const cstThisSub = &quot;String.FindRegex&quot;
+Const cstSubArgs = &quot;InputStr, Regex, [Start=1], [CaseSensitive=False], [Forward=True]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sOutput = &quot;&quot;
+
+Check:
+	If IsMissing(Start) Or IsEmpty(Start) Then Start = 1
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If IsMissing(Forward) Or IsEmpty(Forward) Then Forward = True
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Regex, &quot;Regex&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Start, &quot;Start&quot;, V_NUMERIC) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+		If Not SF_Utils._Validate(Forward, &quot;Forward&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+	If Start &lt;= 0 Or Start &gt; Len(InputStr) Then GoTo Finally
+
+Try:
+	sOutput = &quot;&quot;
+	Set oTextSearch = SF_Utils._GetUNOService(&quot;TextSearch&quot;)
+	&apos;	Set pattern search options
+	vOptions = SF_Utils._GetUNOService(&quot;SearchOptions&quot;)
+	With vOptions
+		.searchString = Regex
+		If CaseSensitive Then .transliterateFlags = 0 Else .transliterateFlags = com.sun.star.i18n.TransliterationModules.IGNORE_CASE
+	End With
+	&apos;	Run search
+	With oTextSearch
+		.setOptions(vOptions)
+		If Forward Then
+			lEnd = Len(InputStr)
+			vResult = .searchForward(InputStr, Start - 1, lEnd)
+		Else
+			lEnd = 1
+			vResult = .searchBackward(InputStr, Start, lEnd - 1)
+		End If
+	End With
+	&apos;	https://api.libreoffice.org/docs/idl/ref/structcom_1_1sun_1_1star_1_1util_1_1SearchResult.html
+	With vResult
+		If .subRegExpressions &gt;= 1 Then
+			If Forward Then
+				Start = .startOffset(0) + 1
+				lEnd = .endOffset(0) + 1
+			Else
+				Start = .endOffset(0) + 1
+				lEnd = .startOffset(0) + 1
+			End If
+			sOutput = Mid(InputStr, Start, lEnd - Start)
+		Else
+			Start = 0
+		End If
+	End With
+
+Finally:
+	FindRegex = sOutput
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.FindRegex
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;String.GetProperty&quot;
+Const cstSubArgs = &quot;PropertyName&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	Select Case UCase(PropertyName)
+		Case &quot;SFCR&quot;			:	GetProperty = sfCR
+		Case &quot;SFCRLF&quot;		:	GetProperty = sfCRLF
+		Case &quot;SFLF&quot;			:	GetProperty = sfLF
+		Case &quot;SFNEWLINE&quot;	:	GetProperty = sfNEWLINE
+		Case &quot;SFTAB&quot;		:	GetProperty = sfTAB
+		Case Else
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function HashStr(Optional ByVal InputStr As Variant _
+							, Optional ByVal Algorithm As Variant _
+							) As String
+&apos;&apos;&apos;	Return an hexadecimal string representing a checksum of the given input string
+&apos;&apos;&apos;	Next algorithms are supported: MD5, SHA1, SHA224, SHA256, SHA384 and SHA512
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the string to be hashed
+&apos;&apos;&apos;		Algorithm: The hashing algorithm to use
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The requested checksum as a string. Hexadecimal digits are lower-cased
+&apos;&apos;&apos;		A zero-length string when an error occurred
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Print SF_String.HashStr(&quot;œ∑¡™£¢∞§¶•ªº–≠œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬&quot;, &quot;MD5&quot;)	&apos;	616eb9c513ad07cd02924b4d285b9987
+
+Dim sHash As String				&apos;	Return value
+Const cstPyHelper = &quot;$&quot; &amp; &quot;_SF_String__HashStr&quot;
+Const cstThisSub = &quot;String.HashStr&quot;
+Const cstSubArgs = &quot;InputStr, Algorithm=&quot;&quot;MD5&quot;&quot;|&quot;&quot;SHA1&quot;&quot;|&quot;&quot;SHA224&quot;&quot;|&quot;&quot;SHA256&quot;&quot;|&quot;&quot;SHA384&quot;&quot;|&quot;&quot;SHA512&quot;&quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sHash = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Algorithm, &quot;Algorithm&quot;, V_STRING _
+					, Array(&quot;MD5&quot;, &quot;SHA1&quot;, &quot;SHA224&quot;, &quot;SHA256&quot;, &quot;SHA384&quot;, &quot;SHA512&quot;)) Then GoTo Finally
+	End If
+
+Try:
+	With ScriptForge.SF_Session
+		sHash = .ExecutePythonScript(.SCRIPTISSHARED, _SF_.PythonHelper &amp; cstPyHelper _
+						, InputStr, LCase(Algorithm))
+	End With
+
+Finally:
+	HashStr = sHash
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function    &apos;   ScriptForge.SF_String.HashStr
+
+REM -----------------------------------------------------------------------------
+Public Function HtmlEncode(Optional ByRef InputStr As Variant) As String
+&apos;&apos;&apos;	&amp;-encoding of the input string (e.g. &quot;é&quot; becomes &quot;&amp;eacute;&quot; or numeric equivalent
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		the encoded string
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.HtmlEncode(&quot;&lt;a href=&quot;&quot;https://a.b.com&quot;&quot;&gt;From α to ω&lt;/a&gt;&quot;)
+&apos;&apos;&apos;			returns &quot;&amp;lt;a href=&amp;quot;https://a.b.com&amp;quot;&amp;gt;From &amp;#945; to &amp;#969;&amp;lt;/a&amp;gt;&quot;
+
+Dim sEncode As String					&apos;	Return value
+Dim lPos As Long						&apos;	Position in InputStr
+Dim sChar As String						&apos;	A single character extracted from InputStr
+Dim i As Long
+Const cstThisSub = &quot;String.HtmlEncode&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sEncode = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then
+		lPos = 1
+		sEncode = InputStr
+		Do While lPos &lt;= Len(sEncode)
+			sChar = Mid(sEncode, lPos, 1)
+			&apos;	Leave as is or encode every single char
+			Select Case sChar
+				Case &quot;&quot;&quot;&quot;			:	sChar = &quot;&amp;quot;&quot;
+				Case &quot;&amp;&quot;			:	sChar = &quot;&amp;amp;&quot;
+				Case &quot;&lt;&quot;			:	sChar = &quot;&amp;lt;&quot;
+				Case &quot;&gt;&quot;			:	sChar = &quot;&amp;gt;&quot;
+				Case &quot;&apos;&quot;			:	sChar = &quot;&amp;apos;&quot;
+				Case &quot;:&quot;, &quot;/&quot;, &quot;?&quot;, &quot;#&quot;, &quot;[&quot;, &quot;]&quot;, &quot;@&quot;				&apos;	Reserved characters
+				Case SF_String.sfCR	:	sChar = &quot;&quot;			&apos;	Carriage return
+				Case SF_String.sfLF	:	sChar = &quot;&lt;br&gt;&quot;		&apos;	Line Feed
+				Case &lt; Chr(126)
+				Case &quot;€&quot;			:	sChar = &quot;&amp;euro;&quot;
+				Case Else			:	sChar = &quot;&amp;#&quot; &amp; Asc(sChar) &amp; &quot;;&quot;
+			End Select
+			If Len(sChar) = 1 Then
+				Mid(sEncode, lPos, 1) = sChar
+			Else
+				sEncode = Left(sEncode, lPos - 1) &amp; sChar &amp; Mid(sEncode, lPos + 1)
+			End If
+			lPos = lPos + Len(sChar)
+		Loop
+	End If
+
+Finally:
+	HtmlEncode = sEncode
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.HtmlEncode
+
+REM -----------------------------------------------------------------------------
+Public Function IsADate(Optional ByRef InputStr As Variant _
+							, Optional ByVal DateFormat _
+							) As Boolean
+&apos;&apos;&apos;	Return True if the string is a valid date respecting the given format
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		DateFormat: either YYYY-MM-DD (default), DD-MM-YYYY or MM-DD-YYYY
+&apos;&apos;&apos;			The dash (-) may be replaced by a dot (.), a slash (/) or a space
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains a valid date and there is at least one character
+&apos;&apos;&apos;		False otherwise or if the date format is invalid
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsADate(&quot;2019-12-31&quot;, &quot;YYYY-MM-DD&quot;) returns True
+
+Dim bADate As Boolean				&apos;	Return value
+Dim sFormat As String				&apos;	Alias for DateFormat
+Dim sRegex As String				&apos;	The regex to check against the input string
+Const cstFormat = &quot;YYYY-MM-DD&quot;		&apos;	Default date format
+Const cstFormatRegex = &quot;(YYYY[- /.]MM[- /.]DD|MM[- /.]DD[- /.]YYYY|DD[- /.]MM[- /.]YYYY)&quot;
+									&apos;	The regular expression the format must match
+Const cstThisSub = &quot;String.IsADate&quot;
+Const cstSubArgs = &quot;InputStr, [DateFormat=&quot;&quot;&quot; &amp; cstFormat &amp; &quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bADate = False
+
+Check:
+	If IsMissing(DateFormat) Or IsEmpty(DateFormat) Then DateFormat = &quot;YYYY-MM-DD&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(DateFormat, &quot;DateFormat&quot;, V_STRING) Then GoTo Finally
+	End If
+	sFormat = UCase(DateFormat)
+	If Len(sFormat) &lt;&gt; Len(cstFormat)Then GoTo Finally
+	If sFormat &lt;&gt; cstFormat Then	&apos;	Do not check if default format
+		If Not SF_String.IsRegex(sFormat, cstFormatRegex) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) = Len(DateFormat) Then
+		sRegex = ReplaceStr(sFormat, Array(&quot;YYYY&quot;, &quot;MM&quot;, &quot;DD&quot;) _
+					, Array(REGEXDATEYEAR, REGEXDATEMONTH, REGEXDATEDAY) _
+					, CaseSensitive := False)
+		bADate = SF_String.IsRegex(InputStr, sRegex, CaseSensitive := False)
+	End If
+
+Finally:
+	IsADate = bADate
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsADate
+
+REM -----------------------------------------------------------------------------
+Public Function IsAlpha(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are alphabetic
+&apos;&apos;&apos;	Alphabetic characters are those characters defined in the Unicode character database as “Letter”
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string is alphabetic and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsAlpha(&quot;àénΣlPµ&quot;) returns True
+&apos;&apos;&apos;	Note:
+&apos;&apos;&apos;		Use SF_String.IsRegex(&quot;...&quot;, REGEXALPHA) to limit characters to latin alphabet
+
+Dim bAlpha As Boolean				&apos;	Return value
+Dim lLength As Long					&apos;	Length of InputStr
+Dim oChar As Object					&apos;	com.sun.star.i18n.CharacterClassification
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim lType As Long					&apos;	com.sun.star.i18n.KCharacterType
+Dim lLETTER As Long					:	lLETTER = com.sun.star.i18n.KCharacterType.LETTER
+Dim i As Long
+Const cstThisSub = &quot;String.IsAlpha&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bAlpha = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	lLength = Len(InputStr)
+	If lLength &gt; 0 Then
+		Set oLocale = SF_Utils._GetUNOService(&quot;Locale&quot;)
+		Set oChar = SF_Utils._GetUNOService(&quot;CharacterClass&quot;)
+		For i = 0 To lLength - 1
+			lType = oChar.getCharacterType(InputStr, i, oLocale)
+			bAlpha = ( (lType And lLETTER) = lLETTER )
+			If Not bAlpha Then Exit For
+		Next i
+	End If
+
+Finally:
+	IsAlpha = bAlpha
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsAlpha
+
+REM -----------------------------------------------------------------------------
+Public Function IsAlphaNum(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are alphabetic, digits or &quot;_&quot; (underscore)
+&apos;&apos;&apos;	The first character must not be a digit
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string is alphanumeric and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsAlphaNum(&quot;_ABC_123456_abcàénΣlPµ&quot;) returns True
+
+Dim bAlphaNum As Boolean			&apos;	Return value
+Dim sInputStr As String				&apos;	Alias of InputStr without underscores
+Dim sFirst As String				&apos;	Leftmost character of InputStr
+Dim lLength As Long					&apos;	Length of InputStr
+Dim oChar As Object					&apos;	com.sun.star.i18n.CharacterClassification
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim lType As Long					&apos;	com.sun.star.i18n.KCharacterType
+Dim lLETTER As Long					:	lLETTER = com.sun.star.i18n.KCharacterType.LETTER
+Dim lDIGIT As Long					:	lDIGIT = com.sun.star.i18n.KCharacterType.DIGIT
+Dim i As Long
+Const cstThisSub = &quot;String.IsAlphaNum&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bAlphaNum = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	lLength = Len(InputStr)
+	If lLength &gt; 0 Then
+		sFirst = Left(InputStr, 1)
+		bAlphanum = ( sFirst &lt; &quot;0&quot; Or sFirst &gt; &quot;9&quot; )
+		If bAlphaNum Then
+			sInputStr = Replace(InputStr, &quot;_&quot;, &quot;A&quot;)		&apos;	Replace by an arbitrary alphabetic character
+			Set oLocale = SF_Utils._GetUNOService(&quot;Locale&quot;)
+			Set oChar = SF_Utils._GetUNOService(&quot;CharacterClass&quot;)
+			For i = 0 To lLength - 1
+				lType = oChar.getCharacterType(sInputStr, i, oLocale)
+				bAlphaNum = ( (lType And lLETTER) = lLETTER  _
+								Or (lType And lDIGIT) = lDIGIT )
+				If Not bAlphaNum Then Exit For
+			Next i
+		End If
+	End If
+
+Finally:
+	IsAlphaNum = bAlphaNum
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsAlphaNum
+
+REM -----------------------------------------------------------------------------
+Public Function IsAscii(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are Ascii characters
+&apos;&apos;&apos;	Ascii characters are those characters defined between &amp;H00 and &amp;H7F
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string is Ascii and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsAscii(&quot;a%?,25&quot;) returns True
+
+Dim bAscii As Boolean				&apos;	Return value
+Dim lLength As Long					&apos;	Length of InputStr
+Dim sChar As String					&apos;	Single character
+Dim i As Long
+Const cstThisSub = &quot;String.IsAscii&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bAscii = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	lLength = Len(InputStr)
+	If lLength &gt; 0 Then
+		For i = 1 To lLength
+			sChar = Mid(InputStr, i, 1)
+			bAscii = ( Asc(sChar) &lt;= 127 )
+			If Not bAscii Then Exit For
+		Next i
+	End If
+
+Finally:
+	IsAscii = bAscii
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsAscii
+
+REM -----------------------------------------------------------------------------
+Public Function IsDigit(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are digits
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains only digits and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsDigit(&quot;123456&quot;) returns True
+
+Dim bDigit As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsDigit&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bDigit = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bDigit = SF_String.IsRegex(InputStr, REGEXDIGITS, CaseSensitive := False)
+
+Finally:
+	IsDigit = bDigit
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsDigit
+
+REM -----------------------------------------------------------------------------
+Public Function IsEmail(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if the string is a valid email address
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains an email address and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsEmail(&quot;first.last@something.org&quot;) returns True
+
+Dim bEmail As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsEmail&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bEmail = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bEmail = SF_String.IsRegex(InputStr, REGEXEMAIL, CaseSensitive := False)
+
+Finally:
+	IsEmail = bEmail
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsEmail
+
+REM -----------------------------------------------------------------------------
+Public Function IsFileName(Optional ByRef InputStr As Variant _
+								, Optional ByVal OSName As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Return True if the string is a valid filename in a given operating system
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		OSName: Windows, Linux, macOS or Solaris
+&apos;&apos;&apos;			The default is the current operating system on which the script is run
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains a valid filename and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsFileName(&quot;/home/a file name.odt&quot;, &quot;LINUX&quot;) returns True
+
+Dim bFileName As Boolean				&apos;	Return value
+Dim sRegex As String					&apos;	Regex to apply depending on OS
+Const cstThisSub = &quot;String.IsFileName&quot;
+Const cstSubArgs = &quot;InputStr, [OSName=&quot;&quot;Windows&quot;&quot;|&quot;&quot;Linux&quot;&quot;|&quot;&quot;macOS&quot;&quot;|Solaris&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bFileName = False
+
+Check:
+	If IsMissing(OSName) Or IsEmpty(OSName) Then
+		If _SF_.OSname = &quot;&quot; Then _SF_.OSName = SF_Platform.OSName
+		OSName = _SF_.OSName
+	End If
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(OSName, &quot;OSName&quot;, V_STRING, Array(&quot;Windows&quot;, &quot;Linux&quot;, &quot;macOS&quot;, &quot;Solaris&quot;)) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then
+		Select Case UCase(OSName)
+			Case &quot;LINUX&quot;, &quot;MACOS&quot;, &quot;SOLARIS&quot;	:	sRegex = REGEXFILELINUX
+			Case &quot;WINDOWS&quot;						:	sRegex = REGEXFILEWIN
+		End Select
+		bFileName = SF_String.IsRegex(InputStr, sRegex, CaseSensitive := False)
+	End If
+
+Finally:
+	IsFileName = bFileName
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsFileName
+
+REM -----------------------------------------------------------------------------
+Public Function IsHexDigit(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are hexadecimal digits
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains only hexadecimal igits and there is at least one character
+&apos;&apos;&apos;			The prefixes &quot;0x&quot; and &quot;&amp;H&quot; are admitted
+&apos;&apos;&apos;		False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsHexDigit(&quot;&amp;H00FF&quot;) returns True
+
+Dim bHexDigit As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsHexDigit&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bHexDigit = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bHexDigit = SF_String.IsRegex(InputStr, REGEXHEXA, CaseSensitive := False)
+
+Finally:
+	IsHexDigit = bHexDigit
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsHexDigit
+
+REM -----------------------------------------------------------------------------
+Public Function IsIPv4(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if the string is a valid IPv4 address
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains a valid IPv4 address and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsIPv4(&quot;192.168.1.50&quot;) returns True
+
+Dim bIPv4 As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsIPv4&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bIPv4 = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bIPv4 = SF_String.IsRegex(InputStr, REGEXIPV4, CaseSensitive := False)
+
+Finally:
+	IsIPv4 = bIPv4
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsIPv4
+
+REM -----------------------------------------------------------------------------
+Public Function IsLike(Optional ByRef InputStr As Variant _
+							, Optional ByVal Pattern As Variant _
+							, Optional ByVal CaseSensitive As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Returns True if the whole input string matches a given pattern containing wildcards
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Pattern: the pattern as a string
+&apos;&apos;&apos;			Admitted wildcard are:	the &quot;?&quot; represents any single character
+&apos;&apos;&apos;									the &quot;*&quot; represents zero, one, or multiple characters
+&apos;&apos;&apos;		CaseSensitive: default = False
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if a match is found
+&apos;&apos;&apos;		Zero-length input or pattern strings always return False
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsLike(&quot;aAbB&quot;, &quot;?A*&quot;) returns True
+&apos;&apos;&apos;		SF_String.IsLike(&quot;C:\a\b\c\f.odb&quot;, &quot;?:*.*&quot;) returns True
+
+Dim bLike As Boolean											&apos; Return value
+&apos;	Build an equivalent regular expression by escaping the special characters present in Pattern
+Dim sRegex As String											&apos; Equivalent regular expression
+Const cstSpecialChars = &quot;\,^,$,.,|,+,(,),[,{,?,*&quot;				&apos; List of special chars in regular expressions
+Const cstEscapedChars = &quot;\\,\^,\$,\.,\|,\+,\(,\),\[,\{,.,.*&quot;
+
+Const cstThisSub = &quot;String.IsLike&quot;
+Const cstSubArgs = &quot;InputStr, Pattern, [CaseSensitive=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bLike = False
+
+Check:
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Pattern, &quot;Pattern&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 And Len(Pattern) &gt; 0 Then
+		&apos;	Substitute special chars by escaped chars
+		sRegex = SF_String.ReplaceStr(Pattern, Split(cstSPecialChars, &quot;,&quot;), Split(cstEscapedChars, &quot;,&quot;))
+		bLike = SF_String.IsRegex(InputStr, sRegex, CaseSensitive)
+	End If
+
+Finally:
+	IsLike = bLike
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsLike
+
+REM -----------------------------------------------------------------------------
+Public Function IsLower(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are in lower case
+&apos;&apos;&apos;	Non alphabetic characters are ignored
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains only lower case characters and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsLower(&quot;abc&apos;(-xyz&quot;) returns True
+
+Dim bLower As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsLower&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bLower = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bLower = ( StrComp(InputStr, LCase(InputStr), 1) = 0 )
+
+Finally:
+	IsLower = bLower
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsLower
+
+REM -----------------------------------------------------------------------------
+Public Function IsPrintable(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are printable
+&apos;&apos;&apos;	In particular, control characters (Ascii &lt;= 1F) are not printable
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string is printable and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsPrintable(&quot;àén ΣlPµ Русский&quot;) returns True
+
+Dim bPrintable As Boolean			&apos;	Return value
+Dim lLength As Long					&apos;	Length of InputStr
+Dim oChar As Object					&apos;	com.sun.star.i18n.CharacterClassification
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim lType As Long					&apos;	com.sun.star.i18n.KCharacterType
+Dim sChar As String					&apos;	A single character
+Dim lPRINTABLE As Long				:	lPRINTABLE = com.sun.star.i18n.KCharacterType.PRINTABLE
+Dim i As Long
+Const cstThisSub = &quot;String.IsPrintable&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bPrintable = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	lLength = Len(InputStr)
+	If lLength &gt; 0 Then
+		Set oLocale = SF_Utils._GetUNOService(&quot;Locale&quot;)
+		Set oChar = SF_Utils._GetUNOService(&quot;CharacterClass&quot;)
+		For i = 0 To lLength - 1
+			sChar = Mid(InputStr, i + 1, 1)
+			lType = oChar.getCharacterType(sChar, 0, oLocale)
+			&apos;	Parenthses (), [], {} have a KCharacterType = 0
+			bPrintable = ( (lType And lPRINTABLE) = lPRINTABLE Or (lType = 0 And Asc(sChar) &lt;= 127) )
+			If Not bPrintable Then Exit For
+		Next i
+	End If
+
+Finally:
+	IsPrintable = bPrintable
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsPrintable
+
+REM -----------------------------------------------------------------------------
+Public Function IsRegex(Optional ByRef InputStr As Variant _
+							, Optional ByVal Regex As Variant _
+							, Optional ByVal CaseSensitive As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Returns True if the whole input string matches a given regular expression
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Regex: the regular expression as a string
+&apos;&apos;&apos;		CaseSensitive: default = False
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if a match is found
+&apos;&apos;&apos;		Zero-length input or regex strings always return False
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsRegex(&quot;aAbB&quot;, &quot;[A-Za-z]+&quot;) returns True
+
+Dim bRegex As Boolean			&apos;	Return value
+Dim lStart As Long				&apos;	Must be 1
+Dim sMatch As String			&apos;	Matching string
+Const cstBegin = &quot;^&quot;			&apos;	Beginning of line symbol
+Const cstEnd = &quot;$&quot;				&apos;	End of line symbol
+Const cstThisSub = &quot;String.IsRegex&quot;
+Const cstSubArgs = &quot;InputStr, Regex, [CaseSensitive=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bRegex = False
+
+Check:
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Regex, &quot;Regex&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 And Len(Regex) &gt; 0 Then
+		&apos;	Whole string must match Regex
+		lStart = 1
+		If Left(Regex, 1) &lt;&gt; cstBegin Then Regex = cstBegin &amp; Regex
+		If Right(Regex, 1) &lt;&gt; cstEnd Then Regex = Regex &amp; cstEnd
+		sMatch = SF_String.FindRegex(InputStr, Regex, lStart, CaseSensitive)
+		&apos;	Match ?
+		bRegex = ( lStart = 1 And Len(sMatch) = Len(InputStr) )
+	End If
+
+Finally:
+	IsRegex = bRegex
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsRegex
+
+REM -----------------------------------------------------------------------------
+Public Function IsSheetName(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if the input string can serve as a valid Calc sheet name
+&apos;&apos;&apos;	The sheet name must not contain the characters [ ] * ? : / \ 
+&apos;&apos;&apos;	or the character &apos; (apostrophe) as first or last character.
+
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string is validated as a potential Calc sheet name, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsSheetName(&quot;1àbc + &quot;&quot;def&quot;&quot;&quot;) returns True
+
+Dim bSheetName As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsSheetName&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSheetName = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then
+		If Left(InputStr, 1) = &quot;&apos;&quot; Or Right(InputStr, 1) = &quot;&apos;&quot; Then
+		ElseIf InStr(InputStr, &quot;[&quot;) _
+					+ InStr(InputStr, &quot;]&quot;) _
+					+ InStr(InputStr, &quot;*&quot;) _
+					+ InStr(InputStr, &quot;?&quot;) _
+					+ InStr(InputStr, &quot;:&quot;) _
+					+ InStr(InputStr, &quot;/&quot;) _
+					+ InStr(InputStr, &quot;\&quot;) _
+					= 0 Then
+			bSheetName = True
+		End If
+	End If
+
+Finally:
+	IsSheetName = bSheetName
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsSheetName
+
+REM -----------------------------------------------------------------------------
+Public Function IsTitle(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if the 1st character of every word is in upper case and the other characters are in lower case
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string is capitalized and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsTitle(&quot;This Is A Title For Jean-Pierre&quot;) returns True
+
+Dim bTitle As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsTitle&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bTitle = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bTitle = ( StrComp(InputStr, SF_String.Capitalize(InputStr), 1) = 0 )
+
+Finally:
+	IsTitle = bTitle
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsTitle
+
+REM -----------------------------------------------------------------------------
+Public Function IsUpper(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are in upper case
+&apos;&apos;&apos;	Non alphabetic characters are ignored
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains only upper case characters and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsUpper(&quot;ABC&apos;(-XYZ&quot;) returns True
+
+Dim bUpper As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsUpper&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bUpper = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bUpper = ( StrComp(InputStr, UCase(InputStr), 1) = 0 )
+
+Finally:
+	IsUpper = bUpper
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsUpper
+
+REM -----------------------------------------------------------------------------
+Public Function IsUrl(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if the string is a valid absolute URL (Uniform Resource Locator)
+&apos;&apos;&apos;	The parsing is done by the ParseStrict method of the URLTransformer UNO service
+&apos;&apos;&apos;		https://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1util_1_1XURLTransformer.html
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains a URL and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsUrl(&quot;http://foo.bar/?q=Test%20URL-encoded%20stuff&quot;) returns True
+
+Dim bUrl As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsUrl&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bUrl = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bUrl = ( Len(SF_FileSystem._ParseUrl(InputStr).Main) &gt; 0 )
+
+Finally:
+	IsUrl = bUrl
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsUrl
+
+REM -----------------------------------------------------------------------------
+Public Function IsWhitespace(Optional ByRef InputStr As Variant) As Boolean
+&apos;&apos;&apos;	Return True if all characters in the string are whitespaces
+&apos;&apos;&apos;	Whitespaces include	Space(32), HT(9), LF(10), VT(11), FF(12), CR(13), Next Line(133), No-break space(160),
+&apos;&apos;&apos;						Line separator(8232), Paragraph separator(8233)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the string contains only whitespaces and there is at least one character, False otherwise
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.IsWhitespace(&quot; &quot; &amp; Chr(9) &amp; Chr(10)) returns True
+
+Dim bWhitespace As Boolean				&apos;	Return value
+Const cstThisSub = &quot;String.IsWhitespace&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bWhitespace = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then bWhitespace = SF_String.IsRegex(InputStr, REGEXWHITESPACES, CaseSensitive := False)
+
+Finally:
+	IsWhitespace = bWhitespace
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.IsWhitespace
+
+REM -----------------------------------------------------------------------------
+Public Function JustifyCenter(Optional ByRef InputStr As Variant _
+								, Optional ByVal Length As Variant _
+								, Optional ByVal Padding As Variant _
+								) As String
+&apos;&apos;&apos;	Return the input string center justified
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Length: the resulting string length (default = length of input string)
+&apos;&apos;&apos;		Padding: the padding (single) character (default = the ascii space)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string without its leading and trailing white spaces
+&apos;&apos;&apos;			completed left and right up to a total length of Length with the character Padding
+&apos;&apos;&apos;		If the input string is empty, the returned string is empty too
+&apos;&apos;&apos;		If the requested length is shorter than the center justified input string,
+&apos;&apos;&apos;			then the returned string is truncated
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.JustifyCenter(&quot;   ABCDE &quot;, Padding := &quot;x&quot;) returns &quot;xxABCDEFxx&quot;
+
+Dim sJustify As String				&apos;	Return value
+Dim lLength As Long					&apos;	Length of input string
+Dim lJustLength As Long				&apos;	Length of trimmed input string
+Dim sPadding As String				&apos;	Series of Padding characters
+Const cstThisSub = &quot;String.JustifyCenter&quot;
+Const cstSubArgs = &quot;InputStr, [length=Len(InputStr)], [Padding=&quot;&quot; &quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sJustify = &quot;&quot;
+
+Check:
+	If IsMissing(Length) Or IsEmpty(Length) Then Length = 0
+	If IsMissing(Padding) Or IsMissing(Padding) Then Padding = &quot; &quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Length, &quot;Length&quot;, V_NUMERIC) Then GoTo Finally
+		If Not SF_Utils._Validate(Padding, &quot;Padding&quot;, V_STRING) Then GoTo Finally
+	End If
+	If Len(Padding) = 0 Then Padding = &quot; &quot; Else Padding = Left(Padding, 1)
+
+Try:
+	lLength = Len(InputStr)
+	If Length = 0 Then Length = lLength
+	If lLength &gt; 0 Then
+		sJustify = SF_String.TrimExt(InputStr)		&apos;	Trim left and right
+		lJustLength = Len(sJustify)
+		If lJustLength &gt; Length Then
+			sJustify = Mid(sJustify, Int((lJustLength - Length) / 2) + 1, Length)
+		ElseIf lJustLength &lt; Length Then
+			sPadding = String(Int((Length - lJustLength) / 2), Padding)
+			sJustify = sPadding &amp; sJustify &amp; sPadding
+			If Len(sJustify) &lt; Length Then sJustify = sJustify &amp; Padding		&apos;	One Padding char is lacking when lJustLength is odd
+		End If
+	End If
+
+Finally:
+	JustifyCenter = sJustify
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.JustifyCenter
+
+REM -----------------------------------------------------------------------------
+Public Function JustifyLeft(Optional ByRef InputStr As Variant _
+								, Optional ByVal Length As Variant _
+								, Optional ByVal Padding As Variant _
+								) As String
+&apos;&apos;&apos;	Return the input string left justified
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Length: the resulting string length (default = length of input string)
+&apos;&apos;&apos;		Padding: the padding (single) character (default = the ascii space)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string without its leading white spaces
+&apos;&apos;&apos;			filled up to a total length of Length with the character Padding
+&apos;&apos;&apos;		If the input string is empty, the returned string is empty too
+&apos;&apos;&apos;		If the requested length is shorter than the left justified input string,
+&apos;&apos;&apos;			then the returned string is truncated
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.JustifyLeft(&quot;   ABCDE &quot;, Padding := &quot;x&quot;) returns &quot;ABCDE xxx&quot;
+
+Dim sJustify As String				&apos;	Return value
+Dim lLength As Long					&apos;	Length of input string
+Const cstThisSub = &quot;String.JustifyLeft&quot;
+Const cstSubArgs = &quot;InputStr, [length=Len(InputStr)], [Padding=&quot;&quot; &quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sJustify = &quot;&quot;
+
+Check:
+	If IsMissing(Length) Or IsEmpty(Length) Then Length = 0
+	If IsMissing(Padding) Or IsMissing(Padding) Then Padding = &quot; &quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Length, &quot;Length&quot;, V_NUMERIC) Then GoTo Finally
+		If Not SF_Utils._Validate(Padding, &quot;Padding&quot;, V_STRING) Then GoTo Finally
+	End If
+	If Len(Padding) = 0 Then Padding = &quot; &quot; Else Padding = Left(Padding, 1)
+
+Try:
+	lLength = Len(InputStr)
+	If Length = 0 Then Length = lLength
+	If lLength &gt; 0 Then
+		sJustify = SF_String.ReplaceRegex(InputStr, REGEXLTRIM, &quot;&quot;)	&apos;	Trim left
+		If Len(sJustify) &gt;= Length Then
+			sJustify = Left(sJustify, Length)
+		Else
+			sJustify = sJustify &amp; String(Length - Len(sJustify), Padding)
+		End If
+	End If
+
+Finally:
+	JustifyLeft = sJustify
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.JustifyLeft
+
+REM -----------------------------------------------------------------------------
+Public Function JustifyRight(Optional ByRef InputStr As Variant _
+								, Optional ByVal Length As Variant _
+								, Optional ByVal Padding As Variant _
+								) As String
+&apos;&apos;&apos;	Return the input string right justified
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Length: the resulting string length (default = length of input string)
+&apos;&apos;&apos;		Padding: the padding (single) character (default = the ascii space)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string without its trailing white spaces
+&apos;&apos;&apos;			preceded up to a total length of Length with the character Padding
+&apos;&apos;&apos;		If the input string is empty, the returned string is empty too
+&apos;&apos;&apos;		If the requested length is shorter than the right justified input string,
+&apos;&apos;&apos;			then the returned string is right-truncated
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.JustifyRight(&quot;   ABCDE &quot;, Padding := &quot;x&quot;) returns &quot;x   ABCDE&quot;
+
+Dim sJustify As String				&apos;	Return value
+Dim lLength As Long					&apos;	Length of input string
+Const cstThisSub = &quot;String.JustifyRight&quot;
+Const cstSubArgs = &quot;InputStr, [length=Len(InputStr)], [Padding=&quot;&quot; &quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sJustify = &quot;&quot;
+
+Check:
+	If IsMissing(Length) Or IsEmpty(Length) Then Length = 0
+	If IsMissing(Padding) Or IsMissing(Padding) Then Padding = &quot; &quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Length, &quot;Length&quot;, V_NUMERIC) Then GoTo Finally
+		If Not SF_Utils._Validate(Padding, &quot;Padding&quot;, V_STRING) Then GoTo Finally
+	End If
+	If Len(Padding) = 0 Then Padding = &quot; &quot; Else Padding = Left(Padding, 1)
+
+Try:
+	lLength = Len(InputStr)
+	If Length = 0 Then Length = lLength
+	If lLength &gt; 0 Then
+		sJustify = SF_String.ReplaceRegex(InputStr, REGEXRTRIM, &quot;&quot;)	&apos;	Trim right
+		If Len(sJustify) &gt;= Length Then
+			sJustify = Right(sJustify, Length)
+		Else
+			sJustify = String(Length - Len(sJustify), Padding) &amp; sJustify
+		End If
+	End If
+
+Finally:
+	JustifyRight = sJustify
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.JustifyRight
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the String service as an array
+
+	Methods = Array( _
+					&quot;Capitalize&quot; _
+					, &quot;Count&quot; _
+					, &quot;EndWith&quot; _
+					, &quot;Escape&quot; _
+					, &quot;ExpandTabs&quot; _
+					, &quot;FilterNotPrintable&quot; _
+					, &quot;FindRegex&quot; _
+					, &quot;HashStr&quot; _
+					, &quot;HtmlEncode&quot; _
+					, &quot;IsADate&quot; _
+					, &quot;IsAlpha&quot; _
+					, &quot;IsAlphaNum&quot; _
+					, &quot;IsAscii&quot; _
+					, &quot;IsDigit&quot; _
+					, &quot;IsEmail&quot; _
+					, &quot;IsFileName&quot; _
+					, &quot;IsHexDigit&quot; _
+					, &quot;IsIPv4&quot; _
+					, &quot;IsLike&quot; _
+					, &quot;IsLower&quot; _
+					, &quot;IsPrintable&quot; _
+					, &quot;IsRegex&quot; _
+					, &quot;IsSheetName&quot; _
+					, &quot;IsTitle&quot; _
+					, &quot;IsUpper&quot; _
+					, &quot;IsUrl&quot; _
+					, &quot;IsWhitespace&quot; _
+					, &quot;JustifyCenter&quot; _
+					, &quot;JustifyLeft&quot; _
+					, &quot;JustifyRight&quot; _
+					, &quot;Quote&quot; _
+					, &quot;ReplaceChar&quot; _
+					, &quot;ReplaceRegex&quot; _
+					, &quot;ReplaceStr&quot; _
+					, &quot;Represent&quot; _
+					, &quot;Reverse&quot; _
+					, &quot;SplitLines&quot; _
+					, &quot;SplitNotQuoted&quot; _
+					, &quot;StartsWith&quot; _
+					, &quot;TrimExt&quot; _
+					, &quot;Unescape&quot; _
+					, &quot;Unquote&quot; _
+					, &quot;Wrap&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_String.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties as an array
+
+	Properties = Array( _
+					&quot;sfCR&quot; _
+					, &quot;sfCRLF&quot; _
+					, &quot;sfLF&quot; _
+					, &quot;sfNEWLINE&quot; _
+					, &quot;sfTAB&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_Session.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function Quote(Optional ByRef InputStr As Variant _
+							, Optional ByVal QuoteChar As String _
+							) As String
+&apos;&apos;&apos;	Return the input string surrounded with double quotes
+&apos;&apos;&apos;	Used f.i. to prepare a string field to be stored in a csv-like file
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		QuoteChar: either &quot; (default) or &apos;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		Existing - including leading and/or trailing - double quotes are doubled
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Quote(&quot;àé&quot;&quot;n ΣlPµ Русский&quot;) returns &quot;&quot;&quot;àé&quot;&quot;&quot;&quot;n ΣlPµ Русский&quot;&quot;&quot;
+
+Dim sQuote As String			&apos;	Return value
+Const cstDouble = &quot;&quot;&quot;&quot;		:	Const cstSingle = &quot;&apos;&quot;
+Const cstEscape = &quot;\&quot;
+Const cstThisSub = &quot;String.Quote&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sQuote = &quot;&quot;
+
+Check:
+	If IsMissing(QuoteChar) Or IsEmpty(QuoteChar) Then QuoteChar = cstDouble
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(QuoteChar, &quot;QuoteChar&quot;, V_STRING, Array(cstDouble, cstSingle)) Then GoTo Finally
+	End If
+
+Try:
+	If QuoteChar = cstDouble Then
+		sQuote = cstDouble &amp; Replace(InputStr, cstDouble, cstDouble &amp; cstDouble) &amp; cstDouble
+	Else
+		sQuote = Replace(InputStr, cstEscape, cstEscape &amp; cstEscape)
+		sQuote = cstSingle &amp; Replace(sQuote, cstSingle, cstEscape &amp; cstSingle) &amp; cstSingle
+	End If
+
+Finally:
+	Quote = sQuote
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Quote
+
+REM -----------------------------------------------------------------------------
+Public Function ReplaceChar(Optional ByRef InputStr As Variant _
+								, Optional ByVal Before As Variant _
+								, Optional ByVal After As Variant _
+								) As String
+&apos;&apos;&apos;	Replace in InputStr all occurrences of any character from Before
+&apos;&apos;&apos;	by the corresponding character in After
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string on which replacements should occur
+&apos;&apos;&apos;		Before: a string of characters to replace 1 by 1 in InputStr
+&apos;&apos;&apos;		After: the replacing characters
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The new string after replacement of Nth character of Before by the Nth character of After
+&apos;&apos;&apos;			Replacements are done one by one =&gt; potential overlaps
+&apos;&apos;&apos;			If the length of Before is larger than the length of After,
+&apos;&apos;&apos;				the residual characters of Before are replaced by the last character of After
+&apos;&apos;&apos;		The input string when Before is the zero-length string
+&apos;&apos;&apos;	Examples: easily remove accents
+&apos;&apos;&apos;		SF_String.ReplaceChar(&quot;Protégez votre vie privée&quot;, &quot;àâãçèéêëîïôöûüýÿ&quot;, &quot;aaaceeeeiioouuyy&quot;)
+&apos;&apos;&apos;			returns &quot;Protegez votre vie privee&quot;
+&apos;&apos;&apos;		SF_String.ReplaceChar(&quot;Protégez votre vie privée&quot;, SF_String.CHARSWITHACCENT, SF_String.CHARSWITHOUTACCENT)
+
+Dim sOutput As String					&apos;	Return value
+Dim iCaseSensitive As Integer			&apos;	Always 0 (True)
+Dim sBefore As String					&apos;	A single character extracted from InputStr
+Dim sAfter As String					&apos;	A single character extracted from After
+Dim lInStr As Long						&apos;	Output of InStr()
+Dim i As Long
+Const cstThisSub = &quot;String.ReplaceChar&quot;
+Const cstSubArgs = &quot;InputStr, Before, After&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sOutput = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Before, &quot;Before&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(After, &quot;After&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Replace standard function =&gt; Replace(string, before, after, start, occurrences, casesensitive)
+	sOutput = InputStr
+	iCaseSensitive = 0
+
+	&apos;	Replace one by one up length of Before and After
+	If Len(Before) &gt; 0 Then
+		i = 1
+		Do While i &lt;= Len(sOutput)
+			sBefore = Mid(sOutput, i, 1)
+			lInStr = InStr(1, Before, sBefore, iCaseSensitive)
+			If lInStr &gt; 0 Then
+				If Len(After) = 0 Then
+					sAfter = &quot;&quot;
+				ElseIf lInStr &gt; Len(After) Then
+					sAfter = Right(After, 1)
+				Else
+					sAfter = Mid(After, lInStr, 1)
+				End If
+				sOutput = Left(sOutput, i - 1) &amp; Replace(sOutput, sBefore, sAfter, i, Empty, iCaseSensitive)
+			End If
+			i = i + 1
+		Loop
+	End If
+
+Finally:
+	ReplaceChar = sOutput
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.ReplaceChar
+
+REM -----------------------------------------------------------------------------
+Public Function ReplaceRegex(Optional ByRef InputStr As Variant _
+								, Optional ByVal Regex As Variant _
+								, Optional ByRef NewStr As Variant _
+								, Optional ByVal CaseSensitive As Variant _
+								) As String
+&apos;&apos;&apos;	Replace in InputStr all occurrences of a given regular expression by NewStr
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string where replacements should occur
+&apos;&apos;&apos;		Regex: the regular expression
+&apos;&apos;&apos;		NewStr: the replacing string
+&apos;&apos;&apos;		CaseSensitive: default = False
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The new string after all replacements
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.ReplaceRegex(&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit.&quot;, &quot;[a-z]&quot;, &quot;x&quot;, CaseSensitive := True)
+&apos;&apos;&apos;				returns &quot;Lxxxx xxxxx xxxxx xxx xxxx, xxxxxxxxxxx xxxxxxxxxx xxxx.&quot;
+&apos;&apos;&apos;		SF_String.ReplaceRegex(&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit.&quot;, &quot;\b[a-z]+\b&quot;, &quot;x&quot;, CaseSensitive := False)
+&apos;&apos;&apos;				returns &quot;x x x x x, x x x.&quot; (each word is replaced by x)
+
+
+Dim sOutput As String					&apos;	Return value
+Dim lStartOld As Long					&apos;	Previous start of search
+Dim lStartNew As Long					&apos;	Next start of search
+Dim sSubstring As String				&apos;	Substring to replace
+Const cstThisSub = &quot;String.ReplaceRegex&quot;
+Const cstSubArgs = &quot;InputStr, Regex, NewStr, [CaseSensitive=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sOutput = &quot;&quot;
+
+Check:
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Regex, &quot;Regex&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(NewStr, &quot;NewStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	sOutput = &quot;&quot;
+	lStartNew = 1
+	lStartOld = 1
+
+	Do While lStartNew &gt;= 1 And lStartNew &lt;= Len(InputStr)
+		sSubstring = SF_String.FindRegex(InputStr, Regex, lStartNew, CaseSensitive)
+		If lStartNew = 0 Then		&apos;	Regex not found
+			&apos;	Copy remaining substring of InputStr before leaving
+			sOutput = sOutput &amp; Mid(InputStr, lStartOld)
+			Exit Do
+		End If
+		&apos;	Append the interval between 2 occurrences and the replacing string
+		If lStartNew &gt; lStartOld Then sOutput = sOutput &amp; Mid(InputStr, lStartOld, lStartNew - lStartOld)
+		sOutput = sOutput &amp; NewStr
+		lStartOld = lStartNew + Len(sSubstring)
+		lStartNew = lStartOld
+	Loop
+
+Finally:
+	ReplaceRegex = sOutput
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.ReplaceRegex
+
+REM -----------------------------------------------------------------------------
+Public Function ReplaceStr(Optional ByRef InputStr As Variant _
+								, Optional ByVal OldStr As Variant _
+								, Optional ByVal NewStr As Variant _
+								, Optional ByVal Occurrences As Variant _
+								, Optional ByVal CaseSensitive As Variant _
+								) As String
+&apos;&apos;&apos;	Replace in InputStr some or all occurrences of OldStr by NewStr
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string on which replacements should occur
+&apos;&apos;&apos;		OldStr: the string to replace or a 1D array of strings to replace
+&apos;&apos;&apos;			Zero-length strings are ignored
+&apos;&apos;&apos;		NewStr: the replacing string or a 1D array of replacing strings
+&apos;&apos;&apos;			If OldStr is an array
+&apos;&apos;&apos;				each occurrence of any of the items of OldStr is replaced by NewStr
+&apos;&apos;&apos;			If OldStr and NewStr are arrays
+&apos;&apos;&apos;				replacements occur one by one up to the UBound of NewStr
+&apos;&apos;&apos;					remaining OldStr(ings) are replaced by the last element of NewStr
+&apos;&apos;&apos;		Occurrences: the maximum number of replacements (0, default, = all occurrences)
+&apos;&apos;&apos;			Is applied for each single replacement when OldStr is an array
+&apos;&apos;&apos;		CaseSensitive: True or False (default)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The new string after replacements
+&apos;&apos;&apos;		Replacements are done one by one when OldStr is an array =&gt; potential overlaps
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.ReplaceStr(&quot;abCcdefghHij&quot;, Array(&quot;c&quot;, &quot;h&quot;), Array(&quot;Y&quot;, &quot;Z&quot;), CaseSensitive := False) returns &quot;abYYdefgZZij&quot;
+
+Dim sOutput As String					&apos;	Return value
+Dim iCaseSensitive As Integer			&apos;	Integer alias for boolean CaseSensitive
+Dim vOccurrences As Variant				&apos;	Variant alias for Integer Occurrences
+Dim sNewStr As String					&apos;	Alias for a NewStr item
+Dim i As Long, j As Long
+Const cstThisSub = &quot;String.ReplaceStr&quot;
+Const cstSubArgs = &quot;InputStr, OldStr, NewStr, [Occurrences=0], [CaseSensitive=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sOutput = &quot;&quot;
+
+Check:
+	If IsMissing(Occurrences) Or IsEmpty(Occurrences) Then Occurrences = 0
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If IsArray(OldStr) Then
+			If Not SF_Utils._ValidateArray(OldStr, &quot;OldStr&quot;, 1, V_STRING, True) Then GoTo Finally
+		Else
+			If Not SF_Utils._Validate(OldStr, &quot;OldStr&quot;, V_STRING) Then GoTo Finally
+		End If
+		If IsArray(NewStr) Then
+			If Not SF_Utils._ValidateArray(NewStr, &quot;NewStr&quot;, 1, V_STRING, True) Then GoTo Finally
+		Else
+			If Not SF_Utils._Validate(NewStr, &quot;NewStr&quot;, V_STRING) Then GoTo Finally
+		End If
+		If Not SF_Utils._Validate(Occurrences, &quot;Occurrences&quot;, V_NUMERIC) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Replace standard function =&gt; Replace(string, before, after, start, occurrences, casesensitive)
+	sOutput = InputStr
+	iCaseSensitive = Iif(CaseSensitive, 0, 1)				&apos;	1 = False ;)
+	vOccurrences = Iif(Occurrences = 0, Empty, Occurrences)	&apos;	Empty = no limit
+	If Not IsArray(OldStr) Then OldStr = Array(OldStr)
+	If Not IsArray(NewStr) Then NewStr = Array(NewStr)
+
+	&apos;	Replace one by one up to UBounds of Old and NewStr
+	j = LBound(NewStr) - 1
+	For i = LBound(OldStr) To UBound(OldStr)
+		j = j + 1
+		If j &lt;= UBound(NewStr) Then sNewStr = NewStr(j)	&apos;	Else do not change
+		If StrComp(OldStr(i), sNewStr, 1) &lt;&gt; 0 Then
+			sOutput = Replace(sOutput, OldStr(i), sNewStr, 1, vOccurrences, iCaseSensitive)
+		End If
+	Next i
+
+Finally:
+	ReplaceStr = sOutput
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.ReplaceStr
+
+REM -----------------------------------------------------------------------------
+Public Function Represent(Optional ByRef AnyValue As Variant _
+								, Optional ByVal MaxLength As Variant _
+								) As String
+&apos;&apos;&apos;	Return a readable (string) form of the argument, truncated at MaxLength
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		AnyValue: really any value (object, date, whatever)
+&apos;&apos;&apos;		MaxLength: the maximum length of the resulting string (Default = 0, unlimited)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The argument converted or transformed into a string of a maximum length = MaxLength
+&apos;&apos;&apos;		Objects are surrounded with square brackets ([])
+&apos;&apos;&apos;		In strings, tabs and line breaks are replaced by \t, \n or \r
+&apos;&apos;&apos;		If the effective length exceeds MaxLength, the final part of the string is replaced by &quot; ... (N)&quot;
+&apos;&apos;&apos;			where N = the total length of the string before truncation
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Represent(&quot;this is a usual string&quot;) returns &quot;this is a usual string&quot;
+&apos;&apos;&apos;		SF_String.Represent(&quot;this is a usual string&quot;, 15) returns &quot;this i ... (22)&quot;
+&apos;&apos;&apos;		SF_String.Represent(&quot;this is a&quot; &amp; Chr(10) &amp; &quot; 2-lines string&quot;) returns &quot;this is a\n 2-lines string&quot;
+&apos;&apos;&apos;		SF_String.Represent(Empty) returns &quot;[EMPTY]&quot;
+&apos;&apos;&apos;		SF_String.Represent(Null) returns &quot;[NULL]&quot;
+&apos;&apos;&apos;		SF_String.Represent(Pi) returns &quot;3.142&quot;
+&apos;&apos;&apos;		SF_String.Represent(CreateUnoService(&quot;com.sun.star.util.PathSettings&quot;)) returns &quot;[com.sun.star.comp.framework.PathSettings]&quot;
+&apos;&apos;&apos;		SF_String.Represent(Array(1, 2, &quot;Text&quot; &amp; Chr(9) &amp; &quot;here&quot;)) returns &quot;[ARRAY] (0:2) (1, 2, Text\there)&quot;
+&apos;&apos;&apos;			Dim myDict As Variant	:	myDict = CreateScriptService(&quot;Dictionary&quot;)
+&apos;&apos;&apos;			myDict.Add(&quot;A&quot;, 1) 	:	myDict.Add(&quot;B&quot;, 2)
+&apos;&apos;&apos;		SF_String.Represent(myDict) returns &quot;[Dictionary] (&quot;A&quot;:1, &quot;B&quot;:2)&quot;
+
+Dim sRepr As String					&apos;	Return value
+Const cstThisSub = &quot;String.Represent&quot;
+Const cstSubArgs = &quot;AnyValue, [MaxLength=0]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sRepr = &quot;&quot;
+
+Check:
+	If IsMissing(AnyValue) Then AnyValue = Empty
+	If IsMissing(MaxLength) Or IsEmpty(MaxLength) Then MaxLength = 0
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(MaxLength, &quot;MaxLength&quot;, V_NUMERIC) Then GoTo Finally
+	End If
+
+Try:
+	sRepr = SF_Utils._Repr(AnyValue, MaxLength)
+	If MaxLength &gt; 0 And MaxLength &lt; Len(sRepr) Then sRepr = sRepr &amp; &quot; ... (&quot; &amp; Len(sRepr) &amp; &quot;)&quot;
+
+Finally:
+	Represent = sRepr
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Represent
+
+REM -----------------------------------------------------------------------------
+Public Function Reverse(Optional ByRef InputStr As Variant) As String
+&apos;&apos;&apos;	Return the input string in reversed order
+&apos;&apos;&apos;		It is equivalent to the standard StrReverse Basic function
+&apos;&apos;&apos;		The latter requires the OpTion VBASupport 1 statement to be present in the module
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string in reversed order
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Reverse(&quot;abcdefghij&quot;) returns &quot;jihgfedcba&quot;
+
+Dim sReversed As String				&apos;	Return value
+Dim lLength As Long					&apos;	Length of input string
+Dim i As Long
+Const cstThisSub = &quot;String.Reverse&quot;
+Const cstSubArgs = &quot;InputSt&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sReversed = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	lLength = Len(InputStr)
+	If lLength &gt; 0 Then
+		sReversed = Space(lLength)
+		For i = 1 To lLength
+			Mid(sReversed, i, 1) = Mid(InputStr, lLength - i + 1)
+		Next i
+	End If
+
+Finally:
+	Reverse = sReversed
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Reverse
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;String.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	Select Case UCase(PropertyName)
+		Case Else
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.SetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function SplitLines(Optional ByRef InputStr As Variant _
+								, Optional ByVal KeepBreaks As Variant _
+								) As Variant
+&apos;&apos;&apos;	Return an array of the lines in a string, breaking at line boundaries
+&apos;&apos;&apos;	Line boundaries include	LF(10), VT(12), CR(13), LF+CR, File separator(28), Group separator(29), Record separator(30), 
+&apos;&apos;&apos;								Next Line(133), Line separator(8232), Paragraph separator(8233)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		KeepBreaks: when True, line breaks are preserved in the output array (default = False)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		An array of all the individual lines
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.SplitLines(&quot;Line1&quot; &amp; Chr(10) &amp; &quot;Line2&quot; &amp; Chr(13) &amp; &quot;Line3&quot;) returns (&quot;Line1&quot;, &quot;Line2&quot;, &quot;Line3&quot;)
+&apos;&apos;&apos;		SF_String.SplitLines(&quot;Line1&quot; &amp; Chr(10) &amp; &quot;Line2&quot; &amp; Chr(13) &amp; &quot;Line3&quot; &amp; Chr(10)) returns (&quot;Line1&quot;, &quot;Line2&quot;, &quot;Line3&quot;, &quot;&quot;)
+
+Dim vSplit As Variant					&apos;	Return value
+Dim vLineBreaks As Variant				&apos;	Array of recognized line breaks
+Dim vTokenizedBreaks As Variant			&apos;	Array of line breaks extended with tokens
+Dim sAlias As String					&apos;	Alias for input string
+&apos;	The procedure uses (dirty) placeholders to identify line breaks
+&apos;	The used tokens are presumed unlikely present in text strings
+Dim sTokenCRLF As String				&apos;	Token to identify combined CR + LF
+Dim sToken As String					&apos;	Token to identify any line break
+Dim i As Long
+Const cstThisSub = &quot;String.SplitLines&quot;
+Const cstSubArgs = &quot;InputStr, [KeepBreaks=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vSplit = Array()
+
+Check:
+	If IsMissing(KeepBreaks) Or IsEmpty(KeepBreaks) Then KeepBreaks = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(KeepBreaks, &quot;KeepBreaks&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	In next list CR + LF must precede CR and LF
+	vLineBreaks = Array(SF_String.sfCRLF, SF_String.sfLF, Chr(12), SF_String.sfCR _
+						, Chr(28), Chr(29), Chr(30), Chr(133), Chr(8232), Chr(8233))
+
+	If KeepBreaks = False Then
+		&apos;	Replace line breaks by linefeeds and split on linefeeds
+		vSplit = Split(SF_String.ReplaceStr(InputStr, vLineBreaks, SF_String.sfLF, CaseSensitive := False), SF_String.sfLF)
+	Else
+		sTokenCRLF = Chr(1) &amp; &quot;$&quot; &amp; Chr(2) &amp; &quot;*&quot; &amp; Chr(3) &amp; &quot;$&quot; &amp; Chr(1)
+		sToken = Chr(1) &amp; &quot;$&quot; &amp; Chr(2) &amp; &quot;*&quot; &amp; Chr(3) &amp; &quot;$&quot; &amp; Chr(2)
+		vTokenizedBreaks = Array()	:	ReDim vTokenizedBreaks(0 To UBound(vLineBreaks))
+		&apos;	Extend breaks with token
+		For i = 0 To UBound(vLineBreaks)
+			vTokenizedBreaks(i) = Iif(i = 0, sTokenCRLF, vLineBreaks(i)) &amp; sToken
+		Next i
+		sAlias = SF_String.ReplaceStr(InputStr, vLineBreaks, vTokenizedBreaks, CaseSensitive := False)
+		&apos;	Suppress CRLF tokens and split
+		vSplit = Split(Replace(sAlias, sTokenCRLF, SF_String.sfCRLF), sToken)
+	End If
+
+Finally:
+	SplitLines = vSplit
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.SplitLines
+
+REM -----------------------------------------------------------------------------
+Public Function SplitNotQuoted(Optional ByRef InputStr As Variant _
+							, Optional ByVal Delimiter As Variant _
+							, Optional ByVal Occurrences As Variant _
+							, Optional ByVal QuoteChar As Variant _
+							) As Variant
+&apos;&apos;&apos;	Split a string on Delimiter into an array. If Delimiter is part of a quoted (sub)string, it is ignored
+&apos;&apos;&apos;		(used f.i. for parsing of csv-like records)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;			Might contain quoted substrings:
+&apos;&apos;&apos;				The quoting character must be the double quote (&quot;)
+&apos;&apos;&apos;				To preserve a quoting character inside the quoted substring, use (\) or (&quot;) as escape character
+&apos;&apos;&apos;					=&gt; [str\&quot;i&quot;&quot;ng]  means [str&quot;i&quot;ng]
+&apos;&apos;&apos;		Delimiter: A string of one or more characters that is used to delimit the input string
+&apos;&apos;&apos;			The default is the space character
+&apos;&apos;&apos;		Occurrences: The number of substrings to return (Default = 0, meaning no limit)
+&apos;&apos;&apos;		QuoteChar: The quoting character, either &quot; (default) or &apos;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		An array whose items are chunks of the input string, Delimiter not included
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.SplitNotQuoted(&quot;abc def ghi&quot;) returns (&quot;abc&quot;, &quot;def&quot;, &quot;ghi&quot;)
+&apos;&apos;&apos;		SF_String.SplitNotQuoted(&quot;abc,&quot;&quot;def,ghi&quot;&quot;&quot;, &quot;,&quot;) returns (&quot;abc&quot;, &quot;&quot;&quot;def,ghi&quot;&quot;&quot;)
+&apos;&apos;&apos;		SF_String.SplitNotQuoted(&quot;abc,&quot;&quot;def\&quot;&quot;,ghi&quot;&quot;&quot;, &quot;,&quot;) returns (&quot;abc&quot;, &quot;&quot;&quot;def\&quot;&quot;,ghi&quot;&quot;&quot;)
+&apos;&apos;&apos;		SF_String.SplitNotQuoted(&quot;abc,&quot;&quot;def\&quot;&quot;,ghi&quot;&quot;&quot;&quot;,&quot;, &quot;,&quot;) returns (&quot;abc&quot;, &quot;&quot;&quot;def\&quot;&quot;,ghi&quot;&quot;&quot;, &quot;&quot;)
+
+Dim vSplit As Variant					&apos;	Return value
+Dim lDelimLen As Long					&apos;	Length of Delimiter
+Dim vStart As Variant					&apos;	Array of start positions of quoted strings
+Dim vEnd As Variant						&apos;	Array of end positions of quoted strings
+Dim lInStr As Long						&apos;	InStr() on input string
+Dim lInStrPrev As Long					&apos;	Previous value of lInputStr
+Dim lBound As Long						&apos;	UBound of vStart and vEnd
+Dim lMin As Long						&apos;	Lower bound to consider when searching vStart and vEnd
+Dim oCharacterClass As Object			&apos;	com.sun.star.i18n.CharacterClassification
+Dim oLocale As Object					&apos;	com.sun.star.lang.Locale
+Dim oParse As Object					&apos;	com.sun.star.i18n.ParseResult
+Dim sChunk As String					&apos;	Substring of InputStr
+Dim bSplit As Boolean					&apos;	New chunk found or not
+Dim i As Long
+Const cstDouble = &quot;&quot;&quot;&quot;		:	Const cstSingle = &quot;&apos;&quot;
+Const cstThisSub = &quot;String.SplitNotQuoted&quot;
+Const cstSubArgs = &quot;InputStr, [Delimiter=&quot;&quot; &quot;&quot;], [Occurrences=0], [QuoteChar=&quot;&quot;&quot; &amp; cstDouble &amp; &quot;&quot;&quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vSplit = Array()
+
+Check:
+	If IsMissing(Delimiter) Or IsEmpty(Delimiter) Then Delimiter = &quot; &quot;
+	If IsMissing(Occurrences) Or IsEmpty(Occurrences) Then Occurrences = 0
+	If IsMissing(QuoteChar) Or IsEmpty(QuoteChar) Then QuoteChar = cstDouble
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Delimiter, &quot;Delimiter&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Occurrences, &quot;Occurrences&quot;, V_NUMERIC) Then GoTo Finally
+		If Not SF_Utils._Validate(QuoteChar, &quot;QuoteChar&quot;, V_STRING, Array(cstDouble, cstSingle)) Then GoTo Finally
+	End If
+	If Len(Delimiter) = 0 Then Delimiter = &quot; &quot;
+
+Try:
+	If Occurrences = 1 Or InStr(1, InputStr, Delimiter, 0) = 0 Then	&apos;	No reason to split
+		vSplit = Array(InputStr)
+	ElseIf InStr(1, InputStr, QuoteChar, 0) = 0 Then	&apos;	No reason to make a complex split
+		If Occurrences &gt; 0 Then vSplit = Split(InputStr, Delimiter, Occurrences) Else vSplit = Split(InputStr, Delimiter)
+	Else
+		If Occurrences &lt; 0 Then Occurrences = 0
+		Set oCharacterClass = SF_Utils._GetUNOService(&quot;CharacterClass&quot;)
+		Set oLocale = SF_Utils._GetUNOService(&quot;Locale&quot;)
+
+		&apos;	Build an array of start/end positions of quoted strings containing at least 1x the Delimiter
+		vStart = Array()	:	vEnd = Array()
+		lInStr = InStr(1, InputStr, QuoteChar)
+		Do While lInStr &gt; 0
+			lBound = UBound(vStart)
+			&apos;	https://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1i18n_1_1XCharacterClassification.html#ad5f1be91fbe86853200391f828d4166b
+			Set oParse = oCharacterClass.parsePredefinedToken( _
+								Iif(QuoteChar = cstDouble, com.sun.star.i18n.KParseType.DOUBLE_QUOTE_STRING, com.sun.star.i18n.KParseType.SINGLE_QUOTE_NAME) _
+								, InputStr, lInStr - 1, oLocale, 0, &quot;&quot;, 0, &quot;&quot;)
+			If oParse.CharLen &gt; 0 Then		&apos;	Is parsing successful ?
+				&apos;	Is there some delimiter ?
+				If InStr(1, oParse.DequotedNameOrString, Delimiter, 0) &gt; 0 Then
+					vStart = SF_Array.Append(vStart, lInStr + 0)
+					vEnd = SF_Array.Append(vEnd, lInStr + oParse.CharLen - 1)
+				End If
+				lInStr = InStr(lInStr + oParse.CharLen, InputStr, QuoteChar)
+			Else
+				lInStr = 0
+			End If
+		Loop
+
+		lBound = UBound(vStart)
+		lDelimLen = Len(Delimiter)
+		If lBound &lt; 0 Then		&apos;	Usual split is applicable
+			vSplit = Split(InputStr, Delimiter, Occurrences)
+		Else
+			&apos;	Split chunk by chunk
+			lMin = 0
+			lInStrPrev = 0
+			lInStr = InStr(1, InputStr, Delimiter, 0)
+			Do While lInStr &gt; 0
+				If Occurrences &gt; 0 And Occurrences = UBound(vSplit) - 1 Then Exit Do
+				bSplit = False
+				&apos;	Ignore found Delimiter if in quoted string
+				For i = lMin To lBound
+					If lInStr &lt; vStart(i) Then
+						bSplit = True
+						Exit For
+					ElseIf lInStr &gt; vStart(i) And lInStr &lt; vEnd (i) Then
+						Exit For
+					Else
+						lMin = i + 1
+						If i = lBound Then bSplit = True Else bSplit = ( lInStr &lt; vStart(lMin) )
+					End If
+				Next i
+				&apos;	Build next chunk and store in split array
+				If bSplit Then
+					If lInStrPrev = 0 Then	&apos;	First chunk
+						sChunk = Left(InputStr, lInStr - 1)
+					Else
+						sChunk = Mid(InputStr, lInStrPrev + lDelimLen, lInStr - lInStrPrev - lDelimLen)
+					End If
+					vSplit = SF_Array.Append(vSplit, sChunk &amp; &quot;&quot;)
+					lInStrPrev = lInStr
+				End If
+				lInStr = InStr(lInStr + lDelimLen, InputStr, Delimiter, 0)
+			Loop
+			If Occurrences = 0 Or Occurrences &gt; UBound(vSplit) + 1 Then
+				sChunk = Mid(InputStr, lInStrPrev + lDelimLen)		&apos;	Append last chunk
+				vSplit = SF_Array.Append(vSplit, sChunk &amp; &quot;&quot;)
+			End If
+		End If
+	End If
+
+Finally:
+	SplitNotQuoted = vSplit
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.SplitNotQuoted
+
+REM -----------------------------------------------------------------------------
+Public Function StartsWith(Optional ByRef InputStr As Variant _
+							, Optional ByVal Substring As Variant _
+							, Optional ByVal CaseSensitive As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Returns True if the first characters of InputStr are identical to Substring
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Substring: the prefixing characters
+&apos;&apos;&apos;		CaseSensitive: default = False
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the comparison is satisfactory
+&apos;&apos;&apos;		False if either InputStr or Substring have a length = 0
+&apos;&apos;&apos;		False if Substr is longer than InputStr
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.StartsWith(&quot;abcdefg&quot;, &quot;ABC&quot;) returns True
+&apos;&apos;&apos;		SF_String.StartsWith(&quot;abcdefg&quot;, &quot;ABC&quot;, CaseSensitive := True) returns False
+
+Dim bStartsWith As Boolean				&apos;	Return value
+Dim lSub As Long						&apos;	Length of SUbstring
+Const cstThisSub = &quot;String.StartsWith&quot;
+Const cstSubArgs = &quot;InputStr, Substring, [CaseSensitive=False]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bStartsWith = False
+
+Check:
+	If IsMissing(CaseSensitive) Or IsEmpty(CaseSensitive) Then CaseSensitive = False
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Substring, &quot;Substring&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(CaseSensitive, &quot;CaseSensitive&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	lSub = Len(Substring)
+	If Len(InputStr) &gt; 0 And lSub &gt; 0 And lSub &lt;= Len(InputStr) Then
+		bStartsWith = ( StrComp(Left(InputStr, lSub), Substring, Iif(CaseSensitive, 1, 0)) = 0 )
+	End If
+
+Finally:
+	StartsWith = bStartsWith
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.StartsWith
+
+REM -----------------------------------------------------------------------------
+Public Function TrimExt(Optional ByRef InputStr As Variant) As String
+&apos;&apos;&apos;	Return the input string without its leading and trailing whitespaces
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string without its leading and trailing white spaces
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.TrimExt(&quot;   ABCDE&quot; &amp; Chr(9) &amp; Chr(10) &amp; Chr(13) &amp; &quot; &quot;) returns &quot;ABCDE&quot;
+
+Dim sTrim As String				&apos;	Return value
+Const cstThisSub = &quot;String.TrimExt&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sTrim = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then
+		sTrim = SF_String.ReplaceRegex(InputStr, REGEXLTRIM, &quot;&quot;)	&apos;	Trim left
+		sTrim = SF_String.ReplaceRegex(sTrim, REGEXRTRIM, &quot;&quot;)		&apos;	Trim right
+	End If
+
+Finally:
+	TrimExt = sTrim
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.TrimExt
+
+REM -----------------------------------------------------------------------------
+Public Function Unescape(Optional ByRef InputStr As Variant) As String
+&apos;&apos;&apos;	Convert any escaped characters in the input string
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string after replacement of \\, \n, \r, \t sequences
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Unescape(&quot;abc\n\tdef\\n&quot;) returns &quot;abc&quot; &amp; Chr(10) &amp; Chr(9) &amp; &quot;def\n&quot;
+
+Dim sUnescape As String					&apos;	Return value
+Dim sToken As String					&apos;	Placeholder unlikely to be present in input string
+Const cstThisSub = &quot;String.Unescape&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sUnescape = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	sToken = Chr(1) &amp; &quot;$&quot; &amp; Chr(2) &amp; &quot;*&quot; &amp; Chr(3) &amp; &quot;$&quot; &amp; Chr(1)	&apos; Placeholder for &quot;\\&quot;
+	sUnescape = SF_String.ReplaceStr( InputStr _
+							, Array(&quot;\\&quot;, &quot;\n&quot;, &quot;\r&quot;, &quot;\t&quot;, sToken) _
+							, Array(sToken, SF_String.sfLF, SF_String.sfCR, SF_String.sfTAB, &quot;\&quot;) _
+							)
+
+Finally:
+	Unescape = sUnescape
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Unescape
+
+REM -----------------------------------------------------------------------------
+Public Function Unquote(Optional ByRef InputStr As Variant _
+							, Optional ByVal QuoteChar As String _
+							) As String
+&apos;&apos;&apos;	Reset a quoted string to its original content
+&apos;&apos;&apos;		(used f.i. for parsing of csv-like records)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		QuoteChar: either &quot; (default) or &apos;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The input string after removal of leading/trailing quotes and escaped single/double quotes
+&apos;&apos;&apos;		The input string if not a quoted string
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Unquote(&quot;&quot;&quot;àé&quot;&quot;&quot;&quot;n ΣlPµ Русский&quot;&quot;&quot;) returns &quot;àé&quot;&quot;n ΣlPµ Русский&quot;
+
+Dim sUnquote As String					&apos;	Return value
+Dim oCharacterClass As Object			&apos;	com.sun.star.i18n.CharacterClassification
+Dim oLocale As Object					&apos;	com.sun.star.lang.Locale
+Dim oParse As Object					&apos;	com.sun.star.i18n.ParseResult
+Const cstDouble = &quot;&quot;&quot;&quot;		:	Const cstSingle = &quot;&apos;&quot;
+Const cstThisSub = &quot;String.Unquote&quot;
+Const cstSubArgs = &quot;InputStr&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sUnquote = &quot;&quot;
+
+Check:
+	If IsMissing(QuoteChar) Or IsEmpty(QuoteChar) Then QuoteChar = cstDouble
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(QuoteChar, &quot;QuoteChar&quot;, V_STRING, Array(cstDouble, cstSingle)) Then GoTo Finally
+	End If
+
+Try:
+	If Left(InputStr, 1) &lt;&gt; &quot;&quot;&quot;&quot; Then	&apos;	No need to parse further
+		sUnquote = InputStr
+	Else
+		Set oCharacterClass = SF_Utils._GetUNOService(&quot;CharacterClass&quot;)
+		Set oLocale = SF_Utils._GetUNOService(&quot;Locale&quot;)
+
+		&apos;	https://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1i18n_1_1XCharacterClassification.html#ad5f1be91fbe86853200391f828d4166b
+		Set oParse = oCharacterClass.parsePredefinedToken( _
+							Iif(QuoteChar = cstDouble, com.sun.star.i18n.KParseType.DOUBLE_QUOTE_STRING, com.sun.star.i18n.KParseType.SINGLE_QUOTE_NAME) _
+							, InputStr, 0, oLocale, 0, &quot;&quot;, 0, &quot;&quot;)
+		If oParse.CharLen &gt; 0 Then		&apos;	Is parsing successful ?
+			sUnquote = oParse.DequotedNameOrString
+		Else
+			sUnquote = InputStr
+		End If
+	End If
+
+Finally:
+	Unquote = sUnquote
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Unquote
+
+REM -----------------------------------------------------------------------------
+Public Function Wrap(Optional ByRef InputStr As Variant _
+						, Optional ByVal Width As Variant _
+						, Optional ByVal TabSize As Variant _
+						) As Variant
+&apos;&apos;&apos;	Wraps every single paragraph in text (a string) so every line is at most Width characters long
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		InputStr: the input string
+&apos;&apos;&apos;		Width: the maximum number of characters in each line, default = 70
+&apos;&apos;&apos;		TabSize: before wrapping the text, the existing TAB (Chr(9)) characters are replaced with spaces.
+&apos;&apos;&apos;			TabSize defines the TAB positions at TabSize + 1, 2 * TabSize + 1 , ... N * TabSize + 1
+&apos;&apos;&apos;			Default = 8
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		Returns a zero-based array of output lines, without final newlines except the pre-existing line-breaks
+&apos;&apos;&apos;		Tabs are expanded. Symbolic line breaks are replaced by their hard equivalents
+&apos;&apos;&apos;		If the wrapped output has no content, the returned array is empty.
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		SF_String.Wrap(&quot;Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&quot;, 20)
+
+Dim vWrap As Variant					&apos;	Return value
+Dim vWrapLines							&apos;	Input string split on line breaks
+Dim sWrap As String						&apos;	Intermediate string
+Dim sLine As String						&apos;	Line after splitting on line breaks
+Dim lPos As Long						&apos;	Position in sLine already wrapped
+Dim lStart As Long						&apos;	Start position before and after regex search
+Dim sSpace As String					&apos;	Next whitespace
+Dim sChunk As String					&apos;	Next wrappable text chunk
+Const cstThisSub = &quot;String.Wrap&quot;
+Const cstSubArgs = &quot;InputStr, [Width=70], [TabSize=8]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vWrap = Array()
+
+Check:
+	If IsMissing(Width) Or IsEmpty(Width) Then Width = 70
+	If IsMissing(TabSize) Or IsEmpty(TabSize) Then TabSize = 8
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(InputStr, &quot;InputStr&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Width, &quot;Width&quot;, V_NUMERIC) Then GoTo Finally
+		If Not SF_Utils._Validate(TabSize, &quot;TabSize&quot;, V_NUMERIC) Then GoTo Finally
+	End If
+
+Try:
+	If Len(InputStr) &gt; 0 Then
+		sWrap = SF_String.Unescape(InputStr)			&apos;	Replace symbolic breaks
+		sWrap = SF_String.ExpandTabs(sWrap, TabSize)	&apos;	Interpret TABs to have a meaningful Width
+		&apos;	First, split full string
+		vWrapLines = SF_String.SplitLines(sWrap, KeepBreaks := True)	&apos;	Keep pre-existing breaks
+		If UBound(vWrapLines) = 0 And Len(sWrap) &lt;= Width Then	&apos;	Output a single line
+			vWrap = Array(sWrap)
+		Else
+			&apos;	Second, split each line on Width
+			For Each sLine In vWrapLines
+				If Len(sLine) &lt;= Width Then
+					If UBound(vWrap) &lt; 0 Then vWrap = Array(sLine) Else vWrap = SF_Array.Append(vWrap, sLine)
+				Else
+					&apos;	Scan sLine and accumulate found substrings up to Width
+					lStart = 1
+					lPos = 0
+					sWrap = &quot;&quot;
+					Do While lStart &lt;= Len(sLine)
+						sSpace = SF_String.FindRegex(sLine, REGEXSPACES, lStart)
+						If lStart = 0 Then lStart = Len(sLine) + 1
+						sChunk = Mid(sLine, lPos + 1, lStart - 1 - lPos + Len(sSpace))
+						If Len(sWrap) + Len(sChunk) &lt; Width Then	&apos;	Add chunk to current piece of line
+							sWrap = sWrap &amp; sChunk
+						Else	&apos;	Save current line and initialize next one
+							If UBound(vWrap) &lt; 0 Then vWrap = Array(sWrap) Else vWrap = SF_Array.Append(vWrap, sWrap)
+							sWrap = sChunk
+						End If
+						lPos = lPos + Len(sChunk)
+						lStart = lPos + 1
+					Loop
+					&apos;	Add last chunk
+					If Len(sWrap) &gt; 0 Then
+						If UBound(vWrap) &lt; 0 Then vWrap = Array(sWrap) Else vWrap = SF_Array.Append(vWrap, sWrap)
+					End If
+				End If
+			Next sLine
+		End If
+	End If
+
+Finally:
+	Wrap = vWrap
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_String.Wrap
+
+REM ============================================================= PRIVATE METHODS
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr(ByRef pvString As String) As String
+&apos;&apos;&apos;	Convert an arbitrary string to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;		Carriage Returns are replaced by \r. Other line breaks are replaced by \n
+&apos;&apos;&apos;		Tabs are replaced by \t
+&apos;&apos;&apos;		Backslashes are doubled
+&apos;&apos;&apos;		Other non printable characters are replaced by \x00 to \xFF or \x0000 to \xFFFF
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvString: the string to make readable
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		the converted string
+
+Dim sString As String	&apos;	Return value
+Dim sChar As String		&apos;	A single character
+Dim lAsc As Long		&apos;	Ascii value
+Dim lPos As Long		&apos;	Position in sString
+Dim i As Long
+
+	&apos;	Process TABs, CRs and LFs
+	sString = Replace(Replace(Replace(pvString, &quot;\&quot;, &quot;\\&quot;), SF_String.sfCR, &quot;\r&quot;), SF_String.sfTAB, &quot;\t&quot;)
+	sString = Join(SF_String.SplitLines(sString, KeepBreaks := False), &quot;\n&quot;)
+	&apos;	Process not printable characters
+	If Len(sString) &gt; 0 Then
+		lPos = 1
+		Do While lPos &lt;= Len(sString)
+			sChar = Mid(sString, lPos, 1)
+			If Not SF_String.IsPrintable(sChar) Then
+				lAsc = Asc(sChar)
+				sChar = &quot;\x&quot; &amp; Iif(lAsc &lt; 255, Right(&quot;00&quot; &amp; Hex(lAsc, 2)), Right(&quot;0000&quot; &amp; Hex(lAsc, 4)))
+				If lPos &lt; Len(sString) Then
+					sString = Left(sString, lPos - 1) &amp; sChar &amp; Mid(sString, lPos + 1)
+				Else
+					sString = Left(sString, lPos - 1) &amp; sChar
+				End If
+			End If
+			lPos = lPos + Len(sChar)
+		Loop
+	End If
+
+	_Repr = sString
+
+End Function	&apos;	ScriptForge.SF_String._Repr
+
+REM ================================================ END OF SCRIPTFORGE.SF_STRING
+</script:module>

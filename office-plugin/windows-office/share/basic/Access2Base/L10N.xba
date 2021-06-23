@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="L10N" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Public Function _GetLabel(ByVal psShortlabel As String, Optional ByVal psLocale As String) As String
+&apos;	Return the localized label corresponding with ShortLabel
+
+	If IsMissing(psLocale) Then psLocale = UCase(Left(_A2B_.Locale, 2)) Else psLocale = UCase(psLocale)
+	On Local Error Goto Error_Function
+	If Not Utils._InList(psLocale, Array( _
+				&quot;EN&quot;, &quot;FR&quot;, &quot;ES&quot;, &quot;DE&quot; _
+				)) Then psLocale = &quot;DEFAULT&quot;	&apos;	If list incomplete a recursive call will be provided anyway
+	
+Dim sLocal As String
+	sLocal = psShortLabel
+	Select Case psLocale
+		Case &quot;EN&quot;, &quot;DEFAULT&quot;
+			Select Case UCase(psShortlabel)
+				Case &quot;ERR&quot; &amp; ERRDBNOTCONNECTED		:	sLocal = &quot;No active connection to a database found&quot;
+				Case &quot;ERR&quot; &amp; ERRMISSINGARGUMENTS	:	sLocal = &quot;Arguments are missing or are not initialized&quot;
+				Case &quot;ERR&quot; &amp; ERRWRONGARGUMENT		:	sLocal = &quot;Argument nr. %0 [Value = &apos;%1&apos;] is invalid&quot;
+				Case &quot;ERR&quot; &amp; ERRMAINFORM			:	sLocal = &quot;Document &apos;%0&apos; does not contain any form&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTIDENTIFIED	:	sLocal = &quot;Form &apos;%0&apos; not identified in database Forms set&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTFOUND		:	sLocal = &quot;Form &apos;%0&apos; not found&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTOPEN			:	sLocal = &quot;Form &apos;%0&apos; is currently not open&quot;
+				Case &quot;ERR&quot; &amp; ERRDFUNCTION			:	sLocal = &quot;DFunction execution failed, SQL=%0&quot;
+				Case &quot;ERR&quot; &amp; ERROPENFORM			:	sLocal = &quot;Form &apos;%0&apos; could not be opened&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTY			:	sLocal = &quot;Property &apos;%0&apos; not applicable in this context&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYVALUE		:	sLocal = &quot;Value &apos;%0&apos; is invalid for property &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRINDEXVALUE			:	sLocal = &quot;Out of array range or incorrect array size for property &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRCOLLECTION			:	sLocal = &quot;Out of array range&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYNOTARRAY	:	sLocal = &quot;Argument nr.%0 should be an array&quot;
+				Case &quot;ERR&quot; &amp; ERRCONTROLNOTFOUND		:	sLocal = &quot;Control &apos;%0&apos; not found in parent (form, grid or dialog) &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOACTIVEFORM		:	sLocal = &quot;No active form or control found&quot;
+				Case &quot;ERR&quot; &amp; ERRDATABASEFORM		:	sLocal = &quot;Form &apos;%0&apos; has no underlying dataset&quot;
+				Case &quot;ERR&quot; &amp; ERRFOCUSINGRID			:	sLocal = &quot;Control &apos;%0&apos; not found in gridcontrol &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOGRIDINFORM		:	sLocal = &quot;No gridcontrol found in form &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRFINDRECORD			:	sLocal = &quot;FindNext() must be preceded by a successful FindRecord(...) call&quot;
+				Case &quot;ERR&quot; &amp; ERRSQLSTATEMENT		:	sLocal = &quot;SQL Error, SQL statement = &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROBJECTNOTFOUND		:	sLocal = &quot;%0 &apos;%1&apos; not found&quot;
+				Case &quot;ERR&quot; &amp; ERROPENOBJECT			:	sLocal = &quot;%0 &apos;%1&apos; could not be opened&quot;
+				Case &quot;ERR&quot; &amp; ERRCLOSEOBJECT			:	sLocal = &quot;%0 &apos;%1&apos; could not be closed&quot;
+				Case &quot;ERR&quot; &amp; ERRACTION				:	sLocal = &quot;Action not applicable in this context&quot;
+				Case &quot;ERR&quot; &amp; ERRSENDMAIL			:	sLocal = &quot;Mail service could not be activated&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMYETOPEN			:	sLocal = &quot;Form %0 is already open&quot;
+				Case &quot;ERR&quot; &amp; ERRMETHOD				:	sLocal = &quot;Method &apos;%0&apos; not applicable in this context&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYINIT		:	sLocal = &quot;Property &apos;%0&apos; applicable but not initialized&quot;
+				Case &quot;ERR&quot; &amp; ERRFILENOTCREATED		:	sLocal = &quot;File &apos;%0&apos; could not be created&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTFOUND		:	sLocal = &quot;Dialog &apos;%0&apos; not found in the currently loaded libraries&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGUNDEFINED		:	sLocal = &quot;Dialog unknown&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGSTARTED		:	sLocal = &quot;Dialog already started&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTSTARTED	:	sLocal = &quot;Dialog &apos;%0&apos; not active&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETNODATA		:	sLocal = &quot;Recordset delivered no data. Action on current record rejected&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLOSED		:	sLocal = &quot;Recordset has been closed. Recordset action rejected&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETRANGE		:	sLocal = &quot;Current record out of range&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETFORWARD	:	sLocal = &quot;Action rejected in a forward-only or not bookmarkable recordset&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDNULL			:	sLocal = &quot;Field is null or empty. Action rejected&quot;
+				Case &quot;ERR&quot; &amp; ERRFILEACCESS			:	sLocal = &quot;File access error on file &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROVERFLOW			:	sLocal = &quot;Field length (%0) exceeds maximum length. Use the &apos;%1&apos; method instead&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTACTIONQUERY		:	sLocal = &quot;Query &apos;%0&apos; is not an action query&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTUPDATABLE		:	sLocal = &quot;Database, recordset or field is read only&quot;
+				Case &quot;ERR&quot; &amp; ERRUPDATESEQUENCE		:	sLocal = &quot;Recordset update sequence error&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTNULLABLE			:	sLocal = &quot;Field &apos;%0&apos; must not contain a NULL value&quot;
+				Case &quot;ERR&quot; &amp; ERRROWDELETED			:	sLocal = &quot;Current row has been deleted by another process or user&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLONE		:	sLocal = &quot;Cloning a cloned Recordset is forbidden&quot;
+				Case &quot;ERR&quot; &amp; ERRQUERYDEFDELETED		:	sLocal = &quot;Pre-existing query &apos;%0&apos; has been deleted&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLEDEFDELETED		:	sLocal = &quot;Pre-existing table &apos;%0&apos; has been deleted&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLECREATION		:	sLocal = &quot;Table &apos;%0&apos; could not be created&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDCREATION		:	sLocal = &quot;Field &apos;%0&apos; could not be created&quot;
+				Case &quot;ERR&quot; &amp; ERRSUBFORMNOTFOUND		:	sLocal = &quot;Subform &apos;%0&apos; not found in parent form &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRWINDOW				:	sLocal = &quot;Current window is not a document&quot;
+				Case &quot;ERR&quot; &amp; ERRCOMPATIBILITY		:	sLocal = &quot;Field &apos;%0&apos; could not be converted due to incompatibility of field types between the respective database systems&quot;
+				Case &quot;ERR&quot; &amp; ERRPRECISION			:	sLocal = &quot;Field &apos;%0&apos; could not be loaded in record #%1 due to capacity shortage&quot;
+				Case &quot;ERR&quot; &amp; ERRMODULENOTFOUND		:	sLocal = &quot;Module &apos;%0&apos; not found in the currently loaded libraries&quot;
+				Case &quot;ERR&quot; &amp; ERRPROCEDURENOTFOUND	:	sLocal = &quot;Procedure &apos;%0&apos; not found in module &apos;%1&apos;&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;OBJECT&quot;						:	sLocal = &quot;Object&quot;
+				Case &quot;TABLE&quot;						:	sLocal = &quot;Table&quot;
+				Case &quot;QUERY&quot;						:	slocal = &quot;Query&quot;
+				Case &quot;FORM&quot;							:	sLocal = &quot;Form&quot;
+				Case &quot;REPORT&quot;						:	sLocal = &quot;Report&quot;
+				Case &quot;RECORDSET&quot;					:	sLocal = &quot;Recordset&quot;
+				Case &quot;FIELD&quot;						:	sLocal = &quot;Field&quot;
+				Case &quot;TEMPVAR&quot;						:	sLocal = &quot;Temporary variable&quot;
+				Case &quot;COMMANDBAR&quot;					:	sLocal = &quot;Command bar&quot;
+				Case &quot;COMMANDBARCONTROL&quot;			:	sLocal = &quot;Command bar control&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;ERR#&quot;							:	sLocal = &quot;Error #&quot;
+				Case &quot;ERROCCUR&quot;						:	sLocal = &quot;occurred&quot;
+				Case &quot;ERRLINE&quot;						:	sLocal = &quot;at line&quot;
+				Case &quot;ERRIN&quot;						:	sLocal = &quot;in&quot;
+				Case &quot;CALLTO&quot;						:	sLocal = &quot;a call to function&quot;
+				Case &quot;SAVECONSOLE&quot;					:	sLocal = &quot;Save console&quot;
+				Case &quot;SAVECONSOLEENTRIES&quot;			:	sLocal = &quot;The console entries have been saved successfully.&quot;
+				Case &quot;QUITSHORT&quot;					:	sLocal = &quot;Quit&quot;
+				Case &quot;QUIT&quot;							:	sLocal = &quot;Do you really want to quit the application ? Changed data will be saved.&quot;
+				Case &quot;ENTERING&quot;						:	sLocal = &quot;Entering&quot;
+				Case &quot;EXITING&quot;						:	sLocal = &quot;Exiting&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGTRACE_HELP&quot;				:	sLocal = &quot;Manage the console buffer and its entries&quot;
+				Case &quot;DLGTRACE_TITLE&quot;				:	sLocal = &quot;Console&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_HELP&quot;		:	sLocal = &quot;Clear the list and resize the circular buffer&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_LABEL&quot;	:	sLocal = &quot;Set max number of entries&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_HELP&quot;	:	sLocal = &quot;Text can be selected, copied, ...&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_TEXT&quot;	:	sLocal = &quot;--- Log file is empty ---&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Cancel and close the dialog&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_LABEL&quot;		:	sLocal = &quot;Cancel&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_HELP&quot;		:	sLocal = &quot;Clear the list&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_LABEL&quot;		:	sLocal = &quot;Clear the list&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_HELP&quot;	:	sLocal = &quot;Register only logging requests above given level&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_LABEL&quot;	:	sLocal = &quot;Set minimal trace level&quot;
+				Case &quot;DLGTRACE_CMDOK_HELP&quot;			:	sLocal = &quot;Validate&quot;
+				Case &quot;DLGTRACE_CMDOK_LABEL&quot;			:	sLocal = &quot;OK&quot;
+				Case &quot;DLGTRACE_CMDDUMP_HELP&quot;		:	sLocal = &quot;Choose a file and dump the actual list content in it&quot;
+				Case &quot;DLGTRACE_CMDDUMP_LABEL&quot;		:	sLocal = &quot;Dump to file&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_HELP&quot;	:	sLocal = &quot;Actual size of list&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_LABEL&quot;	:	sLocal = &quot;Actual number of entries:&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGFORMAT_HELP&quot;				:	sLocal = &quot;Export the form&quot;
+				Case &quot;DLGFORMAT_TITLE&quot;				:	sLocal = &quot;OutputTo&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_HELP&quot;		:	sLocal = &quot;Format in which the form should be exported&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_LABEL&quot;	:	sLocal = &quot;Select the output format&quot;
+				Case &quot;DLGFORMAT_CMDOK_HELP&quot;			:	sLocal = &quot;Validate your choice&quot;
+				Case &quot;DLGFORMAT_CMDOK_LABEL&quot;		:	sLocal = &quot;OK&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Cancel and close the dialog&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_LABEL&quot;	:	sLocal = &quot;Cancel&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case Else							:	sLocal = &quot;&quot;
+			End Select
+		Case &quot;FR&quot;
+			Select Case  UCase(psShortlabel)
+				Case &quot;ERR&quot; &amp; ERRDBNOTCONNECTED		:	sLocal = &quot;Pas de connexion active trouvée à une banque de données&quot;
+				Case &quot;ERR&quot; &amp; ERRMISSINGARGUMENTS	:	sLocal = &quot;Des arguments sont manquants ou non initialisés&quot;
+				Case &quot;ERR&quot; &amp; ERRWRONGARGUMENT		:	sLocal = &quot;L&apos;argument n° %0 [Valeur = &apos;%1&apos;] n&apos;est pas valable&quot;
+				Case &quot;ERR&quot; &amp; ERRMAINFORM			:	sLocal = &quot;Le document &apos;%0&apos; ne contient aucun formulaire&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTIDENTIFIED	:	sLocal = &quot;Le formulaire &apos;%0&apos; n&apos;a pas pu être identifié parmi l&apos;ensemble des formulaires de la Database&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTFOUND		:	sLocal = &quot;Formulaire &apos;%0&apos; non trouvé&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTOPEN			:	sLocal = &quot;Le formulaire &apos;%0&apos; n&apos;est actuellement pas ouvert&quot;
+				Case &quot;ERR&quot; &amp; ERRDFUNCTION			:	sLocal = &quot;L&apos;exécution de la &quot;&quot;fonction database&quot;&quot; a échoué, SQL=%0&quot;
+				Case &quot;ERR&quot; &amp; ERROPENFORM			:	sLocal = &quot;Le formulaire &apos;%0&apos; n&apos;a pas pu être ouvert&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTY			:	sLocal = &quot;La propriété &apos;%0&apos; n&apos;est pas applicable dans ce contexte&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYVALUE		:	sLocal = &quot;La valeur &apos;%0&apos; est invalide pour la propriété &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRINDEXVALUE			:	sLocal = &quot;Indice invalide ou dimension erronée du tableau pour la propriété &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRCOLLECTION			:	sLocal = &quot;Indice de tableau invalide&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYNOTARRAY	:	sLocal = &quot;L&apos;argument n°%0 doit être un tableau&quot;
+				Case &quot;ERR&quot; &amp; ERRCONTROLNOTFOUND		:	sLocal = &quot;Contrôle &apos;%0&apos; non trouvé dans le parent (formulaire, contrôle de table ou dialogue) &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOACTIVEFORM		:	sLocal = &quot;Pas de formulaire ou de contrôle actif&quot;
+				Case &quot;ERR&quot; &amp; ERRDATABASEFORM		:	sLocal = &quot;Le formulaire &apos;%0&apos; n&apos;a pas de données sous-jacentes&quot;
+				Case &quot;ERR&quot; &amp; ERRFOCUSINGRID			:	sLocal = &quot;Contrôle &apos;%0&apos; non trouvé dans le contrôle de table &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOGRIDINFORM		:	sLocal = &quot;Aucun contrôle de table trouvé dans le formulaire &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRFINDRECORD			:	sLocal = &quot;FindNext() doit être précédé par un appel réussi à FindRecord(...)&quot;
+				Case &quot;ERR&quot; &amp; ERRSQLSTATEMENT		:	sLocal = &quot;Erreur SQL, instruction SQL = &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROBJECTNOTFOUND		:	sLocal = &quot;%0 &apos;%1&apos; non trouvé(e)&quot;
+				Case &quot;ERR&quot; &amp; ERROPENOBJECT			:	sLocal = &quot;%0 &apos;%1&apos;: ouverture en échec&quot;
+				Case &quot;ERR&quot; &amp; ERRCLOSEOBJECT			:	sLocal = &quot;%0 &apos;%1&apos;: fermeture en échec&quot;
+				Case &quot;ERR&quot; &amp; ERRACTION				:	sLocal = &quot;Action non applicable dans ce contexte&quot;
+				Case &quot;ERR&quot; &amp; ERRSENDMAIL			:	sLocal = &quot;Le service de messagerie n&apos;a pas pu être activé&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMYETOPEN			:	sLocal = &quot;Le formulaire %0 est déjà ouvert&quot;
+				Case &quot;ERR&quot; &amp; ERRMETHOD				:	sLocal = &quot;La méthode &apos;%0&apos; n&apos;est pas applicable dans ce contexte&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYINIT		:	sLocal = &quot;Propriété &apos;%0&apos; applicable mais non initialisée&quot;
+				Case &quot;ERR&quot; &amp; ERRFILENOTCREATED		:	sLocal = &quot;Erreur de création du fichier &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTFOUND		:	sLocal = &quot;Dialogue &apos;%0&apos; introuvable dans les librairies chargées actuellement&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGUNDEFINED		:	sLocal = &quot;Boîte de dialogue inconnue&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGSTARTED		:	sLocal = &quot;Dialogue déjà initialisé précédemment&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTSTARTED	:	sLocal = &quot;Dialogue &apos;%0&apos; non initialisé&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETNODATA		:	sLocal = &quot;Recordset n&apos;a pas fourni de données. Toute action sur les enregistrements est rejetée&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLOSED		:	sLocal = &quot;Recordset a été clôturé. Action sur l&apos;enregistrement courant est rejetée&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETRANGE		:	sLocal = &quot;L&apos;enregistrement courant est hors cadre&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETFORWARD	:	sLocal = &quot;Action rejetée car recordset lisible seulement vers l&apos;avant ou n&apos;acceptant pas de signets&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDNULL			:	sLocal = &quot;Champ nul ou vide. Action rejetée&quot;
+				Case &quot;ERR&quot; &amp; ERRFILEACCESS			:	sLocal = &quot;Erreur d&apos;accès au fichier &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROVERFLOW			:	sLocal = &quot;La longueur du champ (%0) dépasse la taille maximale autorisée. Utiliser de préférence la méthode &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTACTIONQUERY		:	sLocal = &quot;La requête &apos;%0&apos; n&apos;est pas une requête d&apos;action&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTUPDATABLE		:	sLocal = &quot;La banque de données, le recordset ou le champ sont en lecture seulement&quot;
+				Case &quot;ERR&quot; &amp; ERRUPDATESEQUENCE		:	sLocal = &quot;Erreur de séquence lors de la mise à jour d&apos;un Recordset&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTNULLABLE			:	sLocal = &quot;Le champ &apos;%0&apos; ne peut pas recevoir une valeur NULLe&quot;
+				Case &quot;ERR&quot; &amp; ERRROWDELETED			:	sLocal = &quot;L&apos;enregistrement courant a été effacé par un autre processus ou un autre utilisateur&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLONE		:	sLocal = &quot;Le clonage d&apos;un Recordset cloné est interdit&quot;
+				Case &quot;ERR&quot; &amp; ERRQUERYDEFDELETED		:	sLocal = &quot;La requête existante &apos;%0&apos; a été supprimée&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLEDEFDELETED		:	sLocal = &quot;La table existante &apos;%0&apos; a été supprimée&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLECREATION		:	sLocal = &quot;La table &apos;%0&apos; n&apos;a pas pu être créée&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDCREATION		:	sLocal = &quot;Le champ &apos;%0&apos; n&apos;a pas pu être créé&quot;
+				Case &quot;ERR&quot; &amp; ERRSUBFORMNOTFOUND		:	sLocal = &quot;Sous-formulaire &apos;%0&apos; non trouvé dans le formulaire parent &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRWINDOW				:	sLocal = &quot;La fenêtre courante n&apos;est pas un document&quot;
+				Case &quot;ERR&quot; &amp; ERRCOMPATIBILITY		:	sLocal = &quot;Le champ &apos;%0&apos; n&apos;a pas pu être converti à cause d&apos;une incompatibilité entre les types de champs supportés par les systèmes de bases de données respectifs&quot;
+				Case &quot;ERR&quot; &amp; ERRPRECISION			:	sLocal = &quot;Le champ &apos;%0&apos; n&apos;a pas pu être chargé dans l&apos;enregistrement #%1 par manque de capacité&quot;
+				Case &quot;ERR&quot; &amp; ERRMODULENOTFOUND		:	sLocal = &quot;Le module &apos;%0&apos; est introuvable dans les librairies chargées actuellement&quot;
+				Case &quot;ERR&quot; &amp; ERRPROCEDURENOTFOUND	:	sLocal = &quot;La procédure &apos;%0&apos; est introuvable dans le module &apos;%1&apos;&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;OBJECT&quot;						:	sLocal = &quot;Objet&quot;
+				Case &quot;TABLE&quot;						:	sLocal = &quot;Table&quot;
+				Case &quot;QUERY&quot;						:	slocal = &quot;Requête&quot;
+				Case &quot;FORM&quot;							:	sLocal = &quot;Formulaire&quot;
+				Case &quot;REPORT&quot;						:	sLocal = &quot;Rapport&quot;
+				Case &quot;RECORDSET&quot;					:	sLocal = &quot;Recordset&quot;
+				Case &quot;FIELD&quot;						:	sLocal = &quot;Champ&quot;
+				Case &quot;TEMPVAR&quot;						:	sLocal = &quot;Variable temporaire&quot;
+				Case &quot;COMMANDBAR&quot;					:	sLocal = &quot;Barre de commande&quot;
+				Case &quot;COMMANDBARCONTROL&quot;			:	sLocal = &quot;Elément de barre de commande&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;ERR#&quot;							:	sLocal = &quot;L&apos;erreur #&quot;
+				Case &quot;ERROCCUR&quot;						:	sLocal = &quot;s&apos;est produite&quot;
+				Case &quot;ERRLINE&quot;						:	sLocal = &quot;à la ligne&quot;
+				Case &quot;ERRIN&quot;						:	sLocal = &quot;dans&quot;
+				Case &quot;CALLTO&quot;						:	sLocal = &quot;un appel à la fonction&quot;
+				Case &quot;SAVECONSOLE&quot;					:	sLocal = &quot;Sauver console&quot;
+				Case &quot;SAVECONSOLEENTRIES&quot;			:	sLocal = &quot;Les entrées de la console ont été sauvées avec succès.&quot;
+				Case &quot;QUITSHORT&quot;					:	sLocal = &quot;Quitter&quot;
+				Case &quot;QUIT&quot;							:	sLocal = &quot;Voulez-vous réellement quitter l&apos;application ? Les données modifiées seront sauvées.&quot;
+				Case &quot;ENTERING&quot;						:	sLocal = &quot;Entrée dans&quot;
+				Case &quot;EXITING&quot;						:	sLocal = &quot;Sortie de&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGTRACE_HELP&quot;				:	sLocal = &quot;Gestion du tampon de la console et toutes ses entrées&quot;
+				Case &quot;DLGTRACE_TITLE&quot;				:	sLocal = &quot;Console&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_HELP&quot;		:	sLocal = &quot;Effacer la liste et redimensionner le tampon circulaire&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_LABEL&quot;	:	sLocal = &quot;Définir le nombre maximum d&apos;entrées&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_HELP&quot;	:	sLocal = &quot;Le texte peut être sélectionné, copié, ...&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_TEXT&quot;	:	sLocal = &quot;--- Le fichier journal est vide ---&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Annuler et fermer la boîte de dialogue&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_LABEL&quot;		:	sLocal = &quot;Annuler&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_HELP&quot;		:	sLocal = &quot;Effacer la liste&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_LABEL&quot;		:	sLocal = &quot;Effacer la liste&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_HELP&quot;	:	sLocal = &quot;N&apos;enregistrer que les demandes de journalisation à partir du niveau indiqué&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_LABEL&quot;	:	sLocal = &quot;Définir le niveau minimal d&apos;enregistrement&quot;
+				Case &quot;DLGTRACE_CMDOK_HELP&quot;			:	sLocal = &quot;Valider&quot;
+				Case &quot;DLGTRACE_CMDOK_LABEL&quot;			:	sLocal = &quot;OK&quot;
+				Case &quot;DLGTRACE_CMDDUMP_HELP&quot;		:	sLocal = &quot;Sélectionner un fichier et y vider le contenu actuel des traces enregistrées&quot;
+				Case &quot;DLGTRACE_CMDDUMP_LABEL&quot;		:	sLocal = &quot;Vider dans fichier&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_HELP&quot;	:	sLocal = &quot;Taille actuelle de la liste&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_LABEL&quot;	:	sLocal = &quot;Nombre actuel d&apos;entrées:&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGFORMAT_HELP&quot;				:	sLocal = &quot;Exporter le formulaire&quot;
+				Case &quot;DLGFORMAT_TITLE&quot;				:	sLocal = &quot;OutputTo&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_HELP&quot;		:	sLocal = &quot;Format dans lequel le formulaire sera exporté&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_LABEL&quot;	:	sLocal = &quot;Selectionner le format de sortie&quot;
+				Case &quot;DLGFORMAT_CMDOK_HELP&quot;			:	sLocal = &quot;Valider votre choix&quot;
+				Case &quot;DLGFORMAT_CMDOK_LABEL&quot;		:	sLocal = &quot;OK&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Annuler et fermer la boîte de dialogue&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_LABEL&quot;	:	sLocal = &quot;Annuler&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case Else							:	sLocal = _Getlabel(psShortLabel, &quot;DEFAULT&quot;)
+			End Select
+&apos;********************************************************
+&apos;Translated by Iñigo Zuluaga
+&apos;********************************************************
+	Case &quot;ES&quot; &apos;(España)
+			Select Case UCase(psShortlabel)
+				Case &quot;ERR&quot; &amp; ERRDBNOTCONNECTED		:	sLocal = &quot;No se ha encontrado una conexión activa a una base de datos&quot;
+				Case &quot;ERR&quot; &amp; ERRMISSINGARGUMENTS	:	sLocal = &quot;Faltan argumentos o no están inicializados&quot;
+				Case &quot;ERR&quot; &amp; ERRWRONGARGUMENT		:	sLocal = &quot;El argumento nr. %0 [Value = &apos;%1&apos;] no es válido&quot;
+				Case &quot;ERR&quot; &amp; ERRMAINFORM			:	sLocal = &quot;El documento &apos;%0&apos; no contiene ningún formulario&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTIDENTIFIED	:	sLocal = &quot;No se ha identificado el formulario &apos;%0&apos; en el conjunto de formularios de la base de datos&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTFOUND		:	sLocal = &quot;No se ha encontrado el formulario &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTOPEN			:	sLocal = &quot;El formulario &apos;%0&apos; no está abierto&quot;
+				Case &quot;ERR&quot; &amp; ERRDFUNCTION			:	sLocal = &quot;La ejecución de DFunction falló, SQL=%0&quot;
+				Case &quot;ERR&quot; &amp; ERROPENFORM			:	sLocal = &quot;El formulario &apos;%0&apos; no se puede abrir&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTY			:	sLocal = &quot;La propiedad &apos;%0&apos; no es aplicable en este contexto&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYVALUE		:	sLocal = &quot;El valor &apos;%0&apos; es inválido para la propiedad &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRINDEXVALUE			:	sLocal = &quot;Fuera del rango de la matriz o tamaño incorrecto de la matriz para la propiedad &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRCOLLECTION			:	sLocal = &quot;Fuera del rango de la matriz&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYNOTARRAY	:	sLocal = &quot;El argumento nr.%0 debería ser una matriz&quot;
+				Case &quot;ERR&quot; &amp; ERRCONTROLNOTFOUND		:	sLocal = &quot;El control &apos;%0&apos; not found in parent (formulario, control de tabla or diálogo) &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOACTIVEFORM		:	sLocal = &quot;No se ha encontrado un formulario o control activo&quot;
+				Case &quot;ERR&quot; &amp; ERRDATABASEFORM		:	sLocal = &quot;El formulario &apos;%0&apos; no tiene datos subyacentes&quot;
+				Case &quot;ERR&quot; &amp; ERRFOCUSINGRID			:	sLocal = &quot;No se ha encontrado el control &apos;%0&apos; en el control de tabla &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOGRIDINFORM		:	sLocal = &quot;No se ha encontrado un control de tabla en el formulario &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRFINDRECORD			:	sLocal = &quot;FindNext() tiene que ser precedido por una llamada exitosa de FindRecord(...)&quot;
+				Case &quot;ERR&quot; &amp; ERRSQLSTATEMENT		:	sLocal = &quot;Error SQL, instrución SQL = &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROBJECTNOTFOUND		:	sLocal = &quot;%0 &apos;%1&apos; no encontrado&quot;
+				Case &quot;ERR&quot; &amp; ERROPENOBJECT			:	sLocal = &quot;%0 &apos;%1&apos; no se puede abrir&quot;
+				Case &quot;ERR&quot; &amp; ERRCLOSEOBJECT			:	sLocal = &quot;%0 &apos;%1&apos; no se puede abrir&quot;
+				Case &quot;ERR&quot; &amp; ERRACTION				:	sLocal = &quot;Acción no aplicable en este contexto&quot;
+				Case &quot;ERR&quot; &amp; ERRSENDMAIL			:	sLocal = &quot;No se puede activar el servicio de correo&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMYETOPEN			:	sLocal = &quot;El formulario %0 ya está abierto&quot;
+				Case &quot;ERR&quot; &amp; ERRMETHOD				:	sLocal = &quot;El método &apos;%0&apos; no es aplicable en este contexto&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYINIT		:	sLocal = &quot;Propiedad &apos;%0&apos; aplicable pero no inicializada&quot;
+				Case &quot;ERR&quot; &amp; ERRFILENOTCREATED		:	sLocal = &quot;No se ha podido crear el archivo &apos;%0&apos;&quot;		
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTFOUND		:	sLocal = &quot;No se ha encontrado el diálogo &apos;%0&apos; en las bibliotecas cargadas actualmente&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGUNDEFINED		:	sLocal = &quot;Diálogo desconocido&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGSTARTED		:	sLocal = &quot;El diálogo ya está iniciado&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTSTARTED	:	sLocal = &quot;El diálogo &apos;%0&apos; no está activo&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETNODATA		:	sLocal = &quot;El Recordset no suministra datos. La acción en el registro actual rechazada&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLOSED		:	sLocal = &quot;El recorset se ha cerrado. Acción con el Recordset rechazada&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETRANGE		:	sLocal = &quot;Registro actual fuera de rango&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETFORWARD	:	sLocal = &quot;Acción rechazada en un recorset legible sólo hacia adelante o que no admita marcadores&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDNULL			:	sLocal = &quot;El campo es nulo o vacío. Acción rechazada&quot;
+				Case &quot;ERR&quot; &amp; ERRFILEACCESS			:	sLocal = &quot;Error durante el acceso al archivo &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROVERFLOW			:	sLocal = &quot;La longitud del campo (%0) excede la longitud máxima. Reemplazar por el método &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTACTIONQUERY		:	sLocal = &quot;La consulta &apos;%0&apos; no es una consulta de acción&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTUPDATABLE		:	sLocal = &quot;La base de datos, el Recordset o el Campo es de sólo lectura&quot;
+				Case &quot;ERR&quot; &amp; ERRUPDATESEQUENCE		:	sLocal = &quot;Error durante la secuencia de actualización del Recordset&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTNULLABLE			:	sLocal = &quot;El campo &apos;%0&apos; no puede contener un valor NULL&quot;
+				Case &quot;ERR&quot; &amp; ERRROWDELETED			:	sLocal = &quot;La fila actual ha sido borrada por otro proceso o usuario&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLONE		:	sLocal = &quot;No se puede clonar un Recordset clonado&quot;
+				Case &quot;ERR&quot; &amp; ERRQUERYDEFDELETED		:	sLocal = &quot;Se ha borrado la consulta pre-existente &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLEDEFDELETED		:	sLocal = &quot;Se ha borrado la tabla pre-existente &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLECREATION		:	sLocal = &quot;No se ha podido crear la Tabla &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDCREATION		:	sLocal = &quot;No se ha podido crear el campo &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRSUBFORMNOTFOUND		:	sLocal = &quot;No se ha encontrado el Subformulario &apos;%0&apos; en el subformulario padre &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRWINDOW				:	sLocal = &quot;La ventana actual no es un documento&quot;
+				Case &quot;ERR&quot; &amp; ERRCOMPATIBILITY		:	sLocal = &quot;El campo &apos;%0&apos; no se ha convertido debido a una incompatibilidad de los tipos de campo soportados entre las dos bases de datos&quot;
+				Case &quot;ERR&quot; &amp; ERRPRECISION			:	sLocal = &quot;El campo &apos;%0&apos; no se ha cargado en el registro #%1 por falta de capacidad&quot;
+				Case &quot;ERR&quot; &amp; ERRMODULENOTFOUND		:	sLocal = &quot;Module &apos;%0&apos; not found in the currently loaded libraries&quot;
+				Case &quot;ERR&quot; &amp; ERRPROCEDURENOTFOUND	:	sLocal = &quot;Procedure &apos;%0&apos; not found in module &apos;%1&apos;&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;OBJECT&quot;						:	sLocal = &quot;Objeto&quot;
+				Case &quot;TABLE&quot;						:	sLocal = &quot;Tabla&quot;
+				Case &quot;QUERY&quot;						:	slocal = &quot;Consulta&quot;
+				Case &quot;FORM&quot;							:	sLocal = &quot;Formulario&quot;
+				Case &quot;REPORT&quot;						:	sLocal = &quot;Informe&quot;
+				Case &quot;RECORDSET&quot;					:	sLocal = &quot;Recordset&quot;
+				Case &quot;FIELD&quot;						:	sLocal = &quot;Campo&quot;
+				Case &quot;TEMPVAR&quot;						:	sLocal = &quot;Variable temporal&quot;
+				Case &quot;COMMANDBAR&quot;					:	sLocal = &quot;Barra de comandos&quot;
+				Case &quot;COMMANDBARCONTROL&quot;			:	sLocal = &quot;Control de barra de comandos&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;ERR#&quot;							:	sLocal = &quot;Error #&quot;
+				Case &quot;ERROCCUR&quot;						:	sLocal = &quot;ocurrido&quot;
+				Case &quot;ERRLINE&quot;						:	sLocal = &quot;en línea&quot;
+				Case &quot;ERRIN&quot;						:	sLocal = &quot;en&quot;
+				Case &quot;CALLTO&quot;						:	sLocal = &quot;una llamada a la función&quot;
+				Case &quot;SAVECONSOLE&quot;					:	sLocal = &quot;Guardar consola&quot;
+				Case &quot;SAVECONSOLEENTRIES&quot;			:	sLocal = &quot;Las entradas de la consola han sido guardadas correctamente.&quot;
+				Case &quot;QUITSHORT&quot;					:	sLocal = &quot;Cerrar&quot;
+				Case &quot;QUIT&quot;							:	sLocal = &quot;Quieres realmente cerrar la aplicación? los datos cambiados se guardarán.&quot;
+				Case &quot;ENTERING&quot;						:	sLocal = &quot;Entrando&quot;
+				Case &quot;EXITING&quot;						:	sLocal = &quot;Saliendo&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGTRACE_HELP&quot;				:	sLocal = &quot;Gestión del buffer de la consola y sus entradas&quot;
+				Case &quot;DLGTRACE_TITLE&quot;				:	sLocal = &quot;Consola&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_HELP&quot;		:	sLocal = &quot;Limpiar la lista y redimensionar el buffer circular&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_LABEL&quot;	:	sLocal = &quot;Definir el número máximo de entradas&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_HELP&quot;	:	sLocal = &quot;El texto puede ser seleccionado, copiado, ...&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_TEXT&quot;	:	sLocal = &quot;--- El archivo Histórico está vacío ---&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Cancelar y cerrar el diálogo&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_LABEL&quot;		:	sLocal = &quot;Cancelar&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_HELP&quot;		:	sLocal = &quot;Limpiar la lista&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_LABEL&quot;		:	sLocal = &quot;Limpiar la lista&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_HELP&quot;	:	sLocal = &quot;No registrar más que las peticiones de registro a partir de un nivel indicado&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_LABEL&quot;	:	sLocal = &quot;Definir el nivel mínimo de registro&quot;
+				Case &quot;DLGTRACE_CMDOK_HELP&quot;			:	sLocal = &quot;Validar&quot;
+				Case &quot;DLGTRACE_CMDOK_LABEL&quot;			:	sLocal = &quot;Aceptar&quot;
+				Case &quot;DLGTRACE_CMDDUMP_HELP&quot;		:	sLocal = &quot;Elegir un archivo y guardar en él el contenido de la lista actual&quot;
+				Case &quot;DLGTRACE_CMDDUMP_LABEL&quot;		:	sLocal = &quot;Guardar en a archivo&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_HELP&quot;	:	sLocal = &quot;Tamaño actual de la lista&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_LABEL&quot;	:	sLocal = &quot;Numero actual de entradas:&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGFORMAT_HELP&quot;				:	sLocal = &quot;Exportar el formulario&quot;
+				Case &quot;DLGFORMAT_TITLE&quot;				:	sLocal = &quot;Exportar como&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_HELP&quot;		:	sLocal = &quot;Formato en el que será ser exportado el formulario&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_LABEL&quot;	:	sLocal = &quot;Seleccionar el formato de salida&quot;
+				Case &quot;DLGFORMAT_CMDOK_HELP&quot;			:	sLocal = &quot;Validar su elección&quot;
+				Case &quot;DLGFORMAT_CMDOK_LABEL&quot;		:	sLocal = &quot;Aceptar&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Cancelar y cerrar el diálogo&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_LABEL&quot;	:	sLocal = &quot;Cancelar&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case Else							:	sLocal = _Getlabel(psShortLabel, &quot;DEFAULT&quot;)
+			End Select
+&apos;********************************************************
+&apos;Translated by Gisbert Friege
+&apos;********************************************************
+	Case &quot;DE&quot;
+			Select Case UCase(psShortlabel)
+				Case &quot;ERR&quot; &amp; ERRDBNOTCONNECTED		:	sLocal = &quot;Keine aktive Verbindung zu einer Datenbank gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERRMISSINGARGUMENTS	:	sLocal = &quot;Argumente fehlen oder sind nicht initialisiert&quot;
+				Case &quot;ERR&quot; &amp; ERRWRONGARGUMENT		:	sLocal = &quot;Argument Nr. %0 [Wert = &apos;%1&apos;] ist ungültig&quot;
+				Case &quot;ERR&quot; &amp; ERRMAINFORM			:	sLocal = &quot;Dokument &apos;%0&apos; enthält kein Formular&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTIDENTIFIED	:	sLocal = &quot;Formular &apos;%0&apos; nicht bei den Datenbank-Formularen erkannt&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTFOUND		:	sLocal = &quot;Formular &apos;%0&apos; nicht gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMNOTOPEN			:	sLocal = &quot;Formular &apos;%0&apos; ist zur Zeit nicht offen&quot;
+				Case &quot;ERR&quot; &amp; ERRDFUNCTION			:	sLocal = &quot;DFunction Ausführung misslungen, SQL=%0&quot;
+				Case &quot;ERR&quot; &amp; ERROPENFORM			:	sLocal = &quot;Formular &apos;%0&apos; konnte nicht geöffnet werden&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTY			:	sLocal = &quot;Eigenschaft &apos;%0&apos; in diesem Kontext nicht anwendbar&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYVALUE		:	sLocal = &quot;Wert &apos;%0&apos; ist ungültig für die Eigenschaft &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRINDEXVALUE			:	sLocal = &quot;Außerhalb des Array-Bereichs oder falsche Array-Größe für Eigenschaft &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRCOLLECTION			:	sLocal = &quot;Außerhalb des Array-Bereichs&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYNOTARRAY	:	sLocal = &quot;Argument Nr.%0 sollte ein Array sein&quot;
+				Case &quot;ERR&quot; &amp; ERRCONTROLNOTFOUND		:	sLocal = &quot;Steuerelement &apos;%0&apos; nicht gefunden in parent (Formular, Tabelle oder Dialog) &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOACTIVEFORM		:	sLocal = &quot;Kein aktives Formular oder Steuerelement gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERRDATABASEFORM		:	sLocal = &quot;Formular &apos;%0&apos; basiert nicht auf einem Datensatz&quot;
+				Case &quot;ERR&quot; &amp; ERRFOCUSINGRID			:	sLocal = &quot;Steuerelement &apos;%0&apos; im Tabellen-Steuerelement &apos;%1&apos; nicht gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERRNOGRIDINFORM		:	sLocal = &quot;Kein Tabellen-Steuerelement im Formular &apos;%0&apos; gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERRFINDRECORD			:	sLocal = &quot;Bei FindNext() muss ein erfolgreicher FindRecord(...)-Aufruf vorhergehen&quot;
+				Case &quot;ERR&quot; &amp; ERRSQLSTATEMENT		:	sLocal = &quot;SQL Error, SQL statement = &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROBJECTNOTFOUND		:	sLocal = &quot;%0 &apos;%1&apos; nicht gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERROPENOBJECT			:	sLocal = &quot;%0 &apos;%1&apos; konnte nicht geöffnet werden&quot;
+				Case &quot;ERR&quot; &amp; ERRCLOSEOBJECT			:	sLocal = &quot;%0 &apos;%1&apos; konnte nicht geschlossen werden&quot;
+				Case &quot;ERR&quot; &amp; ERRACTION				:	sLocal = &quot;Aktion in diesem Kontext nicht anwendbar&quot;
+				Case &quot;ERR&quot; &amp; ERRSENDMAIL			:	sLocal = &quot;Email-Dienst konnte nicht aktiviert werden&quot;
+				Case &quot;ERR&quot; &amp; ERRFORMYETOPEN			:	sLocal = &quot;Formular %0 ist schon offen&quot;
+				Case &quot;ERR&quot; &amp; ERRMETHOD				:	sLocal = &quot;Methode &apos;%0&apos; in diesem Kontext nicht anwendbar&quot;
+				Case &quot;ERR&quot; &amp; ERRPROPERTYINIT		:	sLocal = &quot;Eigenschaft &apos;%0&apos; anwendbar aber nicht initialisiert&quot;
+				Case &quot;ERR&quot; &amp; ERRFILENOTCREATED		:	sLocal = &quot;Datei &apos;%0&apos; konnte nicht erzeugt werden&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTFOUND		:	sLocal = &quot;Dialog &apos;%0&apos; nicht in den aktuell geladenen Bibliotheken gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGUNDEFINED		:	sLocal = &quot;Dialog unbekannt&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGSTARTED		:	sLocal = &quot;Dialog schon gestartet&quot;
+				Case &quot;ERR&quot; &amp; ERRDIALOGNOTSTARTED	:	sLocal = &quot;Dialog &apos;%0&apos; nicht aktiv&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETNODATA		:	sLocal = &quot;Datensatz ergab keine Daten. Aktion auf aktuellem Datensatz verweigert&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLOSED		:	sLocal = &quot;Datensatz wurde geschlossen. Datensatz-Aktion verweigert&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETRANGE		:	sLocal = &quot;Aktueller Datensatz außerhalb des Bereichs&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETFORWARD	:	sLocal = &quot;Aktion verweigert auf einem nur vorwärts lesbaren oder keine Textmarken unterstützenden Datensatz&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDNULL			:	sLocal = &quot;Feld ist null oder leer. Aktion verweigert&quot;
+				Case &quot;ERR&quot; &amp; ERRFILEACCESS			:	sLocal = &quot;Dateizugriffs-Fehler bei Datei &apos;%0&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERROVERFLOW			:	sLocal = &quot;Feldlänge (%0) überschreitet die maximale Länge. Verwende stattdessen die Methode &apos;%1&apos;&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTACTIONQUERY		:	sLocal = &quot;Abfrage &apos;%0&apos; ist keine Aktionsabfrage&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTUPDATABLE		:	sLocal = &quot;Datenbank, Datensatz oder Feld kann nur gelesen werden&quot;
+				Case &quot;ERR&quot; &amp; ERRUPDATESEQUENCE		:	sLocal = &quot;Datensatz-Update Folgefehler&quot;
+				Case &quot;ERR&quot; &amp; ERRNOTNULLABLE			:	sLocal = &quot;Feld &apos;%0&apos; darf keinen NULL-Wert haben&quot;
+				Case &quot;ERR&quot; &amp; ERRROWDELETED			:	sLocal = &quot;Aktuelle Zeile wurde durch einen anderen Prozess oder Benutzer gelösch&quot;
+				Case &quot;ERR&quot; &amp; ERRRECORDSETCLONE		:	sLocal = &quot;Ein geklonter Datensatz kann nicht geklont werden&quot;
+				Case &quot;ERR&quot; &amp; ERRQUERYDEFDELETED		:	sLocal = &quot;Bereits vorhandene Abfrage &apos;%0&apos; wurde gelöscht&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLEDEFDELETED		:	sLocal = &quot;Bereits vorhandene Tabelle &apos;%0&apos; wurde gelöscht&quot;
+				Case &quot;ERR&quot; &amp; ERRTABLECREATION		:	sLocal = &quot;Tabelle &apos;%0&apos; konnte nicht erzeugt werden&quot;
+				Case &quot;ERR&quot; &amp; ERRFIELDCREATION		:	sLocal = &quot;Feld &apos;%0&apos; konnte nicht erzeugt werden&quot;
+				Case &quot;ERR&quot; &amp; ERRSUBFORMNOTFOUND		:	sLocal = &quot;Unterformular &apos;%0&apos; nicht im Eltern-Formular &apos;%1 gefunden&quot;
+				Case &quot;ERR&quot; &amp; ERRWINDOW				:	sLocal = &quot;Aktuelles Fenster ist kein Dokument&quot;
+				Case &quot;ERR&quot; &amp; ERRCOMPATIBILITY		:	sLocal = &quot;Feld &apos;%0&apos; konnte wegen inkompatibler Feldtypen der Datenbanksysteme nicht konvertiert werden&quot;
+				Case &quot;ERR&quot; &amp; ERRPRECISION			:	sLocal = &quot;Feld &apos;%0&apos; konnte wegen fehlender Speicherkapazität nicht in den Datensatz #%1 geladen werden&quot;
+				Case &quot;ERR&quot; &amp; ERRMODULENOTFOUND		:	sLocal = &quot;Modul &apos;%0&apos; nicht gefunden in den aktuell geladen Bibliotheken&quot;
+				Case &quot;ERR&quot; &amp; ERRPROCEDURENOTFOUND	:	sLocal = &quot;Prozedur &apos;%0&apos; im Modul &apos;%1&apos; nicht gefunden&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;OBJECT&quot;						:	sLocal = &quot;Objekt&quot;
+				Case &quot;TABLE&quot;						:	sLocal = &quot;Tabelle&quot;
+				Case &quot;QUERY&quot;						:	slocal = &quot;Abfrage&quot;
+				Case &quot;FORM&quot;							:	sLocal = &quot;Formular&quot;
+				Case &quot;REPORT&quot;						:	sLocal = &quot;Report&quot;
+				Case &quot;RECORDSET&quot;					:	sLocal = &quot;Datensatz&quot;
+				Case &quot;FIELD&quot;						:	sLocal = &quot;Feld&quot;
+				Case &quot;TEMPVAR&quot;						:	sLocal = &quot;Temporäre Variable&quot;
+				Case &quot;COMMANDBAR&quot;					:	sLocal = &quot;Befehlsleiste&quot;
+				Case &quot;COMMANDBARCONTROL&quot;			:	sLocal = &quot;Befehlsleisten-Steuerelement&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;ERR#&quot;							:	sLocal = &quot;Error #&quot;
+				Case &quot;ERROCCUR&quot;						:	sLocal = &quot;aufgetreten&quot;
+				Case &quot;ERRLINE&quot;						:	sLocal = &quot;in Zeile&quot;
+				Case &quot;ERRIN&quot;						:	sLocal = &quot;in&quot;
+				Case &quot;CALLTO&quot;						:	sLocal = &quot;ein Funktionsaufruf&quot;
+				Case &quot;SAVECONSOLE&quot;					:	sLocal = &quot;Konsoleneingaben sichern&quot;
+				Case &quot;SAVECONSOLEENTRIES&quot;			:	sLocal = &quot;Die Konsoleneingaben wurden erfolgreich gesichert.&quot;
+				Case &quot;QUITSHORT&quot;					:	sLocal = &quot;Beenden&quot;
+				Case &quot;QUIT&quot;							:	sLocal = &quot;Wollen Sie wirklich die Anwendung beenden? Geänderte Daten werden gesichert.&quot;
+				Case &quot;ENTERING&quot;						:	sLocal = &quot;Beginne mit&quot;
+				Case &quot;EXITING&quot;						:	sLocal = &quot;Verlasse&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGTRACE_HELP&quot;				:	sLocal = &quot;Verwalte den Konsolenpuffer und seine Eingaben&quot;
+				Case &quot;DLGTRACE_TITLE&quot;				:	sLocal = &quot;Konsole&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_HELP&quot;		:	sLocal = &quot;Leere die Liste und ändere die Größe des Umlaufpuffers&quot;
+				Case &quot;DLGTRACE_LBLENTRIES_LABEL&quot;	:	sLocal = &quot;Setze maximale Anzahl von Eingaben&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_HELP&quot;	:	sLocal = &quot;Text kann ausgewählt, kopiert, ... werden&quot;
+				Case &quot;DLGTRACE_TXTTRACELOG_TEXT&quot;	:	sLocal = &quot;--- Log Datei ist leer ---&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Abbrechen und den Dialog schließen&quot;
+				Case &quot;DLGTRACE_CMDCANCEL_LABEL&quot;		:	sLocal = &quot;Abbrechen&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_HELP&quot;		:	sLocal = &quot;Leere die Liste&quot;
+				Case &quot;DLGTRACE_LBLCLEAR_LABEL&quot;		:	sLocal = &quot;Leere die Liste&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_HELP&quot;	:	sLocal = &quot;Registriere nur Logging-Anfragen oberhalb des gegebenen Levels&quot;
+				Case &quot;DLGTRACE_LBLMINLEVEL_LABEL&quot;	:	sLocal = &quot;Setze minimalen Fehlerbehandlungs-Level&quot;
+				Case &quot;DLGTRACE_CMDOK_HELP&quot;			:	sLocal = &quot;Übernehmen&quot;
+				Case &quot;DLGTRACE_CMDOK_LABEL&quot;			:	sLocal = &quot;OK&quot;
+				Case &quot;DLGTRACE_CMDDUMP_HELP&quot;		:	sLocal = &quot;Wähle eine Datei und speichere darin den aktuellen Listeninhalt&quot;
+				Case &quot;DLGTRACE_CMDDUMP_LABEL&quot;		:	sLocal = &quot;Ausgabe in Datei&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_HELP&quot;	:	sLocal = &quot;Aktuelle Länge der Liste&quot;
+				Case &quot;DLGTRACE_LBLNBENTRIES_LABEL&quot;	:	sLocal = &quot;Aktuelle Anzahl von Einträgen:&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case &quot;DLGFORMAT_HELP&quot;				:	sLocal = &quot;Exportiere das Formular&quot;
+				Case &quot;DLGFORMAT_TITLE&quot;				:	sLocal = &quot;Export&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_HELP&quot;		:	sLocal = &quot;Format, in dem das Formular exportiert werden soll&quot;
+				Case &quot;DLGFORMAT_LBLFORMAT_LABEL&quot;	:	sLocal = &quot;Wähle das Ausgabe-Format&quot;
+				Case &quot;DLGFORMAT_CMDOK_HELP&quot;			:	sLocal = &quot;Auswahl übernehmen&quot;
+				Case &quot;DLGFORMAT_CMDOK_LABEL&quot;		:	sLocal = &quot;OK&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_HELP&quot;		:	sLocal = &quot;Abbrechen und den Dialog schließen&quot;
+				Case &quot;DLGFORMAT_CMDCANCEL_LABEL&quot;	:	sLocal = &quot;Abbrechen&quot;
+				&apos;----------------------------------------------------------------------------------------------------------------------
+				Case Else							:	sLocal = _Getlabel(psShortLabel, &quot;DEFAULT&quot;)
+			End Select
+REM *******************************************************************************************************************************************
+REM ***																																		***
+REM ***										ANY OTHER LANGUAGE TO BE INSERTED HERE															***
+REM ***																																		***
+REM *******************************************************************************************************************************************
+		Case Else
+			sLocal = _Getlabel(psShortLabel, &quot;DEFAULT&quot;)
+	End Select
+		
+Exit_Function:
+	_Getlabel = sLocal
+	Exit Function
+Error_Function:
+	sLocal = psShortLabel
+	GoTo Exit_Function
+End Function		&apos;	GetLabel	V0.8.9
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _GetLabelArray(ByVal pvShortlabel As Variant, Optional ByVal psLocale As String) As Variant
+&apos;	Return the localized label corresponding with the ShortLabel array of strings
+
+	If IsMissing(psLocale) Then psLocale = UCase(Left(_GetLocale(), 2)) Else psLocale = UCase(psLocale)
+	On Local Error Goto Error_Function
+
+Dim vLocal() As Variant, i As integer
+	vLocal = Array()
+
+	If Not IsArray(pvShortLabel) Then
+		vLocal = _GetLabel(pvShortLabel, psLocale)
+		Goto Exit_Function
+	End If
+	
+	ReDim vLocal(LBound(pvShortLabel) To UBound(pvShortlabel))
+	For i = LBound(pvShortLabel) To UBound(pvShortlabel)
+		vLocal(i) = _GetLabel(pvShortLabel(i), psLocale)
+	Next i
+		
+Exit_Function:
+	_GetlabelArray = vLocal()
+	Exit Function
+Error_Function:
+	vLocal = Array()
+	GoTo Exit_Function
+End Function		&apos;	GetLabelArray	V0.8.9
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _GetLocale() as String
+&apos;Return OO localization
+&apos;Derived from Tools library
+
+Dim oLocale as Object
+	oLocale = _GetRegistryKeyContent(&quot;org.openoffice.Setup/L10N&quot;)
+	_GetLocale = oLocale.getByName(&quot;ooLocale&quot;)
+End Function	&apos;	GetLocale			V0.8.9
+
+</script:module>

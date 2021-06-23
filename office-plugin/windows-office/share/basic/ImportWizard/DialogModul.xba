@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="DialogModul" script:language="StarBasic">Option Explicit
 
 Public Const bDebugWizard = True
@@ -28,13 +25,11 @@ Public Const SBFIRSTAPPLCHECKED = 0
 Public Const SBSECONDAPPLCHECKED = 1
 Public Const SBTHIRDAPPLCHECKED = 2
 Public Const SBFOURTHAPPLCHECKED = 3
-Public bFilterTracingAvailable as Boolean
 Public WizardMode as String
 Public Const SBMICROSOFTMODE = &quot;MS&quot;
-Public Const SBXMLMODE = &quot;SO&quot;
 &apos; The absolute maximal Number of possible Applications
-Public Const Twip = 425
 Public Const SBMAXAPPLCOUNT = 4
+Public Const Twip = 425
 Public MaxApplCount as Integer
 Public CurOffice As Integer
 Public SOBitmapPath As String
@@ -42,7 +37,6 @@ Public SOWorkPath As String
 Public SOTemplatePath as String
 Public bCancelTask As Boolean
 Public bDoKeepApplValues as Boolean
-Public iApplSection as Integer
 Public oUcb as Object
 Public PathSeparator as String
 
@@ -51,16 +45,6 @@ Public sKeyName(SBMAXAPPLCOUNT-1) as String
 Public sValueName(SBMAXAPPLCOUNT-1) as String
 Public sCRLF as String
 Public MSFilterName(5,4) as String
-Public XMLFilterName(7,3) as String &apos;Number of different formats
-Public FilterTracingLogPath(2) as String
-Public bMSApplFilterTracingAvailable(2) as String
-Public bTakeOverTargetName(2) as Boolean
-Public bTakeOverPathName(2) as Boolean
-
-&apos; e.g.:
-&apos; XMLFilterName(x,0) = &quot;sdw&quot; 						&apos; in documents we take the extensions; in SO-templates the appropriate Filtername
-&apos; XMLFilterName(x,1) = &quot;swriter: StarWriter 5.0&quot; 	&apos; the filtername of the target-format
-&apos; XMLFilterName(x,2) = &quot;sxw&quot; 						&apos; the target extension
 
 Public Applications(SBMAXAPPLCOUNT-1,9)
 
@@ -89,8 +73,6 @@ Public XMLTemplateList()
 &apos; Applications(X,8) = &quot;File:///...&quot; 	(TargetUrl of the templates)
 &apos; Applications(X,9) = 0				    (Key to the original Index of the Applications)
 
-Public Const SBMAXEXTENSIONLENGTH = 17
-
 
 Sub FillStep_Welcome()
 Dim i as Integer
@@ -102,7 +84,6 @@ Dim i as Integer
 		.cmdBack.Label = sBackButton
 		.cmdGoOn.Label = sNextButton
 		.WelcomeTextLabel.Label = sWelcomeTextLabel1
-		.WelcomeTextLabel2.Label = sWelcomeTextLabel2
 		.WelcomeTextLabel3.Label = sWelcomeTextLabel3
 
 		.optMSDocuments.Label = sContainerName(0)
@@ -110,11 +91,6 @@ Dim i as Integer
 		.chkMSApplication2.Label = sMsDocumentCheckbox(1)
 		.chkMSApplication3.Label = sMsDocumentCheckbox(2)
 
-		.optSODocuments.Label = sContainerName(1)
-		.chkSOApplication1.Label = sSODocumentCheckbox(0)
-		.chkSOApplication2.Label = sSODocumentCheckbox(1)
-		.chkSOApplication3.Label = sSODocumentCheckbox(2)
-		.chkSOApplication4.Label = sSODocumentCheckbox(3)
 		.cmdBack.Enabled = False
 		.Step = 1
 		
@@ -135,7 +111,7 @@ Dim oNullObject as Object
 	    If ImportDialog.optMSDocuments.State = 1 Then
 			SetupMSConfiguration()
 		Else
-			SetupXMLConfiguration()
+			&apos;Not supposed to happen - is there an assert in BASIC...
 		End If
 		FillUpApplicationList()
 	End If
@@ -149,25 +125,14 @@ Dim oNullObject as Object
 		.txtDocumentImportPath.Text = ConvertFromUrl(Applications(CurOffice,SBDOCSOURCE))
 		.txtDocumentExportPath.Text = ConvertFromUrl(Applications(CurOffice,SBDOCTARGET))
 		.hlnDocuments.Label = sProgressMoreDocs
-		If WizardMode = SBXMLMODE Then
-			ImportDialogArea.Title = sTitle &amp; &quot; - &quot; &amp; sSODocumentCheckBox(Index)
-		Else
+		If WizardMode = SBMICROSOFTMODE Then
 			ImportDialogArea.Title = sTitle &amp; &quot; - &quot; &amp; sMSDocumentCheckBox(Index)
 		End If
-		If WizardMode = SBXMLMODE AND Index = 3 Then
-			&apos; Note: SO-Helper Applications are partly treated like templates although they only have documents
-			.hlnTemplates.Label = sProgressMoreDocs
-			.chkTemplatePath.Label = sSOHelperDocuments(0,0)
-			.chkTemplatePath.Enabled = oFactoryKey.HasByName(sSOHelperDocuments(0,1))
-			.chkDocumentPath.Label = sSOHelperDocuments(1,0)
-			.chkDocumentPath.Enabled = oFactoryKey.HasByName(sSOHelperDocuments(1,1))
-		Else
-			.chkTemplatePath.Enabled = True
-			.chkDocumentPath.Enabled = True
-			.chkTemplatePath.Label = sTemplateCheckbox(Index)
-			.chkDocumentPath.Label = sDocumentCheckbox(Index)
-			.hlnTemplates.Label = sProgressMoreTemplates
-		End If
+		.chkTemplatePath.Enabled = True
+		.chkDocumentPath.Enabled = True
+		.chkTemplatePath.Label = sTemplateCheckbox(Index)
+		.chkDocumentPath.Label = sDocumentCheckbox(Index)
+		.hlnTemplates.Label = sProgressMoreTemplates
 		.chkTemplatePath.State = Abs(Applications(CurOffice,SBTEMPLCONVERT))
 		ToggleInputPaths(oNullObject,&quot;Template&quot;)
 		ToggleInputPaths(oNullObject,&quot;Document&quot;)		
@@ -192,8 +157,6 @@ Dim BoolValue as Boolean
 		For i = 1 To ApplCount
 		    If ImportDialog.optMSDocuments.State = 1 Then
 				BoolValue = ImportDialogArea.GetControl(&quot;chkMSApplication&quot; &amp; i).Model.State = 1
-			Else
-				BoolValue = ImportDialogArea.GetControl(&quot;chkSOApplication&quot; &amp; i).Model.State = 1
 			End If
 			Applications(a,SBAPPLCONVERT) = BoolValue
 			Applications(a,SBDOCCONVERT) = BoolValue
@@ -276,14 +239,11 @@ Dim Index as Integer
 Dim sAddText as String
 	For i = 0 To ApplCount -1
 		Index = Applications(i,SBAPPLKEY)
-		GetFilterTracingLogPath(i, Index)
 		If 	Applications(i,SBTEMPLCONVERT) Then
 			&apos; Templates are to be converted
 			sAddText = &quot;&quot;
 			If WizardMode = SBMICROSOFTMODE Then
 				sAddText = sSumMSTemplates(Index) &amp; sCRLF
-			Else
-				sAddText = sSumSOTemplates(Index) &amp; sCRLF			
 			End If
 			sTmpText = sTmpText &amp; sAddText &amp;  ConvertFromUrl(Applications(i,SBTEMPLSOURCE)) &amp; sCRLF
 			If Applications(i,SBTEMPLRECURSIVE) Then
@@ -299,8 +259,6 @@ Dim sAddText as String
 			&apos; Documents are to be converted
 			If WizardMode = SBMICROSOFTMODE Then
 				sAddText = sSumMSDocuments(Index) &amp; sCRLF
-			Else
-				sAddText = sSumSODocuments(Index) &amp; sCRLF			
 			End If
 			sTmpText = sTmpText &amp; sAddText &amp; ConvertFromUrl(Applications(i,SBDOCSOURCE)) &amp; sCRLF
 
@@ -351,57 +309,18 @@ Sub FillStep_Progress()
 End Sub
 
 
-Sub GetFilterTracingLogPath(i as Integer, Index as Integer)
-Dim aNodePath(0) as new com.sun.star.beans.PropertyValue
-Dim oMasterKey
-Dim oImportKey	
-Dim oWordKey
-Dim oExcelkey
-Dim oPowerpointKey
-Dim oFilterService
-	aNodePath(0).Name = &quot;nodepath&quot;
-	aNodePath(0).Value = &quot;org.openoffice.Office.Tracing&quot;
-	oFilterService = createUnoService(&quot;com.sun.star.util.FilterTracer&quot;)
-	bFilterTracingAvailable = Not IsNull(oFilterService)
-	If bFilterTracingAvailable Then
-		oMasterkey = GetRegistryKeyContent(&quot;org.openoffice.Office.Tracing/&quot;)
-		If oMasterKey.hasbyName(&quot;Import&quot;) Then
-			oImportKey = GetRegistryKeyContent(&quot;org.openoffice.Office.Tracing/Import&quot;)
-			bMSApplFilterTracingAvailable(i) = CheckMSImportAvailability(oImportkey, MSFiltername(Index, 4), FilterTracingLogPath(i), bTakeOverTargetName(i), bTakeOverPathName(i))
-		End If
-	End If
-End Sub
-
-
-Function CheckMSImportAvailability(oImportkey, MSApplName as String, MSLogPath as String, bTakeOverTargetname as String, bTakeOverpathName as String) as Boolean
-Dim bApplIsAvailable as Boolean
-Dim oApplKey
-Dim LocApplName as String
-Dim LocApplPath as String
-	bApplIsAvailable = oImportKey.hasbyName(MSApplName)
-	If bApplIsAvailable Then
-		oApplKey = oImportKey.getByName(MSApplName)
-		bApplIsAvailable = oApplKey.On
-		LocApplName = oApplKey.Name
-		LocApplPath = oApplKey.Path
-		bTakeOverTargetName = (LocApplName = &quot;&quot;)
-		bTakeOverPathName = (LocApplPath = &quot;&quot;)		
-		MSLogPath = LocApplPath &amp; &quot;/&quot; &amp; LocApplName &amp; &quot;.log&quot;
-	End If
-	CheckMSImportAvailability() = bApplIsAvailable
-End Function
-
-
-
 Sub	SetupMSConfiguration()
-	iApplSection = 0
 	Wizardmode = SBMICROSOFTMODE
 	MaxApplCount = 3
 	ApplCount = 3
 	&apos; chkTemplatePath-Captions
-	GetApplResourceArray(1009 + iApplSection, ApplCount, sTemplateCheckBox())
+	sTemplateCheckBox(0) = GetResText(&quot;MSTemplateCheckbox_1_&quot;)
+	sTemplateCheckBox(1) = GetResText(&quot;MSTemplateCheckbox_2_&quot;)
+	sTemplateCheckBox(2) = GetResText(&quot;MSTemplateCheckbox_3_&quot;)
 	&apos; DocumentCheckbox- Captions
-	GetApplResourceArray(1009 + iApplSection + ApplCount, ApplCount, sDocumentCheckBox())
+	sDocumentCheckBox(0) = GetResText(&quot;MSDocumentCheckbox_1_&quot;)
+	sDocumentCheckBox(1) = GetResText(&quot;MSDocumentCheckbox_2_&quot;)
+	sDocumentCheckBox(2) = GetResText(&quot;MSDocumentCheckbox_3_&quot;)
 
 	sKeyName(0) = &quot;Software\Microsoft\Office\8.0\Word\Options&quot;
 	sKeyName(1) = &quot;Software\Microsoft\Office\8.0\Excel\Microsoft Excel&quot;
@@ -425,11 +344,11 @@ Sub	SetupMSConfiguration()
 	MSFilterName(1,3) = sMSDocumentCheckBox(1)
 	MSFilterName(1,4) = &quot;Excel&quot;
 
-	MSFilterName(2,0) = &quot;ppt|pps|pptx|pptm&quot;
-	MSFilterName(2,1) = &quot;impress8|impress8|impress8|impress8&quot;
-	MSFilterName(2,2) = &quot;odp|odp|odp|odp&quot;
+	MSFilterName(2,0) = &quot;ppt|pps|pptx|pub|pptm|ppsx|ppsm&quot;
+	MSFilterName(2,1) = &quot;impress8|impress8|impress8|impress8|impress8|impress8|impress8&quot;
+	MSFilterName(2,2) = &quot;odp|odp|odp|odp|odp|odp|odp&quot;
 	MSFilterName(2,3) = sMSDocumentCheckBox(2)
-	MSFilterName(2,4) = &quot;PowerPoint&quot;
+	MSFilterName(2,4) = &quot;PowerPoint/Publisher&quot;
 
 	MSFilterName(3,0) = &quot;dot|dotx|dotm&quot;
 	MSFilterName(3,1) = &quot;writer8_template|writer8_template|writer8_template&quot;
@@ -451,118 +370,6 @@ Sub	SetupMSConfiguration()
 End Sub
 
 
-
-&apos; This is an extract from &quot;http://util.openoffice.org/source/browse/util/sot/source/base/exchange.cxx?rev=1.25&amp;content-type=text/x-cvsweb-markup&quot;
-&apos; about the listed defined mimetypes that are required to define binary StarOffice templates that have for all applications the same extension &quot;.vor&quot;
-
-&apos; 26 SOT_FORMATSTR_ID_STARWRITER_30*/			{ &quot;application/x-openoffice-starwriter-30;windows_formatname=\&quot;StarWriter 3.0\&quot;&quot;, &quot;StarWriter 3.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 27 SOT_FORMATSTR_ID_STARWRITER_40*/			{ &quot;application/x-openoffice-starwriter-40;windows_formatname=\&quot;StarWriter 4.0\&quot;&quot;, &quot;StarWriter 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 28 SOT_FORMATSTR_ID_STARWRITER_50*/			{ &quot;application/x-openoffice-starwriter-50;windows_formatname=\&quot;StarWriter 5.0\&quot;&quot;, &quot;StarWriter 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-&apos; 29 SOT_FORMATSTR_ID_STARWRITERWEB_40*/		{ &quot;application/x-openoffice-starwriterweb-40;windows_formatname=\&quot;StarWriter/Web 4.0\&quot;&quot;, &quot;StarWriter/Web 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 30 SOT_FORMATSTR_ID_STARWRITERWEB_50*/		{ &quot;application/x-openoffice-starwriterweb-50;windows_formatname=\&quot;StarWriter/Web 5.0\&quot;&quot;, &quot;StarWriter/Web 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-&apos; 31 SOT_FORMATSTR_ID_STARWRITERGLOB_40*/		{ &quot;application/x-openoffice-starwriterglob-40;windows_formatname=\&quot;StarWriter/Global 4.0\&quot;&quot;, &quot;StarWriter/Global 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 32 SOT_FORMATSTR_ID_STARWRITERGLOB_50*/		{ &quot;application/x-openoffice-starwriterglob-50;windows_formatname=\&quot;StarWriter/Global 5.0\&quot;&quot;, &quot;StarWriter/Global 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-&apos; 33 SOT_FORMATSTR_ID_STARDRAW*/				{ &quot;application/x-openoffice-stardraw;windows_formatname=\&quot;StarDrawDocument\&quot;&quot;, &quot;StarDrawDocument&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 34 SOT_FORMATSTR_ID_STARDRAW_40*/				{ &quot;application/x-openoffice-stardraw-40;windows_formatname=\&quot;StarDrawDocument 4.0\&quot;&quot;, &quot;StarDrawDocument 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 36 SOT_FORMATSTR_ID_STARDRAW_50*/				{ &quot;application/x-openoffice-stardraw-50;windows_formatname=\&quot;StarDraw 5.0\&quot;&quot;, &quot;StarDraw 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-&apos; 35 SOT_FORMATSTR_ID_STARIMPRESS_50*/			{ &quot;application/x-openoffice-starimpress-50;windows_formatname=\&quot;StarImpress 5.0\&quot;&quot;, &quot;StarImpress 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-&apos; 37 SOT_FORMATSTR_ID_STARCALC*/				{ &quot;application/x-openoffice-starcalc;windows_formatname=\&quot;StarCalcDocument\&quot;&quot;, &quot;StarCalcDocument&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 38 SOT_FORMATSTR_ID_STARCALC_40*/				{ &quot;application/x-openoffice-starcalc-40;windows_formatname=\&quot;StarCalc 4.0\&quot;&quot;, &quot;StarCalc 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 39 SOT_FORMATSTR_ID_STARCALC_50*/				{ &quot;application/x-openoffice-starcalc-50;windows_formatname=\&quot;StarCalc 5.0\&quot;&quot;, &quot;StarCalc 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-&apos; 40 SOT_FORMATSTR_ID_STARCHART*/				{ &quot;application/x-openoffice-starchart;windows_formatname=\&quot;StarChartDocument\&quot;&quot;, &quot;StarChartDocument&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 41 SOT_FORMATSTR_ID_STARCHART_40*/			{ &quot;application/x-openoffice-starchart-40;windows_formatname=\&quot;StarChartDocument 4.0\&quot;&quot;, &quot;StarChartDocument 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 42 SOT_FORMATSTR_ID_STARCHART_50*/			{ &quot;application/x-openoffice-starchart-50;windows_formatname=\&quot;StarChart 5.0\&quot;&quot;, &quot;StarChart 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-&apos; 46 SOT_FORMATSTR_ID_STARMATH*/				{ &quot;application/x-openoffice-starmath;windows_formatname=\&quot;StarMath\&quot;&quot;, &quot;StarMath&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 47 SOT_FORMATSTR_ID_STARMATH_40*/				{ &quot;application/x-openoffice-starmath-40;windows_formatname=\&quot;StarMathDocument 4.0\&quot;&quot;, &quot;StarMathDocument 4.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-&apos; 48 SOT_FORMATSTR_ID_STARMATH_50*/				{ &quot;application/x-openoffice-starmath-50;windows_formatname=\&quot;StarMath 5.0\&quot;&quot;, &quot;StarMath 5.0&quot;, &amp;::getCppuType( (const Sequence&lt; sal_Int8 &gt;*) 0 ) },
-
-
-Sub SetupXMLConfiguration()
-	iApplSection = 1000
-	Wizardmode = SBXMLMODE
-	ApplCount = 4
-	MaxApplCount = 4
-	XMLTemplateList = Array(&quot;vor&quot;, &quot;sti&quot;, &quot;stw&quot; , &quot;stc&quot; , &quot;std&quot;)
-	&apos; chkTemplatePath-Captions
-	GetApplResourceArray(1009 + iApplSection, ApplCount, sTemplateCheckBox())
-	&apos; DocumentCheckbox- Captions
-	GetApplResourceArray(1009 + iApplSection + ApplCount, ApplCount, sDocumentCheckBox())
-
-	XMLFilterName(0,0) = &quot;sdw|sxw&quot;
-	XMLFilterName(0,1) = &quot;writer8|writer8&quot;
-	XMLFilterName(0,2) = &quot;odt|odt&quot;
-	XMLFilterName(0,3) = sDocumentCheckBox(0)
-
-	XMLFilterName(1,0) = &quot;sdc|sxc&quot;
-	XMLFilterName(1,1) = &quot;calc8|calc8&quot;
-	XMLFilterName(1,2) = &quot;ods|ods&quot;
-	XMLFilterName(1,3) = sDocumentCheckBox(1)
-
-	If oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) and oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
-		XMLFilterName(2,0) = &quot;sdd|sda|sxi|sxd&quot;
-		XMLFilterName(2,1) = &quot;impress8|draw8|impress8|draw8&quot;
-		XMLFilterName(2,2) = &quot;odp|odg|odp|odg&quot;
-	Elseif oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) Then
-		XMLFilterName(2,0) = &quot;sda|sxd&quot;
-		XMLFilterName(2,1) = &quot;draw8|draw8&quot;
-		XMLFilterName(2,2) = &quot;odg|odg&quot;
-	Elseif oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
-		XMLFilterName(2,0) = &quot;sdd|sxi&quot;
-		XMLFilterName(2,1) = &quot;impress8|impress8&quot;
-		XMLFilterName(2,2) = &quot;odp|odp&quot;
-	End If
-	XMLFilterName(2,3) = sDocumentCheckBox(2)
-
-	
-	XMLFilterName(3,0) = &quot;smf|sxm&quot;
-	XMLFilterName(3,1) = &quot;math8|math8&quot;
-	XMLFilterName(3,2) = &quot;odf|odf&quot;
-	XMLFilterName(3,3) = sDocumentCheckBox(3)	
-
-	XMLFilterName(4,0) = &quot;application/x-openoffice-starwriter|application/vnd.stardivision.writer/web|application/vnd.sun.xml.writer|application/vnd.sun.xml.writerweb&quot;
-	XMLFilterName(4,1) = &quot;writer8_template|writerweb8_writer_template|writer8_template|writerweb8_writer_template&quot;
-	XMLFilterName(4,2) = &quot;ott|oth|ott|oth&quot;
-	XMLFilterName(4,3) = sTemplateCheckBox(0)
-
-
-	XMLFilterName(5,0) = &quot;application/x-openoffice-starcalc|application/vnd.sun.xml.calc&quot;
-	XMLFilterName(5,1) = &quot;calc8_template|calc8_template&quot;
-	XMLFilterName(5,2) = &quot;ots|ots&quot;
-	XMLFilterName(5,3) = sTemplateCheckBox(1)
-
-	&apos; due to bug #108942# impress templates of the version 4.0 have to be handled in a special way because their mimetype 
-	&apos; falsely points to the draw application.
-	If oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) and  oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
-		XMLFilterName(6,0) = &quot;application/x-openoffice-starimpress|application/x-openoffice-stardraw-40|application/x-openoffice-stardraw|application/vnd.sun.xml.impress|application/vnd.sun.xml.draw&quot;
-		XMLFilterName(6,1) = &quot;impress8_template|impress8_template|draw8_template|impress8_template|draw8_template&quot;
-		XMLFilterName(6,2) = &quot;otp|otp|otg|otp|otg&quot;
-	Elseif oFactoryKey.HasByName(&quot;com.sun.star.drawing.DrawingDocument&quot;) Then
-		XMLFilterName(6,0) = &quot;application/x-openoffice-stardraw|application/vnd.sun.xml.draw&quot;
-		XMLFilterName(6,1) = &quot;draw8_template|draw8_template&quot;
-		XMLFilterName(6,2) = &quot;otg|otg&quot;
-	Elseif oFactoryKey.HasByName(&quot;com.sun.star.presentation.PresentationDocument&quot;) Then
-		XMLFilterName(6,0) = &quot;application/x-openoffice-starimpress|application/x-openoffice-stardraw-40|application/vnd.sun.xml.impress&quot;
-		XMLFilterName(6,1) = &quot;impress8_template|impress8_template|impress8_template&quot;
-		XMLFilterName(6,2) = &quot;otp|otp|otp&quot;
-	End If	
-	XMLFilterName(6,3) = sTemplateCheckBox(2)
-	
-	If oFactoryKey.HasByName(&quot;com.sun.star.text.GlobalDocument&quot;) Then
-		XMLFilterName(7,0) = &quot;sgl|sxg&quot;
-		XMLFilterName(7,1) = &quot;writerglobal8|writerglobal8&quot;
-		XMLFilterName(7,2) = &quot;odm|odm&quot;
-		XMLFilterName(7,3) = sTemplateCheckBox(3)
-	End If
-End Sub
-
-
 Function CheckControlPath(oCheckbox as Object, oTextBox as Object, ByVal bDoEnable as Boolean)
 Dim sPath as String
 	If Not bDoEnable Then
@@ -570,7 +377,7 @@ Dim sPath as String
 	ElseIf oCheckbox.State = 0 Then
 		CheckControlPath = True
 	Else
-		sPath = ConvertToUrl(Trim(oTextBox.Text)
+		sPath = ConvertToUrl(Trim(oTextBox.Text))
 		CheckControlPath = oUcb.Exists(sPath)
 	End If
 End Function
@@ -595,10 +402,10 @@ Dim sShowPath as String
 Dim oLocUcb as Object
 	oLocUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
 	If bGetResources Then
-		If InitResources(&quot;ImportWizard&quot;,&quot;imp&quot;) then
- 			sNoDirCreation = GetResText(1050)
-			sMsgDirNotThere = GetResText(1051)
-			sQueryForNewCreation = GetResText(1052)
+		If InitResources(&quot;ImportWizard&quot;) then
+			sNoDirCreation = GetResText(&quot;NoDirCreation&quot;)
+			sMsgDirNotThere = GetResText(&quot;MsgDirNotThere&quot;)
+			sQueryForNewCreation = GetResText(&quot;QueryfornewCreation&quot;)
 		Else
 			CheckTextBoxPath() = False
 			Exit Function

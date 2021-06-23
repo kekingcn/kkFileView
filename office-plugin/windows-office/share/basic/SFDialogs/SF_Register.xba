@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Register" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDialogs library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Register
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		The ScriptForge framework includes
+&apos;&apos;&apos;			the master ScriptForge library
+&apos;&apos;&apos;			a number of &quot;associated&quot; libraries SF*
+&apos;&apos;&apos;			any user/contributor extension wanting to fit into the framework 
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The main methods in this module allow the current library to cling to ScriptForge
+&apos;&apos;&apos;			- RegisterScriptServices
+&apos;&apos;&apos;				Register the list of services implemented by the current library
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================= DEFINITIONS
+
+&apos;&apos;&apos;	Event management of dialogs requires to being able to rebuild a Dialog object
+&apos;&apos;&apos;	from its com.sun.star.awt.XControl - stardiv.Toolkit.UnoDialogControl UNO instance
+&apos;&apos;&apos;	For that purpose, the started dialogs are buffered in a global array of _DialogCache types
+
+Type _DialogCache
+	Terminated				As Boolean
+	XUnoDialog				As Object
+	BasicDialog				As Object
+End Type
+
+REM ================================================================== EXCEPTIONS
+
+Private Const DIALOGNOTFOUNDERROR	=	&quot;DIALOGNOTFOUNDERROR&quot;
+	
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Sub RegisterScriptServices() As Variant
+&apos;&apos;&apos;	Register into ScriptForge the list of the services implemented by the current library
+&apos;&apos;&apos;	Each library pertaining to the framework must implement its own version of this method
+&apos;&apos;&apos;
+&apos;&apos;&apos;	It consists in successive calls to the RegisterService() and RegisterEventManager() methods
+&apos;&apos;&apos;	with 2 arguments:
+&apos;&apos;&apos;		ServiceName: the name of the service as a case-insensitive string
+&apos;&apos;&apos;		ServiceReference: the reference as an object
+&apos;&apos;&apos;			If the reference refers to a module, then return the module as an object:
+&apos;&apos;&apos;				GlobalScope.Library.Module
+&apos;&apos;&apos;			If the reference is a class instance, then return a string referring to the method
+&apos;&apos;&apos;			containing the New statement creating the instance
+&apos;&apos;&apos;				&quot;libraryname.modulename.function&quot;
+
+	With GlobalScope.ScriptForge.SF_Services
+		.RegisterService(&quot;Dialog&quot;,				&quot;SFDialogs.SF_Register._NewDialog&quot;)			&apos;	Reference to the function initializing the service
+		.RegisterEventManager(&quot;DialogEvent&quot;,	&quot;SFDialogs.SF_Register._EventManager&quot;)		&apos;	Reference to the events manager
+		&apos;TODO
+	End With
+
+End Sub			&apos;	SFDialogs.SF_Register.RegisterScriptServices
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _AddDialogToCache(ByRef pvUnoDialog As Object _
+										, ByRef pvBasicDialog As Object _
+										) As Long
+&apos;&apos;&apos;	Add a new entry in the cache array with the references of the actual dialog
+&apos;&apos;&apos;	If relevant, the last entry of the cache is reused.
+&apos;&apos;&apos;	The cache is located in the global _SF_ variable
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvUnoDialog: the com.sun.star.awt.XControl - stardiv.Toolkit.UnoDialogControl of the dialog box
+&apos;&apos;&apos;		pvBasicDialog: its corresponding Basic object
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The index of the new or modified entry
+
+Dim vCache As New _DialogCache		&apos;	Entry to be added
+Dim lIndex As Long					&apos;	UBound of _SF_.SFDialogs
+Dim vCacheArray As Variant			&apos;	Alias of _SF_.SFDialogs
+
+Try:
+	vCacheArray = _SF_.SFDialogs
+
+	If IsEmpty(vCacheArray) Then vCacheArray = Array()
+	lIndex = UBound(vCacheArray)
+	If lIndex &lt; LBound(vCacheArray) Then
+		ReDim vCacheArray(0 To 0)
+		lIndex = 0
+	ElseIf Not vCacheArray(lIndex).Terminated Then		&apos;	Often last entry can be reused
+		lIndex = lIndex + 1
+		ReDim Preserve vCacheArray(0 To lIndex)
+	End If
+	
+	With vCache
+		.Terminated = False
+		Set .XUnoDialog = pvUnoDialog
+		Set .BasicDialog = pvBasicDialog
+	End With
+	vCacheArray(lIndex) = vCache
+	
+	_SF_.SFDialogs = vCacheArray
+
+Finally:
+	_AddDialogToCache = lIndex
+	Exit Function
+End Function	&apos;	SFDialogs.SF_Dialog._AddDialogToCache
+
+REM -----------------------------------------------------------------------------
+Private Sub _CleanCacheEntry(ByVal plIndex As Long)
+&apos;&apos;&apos;	Clean the plIndex-th entry in the dialogs cache
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		plIndex: must fit within the actual boundaries of the cache, otherwise the request is ignored
+
+Dim vCache As New _DialogCache		&apos;	Cleaned entry
+
+	With _SF_
+		If Not IsArray(.SFDialogs) Then Exit Sub
+		If plIndex &lt; LBound(.SFDialogs) Or plIndex &gt; UBound(.SFDialogs) Then Exit Sub
+
+		With vCache
+			.Terminated = True
+			Set .XUnoDialog = Nothing
+			Set .BasicDialog = Nothing
+		End With
+		.SFDialogs(plIndex) = vCache
+	End With
+	
+Finally:
+	Exit Sub
+End Sub	&apos;	SFDialogs.SF_Dialog._CleanCacheEntry
+
+REM -----------------------------------------------------------------------------
+Public Function _EventManager(Optional ByRef pvArgs As Variant) As Object
+&apos;&apos;&apos;	Returns a Dialog or DialogControl object corresponding with the Basic dialog
+&apos;&apos;&apos;	which triggered the event in argument
+&apos;&apos;&apos;	This method should be triggered only thru the invocation of CreateScriptService
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pvEvent: com.sun.star.xxx
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		the output of a Dialog or DialogControl service or Nothing
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Sub TriggeredByEvent(ByRef poEvent As Object)
+&apos;&apos;&apos;			Dim oDlg As Object
+&apos;&apos;&apos;			Set oDlg = CreateScriptService(&quot;SFDialogs.DialogEvent&quot;, poEvent)
+&apos;&apos;&apos;			If Not IsNull(oDlg) Then
+&apos;&apos;&apos;				&apos; ... (a valid dialog or one of its controls has been identified)
+&apos;&apos;&apos;		End Sub
+
+Dim oSource As Object			&apos;	Return value
+Dim oEventSource As Object		&apos;	Event UNO source
+Dim vEvent As Variant			&apos;	Alias of pvArgs(0)
+Dim sSourceType As String		&apos;	Implementation name of event source
+Dim oDialog As Object			&apos;	com.sun.star.awt.XControl - stardiv.Toolkit.UnoDialogControl
+Dim bControl As Boolean			&apos;	True when control event
+
+	&apos;	Never abort while an event is processed
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Finally
+	Set oSource = Nothing
+
+Check:
+	If IsMissing(pvArgs) Or IsEmpty(pvArgs) Then pvArgs = Array()
+	If UBound(pvArgs) &gt;= 0 Then vEvent = pvArgs(0) Else vEvent = Empty
+	If VarType(vEvent) &lt;&gt; ScriptForge.V_OBJECT Then GoTo Finally
+	If Not ScriptForge.SF_Session.HasUnoProperty(vEvent, &quot;Source&quot;) Then GoTo Finally
+
+Try:
+	Set oEventSource = vEvent.Source
+	sSourceType = ScriptForge.SF_Session.UnoObjectType(oEventSource)
+	
+	Set oDialog = Nothing
+	Select Case True
+		Case sSourceType = &quot;stardiv.Toolkit.UnoDialogControl&quot;		&apos;	A dialog
+			&apos;	Search the dialog in the cache
+			Set oDialog = _FindDialogInCache(oEventSource)
+			bControl = False
+		Case Left(sSourceType, 16) = &quot;stardiv.Toolkit.&quot;				&apos;	A dialog control
+			Set oDialog = _FindDialogInCache(oEventSource.Context)
+			bControl = True
+		Case Else
+	End Select
+
+	If Not IsNull(oDialog) Then
+		If bControl Then Set oSource = oDialog.Controls(oEventSource.Model.Name) Else Set oSource = oDialog
+	End If
+
+Finally:
+	Set _EventManager = oSource
+	Exit Function
+End Function	&apos;	SFDialogs.SF_Documents._EventManager
+
+REM -----------------------------------------------------------------------------
+Private Function _FindDialogInCache(ByRef poDialog As Object) As Object
+&apos;&apos;&apos;	Find the dialog based on its XUnoDialog
+&apos;&apos;&apos;	The dialog must not be terminated
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The corresponding Basic dialog part or Nothing
+
+Dim oBasicDialog As Object		&apos;	Return value
+Dim oCache As _DialogCache		&apos;	Entry in the cache
+
+	Set oBasicDialog = Nothing
+	For Each oCache In _SF_.SFDialogs
+		If EqualUnoObjects(poDialog, oCache.XUnoDialog) And Not oCache.Terminated Then
+			Set oBasicDialog = oCache.BasicDialog
+			Exit For
+		End If
+	Next oCache
+
+	Set _FindDialogInCache = oBasicDialog
+
+End Function	&apos;	SFDialogs.SF_Documents._FindDialogInCache
+
+REM -----------------------------------------------------------------------------
+Public Function _NewDialog(Optional ByVal pvArgs As Variant) As Object
+&apos;&apos;&apos;	Create a new instance of the SF_Dialog class
+&apos;	Args:
+&apos;&apos;&apos;		Container: either &quot;GlobalScope&quot; or a WindowName. Default = the active window
+&apos;&apos;&apos;					see the definition of WindowName in the description of the UI service
+&apos;&apos;&apos;		Library: the name of the library hosting the dialog. Default = &quot;Standard&quot;
+&apos;&apos;&apos;		DialogName: The name of the dialog
+&apos;&apos;&apos;			Library and dialog names are case-sensitive
+&apos;&apos;&apos;	Returns: the instance or Nothing
+
+Dim oDialog As Object				&apos;	Return value
+Dim vContainer As Variant			&apos;	Alias of pvArgs(0)
+Dim vLibrary As Variant				&apos;	Alias of pvArgs(1)
+Dim vDialogName As Variant			&apos;	Alias of pvArgs(2)
+Dim oLibraries As Object			&apos;	com.sun.star.comp.sfx2.DialogLibraryContainer
+Dim oLibrary As Object				&apos;	com.sun.star.container.XNameAccess
+Dim o_DialogProvider As Object		&apos;	com.sun.star.io.XInputStreamProvider
+Dim oEnum As Object					&apos;	com.sun.star.container.XEnumeration
+Dim oComp As Object					&apos;	com.sun.star.lang.XComponent
+Dim vWindow As Window				&apos;	A single component
+Dim oUi As Object					&apos;	&quot;UI&quot; service
+Dim bFound As Boolean				&apos;	True if WindowName is found on the desktop
+Const cstService = &quot;SFDialogs.Dialog&quot;
+Const cstGlobal = &quot;GlobalScope&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(pvArgs) Or IsEmpty(pvArgs) Then pvArgs = Array()
+	If Not IsArray(pvArgs) Then pvArgs = Array(pvArgs)		&apos;	Needed when _NewDialog called from _EventManager
+	If UBound(pvArgs) &gt;= 0 Then vContainer = pvArgs(0) Else vContainer = &quot;&quot;
+	If UBound(pvArgs) &gt;= 1 Then vLibrary = pvArgs(1)
+	If IsEmpty(vLibrary) Then vLibrary = &quot;Standard&quot;
+	If UBound(pvArgs) &gt;= 2 Then vDialogName = pvArgs(2) Else vDialogName = Empty	&apos;	Use Empty to force mandatory status
+	If Not ScriptForge.SF_Utils._Validate(vContainer, &quot;Container&quot;, Array(V_STRING, ScriptForge.V_OBJECT)) Then GoTo Finally
+	If Not ScriptForge.SF_Utils._Validate(vLibrary, &quot;Library&quot;, V_STRING) Then GoTo Finally
+	If Not ScriptForge.SF_Utils._Validate(vDialogName, &quot;DialogName&quot;, V_STRING) Then GoTo Finally
+	Set oDialog = Nothing
+
+Try:
+	&apos;	Determine the container and the library hosting the dialog
+	Set oLibraries = Nothing
+	If VarType(vContainer) = V_STRING Then
+		If UCase(vContainer) = UCase(cstGlobal) Then Set oLibraries = GlobalScope.DialogLibraries
+	End If
+	If IsNull(oLibraries) Then
+		Set oUi = ScriptForge.SF_Register.CreateScriptService(&quot;UI&quot;)
+		Select Case VarType(vContainer)
+			Case V_STRING
+				If Len(vContainer) &gt; 0 Then
+					bFound = False
+					Set oEnum = StarDesktop.Components().createEnumeration
+					Do While oEnum.hasMoreElements
+						Set oComp = oEnum.nextElement
+						vWindow = oUi._IdentifyWindow(oComp)
+						With vWindow
+							&apos;	Does the current window match the argument ?
+							If	(Len(.WindowFileName) &gt; 0 And .WindowFileName = ScriptForge.SF_FileSystem._ConvertToUrl(vContainer)) _
+								Or (Len(.WindowName) &gt; 0 And .WindowName = vContainer) _
+								Or (Len(.WindowTitle) &gt; 0 And .WindowTitle = vContainer) Then
+									bFound = True
+									Exit Do
+								End If
+						End With
+					Loop
+				Else
+					bFound = True
+					vWindow = oUi._IdentifyWindow(StarDesktop.CurrentComponent)
+				End If
+			Case V_OBJECT	&apos;	com.sun.star.lang.XComponent
+				bFound = True
+				vWindow = oUi._IdentifyWindow(vContainer)
+				Set oComp = vContainer
+		End Select
+		If Not bFound Then GoTo CatchNotFound
+		If Len(vWindow.DocumentType) = 0 Then GoTo CatchNotFound
+		&apos;	The library is now fully determined
+		Set oLibraries = oComp.DialogLibraries
+	End If
+
+	&apos;	Load the library and get the dialog
+	With oLibraries
+		If Not .hasByName(vLibrary) Then GoTo CatchNotFound
+		If Not .isLibraryLoaded(vLibrary) Then .loadLibrary(vLibrary)
+		Set oLibrary = .getByName(vLibrary)
+		If Not oLibrary.hasByName(vDialogName) Then GoTo CatchNotFound
+		Set o_DialogProvider = oLibrary.getByName(vDialogName)
+	End With
+
+	Set oDialog = New SF_Dialog
+	With oDialog
+		Set .[Me] = oDialog
+		If VarType(vContainer) = V_STRING Then ._Container = vContainer Else ._Container = vWindow.WindowName
+		._Library = vLibrary
+		._Name = vDialogName
+		Set ._DialogProvider = o_DialogProvider
+		._Initialize()
+	End With
+
+Finally:
+	Set _NewDialog = oDialog
+	Exit Function
+Catch:
+	GoTo Finally
+CatchNotFound:
+	ScriptForge.SF_Exception.RaiseFatal(DIALOGNOTFOUNDERROR, &quot;Service&quot;, cstService _
+		, &quot;Container&quot;, vContainer, &quot;Library&quot;, vLibrary, &quot;DialogName&quot;, vDialogName)
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Register._NewDialog
+
+REM ============================================== END OF SFDIALOGS.SF_REGISTER
+</script:module>

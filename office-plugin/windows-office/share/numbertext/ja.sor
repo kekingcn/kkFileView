@@ -1,0 +1,98 @@
+^0 零
+1 一
+2 二
+3 三
+4 四
+5 五
+6 六
+7 七
+8 八
+9 九
+1(\d) 十$1
+(\d)(\d) $1十$2
+1(\d\d) 百$1
+(\d)(\d\d) $1百$2
+1(\d\d\d) 千$1
+(\d)(\d\d\d) $1千$2
+(\d{1,4})(\d{4}) $1万$2
+(\d{1,4})(\d{8}) $1億$2
+(\d{1,4})(\d{12}) $1兆$2
+(\d{1,4})(\d{16}) $1京$2
+(\d{1,4})(\d{20}) $1垓$2
+(\d{1,4})(\d{24}) $1秭$2
+(\d{1,4})(\d{28}) $1穣$2
+(\d{1,4})(\d{32}) $1溝$2
+(\d{1,4})(\d{36}) $1澗$2
+(\d{1,4})(\d{40}) $1正$2
+(\d{1,4})(\d{44}) $1載$2
+
+# negative numbers?
+
+[-−](\d+) 負|$1
+
+# decimals?
+
+"([-−]?\d+)[.,]" "$1・"
+"([-−]?\d+[.,]\d*)(\d)" $1||$2
+
+# currency
+
+# unit/subunit singular/plural
+
+JPY 円
+
+"([A-Z]{3}) ([-−]?\d+([.,]\d+)?)" $2$1
+
+# formal numbers (大字) for legal and financial documents
+
+== formal ==
+
+^0 零
+1 壱
+2 弐
+3 参
+4 四
+5 五
+6 六
+7 七
+8 八
+9 九
+1(\d) 拾$(formal \1)
+(\d)(\d) $(formal \1)拾$(formal \2)
+1(\d\d) 百$(formal \1)
+(\d)(\d\d) $(formal \1)百$(formal \2)
+1(\d\d\d) 千$(formal \1)
+(\d)(\d\d\d) $(formal \1)千$(formal \2)
+(\d{1,4})(\d{4}) $(formal \1)万$(formal \2)
+(\d{1,4})(\d{8}) $(formal \1)億$(formal \2)
+(\d{1,4})(\d{12}) $(formal \1)兆$(formal \2)
+(\d{1,4})(\d{16}) $(formal \1)京$(formal \2)
+(\d{1,4})(\d{20}) $(formal \1)垓$(formal \2)
+(\d{1,4})(\d{24}) $(formal \1)秭$(formal \2)
+(\d{1,4})(\d{28}) $(formal \1)穣$(formal \2)
+(\d{1,4})(\d{32}) $(formal \1)溝$(formal \2)
+(\d{1,4})(\d{36}) $(formal \1)澗$(formal \2)
+(\d{1,4})(\d{40}) $(formal \1)正$(formal \2)
+(\d{1,4})(\d{44}) $(formal \1)載$(formal \2)
+
+# negative numbers?
+
+[-−](\d+) 負|$(formal \1)
+
+# decimals
+
+"([-−]?\d+)[.,]" "$(formal \1)・"
+"([-−]?\d+[.,]\d*)(\d)" $(formal \1)||$(formal \2)
+
+# currency
+
+# unit/subunit singular/plural
+
+JPY 円
+
+"([A-Z]{3}) ([-−]?\d+([.,]\d+)?)" $(formal \2)$(formal \1)
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help formal)
+(formal) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n

@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Language" script:language="StarBasic">Option Explicit
 
 Public sMSTemplateCheckbox(2) As String
 Public sMSDocumentCheckbox(2) As String
-Public sSODocumentCheckbox(4) As String
-Public sSOHelperdocuments(1,1) As String
 Public sTemplateCheckbox(SBMAXAPPLCOUNT-1) As String
 Public sDocumentCheckbox(SBMAXAPPLCOUNT-1) As String
 Public sTemplateGroupName As String
@@ -39,7 +34,7 @@ Public SOApplicationName(5) As String
 Public sHelpButton As String, sCancelButton As String, sBackButton As String, sNextButton As String
 Public sSumInclusiveSubDir As String, sSumSaveDocuments As String
 Public sSummaryHeader As String
-Public sWelcometextLabel1 As String, sWelcometextLabel2 As String,  sWelcometextLabel3 As String
+Public sWelcometextLabel1 As String, sWelcometextLabel3 As String
 Public sBeginButton As String, sMsgDirNotThere As String
 Public sQueryForNewCreation As String, sPathError3 As String
 Public sNoDirCreation As String
@@ -54,108 +49,96 @@ Public sReady as String, sTitle as String
 Public sCloseButton as String
 Public sSourceDocuments as String
 Public sTargetDocuments as String
-Public sSumSODocuments(4) as String
-Public sSumSOTemplates(4) as String
 Public sSumMSDocuments(3) as String
 Public sSumMSTemplates(3) as String
 Public ModuleList(3) as String
 Public sLogSummary as String
 Public sReeditMacro as String
 Public sOverwriteallFiles as String
-Public scouldnotopenDocument as String
+Public sCouldnotopenDocument as String
 Public sCurcouldnotopenDocument as String
-Public scouldnotsaveDocument as String
+Public sCouldnotsaveDocument as String
 Public sCurcouldnotsaveDocument as String
 
 
 Sub LoadLanguage()
-	If InitResources(&quot;ImportWizard&quot;,&quot;imp&quot;) then
-		sHelpButton = GetResText(1000)
-		sCancelButton = GetResText(1001)
-		sBackButton = GetResText(1002)
-		sNextButton = GetResText(1003)
-		sBeginButton = GetResText(1004)
-		sCloseButton = GetResText(1005)
-		
-		sWelcometextLabel1 = ReplaceString(GetResText(1006), GetProductName(),&quot;%PRODUCTNAME&quot;)
-		sWelcometextLabel2 = GetResText(1007)
-		sWelcometextLabel3 = GetResText(1008)
+	If InitResources(&quot;ImportWizard&quot;) then
+		sHelpButton = GetResText(&quot;HelpButton&quot;)
+		sCancelButton = GetResText(&quot;CancelButton&quot;)
+		sBackButton = GetResText(&quot;BackButton&quot;)
+		sNextButton = GetResText(&quot;NextButton&quot;)
+		sBeginButton = GetResText(&quot;BeginButton&quot;)
+		sCloseButton = GetResText(&quot;CloseButton&quot;)
+
+		sWelcometextLabel1 = ReplaceString(GetResText(&quot;WelcometextLabel1&quot;), GetProductName(),&quot;%PRODUCTNAME&quot;)
+		sWelcometextLabel3 = GetResText(&quot;WelcometextLabel3&quot;)
 
 		&apos; Microsoft Documents
-		GetApplResourceArray(1009, 3, sMSTemplateCheckBox())
+		sMSTemplateCheckBox(0) = GetResText(&quot;MSTemplateCheckbox_1_&quot;)
+		sMSTemplateCheckBox(1) = GetResText(&quot;MSTemplateCheckbox_2_&quot;)
+		sMSTemplateCheckBox(2) = GetResText(&quot;MSTemplateCheckbox_3_&quot;)
 
 		&apos; DocumentCheckbox- Captions
-		GetApplResourceArray(1012, 3, sMSDocumentCheckBox())
-
-		&apos; DocumentCheckbox- Captions
-		GetApplResourceArray(2013, 5, sSODocumentCheckBox())
+		sMSDocumentCheckBox(0) = GetResText(&quot;MSDocumentCheckbox_1_&quot;)
+		sMSDocumentCheckBox(1) = GetResText(&quot;MSDocumentCheckbox_2_&quot;)
+		sMSDocumentCheckBox(2) = GetResText(&quot;MSDocumentCheckbox_3_&quot;)
 
 		&apos;StarOffice Applicationnames
 
-		sSOHelperDocuments(0,0) = GetResText(2017)
-		sSOHelperDocuments(0,1) = &quot;com.sun.star.text.GlobalDocument&quot;
-		sSOHelperDocuments(1,0) = GetResText(2018)
-		sSOHelperDocuments(1,1) = &quot;com.sun.star.formula.FormulaProperties&quot;
-		
-		GetApplResourceArray(2017,2, sSOHelperDocuments())		
-		
-		sContainerName(0) = GetResText(1030)
-		&apos; Note: for the version 5.2 there was no Productname &quot;StarSuite&quot;
-		sContainerName(1) = &quot;StarOffice&quot;
-	
-		sSummaryHeader = GetResText(1031)
+		sContainerName(0) = GetResText(&quot;MSContainerName&quot;)
 
-		sTemplateGroupName = GetResText(1036)
+		sSummaryHeader = GetResText(&quot;SummaryHeader&quot;)
 
-		sProgressMoreDocs = GetResText(1041)
-		sProgressMoreTemplates = GetResText(1042)
-		sNoDirCreation = GetResText(1050)
-		sMsgDirNotThere = GetResText(1051)
-		sQueryForNewCreation = GetResText(1052)
-		sFileExists = GetResText(1053)
-		sMorePathsError3 = GetResText(1054)
-		sConvertError1 = GetResText(1055)
-		sConvertError2 = GetResText(1056)
-		sRTErrorDesc = GetResText(1057)
-		sRTErrorHeader = GetResText(1058)
-		sOverwriteallFiles = GetResText(1070)
-		sReeditMacro = GetResText(1071)
-		scouldnotsaveDocument = GetResText(1072)		
-		scouldnotopenDocument = GetResText(1073)
-		sPathDialogMessage = GetResText(1080)
-		sTitle = GetResText(1081)
+		sTemplateGroupName = GetResText(&quot;GroupnameDefault&quot;)
 
-		sProgressPage_1 = GetResText(1090)
-		sProgressPage_2 = GetResText(1091)
-		sProgressPage_3 = GetResText(1092)
-		sProgressFound = GetResText(1093)
-		sProgressPage_5 = GetResText(1094)
-		sReady = GetResText(1100)
-		sSourceDocuments = GetResText(2030)
-		sTargetDocuments = GetResText(2031)
-		sLogSummary = GetResText(2034)
-		sSumInclusiveSubDir = GetResText(3000)
-		sSumSaveDocuments = GetResText(3001)
-		&apos;StarOffice Applicationnames
-		GetApplResourceArray(3100, 4, sSumSODocuments())
-		GetApplResourceArray(3110, 4, sSumSOTemplates())
-		GetApplResourceArray(3200, 3, sSumMSDocuments())
-		GetApplResourceArray(3210, 3, sSumMSTemplates())
+		sProgressMoreDocs = GetResText(&quot;ProgressMoreDocs&quot;)
+		sProgressMoreTemplates = GetResText(&quot;ProgressMoreTemplates&quot;)
+		sNoDirCreation = GetResText(&quot;NoDirCreation&quot;)
+		sMsgDirNotThere = GetResText(&quot;MsgDirNotThere&quot;)
+		sQueryForNewCreation = GetResText(&quot;QueryfornewCreation&quot;)
+		sFileExists = GetResText(&quot;FileExists&quot;)
+		sMorePathsError3 = GetResText(&quot;MorePathsError3&quot;)
+		sConvertError1 = GetResText(&quot;ConvertError1&quot;)
+		sConvertError2 = GetResText(&quot;ConvertError2&quot;)
+		sRTErrorDesc = GetResText(&quot;RTErrorDesc&quot;)
+		sRTErrorHeader = GetResText(&quot;RTErrorHeader&quot;)
+		sOverwriteallFiles = GetResText(&quot;OverwriteallFiles&quot;)
+		sReeditMacro = GetResText(&quot;ReeditMacro&quot;)
+		sCouldnotsaveDocument = GetResText(&quot;CouldNotsaveDocument&quot;)
+		sCouldnotopenDocument = GetResText(&quot;CouldNotopenDocument&quot;)
+		sPathDialogMessage = GetResText(&quot;PathDialogMessage&quot;)
+		sTitle = GetResText(&quot;DialogTitle&quot;)
+
+		sProgressPage_1 = GetResText(&quot;ProgressPage1&quot;)
+		sProgressPage_2 = GetResText(&quot;ProgressPage2&quot;)
+		sProgressPage_3 = GetResText(&quot;ProgressPage3&quot;)
+		sProgressFound = GetResText(&quot;ProgressFound&quot;)
+		sProgressPage_5 = GetResText(&quot;ProgressPage5&quot;)
+		sReady = GetResText(&quot;Ready&quot;)
+		sSourceDocuments = GetResText(&quot;SourceDocuments&quot;)
+		sTargetDocuments = GetResText(&quot;TargetDocuments&quot;)
+		sLogSummary = GetResText(&quot;LogfileSummary&quot;)
+		sSumInclusiveSubDir = GetResText(&quot;SumInclusiveSubDir&quot;)
+		sSumSaveDocuments = GetResText(&quot;SumSaveDokumente&quot;)
+		sSumMSDocuments(0) = GetResText(&quot;SumMSTextDocuments&quot;)
+		sSumMSDocuments(1) = GetResText(&quot;SumMSTableDocuments&quot;)
+		sSumMSDocuments(2) = GetResText(&quot;SumMSDrawDocuments&quot;)
+		sSumMSTemplates(0) = GetResText(&quot;SumMSTextTemplates&quot;)
+		sSumMSTemplates(1) = GetResText(&quot;SumMSTableTemplates&quot;)
+		sSumMSTemplates(2) = GetResText(&quot;SumMSDrawTemplates&quot;)
 		With ImportDialog
-			sImportLabel = GetResText(1033)
-			sExportLabel = GetResText(1034)
-			sSearchInSubDir = GetResText(1022)
+			sImportLabel = GetResText(&quot;TextImportLabel&quot;)
+			sExportLabel = GetResText(&quot;TextExportLabel&quot;)
+			sSearchInSubDir = GetResText(&quot;SearchInSubDir&quot;)
 			.chkTemplateSearchSubDir.Label = sSearchInSubDir
 			.lblDocumentImport.Label = sImportLabel
 			.lblDocumentExport.Label = sExportLabel
 			.chkDocumentSearchSubDir.Label = sSearchInSubDir
 			.lblTemplateImport.Label = sImportLabel
 			.lblTemplateExport.Label = sExportLabel
-			.chkLogfile.Label = GetResText(2032)
-			.chkLogfile.Helptext = GetResText(2033)
-			Dim Blabla as String
-			blabla = GetResText(1072)
-			.cmdShowLogFile.Label = GetResText(2035)
+			.chkLogfile.Label = GetResText(&quot;CreateLogfile&quot;)
+			.chkLogfile.Helptext = GetResText(&quot;LogfileHelpText&quot;)
+			.cmdShowLogFile.Label = GetResText(&quot;ShowLogfile&quot;)
 		End With
 		ModuleList(0) = &quot;com.sun.star.text.TextDocument&quot;
 		ModuleList(1) = &quot;com.sun.star.sheet.SpreadsheetDocument&quot;
@@ -164,14 +147,4 @@ Sub LoadLanguage()
 	End If
 End Sub
 
-
-Sub GetApplResourceArray(StartResIndex as Integer, Count as Integer, BigArray())
-Dim i as Integer
-Dim a as Integer
-	a = 0
-	For i = StartResIndex To StartResIndex + Count-1
-		BigArray(a) = GetResText(i)
-		a = a + 1
-	Next			
-End Sub
 </script:module>

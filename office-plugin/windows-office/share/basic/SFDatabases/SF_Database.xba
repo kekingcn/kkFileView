@@ -1,0 +1,842 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Database" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDatabases library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Database
+&apos;&apos;&apos;	=========
+&apos;&apos;&apos;		Management of databases embedded in or related to Base documents
+&apos;&apos;&apos;		Each instance of the current class represents a single database, with essentially its tables, queries and data
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The exchanges with the database are done in SQL only.
+&apos;&apos;&apos;		To make them more readable, use optionally square brackets to surround table/query/field names
+&apos;&apos;&apos;		instead of the (RDBMS-dependent) normal surrounding character (usually, double-quote, single-quote or other).
+&apos;&apos;&apos;		SQL statements may be run in direct or indirect mode. In direct mode the statement is transferred literally
+&apos;&apos;&apos;		without syntax checking nor review to the database system.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The provided interfaces include simple tables, queries and fields lists, and access to database metadata.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation and usage:
+&apos;&apos;&apos;		1) To access any database at anytime
+&apos;&apos;&apos;			Dim myDatabase As Object
+&apos;&apos;&apos;				Set myDatabase = CreateScriptService(&quot;SFDatabases.Database&quot;, FileName, , [ReadOnly], [User, [Password]])
+&apos;&apos;&apos;					&apos;	Args:
+&apos;&apos;&apos;					&apos;		FileName:	the name of the Base file compliant with the SF_FileSystem.FileNaming notation
+&apos;&apos;&apos;					&apos;		RegistrationName: the name of a registered database (mutually exclusive with FileName)
+&apos;&apos;&apos;					&apos;		ReadOnly:	Default = True
+&apos;&apos;&apos;					&apos;		User, Password:	additional connection arguments to the database server
+&apos;&apos;&apos;				&apos;	... Run queries, SQL statements, ...
+&apos;&apos;&apos;				myDatabase.CloseDatabase()
+&apos;&apos;&apos;
+&apos;&apos;&apos;		2) To access the database related to the current Base document
+&apos;&apos;&apos;			Dim myDoc As Object, myDatabase As Object, ui As Object
+&apos;&apos;&apos;				Set ui = CreateScriptService(&quot;UI&quot;)
+&apos;&apos;&apos;				Set myDoc = ui.OpenBaseDocument(&quot;myDb.odb&quot;)
+&apos;&apos;&apos;				Set myDatabase = myDoc.GetDatabase()	&apos;	user and password are supplied here, if needed
+&apos;&apos;&apos;				&apos;	... Run queries, SQL statements, ...
+&apos;&apos;&apos;				myDoc.CloseDocument()
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const DBREADONLYERROR		=	&quot;DBREADONLYERROR&quot;
+Private Const SQLSYNTAXERROR		=	&quot;SQLSYNTAXERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]					As Object
+Private [_Parent]				As Object
+Private ObjectType				As String		&apos; Must be DATABASE
+Private ServiceName				As String
+Private _DataSource				As Object		&apos; com.sun.star.comp.dba.ODatabaseSource
+Private	_Connection				As Object		&apos; com.sun.star.sdbc.XConnection
+Private	_URL					As String		&apos; Text on status bar
+Private _Location				As String		&apos; File name
+Private _ReadOnly				As Boolean
+Private	_MetaData				As Object		&apos; com.sun.star.sdbc.XDatabaseMetaData
+
+REM ============================================================ MODULE CONSTANTS
+
+REM ===================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;DATABASE&quot;
+	ServiceName = &quot;SFDatabases.Database&quot;
+	Set _DataSource = Nothing
+	Set _Connection = Nothing
+	_URL = &quot;&quot;
+	_Location = &quot;&quot;
+	_ReadOnly = True
+	Set _MetaData = Nothing
+End Sub		&apos;	SFDatabases.SF_Database Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDatabases.SF_Database Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDatabases.SF_Database Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get Queries() As Variant
+&apos;&apos;&apos;	Return the list of available queries in the database
+	Queries = _PropertyGet(&quot;Queries&quot;)
+End Property	&apos;	SFDatabases.SF_Database.Queries (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Tables() As Variant
+&apos;&apos;&apos;	Return the list of available Tables in the database
+	Tables = _PropertyGet(&quot;Tables&quot;)
+End Property	&apos;	SFDatabases.SF_Database.Tables (get)
+
+REM -----------------------------------------------------------------------------
+Property Get XConnection() As Variant
+&apos;&apos;&apos;	Return a com.sun.star.sdbc.XConnection UNO object
+	XConnection = _PropertyGet(&quot;XConnection&quot;)
+End Property	&apos;	SFDatabases.SF_Database.XConnection (get)
+
+REM -----------------------------------------------------------------------------
+Property Get XMetaData() As Variant
+&apos;&apos;&apos;	Return a com.sun.star.sdbc.XDatabaseMetaData UNO object
+	XMetaData = _PropertyGet(&quot;XMetaData&quot;)
+End Property	&apos;	SFDatabases.SF_Database.XMetaData (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Sub CloseDatabase()
+&apos;&apos;&apos;	Close the current database connection
+
+Const cstThisSub = &quot;SFDatabases.Database.CloseDatabase&quot;
+Const cstSubArgs = &quot;&quot;
+
+	On Local Error GoTo 0		&apos;	Disable useless error checking
+
+Check:
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+Try:
+	With _Connection
+		If Not IsNull(_Connection) Then
+			If ScriptForge.SF_Session.HasUnoMethod(_Connection, &quot;flush&quot;) Then .flush()
+			.close()
+			.dispose()
+		End If
+		Dispose()
+	End With
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+End Sub
+
+REM -----------------------------------------------------------------------------
+Public Function DAvg(Optional ByVal Expression As Variant _
+								, Optional ByVal TableName As Variant _
+								, Optional ByVal Criteria As Variant _
+								) As Variant
+&apos;&apos;&apos;	Compute the aggregate function AVG() on a  field or expression belonging to a table
+&apos;&apos;&apos;	filtered by a WHERE-clause.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Expression:		an SQL expression
+&apos;&apos;&apos;		TableName:		the name of a table
+&apos;&apos;&apos;		Criteria:		an optional WHERE clause without the word WHERE
+
+	DAvg = _DFunction(&quot;Avg&quot;, Expression, TableName, Criteria)
+
+End Function	&apos;	SFDatabases.SF_Database.DAvg
+
+REM -----------------------------------------------------------------------------
+Public Function DCount(Optional ByVal Expression As Variant _
+								, Optional ByVal TableName As Variant _
+								, Optional ByVal Criteria As Variant _
+								) As Variant
+&apos;&apos;&apos;	Compute the aggregate function COUNT() on a  field or expression belonging to a table
+&apos;&apos;&apos;	filtered by a WHERE-clause.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Expression:		an SQL expression
+&apos;&apos;&apos;		TableName:		the name of a table
+&apos;&apos;&apos;		Criteria:		an optional WHERE clause without the word WHERE
+
+	DCount = _DFunction(&quot;Count&quot;, Expression, TableName, Criteria)
+
+End Function	&apos;	SFDatabases.SF_Database.DCount
+
+REM -----------------------------------------------------------------------------
+Public Function DLookup(Optional ByVal Expression As Variant _
+								, Optional ByVal TableName As Variant _
+								, Optional ByVal Criteria As Variant _
+								, Optional ByVal OrderClause As Variant _
+								) As Variant
+&apos;&apos;&apos;	Compute the aggregate function Lookup() on a  field or expression belonging to a table
+&apos;&apos;&apos;	filtered by a WHERE-clause.
+&apos;&apos;&apos;	To order the results, a pvOrderClause may be precised. The 1st record will be retained.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Expression:		an SQL expression
+&apos;&apos;&apos;		TableName:		the name of a table
+&apos;&apos;&apos;		Criteria:		an optional WHERE clause without the word WHERE
+&apos;&apos;&apos;		pvOrderClause:	an optional order clause incl. &quot;DESC&quot; if relevant
+
+	DLookup = _DFunction(&quot;Lookup&quot;, Expression, TableName, Criteria, OrderClause)
+
+End Function	&apos;	SFDatabases.SF_Database.DLookup
+
+REM -----------------------------------------------------------------------------
+Public Function DMax(Optional ByVal Expression As Variant _
+								, Optional ByVal TableName As Variant _
+								, Optional ByVal Criteria As Variant _
+								) As Variant
+&apos;&apos;&apos;	Compute the aggregate function MAX() on a  field or expression belonging to a table
+&apos;&apos;&apos;	filtered by a WHERE-clause.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Expression:		an SQL expression
+&apos;&apos;&apos;		TableName:		the name of a table
+&apos;&apos;&apos;		Criteria:		an optional WHERE clause without the word WHERE
+
+	DMax = _DFunction(&quot;Max&quot;, Expression, TableName, Criteria)
+
+End Function	&apos;	SFDatabases.SF_Database.DMax
+
+REM -----------------------------------------------------------------------------
+Public Function DMin(Optional ByVal Expression As Variant _
+								, Optional ByVal TableName As Variant _
+								, Optional ByVal Criteria As Variant _
+								) As Variant
+&apos;&apos;&apos;	Compute the aggregate function MIN() on a  field or expression belonging to a table
+&apos;&apos;&apos;	filtered by a WHERE-clause.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Expression:		an SQL expression
+&apos;&apos;&apos;		TableName:		the name of a table
+&apos;&apos;&apos;		Criteria:		an optional WHERE clause without the word WHERE
+
+	DMin = _DFunction(&quot;Min&quot;, Expression, TableName, Criteria)
+
+End Function	&apos;	SFDatabases.SF_Database.DMin
+
+REM -----------------------------------------------------------------------------
+Public Function DSum(Optional ByVal Expression As Variant _
+								, Optional ByVal TableName As Variant _
+								, Optional ByVal Criteria As Variant _
+								) As Variant
+&apos;&apos;&apos;	Compute the aggregate function Sum() on a  field or expression belonging to a table
+&apos;&apos;&apos;	filtered by a WHERE-clause.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Expression:		an SQL expression
+&apos;&apos;&apos;		TableName:		the name of a table
+&apos;&apos;&apos;		Criteria:		an optional WHERE clause without the word WHERE
+
+	DSum = _DFunction(&quot;Sum&quot;, Expression, TableName, Criteria)
+
+End Function	&apos;	SFDatabases.SF_Database.DSum
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		myDatabase.GetProperty(&quot;Queries&quot;)
+
+Const cstThisSub = &quot;SFDatabases.Database.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Database.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function GetRows(Optional ByVal SQLCommand As Variant _
+							, Optional ByVal DirectSQL As Variant _
+							, Optional ByVal Header As Variant _
+							, Optional ByVal MaxRows As Variant _
+							) As Variant
+&apos;&apos;&apos;	Return the content of a table, a query or a SELECT SQL statement as an array
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		SQLCommand: a table name, a query name or a SELECT SQL statement
+&apos;&apos;&apos;		DirectSQL: 	when True, no syntax conversion is done by LO. Default = False
+&apos;&apos;&apos;					Ignored when SQLCommand is a table or a query name
+&apos;&apos;&apos;		Header:		When True, a header row is inserted on the top of the array with the column names. Default = False
+&apos;&apos;&apos;		MaxRows:	The maximum number of returned rows. If absent, all records are returned
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		a 2D array(row, column), even if only 1 column and/or 1 record
+&apos;&apos;&apos;		an empty array if no records returned
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim a As Variant
+&apos;&apos;&apos;			a = myDatabase.GetRows(&quot;SELECT [First Name], [Last Name] FROM [Employees] ORDER BY [Last Name]&quot;, Header := True)
+
+Dim vResult As Variant			&apos;	Return value
+Dim oResult As Object			&apos;	com.sun.star.sdbc.XResultSet
+Dim oQuery As Object			&apos;	com.sun.star.ucb.XContent
+Dim sSql As String				&apos;	SQL statement
+Dim bDirect						&apos;	Alias of DirectSQL
+Dim lCols As Long				&apos;	Number of columns
+Dim lRows As Long				&apos;	Number of rows
+Dim oColumns As Object
+Dim i As Long
+Const cstThisSub = &quot;SFDatabases.Database.GetRows&quot;
+Const cstSubArgs = &quot;SQLCommand, [DirectSQL=False], [Header=False], [MaxRows=0]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vResult = Array()
+
+Check:
+	If IsMissing(DirectSQL) Or IsEmpty(DirectSQL) Then DirectSQL = False
+	If IsMissing(Header) Or IsEmpty(Header) Then Header = False
+	If IsMissing(MaxRows) Or IsEmpty(MaxRows) Then MaxRows = 0
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(SQLCommand, &quot;SQLCommand&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(DirectSQL, &quot;DirectSQL&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Header, &quot;Header&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(MaxRows, &quot;MaxRows&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Table, query of SQL ? Prepare resultset
+	If ScriptForge.SF_Array.Contains(Tables, SQLCommand, CaseSensitive := True, SortOrder := &quot;ASC&quot;) Then
+		sSql = &quot;SELECT * FROM [&quot; &amp; SQLCommand &amp; &quot;]&quot;
+		bDirect = True
+	ElseIf ScriptForge.SF_Array.Contains(Queries, SQLCommand, CaseSensitive := True, SortOrder := &quot;ASC&quot;) Then
+		Set oQuery = _Connection.Queries.getByName(SQLCommand)
+		sSql = oQuery.Command
+		bDirect = Not oQuery.EscapeProcessing
+	ElseIf ScriptForge.SF_String.StartsWith(SQLCommand, &quot;SELECT&quot;, CaseSensitive := False) Then
+		sSql = SQLCommand
+		bDirect = DirectSQL
+	Else
+		GoTo Finally
+	End If
+
+	&apos;	Execute command
+	Set oResult = _ExecuteSql(sSql, bDirect)
+	If IsNull(oResult) Then GoTo Finally
+
+	With oResult
+		&apos;Initialize output array with header row
+		Set oColumns = oResult.getColumns()
+		lCols = oColumns.Count - 1
+		If Header Then
+			lRows = 0
+			ReDim vResult(0 To lRows, 0 To lCols)
+			For i = 0 To lCols
+				vResult(lRows, i) = oColumns.getByIndex(i).Name
+			Next i
+			If MaxRows &gt; 0 Then MaxRows = MaxRows + 1
+		Else
+			lRows = -1
+		End If
+
+	&apos;	Load data
+		.first()
+		Do While Not .isAfterLast() And (MaxRows = 0 Or lRows &lt; MaxRows - 1)
+			lRows = lRows + 1
+			If lRows = 0 Then
+				ReDim vResult(0 To lRows, 0 To lCols)
+			Else
+				ReDim Preserve vResult(0 To lRows, 0 To lCols)
+			End If
+			For i = 0 To lCols
+				vResult(lRows, i) = _GetColumnValue(oResult, i + 1)
+			Next i
+			.next()
+		Loop
+	End With
+	
+Finally:
+	GetRows = vResult
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Database.GetRows
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Database service as an array
+
+	Methods = Array( _
+					&quot;DAvg&quot; _
+					, &quot;DCount&quot; _
+					, &quot;DLookup&quot; _
+					, &quot;DMax&quot; _
+					, &quot;DMin&quot; _
+					, &quot;DSum&quot; _
+					, &quot;GetRows&quot; _
+					, &quot;RunSql&quot; _
+					)
+
+End Function	&apos;	SFDatabases.SF_Database.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Database class as an array
+
+	Properties = Array( _
+					&quot;Queries&quot; _
+					, &quot;Tables&quot; _
+					, &quot;XConnection&quot; _
+					, &quot;XMetaData&quot; _
+					)
+
+End Function	&apos;	SFDatabases.SF_Database.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function RunSql(Optional ByVal SQLCommand As Variant _
+							, Optional ByVal DirectSQL As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Execute an action query (table creation, record insertion, ...) or SQL statement on the current database
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		SQLCommand: a query name or an SQL statement
+&apos;&apos;&apos;		DirectSQL: 	when True, no syntax conversion is done by LO. Default = False
+&apos;&apos;&apos;					Ignored when SQLCommand is a query name
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		DBREADONLYERROR			The method is not applicable on a read-only database
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		myDatabase.RunSql(&quot;INSERT INTO [EMPLOYEES] VALUES(25, &apos;SMITH&apos;, &apos;John&apos;)&quot;, DirectSQL := True)
+
+Dim bResult As Boolean			&apos;	Return value
+Dim oStatement As Object		&apos;	com.sun.star.sdbc.XStatement
+Dim iCommandType				&apos;	1 = Table, 2 = Query, 3 = SQL
+Dim oQuery As Object			&apos;	com.sun.star.ucb.XContent
+Dim sSql As String				&apos;	SQL statement
+Dim bDirect						&apos;	Alias of DirectSQL
+Const cstQuery = 2, cstSql = 3
+Const cstThisSub = &quot;SFDatabases.Database.RunSql&quot;
+Const cstSubArgs = &quot;SQLCommand, [DirectSQL=False]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bResult = False
+
+Check:
+	If IsMissing(DirectSQL) Or IsEmpty(DirectSQL) Then DirectSQL = False
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(SQLCommand, &quot;SQLCommand&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(DirectSQL, &quot;DirectSQL&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+	If _ReadOnly Then GoTo Catch_ReadOnly
+
+Try:
+	&apos;	Query of SQL ?
+	If ScriptForge.SF_Array.Contains(Queries, SQLCommand, CaseSensitive := True, SortOrder := &quot;ASC&quot;) Then
+		Set oQuery = _Connection.Queries.getByName(SQLCommand)
+		sSql = oQuery.Command
+		bDirect = Not oQuery.EscapeProcessing
+	ElseIf Not ScriptForge.SF_String.StartsWith(SQLCommand, &quot;SELECT&quot;, CaseSensitive := False) Then
+		sSql = SQLCommand
+		bDirect = DirectSQL
+	Else
+		GoTo Finally
+	End If
+
+	&apos;	Execute command
+	bResult = _ExecuteSql(sSql, bDirect)
+	
+Finally:
+	RunSql = bResult
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+Catch_ReadOnly:
+	ScriptForge.SF_Exception.RaiseFatal(DBREADONLYERROR)
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Database.RunSql
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDatabases.Database.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	Select Case UCase(PropertyName)
+		Case Else
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Database.SetProperty
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _DFunction(ByVal psFunction As String _
+								, Optional ByVal pvExpression As Variant _
+								, Optional ByVal pvTableName As Variant _
+								, Optional ByVal pvCriteria As Variant _
+								, Optional ByVal pvOrderClause As Variant _
+								) As Variant
+&apos;&apos;&apos;	Build and execute a SQL statement computing the aggregate function psFunction
+&apos;&apos;&apos;	on a field or expression pvExpression belonging to a table pvTableName
+&apos;&apos;&apos;	filtered by a WHERE-clause pvCriteria.
+&apos;&apos;&apos;	To order the results, a pvOrderClause may be precised.
+&apos;&apos;&apos;	Only the 1st record will be retained anyway.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psFunction		an optional aggregate function: SUM, COUNT, AVG, LOOKUP
+&apos;&apos;&apos;		pvExpression:	an SQL expression
+&apos;&apos;&apos;		pvTableName:	the name of a table, NOT surrounded with quoting char
+&apos;&apos;&apos;		pvCriteria:		an optional WHERE clause without the word WHERE
+&apos;&apos;&apos;		pvOrderClause:	an optional order clause incl. &quot;DESC&quot; if relevant
+&apos;&apos;&apos;							(meaningful only for LOOKUP)
+
+Dim vResult As Variant			&apos;	Return value
+Dim oResult As Object			&apos;	com.sun.star.sdbc.XResultSet
+Dim sSql As String				&apos;	SQL statement.
+Dim sExpr As String				&apos;	For inclusion of aggregate function
+Dim sTarget as String			&apos;	Alias of pvExpression
+Dim sWhere As String			&apos;	Alias of pvCriteria
+Dim sOrderBy As String			&apos;	Alias of pvOrderClause
+Dim sLimit As String			&apos;	TOP 1 clause
+Dim sProductName As String		&apos;	RDBMS as a string
+Const cstAliasField = &quot;[&quot; &amp; &quot;TMP_ALIAS_ANY_FIELD&quot; &amp; &quot;]&quot;		&apos;	Alias field in SQL expression
+Dim cstThisSub As String		:	cstThisSub = &quot;SFDatabases.SF_Database.D&quot; &amp; psFunction
+Const cstSubArgs = &quot;Expression, TableName, [Criteria=&quot;&quot;&quot;&quot;], [OrderClause=&quot;&quot;&quot;&quot;]&quot;
+Const cstLookup = &quot;Lookup&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vResult = Null
+
+Check:
+	If IsMissing(pvCriteria) Or IsEmpty(pvCriteria) Then pvCriteria = &quot;&quot;
+	If IsMissing(pvOrderClause) Or IsEmpty(pvOrderClause) Then pvOrderClause = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(pvExpression, &quot;Expression&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvTableName, &quot;TableName&quot;, V_STRING, Tables) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvCriteria, &quot;Criteria&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvOrderClause, &quot;OrderClause&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If pvCriteria &lt;&gt; &quot;&quot; Then sWhere = &quot; WHERE &quot; &amp; pvCriteria Else sWhere = &quot;&quot;
+	If pvOrderClause &lt;&gt; &quot;&quot; Then sOrderBy = &quot; ORDER BY &quot; &amp; pvOrderClause Else sOrderBy = &quot;&quot;
+	sLimit = &quot;&quot;
+
+	pvTableName = &quot;[&quot; &amp; pvTableName &amp; &quot;]&quot;
+
+	sProductName = UCase(_MetaData.getDatabaseProductName())
+
+	Select Case sProductName
+		Case &quot;MYSQL&quot;, &quot;SQLITE&quot;
+			If psFunction = cstLookup Then
+				sTarget = pvExpression
+				sLimit = &quot; LIMIT 1&quot;
+			Else
+				sTarget = UCase(psFunction) &amp; &quot;(&quot; &amp; pvExpression &amp; &quot;)&quot;
+			End If
+			sSql = &quot;SELECT &quot; &amp; sTarget &amp; &quot; AS &quot; &amp; cstAliasField &amp; &quot; FROM &quot; &amp; psTableName &amp;  sWhere &amp; sOrderBy &amp; sLimit
+		Case &quot;FIREBIRD (ENGINE12)&quot;
+			If psFunction = cstLookup Then sTarget = &quot;FIRST 1 &quot; &amp; pvExpression Else sTarget = UCase(psFunction) &amp; &quot;(&quot; &amp; pvExpression &amp; &quot;)&quot;
+			sSql = &quot;SELECT &quot; &amp; sTarget &amp; &quot; AS &quot; &amp; cstAliasField &amp; &quot; FROM &quot; &amp; pvTableName &amp; sWhere &amp; sOrderBy
+		Case Else		&apos;	Standard syntax - Includes HSQLDB
+			If psFunction = cstLookup Then sTarget = &quot;TOP 1 &quot; &amp; pvExpression Else sTarget = UCase(psFunction) &amp; &quot;(&quot; &amp; pvExpression &amp; &quot;)&quot;
+			sSql = &quot;SELECT &quot; &amp; sTarget &amp; &quot; AS &quot; &amp; cstAliasField &amp; &quot; FROM &quot; &amp; pvTableName &amp; sWhere &amp; sOrderBy
+	End Select
+
+	&apos;	Execute the SQL statement and retain the first column of the first record
+	Set oResult = _ExecuteSql(sSql, True)
+	If Not IsNull(oResult) And Not IsEmpty(oResult) Then
+		If Not oResult.first() Then Goto Finally
+		If oResult.isAfterLast() Then GoTo Finally
+		vResult = _GetColumnValue(oResult, 1, True)		&apos;	Force return of binary field
+	End If
+	Set oResult = Nothing
+
+Finally:
+	_DFunction = vResult
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function		&apos;	SFDatabases.SF_Database._DFunction
+
+REM -----------------------------------------------------------------------------
+Private Function _ExecuteSql(ByVal psSql As String _
+								, ByVal pbDirect As Boolean _
+								) As Variant
+&apos;&apos;&apos;	Return a read-only Resultset based on a SELECT SQL statement or execute the given action SQL (INSERT, CREATE TABLE, ...)
+&apos;&apos;&apos;	The method raises a fatal error when the SQL statement cannot be interpreted
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psSql : the SQL statement. Square brackets are replaced by the correct field surrounding character
+&apos;&apos;&apos;		pbDirect: when True, no syntax conversion is done by LO. Default = False
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		SQLSYNTAXERROR			The given SQL statement is incorrect
+
+Dim vResult As Variant			&apos;	Return value - com.sun.star.sdbc.XResultSet or Boolean
+Dim oStatement As Object		&apos;	com.sun.star.sdbc.XStatement
+Dim sSql As String				&apos;	Alias of psSql
+Dim bSelect As Boolean			&apos;	True when SELECT statement
+Dim bErrorHandler As Boolean	&apos;	Can be set off to ease debugging of complex SQL statements
+
+	Set vResult = Nothing
+	bErrorHandler = ScriptForge.SF_Utils._ErrorHandling()
+	If bErrorHandler Then On Local Error GoTo Catch
+    
+Try:
+	sSql = _ReplaceSquareBrackets(psSql)
+	bSelect = ScriptForge.SF_String.StartsWith(sSql, &quot;SELECT&quot;, CaseSensitive := False)
+
+	Set oStatement = _Connection.createStatement()
+	With oStatement
+		If bSelect Then
+			.ResultSetType = com.sun.star.sdbc.ResultSetType.SCROLL_INSENSITIVE
+			.ResultSetConcurrency = com.sun.star.sdbc.ResultSetConcurrency.READ_ONLY
+		End If
+		.EscapeProcessing = Not pbDirect
+
+		&apos;	Setup the result set
+		If bErrorHandler Then On Local Error GoTo Catch_Sql
+		If bSelect Then Set vResult = .executeQuery(sSql) Else vResult = .execute(sSql)
+	End With
+
+Finally:
+	_ExecuteSql = vResult
+	Set oStatement = Nothing
+	Exit Function
+Catch_Sql:
+	ScriptForge.SF_Exception.RaiseFatal(SQLSYNTAXERROR, sSql)
+	GoTo Finally
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Database._ExecuteSql
+
+REM -----------------------------------------------------------------------------
+Private Function _GetColumnValue(ByRef poResultSet As Object _
+									, ByVal plColIndex As Long _
+									, Optional ByVal pbReturnBinary As Boolean _
+									) As Variant
+&apos;&apos;&apos;	Get the data stored in the current record of a result set in a given column
+&apos;&apos;&apos;	The type of the column is found in the resultset&apos;s metadata
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		poResultSet: com.sun.star.sdbc.XResultSet
+&apos;&apos;&apos;		plColIndex: the index of the column to extract the value from
+&apos;&apos;&apos;		pbReturnBinary: when True, the method returns the content of a binary field,
+&apos;&apos;&apos;			as long as its length does not exceed a maximum length.
+&apos;&apos;&apos;			Default = False: binary fields are not returned, only their length
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The variant value found in the column
+&apos;&apos;&apos;		Dates and times are returned as Basic dates
+&apos;&apos;&apos;		Null values are returned as Null
+&apos;&apos;&apos;		Errors or strange data types are returned as Null as well
+	
+Dim vValue As Variant			&apos;	Return value
+Dim lType As Long				&apos;	SQL column type: com.sun.star.sdbc.DataType
+Dim vDateTime As Variant		&apos;	com.sun.star.util.DateTime
+Dim oStream As Object			&apos;	Long character or binary streams
+Dim bNullable As Boolean		&apos;	The field is defined as accepting Null values
+Dim lSize As Long				&apos;	Binary field length
+
+Const cstMaxBinlength = 2 * 65535
+
+	On Local Error Goto 0			&apos;	Disable error handler
+	vValue = Null					&apos;	Default value if error
+	If IsMissing(pbReturnBinary) Then pbReturnBinary = False
+
+	With com.sun.star.sdbc.DataType
+		lType = poResultSet.MetaData.getColumnType(plColIndex)
+		bNullable = ( poResultSet.MetaData.IsNullable(plColIndex) = com.sun.star.sdbc.ColumnValue.NULLABLE )
+
+		Select Case lType
+			Case .ARRAY						:	vValue = poResultSet.getArray(plColIndex)
+			Case .BINARY, .VARBINARY, .LONGVARBINARY, .BLOB
+				Set oStream = poResultSet.getBinaryStream(plColIndex)
+				If bNullable Then
+					If Not poResultSet.wasNull() Then
+						If Not ScriptForge.SF_Session.HasUNOMethod(oStream, &quot;getLength&quot;) Then	&apos;	When no recordset
+							lSize = cstMaxBinLength
+						Else
+							lSize = CLng(oValue.getLength())
+						End If
+						If lSize &lt;= cstMaxBinLength And pbReturnBinary Then
+							vValue = Array()
+							oValue.readBytes(vValue, lSize)
+						Else	&apos;	Return length of field, not content
+							vValue = lSize
+						End If
+					End If
+				End If
+				oValue.closeInput()
+			Case .BIT, .BOOLEAN				:	vValue = poResultSet.getBoolean(plColIndex)
+			Case .DATE
+				vDateTime = poResultSet.getDate(plColIndex)
+				If Not poResultSet.wasNull() Then vValue = DateSerial(CInt(vDateTime.Year), CInt(vDateTime.Month), CInt(vDateTime.Day))
+			Case .DISTINCT, .OBJECT, .OTHER, .STRUCT
+				vValue = Null
+			Case .DOUBLE, .REAL				:	vValue = poResultSet.getDouble(plColIndex)
+			Case .FLOAT						:	vValue = poResultSet.getFloat(plColIndex)
+			Case .INTEGER, .SMALLINT		:	vValue = poResultSet.getInt(plColIndex)
+			Case .BIGINT					:	vValue = CLng(poResultSet.getLong(plColIndex))
+			Case .DECIMAL, .NUMERIC			:	vValue = poResultSet.getDouble(plColIndex)
+			Case .SQLNULL					:	vValue = poResultSet.getNull(plColIndex)
+			Case .OBJECT, .OTHER, .STRUCT	:	vValue = Null
+			Case .REF						:	vValue = poResultSet.getRef(plColIndex)
+			Case .TINYINT					:	vValue = poResultSet.getShort(plColIndex)
+			Case .CHAR, .VARCHAR			:	vValue = poResultSet.getString(plColIndex)
+			Case .LONGVARCHAR, .CLOB
+				If bNullable Then
+					If Not poResultSet.wasNull() Then vValue = poResultSet.getString(plColIndex)
+				Else
+					vValue = &quot;&quot;
+				End If
+			Case .TIME
+				vDateTime = poResultSet.getTime(plColIndex)
+				If Not poResultSet.wasNull() Then vValue = TimeSerial(vDateTime.Hours, vDateTime.Minutes, vDateTime.Seconds)&apos;, vDateTime.HundredthSeconds)
+			Case .TIMESTAMP
+				vDateTime = poResultSet.getTimeStamp(plColIndex)
+				If Not poResultSet.wasNull() Then vValue = DateSerial(CInt(vDateTime.Year), CInt(vDateTime.Month), CInt(vDateTime.Day)) _
+						+ TimeSerial(vDateTime.Hours, vDateTime.Minutes, vDateTime.Seconds)&apos;, vDateTime.HundredthSeconds)
+			Case Else
+				vValue = poResultSet.getString(plColIndex)			&apos;GIVE STRING A TRY
+				If IsNumeric(vValue) Then vValue = Val(vValue)		&apos;Required when type = &quot;&quot;, sometimes numeric fields are returned as strings (query/MSAccess)
+		End Select
+		If bNullable Then
+			If poResultSet.wasNull() Then vValue = Null
+		End If
+	End With
+	
+	_GetColumnValue = vValue
+	
+End Function	&apos;	SFDatabases.SF_Database.GetColumnValue
+
+REM -----------------------------------------------------------------------------
+Public Sub _Initialize()
+&apos;&apos;&apos;	Complete the object creation process:
+&apos;&apos;&apos;		- Initialization of private members
+&apos;&apos;&apos;		- Creation of the dialog graphical interface
+&apos;&apos;&apos;		- Addition of the new object in the Dialogs buffer
+
+Try:
+	&apos;	Create the graphical interface
+	Set _DialogControl = CreateUnoDialog(_DialogProvider)
+	Set _DialogModel = _DialogControl.Model
+
+	&apos;	Add dialog reference to cache
+	_CacheIndex = SF_Register._AddDialogToCache(_DialogControl, [Me])
+	85
+Finally:
+	Exit Sub
+End Sub			&apos;	SFDatabases.SF_Database._Initialize
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SFDatabases.Database.get&quot; &amp; psProperty
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+	Select Case psProperty
+		Case &quot;Queries&quot;
+			If Not IsNull(_Connection) Then _PropertyGet = _Connection.Queries.getElementNames() Else _PropertyGet = Array()
+		Case &quot;Tables&quot;
+			If Not IsNull(_Connection) Then _PropertyGet = _Connection.Tables.getElementNames() Else _PropertyGet = Array()
+		Case &quot;XConnection&quot;
+			Set _PropertyGet = _Connection
+		Case &quot;XMetaData&quot;
+			Set _PropertyGet = _MetaData
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Database._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _ReplaceSquareBrackets(ByVal psSql As String) As String
+&apos;&apos;&apos;	Returns the input SQL command after replacement of square brackets by the table/field names quoting character
+
+Dim sSql As String				&apos;	Return value
+Dim sQuote As String			&apos;	RDBMS specific table/field surrounding character
+Dim sConstQuote As String		&apos;	Delimiter for string constants in SQL - usually the single quote
+Const cstDouble = &quot;&quot;&quot;&quot;	:	Const cstSingle = &quot;&apos;&quot;
+
+Try:
+	sQuote = _MetaData.IdentifierQuoteString
+	sConstQuote = Iif(sQuote = cstSingle, cstDouble, cstSingle)
+
+	&apos;	Replace the square brackets
+	sSql = Join(ScriptForge.SF_String.SplitNotQuoted(psSql, &quot;[&quot;, , sConstQuote), sQuote)
+	sSql = Join(ScriptForge.SF_String.SplitNotQuoted(sSql, &quot;]&quot;, , sConstQuote), sQuote)
+
+Finally:
+	_ReplaceSquareBrackets = sSql
+	Exit Function
+End Function	&apos;	SFDatabases.SF_Database._ReplaceSquareBrackets
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the Database instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[DATABASE]: Location (Statusbar)&quot;
+
+	_Repr = &quot;[DATABASE]: &quot; &amp; _Location &amp; &quot; (&quot; &amp; _URL &amp; &quot;)&quot;
+
+End Function	&apos;	SFDatabases.SF_Database._Repr
+
+REM ============================================ END OF SFDATABASES.SF_DATABASE
+</script:module>

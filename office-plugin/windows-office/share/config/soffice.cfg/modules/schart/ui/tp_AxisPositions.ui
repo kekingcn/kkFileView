@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="chart">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkBox" id="tp_AxisPositions">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkFrame" id="FL_AXIS_LINE">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <object class="GtkBox" id="boxAXIS_LINE">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkBox" id="box3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkLabel" id="FT_CROSSES_OTHER_AXIS_AT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_AxisPositions|FT_CROSSES_OTHER_AXIS_AT">_Cross other axis at</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">LB_CROSSES_OTHER_AXIS_AT</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="LB_CROSSES_OTHER_AXIS_AT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <items>
+                          <item translatable="yes" context="tp_AxisPositions|LB_CROSSES_OTHER_AXIS_AT">Start</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_CROSSES_OTHER_AXIS_AT">End</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_CROSSES_OTHER_AXIS_AT">Value</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_CROSSES_OTHER_AXIS_AT">Category</item>
+                        </items>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="LB_CROSSES_OTHER_AXIS_AT-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|LB_CROSSES_OTHER_AXIS_AT">Select where to cross the other axis: at start, at end, at a specified value, or at a category.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="EDT_CROSSES_OTHER_AXIS_AT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="activates_default">True</property>
+                        <property name="adjustment">adjustment1</property>
+                        <property name="truncate-multiline">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="EDT_CROSSES_OTHER_AXIS_AT-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|EDT_CROSSES_OTHER_AXIS_AT">Enter the value where the axis line should cross the other axis.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="EDT_CROSSES_OTHER_AXIS_AT_CATEGORY">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="has_entry">True</property>
+                        <child internal-child="entry">
+                          <object class="GtkEntry" id="combobox-entry">
+                            <property name="can_focus">True</property>
+                            <property name="truncate-multiline">True</property>
+                            <property name="activates_default">True</property>
+                          </object>
+                        </child>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="EDT_CROSSES_OTHER_AXIS_AT_CATEGORY-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|EDT_CROSSES_OTHER_AXIS_AT_CATEGORY">Select the category where the axis line should cross the other axis.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CB_AXIS_BETWEEN_CATEGORIES">
+                    <property name="label" translatable="yes" context="tp_AxisPositions|CB_AXIS_BETWEEN_CATEGORIES">Axis _between categories</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="TXT_AXIS_LINE">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="tp_AxisPositions|TXT_AXIS_LINE">Axis Line</property>
+            <property name="xalign">0</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="FL_POSITION">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment6">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="row_spacing">6</property>
+                <child>
+                  <object class="GtkRadioButton" id="RB_ON">
+                    <property name="label" translatable="yes" context="tp_AxisPositions|RB_ON">_On tick marks</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="RB_ON-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|RB_ON">Specifies that the axis is positioned on the first/last tickmarks. This makes the data points visual representation begin/end at the value axis.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkRadioButton" id="RB_BETWEEN">
+                    <property name="label" translatable="yes" context="tp_AxisPositions|RB_BETWEEN">_Between tick marks</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="group">RB_ON</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="RB_BETWEEN-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|RB_BETWEEN">Specifies that the axis is positioned between the tickmarks. This makes the data points visual representation begin/end at a distance from the value axis.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="TXT_POSITION">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="tp_AxisPositions|TXT_POSITION">Position Axis</property>
+            <property name="xalign">0</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="FL_LABELS">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <object class="GtkBox" id="box4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkBox" id="box5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkLabel" id="FT_PLACE_LABELS">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_AxisPositions|FT_PLACE_LABELS">_Place labels</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">LB_PLACE_LABELS</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="LB_PLACE_LABELS">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <items>
+                          <item translatable="yes" context="tp_AxisPositions|LB_PLACE_LABELS">Near axis</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_PLACE_LABELS">Near axis (other side)</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_PLACE_LABELS">Outside start</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_PLACE_LABELS">Outside end</item>
+                        </items>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="LB_PLACE_LABELS-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|LB_PLACE_LABELS">Select where to place the labels: near axis, near axis (other side), outside start, or outside end.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="box6">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkLabel" id="FT_AXIS_LABEL_DISTANCE">
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_AxisPositions|FT_AXIS_LABEL_DISTANCE">_Distance</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">EDT_AXIS_LABEL_DISTANCE</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="EDT_AXIS_LABEL_DISTANCE">
+                        <property name="can_focus">True</property>
+                        <property name="activates_default">True</property>
+                        <property name="truncate-multiline">True</property>
+                        <property name="adjustment">adjustment2</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="TXT_FL_LABELS">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="tp_AxisPositions|TXT_FL_LABELS">Labels</property>
+            <property name="xalign">0</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="FL_TICKS">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <object class="GtkBox" id="box8">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="grid1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="row_spacing">6</property>
+                    <property name="column_spacing">12</property>
+                    <child>
+                      <object class="GtkLabel" id="FT_MAJOR">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_AxisPositions|FT_MAJOR">Major:</property>
+                        <property name="xalign">0</property>
+                        <accessibility>
+                          <relation type="label-for" target="CB_TICKS_INNER"/>
+                          <relation type="label-for" target="CB_TICKS_OUTER"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="FT_MINOR">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_AxisPositions|FT_MINOR">Minor:</property>
+                        <property name="xalign">0</property>
+                        <accessibility>
+                          <relation type="label-for" target="CB_MINOR_INNER"/>
+                          <relation type="label-for" target="CB_MINOR_OUTER"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="CB_TICKS_INNER">
+                        <property name="label" translatable="yes" context="tp_AxisPositions|CB_TICKS_INNER">_Inner</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="FT_MAJOR"/>
+                        </accessibility>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="CB_TICKS_INNER-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|CB_TICKS_INNER">Specifies that marks are placed on the inner side of the axis.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="CB_TICKS_OUTER">
+                        <property name="label" translatable="yes" context="tp_AxisPositions|CB_TICKS_OUTER">_Outer</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="FT_MAJOR"/>
+                        </accessibility>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="CB_TICKS_OUTER-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|CB_TICKS_OUTER">Specifies that marks are placed on the outer side of the axis.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="CB_MINOR_INNER">
+                        <property name="label" translatable="yes" context="tp_AxisPositions|CB_MINOR_INNER">I_nner</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="FT_MINOR"/>
+                        </accessibility>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="CB_MINOR_INNER-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|CB_MINOR_INNER">Specifies that minor interval marks are placed on the inner side of the axis.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="CB_MINOR_OUTER">
+                        <property name="label" translatable="yes" context="tp_AxisPositions|CB_MINOR_OUTER">O_uter</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="FT_MINOR"/>
+                        </accessibility>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="CB_MINOR_OUTER-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|CB_MINOR_OUTER">Specifies that minor interval marks are placed on the outer side of the axis.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="boxPLACE_TICKS">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkLabel" id="FT_PLACE_TICKS">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_AxisPositions|FT_PLACE_TICKS">Place _marks</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">LB_PLACE_TICKS</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="LB_PLACE_TICKS">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <items>
+                          <item translatable="yes" context="tp_AxisPositions|LB_PLACE_TICKS">At labels</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_PLACE_TICKS">At axis</item>
+                          <item translatable="yes" context="tp_AxisPositions|LB_PLACE_TICKS">At axis and labels</item>
+                        </items>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="LB_PLACE_TICKS-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_AxisPositions|extended_tip|LB_PLACE_TICKS">Select where to place the marks: at labels, at axis, or at axis and labels.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="TXT_FL_TICKS">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="tp_AxisPositions|TXT_FL_TICKS">Interval Marks</property>
+            <property name="xalign">0</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="FL_GRIDS">
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment5">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="row_spacing">12</property>
+                <property name="column_spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="CB_MAJOR_GRID">
+                    <property name="label" translatable="yes" context="tp_AxisPositions|CB_MAJOR_GRID">Show major _grid</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="relief">half</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CB_MINOR_GRID">
+                    <property name="label" translatable="yes" context="tp_AxisPositions|CB_MINOR_GRID">_Show minor grid</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="PB_MAJOR_GRID">
+                    <property name="label" translatable="yes" context="tp_AxisPositions|PB_MAJOR_GRID">Mo_re...</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="PB_MINOR_GRID">
+                    <property name="label" translatable="yes" context="tp_AxisPositions|PB_MINOR_GRID">Mor_e...</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0.49000000953674316</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="tp_AxisPositions|label2">Grids</property>
+            <property name="xalign">0</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">4</property>
+      </packing>
+    </child>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroupCOMBOS">
+    <widgets>
+      <widget name="LB_CROSSES_OTHER_AXIS_AT"/>
+      <widget name="LB_PLACE_LABELS"/>
+      <widget name="LB_PLACE_TICKS"/>
+      <widget name="EDT_CROSSES_OTHER_AXIS_AT"/>
+      <widget name="combobox-entry"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroupLABELS">
+    <widgets>
+      <widget name="FT_CROSSES_OTHER_AXIS_AT"/>
+      <widget name="FT_PLACE_LABELS"/>
+      <widget name="FT_AXIS_LABEL_DISTANCE"/>
+      <widget name="FT_MAJOR"/>
+      <widget name="FT_MINOR"/>
+      <widget name="FT_PLACE_TICKS"/>
+    </widgets>
+  </object>
+</interface>

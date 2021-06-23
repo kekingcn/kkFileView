@@ -1,0 +1,2501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Control" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private _Type					As String				&apos;	Must be CONTROL
+Private _This					As Object				&apos;	Workaround for absence of This builtin function
+Private _Parent					As Object
+Private	_ImplementationName		As String
+Private _ClassId				As Integer
+Private	_ParentType				As String				&apos;	One of CTLPARENTISxxxx constants
+Private	_Shortcut				As String
+Private	_Name					As String
+Private _FormComponent			As Object				&apos;	com.sun.star.text.TextDocument
+Private _MainForm				As String				&apos;	To be propagated to all subcontrols
+Private _DocEntry				As Integer				&apos;	Doc- and DbContainer entries in Root structure
+Private _DbEntry				As Integer
+Private	_ControlType			As Integer
+Private _ThisProperties			As Variant				&apos;	Buffer for properties list
+Private	_SubType				As String
+Private	ControlModel			As Object				&apos;	com.sun.star.comp.forms.XXXModel
+Private	ControlView				As Object				&apos;	com.sun.star.comp.forms.XXXControl	(NULL if form open in edit mode)
+Private	BoundField				As Object				&apos;	com.sun.star.sdb.ODataColumn
+Private	LabelControl			As Object				&apos;	com.sun.star.form.component.FixedText or com.sun.star.form.component.GroupBox
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type				= OBJCONTROL
+	Set _This			= Nothing
+	Set _Parent			= Nothing
+	_ClassId 			= -1
+	_ParentType			= &quot;&quot;
+	_Shortcut			= &quot;&quot;
+	_Name				= &quot;&quot;
+	Set _FormComponent	= Nothing
+	_MainForm = &quot;&quot;
+	_DocEntry			= -1
+	_DbEntry			= -1
+	_ThisProperties		= Array()
+	_SubType			= &quot;&quot;
+	Set ControlModel	= Nothing
+	Set ControlView		= Nothing
+	Set BoundField		= Nothing
+	Set LabelControl	= Nothing
+
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Property Get BackColor() As Variant
+	BackColor = _PropertyGet(&quot;BackColor&quot;)
+End Property		&apos;	BackColor (get)
+
+Property Let BackColor(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;BackColor&quot;, pvValue)
+End Property		&apos;	BackColor (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get BorderColor() As Variant
+	BorderColor = _PropertyGet(&quot;BorderColor&quot;)
+End Property		&apos;	BorderColor (get)
+
+Property Let BorderColor(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;BorderColor&quot;, pvValue)
+End Property		&apos;	BorderColor (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get BorderStyle() As Variant
+	BorderStyle = _PropertyGet(&quot;BorderStyle&quot;)
+End Property		&apos;	BorderStyle (get)
+
+Property Let BorderStyle(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;BorderStyle&quot;, pvValue)
+End Property		&apos;	BorderStyle (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Cancel() As Variant
+	Cancel = _PropertyGet(&quot;Cancel&quot;)
+End Property		&apos;	Cancel (get)
+
+Property Let Cancel(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Cancel&quot;, pvValue)
+End Property		&apos;	Cancel (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Caption() As Variant
+	Caption = _PropertyGet(&quot;Caption&quot;)
+End Property		&apos;	Caption (get)
+
+Property Let Caption(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Caption&quot;, pvValue)
+End Property		&apos;	Caption (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ControlSource() As Variant
+	ControlSource = _PropertyGet(&quot;ControlSource&quot;)
+End Property		&apos;	ControlSource (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ControlTipText() As Variant
+	ControlTipText = _PropertyGet(&quot;ControlTipText&quot;)
+End Property		&apos;	ControlTipText (get)
+
+Property Let ControlTipText(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;ControlTipText&quot;, pvValue)
+End Property		&apos;	ControlTipText (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ControlType() As Variant
+	ControlType = _PropertyGet(&quot;ControlType&quot;)
+End Property		&apos;	ControlType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Default() As Variant
+	Default = _PropertyGet(&quot;Default&quot;)
+End Property		&apos;	Default (get)
+
+Property Let Default(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Default&quot;, pvValue)
+End Property		&apos;	Default (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get DefaultValue() As Variant
+	DefaultValue = _PropertyGet(&quot;DefaultValue&quot;)
+End Property		&apos;	DefaultValue (get)
+
+Property Let DefaultValue(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;DefaultValue&quot;, pvValue)
+End Property		&apos;	DefaultValue (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Enabled() As Variant
+	Enabled = _PropertyGet(&quot;Enabled&quot;)
+End Property		&apos;	Enabled (get)
+
+Property Let Enabled(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Enabled&quot;, pvValue)
+End Property		&apos;	Enabled (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FontBold() As Variant
+	FontBold = _PropertyGet(&quot;FontBold&quot;)
+End Property		&apos;	FontBold (get)
+
+Property Let FontBold(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;FontBold&quot;, pvValue)
+End Property		&apos;	FontBold (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FontItalic() As Variant
+	FontItalic = _PropertyGet(&quot;FontItalic&quot;)
+End Property		&apos;	FontItalic (get)
+
+Property Let FontItalic(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;FontItalic&quot;, pvValue)
+End Property		&apos;	FontItalic (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FontName() As Variant
+	FontName = _PropertyGet(&quot;FontName&quot;)
+End Property		&apos;	FontName (get)
+
+Property Let FontName(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;FontName&quot;, pvValue)
+End Property		&apos;	FontName (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FontSize() As Variant
+	FontSize = _PropertyGet(&quot;FontSize&quot;)
+End Property		&apos;	FontSize (get)
+
+Property Let FontSize(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;FontSize&quot;, pvValue)
+End Property		&apos;	FontSize (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FontUnderline() As Variant
+	FontUnderline = _PropertyGet(&quot;FontUnderline&quot;)
+End Property		&apos;	FontUnderline (get)
+
+Property Let FontUnderline(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;FontUnderline&quot;, pvValue)
+End Property		&apos;	FontUnderline (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FontWeight() As Variant
+	FontWeight = _PropertyGet(&quot;FontWeight&quot;)
+End Property		&apos;	FontWeight (get)
+
+Property Let FontWeight(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;FontWeight&quot;, pvValue)
+End Property		&apos;	FontWeight (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ForeColor() As Variant
+	ForeColor = _PropertyGet(&quot;ForeColor&quot;)
+End Property		&apos;	ForeColor (get)
+
+Property Let ForeColor(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;ForeColor&quot;, pvValue)
+End Property		&apos;	ForeColor (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Form() As Variant
+	Form = _PropertyGet(&quot;Form&quot;)
+End Property		&apos;	Form (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Format() As Variant
+	Format = _PropertyGet(&quot;Format&quot;)
+End Property		&apos;	Format (get)
+
+Property Let Format(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Format&quot;, pvValue)
+End Property		&apos;	Format (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ItemData(ByVal Optional pvIndex As Variant) As Variant
+	If IsMissing(pvIndex) Then ItemData = _PropertyGet(&quot;ItemData&quot;) Else ItemData = _PropertyGet(&quot;ItemData&quot;, pvIndex)
+End Property		&apos;	ItemData (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ListCount() As Variant
+	ListCount = _PropertyGet(&quot;ListCount&quot;)
+End Property		&apos;	ListCount (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ListIndex() As Variant
+	ListIndex = _PropertyGet(&quot;ListIndex&quot;)
+End Property		&apos;	ListIndex (get)
+
+Property Let ListIndex(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;ListIndex&quot;, pvValue)
+End Property		&apos;	ListIndex (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Locked() As Variant
+	Locked = _PropertyGet(&quot;Locked&quot;)
+End Property		&apos;	Locked (get)
+
+Property Let Locked(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Locked&quot;, pvValue)
+End Property		&apos;	Locked (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get MultiSelect() As Variant
+	MultiSelect = _PropertyGet(&quot;MultiSelect&quot;)
+End Property		&apos;	MultiSelect (get)
+
+Property Let MultiSelect(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;MultiSelect&quot;, pvValue)
+End Property		&apos;	MultiSelect (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Name() As String
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property	&apos;	Name (get)
+
+Public Function pName() As String		&apos;	For compatibility with &lt; V0.9.0
+	pName = _PropertyGet(&quot;Name&quot;)
+End Function	&apos;	pName (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnActionPerformed() As Variant
+	OnActionPerformed = _PropertyGet(&quot;OnActionPerformed&quot;)
+End Property		&apos;	OnActionPerformed (get)
+
+Property Let OnActionPerformed(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnActionPerformed&quot;, pvValue)
+End Property		&apos;	OnActionPerformed (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnAdjustmentValueChanged() As Variant
+	OnAdjustmentValueChanged = _PropertyGet(&quot;OnAdjustmentValueChanged&quot;)
+End Property		&apos;	OnAdjustmentValueChanged (get)
+
+Property Let OnAdjustmentValueChanged(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnAdjustmentValueChanged&quot;, pvValue)
+End Property		&apos;	OnAdjustmentValueChanged (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveAction() As Variant
+	OnApproveAction = _PropertyGet(&quot;OnApproveAction&quot;)
+End Property		&apos;	OnApproveAction (get)
+
+Property Let OnApproveAction(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveAction&quot;, pvValue)
+End Property		&apos;	OnApproveAction (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveReset() As Variant
+	OnApproveReset = _PropertyGet(&quot;OnApproveReset&quot;)
+End Property		&apos;	OnApproveReset (get)
+
+Property Let OnApproveReset(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveReset&quot;, pvValue)
+End Property		&apos;	OnApproveReset (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnApproveUpdate() As Variant
+	OnApproveUpdate = _PropertyGet(&quot;OnApproveUpdate&quot;)
+End Property		&apos;	OnApproveUpdate (get)
+
+Property Let OnApproveUpdate(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnApproveUpdate&quot;, pvValue)
+End Property		&apos;	OnApproveUpdate (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnChanged() As Variant
+	OnChanged = _PropertyGet(&quot;OnChanged&quot;)
+End Property		&apos;	OnChanged (get)
+
+Property Let OnChanged(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnChanged&quot;, pvValue)
+End Property		&apos;	OnChanged (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnErrorOccurred() As Variant
+	OnErrorOccurred = _PropertyGet(&quot;OnErrorOccurred&quot;)
+End Property		&apos;	OnErrorOccurred (get)
+
+Property Let OnErrorOccurred(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnErrorOccurred&quot;, pvValue)
+End Property		&apos;	OnErrorOccurred (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnFocusGained() As Variant
+	OnFocusGained = _PropertyGet(&quot;OnFocusGained&quot;)
+End Property		&apos;	OnFocusGained (get)
+
+Property Let OnFocusGained(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnFocusGained&quot;, pvValue)
+End Property		&apos;	OnFocusGained (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnFocusLost() As Variant
+	OnFocusLost = _PropertyGet(&quot;OnFocusLost&quot;)
+End Property		&apos;	OnFocusLost (get)
+
+Property Let OnFocusLost(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnFocusLost&quot;, pvValue)
+End Property		&apos;	OnFocusLost (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnItemStateChanged() As Variant
+	OnItemStateChanged = _PropertyGet(&quot;OnItemStateChanged&quot;)
+End Property		&apos;	OnItemStateChanged (get)
+
+Property Let OnItemStateChanged(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnItemStateChanged&quot;, pvValue)
+End Property		&apos;	OnItemStateChanged (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnKeyPressed() As Variant
+	OnKeyPressed = _PropertyGet(&quot;OnKeyPressed&quot;)
+End Property		&apos;	OnKeyPressed (get)
+
+Property Let OnKeyPressed(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnKeyPressed&quot;, pvValue)
+End Property		&apos;	OnKeyPressed (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnKeyReleased() As Variant
+	OnKeyReleased = _PropertyGet(&quot;OnKeyReleased&quot;)
+End Property		&apos;	OnKeyReleased (get)
+
+Property Let OnKeyReleased(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnKeyReleased&quot;, pvValue)
+End Property		&apos;	OnKeyReleased (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseDragged() As Variant
+	OnMouseDragged = _PropertyGet(&quot;OnMouseDragged&quot;)
+End Property		&apos;	OnMouseDragged (get)
+
+Property Let OnMouseDragged(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseDragged&quot;, pvValue)
+End Property		&apos;	OnMouseDragged (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseEntered() As Variant
+	OnMouseEntered = _PropertyGet(&quot;OnMouseEntered&quot;)
+End Property		&apos;	OnMouseEntered (get)
+
+Property Let OnMouseEntered(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseEntered&quot;, pvValue)
+End Property		&apos;	OnMouseEntered (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseExited() As Variant
+	OnMouseExited = _PropertyGet(&quot;OnMouseExited&quot;)
+End Property		&apos;	OnMouseExited (get)
+
+Property Let OnMouseExited(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseExited&quot;, pvValue)
+End Property		&apos;	OnMouseExited (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseMoved() As Variant
+	OnMouseMoved = _PropertyGet(&quot;OnMouseMoved&quot;)
+End Property		&apos;	OnMouseMoved (get)
+
+Property Let OnMouseMoved(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseMoved&quot;, pvValue)
+End Property		&apos;	OnMouseMoved (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMousePressed() As Variant
+	OnMousePressed = _PropertyGet(&quot;OnMousePressed&quot;)
+End Property		&apos;	OnMousePressed (get)
+
+Property Let OnMousePressed(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMousePressed&quot;, pvValue)
+End Property		&apos;	OnMousePressed (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseReleased() As Variant
+	OnMouseReleased = _PropertyGet(&quot;OnMouseReleased&quot;)
+End Property		&apos;	OnMouseReleased (get)
+
+Property Let OnMouseReleased(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseReleased&quot;, pvValue)
+End Property		&apos;	OnMouseReleased (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnResetted() As Variant
+	OnResetted = _PropertyGet(&quot;OnResetted&quot;)
+End Property		&apos;	OnResetted (get)
+
+Property Let OnResetted(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnResetted&quot;, pvValue)
+End Property		&apos;	OnResetted (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnTextChanged() As Variant
+	OnTextChanged = _PropertyGet(&quot;OnTextChanged&quot;)
+End Property		&apos;	OnTextChanged (get)
+
+Property Let OnTextChanged(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnTextChanged&quot;, pvValue)
+End Property		&apos;	OnTextChanged (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnUpdated() As Variant
+	OnUpdated = _PropertyGet(&quot;OnUpdated&quot;)
+End Property		&apos;	OnUpdated (get)
+
+Property Let OnUpdated(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnUpdated&quot;, pvValue)
+End Property		&apos;	OnUpdated (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OptionValue() As Variant
+	OptionValue = _PropertyGet(&quot;OptionValue&quot;)
+End Property		&apos;	OptionValue (get)
+
+Property Let OptionValue(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OptionValue&quot;, pvValue)
+End Property		&apos;	OptionValue (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Page() As Variant
+	Page = _PropertyGet(&quot;Page&quot;)
+End Property		&apos;	Page (get)
+
+Property Let Page(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Page&quot;, pvValue)
+End Property		&apos;	Page (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Parent() As Object
+	Parent = _PropertyGet(&quot;Parent&quot;)
+End Function		&apos;	Parent (get)	V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Picture() As Variant
+	Picture = _PropertyGet(&quot;Picture&quot;)
+End Property		&apos;	Picture (get)
+
+Property Let Picture(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Picture&quot;, pvValue)
+End Property		&apos;	Picture (set)	V1.5.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+	Utils._SetCalledSub(&quot;Control.Properties&quot;)
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Utils._ResetCalledSub(&quot;Control.Properties&quot;)
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Required() As Variant
+	Required = _PropertyGet(&quot;Required&quot;)
+End Property		&apos;	Required (get)
+
+Property Let Required(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Required&quot;, pvValue)
+End Property		&apos;	Required (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get RowSource() As Variant
+	RowSource = _PropertyGet(&quot;RowSource&quot;)
+End Property		&apos;	RowSource (get)
+
+Property Let RowSource(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;RowSource&quot;, pvValue)
+End Property		&apos;	RowSource (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get RowSourceType() As Variant
+	RowSourceType = _PropertyGet(&quot;RowSourceType&quot;)
+End Property		&apos;	RowSourceType (get)
+
+Property Let RowSourceType(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;RowSourceType&quot;, pvValue)
+End Property		&apos;	RowSourceType (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Selected(ByVal Optional pvIndex As Variant) As Variant
+	If IsMissing(pvIndex) Then Selected = _PropertyGet(&quot;Selected&quot;) Else Selected = _PropertyGet(&quot;Selected&quot;, pvIndex)
+End Property		&apos;	Selected (get)
+
+Property Let Selected(ByVal pvValue As Variant)		&apos;	, ByVal Optional pvIndex As Variant)
+&apos;	If IsMissing(pvIndex) Then Call _PropertySet(&quot;Selected&quot;, pvValue) Else Call _PropertySet(&quot;Selected&quot;, pvValue, pvIndex)
+	Call _PropertySet(&quot;Selected&quot;, pvValue)
+End Property		&apos;	Selected (set)
+
+Public Function SelectedI(ByVal pvValue As variant, ByVal pvIndex As Variant)
+	Call _PropertySet(&quot;Selected&quot;, pvValue, pvIndex)
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SelLength() As Variant
+	SelLength = _PropertyGet(&quot;SelLength&quot;)
+End Property		&apos;	SelLength (get)
+
+Property Let SelLength(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;SelLength&quot;, pvValue)
+End Property		&apos;	SelLength (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SelStart() As Variant
+	SelStart = _PropertyGet(&quot;SelStart&quot;)
+End Property		&apos;	SelStart (get)
+
+Property Let SelStart(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;SelStart&quot;, pvValue)
+End Property		&apos;	SelStart (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SelText() As Variant
+	SelText = _PropertyGet(&quot;SelText&quot;)
+End Property		&apos;	SelText (get)
+
+Property Let SelText(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;SelText&quot;, pvValue)
+End Property		&apos;	SelText (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SpecialEffect() As Variant
+	SpecialEffect = _PropertyGet(&quot;SpecialEffect&quot;)
+End Property		&apos;	SpecialEffect (get)
+
+Property Let SpecialEffect(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;SpecialEffect&quot;, pvValue)
+End Property		&apos;	SpecialEffect (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SubType() As Variant
+	SubType = _PropertyGet(&quot;SubType&quot;)
+End Property		&apos;	SubType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get TabIndex() As Variant
+	TabIndex = _PropertyGet(&quot;TabIndex&quot;)
+End Property		&apos;	TabIndex (get)
+
+Property Let TabIndex(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;TabIndex&quot;, pvValue)
+End Property		&apos;	TabIndex (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get TabStop() As Variant
+	TabStop = _PropertyGet(&quot;TabStop&quot;)
+End Property		&apos;	TabStop (get)
+
+Property Let TabStop(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;TabStop&quot;, pvValue)
+End Property		&apos;	TabStop (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Tag() As Variant
+	Tag = _PropertyGet(&quot;Tag&quot;)
+End Property		&apos;	Tag (get)
+
+Property Let Tag(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Tag&quot;, pvValue)
+End Property		&apos;	Tag (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Text() As Variant
+	Text = _PropertyGet(&quot;Text&quot;)
+End Property		&apos;	Text (get)
+
+Public Function pText() As variant
+	pText = _PropertyGet(&quot;Text&quot;)
+End Function		&apos;	pText (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get TextAlign() As Variant
+	TextAlign = _PropertyGet(&quot;TextAlign&quot;)
+End Property		&apos;	TextAlign (get)
+
+Property Let TextAlign(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;TextAlign&quot;, pvValue)
+End Property		&apos;	TextAlign (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get TripleState() As Variant
+	TripleState = _PropertyGet(&quot;TripleState&quot;)
+End Property		&apos;	TripleState (get)
+
+Property Let TripleState(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;TripleState&quot;, pvValue)
+End Property		&apos;	TripleState (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Value() As Variant
+	Value = _PropertyGet(&quot;Value&quot;)
+End Property		&apos;	Value (get)
+
+Property Let Value(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Value&quot;, pvValue)
+End Property		&apos;	Value (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Visible() As Variant
+	Visible = _PropertyGet(&quot;Visible&quot;)
+End Property		&apos;	Visible (get)
+
+Property Let Visible(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Visible&quot;, pvValue)
+End Property		&apos;	Visible (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Public Function AddItem(ByVal Optional pvItem As Variant, ByVal Optional pvIndex) As Boolean
+&apos;	Add an item in a Listbox
+
+	Utils._SetCalledSub(&quot;Control.AddItem&quot;)
+	AddItem = False
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+	If IsMissing(pvItem) Then Call _TraceArguments()
+	If IsMissing(pvIndex) Then pvIndex = -1
+
+Dim iArgNr As Integer
+	Select Case UCase(_A2B_.CalledSub)
+		Case UCase(&quot;AddItem&quot;)			:	iArgNr = 1
+		Case UCase(&quot;Control.AddItem&quot;)	:	iArgNr = 0
+	End Select
+
+	If Not Utils._CheckArgument(pvItem, iArgNr + 1, vbString) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvIndex, iArgNr + 2, Utils._AddNumeric()) Then Goto Exit_Function
+	If _SubType &lt;&gt; CTLLISTBOX Then Goto Error_Control
+	If _ParentType &lt;&gt; CTLPARENTISDIALOG Then
+		If ControlModel.ListSourceType &lt;&gt; com.sun.star.form.ListSourceType.VALUELIST Then Goto Error_Control
+	End If
+	
+Dim vRowSource() As Variant, iCount As Integer, i As Integer
+	If IsArray(ControlModel.StringItemList) Then vRowSource = ControlModel.StringItemList Else vRowSource = Array(ControlModel.StringItemList)
+	iCount = UBound(vRowSource)
+	If pvIndex &lt; -1 Or pvIndex &gt; iCount + 1 Then Goto Error_Index
+	ReDim Preserve vRowSource(0 To iCount + 1)
+	If pvIndex = -1 Then pvIndex = iCount + 1
+	For i = iCount + 1 To pvIndex + 1 Step -1
+		vRowSource(i) = vRowSource(i - 1)
+	Next i
+	vRowSource(pvIndex) = pvItem
+	
+	If _ParentType &lt;&gt; CTLPARENTISDIALOG Then
+		ControlModel.ListSource = vRowSource()
+	End If
+	ControlModel.StringItemList = vRowSource()
+	AddItem = True
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Control.AddItem&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Control.AddItem&quot;, Erl)
+	AddItem = False
+	GoTo Exit_Function
+Error_Control:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, , &quot;Control.AddItem&quot;)
+	AddItem = False
+	Goto Exit_Function
+Error_Index:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), False, ,Array(iArgNr + 2,pvIndex))
+	AddItem = False
+	Goto Exit_Function
+End Function		&apos;	AddItem	V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Controls(Optional ByVal pvIndex As Variant) As Variant
+&apos;	Return a Control object with name or index = pvIndex
+
+Const cstThisSub = &quot;Control.Controls&quot;
+If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(cstThisSub)
+
+Dim ocControl As Variant, sParentShortcut As String, iControlCount As Integer
+Dim oCounter As Variant, sControls() As Variant, i As Integer, bFound As Boolean, sIndex As String
+Dim j As Integer, oView As Object
+
+	If _SubType &lt;&gt; CTLGRIDCONTROL Then Goto Trace_Error_Context
+	Set ocControl = Nothing
+	iControlCount = ControlModel.getCount()
+	
+	If IsMissing(pvIndex) Then					&apos;	No argument, return Collection pseudo-object
+		Set oCounter = New Collect
+		Set oCounter._This = oCounter
+		oCounter._CollType = COLLCONTROLS
+		Set oCounter._Parent = _This
+		oCounter._Count = iControlCount
+		Set Controls = oCounter
+		Goto Exit_Function
+	End If
+	
+	If Not Utils._CheckArgument(pvIndex, 1, Utils._AddNumeric(vbString)) Then Goto Exit_Function
+				
+	&apos;	Start building the ocControl object
+	&apos;	Determine exact name
+	Set ocControl = New Control
+	Set ocControl._This = ocControl
+	Set ocControl._Parent = _This
+	ocControl._ParentType = CTLPARENTISGRID
+	sParentShortcut = _Shortcut
+	sControls() = ControlModel.getElementNames()
+	
+	Select Case VarType(pvIndex)
+		Case vbInteger, vbLong, vbSingle, vbDouble, vbCurrency, vbBigint, vbDecimal
+			If pvIndex &lt; 0 Or pvIndex &gt; iControlCount - 1 Then Goto Trace_Error_Index
+			ocControl._Name = sControls(pvIndex)
+		Case vbString			&apos;	Check control name validity (non case sensitive)
+			bFound = False
+			sIndex = UCase(Utils._Trim(pvIndex))
+			For i = 0 To iControlCount - 1
+				If UCase(sControls(i)) = sIndex Then
+					bFound = True
+					Exit For
+				End If
+			Next i
+			If bFound Then ocControl._Name = sControls(i) Else Goto Trace_NotFound
+	End Select
+
+	With ocControl
+		._Shortcut = sParentShortcut &amp; &quot;!&quot; &amp; Utils._Surround(._Name)
+		Set .ControlModel = ControlModel.getByName(._Name)
+		._ImplementationName = .ControlModel.ColumnServiceName	&apos;	getImplementationName aborts for subcontrols !?
+		._FormComponent = ParentComponent
+		._MainForm = _MainForm
+		If Utils._hasUNOProperty(.ControlModel, &quot;ClassId&quot;) Then ._ClassId = .ControlModel.ClassId
+		&apos;	Complex bypass to find View of grid subcontrols !
+		If Not IsNull(ControlView) Then		&apos;	Anticipate absence of ControlView in grid controls when edit mode
+			For i = 0 to ControlView.getCount() - 1
+				Set oView = ControlView.GetByIndex(i)
+				If Not IsNull(oView) Then
+					If oView.getModel.Name = ._Name Then
+						Set .ControlView = oView
+						Exit For
+					End If
+				End If
+			Next i
+		End If
+
+		._Initialize()
+		._DocEntry = _DocEntry
+		._DbEntry = _DbEntry
+	End With
+	Set Controls = ocControl
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRCOLLECTION, Utils._CalledSub(), 0, 1)
+	Set Controls = Nothing
+	Goto Exit_Function
+Trace_NotFound:
+	TraceError(TRACEFATAL, ERRCONTROLNOTFOUND, Utils._CalledSub(), 0, , Array(pvIndex, _Name))
+	Set Controls = Nothing
+	Goto Exit_Function
+Trace_Error_Context:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, , &quot;Grid.Controls&quot;)
+	Set Controls = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	Set Controls = Nothing
+	GoTo Exit_Function
+End Function		&apos;	Controls
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant, ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+	Utils._SetCalledSub(&quot;Control.getProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	If IsMissing(pvIndex) Then
+		getProperty = _PropertyGet(pvProperty)
+	Else
+		getProperty = _PropertyGet(pvProperty, pvIndex)
+	End If
+	Utils._ResetCalledSub(&quot;Control.getProperty&quot;)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function RemoveItem(ByVal Optional pvIndex) As Boolean
+&apos;	Remove an item from a Listbox
+&apos;	Index may be a string value or an index-position
+
+	Utils._SetCalledSub(&quot;Control.RemoveItem&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+	If IsMissing(pvIndex) Then Call _TraceArguments()
+Dim iArgNr As Integer
+	Select Case UCase(_A2B_.CalledSub)
+		Case UCase(&quot;RemoveItem&quot;)			:	iArgNr = 1
+		Case UCase(&quot;Control.RemoveItem&quot;)	:	iArgNr = 0
+	End Select
+	If Not Utils._CheckArgument(pvIndex, iArgNr + 1, Utils._AddNumeric(vbString)) Then Goto Exit_Function
+	If _SubType &lt;&gt; CTLLISTBOX Then Goto Error_Control
+	If _ParentType &lt;&gt; CTLPARENTISDIALOG Then
+		If ControlModel.ListSourceType &lt;&gt; com.sun.star.form.ListSourceType.VALUELIST Then Goto Error_Control
+	End If
+	
+Dim vRowSource() As Variant, iCount As Integer, i As Integer, j As integer, bFound As Boolean
+	If IsArray(ControlModel.StringItemList) Then vRowSource = ControlModel.StringItemList Else vRowSource = Array(ControlModel.StringItemList)
+	iCount = UBound(vRowSource)
+	
+	Select Case VarType(pvIndex)
+		Case vbString
+			bFound = False
+			For i = 0 To iCount
+				If vRowSource(i) = pvIndex Then
+					For j = i To iCount - 1
+						vRowSource(j) = vRowSource(j + 1)
+					Next j
+					bFound = True
+					Exit For	&apos;	Remove only 1st occurrence of string
+				End If
+			Next i
+		Case Else
+			If pvIndex &lt; 0 Or pvIndex &gt; iCount Then Goto Error_Index
+			For i = pvIndex To iCount - 1
+				vRowSource(i) = vRowSource(i + 1)
+			Next i
+			bFound = True
+		End Select
+			
+	If bFound Then
+		If iCount &gt; 0 Then			&apos;	https://forum.openoffice.org/en/forum/viewtopic.php?f=47&amp;t=75008
+			ReDim Preserve vRowSource(0 To iCount - 1)
+		Else
+			vRowSource = Array()
+		End If
+		If _ParentType &lt;&gt; CTLPARENTISDIALOG Then
+			ControlModel.ListSource = vRowSource()
+		End If
+		ControlModel.StringItemList = vRowSource()
+		RemoveItem = True
+	Else
+		RemoveItem = False
+	End If
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Control.RemoveItem&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Control.RemoveItem&quot;, Erl)
+	RemoveItem = False
+	GoTo Exit_Function
+Error_Control:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, 1, &quot;Control.RemoveItem&quot;)
+	RemoveItem = False
+	Goto Exit_Function
+Error_Index:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), False, ,Array(2, pvIndex))
+	RemoveItem = False
+	Goto Exit_Function
+End Function		&apos;	RemoveItem	V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Requery() As Boolean
+&apos;	Refresh data displayed in a form, subform, combobox or listbox
+	Utils._SetCalledSub(&quot;Control.Requery&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Requery = False
+	
+	Select Case _SubType
+		Case CTLCOMBOBOX, CTLLISTBOX
+			If Utils._InList(ControlModel.ListSourceType, Array( _
+							com.sun.star.form.ListSourceType.QUERY _
+							, com.sun.star.form.ListSourceType.TABLE _
+							, com.sun.star.form.ListSourceType.TABLEFIELDS _
+							, com.sun.star.form.ListSourceType.SQL _
+							, com.sun.star.form.ListSourceType.SQLPASSTHROUGH _
+					)) Then
+				ControlModel.refresh()
+			End If
+		Case Else
+			Goto Error_Control
+	End Select
+	Requery = True	
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Control.Requery&quot;)
+	Exit Function
+Error_Control:
+	TraceError(TRACEFATAL, ERRMETHOD, Utils._CalledSub(), 0, 1, &quot;Control.Requery&quot;)
+	Requery = False
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Control.Requery&quot;, Erl)
+	GoTo Exit_Function
+End Function	&apos;	Requery
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function SetFocus() As Boolean
+&apos;	Execute setFocus method
+	Utils._SetCalledSub(&quot;Control.SetFocus&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	SetFocus = False
+
+Dim i As Integer, j As Integer, iColPosition As Integer
+Dim ocControl As Object, ocGrid As Variant, oGridModel As Object
+
+	If IsNull(ControlView) Then GoTo Exit_Function
+	If _ParentType = CTLPARENTISGRID Then 		&apos;setFocus method does not work on controlviews in grid ?!?
+		&apos;	Find column position of control
+		iColPosition = -1
+		ocGrid = getObject(_getUpperShortcut(_Shortcut, _Name))		&apos;	return containing grid
+		Set oGridModel = ocGrid.ControlModel
+		j = -1
+		For i = 0 To oGridModel.Count - 1
+			Set ocControl = oGridModel.GetByIndex(i)
+			If Not ocControl.Hidden Then j = j + 1		&apos;	Skip if hidden
+			If oGridModel.GetByIndex(i).Name = _Name Then
+				iColPosition = j
+				Exit For
+			End If
+		Next i
+		If iColPosition &gt;= 0 Then
+			ocGrid.ControlView.setFocus()								&apos;Set first focus on grid itself
+			ocGrid.ControlView.setCurrentColumnPosition(iColPosition)	&apos;Deprecated but no alternative found
+		Else
+			Goto Error_Grid
+		End If
+	Else
+		ControlView.setFocus()
+	End If
+	SetFocus = True
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Control.SetFocus&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Control.SetFocus&quot;, Erl)
+	Goto Exit_Function
+Error_Grid:
+	TraceError(TRACEFATAL, ERRFOCUSINGRID, Utils._CalledSub(), 0, 1, Array(_Name, ocGrid._Name))
+	Goto Exit_Function
+End Function	&apos;	SetFocus	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setProperty(ByVal Optional psProperty As String, ByVal Optional pvValue As Variant, ByVal Optional pvIndex As Variant) As Boolean
+&apos;	Return True if property setting OK
+	Utils._SetCalledSub(&quot;Control.setProperty&quot;)
+	If IsMissing(pvIndex) Then
+		setProperty = _PropertySet(psProperty, pvValue)
+	Else
+		setProperty = _PropertySet(psProperty, pvValue, pvIndex)
+	End If
+	Utils._ResetCalledSub(&quot;Control.setProperty&quot;)
+End Function	&apos;	setProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function SetSelected(ByVal Optional pvValue As Variant, ByVal Optional pvIndex As Variant) As Boolean
+&apos;	Workaround for limitation of Basic: Property Let does not accept optional arguments
+
+	If IsMissing(pvValue) Then Call _TraceArguments()
+	If IsMissing(pvIndex) Then
+		SetSelected = _PropertySet(&quot;Selected&quot;, pvValue)
+	Else
+		SetSelected = _PropertySet(&quot;Selected&quot;, pvValue, pvIndex)
+	End If
+
+End Function		&apos;	SetSelected
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _Formats(ByVal psControlType As String) As Variant
+&apos;	Return allowed format entries for Date and Time control types
+
+Dim vFormats() As Variant
+	Select Case psControlType
+		Case CTLDATEFIELD
+			vFormats = Array( _
+				&quot;Standard (short)&quot; _
+				, &quot;Standard (short YY)&quot; _
+				, &quot;Standard (short YYYY)&quot; _
+				, &quot;Standard (long)&quot; _
+				, &quot;DD/MM/YY&quot; _
+				, &quot;MM/DD/YY&quot; _
+				, &quot;YY/MM/DD&quot; _
+				, &quot;DD/MM/YYYY&quot; _
+				, &quot;MM/DD/YYYY&quot; _
+				, &quot;YYYY/MM/DD&quot; _
+				, &quot;YY-MM-DD&quot; _
+				, &quot;YYYY-MM-DD&quot; _
+				)
+		Case CTLTIMEFIELD
+			vFormats = Array( _
+				&quot;24h short&quot; _
+				, &quot;24h long&quot; _
+				, &quot;12h short&quot; _
+				, &quot;12h long&quot; _
+				)
+		Case Else
+			vFormats = Array()
+	End Select
+	
+	_Formats = vFormats
+
+End Function	&apos;	_Formats	V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _GetListener(ByVal psProperty As String) As String
+&apos;	Return the X...Listener corresponding with the property in argument
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;OnActionPerformed&quot;)
+			_GetListener = &quot;XActionListener&quot;
+		Case UCase(&quot;OnAdjustmentValueChanged&quot;)
+			_GetListener = &quot;XAdjustmentListener&quot;
+		Case UCase(&quot;OnApproveAction&quot;)
+			_GetListener = &quot;XApproveActionListener&quot;
+		Case UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnResetted&quot;)
+			_GetListener = &quot;XResetListener&quot;
+		Case UCase(&quot;OnApproveUpdate&quot;), UCase(&quot;OnUpdated&quot;)
+			_GetListener = &quot;XUpdateListener&quot;
+		Case UCase(&quot;OnChanged&quot;)
+			_GetListener = &quot;XChangeListener&quot;
+		Case UCase(&quot;OnErrorOccurred&quot;)
+			_GetListener = &quot;XErrorListener&quot;
+		Case UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;)
+			_GetListener = &quot;XFocusListener&quot;
+		Case UCase(&quot;OnItemStateChanged&quot;)
+			_GetListener = &quot;XItemListener&quot;
+		Case UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;)
+			_GetListener = &quot;XKeyListener&quot;
+		Case UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseMoved&quot;)
+			_GetListener = &quot;XMouseMotionListener&quot;
+		Case UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;)
+			_GetListener = &quot;XMouseListener&quot;
+		Case UCase(&quot;OnTextChanged&quot;)
+			_GetListener = &quot;XTextListener&quot;
+	End Select
+	
+End Function	&apos;	_GetListener	V1.7.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub _Initialize()
+&apos;	Initialize new Control
+&apos;	ControlModel, ParentType, Name, Shortcut, ControlView, ImplementationName, ClassId (if parent &lt;&gt; dialog)
+&apos;		 are presumed preexisting
+
+	&apos;	Identify SubType and ControlView
+Dim sControlTypes() As Variant, i As Integer, vSplit() As Variant, sTrailer As String
+	sControlTypes = array(	CTLCONTROL _
+							, CTLCOMMANDBUTTON _
+							, CTLRADIOBUTTON _
+							, CTLIMAGEBUTTON _
+							, CTLCHECKBOX _
+							, CTLLISTBOX _
+							, CTLCOMBOBOX _
+							, CTLGROUPBOX _
+							, CTLTEXTFIELD _
+							, CTLFIXEDTEXT _
+							, CTLGRIDCONTROL _
+							, CTLFILECONTROL _
+							, CTLHIDDENCONTROL _
+							, CTLIMAGECONTROL _
+							, CTLDATEFIELD _
+							, CTLTIMEFIELD _
+							, CTLNUMERICFIELD _
+							, CTLCURRENCYFIELD _
+							, CTLPATTERNFIELD _
+							, CTLSCROLLBAR _
+							, CTLSPINBUTTON _
+							, CTLNAVIGATIONBAR _
+							, CTLPROGRESSBAR _
+							, CTLFIXEDLINE _
+						)
+
+	Select Case _ParentType
+		Case CTLPARENTISDIALOG
+			vSplit = Split(ControlModel.getServiceName(), &quot;.&quot;)
+			sTrailer = UCase(vSplit(UBound(vSplit)))
+			&apos;	Manage homonyms
+			Select Case sTrailer
+				Case &quot;BUTTON&quot;	:	sTrailer = CTLCOMMANDBUTTON
+				Case &quot;EDIT&quot;		:	sTrailer = CTLTEXTFIELD
+				Case Else
+			End Select
+			If sTrailer &lt;&gt; CTLFORMATTEDFIELD Then
+				For i = 0 To UBound(sControlTypes)
+					If sControlTypes(i) = sTrailer Then
+						_ClassId = i + 1
+						_SubType = sTrailer
+						_ControlType = _ClassId
+						Exit For
+					End If
+				Next i
+			Else
+				_ClassId = acFormattedField
+				_SubType = CTLFORMATTEDFIELD
+				_ControlType = _ClassId
+			End If
+		Case Else
+			&apos;Is ClassId one of the properties ?
+			If _ClassId &gt; 0 Then			&apos;	All control types have a ClassId except subforms
+				_SubType = sControlTypes(_ClassId - 1)
+				_ControlType = _ClassId
+				If _SubType = CTLTEXTFIELD Then			&apos;	Formatted fields belong to the TextField family
+					If _ImplementationName = &quot;com.sun.star.comp.forms.OFormattedFieldWrapper&quot; _
+					Or _ImplementationName = &quot;com.sun.star.comp.forms.OFormattedFieldWrapper_ForcedFormatted&quot; _
+					Or _ImplementationName = &quot;com.sun.star.form.component.FormattedField&quot; Then		&apos;	When in datagrid
+						_SubType = CTLFORMATTEDFIELD
+						_ControlType = acFormattedField
+					End If
+				End If
+			Else									&apos;	Initialize subform Control
+				If ControlModel.ImplementationName = &quot;com.sun.star.comp.forms.ODatabaseForm&quot; Then
+					_SubType = CTLSUBFORM
+					_ControlType = acSubform
+				End If
+			End If
+	End Select
+
+End Sub			&apos;	_Initialize
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _ListboxBound() As Boolean
+&apos;	Return True if listbox has a bound column
+
+Dim bListboxBound As Boolean, j As Integer
+Dim vValue() As variant, vString As Variant
+
+	bListboxBound = False
+
+	If Not IsNull(ControlModel.ValueItemList) _
+			And ControlModel.DataField &lt;&gt; &quot;&quot; _
+			And Not IsNull(ControlModel.BoundField) _
+			And Utils._InList(ControlModel.ListSourceType, Array( _
+						com.sun.star.form.ListSourceType.TABLE _
+						, com.sun.star.form.ListSourceType.QUERY _
+						, com.sun.star.form.ListSourceType.SQL _
+						, com.sun.star.form.ListSourceType.SQLPASSTHROUGH _
+							)) Then			&apos;	MultiSelect behaviour changed in OpenOffice &gt;= 3.3
+		If IsArray(ControlModel.ValueItemList) Then
+			vValue = ControlModel.ValueItemList
+			vString = ControlModel.StringItemList
+			For j = 0 To UBound(vValue)
+				If VarType(vValue(j)) &lt;&gt; VarType(vString(j)) Then
+					bListboxBound = True
+				ElseIf vValue(j) &lt;&gt; vString(j) Then
+					bListboxBound = True
+				End If
+				If bListboxBound Then Exit For
+			Next j
+		End If
+	End If
+	
+	_ListboxBound = bListboxBound
+
+End Function		&apos;	_ListboxBound	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+&apos;	Based on ControlProperties.ods analysis
+
+Dim vFullPropertiesList() As Variant
+
+	&apos;List established only once
+	If UBound(_ThisProperties) &gt; -1 Then
+		_PropertiesList = _ThisProperties
+		Exit Function
+	End If
+
+	vFullPropertiesList = Array( _
+		&quot;BackColor&quot; _
+		, &quot;BorderColor&quot; _
+		, &quot;BorderStyle&quot; _
+		, &quot;Cancel&quot; _
+		, &quot;Caption&quot; _
+		, &quot;ControlSource&quot; _
+		, &quot;ControlTipText&quot; _
+		, &quot;ControlType&quot; _
+		, &quot;Default&quot; _
+		, &quot;DefaultValue&quot; _
+		, &quot;Enabled&quot; _
+		, &quot;FontBold&quot; _
+		, &quot;FontItalic&quot; _
+		, &quot;FontName&quot; _
+		, &quot;FontSize&quot; _
+		, &quot;FontUnderline&quot; _
+		, &quot;FontWeight&quot; _
+		, &quot;ForeColor&quot; _
+		, &quot;Form&quot; _
+		, &quot;Format&quot; _
+		, &quot;ItemData&quot; _
+		, &quot;LinkChildFields&quot; _
+		, &quot;LinkMasterFields&quot; _
+		, &quot;ListCount&quot; _
+		, &quot;ListIndex&quot; _
+		, &quot;Locked&quot; _
+		, &quot;MultiSelect&quot; _
+		, &quot;Name&quot; _
+		, &quot;ObjectType&quot; _
+		, &quot;OnActionPerformed&quot; _
+		, &quot;OnAdjustmentValueChanged&quot; _
+		, &quot;OnApproveAction&quot; _
+		, &quot;OnApproveReset&quot; _
+		, &quot;OnApproveUpdate&quot; _
+		, &quot;OnChanged&quot; _
+		, &quot;OnErrorOccurred&quot; _
+		, &quot;OnFocusGained&quot; _
+		, &quot;OnFocusLost&quot; _
+		, &quot;OnItemStateChanged&quot; _
+		, &quot;OnKeyPressed&quot; _
+		, &quot;OnKeyReleased&quot; _
+		, &quot;OnMouseDragged&quot; _
+		, &quot;OnMouseEntered&quot; _
+		, &quot;OnMouseExited&quot; _
+		, &quot;OnMouseMoved&quot; _
+		, &quot;OnMousePressed&quot; _
+		, &quot;OnMouseReleased&quot; _
+		, &quot;OnResetted&quot; _
+		, &quot;OnTextChanged&quot; _
+		, &quot;OnUpdated&quot; _
+		, &quot;OptionValue&quot; _
+		, &quot;Page&quot; _
+		, &quot;Parent&quot; _
+		, &quot;Picture&quot; _
+		, &quot;Required&quot; _
+		, &quot;RowSource&quot; _
+		, &quot;RowSourceType&quot; _
+		, &quot;Selected&quot; _
+		, &quot;SelLength&quot; _
+		, &quot;SelStart&quot; _
+		, &quot;Seltext&quot; _
+		, &quot;SpecialEffect&quot; _
+		, &quot;SubType&quot; _
+		, &quot;TabIndex&quot; _
+		, &quot;TabStop&quot; _
+		, &quot;Tag&quot; _
+		, &quot;Text&quot; _
+		, &quot;TextAlign&quot; _
+		, &quot;TripleState&quot; _
+		, &quot;Value&quot; _
+		, &quot;Visible&quot; _
+		)
+Dim vPropertiesMatrix(25) As Variant
+	Select Case _ParentType
+		Case CTLPARENTISFORM, CTLPARENTISSUBFORM
+			vPropertiesMatrix(acCheckBox) = Array(0,4,5,6,7,9,10,11,12,13,14,15,16,17,27,28,29,32,36,37,38,39,40,41,42,43,44,45,46,47,52,54,61,62,63,64,65,67,68,69,70)
+			vPropertiesMatrix(acComboBox) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,20,23,24,25,27,28,29,32,33,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,52,54,55,56,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acCommandButton) = Array(0,3,4,6,7,8,10,11,12,13,14,15,16,17,27,28,29,31,32,36,37,38,39,40,41,42,43,44,45,46,47,52,53,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acCurrencyField) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acDateField) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,19,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acFileControl) = Array(0,1,2,6,7,9,10,11,12,13,14,15,16,17,25,27,28,32,36,37,39,40,41,42,43,44,45,46,47,48,52,62,63,64,65,66,69,70)
+			vPropertiesMatrix(acFixedText) = Array(0,1,2,4,6,7,10,11,12,13,14,15,16,17,27,28,36,37,39,40,41,42,43,44,45,46,52,62,65,67,70)
+			vPropertiesMatrix(acFormattedField) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,19,25,27,28,32,33,35,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acGridControl) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,27,28,32,33,35,36,37,39,40,41,42,43,44,45,46,47,49,52,62,63,64,65,70)
+			vPropertiesMatrix(acGroupBox) = Array(4,6,7,10,11,12,13,14,15,16,17,27,28,32,36,37,39,40,41,42,43,44,45,46,47,52,62,65,70)
+			vPropertiesMatrix(acHiddenControl) = Array(7,27,28,52,62,65,69,70)
+			vPropertiesMatrix(acImageButton) = Array(0,1,2,6,7,10,27,28,31,36,37,39,40,41,42,43,44,45,46,52,53,62,63,64,65,70)
+			vPropertiesMatrix(acImageControl) = Array(0,1,2,5,6,7,10,25,27,28,32,36,37,39,40,41,42,43,44,45,46,47,52,53,54,62,63,64,65,70)
+			vPropertiesMatrix(acListBox) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,20,23,24,25,26,27,28,29,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,49,52,54,55,56,57,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acNavigationBar) = Array(0,2,6,7,10,11,12,13,14,15,16,17,27,28,36,37,39,40,41,42,43,44,45,46,52,62,63,64,65,70)
+			vPropertiesMatrix(acNumericField) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acPatternField) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,58,59,60,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acRadioButton) = Array(0,4,5,6,7,9,10,11,12,13,14,15,16,17,27,28,29,32,36,37,38,39,40,41,42,43,44,45,46,47,50,52,54,61,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acScrollBar) = Array(0,1,2,6,7,10,27,28,30,32,33,36,37,39,40,41,42,43,44,45,46,47,49,52,62,63,64,65,69,70)
+			vPropertiesMatrix(acSpinButton) = Array(0,1,2,6,7,9,10,27,28,30,32,33,36,37,39,40,41,42,43,44,45,46,47,49,52,62,63,64,65,69,70)
+			vPropertiesMatrix(0) = Array(7,18,21,22,27,28,52,62)
+			vPropertiesMatrix(acTextField) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,25,27,28,32,33,34,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,58,59,60,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acTimeField) = Array(0,1,2,5,6,7,9,10,11,12,13,14,15,16,17,19,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,63,64,65,66,67,69,70)
+		Case CTLPARENTISGROUP
+			&apos;	To be duplicated from above !!!
+			vPropertiesMatrix(acRadioButton) = Array(0,4,5,6,7,9,10,11,12,13,14,15,16,17,27,28,29,32,36,37,38,39,40,41,42,43,44,45,46,47,50,52,54,61,62,63,64,65,67,69,70)
+		Case CTLPARENTISGRID
+			vPropertiesMatrix(acCheckBox) = Array(4,5,6,7,9,10,27,28,29,32,36,37,38,39,40,41,42,43,44,45,46,47,52,54,61,62,65,67,68,69)
+			vPropertiesMatrix(acComboBox) = Array(4,5,6,7,9,10,20,23,24,25,27,28,32,33,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,52,54,55,56,62,65,66,67,69)
+			vPropertiesMatrix(acCurrencyField) = Array(4,5,6,7,9,10,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,65,67,69)
+			vPropertiesMatrix(acDateField) = Array(4,5,6,7,9,10,19,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,65,66,67,69)
+			vPropertiesMatrix(acFormattedField) = Array(4,5,6,7,9,10,19,25,27,28,32,33,35,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,65,66,67,69)
+			vPropertiesMatrix(acListBox) = Array(4,5,6,7,9,10,20,23,24,25,26,27,28,32,33,35,36,37,38,39,40,41,42,43,44,45,46,47,49,52,54,55,56,57,62,65,67,69)
+			vPropertiesMatrix(acNumericField) = Array(4,5,6,7,9,10,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,65,67,69)
+			vPropertiesMatrix(acPatternField) = Array(4,5,6,7,9,10,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,58,59,60,62,65,66,67,69)
+			vPropertiesMatrix(acTextField) = Array(4,5,6,7,9,10,25,27,28,32,33,34,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,58,59,60,62,65,66,67,69)
+			vPropertiesMatrix(acTimeField) = Array(4,5,6,7,9,10,19,25,27,28,32,33,36,37,39,40,41,42,43,44,45,46,47,48,49,52,54,62,65,66,67,69)
+		Case CTLPARENTISDIALOG
+			vPropertiesMatrix(acCheckBox) = Array(0,4,6,7,10,11,12,13,14,15,16,17,27,28,29,36,37,38,39,40,41,42,43,44,45,46,51,52,61,62,63,64,65,67,68,69,70)
+			vPropertiesMatrix(acComboBox) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,20,23,24,25,27,28,29,36,37,38,39,40,41,42,43,44,45,46,48,51,52,55,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acCommandButton) = Array(0,3,4,6,7,8,10,11,12,13,14,15,16,17,27,28,29,36,37,38,39,40,41,42,43,44,45,46,51,52,53,62,63,64,65,67,70)
+			vPropertiesMatrix(acCurrencyField) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acDateField) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,19,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acFileControl) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acFixedLine) = Array(0,4,6,7,10,11,12,13,14,15,16,17,27,28,36,37,39,40,41,42,43,44,45,46,51,52,62,63,65,70)
+			vPropertiesMatrix(acFixedText) = Array(0,1,2,4,6,7,10,11,12,13,14,15,16,17,27,28,36,37,39,40,41,42,43,44,45,46,51,52,62,63,64,65,67,70)
+			vPropertiesMatrix(acFormattedField) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,19,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acGroupBox) = Array(4,6,7,10,11,12,13,14,15,16,17,27,28,36,37,39,40,41,42,43,44,45,46,51,52,62,63,65,70)
+			vPropertiesMatrix(acImageControl) = Array(0,1,2,6,7,10,27,28,36,37,39,40,41,42,43,44,45,46,51,52,53,62,63,64,65,70)
+			vPropertiesMatrix(acListBox) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,20,23,24,25,26,27,28,29,36,37,38,39,40,41,42,43,44,45,46,51,52,55,57,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acNavigationBar) = Array(36,37,39,40,41,42,43,44,45,46)
+			vPropertiesMatrix(acNumericField) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acPatternField) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,58,59,60,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acProgressBar) = Array(0,1,2,6,7,10,27,28,36,37,39,40,41,42,43,44,45,46,51,52,62,63,65,69,70)
+			vPropertiesMatrix(acRadioButton) = Array(0,4,6,7,10,11,12,13,14,15,16,17,27,28,29,36,37,38,39,40,41,42,43,44,45,46,50,51,52,61,62,63,64,65,67,69,70)
+			vPropertiesMatrix(acScrollBar) = Array(0,1,2,6,7,10,27,28,30,36,37,39,40,41,42,43,44,45,46,51,52,62,63,64,65,69,70)
+			vPropertiesMatrix(acTextField) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,58,59,60,62,63,64,65,66,67,69,70)
+			vPropertiesMatrix(acTimeField) = Array(0,1,2,6,7,10,11,12,13,14,15,16,17,19,25,27,28,36,37,39,40,41,42,43,44,45,46,48,51,52,62,63,64,65,66,67,69,70)
+	End Select
+	
+Dim i As Integer, iIndex As Integer
+	If _ControlType = acSubForm Then iIndex = 0 Else iIndex = _ControlType
+	If IsEmpty(vPropertiesMatrix(iIndex)) Then
+		_ThisProperties = Array()
+	Else
+		ReDim _ThisProperties(0 To UBound(vPropertiesMatrix(iIndex)))
+		For i = 0 To UBound(_ThisProperties)
+			_ThisProperties(i) = vFullPropertiesList(vPropertiesMatrix(iIndex)(i))
+		Next i
+	End If
+
+	_PropertiesList = _ThisProperties()
+
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String, ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return property value of the psProperty property name
+
+Dim iArg As Integer
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Control.get&quot; &amp; psProperty)
+	_PropertyGet = EMPTY
+
+&apos;Check Index argument
+Dim iArgNr As Integer
+	If Not IsMissing(pvIndex) Then
+		Select Case UCase(_A2B_.CalledSub)
+			Case UCase(&quot;getProperty&quot;)				:	iArgNr = 3
+			Case UCase(&quot;Control.getProperty&quot;)		:	iArgNr = 2
+			Case UCase(&quot;Control.get&quot; &amp; psProperty)	:	iArgNr = 1
+		End Select
+		If Not Utils._CheckArgument(pvIndex, iArgNr, Utils._AddNumeric()) Then Goto Exit_Function
+	End If
+
+Dim vDefaultValue As Variant, oDefaultValue As Object, vValue As Variant, oValue As Object, iIndex As Integer
+Dim lListIndex As Long, i As Integer, j As Integer, vCurrentValue As Variant, lListCount As Long
+Dim vListboxValue As Variant, vListSource, bSelected() As Boolean, bListboxBound As Boolean
+Dim vGet As Variant, vDate As Variant
+Dim ofSubForm As Object
+Dim vFormats() As Variant
+Dim vSelection As Variant, sSelectedText As String
+Dim oControlEvents As Object, sEventName As String
+	
+	If Not hasProperty(psProperty) Then Goto Trace_Error
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;BackColor&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;BackgroundColor&quot;) Then _PropertyGet = ControlModel.BackgroundColor
+		Case UCase(&quot;BorderColor&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;BorderColor&quot;) Then _PropertyGet = ControlModel.BorderColor
+		Case UCase(&quot;BorderStyle&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;Border&quot;) Then _PropertyGet = ControlModel.Border
+		Case UCase(&quot;Cancel&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;PushButtonType&quot;) Then _PropertyGet = ( ControlModel.PushButtonType = com.sun.star.awt.PushButtonType.CANCEL )
+		Case UCase(&quot;Caption&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;Label&quot;) Then _PropertyGet = ControlModel.Label
+		Case UCase(&quot;ControlSource&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;DataField&quot;) Then _PropertyGet = ControlModel.DataField
+		Case UCase(&quot;ControlTipText&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;HelpText&quot;) Then _PropertyGet = ControlModel.HelpText
+		Case UCase(&quot;ControlType&quot;)
+			_PropertyGet = _ControlType
+		Case UCase(&quot;Default&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;DefaultButton&quot;) Then _PropertyGet = ControlModel.DefaultButton
+		Case UCase(&quot;DefaultValue&quot;)
+			Select Case _SubType
+				Case CTLCHECKBOX, CTLRADIOBUTTON
+					If Utils._hasUNOProperty(ControlModel, &quot;DefaultState&quot;) Then _PropertyGet = ControlModel.DefaultState
+				Case CTLCOMBOBOX, CTLFILECONTROL, CTLPATTERNFIELD, CTLTEXTFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;DefaultText&quot;) Then _PropertyGet = ControlModel.DefaultText
+				Case CTLCURRENCYFIELD, CTLNUMERICFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;DefaultValue&quot;) Then _PropertyGet = ControlModel.DefaultValue
+				Case CTLDATEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;DefaultDate&quot;) Then
+						Select Case VarType(ControlModel.DefaultDate)
+							Case vbLong			&apos;	AOO and LO &lt;= 4.1
+								vDefaultValue = ControlModel.DefaultDate
+								vGet = DateSerial(Left(vDefaultValue, 4), Mid(vDefaultValue, 5, 2), Right(vDefaultValue, 2))
+							Case vbObject		&apos;	LO &gt;= 4.2	com.sun.star.Util.Date
+								Set oDefaultValue = ControlModel.DefaultDate
+								vGet = DateSerial(oDefaultValue.Year,oDefaultValue.Month, oDefaultValue.Day)
+							Case vbEmpty
+						End Select
+					End If
+				Case CTLFORMATTEDFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;EffectiveDefault&quot;) Then _PropertyGet = ControlModel.EffectiveDefault
+				Case CTLLISTBOX
+					If Utils._hasUNOProperty(ControlModel, &quot;DefaultSelection&quot;) And Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then
+						vDefaultValue = ControlModel.DefaultSelection
+						If IsArray(vDefaultValue) Then
+							If UBound(vDefaultValue) &gt;= LBound(vDefaultValue) Then		&apos;	Is array initialized ?
+								iIndex = UBound(ControlModel.StringItemList)
+								If vDefaultValue(0) &gt;= 0 And vDefaultValue(0) &lt;= iIndex Then _PropertyGet = ControlModel.StringItemList(vDefaultValue(0))
+												&apos;	Only first default value is considered
+							End If
+						End If
+					End If
+				Case CTLSPINBUTTON
+					If Utils._hasUNOProperty(ControlModel, &quot;DefaultSpinValue&quot;) Then _PropertyGet = ControlModel.DefaultSpinValue
+				Case CTLTIMEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;DefaultTime&quot;) Then
+						Select Case VarType(ControlModel.DefaultTime)
+							Case vbLong			&apos;	AOO and LO &lt;= 4.1
+								_PropertyGet = ControlModel.DefaultTime
+							Case vbObject		&apos;	LO &gt;= 4.2	com.sun.star.Util.Time
+								Set oDefaultValue = ControlModel.DefaultTime
+								_PropertyGet = TimeSerial(oDefaultValue.Hours, oDefaultValue.Minutes, oDefaultValue.Seconds)
+							Case vbEmpty
+						End Select
+					End If
+				Case Else
+					Goto Trace_Error
+			End Select
+		Case UCase(&quot;Enabled&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;Enabled&quot;) Then _PropertyGet = ControlModel.Enabled
+		Case UCase(&quot;FontBold&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;FontWeight&quot;) Then _PropertyGet = ( ControlModel.FontWeight &gt;= com.sun.star.awt.FontWeight.BOLD )
+		Case UCase(&quot;FontItalic&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;FontSlant&quot;) Then _PropertyGet = ( ControlModel.FontSlant = com.sun.star.awt.FontSlant.ITALIC )
+		Case UCase(&quot;FontName&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;FontName&quot;) Then _PropertyGet = ControlModel.FontName
+		Case UCase(&quot;FontSize&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;FontHeight&quot;) Then _PropertyGet = ControlModel.FontHeight
+		Case UCase(&quot;FontUnderline&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;FontUnderline&quot;) Then _PropertyGet = _
+				Not (	ControlModel.FontUnderline = com.sun.star.awt.FontUnderline.NONE _
+						Or ControlModel.FontUnderline = com.sun.star.awt.FontUnderline.DONTKNOW )
+		Case UCase(&quot;FontWeight&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;FontWeight&quot;) Then _PropertyGet = ControlModel.FontWeight
+		Case UCase(&quot;ForeColor&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;TextColor&quot;) Then _PropertyGet = ControlModel.TextColor
+		Case UCase(&quot;Form&quot;)
+			Set ofSubForm = New SubForm		&apos;	Start building the SUBFORM object
+			With ofSubForm
+				Set ._This = ofSubForm
+				Set .DatabaseForm = ControlModel
+				._Name = _Name
+				._Shortcut = _Shortcut &amp; &quot;.Form&quot;
+				._MainForm = _MainForm
+				.ParentComponent = _FormComponent
+				._DocEntry = _DocEntry
+				._DbEntry = _DbEntry
+				._OrderBy = ControlModel.Order
+			End With
+			set _PropertyGet = ofSubForm
+		Case UCase(&quot;Format&quot;)
+			vFormats = _Formats(_Subtype)
+			Select Case _SubType
+				Case CTLDATEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;DateFormat&quot;) Then 
+						If ControlModel.DateFormat &lt;= UBound(vFormats) Then _PropertyGet = vFormats(ControlModel.DateFormat)
+					End If
+				Case CTLTIMEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;TimeFormat&quot;) Then 
+						If ControlModel.TimeFormat &lt;= UBound(vFormats) Then _PropertyGet = vFormats(ControlModel.TimeFormat)
+					End If
+				Case Else
+					If Utils._hasUNOProperty(ControlModel, &quot;FormatKey&quot;) Then
+						If Utils._hasUNOProperty(ControlModel, &quot;FormatsSupplier&quot;) Then
+							_PropertyGet = ControlModel.FormatsSupplier.getNumberFormats.getByKey(ControlModel.FormatKey).FormatString
+						End If
+					End If
+			End Select
+		Case UCase(&quot;ItemData&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then
+				If IsMissing(pvIndex) Then
+					_PropertyGet = ControlModel.StringItemList
+				Else
+					If pvIndex &lt; 0 Or pvIndex &gt; UBound(ControlModel.StringItemList) Then Goto Trace_Error_Index
+					_PropertyGet = ControlModel.StringItemList(pvIndex)
+				End If
+			End If
+		Case UCase(&quot;ListCount&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then _PropertyGet = UBound(ControlModel.StringItemList) + 1
+		Case UCase(&quot;ListIndex&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then
+				lListIndex = -1			&apos;	Either Multiple selections or no selection at all
+				Select Case _SubType
+					Case CTLCOMBOBOX
+						If Not Utils._hasUNOProperty(ControlModel, &quot;Text&quot;) Then Goto Trace_Error
+						iIndex = 0
+						If ControlModel.Text &lt;&gt; &quot;&quot; Then
+							For j = 0 To UBound(ControlModel.StringItemList)
+								If ControlModel.StringItemList(j) = ControlModel.Text Then
+									lListIndex = j
+									iIndex = iIndex + 1
+								End If
+							Next j
+							If iIndex &lt;&gt; 1 Then lListIndex = -1		&apos;	Multiselection or synonyms rejected
+						End If
+					Case CTLLISTBOX				&apos;	No mean found to access bound column !! See mail Lionel 10/5/2013 for improvement
+						If Not Utils._hasUNOProperty(ControlModel, &quot;SelectedItems&quot;) Then Goto Trace_Error
+						If UBound(ControlModel.SelectedItems) &gt; 0 Then		&apos;	Several items selected
+						Else			&apos;	Mono selection
+							If _ParentType &lt;&gt; CTLPARENTISDIALOG Then			&apos;	getCurrentValue not found in dialog listboxes ??
+								vCurrentValue = ControlModel.getCurrentValue()		&apos;	Space or uninitialized array if no selection at all
+								If IsArray(vCurrentValue) Then		&apos;	Is an array if MultiSelect
+									vListboxValue = &quot;&quot;
+									If UBound(vCurrentValue) = 0 Then vListboxValue = vCurrentValue(0)
+								Else
+									vListboxValue = vCurrentValue
+								End If
+								If vListboxValue &lt;&gt; &quot;&quot; Then		&apos;	Speed up search PM Pastim 12/02/2013
+									If Ubound(ControlModel.SelectedItems) &gt;= 0 Then lListIndex = Controlmodel.Selecteditems(0)
+								End If
+							Else
+								If Ubound(ControlModel.SelectedItems) &gt;= 0 Then lListIndex = Controlmodel.Selecteditems(0)
+							End If
+						End If								
+				End Select
+				_PropertyGet = lListIndex
+			End If
+		Case UCase(&quot;Locked&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;ReadOnly&quot;) Then _PropertyGet = ControlModel.ReadOnly
+		Case UCase(&quot;MultiSelect&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;MultiSelection&quot;) Then
+				_PropertyGet = ControlModel.MultiSelection	&apos;	Boolean in OO, Integer (0, 1 or 2) in VBA
+			ElseIf Utils._hasUNOProperty(ControlModel, &quot;MultiSelectionSimpleMode&quot;) Then	&apos;	Not documented: only for GridControls !? Changed in OO &gt;= 3,3 !?
+				_PropertyGet = ControlModel.MultiSelectionSimpleMode
+			Else
+				_PropertyGet = False
+			End If
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;OnActionPerformed&quot;), UCase(&quot;OnAdjustmentValueChanged&quot;), UCase(&quot;OnApproveAction&quot;), UCase(&quot;OnApproveReset&quot;) _
+				, UCase(&quot;OnApproveUpdate&quot;), UCase(&quot;OnChanged&quot;), UCase(&quot;OnErrorOccurred&quot;), UCase(&quot;OnFocusGained&quot;) _
+				, UCase(&quot;OnFocusLost&quot;), UCase(&quot;OnItemStateChanged&quot;), UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;) _
+				, UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMouseMoved&quot;) _
+				, UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;), UCase(&quot;OnResetted&quot;), UCase(&quot;OnTextChanged&quot;) _
+				, UCase(&quot;OnUpdated&quot;)
+			Select Case _ParentType
+				Case CTLPARENTISDIALOG
+					Set oControlEvents = ControlModel.getEvents()
+					sEventName = &quot;com.sun.star.awt.&quot; &amp; _GetListener(psProperty) &amp; &quot;::&quot; &amp; Utils._GetEventName(psProperty)
+					If oControlEvents.hasByName(sEventName) Then
+						_PropertyGet = oControlEvents.getByName(sEventName).ScriptCode
+					Else
+						_PropertyGet = &quot;&quot;
+					End If
+				Case Else
+					_PropertyGet = Utils._GetEventScriptCode(ControlModel, psProperty, _Name)
+			End Select
+		Case UCase(&quot;OptionValue&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;RefValue&quot;) Then
+				If ControlModel.RefValue &lt;&gt; &quot;&quot; Then
+					_PropertyGet = ControlModel.RefValue
+				ElseIf Utils._hasUNOProperty(ControlModel, &quot;Label&quot;) Then
+					_PropertyGet = ControlModel.Label
+				End If
+			End If
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;Page&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;Step&quot;) Then _PropertyGet = ControlModel.Step
+		Case UCase(&quot;Parent&quot;)
+			Set _PropertyGet = _Parent
+		Case UCase(&quot;Picture&quot;)
+			_PropertyGet = ConvertToUrl(ControlModel.ImageURL)
+		Case UCase(&quot;Required&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;InputRequired&quot;) Then _PropertyGet = ControlModel.InputRequired
+		Case UCase(&quot;RowSource&quot;)
+			Select Case _ParentType
+				Case CTLPARENTISDIALOG
+					If Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then
+						If IsArray(ControlModel.StringItemList) Then vListSource = ControlModel.StringItemList Else vListSource = Array(ControlModel.StringItemList)
+						_PropertyGet = Join(vListSource, &quot;;&quot;)
+					End If
+				Case Else
+					If Utils._hasUNOProperty(ControlModel, &quot;ListSource&quot;) Then
+						Select Case ControlModel.ListSourceType
+							Case		com.sun.star.form.ListSourceType.VALUELIST _
+									,	com.sun.star.form.ListSourceType.TABLEFIELDS
+								If IsArray(ControlModel.StringItemList) Then vListSource = ControlModel.StringItemList Else vListSource = Array(ControlModel.StringItemList)
+							Case		com.sun.star.form.ListSourceType.TABLE _
+									,	com.sun.star.form.ListSourceType.QUERY _
+									,	com.sun.star.form.ListSourceType.SQL _
+									,	com.sun.star.form.ListSourceType.SQLPASSTHROUGH
+								If IsArray(ControlModel.ListSource) Then vListSource = ControlModel.ListSource Else vListSource = Array(ControlModel.ListSource)
+						End Select
+						_PropertyGet = Join(vListSource, &quot;;&quot;)
+					End If
+			End Select
+		Case UCase(&quot;RowSourceType&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;ListSourceType&quot;) Then _PropertyGet = ControlModel.ListSourceType
+		Case UCase(&quot;Selected&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then
+				lListIndex = UBound(ControlModel.StringItemList)
+				If Not IsMissing(pvIndex) Then
+					If pvIndex &lt; 0 Or pvIndex &gt; lListIndex Then Goto Trace_Error_Index
+				End If
+				If lListIndex &lt; 0 Then			&apos;	Do nothing if listbox empty
+					_PropertyGet = Array()
+				Else
+					Redim bSelected(0 To lListIndex)
+					For j = 0 To lListIndex
+						bSelected(j) = False
+					Next j
+					For j = 0 To UBound(ControlModel.SelectedItems)
+						iIndex = ControlModel.SelectedItems(j)
+						If iIndex &gt;= 0 And iIndex &lt;= lListIndex Then bSelected(iIndex) = True
+					Next j
+					If IsMissing(pvIndex) Then _PropertyGet = bSelected Else _PropertyGet = bSelected(pvIndex)
+				End If	
+			End If
+		Case UCase(&quot;SelLength&quot;)
+			If Utils._hasUNOProperty(ControlView, &quot;Selection&quot;) Then
+				vSelection = ControlView.getSelection()
+				If vSelection.Max &gt;= vSelection.Min Then
+					_PropertyGet = vSelection.Max - vSelection.Min
+				Else
+					_PropertyGet = 0				&apos;	probably control does not have focus
+				End If
+			Else
+				_PropertyGet = 0
+			End If
+		Case UCase(&quot;SelStart&quot;)
+			If Utils._hasUNOProperty(ControlView, &quot;Selection&quot;) Then
+				vSelection = ControlView.getSelection()
+				If vSelection.Max &gt;= vSelection.Min Then
+					_PropertyGet = vSelection.Min + 1
+				Else
+					_PropertyGet = 1				&apos;	probably control does not have focus
+				End If
+			Else
+				_PropertyGet = 1
+			End If
+		Case UCase(&quot;SelText&quot;)
+			If Utils._hasUNOProperty(ControlView, &quot;SelectedText&quot;) Then
+				_PropertyGet = ControlView.getSelectedText()
+			Else
+				_PropertyGet = &quot;&quot;
+			End If
+		Case UCase(&quot;SpecialEffect&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;VisualEffect&quot;) Then _PropertyGet = ControlModel.VisualEffect
+		Case UCase(&quot;SubType&quot;)
+			_PropertyGet = _SubType
+		Case UCase(&quot;TabIndex&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;TabIndex&quot;) Then _PropertyGet = ControlModel.TabIndex
+		Case UCase(&quot;TabStop&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;Tabstop&quot;) Then _PropertyGet = ControlModel.Tabstop
+		Case UCase(&quot;Tag&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;Tag&quot;) Then _PropertyGet = ControlModel.Tag
+		Case UCase(&quot;Text&quot;)
+			Select Case _SubType
+				Case CTLDATEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;Date&quot;) Then
+						If Utils._hasUNOProperty(ControlModel, &quot;FormatKey&quot;) Then
+							If Utils._hasUNOProperty(ControlModel, &quot;FormatsSupplier&quot;) Then
+								Select Case VarType(ControlModel.Date)
+									Case vbLong		&apos;	AOO and LO &lt;= 4.1
+										vDate = DateSerial(Left(ControlModel.Date, 4), Mid(ControlModel.Date, 5, 2), Right(ControlModel.Date, 2))
+									Case vbObject	&apos;	LO &gt;= 4.2
+										vDate = DateSerial(ControlModel.Date.Year, ControlModel.Date.Month, ControlModel.Date.Day)
+									Case vbEmpty
+								End Select
+								_PropertyGet = Format(vDate, ControlModel.FormatsSupplier.getNumberFormats.getByKey(ControlModel.FormatKey).FormatString)
+							End If
+						End If
+					End If
+				Case CTLTIMEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;Text&quot;) Then
+						Select Case VarType(ControlModel.Time)
+							Case vbLong			&apos;	AOO and LO &lt;= 4.1
+								_PropertyGet = Format(ControlModel.Time, &quot;HH:MM:SS&quot;)
+							Case vbObject		&apos;	LO &gt;= 4.2	com.sun.star.Util.Time
+								Set oValue = ControlModel.Time
+								_PropertyGet = Format(TimeSerial(oValue.Hours, oValue.Minutes, oValue.Seconds), &quot;HH:MM:SS&quot;)
+							Case vbEmpty
+						End Select
+					End If
+				Case Else
+					If Utils._hasUNOProperty(ControlModel, &quot;Text&quot;) Then _PropertyGet = ControlModel.Text
+			End Select
+		Case UCase(&quot;TextAlign&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;Tag&quot;) Then _PropertyGet = ControlModel.Tag
+		Case UCase(&quot;TripleState&quot;)
+			If Utils._hasUNOProperty(ControlModel, &quot;TriState&quot;) Then _PropertyGet = ControlModel.TriState
+		Case UCase(&quot;Value&quot;)
+			Select Case _SubType
+				Case CTLCHECKBOX
+					If Utils._hasUNOProperty(ControlModel, &quot;State&quot;) Then vGet = ControlModel.State
+				Case CTLCOMMANDBUTTON
+					vGet = False
+					If Utils._hasUNOProperty(ControlModel, &quot;Toggle&quot;) Then
+						If Utils._hasUNOProperty(ControlModel, &quot;State&quot;) Then vGet = ( ControlModel.State = 1 )
+					End If
+				Case CTLCOMBOBOX, CTLFILECONTROL, CTLPATTERNFIELD, CTLTEXTFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;Text&quot;) Then vGet = ControlModel.Text
+				Case CTLCURRENCYFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;Value&quot;) Then vGet = ControlModel.Value
+				Case CTLDATEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;Date&quot;) Then
+						Select Case VarType(ControlModel.Date)
+							Case vbLong			&apos;	AOO and LO &lt;= 4.1
+								vValue = ControlModel.Date
+								vGet = DateSerial(Left(vValue, 4), Mid(vValue, 5, 2), Right(vValue, 2))
+							Case vbObject		&apos;	LO &gt;= 4.2	com.sun.star.Util.Date
+								Set oValue = ControlModel.Date
+								vGet = DateSerial(oValue.Year, oValue.Month, oValue.Day)
+							Case vbEmpty
+						End Select
+					End If
+				Case CTLFORMATTEDFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;EffectiveValue&quot;) Then vGet = ControlModel.EffectiveValue
+				Case CTLHIDDENCONTROL
+					If Utils._hasUNOProperty(ControlModel, &quot;HiddenValue&quot;) Then vGet = ControlModel.HiddenValue
+				Case CTLLISTBOX
+					If Not Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then Goto Trace_Error
+					If Not Utils._hasUNOProperty(ControlModel, &quot;SelectedItems&quot;) Then Goto Trace_Error
+					If UBound(ControlModel.SelectedItems) &gt; 0 Then			&apos;	Several items selected
+						vGet = EMPTY										&apos;	Listbox has no value, only an array of Selected flags to identify values
+					Else													&apos;	Mono selection
+						Select Case _ParentType
+							Case CTLPARENTISDIALOG
+								If Ubound(ControlModel.SelectedItems) &gt;= 0 Then
+									lListIndex = Controlmodel.Selecteditems(0)
+									If lListIndex &gt; -1 And lListIndex &lt;= UBound(ControlModel.StringItemList) Then
+										vGet = ControlModel.StringItemList(lListIndex)
+									Else
+										vGet = EMPTY
+									End If
+								End If
+							Case Else
+								&apos;getCurrentValue does not return any significant value anymore
+								&apos;	Speed up getting value PM PASTIM 12/02/2013
+								If Ubound(ControlModel.SelectedItems) &gt;= 0 Then lListIndex = Controlmodel.Selecteditems(0) Else lListIndex = -1
+								&apos; If listbox has hidden column = real bound field, then explore ValueItemList
+								If _ListboxBound() Then
+									If lListIndex &gt; -1 Then vGet = ControlModel.ValueItemList(lListIndex)	&apos;	PASTIM
+								Else
+									If lListIndex &gt; -1 Then vGet = ControlModel.getItemText(lListIndex)
+								End If
+						End Select
+					End If
+				Case CTLNUMERICFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;Value&quot;) Then vGet = ControlModel.Value
+				Case CTLPROGRESSBAR
+					If Utils._hasUNOProperty(ControlModel, &quot;ProgressValue&quot;) Then vGet = ControlModel.ProgressValue
+				Case CTLSCROLLBAR
+					If Utils._hasUNOProperty(ControlModel, &quot;ScrollValue&quot;) Then vGet = ControlModel.ScrollValue
+				Case CTLSPINBUTTON
+					If Utils._hasUNOProperty(ControlModel, &quot;SpinValue&quot;) Then vGet = ControlModel.SpinValue
+				Case CTLTIMEFIELD
+					If Utils._hasUNOProperty(ControlModel, &quot;Time&quot;) Then
+						Select Case VarType(ControlModel.Time)
+							Case vbLong			&apos;	AOO and LO &lt;= 4.1
+								vGet = ControlModel.Time
+							Case vbObject		&apos;	LO &gt;= 4.2	com.sun.star.Util.Time
+								Set oValue = ControlModel.Time
+								vGet = TimeSerial(oValue.Hours, oValue.Minutes, oValue.Seconds)
+							Case vbEmpty
+						End Select
+					End If
+				Case Else
+			End Select
+			If _SubType &lt;&gt; CTLLISTBOX Then		&apos;	Give getCurrentValue an additional try
+				If IsEmpty(vGet) And Utils._hasUNOMethod(ControlModel, &quot;getCurrentValue&quot;) Then vGet = ControlModel.getCurrentValue()
+			End If
+			_PropertyGet = vGet
+		Case UCase(&quot;Visible&quot;)
+			Select Case _SubType
+				Case CTLHIDDENCONTROL
+					_PropertyGet = False
+				Case Else
+					If Utils._hasUNOMethod(ControlView, &quot;isVisible&quot;) Then _PropertyGet = CBool(ControlView.isVisible())
+			End Select
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+	If IsEmpty(_PropertyGet) Then TraceError(TRACEINFO, ERRPROPERTYINIT, Utils._CalledSub(), 0, , psProperty)
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Control.get&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEWARNING, ERRPROPERTY, Utils._CalledSub(), 0, , psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRINDEXVALUE, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Control._PropertyGet&quot;, Erl)
+	_PropertyGet = EMPTY
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet	V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertySet(ByVal psProperty As String, ByVal pvValue As Variant, ByVal Optional pvIndex As Variant) As Boolean
+&apos;	Return True if property setting OK
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Control.set&quot; &amp; psProperty)
+	_PropertySet = True
+
+&apos;Check Index argument
+	If Not IsMissing(pvIndex) Then
+		If Not Utils._CheckArgument(pvIndex, 1, Utils._AddNumeric()) Then Goto Exit_Function
+	End If
+&apos;Execute
+Dim iArgNr As Integer, vButton As Variant, i As Integer
+Dim odbDatabase As Object, vNames() As Variant, bFound As Boolean, sName As String
+Dim bMultiSelect As Boolean, iCount As Integer, iSelectedItems() As Integer, lListCount As Long, bSelected() As Boolean
+Dim vItemList() As Variant, vFormats() As Variant
+Dim oStruct As Object, sValue As String
+Dim vSelection As Variant, sText As String, lStart As long
+Dim oControlEvents As Object, sListener As String, sEvent As String, sEventName As String, oEvent As Object
+
+	_PropertySet = True
+	Select Case UCase(_A2B_.CalledSub)
+		Case UCase(&quot;setProperty&quot;)				:	iArgNr = 3
+		Case UCase(&quot;Control.setProperty&quot;)		:	iArgNr = 2
+		Case UCase(&quot;Control.set&quot; &amp; psProperty)	:	iArgNr = 1
+	End Select
+	
+	If Not hasProperty(psProperty) Then Goto Trace_Error
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;BackColor&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;BackgroundColor&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			ControlModel.BackgroundColor = CLng(pvValue)
+		Case UCase(&quot;BorderColor&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;BorderColor&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			ControlModel.BorderColor = CLng(pvValue)
+		Case UCase(&quot;BorderStyle&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;BorderColor&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Or pvValue &gt; 2 Then Goto Trace_Error_Value		&apos;	0 = No border, 1 = 3D border, 2 = Normal border
+			ControlModel.Border = CLng(pvValue)
+		Case UCase(&quot;Cancel&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;PushButtonType&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If pvValue Then vButton = com.sun.star.awt.PushButtonType.CANCEL Else vButton = com.sun.star.awt.PushButtonType.STANDARD
+			ControlModel.PushButtonType = vButton
+		Case UCase(&quot;Caption&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Label&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			ControlModel.Label = pvValue
+		Case UCase(&quot;ControlTipText&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;HelpText&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			ControlModel.HelpText = pvValue
+		Case UCase(&quot;Default&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultButton&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			ControlModel.DefaultButton = pvValue
+		Case UCase(&quot;DefaultValue&quot;)
+			Select Case _SubType
+				Case CTLDATEFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultDate&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, vbDate, , False) Then Goto Trace_Error_Value
+					Select Case VarType(ControlModel.DefaultDate)
+						Case vbEmpty, vbLong			&apos;	AOO and LO &lt;= 4.1
+							ControlModel.DefaultDate = Year(pvValue) * 10000 + Month(pvValue) * 100 + Day(pvValue)
+						Case vbObject					&apos;	LO &gt;= 4.2	com.sun.star.Util.Date
+							ControlModel.DefaultDate.Year = Year(pvValue)
+							ControlModel.DefaultDate.Month = Month(pvValue)
+							ControlModel.DefaultDate.Day = Day(pvValue)
+					End Select
+				Case CTLLISTBOX
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultSelection&quot;) Or Not Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+					For i = 0 To UBound(ControlModel.StringItemList)
+						If UCase(pvValue) = UCase(ControlModel.StringItemList(i)) Then
+							ControlModel.DefaultSelection = Array(i)
+							Exit For
+						End If
+					Next i
+				Case CTLSPINBUTTON
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultSpinValue&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					ControlModel.DefaultSpinValue = pvValue
+				Case CTLCHECKBOX
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultState&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					If pvValue &lt; 0 Or pvValue &gt; 2 Then Goto Trace_Error_Value		&apos;	0 = Not checked		1 = Checked		2 = don&apos;t know
+					ControlModel.DefaultState = pvValue
+				Case CTLRADIOBUTTON
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultState&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					If pvValue &lt; 0 Or pvValue &gt; 1 Then Goto Trace_Error_Value		&apos;	0 = Not checked		1 = Checked
+					ControlModel.DefaultState = pvValue
+				Case CTLCOMBOBOX, CTLFILECONTROL, CTLPATTERNFIELD, CTLTEXTFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultText&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+					ControlModel.DefaultText = pvValue
+				Case CTLTIMEFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultTime&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					If pvValue &gt;= 0 And pvValue &lt;= 23595999 Then
+						Select Case VarType(ControlModel.DefaultTime)
+							Case vbEmpty, vbLong			&apos;	AOO and LO &lt;= 4.1
+								ControlModel.DefaultTime = pvValue
+							Case vbObject		&apos;	LO &gt;= 4.2	com.sun.star.Util.Time
+								ControlModel.DefaultDate.Hours = Hour(pvValue)
+								ControlModel.DefaultDate.Minutes = Minute(pvValue)
+								ControlModel.DefaultDate.Seconds = Second(pvValue)
+						End Select
+					Else Goto Trace_Error_Value
+					End If
+				Case CTLCURRENCYFIELD, CTLNUMERICFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;DefaultValue&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					ControlModel.DefaultValue = pvValue
+				Case CTLFORMATTEDFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;EffectiveDefault&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					ControlModel.EffectiveDefault = pvValue			&apos;	Thanks, PASTIM
+				Case Else
+					Goto Trace_Error
+			End Select
+		Case UCase(&quot;Enabled&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Enabled&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			ControlModel.Enabled = pvValue
+		Case UCase(&quot;FontBold&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;FontWeight&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If pvValue Then		&apos;	Iif construction does not work !
+				ControlModel.FontWeight = com.sun.star.awt.FontWeight.BOLD
+			Else
+				ControlModel.FontWeight = com.sun.star.awt.FontWeight.NORMAL
+			End If
+		Case UCase(&quot;FontItalic&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;FontSlant&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If pvValue Then		&apos;	Iif construction does not work !
+				ControlModel.FontSlant = com.sun.star.awt.FontSlant.ITALIC
+			Else
+				ControlModel.FontSlant = com.sun.star.awt.FontSlant.NONE
+			End If
+		Case UCase(&quot;FontName&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;FontName&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			ControlModel.FontName = pvValue
+		Case UCase(&quot;FontSize&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;FontHeight&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 1 Or pvValue &gt; 127 Then Goto Trace_Error_Value
+			ControlModel.FontHeight = pvValue
+		Case UCase(&quot;FontUnderline&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;FontUnderline&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If pvValue Then		&apos;	Iif construction does not work !
+				ControlModel.FontUnderline = com.sun.star.awt.FontUnderline.SINGLE
+			Else
+				ControlModel.FontUnderline = com.sun.star.awt.FontUnderline.NONE
+			End If
+		Case UCase(&quot;FontWeight&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;FontWeight&quot;) Then Goto Trace_Error
+			If Not Utils._IsScalar(CSng(pvValue), vbSingle, Array( _
+					com.sun.star.awt.FontWeight.THIN _
+				,	com.sun.star.awt.FontWeight.ULTRALIGHT _
+				,	com.sun.star.awt.FontWeight.LIGHT _
+				,	com.sun.star.awt.FontWeight.SEMILIGHT _
+				,	com.sun.star.awt.FontWeight.NORMAL _
+				,	com.sun.star.awt.FontWeight.SEMIBOLD _
+				,	com.sun.star.awt.FontWeight.BOLD _
+				,	com.sun.star.awt.FontWeight.ULTRABOLD _
+				,	com.sun.star.awt.FontWeight.BLACK _
+				)) Then Goto Trace_Error_Value
+			ControlModel.FontWeight = pvValue
+		Case UCase(&quot;Format&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			vFormats = _Formats(_SubType)
+			Select Case _SubType
+				Case CTLDATEFIELD, CTLTIMEFIELD
+					bFound = False
+					For i = 0 To UBound(vFormats)
+						If UCase(pvValue) = UCase(vFormats(i)) Then
+							If _SubType = CTLDATEFIELD Then
+								If Utils._hasUNOProperty(ControlModel, &quot;DateFormat&quot;) Then ControlModel.DateFormat = i Else Goto Trace_Error
+							Else
+								If Utils._hasUNOProperty(ControlModel, &quot;TimeFormat&quot;) Then ControlModel.TimeFormat = i Else Goto Trace_Error
+							End If
+							bFound = True
+							Exit For
+						End If
+					Next i
+					If Not bFound Then Goto Trace_Error_Value
+				Case Else
+					Goto Trace_Error
+			End Select
+		Case UCase(&quot;ForeColor&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;TextColor&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			ControlModel.TextColor = CLng(pvValue)
+		Case UCase(&quot;ListIndex&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Or pvValue &gt; UBound(ControlModel.StringItemList) Then Goto Trace_Error_Value
+			Select Case _SubType
+				Case CTLCOMBOBOX
+					ControlModel.Text = ControlModel.StringItemList(pvValue)
+				Case CTLLISTBOX
+					ControlModel.SelectedItems = Array(pvValue)
+			End Select
+		Case UCase(&quot;Locked&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;ReadOnly&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			ControlModel.ReadOnly = pvValue
+		Case UCase(&quot;MultiSelect&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;MultiSelection&quot;) And Not Utils._hasUNOProperty(ControlModel, &quot;MultiSelectionSimpleMode&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If Utils._hasUNOProperty(ControlModel, &quot;MultiSelection&quot;) Then
+				ControlModel.MultiSelection = pvValue
+			ElseIf Utils._hasUNOProperty(ControlModel, &quot;MultiSelectionSimpleMode&quot;) Then
+				ControlModel.MultiSelectionSimpleMode = pvValue
+			End If
+			If Not pvValue Then ControlModel.SelectedItems = Array()	&apos;	Cancel selections when MultiSelect becomes False
+		Case UCase(&quot;OnActionPerformed&quot;), UCase(&quot;OnAdjustmentValueChanged&quot;), UCase(&quot;OnApproveAction&quot;), UCase(&quot;OnApproveReset&quot;) _
+				, UCase(&quot;OnApproveUpdate&quot;), UCase(&quot;OnChanged&quot;), UCase(&quot;OnErrorOccurred&quot;), UCase(&quot;OnFocusGained&quot;) _
+				, UCase(&quot;OnFocusLost&quot;), UCase(&quot;OnItemStateChanged&quot;), UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;) _
+				, UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMouseMoved&quot;) _
+				, UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;), UCase(&quot;OnResetted&quot;), UCase(&quot;OnTextChanged&quot;) _
+				, UCase(&quot;OnUpdated&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			Select Case _ParentType
+				Case CTLPARENTISDIALOG
+					If Not Utils._RegisterDialogEventScript(ControlModel _
+								, psProperty _
+								, _GetListener(psProperty) _
+								, pvValue _
+								) Then GoTo Trace_Error
+				Case Else
+					If Not Utils._RegisterEventScript(ControlModel _
+								, psProperty _
+								, _GetListener(psProperty) _
+								, pvValue _
+								, _Name _
+								) Then GoTo Trace_Error
+			End Select
+		Case UCase(&quot;OptionValue&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;RefValue&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Label&quot;) Then
+				If pvValue = &quot;&quot; Then Goto Trace_Error_Value
+				If ControlModel.RefValue &lt;&gt; &quot;&quot; Then ControlModel.RefValue = pvValue
+			Else
+				ControlModel.Label = pvValue
+			End If
+		Case UCase(&quot;Page&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Step&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Then Goto Trace_Error_Value
+			ControlModel.Step = pvValue
+		Case UCase(&quot;Picture&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;ImageURL&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			ControlModel.ImageURL = ConvertToUrl(pvValue)
+		Case UCase(&quot;Required&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;InputRequired&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			ControlModel.InputRequired = pvValue
+		Case UCase(&quot;RowSource&quot;)
+			Select Case _ParentType
+				Case CTLPARENTISDIALOG
+					If Not Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then Goto Trace_Error
+					ControlModel.StringItemList = Split(pvValue, &quot;;&quot;)
+				Case Else
+					If Not Utils._hasUNOProperty(ControlModel, &quot;ListSource&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+					Select Case ControlModel.ListSourceType
+						Case		com.sun.star.form.ListSourceType.QUERY _
+								,	com.sun.star.form.ListSourceType.TABLE _
+								,	com.sun.star.form.ListSourceType.TABLEFIELDS
+							Set odbDatabase = Application._CurrentDb(_DocEntry, _DbEntry)
+							If ControlModel.ListSourceType = com.sun.star.form.ListSourceType.QUERY	Then vNames = odbDatabase.Connection.getQueries.GetElementNames _
+																									Else vNames = odbDatabase.Connection.getTables.GetElementNames
+							bFound = False			&apos;	Check existence of table or query and find its correct (case-sensitive) name
+							For i = 0 To UBound(vNames)
+								If UCase(vNames(i)) = UCase(pvValue) Then
+									bFound = True
+									sName = vNames(i)
+									Exit For
+								End If
+							Next i
+							If Not bFound Then Goto Trace_Error_Value
+							If _SubType = CTLCOMBOBOX Then ControlModel.ListSource = sName Else ControlModel.ListSource = Array(sName)
+							ControlModel.refresh()
+						Case com.sun.star.form.ListSourceType.SQL
+							Set odbDatabase = Application._CurrentDb(_DocEntry, _DbEntry)
+							If _SubType = CTLCOMBOBOX Then ControlModel.ListSource = odbDatabase._ReplaceSquareBrackets(pvValue) Else ControlModel.ListSource = Array(odbDatabase._ReplaceSquareBrackets(pvValue))
+							ControlModel.refresh()
+						Case com.sun.star.form.ListSourceType.VALUELIST			&apos;	Forbidden for COMBOBOX !
+							If _SubType = CTLCOMBOBOX Then Goto Trace_Error
+							ControlModel.ListSource = Split(pvValue, &quot;;&quot;)
+							ControlModel.StringItemList = ControlModel.ListSource
+						Case com.sun.star.form.ListSourceType.SQLPASSTHROUGH
+							If _SubType = CTLCOMBOBOX Then ControlModel.ListSource = pvValue Else ControlModel.ListSource = Array(pvValue)
+							ControlModel.refresh()
+					End Select
+			End Select
+			If _SubType = CTLLISTBOX Then ControlModel.SelectedItems = Array()
+		Case UCase(&quot;RowSourceType&quot;)		&apos;	Refresh done when RowSource changes, not RowSourceType
+			If Not Utils._hasUNOProperty(ControlModel, &quot;ListSourceType&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If Not Utils._IsScalar(pvValue, Utils._AddNumeric(), Array( _
+					com.sun.star.form.ListSourceType.VALUELIST _
+				,	com.sun.star.form.ListSourceType.TABLE _
+				,	com.sun.star.form.ListSourceType.QUERY _
+				,	com.sun.star.form.ListSourceType.SQL _
+				,	com.sun.star.form.ListSourceType.SQLPASSTHROUGH _
+				,	com.sun.star.form.ListSourceType.TABLEFIELDS _
+				)) Then Goto Trace_Error_Value
+			ControlModel.ListSourceType = pvValue
+		Case UCase(&quot;Selected&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;SelectedItems&quot;) Then Goto Trace_Error
+			If Not Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) Then Goto Trace_Error
+			If Utils._hasUNOProperty(ControlModel, &quot;MultiSelection&quot;) Then
+				bMultiSelect = ControlModel.MultiSelection
+			ElseIf Utils._hasUNOProperty(ControlModel, &quot;MultiSelectionSimpleMode&quot;) Then
+				bMultiSelect = ControlModel.MultiSelectionSimpleMode
+			Else:	Goto Trace_Error
+			End If
+			lListCount = UBound(ControlModel.StringItemList) + 1
+			If IsMissing(pvIndex) Then		&apos;	Full boolean array passed
+				If Not IsArray(pvValue) Then Goto Trace_Error_Array
+				If LBound(pvValue) &lt;&gt; 0 Or UBound(pvValue) &lt; 0 Then Goto Trace_Error_Array
+				If Not Utils._CheckArgument(pvValue(0), iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+				If UBound(pvValue) &lt;&gt; lListCount - 1 Then Goto Trace_Error_Index
+				iCount = 0
+				For i = 0 To UBound(pvValue)		&apos;	Count True values
+					If pvValue(i) Then iCount = iCount + 1
+				Next i
+				If iCount &gt; 0 Then
+					Redim iSelectedItems(0 To iCount - 1)
+					iCount = 0
+					For i = 0 To UBound(pvValue)
+						If pvValue(i) Then
+							iSelectedItems(iCount) = i
+							iCount = iCount + 1
+						End If
+					Next i
+					ControlModel.SelectedItems = iSelectedItems			&apos;	iSelectedItems maps OO internals (size = # of selected items)
+				Else
+					ControlModel.SelectedItems = Array()
+				End If
+			Else			&apos;	Single boolean value passed
+				If Not Utils._CheckArgument(pvIndex, iArgNr + 1, Utils._AddNumeric()) Then Goto Exit_Function
+				If pvIndex &lt; 0 Or pvIndex &gt;= lListCount Then Goto Trace_Error_Index
+				If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+				ReDim bSelected(0 To lListCount - 1)			&apos;	bSelected maps VBA internals (size = # of displayed items)
+				If  Not bMultiSelect Then					&apos;	Set all other values to False
+					For i = 0 To lListCount - 1
+						If i = pvIndex Then
+							bSelected(i) = pvValue		&apos;	All entries = False except one
+						Else
+							bSelected(i) = False
+						End If
+					Next i
+				Else
+					For i = 0 To lListCount - 1
+						bSelected(i) = False
+					Next i
+					iSelectedItems = ControlModel.SelectedItems
+					iCount = UBound(iSelectedItems)
+					For i = 0 To iCount
+						bSelected(iSelectedItems(i)) = True
+					Next i
+					bSelected(pvIndex) = pvValue
+				End If
+				iCount = 0							&apos;	Rebuild SelectedItems
+				For i = 0 To lListCount - 1
+					If bSelected(i) Then iCount = iCount + 1
+				Next i
+				If iCount &gt; 0 Then
+					Redim iSelectedItems(0 To iCount - 1)
+					iCount = 0
+					For i = 0 To lListCount - 1
+						If bSelected(i) Then
+							iSelectedItems(iCount) = i
+							iCount = iCount + 1
+						End If
+					Next i
+					ControlModel.SelectedItems = iSelectedItems
+				Else
+					ControlModel.SelectedItems = Array()
+				End If					
+			End If
+		Case UCase(&quot;SelLength&quot;)
+			If Not Utils._hasUNOProperty(ControlView, &quot;Selection&quot;) Then Goto trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Then Goto Trace_Error_Value
+			vSelection = ControlView.getSelection()
+			vSelection.Max = vSelection.Min + pvValue
+			ControlView.setSelection(vSelection)
+		Case UCase(&quot;SelStart&quot;)
+			If Not Utils._hasUNOProperty(ControlView, &quot;Selection&quot;) Then Goto trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 1 Or pvValue &gt; Len(ControlModel.Text) + 1 Then Goto Trace_Error_Value
+			vSelection = ControlView.getSelection()
+			vSelection.Min = pvValue - 1
+			vSelection.Max = pvValue - 1		&apos;	Also reset length to 0
+			ControlView.setSelection(vSelection)
+		Case UCase(&quot;SelText&quot;)
+			If Not Utils._hasUNOProperty(ControlView, &quot;Selection&quot;) Then Goto trace_Error
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Text&quot;) Then Goto trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If Len(pvValue) &gt; 0 Then
+				vSelection = ControlView.getSelection()
+				sText = ControlModel.Text
+				lStart = InStr(1, sText, pvValue, 0)		&apos;	Case sensitive !
+				If lStart &gt; 0 Then
+					vSelection.Min = lStart - 1
+					vSelection.Max = lStart + Len(pvValue) - 1
+					ControlView.setSelection(vSelection)
+				End If
+			End If
+		Case UCase(&quot;SpecialEffect&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;VisualEffect&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Or pvValue &gt; 2 Then Goto Trace_Error_Value		&apos;	0 = None, 1 = Look3D, 2 = Flat
+			ControlModel.VisualEffect = pvValue
+		Case UCase(&quot;TabIndex&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;TabIndex&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; -1 Then Goto Trace_Error_Value
+			ControlModel.TabIndex = pvValue
+		Case UCase(&quot;TabStop&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Tabstop&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			ControlModel.Tabstop = pvValue
+		Case UCase(&quot;Tag&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Tag&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			ControlModel.Tag = pvValue
+		Case UCase(&quot;TextAlign&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;Align&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Or pvValue &gt; 2 Then Goto Trace_Error_Value	&apos;	0 = Left, 1 = Center, 2 = Right
+			ControlModel.Align = pvValue
+		Case UCase(&quot;TripleState&quot;)
+			If Not Utils._hasUNOProperty(ControlModel, &quot;TriState&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			ControlModel.TriState = pvValue
+		Case UCase(&quot;Value&quot;)
+			Select Case _SubType
+				Case CTLCHECKBOX
+					If Not Utils._hasUNOProperty(ControlModel, &quot;State&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(vbBoolean), , False) Then Goto Trace_Error_Value
+					If VarType(pvValue) = vbBoolean Then pvValue = Iif(pvValue, 1, 0)
+					If pvValue &lt; 0 Or pvValue &gt; 2 Then Goto Trace_Error_Value		&apos;	0 = Not checked		1 = Checked		2 = don&apos;t know
+					ControlModel.State = pvValue
+				Case CTLCOMMANDBUTTON
+					If Not Utils._hasUNOProperty(ControlModel, &quot;State&quot;) Then Goto Trace_Error
+					If Not Utils._hasUNOProperty(ControlModel, &quot;Toggle&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+					If pvValue Then ControlModel.State = 1 Else ControlModel.State = 0
+				Case CTLCOMBOBOX
+					If Not Utils._hasUNOProperty(ControlModel, &quot;Text&quot;) Or Not Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) _
+							Then Goto Trace_Error
+					If pvValue &lt;&gt; &quot;&quot; Then
+						If Not Utils._CheckArgument(pvValue, iArgNr, vbString, ControlModel.StringItemList, False) Then Goto Trace_Error_Value
+					End If
+					ControlModel.Text = pvValue
+				Case CTLCURRENCYFIELD, CTLNUMERICFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;Value&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					ControlModel.Value = pvValue
+				Case CTLDATEFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;Date&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, vbDate, , False) Then Goto Trace_Error_Value
+					Select Case _InspectPropertyType(ControlModel, &quot;Date&quot;)
+						Case &quot;long&quot;							&apos;	AOO and LO &lt;= 4.1
+							&apos;ControlModel.Date = Year(pvValue) * 10000 + Month(pvValue) * 100 + Day(pvValue)	&apos; Gives error  in dialogs ?!?
+							ControlModel.setPropertyValue(&quot;Date&quot;, Year(pvValue) * 10000 + Month(pvValue) * 100 + Day(pvValue))
+						Case &quot;com.sun.star.util.Date&quot;		&apos;	LO &gt;= 4.2
+							&apos;Direct assignment of ControlModel.Date.Xxx has no effect ?!?
+							Set oStruct = CreateUnoStruct(&quot;com.sun.star.util.Date&quot;)
+							oStruct.Year = Year(pvValue)
+							oStruct.Month = Month(pvValue)
+							oStruct.Day = Day(pvValue)
+							Set ControlModel.Date = oStruct
+					End Select
+				Case CTLFILECONTROL, CTLPATTERNFIELD, CTLTEXTFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;Text&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+					ControlModel.Text = pvValue
+				Case CTLFORMATTEDFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;EffectiveValue&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(vbString), , False) Then Goto Trace_Error_Value
+					ControlModel.EffectiveValue = pvValue
+				Case CTLHIDDENCONTROL
+					If Not Utils._hasUNOProperty(ControlModel, &quot;HiddenValue&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(Array(vbString, vbBoolean, vbDate)), , False) Then Goto Trace_Error_Value
+					ControlModel.HiddenValue = pvValue
+				Case CTLLISTBOX
+					If Not Utils._hasUNOProperty(ControlModel, &quot;SelectedItems&quot;) Or Not Utils._hasUNOProperty(ControlModel, &quot;StringItemList&quot;) _
+							Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(Array(vbString, vbDate)), , False) Then Goto Trace_Error_Value		&apos;	PASTIM
+					If IsArray(pvValue) Then Goto Trace_Error_Value		&apos;	Setting the value on a listbox is allowed only if single value and value in the list
+					&apos;	Check ValueItemList
+					bFound = False
+					Select Case _ParentType
+						Case CTLPARENTISDIALOG
+							vItemList = ControlModel.StringItemList
+						Case Else
+							If _ListboxBound() Then		&apos;	Performance improvement (PASTIM PM 9 Feb 2013)
+								If Not Utils._hasUNOProperty(ControlModel, &quot;ValueItemList&quot;) Then Goto Trace_Error
+								vItemList = ControlModel.ValueItemList
+							Else
+								vItemList = ControlModel.StringItemList
+							End If
+					End Select
+					For i = 0 To UBound(vItemList)
+						If pvValue = vItemList(i) Then
+							bFound = True
+							Exit For
+						End If
+					Next i
+					If bFound Then ControlModel.SelectedItems = Array(i) Else Goto Trace_Error_Value
+				Case CTLPROGRESSBAR
+					If Not Utils._hasUNOProperty(ControlModel, &quot;ProgressValue&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					If Utils._hasUNOProperty(ControlModel, &quot;ProgressValueMin&quot;) Then
+						If pvValue &lt; ControlModel.ProgressValueMin Then Goto Trace_Error_Value
+					End If
+					If Utils._hasUNOProperty(ControlModel, &quot;ProgressValueMax&quot;) Then
+						If pvValue &gt; ControlModel.ProgressValueMax Then Goto Trace_Error_Value
+					End If
+					ControlModel.ProgressValue = pvValue
+				Case CTLSCROLLBAR
+					If Not Utils._hasUNOProperty(ControlModel, &quot;ScrollValue&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					If Utils._hasUNOProperty(ControlModel, &quot;ScrollValueMin&quot;) Then
+						If pvValue &lt; ControlModel.ScrollValueMin Then Goto Trace_Error_Value
+					End If
+					If Utils._hasUNOProperty(ControlModel, &quot;ScrollValueMax&quot;) Then
+						If pvValue &gt; ControlModel.ScrollValueMax Then Goto Trace_Error_Value
+					End If
+					ControlModel.ScrollValue = pvValue
+				Case CTLSPINBUTTON
+					If Not Utils._hasUNOProperty(ControlModel, &quot;SpinValue&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					If Utils._hasUNOProperty(ControlModel, &quot;SpinValueMin&quot;) Then
+						If pvValue &lt; ControlModel.SpinValueMin Then Goto Trace_Error_Value
+					End If
+					If Utils._hasUNOProperty(ControlModel, &quot;SpinValueMax&quot;) Then
+						If pvValue &gt; ControlModel.SpinValueMax Then Goto Trace_Error_Value
+					End If
+					ControlModel.SpinValue = pvValue
+				Case CTLTIMEFIELD
+					If Not Utils._hasUNOProperty(ControlModel, &quot;Time&quot;) Then Goto Trace_Error
+					If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+					Select Case _InspectPropertyType(ControlModel, &quot;Time&quot;)
+						Case &quot;long&quot;										&apos;	AOO and LO &lt;= 4.0
+							ControlModel.Time = CLng(pvValue)
+						Case &quot;com.sun.star.util.Time&quot;					&apos;	LO &gt;= 4.1
+							&apos;Direct assignment of ControlModel.Time.Xxx gives error ?!?
+							Set oStruct = CreateUnoStruct(&quot;com.sun.star.util.Time&quot;)
+							sValue = Right(&quot;00000000&quot; &amp; Str(CLng(pvValue)), 8)
+							oStruct.Hours = Val(Left(sValue, 2))
+							oStruct.Minutes = Val(Mid(sValue, 3, 2))
+							oStruct.Seconds = Val(Mid(sValue, 5, 2))
+							Set ControlModel.Time = oStruct
+					End Select
+				Case Else
+					Goto Trace_Error
+			End Select
+			&apos;	FINAL COMMITMENT
+			If Utils._hasUNOMethod(ControlModel, &quot;commit&quot;) Then ControlModel.commit()	&apos;	f.i. checkboxes have no commit method ?? [PASTIM]
+		Case UCase(&quot;Visible&quot;)
+			If _SubType = CTLHIDDENCONTROL Then Goto Trace_Error	&apos;	Hidden remains hidden !!
+			If Not Utils._hasUNOMethod(ControlView, &quot;setVisible&quot;) Then Goto Trace_Error
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			If pvValue Then ControlModel.EnableVisible = True
+			ControlView.setVisible(pvValue)
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Control.set&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, , psProperty)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Value:
+	TraceError(TRACEFATAL, ERRPROPERTYVALUE, Utils._CalledSub(), 0, 1, Array(pvValue, psProperty))
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRINDEXVALUE, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Array:
+	TraceError(TRACEFATAL, ERRPROPERTYNOTARRAY, Utils._CalledSub(), 0, 1, iArgNr)
+	_PropertySet = False
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Control._PropertySet&quot;, Erl)
+	_PropertySet = False
+	GoTo Exit_Function
+End Function			&apos;	_PropertySet	V1.1.0
+
+</script:module>

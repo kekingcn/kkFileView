@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Misc" script:language="StarBasic">REM  *****  BASIC  *****
 
 Const SBSHARE = 0
@@ -104,6 +101,9 @@ Dim oMasterKey
 	If Ubound(sLocaleList()) &gt; 0 Then
 		aLocLocale.Country = sLocaleList(1)
 	End If
+	If Ubound(sLocaleList()) &gt; 1 Then
+		aLocLocale.Variant = sLocaleList(2)
+	End If
 	GetStarOfficeLocale() = aLocLocale
 End Function
 
@@ -137,14 +137,14 @@ Dim sProdName as String
 End Function
 
 
-&apos; Opens a Document, checks beforehand, wether it has to be loaded
-&apos; or wether it is already on the desktop.
-&apos; If the parameter bDisposable is set to False then then returned document
+&apos; Opens a Document, checks beforehand, whether it has to be loaded
+&apos; or whether it is already on the desktop.
+&apos; If the parameter bDisposable is set to False then the returned document
 &apos; should not be disposed afterwards, because it is already opened.
 Function OpenDocument(DocPath as String, Args(), Optional bDisposable as Boolean)
 Dim oComponents as Object
 Dim oComponent as Object
-	&apos; Search if one of the active Components ist the one that you search for
+	&apos; Search if one of the active Components is the one that you search for
 	oComponents = StarDesktop.Components.CreateEnumeration
 	While oComponents.HasmoreElements
 		oComponent = oComponents.NextElement
@@ -168,7 +168,7 @@ End Function
 Function TaskonDesktop(DocPath as String) as Boolean
 Dim oComponents as Object
 Dim oComponent as Object
-	&apos; Search if one of the active Components ist the one that you search for
+	&apos; Search if one of the active Components is the one that you search for
 	oComponents = StarDesktop.Components.CreateEnumeration
 	While oComponents.HasmoreElements
 		oComponent = oComponents.NextElement
@@ -235,8 +235,8 @@ End Function
 
 &apos; Gets the fully qualified path to a subdirectory of the
 &apos; Template Directory, e. g. with the parameter &quot;wizard/bitmap&quot;
-&apos; The parameter must be passed over in Url-scription
-&apos; The return-Value is in Urlscription
+&apos; The parameter must be passed in Url notation
+&apos; The return-Value is in Url notation
 Function GetOfficeSubPath(sOfficePath as String, ByVal sSubDir as String)
 Dim sOfficeString as String
 Dim sOfficeList() as String
@@ -276,9 +276,9 @@ Dim oLocResSrv as Object
 	If bResObjectexists Then
 		oLocResSrv = oResSrv
 	End If
-	If InitResources(&quot;Tools&quot;, &quot;com&quot;) Then
+	If InitResources(&quot;Tools&quot;) Then
 		ProductName = GetProductName()
-		sError = GetResText(1006)
+		sError = GetResText(&quot;RID_COMMON_6&quot;)
 		sError = ReplaceString(sError, ProductName, &quot;%PRODUCTNAME&quot;)
 		sError = ReplaceString(sError, chr(13), &quot;&lt;BR&gt;&quot;)
 		MsgBox(sError, 16, ProductName)
@@ -290,38 +290,50 @@ Dim oLocResSrv as Object
 End Sub
 
 
-Function InitResources(Description, ShortDescription as String) as boolean
-	On Error Goto ErrorOcurred
-	oResSrv = createUnoService( &quot;com.sun.star.resource.VclStringResourceLoader&quot; )
+Function InitResources(Description) as boolean
+Dim xResource as Object
+Dim sOfficeDir as String
+Dim aArgs(5) as Any
+	On Error Goto ErrorOccurred
+	sOfficeDir = &quot;$BRAND_BASE_DIR/$BRAND_SHARE_SUBDIR/wizards/&quot;
+	sOfficeDir = GetDefaultContext.getByName(&quot;/singletons/com.sun.star.util.theMacroExpander&quot;).ExpandMacros(sOfficeDir)
+	aArgs(0) = sOfficeDir
+	aArgs(1) = true
+	aArgs(2) = GetStarOfficeLocale()
+	aArgs(3) = &quot;resources&quot;
+	aArgs(4) = &quot;&quot;
+	aArgs(5) = NULL
+	oResSrv = getProcessServiceManager().createInstanceWithArguments( &quot;com.sun.star.resource.StringResourceWithLocation&quot;, aArgs() )
 	If (IsNull(oResSrv)) then
 		InitResources = FALSE
-		MsgBox( Description &amp; &quot;: No resource loader found&quot;, 16, GetProductName())
+		MsgBox(&quot;could not initialize StringResourceWithLocation&quot;)
 	Else
 		InitResources = TRUE
-		oResSrv.FileName = ShortDescription
 	End If
 	Exit Function
-ErrorOcurred:
+ErrorOccurred:
 	Dim nSolarVer
 	InitResources = FALSE
 	nSolarVer = GetSolarVersion()
-	MsgBox(&quot;Resource file missing (&quot; &amp; ShortDescription  &amp; trim(str(nSolarVer)) + &quot;*.res)&quot;, 16, GetProductName())
+	MsgBox(&quot;Resource file missing&quot;, 16, GetProductName())
 	Resume CLERROR
 	CLERROR:
 End Function
 
 
-Function GetResText( nID as integer ) As string
-	On Error Goto ErrorOcurred
+Function GetResText( sID as String ) As string
+Dim sString as String
+	On Error Goto ErrorOccurred
 	If Not IsNull(oResSrv) Then
-		GetResText = oResSrv.getString( nID )
+		sString = oResSrv.resolveString(sID)
+		GetResText = ReplaceString(sString, GetProductname(), &quot;%PRODUCTNAME&quot;)
 	Else
 		GetResText = &quot;&quot;
 	End If
 	Exit Function
-ErrorOcurred:
+ErrorOccurred:
 	GetResText = &quot;&quot;
-	MsgBox(&quot;Resource with ID =&quot; + str( nID ) + &quot; not found!&quot;, 16, GetProductName())
+	MsgBox(&quot;Resource with ID =&quot; + sID + &quot; not found!&quot;, 16, GetProductName())
 	Resume CLERROR
 	CLERROR:
 End Function
@@ -361,7 +373,7 @@ Dim oRange as Object
 End Sub
 
 
-&apos; Inserts a certain String to all cells of a Range that ist passed over
+&apos; Inserts a certain string to all cells of a range that is passed
 &apos; either as an object or as the RangeName
 Sub ChangeValueofRange(oSheet as Object, Range, ReplaceValue, Optional StyleName as String)
 Dim oCellRange as Object
@@ -369,7 +381,7 @@ Dim oCellRange as Object
 		&apos; Get the Range out of the Rangename
 		oCellRange = oSheet.GetCellRangeByName(Range)
 	Else
-		&apos; The range is passed over as an object
+		&apos; The range is passed as an object
 		Set oCellRange = Range
 	End If
 	If IsMissing(StyleName) Then
@@ -630,7 +642,7 @@ Dim i as Integer
 End Function
 
 
-Function GetLastUsedRow(oSheet as Object) as Integer
+Function GetLastUsedRow(oSheet as Object) as Long
 Dim oCell As Object
 Dim oCursor As Object
 Dim aAddress As Variant
@@ -731,14 +743,6 @@ Function IsFatOffice() As Boolean
 End Function
 
 
-Function GetLocale(sLanguage as String, sCountry as String)
-Dim oLocale as New com.sun.star.lang.Locale
-	oLocale.Language = sLanguage
-	oLocale.Country = sCountry
-	GetLocale = oLocale
-End Function
-
-
 Sub ToggleDesignMode(oDocument as Object)
 Dim aSwitchMode as new com.sun.star.util.URL
 	aSwitchMode.Complete = &quot;.uno:SwitchControlDesignMode&quot;
@@ -779,18 +783,18 @@ Dim ErrMsg as String
 	oDocument = StarDesktop.LoadComponentFromURL(sUrl,&quot;_default&quot;,0, NoArgs())
 NOMODULEINSTALLED:
 	If (Err &lt;&gt; 0) OR IsNull(oDocument) Then
-		If InitResources(&quot;&quot;, &quot;com&quot;) Then
+		If InitResources(&quot;&quot;) Then
 			Select Case sType
 				Case &quot;swriter&quot;
-					ErrMsg = GetResText(1001)
+					ErrMsg = GetResText(&quot;RID_COMMON_1&quot;)
 				Case &quot;scalc&quot;
-					ErrMsg = GetResText(1002)
+					ErrMsg = GetResText(&quot;RID_COMMON_2&quot;)
 				Case &quot;simpress&quot;
-					ErrMsg = GetResText(1003)
+					ErrMsg = GetResText(&quot;RID_COMMON_3&quot;)
 				Case &quot;sdraw&quot;
-					ErrMsg = GetResText(1004)
+					ErrMsg = GetResText(&quot;RID_COMMON_4&quot;)
 				Case &quot;smath&quot;
-					ErrMsg = GetResText(1005)
+					ErrMsg = GetResText(&quot;RID_COMMON_5&quot;)
 				Case Else
 					ErrMsg = &quot;Invalid Document Type!&quot;
 			End Select

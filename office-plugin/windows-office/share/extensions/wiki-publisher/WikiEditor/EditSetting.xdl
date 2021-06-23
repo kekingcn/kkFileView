@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="EditSetting" dlg:tab-index="1" dlg:left="180" dlg:top="89" dlg:width="198" dlg:height="125" dlg:closeable="true" dlg:moveable="true" dlg:title="TOREPLACE" dlg:help-url="vnd.com.sun.star.wiki:account">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="UrlLabel" dlg:tab-index="3" dlg:left="6" dlg:top="22" dlg:width="50" dlg:height="8" dlg:value="URL" dlg:tabstop="false"/>
+  <dlg:textfield dlg:id="UrlField" dlg:tab-index="4" dlg:left="58" dlg:top="19" dlg:width="122" dlg:height="12" dlg:help-url="com.sun.star.wiki.MediaWiki.EditSetting.UrlField"/>
+  <dlg:textfield dlg:id="UsernameField" dlg:tab-index="6" dlg:left="58" dlg:top="52" dlg:width="122" dlg:height="12" dlg:help-url="com.sun.star.wiki.MediaWiki.EditSetting.UsernameField"/>
+  <dlg:textfield dlg:id="PasswordField" dlg:tab-index="8" dlg:left="58" dlg:top="68" dlg:width="122" dlg:height="12" dlg:help-url="com.sun.star.wiki.MediaWiki.EditSetting.PasswordField" dlg:echochar="*"/>
+  <dlg:button dlg:id="OkButton" dlg:tab-index="11" dlg:left="89" dlg:top="106" dlg:width="50" dlg:height="14" dlg:default="true" dlg:value="OK">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:OK" script:language="UNO"/>
+  </dlg:button>
+  <dlg:button dlg:id="CancelButton" dlg:tab-index="12" dlg:left="143" dlg:top="106" dlg:width="50" dlg:height="14" dlg:button-type="cancel"/>
+  <dlg:button dlg:id="HelpButton" dlg:tab-index="10" dlg:left="5" dlg:top="106" dlg:width="50" dlg:height="14" dlg:button-type="help"/>
+  <dlg:text dlg:id="UsernameLabel" dlg:tab-index="5" dlg:left="6" dlg:top="53" dlg:width="46" dlg:height="8" dlg:value="User Name" dlg:tabstop="false"/>
+  <dlg:text dlg:id="PasswordLabel" dlg:tab-index="7" dlg:left="6" dlg:top="69" dlg:width="46" dlg:height="8" dlg:value="Password" dlg:tabstop="false"/>
+  <dlg:checkbox dlg:id="SaveBox" dlg:tab-index="9" dlg:left="58" dlg:top="84" dlg:width="116" dlg:height="8" dlg:help-url="com.sun.star.wiki.MediaWiki.EditSetting.SaveBox" dlg:value="Store password" dlg:checked="false"/>
+  <dlg:fixedline dlg:id="BottomLine" dlg:tab-index="0" dlg:left="-4" dlg:top="97" dlg:width="205" dlg:height="8"/>
+  <dlg:fixedline dlg:id="AccountLine" dlg:tab-index="1" dlg:left="3" dlg:top="38" dlg:width="193" dlg:height="8" dlg:value="Account"/>
+  <dlg:fixedline dlg:id="WikiLine" dlg:tab-index="2" dlg:left="3" dlg:top="5" dlg:width="193" dlg:height="8" dlg:value="Wiki"/>
+ </dlg:bulletinboard>
+</dlg:window>

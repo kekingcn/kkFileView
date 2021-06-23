@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.0 -->
+<interface domain="pcr">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkBox" id="DefaultFieldSelectionPage">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkLabel" id="label1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="halign">start</property>
+        <property name="label" translatable="yes" context="defaultfieldselectionpage|label1">Should one option field be selected as a default?</property>
+        <property name="wrap">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="label1-atkobject">
+            <property name="AtkObject::accessible-role" translatable="no">static</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="box1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">12</property>
+        <child>
+          <object class="GtkRadioButton" id="defaultselectionyes">
+            <property name="label" translatable="yes" context="defaultfieldselectionpage|defaultselectionyes">_Yes, the following:</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+            <accessibility>
+              <relation type="label-for" target="defselectionfield"/>
+            </accessibility>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="defselectionfield">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <accessibility>
+              <relation type="labelled-by" target="defaultselectionyes"/>
+            </accessibility>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkRadioButton" id="defaultselectionno">
+        <property name="label" translatable="yes" context="defaultfieldselectionpage|defaultselectionno">No, one particular field is not going to be selected.</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="active">True</property>
+        <property name="draw_indicator">True</property>
+        <property name="group">defaultselectionyes</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+  </object>
+</interface>

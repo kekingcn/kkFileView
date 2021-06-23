@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
+<interface domain="svx">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">svx/res/plastic_16.png</property>
+  </object>
+  <object class="GtkImage" id="image2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">svx/res/matte_16.png</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">svx/res/metal_16.png</property>
+  </object>
+  <object class="GtkImage" id="image4">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">svx/res/wireframe_16.png</property>
+  </object>
+  <object class="GtkPopover" id="SurfaceWindow">
+    <property name="can_focus">False</property>
+    <property name="no_show_all">True</property>
+    <property name="border_width">4</property>
+    <child>
+      <object class="GtkBox" id="container">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkRadioButton" id="wireframe">
+            <property name="label" translatable="yes" context="surfacewindow|RID_SVXSTR_WIREFRAME">_Wire Frame</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="image">image4</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="always_show_image">True</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="matt">
+            <property name="label" translatable="yes" context="surfacewindow|RID_SVXSTR_MATTE">_Matt</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="image">image2</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="always_show_image">True</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">wireframe</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="plastic">
+            <property name="label" translatable="yes" context="surfacewindow|RID_SVXSTR_PLASTIC">_Plastic</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="image">image1</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="always_show_image">True</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">wireframe</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="metal">
+            <property name="label" translatable="yes" context="surfacewindow|RID_SVXSTR_METAL">Me_tal</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="image">image3</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="always_show_image">True</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">wireframe</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

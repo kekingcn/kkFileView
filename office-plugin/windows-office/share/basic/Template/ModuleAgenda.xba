@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="ModuleAgenda" script:language="StarBasic">&apos; All variables must be declared before use
 Option Explicit
 
@@ -48,14 +45,14 @@ End Sub
 
 
 Sub LoadLanguageAgenda()
-	If InitResources(&quot;&apos;Template&apos;&quot;, &quot;tpl&quot;) Then
-		DlgAgenda_gMyName = GetResText(1200)
-		DialogModel.CmdCancel.Label = GetResText(1102)
-		DialogModel.CmdAgdGoon.Label = GetResText(1103)
-&apos;		DlgAgenda_gMsgNoCancel$ = GetResText(1201)
-		DialogModel.FrmAgenda.Label = GetResText(1202)
-		DialogModel.OptAgenda1.Label = GetResText(1203)
-		DialogModel.OptAgenda2.Label = GetResText(1204)
+	If InitResources(&quot;&apos;Template&apos;&quot;) Then
+		DlgAgenda_gMyName = GetResText(&quot;AgendaDlgName&quot;)
+		DialogModel.CmdCancel.Label = GetResText(&quot;STYLES_2&quot;)
+		DialogModel.CmdAgdGoon.Label = GetResText(&quot;STYLES_3&quot;)
+&apos;		DlgAgenda_gMsgNoCancel$ = GetResText(&quot;AgendaDlgNoCancel&quot;)
+		DialogModel.FrmAgenda.Label = GetResText(&quot;AgendaDlgFrame&quot;)
+		DialogModel.OptAgenda1.Label = GetResText(&quot;AgendaDlgButton1&quot;)
+		DialogModel.OptAgenda2.Label = GetResText(&quot;AgendaDlgButton2&quot;)
 &apos;		DialogModel.OptAgenda1.State = 1
 	End If
 End Sub

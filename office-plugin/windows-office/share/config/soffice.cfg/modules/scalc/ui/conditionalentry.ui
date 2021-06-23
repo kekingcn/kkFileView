@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
+<interface domain="sc">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkScrolledWindow" id="border">
+    <property name="visible">True</property>
+    <property name="can_focus">True</property>
+    <property name="hexpand">True</property>
+    <property name="hscrollbar_policy">never</property>
+    <property name="vscrollbar_policy">never</property>
+    <property name="shadow_type">in</property>
+    <child>
+      <object class="GtkViewport">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid" id="grid">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="border_width">6</property>
+            <property name="row_spacing">6</property>
+            <property name="column_spacing">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="column_spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="number">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="condition">
+                    <property name="width_request">10</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="ellipsize">end</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="row_spacing">6</property>
+                <property name="column_spacing">12</property>
+                <property name="column_homogeneous">True</property>
+                <child>
+                  <object class="GtkLabel" id="styleft">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <property name="label" translatable="yes" context="conditionalentry|styleft">Apply Style:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">style</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="style">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <items>
+                      <item translatable="yes" context="conditionalentry|style">New Style...</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="valueft">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <property name="label" translatable="yes" context="conditionalentry|valueft">Enter a value:</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="edcolscalemin">
+                    <property name="can_focus">True</property>
+                    <property name="no_show_all">True</property>
+                    <property name="truncate-multiline">True</property>
+                    <property name="activates_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="edcolscalemiddle">
+                    <property name="can_focus">True</property>
+                    <property name="no_show_all">True</property>
+                    <property name="truncate-multiline">True</property>
+                    <property name="activates_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="edcolscalemax">
+                    <property name="can_focus">True</property>
+                    <property name="no_show_all">True</property>
+                    <property name="truncate-multiline">True</property>
+                    <property name="activates_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuButton" id="lbcolmin">
+                    <property name="can_focus">False</property>
+                    <property name="receives_default">False</property>
+                    <property name="no_show_all">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="label" translatable="no"></property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuButton" id="lbcolmiddle">
+                    <property name="can_focus">False</property>
+                    <property name="receives_default">False</property>
+                    <property name="no_show_all">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="label" translatable="no"></property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuButton" id="lbcolmax">
+                    <property name="can_focus">False</property>
+                    <property name="receives_default">False</property>
+                    <property name="no_show_all">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="label" translatable="no"></property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="options">
+                    <property name="label" translatable="yes" context="conditionalentry|options">More Options...</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="no_show_all">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="colscalemin">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <items>
+                      <item id="auto" translatable="yes" context="conditionalentry|colscalemin">Automatic</item>
+                      <item id="min" translatable="yes" context="conditionalentry|colscalemin">Min</item>
+                      <item id="max" translatable="yes" context="conditionalentry|colscalemin">Max</item>
+                      <item id="percentil" translatable="yes" context="conditionalentry|colscalemin">Percentile</item>
+                      <item id="value" translatable="yes" context="conditionalentry|colscalemin">Value</item>
+                      <item id="percent" translatable="yes" context="conditionalentry|colscalemin">Percent</item>
+                      <item id="formula" translatable="yes" context="conditionalentry|colscalemin">Formula</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="colscalemiddle">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <items>
+                      <item id="auto" translatable="yes" context="conditionalentry|colscalemiddle">Automatic</item>
+                      <item id="min" translatable="yes" context="conditionalentry|colscalemiddle">Min</item>
+                      <item id="max" translatable="yes" context="conditionalentry|colscalemiddle">Max</item>
+                      <item id="percentil" translatable="yes" context="conditionalentry|colscalemiddle">Percentile</item>
+                      <item id="value" translatable="yes" context="conditionalentry|colscalemiddle">Value</item>
+                      <item id="percent" translatable="yes" context="conditionalentry|colscalemiddle">Percent</item>
+                      <item id="formula" translatable="yes" context="conditionalentry|colscalemiddle">Formula</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="colscalemax">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <items>
+                      <item id="auto" translatable="yes" context="conditionalentry|colscalemax">Automatic</item>
+                      <item id="min" translatable="yes" context="conditionalentry|colscalemax">Min</item>
+                      <item id="max" translatable="yes" context="conditionalentry|colscalemax">Max</item>
+                      <item id="percentil" translatable="yes" context="conditionalentry|colscalemax">Percentile</item>
+                      <item id="value" translatable="yes" context="conditionalentry|colscalemax">Value</item>
+                      <item id="percent" translatable="yes" context="conditionalentry|colscalemax">Percent</item>
+                      <item id="formula" translatable="yes" context="conditionalentry|colscalemax">Formula</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="iconparent">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">7</property>
+                    <property name="width">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="Label_minimum">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <property name="label" translatable="yes" context="conditionalentry|Label_minimum">Minimum</property>
+                    <property name="mnemonic_widget">colscalemin</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="Label_maximum">
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="conditionalentry|Label_maximum">Maximum</property>
+                    <property name="mnemonic_widget">colscalemax</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="previewwin">
+                    <property name="can_focus">True</property>
+                    <property name="no_show_all">True</property>
+                    <property name="hscrollbar_policy">never</property>
+                    <property name="vscrollbar_policy">never</property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <object class="GtkViewport">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkDrawingArea" id="preview">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes" context="conditionalentry|preview|tooltip_text">Example</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="column_spacing">12</property>
+                <property name="column_homogeneous">True</property>
+                <child>
+                  <object class="GtkComboBoxText" id="typeis">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <items>
+                      <item translatable="yes" context="conditionalentry|typeis">is equal to</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is less than</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is greater than</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is less than or equal to</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is greater than or equal to</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is not equal to</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is between</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is not between</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is duplicate</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is not duplicate</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is in top N elements</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is in bottom N elements</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is in top N percent</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is in bottom N percent</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is above average</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is below average</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is above or equal average</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is below or equal average</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is error</item>
+                      <item translatable="yes" context="conditionalentry|typeis">is not error</item>
+                      <item translatable="yes" context="conditionalentry|typeis">begins with</item>
+                      <item translatable="yes" context="conditionalentry|typeis">ends with</item>
+                      <item translatable="yes" context="conditionalentry|typeis">contains</item>
+                      <item translatable="yes" context="conditionalentry|typeis">does not contain</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="datetype">
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item translatable="yes" context="conditionalentry|datetype">Today</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Yesterday</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Tomorrow</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Last 7 days</item>
+                      <item translatable="yes" context="conditionalentry|datetype">This week</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Last week</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Next week</item>
+                      <item translatable="yes" context="conditionalentry|datetype">This month</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Last month</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Next month</item>
+                      <item translatable="yes" context="conditionalentry|datetype">This year</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Last year</item>
+                      <item translatable="yes" context="conditionalentry|datetype">Next year</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="colorformat">
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item translatable="yes" context="conditionalentry|colorformat">Color Scale (2 Entries)</item>
+                      <item translatable="yes" context="conditionalentry|colorformat">Color Scale (3 Entries)</item>
+                      <item translatable="yes" context="conditionalentry|colorformat">Data Bar</item>
+                      <item translatable="yes" context="conditionalentry|colorformat">Icon Set</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="formula">
+                    <property name="can_focus">True</property>
+                    <property name="no_show_all">True</property>
+                    <property name="truncate-multiline">True</property>
+                    <property name="hexpand">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="type">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item translatable="yes" context="conditionalentry|type">All Cells</item>
+                      <item translatable="yes" context="conditionalentry|type">Cell value</item>
+                      <item translatable="yes" context="conditionalentry|type">Formula is</item>
+                      <item translatable="yes" context="conditionalentry|type">Date is</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="height">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="column_spacing">6</property>
+                    <child>
+                      <object class="GtkEntry" id="val1">
+                        <property name="can_focus">True</property>
+                        <property name="no_show_all">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="truncate-multiline">True</property>
+                        <property name="width_chars">5</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="val2">
+                        <property name="can_focus">True</property>
+                        <property name="no_show_all">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="truncate-multiline">True</property>
+                        <property name="width_chars">5</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="iconsettype">
+                    <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
+                    <items>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Arrows</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Gray Arrows</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Flags</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Traffic Lights 1</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Traffic Lights 2</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Signs</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Symbols 1</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Symbols 2</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Smileys</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Stars</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Triangles</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">3 Colored Smileys</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">4 Arrows</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">4 Gray Arrows</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">4 Circles Red to Black</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">4 Ratings</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">4 Traffic Lights</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">5 Arrows</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">5 Gray Arrows</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">5 Ratings</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">5 Quarters</item>
+                      <item translatable="yes" context="conditionalentry|iconsettype">5 Boxes</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

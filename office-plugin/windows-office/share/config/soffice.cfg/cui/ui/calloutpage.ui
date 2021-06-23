@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="cui">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">2400</property>
+    <property name="step_increment">0.5</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkBox" id="CalloutPage">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <object class="GtkScrolledWindow" id="valuesetwin">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="halign">start</property>
+        <property name="hscrollbar_policy">never</property>
+        <property name="vscrollbar_policy">never</property>
+        <property name="shadow_type">in</property>
+        <child>
+          <object class="GtkViewport">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkDrawingArea" id="valueset">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="events">GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="valueset-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|valueset">Click the Callout style that you want to apply to the selected callout.</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <!-- n-columns=1 n-rows=1 -->
+      <object class="GtkGrid" id="grid6">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="row_spacing">6</property>
+        <property name="column_spacing">18</property>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid" id="grid8">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="column_spacing">12</property>
+            <child>
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="calloutpage|label2">_Extension:</property>
+                <property name="use_underline">True</property>
+                <property name="mnemonic_widget">extension</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="extension">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <items>
+                  <item id="4" translatable="yes" context="calloutpage|liststore1">Optimal</item>
+                  <item id="3" translatable="yes" context="calloutpage|liststore1">From top</item>
+                  <item id="3" translatable="yes" context="calloutpage|liststore1">From left</item>
+                  <item id="1" translatable="yes" context="calloutpage|liststore1">Horizontal</item>
+                  <item id="2" translatable="yes" context="calloutpage|liststore1">Vertical</item>
+                </items>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="extension-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|extension">Select where you want to extend the callout line from, in relation to the callout box.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid" id="grid9">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="column_spacing">12</property>
+            <child>
+              <object class="GtkSpinButton" id="length">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="activates_default">True</property>
+                <property name="text">0.00</property>
+                <property name="adjustment">adjustment1</property>
+                <property name="digits">2</property>
+                <property name="truncate-multiline">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="length-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|length">Enter the length of the callout line segment that extends from the callout box to the inflection point of the line.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lengthft">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="calloutpage|lengthft">_Length:</property>
+                <property name="use_underline">True</property>
+                <property name="mnemonic_widget">length</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="optimal">
+            <property name="label" translatable="yes" context="calloutpage|optimal">_Optimal</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="optimal-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|optimal">Click here to display a single-angled line in an optimal way.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid" id="grid10">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="row_spacing">6</property>
+            <property name="column_spacing">12</property>
+            <child>
+              <object class="GtkLabel" id="positionft">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="calloutpage|positionft">_Position:</property>
+                <property name="use_underline">True</property>
+                <property name="mnemonic_widget">position</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="byft">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="calloutpage|byft">_By:</property>
+                <property name="use_underline">True</property>
+                <property name="mnemonic_widget">by</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="position">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <items>
+                  <item translatable="yes" context="calloutpage|position">Top</item>
+                  <item translatable="yes" context="calloutpage|position">Middle</item>
+                  <item translatable="yes" context="calloutpage|position">Bottom</item>
+                  <item translatable="yes" context="calloutpage|position">Left</item>
+                  <item translatable="yes" context="calloutpage|position">Center</item>
+                  <item translatable="yes" context="calloutpage|position">Right</item>
+                </items>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="position-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|position">Select where you want to extend the callout line from, in relation to the callout box.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="by">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="activates_default">True</property>
+                <property name="text">0.00</property>
+                <property name="adjustment">adjustment1</property>
+                <property name="digits">2</property>
+                <property name="truncate-multiline">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="by-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|by">Select where you want to extend the callout line from, in relation to the callout box.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid" id="grid7">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="column_spacing">12</property>
+            <child>
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="calloutpage|label1">_Spacing:</property>
+                <property name="use_underline">True</property>
+                <property name="mnemonic_widget">spacing</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="spacing">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="activates_default">True</property>
+                <property name="text">0.00</property>
+                <property name="adjustment">adjustment1</property>
+                <property name="digits">2</property>
+                <property name="truncate-multiline">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="spacing-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|spacing">Enter the amount of space that you want to leave between the end of the callout line, and the callout box.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="linetypes">
+            <property name="can_focus">False</property>
+            <property name="no_show_all">True</property>
+            <items>
+              <item translatable="yes" context="calloutpage|linetypes">Straight Line</item>
+              <item translatable="yes" context="calloutpage|linetypes">Angled Line</item>
+              <item translatable="yes" context="calloutpage|linetypes">Angled Connector Line</item>
+            </items>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="CalloutPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="calloutpage|extended_tip|CalloutPage">Click the Callout style that you want to apply to the selected callout.</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroup1">
+    <widgets>
+      <widget name="label2"/>
+      <widget name="lengthft"/>
+      <widget name="label1"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroup2">
+    <widgets>
+      <widget name="positionft"/>
+      <widget name="byft"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroup3">
+    <property name="mode">both</property>
+    <widgets>
+      <widget name="position"/>
+      <widget name="by"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroup4">
+    <property name="mode">both</property>
+    <widgets>
+      <widget name="extension"/>
+      <widget name="length"/>
+      <widget name="spacing"/>
+    </widgets>
+  </object>
+</interface>
