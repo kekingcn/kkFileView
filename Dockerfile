@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 MAINTAINER chenjh "842761733@qq.com"
 ADD server/target/kkFileView-*.tar.gz /opt/
-COPY fonts/* /usr/share/fonts/chienes/
+COPY fonts/* /usr/share/fonts/chinese/
 RUN echo "deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\ndeb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\ndeb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\ndeb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\ndeb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\ndeb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\ndeb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\ndeb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\ndeb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse\ndeb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse" > /etc/apt/sources.list &&\
 	apt-get clean && apt-get update &&\
 	apt-get install -y locales && apt-get install -y language-pack-zh-hans &&\
@@ -28,7 +28,7 @@ RUN echo "deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe m
     dpkg -i *.deb &&\
 
 	rm -rf /tmp/* && rm -rf /var/lib/apt/lists/* &&\
-    cd /usr/share/fonts/chienes &&\
+    cd /usr/share/fonts/chinese &&\
     mkfontscale &&\
     mkfontdir &&\
     fc-cache -fv
