@@ -81,7 +81,7 @@ public class FileConvertQueueTask {
         }
 
         public boolean isNeedConvert(FileType fileType) {
-            return fileType.equals(FileType.COMPRESS) || fileType.equals(FileType.OFFICE) || fileType.equals(FileType.CAD) || fileType.equals(FileType.PPT);
+            return fileType.equals(FileType.COMPRESS) || fileType.equals(FileType.OFFICE) || fileType.equals(FileType.CAD);
 
         }
     }
