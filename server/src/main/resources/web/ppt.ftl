@@ -1,7 +1,7 @@
 <#if RequestParameters['name']??> 
 {
 	"code": 1,
-	"name": "pptx",
+	"name": "PPT预览",
 	"totalSize": 0,
 	"curPage": 1,
 	"totalPage": 1,
@@ -29,28 +29,25 @@
 	"desc": "Success"
 }
 
-<#else/>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<#if "${file.suffix?html}" == "ppt" || "${file.suffix?html}" == "pptx">
- <!DOCTYPE html>
+<#else>
 
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-    <title>ppt预览</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html>
+
+<html lang="en">
+ <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
    
 
     <!-- BOOTSTRAP STYLE start -->
     <!-- Le styles -->
     
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<link href="/pptx/bootstrap.min.css" rel="stylesheet">
+<link href="/pptx/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-        <link href="/pptx/idocv_common.min.css" rel="stylesheet">
+<link href="/pptx/idocv/idocv_common.min.css" rel="stylesheet">
 
-    <link href="/pptx/jquery.contextMenu.css" rel="stylesheet">
+<link href="/pptx/jquery.contextMenu.css" rel="stylesheet">
 
     <!-- BOOTSTRAP STYLE end -->
     
@@ -79,10 +76,10 @@
   </head>
 
   <body onload="resetImgSize();" class="ppt-body">
-    
+
 <div class="loading-mask" style="display: block;">
     <div class="loading-zone">
-        <div class="text"><img src="/img/loader_indicator_lite.gif">加载中...</div>
+        <div class="text"><img src="/pptx/img/loader_indicator_lite.gif">加载中...</div>
     </div>
   
 </div>
@@ -143,8 +140,8 @@
     ================================================== -->
     
 <script src="/pptx/jquery-3.5.1.min.js"></script>
-  <script src="/pptx/jquery.contextMenu.js?v=11.2.5_20210128"></script>
-        <script src="/pptx/idocv_common.min.js"></script>
+<script src="/pptx/jquery.contextMenu.js?v=11.2.5_20210128"></script>
+<script src="/pptx/idocv/idocv_common.min.js"></script>
 
 <script>
     var contextPath = '';
@@ -173,86 +170,6 @@
     <script src="/pptx/ppt.js"></script>
 </body>
 </html>
-<#else/>
-
-  <meta charset="utf-8" />
-    <title>图片预览</title>
-	 <link rel="stylesheet" href="css/viewer.min.css">
-	 <script src="js/lazyload.js"></script>
-	 <script src="js/viewer.min.js"></script>
-    <#include "*/commonHeader.ftl">
-   <style>
-        body {
-            background-color: #404040;
-        }
-        #image { width: 800px; margin: 0 auto; font-size: 0;}
-        #image li {  display: inline-block;width: 50px;height: 50px; margin-left: 1%; padding-top: 1%;}
-        /*#dowebok li img { width: 200%;}*/
-    </style>
-</head>
-<body>
-<div class="container">
-<ul id="image">
-    <#list imgurls as img>
-        <div class="img-area">
-            <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
-        </div>
-    </#list>
-	</ul>
-</div>
-
-
-
-<script>
-    var viewer = new Viewer(document.getElementById('image'), {
-        url: 'src',
-        navbar: false,
-        button: false,
-        backdrop: false,
-        loop : true
-    });
-    document.getElementById("${currentUrl}").click();
- // 修改下一页按钮的样式和位置
-    $(function () {
-        var outHandler = function(){
-            $(this).css('background-color','rgba(0, 0, 0, 0)');
-        };
-        var overHandler = function(){
-            $(this).css('background-color','rgba(0, 0, 0, .5)');
-        };
-        var next = $("li[data-action=next]");
-        var prev = $("li[data-action=prev]");
-        var viewerToolBar = $(".viewer-footer");
-        // 覆盖按钮父类原始样式
-        viewerToolBar.css("overflow", "visible");
-        // 获取文档高度、宽度
-        var clientHeight = window.innerHeight;
-        var clientWidth = window.innerWidth;
-        // 调整样式
-        var styleCss = {},nextCss={},prevCss={};
-        styleCss.position = "absolute";
-        styleCss.top = -clientHeight;
-        styleCss.width = clientWidth*0.1;
-        styleCss.height = clientHeight + 52;
-        // 覆盖原始样式
-        styleCss.backgroundColor='rgba(0, 0, 0, 0)';
-        styleCss.borderRadius='inherit';
-        nextCss.right = "0";
-        prevCss.left = "0";
-        next.css($.extend(nextCss, styleCss));
-        prev.css($.extend(prevCss, styleCss));
-        next.on('mouseout',outHandler);
-        next.on('mouseover',overHandler);
-        prev.on('mouseout',outHandler);
-        prev.on('mouseover',overHandler);
-    });
-    /*初始化水印*/
-    window.onload = function() {
-        initWaterMark();
-    }
-</script>
-
-</#if>
 </body>
 </html>
 </#if>
