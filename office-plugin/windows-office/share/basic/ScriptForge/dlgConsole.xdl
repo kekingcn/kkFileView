@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="dlgConsole" dlg:left="114" dlg:top="32" dlg:width="321" dlg:height="239" dlg:closeable="true" dlg:moveable="true" dlg:title="ScriptForge">
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:font-name="Courier New" dlg:font-stylename="Regular" dlg:font-family="modern"/>
+ </dlg:styles>
+ <dlg:bulletinboard>
+  <dlg:textfield dlg:style-id="0" dlg:id="ConsoleLines" dlg:tab-index="0" dlg:left="4" dlg:top="2" dlg:width="312" dlg:height="225" dlg:hscroll="true" dlg:vscroll="true" dlg:multiline="true" dlg:readonly="true"/>
+  <dlg:button dlg:id="CloseNonModalButton" dlg:tab-index="2" dlg:left="265" dlg:top="228" dlg:width="50" dlg:height="10" dlg:default="true" dlg:value="Close">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:ScriptForge.SF_Exception._CloseConsole?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="CloseModalButton" dlg:tab-index="1" dlg:left="265" dlg:top="228" dlg:width="50" dlg:height="10" dlg:default="true" dlg:value="Close" dlg:button-type="ok"/>
+ </dlg:bulletinboard>
+</dlg:window>

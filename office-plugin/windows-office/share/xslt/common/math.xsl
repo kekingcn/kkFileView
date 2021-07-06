@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
-
-
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+ -->
 <!--
      xslt math lib by Wind Li
 Public Functions
@@ -35,7 +30,7 @@ Public Functions
     abs(x)
     max(x1,x2)
     min(x1,x2)
-    power(x,power(interger only), rounding-factor=100)
+    power(x,power(integer only), rounding-factor=100)
     sqrt(x, rounding-factor=100)
     convert2radian(x,rounding-factor=100)
     convert2degree(x,rounding-factor=100)
@@ -211,7 +206,7 @@ Public Functions
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="$abs-x  &gt;  1">
-                <xsl:message>acos error : abs(<xsl:value-of select="$x"/>) greate then 1 !</xsl:message>
+                <xsl:message>acos error : abs(<xsl:value-of select="$x"/>) greater than 1 !</xsl:message>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:call-template name="atan2">
@@ -236,7 +231,7 @@ Public Functions
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="$abs-x  &gt;  1">
-                <xsl:message>asin error : abs(<xsl:value-of select="$x"/>) greate then 1 !</xsl:message>
+                <xsl:message>asin error : abs(<xsl:value-of select="$x"/>) greater than 1 !</xsl:message>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:call-template name="atan2">
@@ -312,7 +307,7 @@ Public Functions
         <xsl:choose>
             <xsl:when test="$x = 0">0</xsl:when>
             <xsl:when test="$x &lt; 0">
-                <xsl:message>sqrt error : <xsl:value-of select="$x"/>  less then 0!</xsl:message>
+                <xsl:message>sqrt error : <xsl:value-of select="$x"/>  less than 0!</xsl:message>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:call-template name="sqrt-private">

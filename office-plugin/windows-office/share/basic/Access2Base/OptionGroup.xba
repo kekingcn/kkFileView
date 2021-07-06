@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="OptionGroup" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private	_Type					As String				&apos;	Must be FORM
+Private _This					As Object				&apos;	Workaround for absence of This builtin function
+Private _Parent					As Object
+Private	_Name					As String
+Private _ParentType				As String
+Private _ParentComponent		As Object
+Private _MainForm				As String
+Private _DocEntry				As Integer
+Private _DbEntry				As Integer
+Private _ButtonsGroup()			As Variant
+Private _ButtonsIndex()			As Variant
+Private _Count					As Long
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJOPTIONGROUP
+	Set _This = Nothing
+	Set _Parent = Nothing
+	_Name = &quot;&quot;
+	_ParentType = &quot;&quot;
+	_ParentComponent = Nothing
+	_DocEntry = -1
+	_DbEntry = -1
+	_ButtonsGroup = Array()
+	_ButtonsIndex = Array()
+	_Count = 0
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Count() As Variant
+	Count = _PropertyGet(&quot;Count&quot;)
+End Property	&apos;	Count (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Name() As String
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property	&apos;	Name (get)
+
+Public Function pName() As String		&apos;	For compatibility with &lt; V0.9.0
+	pName = _PropertyGet(&quot;Name&quot;)
+End Function	&apos;	pName (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Value() As Variant
+	Value = _PropertyGet(&quot;Value&quot;)
+End Property	&apos;	Value (get)
+
+Property Let Value(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Value&quot;, pvValue)
+End Property	&apos;	Value (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Controls(Optional ByVal pvIndex As Variant) As Variant
+&apos;	Return a Control object with name or index = pvIndex
+
+If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;OptionGroup.Controls&quot;)
+
+Dim ocControl As Variant, iArgNr As Integer, i As Integer
+Dim oCounter As Object
+
+	Set ocControl = Nothing
+	
+	If IsMissing(pvIndex) Then					&apos;	No argument, return Collection object
+		Set oCounter = New Collect
+		Set oCounter._This = oCounter
+		oCounter._CollType = COLLCONTROLS
+		Set oCounter._Parent = _This
+		oCounter._Count = _Count
+		Set Controls = oCounter
+		Goto Exit_Function
+	End If
+	
+	If _IsLeft(_A2B_.CalledSub, &quot;OptionGroup.&quot;) Then iArgNr = 1 Else iArgNr = 2
+	If Not Utils._CheckArgument(pvIndex, iArgNr, Utils._AddNumeric()) Then Goto Exit_Function
+	If pvIndex &lt; 0 Or pvIndex &gt; _Count - 1 Then Goto Trace_Error_Index
+				
+	&apos;	Start building the ocControl object
+	&apos;	Determine exact name
+	Set ocControl = New Control
+	Set ocControl._This = ocControl
+	Set ocControl._Parent = _This
+	ocControl._ParentType = CTLPARENTISGROUP
+	
+	ocControl._Shortcut = &quot;&quot;
+	For i = 0 To _Count - 1
+		If _ButtonsIndex(i) = pvIndex Then
+			Set ocControl.ControlModel = _ButtonsGroup(i)
+			Select Case _ParentType
+				Case CTLPARENTISDIALOG		:	ocControl._Name = _ButtonsGroup(i).Name
+				Case Else					:	ocControl._Name = _Name			&apos;	OptionGroup and individual radio buttons share the same name
+			End Select
+			ocControl._ImplementationName = ocControl.ControlModel.getImplementationName()
+			Exit For
+		End If
+	Next i
+	ocControl._FormComponent = _ParentComponent
+	ocControl._ClassId = acRadioButton
+	Select Case _ParentType
+		Case CTLPARENTISDIALOG		:	Set ocControl.ControlView = _ParentComponent.getControl(ocControl._Name)
+		Case Else					:	Set ocControl.ControlView = _ParentComponent.CurrentController.getControl(ocControl.ControlModel)
+	End Select
+
+	ocControl._Initialize()
+	ocControl._DocEntry = _DocEntry
+	ocControl._DbEntry = _DbEntry
+	Set Controls = ocControl
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;OptionGroup.Controls&quot;)
+	Exit Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRCOLLECTION, Utils._CalledSub(), 0, 1)
+	Set Controls = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;OptionGroup.Controls&quot;, Erl)
+	Set Controls = Nothing
+	GoTo Exit_Function
+End Function		&apos;	Controls
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+	Utils._SetCalledSub(&quot;OptionGroup.getProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(&quot;OptionGroup.getProperty&quot;)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setProperty(ByVal Optional psProperty As String, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Return True if property setting OK
+	Utils._SetCalledSub(&quot;OptionGroup.setProperty&quot;)
+	setProperty = _PropertySet(psProperty, pvValue)
+	Utils._ResetCalledSub(&quot;OptionGroup.setProperty&quot;)
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+
+	_PropertiesList =  Array(&quot;Count&quot;, &quot;Name&quot;, &quot;ObjectType&quot;, &quot;Value&quot;)
+	
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;OptionGroup.get&quot; &amp; psProperty)
+	
+&apos;Execute
+Dim oDatabase As Object, vBookmark As Variant
+Dim iValue As Integer, i As Integer
+	_PropertyGet = EMPTY
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Count&quot;)
+			_PropertyGet = _Count
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;Value&quot;)
+			iValue = -1
+			For i = 0 To _Count - 1			&apos;	Find the selected RadioButton
+				If _ButtonsGroup(i).State = 1 Then
+					iValue = _ButtonsIndex(i)
+					Exit For
+				End If
+			Next i
+			_PropertyGet = iValue
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;OptionGroup.get&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEWARNING, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRINDEXVALUE, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;OptionGroup._PropertyGet&quot;, Erl)
+	_PropertyGet = EMPTY
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertySet(ByVal psProperty As String, ByVal pvValue As Variant) As Boolean
+
+	Utils._SetCalledSub(&quot;OptionGroup.set&quot; &amp; psProperty)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	_PropertySet = True
+
+&apos;Execute
+Dim i As Integer, iRadioIndex As Integer, oModel As Object, iArgNr As Integer
+
+	If _IsLeft(_A2B_.CalledSub, &quot;OptionGroup.&quot;) Then iArgNr = 1 Else iArgNr = 2
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Value&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Or pvValue &gt; _Count - 1 Then Goto Trace_Error_Value
+			For i = 0 To _Count - 1
+				_ButtonsGroup(i).State = 0
+				If _ButtonsIndex(i) = pvValue Then iRadioIndex = i
+			Next i
+			_ButtonsGroup(iRadioIndex).State = 1
+			Set oModel = _ButtonsGroup(iRadioIndex)
+			If Utils._hasUNOProperty(oModel, &quot;DataField&quot;) Then
+				If Not IsNull(oModel.Datafield) And Not IsEmpty(oModel.Datafield) Then
+					If oModel.Datafield &lt;&gt; &quot;&quot; And Utils._hasUNOMethod(oModel, &quot;commit&quot;) Then oModel.commit()	&apos;	f.i. checkboxes have no commit method ?? [PASTIM]
+				End If
+			End If
+		Case Else
+			Goto Trace_Error
+	End Select
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;OptionGroup.set&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Value:
+	TraceError(TRACEFATAL, ERRPROPERTYVALUE, Utils._CalledSub(), 0, 1, Array(pvValue, psProperty))
+	_PropertySet = False
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;OptionGroup._PropertySet&quot;, Erl)
+	_PropertySet = False
+	GoTo Exit_Function
+End Function		&apos;	_PropertySet
+
+</script:module>

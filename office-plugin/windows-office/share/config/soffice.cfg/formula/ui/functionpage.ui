@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="for">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkTreeStore" id="liststore1">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkBox" id="FunctionPage">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkLabel" id="label_search">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="halign">start</property>
+        <property name="label" translatable="yes" context="functionpage|label_search">_Search</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">search</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkEntry" id="search">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="hexpand">True</property>
+        <property name="activates_default">True</property>
+        <property name="truncate-multiline">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="search-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="functionpage|extended_tip|search">Search for a part of the function name.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="halign">start</property>
+        <property name="label" translatable="yes" context="functionpage|label1">_Category</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">category</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkComboBoxText" id="category">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <items>
+          <item translatable="yes" context="functionpage|category">Last Used</item>
+          <item translatable="yes" context="functionpage|category">All</item>
+        </items>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="category-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="functionpage|extended_tip|category">Lists all the categories to which the different functions are assigned. Select a category to view the appropriate functions in the list field below.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="halign">start</property>
+        <property name="label" translatable="yes" context="functionpage|label2">_Function</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">function</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="hscrollbar_policy">never</property>
+        <property name="shadow_type">in</property>
+        <child>
+          <object class="GtkTreeView" id="function">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="model">liststore1</property>
+            <property name="headers_visible">False</property>
+            <property name="rules_hint">True</property>
+            <property name="search_column">0</property>
+            <property name="show_expanders">False</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection"/>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer3"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="function-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="functionpage|extended_tip|function">Displays the functions found under the selected category. Double-click to select a function.</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+        <property name="position">5</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="FunctionPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="functionpage|extended_tip|FunctionPage">Opens the Function Wizard, which helps you to interactively create formulas.</property>
+      </object>
+    </child>
+  </object>
+</interface>

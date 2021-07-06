@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="chart">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment3">
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment4">
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentINTERVAL">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentINTERVAL1">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkFrame" id="tp_Scale">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="label_xalign">0</property>
+    <property name="shadow_type">none</property>
+    <child>
+      <object class="GtkAlignment" id="alignment1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="top_padding">6</property>
+        <property name="left_padding">12</property>
+        <child>
+          <object class="GtkBox" id="box1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkBox" id="box2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_REVERSE">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_REVERSE">_Reverse direction</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="CBX_REVERSE-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|CBX_REVERSE">Defines where the lower and where the higher values are displayed at the axis. The unchecked state is the mathematical direction.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_LOGARITHM">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_LOGARITHM">_Logarithmic scale</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="CBX_LOGARITHM-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|CBX_LOGARITHM">Specifies that you want the axis to be subdivided logarithmically.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="boxTYPE">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkLabel" id="TXT_AXIS_TYPE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_Scale|TXT_AXIS_TYPE">T_ype</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">LB_AXIS_TYPE</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="LB_AXIS_TYPE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <items>
+                          <item translatable="yes" context="tp_Scale|LB_AXIS_TYPE">Automatic</item>
+                          <item translatable="yes" context="tp_Scale|LB_AXIS_TYPE">Text</item>
+                          <item translatable="yes" context="tp_Scale|LB_AXIS_TYPE">Date</item>
+                        </items>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="LB_AXIS_TYPE-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|LB_AXIS_TYPE">For some types of axes, you can select to format an axis as text or date, or to detect the type automatically.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="gridMINMAX">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="row_spacing">6</property>
+                <property name="column_spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="TXT_MIN">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="tp_Scale|TXT_MIN">_Minimum</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">EDT_MIN</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="TXT_MAX">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="tp_Scale|TXT_MAX">Ma_ximum</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">EDT_MAX</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_AUTO_MIN">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_AUTO_MIN">_Automatic</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_AUTO_MAX">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_AUTO_MAX">A_utomatic</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="EDT_MIN">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="activates_default">True</property>
+                    <property name="width_chars">10</property>
+                    <property name="adjustment">adjustment1</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="EDT_MIN-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|EDT_MIN">Defines the minimum value for the beginning of the axis.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="EDT_MAX">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="activates_default">True</property>
+                    <property name="width_chars">10</property>
+                    <property name="adjustment">adjustment2</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="EDT_MAX-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|EDT_MAX">Defines the maximum value for the end of the axis.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="boxRESOLUTION">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="TXT_TIME_RESOLUTION">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="tp_Scale|TXT_TIME_RESOLUTION">R_esolution</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">LB_TIME_RESOLUTION</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="LB_TIME_RESOLUTION">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item id="0" translatable="yes" context="tp_Scale|liststoreDATE">Days</item>
+                      <item id="1" translatable="yes" context="tp_Scale|liststoreDATE">Months</item>
+                      <item id="2" translatable="yes" context="tp_Scale|liststoreDATE">Years</item>
+                    </items>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="LB_TIME_RESOLUTION-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|LB_TIME_RESOLUTION">Resolution can be set to show days, months, or years as interval steps.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_AUTO_TIME_RESOLUTION">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_AUTO_TIME_RESOLUTION">Automat_ic</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="boxMAIN">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="TXT_STEP_MAIN">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="tp_Scale|TXT_STEP_MAIN">Ma_jor interval</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="box5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox" id="box9">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">12</property>
+                        <child>
+                          <object class="GtkSpinButton" id="MT_MAIN_DATE_STEP">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="activates_default">True</property>
+                            <property name="width_chars">10</property>
+                            <property name="adjustment">adjustmentINTERVAL</property>
+                            <property name="truncate-multiline">True</property>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="MT_MAIN_DATE_STEP-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|MT_MAIN_DATE_STEP">Major interval can be set to show a certain number of days, months, or years.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="LB_MAIN_TIME_UNIT">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <items>
+                              <item id="0" translatable="yes" context="tp_Scale|liststoreDATE">Days</item>
+                              <item id="1" translatable="yes" context="tp_Scale|liststoreDATE">Months</item>
+                              <item id="2" translatable="yes" context="tp_Scale|liststoreDATE">Years</item>
+                            </items>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="LB_MAIN_TIME_UNIT-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|LB_MAIN_TIME_UNIT">Major interval can be set to show a certain number of days, months, or years.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="EDT_STEP_MAIN">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="activates_default">True</property>
+                        <property name="width_chars">10</property>
+                        <property name="adjustment">adjustment4</property>
+                        <property name="truncate-multiline">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="EDT_STEP_MAIN-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|EDT_STEP_MAIN">Defines the interval for the main division of the axes.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_AUTO_STEP_MAIN">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_AUTO_STEP_MAIN">Au_tomatic</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="boxMINOR">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkBox" id="box4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkLabel" id="TXT_STEP_HELP">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_Scale|TXT_STEP_HELP">Minor inter_val</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="TXT_STEP_HELP_COUNT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="tp_Scale|TXT_STEP_HELP_COUNT">Minor inter_val count</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="MT_STEPHELP">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="activates_default">True</property>
+                    <property name="width_chars">10</property>
+                    <property name="adjustment">adjustmentINTERVAL1</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="MT_STEPHELP-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|MT_STEPHELP">Defines the interval for the subdivision of the axes.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="LB_HELP_TIME_UNIT">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item id="0" translatable="yes" context="tp_Scale|liststoreDATE">Days</item>
+                      <item id="1" translatable="yes" context="tp_Scale|liststoreDATE">Months</item>
+                      <item id="2" translatable="yes" context="tp_Scale|liststoreDATE">Years</item>
+                    </items>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="LB_HELP_TIME_UNIT-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|LB_HELP_TIME_UNIT">Minor interval can be set to show a certain number of days, months, or years.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_AUTO_STEP_HELP">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_AUTO_STEP_HELP">Aut_omatic</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="boxORIGIN">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="TXT_ORIGIN">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="tp_Scale|TXT_ORIGIN">Re_ference value</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="EDT_ORIGIN">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="activates_default">True</property>
+                    <property name="width_chars">10</property>
+                    <property name="adjustment">adjustment3</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="EDT_ORIGIN-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|EDT_ORIGIN">Specifies at which position to display the values along the axis.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CBX_AUTO_ORIGIN">
+                    <property name="label" translatable="yes" context="tp_Scale|CBX_AUTO_ORIGIN">Automat_ic</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="CBX_AUTO_ORIGIN-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="tp_Scale|extended_tip|CBX_AUTO_ORIGIN">You must first deselect the Automatic option in order to modify the values.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="label">
+      <object class="GtkLabel" id="FL_SCALE">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="tp_Scale|FL_SCALE">Scale</property>
+        <property name="xalign">0</property>
+        <attributes>
+          <attribute name="weight" value="bold"/>
+        </attributes>
+      </object>
+    </child>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroupCOMBO">
+    <widgets>
+      <widget name="LB_AXIS_TYPE"/>
+      <widget name="EDT_MIN"/>
+      <widget name="EDT_MAX"/>
+      <widget name="MT_MAIN_DATE_STEP"/>
+      <widget name="EDT_STEP_MAIN"/>
+      <widget name="MT_STEPHELP"/>
+      <widget name="EDT_ORIGIN"/>
+      <widget name="LB_TIME_RESOLUTION"/>
+      <widget name="LB_MAIN_TIME_UNIT"/>
+      <widget name="LB_HELP_TIME_UNIT"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroupLABELS">
+    <widgets>
+      <widget name="TXT_STEP_HELP_COUNT"/>
+      <widget name="TXT_STEP_HELP"/>
+      <widget name="TXT_STEP_MAIN"/>
+      <widget name="TXT_TIME_RESOLUTION"/>
+      <widget name="TXT_MAX"/>
+      <widget name="TXT_MIN"/>
+      <widget name="TXT_AXIS_TYPE"/>
+      <widget name="CBX_LOGARITHM"/>
+      <widget name="CBX_REVERSE"/>
+      <widget name="TXT_ORIGIN"/>
+    </widgets>
+  </object>
+</interface>

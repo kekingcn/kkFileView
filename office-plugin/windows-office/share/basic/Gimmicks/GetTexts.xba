@@ -1,32 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="GetTexts" script:language="StarBasic">Option Explicit
-&apos; Macro-Description:
-&apos; This Macro extracts the Strings out of the currently activated document und inserts them into a logdocument
-&apos; The aim of the macro is to provide the programmer an insight into the StarOffice API
-&apos; It focusses on how document-Objects are accessed.
-&apos; Therefor not only texts of the document-body are retrieved but also Texts of general
-&apos; document Objects like, Annotations, charts and general Document Information
+&apos; Description:
+&apos; This macro extracts the strings out of the currently active document and inserts them into a log document.
+&apos; The aim of the macro is to provide the programmer an insight into the OpenOffice API.
+&apos; It focuses on how document objects are accessed.
+&apos; Therefore not only texts of the document body are retrieved but also texts of general
+&apos; document objects like, annotations, charts and general document information.
 
 Public oLogDocument, oLogText, oLogCursor, oLogHeaderStyle, oLogBodyTextStyle as Object
 Public oDocument as Object
@@ -38,13 +35,13 @@ Sub Main
 Dim sDocType as String
 Dim oHyperCursor as Object
 Dim oCharStyles as Object
-    BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
 	On Local Error GoTo NODOCUMENT
 	oDocument = StarDesktop.ActiveFrame.Controller.Model
 	sDocType = GetDocumentType(oDocument)
 	NODOCUMENT:
 	If Err &lt;&gt; 0 Then
-		Msgbox(&quot;This macro extracts all data from the active Writer, Calc or Draw document.&quot; &amp; chr(13) &amp;_
+		Msgbox(&quot;This macro extracts all data from the active Writer, Calc or Draw/Impress document.&quot; &amp; chr(13) &amp;_
 			   &quot;To start this macro you have to activate a document first.&quot; , 16, GetProductName)
 		Exit Sub
 	End If
@@ -55,7 +52,7 @@ Dim oCharStyles as Object
 	If Not IsNull(oLogDocument) Then
 		oLogText = oLogDocument.Text
 
-		&apos; create and define the character styles of the Log-document
+		&apos; create and define the character styles of the log document
 		oCharStyles = oLogDocument.StyleFamilies.GetByName(&quot;CharacterStyles&quot;)
 		oLogHeaderStyle = oLogDocument.createInstance(&quot;com.sun.star.style.CharacterStyle&quot;)
 		oCharStyles.InsertbyName(&quot;Log Header&quot;, oLogHeaderStyle)
@@ -101,7 +98,7 @@ Dim oCharStyles as Object
 End Sub
 
 
-&apos; ***********************************************Calc-Documents**************************************************
+&apos; ***********************************************Calc documents**************************************************
 
 Sub GetCalcStrings()
 Dim i, n as integer
@@ -114,7 +111,7 @@ Dim oSheets as Object
 	For i = 0 to osheets.Count - 1
 		oSheet = osheets.GetbyIndex(i)
 		SheetName = oSheet.Name
-		MakeLogHeadLine(&quot;Sheet No. &quot; &amp; i &amp; &quot;(&quot; &amp; SheetName &amp; &quot;)&quot; )
+		MakeLogHeadLine(&quot;Sheet No. &quot; &amp; i &amp; &quot; (&quot; &amp; SheetName &amp; &quot;)&quot; )
 
 		&apos; Check the &quot;body&quot; of the sheet
 		GetCellTexts(oSheet)
@@ -185,7 +182,7 @@ Dim n,m as integer
 End Sub
 
 
-&apos; ***********************************************Writer-Documents**************************************************
+&apos; ***********************************************Writer documents**************************************************
 
 Sub GetParagraphTexts(oParaObject as Object, HeadLine as String)
 Dim ParaEnum as Object
@@ -202,8 +199,8 @@ Dim oCell as Object
 	While ParaEnum.HasMoreElements
 		oPara = ParaEnum.NextElement
 
-		&apos; Note: The Enumeration ParaEnum lists all tables and Paragraphs.
-		&apos; Therefor we have to find out what kind of object &quot;oPara&quot; actually is
+		&apos; Note: The enumeration ParaEnum lists all tables and paragraphs.
+		&apos; Therefore we have to find out what kind of object &quot;oPara&quot; actually is
 		If oPara.supportsService(&quot;com.sun.star.text.Paragraph&quot;) Then
 			&apos; &quot;oPara&quot; is a Paragraph
 			oTextPortEnum = oPara.createEnumeration
@@ -223,7 +220,6 @@ Dim oCell as Object
 		End If
 	Wend
 End Sub
-
 
 
 Sub GetChartStrings(oSheet as Object, HeaderLine as String)
@@ -260,7 +256,6 @@ Dim aChartDiagram as Object
 End Sub
 
 
-
 Sub GetFrameTexts()
 Dim i as integer
 Dim oTextFrame as object
@@ -274,8 +269,8 @@ Dim oFrameTextPort as Object
 		oTextFrame = oDocument.TextFrames.GetbyIndex(i)
 		WriteStringToLogFile(oTextFrame.Name)
 
-		&apos; Is the frame bound to the Page
-		If oTextFrame.AnchorType  = com.sun.star.text.TextContentAnchorType.AT_PAGE  Then
+		&apos; Is the frame bound to the page?
+		If oTextFrame.AnchorType = com.sun.star.text.TextContentAnchorType.AT_PAGE Then
 			GetParagraphTexts(oTextFrame, &quot;Text Frame Contents&quot;)
 		End If
 
@@ -316,7 +311,6 @@ Dim CurElement as Object
 		End If
 	Wend
 End Sub
-
 
 
 Sub GetLinkedFileNames()
@@ -360,7 +354,7 @@ Sub GetWriterStrings()
 End Sub
 
 
-&apos; ***********************************************Draw-Documents**************************************************
+&apos; ***********************************************Draw/Impress documents**************************************************
 
 Sub GetDrawPageTitles(LocObject as Object)
 Dim n as integer
@@ -369,9 +363,9 @@ Dim oPage as Object
 	For n = 0 to LocObject.Count - 1
 		oPage = LocObject.GetbyIndex(n)
 		WriteStringtoLogFile(oPage.Name)
-		&apos; Is the Page a DrawPage and not a MasterPage?
+		&apos; Is the page a DrawPage and not a MasterPage?
 		If oPage.supportsService(&quot;com.sun.star.drawing.DrawPage&quot;)then
-			&apos; Get the Name of the NotesPage (only relevant for Impress-Documents)
+			&apos; Get the name of the NotesPage (only relevant for Impress documents)
 			If oDocument.supportsService(&quot;com.sun.star.presentation.PresentationDocument&quot;) then
 				WriteStringtoLogFile(oPage.NotesPage.Name)
 			End If
@@ -428,10 +422,10 @@ Dim oDocuProps as Object
 	WriteStringToLogFile(oDocuProps.Description)
 	WriteStringToLogFile(oDocuProps.Subject)
 	WriteStringToLogFile(oDocuProps.Author)
-&apos; 	WriteStringToLogFile(oDocuProps.UserDefinedProperties.ReplyTo)
-&apos; 	WriteStringToLogFile(oDocuProps.UserDefinedProperties.Recipient)
-&apos; 	WriteStringToLogFile(oDocuProps.UserDefinedProperties.References)
-&apos; 	WriteStringToLogFile(oDocuProps.Keywords)
+	&apos; WriteStringToLogFile(oDocuProps.UserDefinedProperties.ReplyTo)
+	&apos; WriteStringToLogFile(oDocuProps.UserDefinedProperties.Recipient)
+	&apos; WriteStringToLogFile(oDocuProps.UserDefinedProperties.References)
+	&apos; WriteStringToLogFile(oDocuProps.Keywords)
 End Sub
 
 
@@ -457,7 +451,7 @@ Dim oSearchDesc as Object
 	For i = 0 to oAllHyperLinks.Count - 1
 		oFound = oAllHyperLinks(i)
 		oCrsr = oFound.Text.createTextCursorByRange(oFound)
-		WriteStringToLogFile(oCrs.HyperLinkURL)   	&apos;Url
+		WriteStringToLogFile(oCrs.HyperLinkURL) 	&apos;Url
 		WriteStringToLogFile(oCrs.HyperLinkTarget)	&apos;Name
 		WriteStringToLogFile(oCrs.HyperLinkName)	&apos;Frame
 	Next i
@@ -520,14 +514,14 @@ Dim i as integer
 	End If
 End Sub
 
-&apos; ***********************************************LogDocument**************************************************
+&apos; ***********************************************Log document**************************************************
 
 Sub WriteStringtoLogFile( sString as String)
 	If (Not FieldInArray(LogArray(),LogIndex,sString))AND (NOT ISNULL(sString)) Then
 		LogArray(LogIndex) = sString
 		LogIndex = LogIndex + 1
 		oLogText.insertString(oLogCursor,sString,False)
-   		oLogText.insertControlCharacter(oLogCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
+		oLogText.insertControlCharacter(oLogCursor,com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK,False)
 	End If
 End Sub
 

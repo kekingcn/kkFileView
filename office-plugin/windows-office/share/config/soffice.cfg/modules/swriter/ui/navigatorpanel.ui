@@ -1,0 +1,1035 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="sw">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="lower">1</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkMenu" id="dragmodemenu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkRadioMenuItem" id="hyperlink">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|hyperlink">Insert as Hyperlink</property>
+        <property name="use_underline">True</property>
+        <property name="active">True</property>
+        <property name="draw_as_radio">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="link">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|link">Insert as Link</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">hyperlink</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="copy">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|copy">Insert as Copy</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">hyperlink</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMenu" id="headingsmenu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkRadioMenuItem" id="1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">1</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">2</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="3">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">3</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="4">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">4</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="5">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">5</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="6">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">6</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="7">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">7</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="8">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">8</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="9">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">9</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="10">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label">10</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">1</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMenu" id="insertmenu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem" id="insertindex">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_INDEX">_Index</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="insertfile">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_FILE">File</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="insertnewfile">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_NEW_FILE">New Document</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="inserttext">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_INSERT_TEXT">Text</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkTreeStore" id="liststore1">
+    <columns>
+      <!-- column-name expander -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name weight -->
+      <column type="gint"/>
+      <!-- column-name sensitive -->
+      <column type="gboolean"/>
+      <!-- column-name extraindent -->
+      <column type="gint"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="liststore2">
+    <columns>
+      <!-- column-name expander -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name textcolor -->
+      <column type="GdkRGBA"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="liststore4">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name image -->
+      <column type="GdkPixbuf"/>
+    </columns>
+  </object>
+  <!-- n-columns=1 n-rows=1 -->
+  <object class="GtkGrid" id="NavigatorPanel">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <child>
+      <!-- n-columns=1 n-rows=1 -->
+      <object class="GtkGrid">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="border_width">6</property>
+        <property name="row_spacing">6</property>
+        <property name="column_spacing">12</property>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="row_spacing">6</property>
+            <property name="column_spacing">12</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkGrid">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkToolbar" id="content1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="toolbar_style">icons</property>
+                        <child>
+                          <object class="GtkToggleToolButton" id="contenttoggle">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes" context="navigatorpanel|contenttoggle|tooltip_text">Toggle Master View</property>
+                            <property name="icon_name">sw/res/sc20244.png</property>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="contenttoggle-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|contenttoggle">Switches between master view and normal view if a master document is open.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">False</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolbar" id="content2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="toolbar_style">icons</property>
+                        <child>
+                          <object class="GtkToolItem" id=".uno:NavElement">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="hexpand">True</property>
+                            <child>
+                              <object class="GtkComboBox" id="NavElementWidget">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="hexpand">True</property>
+                                <property name="model">liststore4</property>
+                                <property name="entry_text_column">0</property>
+                                <property name="id_column">1</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="cellrenderertext7"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                                <child>
+                                  <object class="GtkCellRendererPixbuf" id="cellrenderertext8"/>
+                                  <attributes>
+                                    <attribute name="pixbuf">2</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="homogeneous">False</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolbar" id="content3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="toolbar_style">icons</property>
+                        <child>
+                          <object class="GtkToolButton" id=".uno:ScrollToPrevious">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id=".uno:ScrollToNext">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">False</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolbar" id="content4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="toolbar_style">icons</property>
+                        <child>
+                          <object class="GtkToolItem" id="contentedit">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="hexpand">True</property>
+                            <child>
+                              <object class="GtkSpinButton" id="spinbutton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="tooltip_text" translatable="yes" context="navigatorpanel|spinbutton|tooltip_text">Go to Page</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">adjustment1</property>
+                                <property name="value">1</property>
+                                <property name="truncate-multiline">True</property>
+                                <child internal-child="accessible">
+                                  <object class="AtkObject" id="spinbutton-atkobject">
+                                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|spinbutton">Enter page number and press Enter. Use arrows to move to next page forward or backward.</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="homogeneous">False</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">3</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolbar" id="content5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="toolbar_style">icons</property>
+                    <child>
+                      <object class="GtkToggleToolButton" id="root">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|root|tooltip_text">Content Navigation View</property>
+                        <property name="icon_name">sw/res/sc20234.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="root-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|root">Switches between the display of all categories in the Navigator and the selected category.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separator3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="header">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|header|tooltip_text">Header</property>
+                        <property name="icon_name">sw/res/sc20179.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="header-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|header">Moves the cursor to the header, or from the header to the document text area.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="footer">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|footer|tooltip_text">Footer</property>
+                        <property name="icon_name">sw/res/sc20177.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="footer-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|footer">Moves the cursor to the footer, or from the footer to the document text area.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="anchor">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|anchor|tooltip_text">Anchor&lt;-&gt;Text</property>
+                        <property name="icon_name">sw/res/sc20182.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="anchor-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|anchor">Jumps between the footnote text and the footnote anchor.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="reminder">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|reminder|tooltip_text">Set Reminder</property>
+                        <property name="icon_name">sw/res/sc20183.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="reminder-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|reminder">Click here to set a reminder at the current cursor position. You can define up to five reminders. To jump to a reminder, click the Navigation icon, in the Navigation window click the Reminder icon, and then click the Previous or Next button.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separator5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkMenuToolButton" id="headings">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|headings|tooltip_text">Heading Levels Shown</property>
+                        <property name="icon_name">sw/res/sc20236.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="headings-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|headings">Click this icon, and then choose the number of heading outline levels that you want to view in the Navigator window.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolbar" id="content6">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="toolbar_style">icons</property>
+                    <child>
+                      <object class="GtkToggleToolButton" id="listbox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|listbox|tooltip_text">List Box On/Off</property>
+                        <property name="icon_name">sw/res/sc20233.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="listbox-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|listbox">Shows or hides the Navigator list.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separator6">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="promote">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|promote|tooltip_text">Promote Level</property>
+                        <property name="icon_name">sw/res/sc20172.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="promote-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|promote">Increases the outline level of the selected heading, and the headings that occur below the heading, by one. To only increase the outline level of the selected heading, hold down Ctrl, and then click this icon.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="demote">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|demote|tooltip_text">Demote Level</property>
+                        <property name="icon_name">sw/res/sc20173.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="demote-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|demote">Decreases the outline level of the selected heading, and the headings that occur below the heading, by one. To only decrease the outline level of the selected heading, hold down Ctrl, and then click this icon.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="chapterup">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|chapterup|tooltip_text">Promote Chapter</property>
+                        <property name="icon_name">sw/res/sc20174.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="chapterup-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|chapterup">Moves the selected heading, and the text below the heading, up one heading position in the Navigator and in the document. To move only the selected heading and not the text associated with the heading, hold down Ctrl, and then click this icon.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="chapterdown">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|chapterdown|tooltip_text">Demote Chapter</property>
+                        <property name="icon_name">sw/res/sc20171.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="chapterdown-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|chapterdown">Moves the selected heading, and the text below the heading, down one heading position in the Navigator and in the document. To move only the selected heading and not the text associated with the heading, hold down Ctrl, and then click this icon.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separator1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkMenuToolButton" id="dragmode">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes" context="navigatorpanel|dragmode|tooltip_text">Drag Mode</property>
+                        <property name="icon_name">sw/res/sc20235.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="dragmode-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|dragmode">Sets the drag and drop options for inserting items from the Navigator into a document, for example, as a hyperlink. Click this icon, and then choose the option that you want to use.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="documents">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes" context="navigatorpanel|documents|tooltip_text">Document</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="documents-atkobject">
+                <property name="AtkObject::accessible-name" translatable="yes" context="navigatorpanel|documents-atkobject">Active Window</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="contentbox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkTreeView" id="contenttree">
+                    <property name="width_request">-1</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="has_tooltip">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="model">liststore1</property>
+                    <property name="headers_visible">False</property>
+                    <property name="reorderable">True</property>
+                    <property name="search_column">1</property>
+                    <property name="enable_tree_lines">True</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="Macro Library List-selection1"/>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkCellRendererPixbuf" id="cellrenderertext4"/>
+                          <attributes>
+                            <attribute name="sensitive">4</attribute>
+                            <attribute name="pixbuf">0</attribute>
+                          </attributes>
+                        </child>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext2">
+                            <property name="xalign">0</property>
+                          </object>
+                          <attributes>
+                            <attribute name="xpad">5</attribute>
+                            <attribute name="sensitive">4</attribute>
+                            <attribute name="text">1</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkToolbar" id="global">
+            <property name="can_focus">False</property>
+            <property name="toolbar_style">icons</property>
+            <child>
+              <object class="GtkToggleToolButton" id="globaltoggle">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="navigatorpanel|globaltoggle|tooltip_text">Toggle Master View</property>
+                <property name="icon_name">sw/res/sc20244.png</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="globaltoggle-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|globaltoggle">Switches between master view and normal view if a master document is open.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separator7">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="edit">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="navigatorpanel|edit|tooltip_text">Edit</property>
+                <property name="icon_name">sw/res/sc20245.png</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="edit-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|edit">Edit the contents of the component selected in the Navigator list. If the selection is a file, the file is opened for editing. If the selection is an index, the Index dialog is opened.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkMenuToolButton" id="update">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="navigatorpanel|update|tooltip_text">Update</property>
+                <property name="icon_name">sw/res/sc20246.png</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="update-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|update">Click and choose the contents that you want to update.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkMenuToolButton" id="insert">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="navigatorpanel|insert|tooltip_text">Insert</property>
+                <property name="icon_name">sw/res/sc20247.png</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="insert-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|insert">Inserts a file, an index, or a new document into the master document.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separator8">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleToolButton" id="save">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="navigatorpanel|save|tooltip_text">Save Contents as well</property>
+                <property name="icon_name">sw/res/sc20248.png</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="save-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|save">Saves a copy of the contents of the linked files in the master document. This ensures that the current contents are available when the linked files cannot be accessed.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separator9">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="moveup">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="navigatorpanel|moveup|tooltip_text">Move Up</property>
+                <property name="icon_name">sw/res/sc20174.png</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="moveup-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|moveup">Moves the selection up one position in the Navigator list.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="movedown">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="navigatorpanel|movedown|tooltip_text">Move Down</property>
+                <property name="icon_name">sw/res/sc20171.png</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="movedown-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="navigatorpanel|extended_tip|movedown">Moves the selection down one position in the Navigator list.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="globalbox">
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkTreeView" id="globaltree">
+                    <property name="width_request">-1</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="has_tooltip">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="model">liststore2</property>
+                    <property name="headers_visible">False</property>
+                    <property name="reorderable">True</property>
+                    <property name="search_column">1</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection"/>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkCellRendererPixbuf" id="cellrenderertext5"/>
+                          <attributes>
+                            <attribute name="pixbuf">0</attribute>
+                          </attributes>
+                        </child>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext6"/>
+                          <attributes>
+                            <attribute name="text">1</attribute>
+                            <attribute name="foreground-rgba">3</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">3</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
+      </packing>
+    </child>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroup1"/>
+  <object class="GtkMenu" id="updatemenu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem" id="updatesel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_UPDATE_SEL">Selection</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="updateindex">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_UPDATE_INDEX">Indexes</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="updatelinks">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_UPDATE_SEL">Links</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="updateall">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="navigatorpanel|STR_UPDATE_ALL">All</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+  </object>
+</interface>

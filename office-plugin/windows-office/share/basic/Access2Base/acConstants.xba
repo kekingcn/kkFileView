@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="acConstants" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Explicit
+
+REM Access2Base -----------------------------------------------------
+Global Const Access2Base_Version = &quot;7.1.0&quot;		&apos;	Alignment on LibreOffice versions
+
+REM AcCloseSave
+REM -----------------------------------------------------------------
+Global Const acSaveNo = 2
+Global Const acSavePrompt = 0
+Global Const acSaveYes = 1
+
+REM AcFormView
+REM -----------------------------------------------------------------
+Global Const acDesign = 1
+Global Const acNormal = 0
+Global Const acPreview = 2
+
+REM AcFormOpenDataMode
+REM -----------------------------------------------------------------
+Global Const acFormAdd = 0
+Global Const acFormEdit = 1
+Global Const acFormPropertySettings = -1
+Global Const acFormReadOnly = 2
+
+REM acView
+REM -----------------------------------------------------------------
+Global Const acViewDesign = 1
+Global Const acViewNormal = 0
+Global Const acViewPreview = 2
+
+REM acOpenDataMode
+REM -----------------------------------------------------------------
+Global Const acAdd = 0
+Global Const acEdit = 1
+Global Const acReadOnly = 2
+
+REM AcObjectType
+REM -----------------------------------------------------------------
+Global Const acDefault = -1
+Global Const acDiagram = 8
+Global Const acForm = 2
+Global Const acQuery = 1
+Global Const acReport = 3
+Global Const acTable = 0
+&apos;			Unexisting in MS/Access
+Global Const acBasicIDE = 101
+Global Const acDatabaseWindow = 102
+Global Const acDocument = 111
+Global Const acWelcome = 112
+&apos;			Subtype if acDocument
+Global Const docWriter = &quot;Writer&quot;
+Global Const docCalc = &quot;Calc&quot;
+Global Const docImpress = &quot;Impress&quot;
+Global Const docDraw = &quot;Draw&quot;
+Global Const docMath = &quot;Math&quot;
+
+REM AcWindowMode
+REM -----------------------------------------------------------------
+Global Const acDialog = 3
+Global Const acHidden = 1
+Global Const acIcon = 2
+Global Const acWindowNormal = 0
+
+REM VarType constants
+REM -----------------------------------------------------------------
+Global Const vbEmpty = 0
+Global Const vbNull = 1
+Global Const vbInteger = 2
+Global Const vbLong = 3
+Global Const vbSingle = 4
+Global Const vbDouble = 5
+Global Const vbCurrency = 6
+Global Const vbDate = 7
+Global Const vbString = 8
+Global Const vbObject = 9
+Global Const vbError = 10
+Global Const vbBoolean = 11
+Global Const vbVariant = 12
+Global Const vbByte = 17
+Global Const vbUShort = 18
+Global Const vbULong = 19
+Global Const vbBigint = 35
+Global Const vbDecimal = 37
+Global Const vbArray = 8192
+
+REM MsgBox constants
+REM -----------------------------------------------------------------
+Global Const vbOKOnly = 0 			&apos;	OK button only (default) 
+Global Const vbOKCancel = 1 		&apos;	OK and Cancel buttons 
+Global Const vbAbortRetryIgnore = 2 &apos;	Abort, Retry, and Ignore buttons 
+Global Const vbYesNoCancel = 3 		&apos;	Yes, No, and Cancel buttons 
+Global Const vbYesNo = 4 			&apos;	Yes and No buttons 
+Global Const vbRetryCancel = 5 		&apos;	Retry and Cancel buttons 
+Global Const vbCritical = 16 		&apos;	Critical message 
+Global Const vbQuestion = 32 		&apos;	Warning query 
+Global Const vbExclamation = 48 	&apos;	Warning message 
+Global Const vbInformation = 64 	&apos;	Information message 
+Global Const vbDefaultButton1 = 128	&apos;	First button is default (default) (VBA: 0)
+Global Const vbDefaultButton2 = 256 &apos;	Second button is default 
+Global Const vbDefaultButton3 = 512 &apos;	Third button is default 
+Global Const vbApplicationModal = 0 &apos;	Application modal message box (default) 
+REM MsgBox Return Values
+REM -----------------------------------------------------------------
+Global Const vbOK = 1				&apos;	OK button pressed
+Global Const vbCancel = 2 			&apos;	Cancel button pressed
+Global Const vbAbort = 3 			&apos;	Abort button pressed
+Global Const vbRetry = 4 			&apos;	Retry button pressed
+Global Const vbIgnore = 5 			&apos;	Ignore button pressed
+Global Const vbYes = 6 				&apos;	Yes button pressed
+Global Const vbNo = 7 				&apos;	No button pressed
+
+REM Dialogs Return Values
+REM ------------------------------------------------------------------
+Global Const dlgOK = 1				&apos;	OK button pressed
+Global Const dlgCancel = 0			&apos;	Cancel button pressed
+
+REM Control Types
+REM -----------------------------------------------------------------
+Global Const acCheckBox = 5
+Global Const acComboBox = 7
+Global Const acCommandButton = 2	:	Global Const acToggleButton = 122
+Global Const acCurrencyField = 18
+Global Const acDateField = 15
+Global Const acFileControl = 12
+Global Const acFixedLine = 24			&apos;	FREE ENTRY (USEFUL IN DIALOGS)
+Global Const acFixedText = 10		:	Global Const acLabel = 10
+Global Const acFormattedField = 1		&apos;	FREE ENTRY TAKEN TO NOT CONFUSE WITH acTextField
+Global Const acGridControl = 11
+Global Const acGroupBox = 8			:	Global Const acOptionGroup = 8
+Global Const acHiddenControl = 13
+Global Const acImageButton = 4
+Global Const acImageControl = 14	:	Global Const acImage = 14
+Global Const acListBox = 6
+Global Const acNavigationBar = 22
+Global Const acNumericField = 17
+Global Const acPatternField = 19
+Global Const acProgressBar = 23			&apos;	FREE ENTRY (USEFUL IN DIALOGS)
+Global Const acRadioButton = 3		:	Global Const acOptionButton = 3
+Global Const acScrollBar = 20
+Global Const acSpinButton = 21
+Global Const acSubform = 112 
+Global Const acTextField = 9		:	Global Const acTextBox = 9
+Global Const acTimeField = 16
+
+REM AcRecord
+REM -----------------------------------------------------------------
+Global Const acFirst = 2 
+Global Const acGoTo = 4 
+Global Const acLast = 3 
+Global Const acNewRec = 5 
+Global Const acNext = 1 
+Global Const acPrevious = 0
+
+REM FindRecord
+REM -----------------------------------------------------------------
+Global Const acAnywhere = 0
+Global Const acEntire = 1
+Global Const acStart = 2
+Global Const acDown = 1
+Global Const acSearchAll = 2
+Global Const acUp = 0
+Global Const acAll = 0
+Global Const acCurrent = -1
+
+REM AcDataObjectType
+REM -----------------------------------------------------------------
+Global Const acActiveDataObject = -1
+Global Const acDataForm = 2
+Global Const acDataQuery = 1
+Global Const acDataServerView = 7
+Global Const acDataStoredProcedure = 9
+Global Const acDataTable = 0
+
+REM AcQuitOption
+REM -----------------------------------------------------------------
+Global Const acQuitPrompt = 0
+Global Const acQuitSaveAll = 1
+Global Const acQuitSaveNone = 2
+
+REM AcCommand
+REM -----------------------------------------------------------------
+Global Const acCmdAboutMicrosoftAccess = 35
+Global Const acCmdAboutOpenOffice = 35
+Global Const acCmdAboutLibreOffice = 35
+Global Const acCmdVisualBasicEditor = 525
+Global Const acCmdBringToFront = 52
+Global Const acCmdClose = 58
+Global Const acCmdToolbarsCustomize = 165
+Global Const acCmdChangeToCommandButton = 501
+Global Const acCmdChangeToCheckBox = 231
+Global Const acCmdChangeToComboBox = 230
+Global Const acCmdChangeToTextBox = 227
+Global Const acCmdChangeToLabel = 228
+Global Const acCmdChangeToImage = 234
+Global Const acCmdChangeToListBox = 229
+Global Const acCmdChangeToOptionButton = 233
+Global Const acCmdCopy = 190
+Global Const acCmdCut = 189
+Global Const acCmdCreateRelationship = 150
+Global Const acCmdDelete = 337
+Global Const acCmdDatabaseProperties = 256
+Global Const acCmdSQLView = 184
+Global Const acCmdRemove = 366
+Global Const acCmdDesignView = 183
+Global Const acCmdFormView = 281
+Global Const acCmdNewObjectForm = 136
+Global Const acCmdNewObjectTable = 134
+Global Const acCmdNewObjectView = 350
+Global Const acCmdOpenDatabase = 25
+Global Const acCmdNewObjectQuery = 135
+Global Const acCmdShowAllRelationships = 149
+Global Const acCmdNewObjectReport = 137
+Global Const acCmdSelectAll = 333
+Global Const acCmdRemoveTable = 84
+Global Const acCmdOpenTable = 221
+Global Const acCmdRename = 143
+Global Const acCmdDeleteRecord = 223
+Global Const acCmdApplyFilterSort = 93
+Global Const acCmdSnapToGrid = 62
+Global Const acCmdViewGrid = 63
+Global Const acCmdInsertHyperlink = 259
+Global Const acCmdMaximumRecords = 508
+Global Const acCmdObjectBrowser = 200
+Global Const acCmdPaste = 191
+Global Const acCmdPasteSpecial = 64
+Global Const acCmdPrint = 340
+Global Const acCmdPrintPreview = 54
+Global Const acCmdSaveRecord = 97
+Global Const acCmdFind = 30
+Global Const acCmdUndo = 292
+Global Const acCmdRefresh = 18
+Global Const acCmdRemoveFilterSort = 144
+Global Const acCmdRunMacro = 31
+Global Const acCmdSave = 20
+Global Const acCmdSaveAs = 21
+Global Const acCmdSelectAllRecords = 109
+Global Const acCmdSendToBack = 53
+Global Const acCmdSortDescending = 164
+Global Const acCmdSortAscending = 163
+Global Const acCmdTabOrder = 41
+Global Const acCmdDatasheetView = 282
+Global Const acCmdZoomSelection = 371
+
+REM AcSendObjectType
+REM -----------------------------------------------------------------
+Global Const acSendForm = 2
+Global Const acSendNoObject = -1
+Global Const acSendQuery = 1
+Global Const acSendReport = 3
+Global Const acSendTable = 0
+
+REM AcOutputObjectType
+REM -----------------------------------------------------------------
+Global Const acOutputTable = 0
+Global Const acOutputQuery = 1
+Global Const acOutputForm = 2
+Global Const acOutputArray = -1
+
+REM AcEncoding
+REM -----------------------------------------------------------------
+Global Const acUTF8Encoding = 76
+
+REM AcFormat
+REM -----------------------------------------------------------------
+Global Const acFormatPDF = &quot;writer_pdf_Export&quot;
+Global Const acFormatODT = &quot;writer8&quot;
+Global Const acFormatDOC = &quot;MS Word 97&quot;
+Global Const acFormatHTML = &quot;HTML&quot;
+Global Const acFormatODS = &quot;calc8&quot;
+Global Const acFormatXLS = &quot;MS Excel 97&quot;
+Global Const acFormatXLSX = &quot;Calc MS Excel 2007 XML&quot;
+Global Const acFormatTXT = &quot;Text - txt - csv (StarCalc)&quot;
+
+REM AcExportQuality
+REM -----------------------------------------------------------------
+Global Const acExportQualityPrint = 0
+Global Const acExportQualityScreen = 1
+
+REM AcSysCmdAction
+REM -----------------------------------------------------------------
+Global Const acSysCmdAccessDir = 9
+Global Const acSysCmdAccessVer = 7
+Global Const acSysCmdClearHelpTopic = 11
+Global Const acSysCmdClearStatus = 5
+Global Const acSysCmdGetObjectState = 10
+Global Const acSysCmdGetWorkgroupFile = 13
+Global Const acSysCmdIniFile = 8
+Global Const acSysCmdInitMeter = 1
+Global Const acSysCmdProfile = 12
+Global Const acSysCmdRemoveMeter = 3
+Global Const acSysCmdRuntime = 6
+Global Const acSysCmdSetStatus = 4
+Global Const acSysCmdUpdateMeter = 2
+
+REM Type property
+REM -----------------------------------------------------------------
+Global Const dbBigInt = 16
+Global Const dbBinary = 9
+Global Const dbBoolean = 1
+Global Const dbByte = 2
+Global Const dbChar = 18
+Global Const dbCurrency = 5
+Global Const dbDate = 8
+Global Const dbDecimal = 20
+Global Const dbDouble = 7
+Global Const dbFloat = 21
+Global Const dbGUID = 15
+Global Const dbInteger = 3
+Global Const dbLong = 4
+Global Const dbLongBinary = 11	&apos;	(OLE Object)
+Global Const dbMemo= 12
+Global Const dbNumeric = 19
+Global Const dbSingle = 6
+Global Const dbText = 10
+Global Const dbTime = 22
+Global Const dbTimeStamp = 23
+Global Const dbVarBinary = 17
+Global Const dbUndefined = -1
+
+REM Attributes property
+REM -----------------------------------------------------------------
+Global Const dbAutoIncrField = 16
+Global Const dbDescending = 1
+Global Const dbFixedField = 1
+Global Const dbHyperlinkField = 32768
+Global Const dbSystemField = 8192
+Global Const dbUpdatableField = 32
+Global Const dbVariableField = 2
+
+REM OpenRecordset
+REM -----------------------------------------------------------------
+Global Const dbOpenForwardOnly = 8
+Global Const dbSQLPassThrough = 64
+Global Const dbReadOnly = 4
+
+REM Query types
+REM -----------------------------------------------------------------
+Global Const dbQAction = 240
+Global Const dbQAppend = 64
+Global Const dbQDDL = 4	&apos;96
+Global Const dbQDelete = 32
+Global Const dbQMakeTable = 128	&apos;80
+Global Const dbQSelect = 0
+Global Const dbQSetOperation = 8	&apos;128
+Global Const dbQSQLPassThrough = 1	&apos;112
+Global Const dbQUpdate = 16	&apos;48
+
+REM Edit mode
+REM -----------------------------------------------------------------
+Global Const dbEditNone = 0
+Global Const dbEditInProgress = 1
+Global Const dbEditAdd = 2
+
+REM Toolbars
+REM -----------------------------------------------------------------
+Global Const msoBarTypeNormal = 0		&apos;	Usual toolbar
+Global Const msoBarTypeMenuBar = 1		&apos;	Menu bar
+Global Const msoBarTypePopup = 2		&apos;	Shortcut menu
+Global Const msoBarTypeStatusBar = 11	&apos;	Status bar
+Global Const msoBarTypeFloater = 12		&apos;	Floating window
+
+Global Const msoControlButton = 1		&apos;	Command button
+Global Const msoControlPopup = 10		&apos;	Popup, submenu
+
+REM New Lines
+REM -----------------------------------------------------------------
+Public Function vbCr() As String	:	vbCr = Chr(13)	:	End Function
+Public Function vbLf() As String	:	vbLf = Chr(10)	:	End Function
+Public Function vbNewLine() As String
+Const cstWindows = 1
+	If GetGuiType() = cstWindows Then vbNewLine = vbCR &amp; vbLF Else vbNewLine = vbLF
+End Function	&apos;	vbNewLine V1.4.0
+Public Function vbTab() As String	:	vbTab = Chr(9)	:	End Function
+
+REM Module types
+REM -----------------------------------------------------------------
+Global Const acClassModule = 1
+Global Const acStandardModule = 0
+
+REM (Module) procedure types
+REM -----------------------------------------------------------------
+Global Const vbext_pk_Get = 1			&apos;	A Property Get procedure
+Global Const vbext_pk_Let = 2			&apos;	A Property Let procedure
+Global Const vbext_pk_Proc = 0			&apos;	A Sub or Function procedure
+Global Const vbext_pk_Set = 3			&apos;	A Property Set procedure
+
+</script:module>

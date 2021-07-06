@@ -1,0 +1,135 @@
+^0 núll
+1 einn
+2 tveir
+3 þrír
+4 fjórir
+5 fimm
+6 sex
+7 sjö
+8 átta
+9 níu
+10 tíu
+11 ellefu
+12 tólf
+13 þrettán
+14 fjórtán
+1([56]) $1tán
+17 sautján
+18 átján
+19 nítján
+2(\d) tuttugu[ og $1]
+3(\d) þrjátíu[ og $1]
+4(\d) fjörutíu[ og $1]
+(\d)(\d) $1tíu[ og $2]
+1(\d\d) hundrað[ og $1]
+(\d)(\d\d) [$(cardinal-neuter $1) ]hundrað[ og $2]
+1(\d{3}) þúsund[ og $1]
+(\d{1,3})(\d{3}) [$(cardinal-neuter $1) ]þúsund[ og $2]
+1(\d{6}) ein milljón[ $1]
+(\d{1,3})(\d{6}) [$(cardinal-feminine $1) ]milljónir[ og $2]
+1(\d{9}) einn miljarður[ $1]
+(\d{1,33})(\d{9}) [$1 ]miljarðar[ $2]
+
+# negative number
+
+[-−](\d+) neikvæð |$1
+
+# decimals
+
+0[.,] kommu
+([-−]?\d+)[.,] $1| kommu
+([-−]?\d+[.,]\d*)(\d) $1| |$2
+
+# currency
+
+# unit/subunit singular/plural
+"us, (.*): (.*), (.*), (.*), (.*), (.*), (.*)" $(\2 \1) \3
+"up, (.*): (.*), (.*), (.*), (.*), (.*), (.*)" $(\2 \1) \4
+"ss, (.*): (.*), (.*), (.*), (.*), (.*), (.*)" $(\5 \1) \6
+"sp, (.*): (.*), (.*), (.*), (.*), (.*), (.*)" $(\5 \1) \7
+
+DKK:(\D+,.*) $(\1: cardinal, dönsk króna, dönsk króna, cardinal, aura, aura)
+EUR:(\D+,.*) $(\1: cardinal, evra, evra, cardinal-neuter, sent, sent)
+ISK:(\D+,.*) $(\1: cardinal, króna, krónur, cardinal, aura, aura)
+GBP:(\D+,.*) $(\1: cardinal-neuter, breskt pund, breskt pund, cardinal, penní, penní)
+NOK:(\D+,.*) $(\1: cardinal, norsk króna, norsk krónur, cardinal, aura, aura)
+SEK:(\D+,.*) $(\1: cardinal, sænsk króna, sænsk krónur, cardinal, aura, aura)
+USD:(\D+,.*) $(\1: cardinal, Bandaríkjadalur, Bandaríkjadalir, cardinal-neuter, sent, sent)
+
+"([A-Z]{3}) ([-−]?1)([.,]00?)?"$(\1:us, \2)
+"([A-Z]{3}) ([-−]?\d+)([.,]00?)?"$(\1:up, \2)
+
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 $(\2:ss, 1)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 $(\2:sp, \30)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 $(\2:sp, \3)
+
+== cardinal(-masculine)? ==
+
+(\d+) $2
+
+== cardinal-feminine ==
+
+(\d+) $(cardinal-feminine $1)
+(.*)einn \1ein
+(.*)tveir \1tvær
+(.*)þrír \1þrjár
+(.*)fjórir \1fjórar
+(.*) \1
+
+== cardinal-neuter ==
+
+(\d+) $(cardinal-neuter $1)
+(.*)einn \1eitt
+(.*)tveir \1tvö
+(.*)þrír \1þrjú
+(.*)fjórir \1fjögur
+(.*) \1
+
+== ordinal(-masculine)? ==
+
+0
+1 fyrsti
+2 annar
+3 þriðji
+4 fjórði
+5 fimmti
+6 sjötti
+7 sjöundi
+8 áttundi
+9 níundi
+10 tíundi
+(1\d) $2di
+2(\d) tuttugasti[ og $(ordinal \2)]
+3(\d) þrítugasti[ og $(ordinal \2)]
+4(\d) fertugasti[ og $(ordinal \2)]
+8(\d) áttugasti[ og $(ordinal \2)]
+(\d)(\d) $2tugasti[ og $(ordinal \3)]
+1(\d\d) hundraðasti[ og $(ordinal \2)]
+(\d)(\d\d) [$(cardinal-neuter \2)]hundraðasti[ og $(ordinal \3)]
+1(\d{3}) þúsundasti[ og $(ordinal \2)]
+(\d{1,3})(\d{3}) [$(cardinal-neuter \2)]hundraðasti[ og $(ordinal \3)]
+(.*) \1
+
+== ordinal-feminine ==
+
+(.*)annar(.*) $(ordinal-feminine \1önnur\2)
+
+== ordinal-neuter ==
+
+(.*)annar(.*) $(ordinal-feminine \1annað\2)
+
+== ordinal(-feminine|-neuter)? ==
+
+(\d+) $(ordinal-feminine |$(ordinal \2))
+(.*)i\b(.*) $(ordinal-feminine \2a\3)
+(.*) \2
+
+== ordinal-number ==
+
+(\d+)	\1.
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help cardinal-feminine)$(help cardinal-masculine)$(help cardinal-neuter)$(help ordinal-feminine)$(help ordinal-masculine)$(help ordinal-neuter)$(help ordinal-number)
+(.*) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n
+

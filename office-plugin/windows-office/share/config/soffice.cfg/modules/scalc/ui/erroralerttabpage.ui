@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="sc">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkBox" id="ErrorAlertTabPage">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border_width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <object class="GtkCheckButton" id="tsbshow">
+        <property name="label" translatable="yes" context="erroralerttabpage|tsbshow">Show error _message when invalid values are entered</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="hexpand">True</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="inconsistent">True</property>
+        <property name="draw_indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="tsbshow-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="erroralerttabpage|extended_tip|tsbshow">Displays the error message that you enter in the Contents area when invalid data is entered in a cell.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkFrame" id="frame1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+        <child>
+          <object class="GtkAlignment" id="alignment1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="top_padding">6</property>
+            <property name="left_padding">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="row_spacing">6</property>
+                <property name="column_spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="action_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="erroralerttabpage|action_label">_Action:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">actionCB</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="title_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="erroralerttabpage|title_label">_Title:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">erroralert_title</property>
+                    <property name="xalign">0</property>
+                    <property name="yalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <object class="GtkTextView" id="errorMsg">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="vexpand">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="errorMsg-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="erroralerttabpage|extended_tip|errorMsg">Enter the message that you want to display when invalid data is entered in a cell.</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">2</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="erroralert_title">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="truncate-multiline">True</property>
+                    <property name="activates_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="errormsg_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="erroralerttabpage|errormsg_label">_Error message:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">errorMsg</property>
+                    <property name="xalign">0</property>
+                    <property name="yalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="browseBtn">
+                    <property name="label" translatable="yes" context="erroralerttabpage|browseBtn">_Browse...</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_underline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="browseBtn-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="erroralerttabpage|extended_tip|browseBtn">Opens the Macro dialog where you can select the macro that is executed when invalid data is entered in a cell. The macro is executed after the error message is displayed.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="actionCB">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <items>
+                      <item translatable="yes" context="erroralerttabpage|actionCB">Stop</item>
+                      <item translatable="yes" context="erroralerttabpage|actionCB">Warning</item>
+                      <item translatable="yes" context="erroralerttabpage|actionCB">Information</item>
+                      <item translatable="yes" context="erroralerttabpage|actionCB">Macro</item>
+                    </items>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="actionCB-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="erroralerttabpage|extended_tip|actionCB">Select the action that you want to occur when invalid data is entered in a cell.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes" context="erroralerttabpage|label1">Contents</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="ErrorAlertTabPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="erroralerttabpage|extended_tip|ErrorAlertTabPage">Define the error message that is displayed when invalid data is entered in a cell.</property>
+      </object>
+    </child>
+  </object>
+</interface>

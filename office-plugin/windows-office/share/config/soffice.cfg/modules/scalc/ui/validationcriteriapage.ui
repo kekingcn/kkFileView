@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="sc">
+  <requires lib="gtk+" version="3.20"/>
+  <!-- n-columns=1 n-rows=1 -->
+  <object class="GtkGrid" id="ValidationCriteriaPage">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border_width">6</property>
+    <property name="row_spacing">6</property>
+    <property name="column_spacing">12</property>
+    <child>
+      <object class="GtkLabel" id="label1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="validationcriteriapage|label1">_Allow:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">allow</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="valueft">
+        <property name="can_focus">False</property>
+        <property name="no_show_all">True</property>
+        <property name="label" translatable="yes" context="validationcriteriapage|valueft">_Data:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">data</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkComboBoxText" id="allow">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <items>
+          <item id="0" translatable="yes" context="validationcriteriapage|liststore1">All values</item>
+          <item id="1" translatable="yes" context="validationcriteriapage|liststore1">Whole Numbers</item>
+          <item id="2" translatable="yes" context="validationcriteriapage|liststore1">Decimal</item>
+          <item id="3" translatable="yes" context="validationcriteriapage|liststore1">Date</item>
+          <item id="4" translatable="yes" context="validationcriteriapage|liststore1">Time</item>
+          <item id="5" translatable="yes" context="validationcriteriapage|liststore1">Cell range</item>
+          <item id="6" translatable="yes" context="validationcriteriapage|liststore1">List</item>
+          <item id="7" translatable="yes" context="validationcriteriapage|liststore1">Text length</item>
+          <item id="8" translatable="yes" context="validationcriteriapage|liststore1">Custom</item>
+        </items>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="allow-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|allow">Click a validation option for the selected cell(s).</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkComboBoxText" id="data">
+        <property name="can_focus">False</property>
+        <property name="no_show_all">True</property>
+        <items>
+          <item id="0" translatable="yes" context="validationcriteriapage|liststore2">equal</item>
+          <item id="1" translatable="yes" context="validationcriteriapage|liststore2">less than</item>
+          <item id="2" translatable="yes" context="validationcriteriapage|liststore2">greater than</item>
+          <item id="3" translatable="yes" context="validationcriteriapage|liststore2">less than or equal</item>
+          <item id="4" translatable="yes" context="validationcriteriapage|liststore2">greater than or equal to</item>
+          <item id="5" translatable="yes" context="validationcriteriapage|liststore2">not equal</item>
+          <item id="6" translatable="yes" context="validationcriteriapage|liststore2">valid range</item>
+          <item id="7" translatable="yes" context="validationcriteriapage|liststore2">invalid range</item>
+        </items>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="data-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|data">Select the comparative operator that you want to use.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="minft">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes" context="validationcriteriapage|minft">_Minimum:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">mingrid</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">5</property>
+      </packing>
+    </child>
+    <child>
+      <!-- n-columns=1 n-rows=1 -->
+      <object class="GtkGrid" id="mingrid">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid" id="refgrid">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="column_spacing">12</property>
+            <child>
+              <object class="GtkEntry" id="min">
+                <property name="can_focus">True</property>
+                <property name="no_show_all">True</property>
+                <property name="hexpand">True</property>
+                <property name="activates_default">True</property>
+                <property name="truncate-multiline">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="min-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|min">Enter the minimum value for the data validation option that you selected in the Allow box.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="validref">
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="no_show_all">True</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="scrolledwindow2">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="shadow_type">in</property>
+            <child>
+              <object class="GtkTextView" id="minlist">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="minlist-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|minlist">Enter the entries that will be valid values or text strings.</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">5</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="maxft">
+        <property name="can_focus">False</property>
+        <property name="no_show_all">True</property>
+        <property name="label" translatable="yes" context="validationcriteriapage|maxft">Ma_ximum:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">max</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">7</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="allowempty">
+        <property name="label" translatable="yes" context="validationcriteriapage|allowempty">Allow _empty cells</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="allowempty-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|allowempty">In conjunction with Tools - Detective - Mark invalid Data, this defines that blank cells are shown as invalid data (disabled) or not (enabled).</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="showlist">
+        <property name="label" translatable="yes" context="validationcriteriapage|showlist">Show selection _list</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="showlist-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|showlist">Shows a list of all valid strings or values to select from. The list can also be opened by selecting the cell and pressing Ctrl+D.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="sortascend">
+        <property name="label" translatable="yes" context="validationcriteriapage|sortascend">Sor_t entries ascending</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="margin_left">12</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="active">True</property>
+        <property name="draw_indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="sortascend-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|sortascend">Sorts the selection list in ascending order and filters duplicates from the list. If not checked, the order from the data source is taken.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="hintft">
+        <property name="can_focus">False</property>
+        <property name="no_show_all">True</property>
+        <property name="label" translatable="yes" context="validationcriteriapage|hintft">A valid source can only consist of a contiguous selection of rows and columns, or a formula that results in an area or array.</property>
+        <property name="wrap">True</property>
+        <property name="max_width_chars">50</property>
+        <property name="xalign">0</property>
+        <property name="yalign">0</property>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">6</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkEntry" id="max">
+        <property name="can_focus">True</property>
+        <property name="no_show_all">True</property>
+        <property name="hexpand">True</property>
+        <property name="activates_default">True</property>
+        <property name="truncate-multiline">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="max-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|max">Enter the maximum value for the data validation option that you selected in the Allow box.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">7</property>
+      </packing>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="ValidationCriteriaPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="validationcriteriapage|extended_tip|ValidationCriteriaPage">Specify the validation rules for the selected cell(s).</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroup1">
+    <widgets>
+      <widget name="label1"/>
+      <widget name="valueft"/>
+      <widget name="minft"/>
+      <widget name="maxft"/>
+    </widgets>
+  </object>
+</interface>

@@ -1,0 +1,216 @@
+^0 nulis
+1 vienas
+2 du
+3 trys
+4 keturi
+5 penki
+6 šeši
+7 septyni
+8 aštuoni
+9 devyni
+10 dešimt
+11 vienuolika
+12 dvylika
+13 trylika
+14 keturiolika
+15 penkiolika
+16 šešiolika
+17 septyniolika
+18 aštuoniolika
+19 devyniolika
+
+2(\d) dvidešimt[ $1]
+3(\d) trisdešimt[ $1]
+([4-9])(\d) $1|asdešimt[ $2]
+
+1(\d\d) vienas šimtas[ $1]
+([2-9])(\d\d) $1 šimtai[ $2]
+
+1(\d{3}) vienas tūkstantis[ $1]
+(\d?1\d|\d?\d?0)(\d{3}) $1 tūkstančių[ $2]
+(\d?\d1)(\d{3}) $1 tūkstantis[ $2]
+(\d{1,3})(\d{3}) $1 tūkstančiai[ $2]
+
+(\d?1\d|\d?\d?0)(\d{6}) $1 milijonų[ $2]
+(\d?\d?1)(\d{6}) $1 milijonas[ $2]
+(\d{1,3})(\d{6}) $1 milijonai[ $2]
+
+(\d?1\d|\d?\d?0)(\d{9}) $1 milijardų[ $2]
+(\d?\d?1)(\d{9}) $1 milijardas[ $2]
+(\d{1,3})(\d{9}) $1 milijardai[ $2]
+
+(\d?1\d|\d?\d?0)(\d{12}) $1 trilijonų[ $2]
+(\d?\d?1)(\d{12}) $1 trilijonas[ $2]
+(\d{1,3})(\d{12}) $1 trilijonai[ $2]
+
+(\d?1\d|\d?\d?0)(\d{15}) $1 kvadrilijonų[ $2]
+(\d?\d?1)(\d{15}) $1 kvadrilijonas[ $2]
+(\d{1,3})(\d{15}) $1 kvadrilijonai[ $2]
+
+(\d?1\d|\d?\d?0)(\d{18}) $1 kvintilijonų[ $2]
+(\d?\d?1)(\d{18}) $1 kvintilijonas[ $2]
+(\d{1,3})(\d{18}) $1 kvintilijonai[ $2]
+
+# negative numbers
+
+[-−](\d+) minus |$1
+
+# decimals
+# before delimiter
+([-−]?(1|\d*[02-9]1))[.,] $1| sveikas
+([-−]?\d*[2-9])[.,] $1| sveiki
+(0|[-−]?\d*(1[1-9]|[1-9]0))[.,] $1| sveikų
+
+# atfer delimiter
+"([-−]?\d+[.,])(1)" $1| ir |$(f:$2) dešimtoji
+"([-−]?\d+[.,])([2-9])" $1| ir |$(f:$2) dešimtosios
+"([-−]?\d+[.,])([02-9]1)" $1| ir |$(f:$2) šimtoji
+"([-−]?\d+[.,])(1[1-9]|[1-9]0)" $1| ir |$(f:$2) šimtųjų
+"([-−]?\d+[.,])([02-9][2-9])" $1| ir |$(f:$2) šimtosios
+"([-−]?\d+[.,])(\d[02-9]1)" $1| ir |$(f:$2) tūkstantoji
+"([-−]?\d+[.,])(\d1[1-9]|[1-9]0)" $1| ir |$(f:$2) tūkstantųjų
+"([-−]?\d+[.,])(\d[02-9][2-9])" $1| ir |$(f:$2) tūkstantosios
+
+# female conversion
+f:(.*)as \1a
+f:(.*)du \1dvi
+f:(.*)i \1ios
+f:(.*) \1
+
+# currency
+# unit/subunit singular/plural_a/plural_b
+us:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \1
+upa:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \2
+upb:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \3
+ss:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \4
+spa:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \5
+spb:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \6
+
+AUD:(\D+) $(\1: Australijos doleris, Australijos dolerių, Australijos doleriai, centas, centų, centai)
+BGN:(\D+) $(\1: levas, levų, levai, stotinka, stotinkų, stotinkos)
+CAD:(\D+) $(\1: Kanados doleris, Kanados dolerių, Kanados doleriai, centas, centų, centai)
+CHF:(\D+) $(\1: Šveicarijos frankas, Šveicarijos frankų, Šveicarijos frankai, santimas, santimų, santimai)
+CZK:(\D+) $(\1: Čekijos krona, Čekijos kronų, Čekijos kronos, heleris, helerių, heleriai)
+EEK:(\D+) $(\1: Estijos krona, Estijos kronų, Estijos kronos, sentas, sentų, sentai)
+EUR:(\D+) $(\1: euras, eurų, eurai, euro centas, euro centų, euro centai)
+GBP:(\D+) $(\1: svaras sterlingų, svarų sterlingų, svarai sterlingų, pensas, pensų, pensai)
+GHS:(\D+) $(\1: sedis, sedžių, sedžiai, peseva, pesevų, pesevos)
+HKD:(\D+) $(\1: Honkongo doleris, Honkongo dolerių, Honkongo doleriai, centas, centų, centai)
+HRK:(\D+) $(\1: kuna, kunų, kunos, lipa, lipų, lipos)
+HUF:(\D+) $(\1: forintas, forintų, forintai, fileris, filerių, fileriai)
+INR:(\D+) $(\1: Indijos rupija, Indijos rupijų, Indijos rupijos, paisa, paisų, paisos)
+JMD:(\D+) $(\1: Jamaikos doleris, Jamaikos dolerių, Jamaikos doleriai, centas, centų, centai)
+KES:(\D+) $(\1: Kenijos šilingas, Kenijos šilingų, Kenijos šilingai, centas, centų, centai)
+LRD:(\D+) $(\1: Liberijos doleris, Liberijos dolerių, Liberijos doleriai, centas, centų, centai)
+LTL:(\D+) $(\1: litas, litų, litai, centas, centų, centai)
+LVL:(\D+) $(\1: lats, lati, santims, santimi)
+MUR:(\D+) $(\1: Mauricijaus rupija, Mauricijaus rupijų, Mauricijaus rupijos, centas, centų, centai)
+MXN:(\D+) $(\1: Meksikos pesas, Meksikos pesų, Meksikos pesai, sentavas, sentavų, sentavai)
+MWK:(\D+) $(\1: Malavio kvača, Malavio kvačų, Malavio kvačos, tambala, tambalų, tambalos)
+NAD:(\D+) $(\1: Namibijos doleris, Namibijos dolerių, Namibijos doleriai, centas, centų, centai)
+NGN:(\D+) $(\1: naira, nairų, nairos, koba, kobų, kobos)
+NOK:(\D+) $(\1: Norvegijos krona, Norvegijos kronų, Norvegijos kronos, erė, erių, erės)
+NZD:(\D+) $(\1: Naujosios Zelandijos doleris, Naujosios Zelandijos dolerių, Naujosios Zelandijos doleriai, centas, centų, centai)
+PGK:(\D+) $(\1: kina, kinų, kinos, toja, tojų, tojos)
+PHP:(\D+) $(\1: Filipinų pesas, Filipinų pesų, Filipinų pesai, sentimas, sentimų, sentimai)
+PKR:(\D+) $(\1: Pakistano rupija, Pakistano rupijų, Pakistano rupijos, paisa, paisų, paisos)
+PLN:(\D+) $(\1: zlotas, zlotų, zlotai, grašis, grašių, grašiai)
+RON:(\D+) $(\1: Rumunijos lėja, Rumunijos lėjų, Rumunijos lėjos, banas, banų, banai)
+RSD:(\D+) $(\1: Serbijos dinaras, Serbijos dinarų, Serbijos dinarai, paras, parų, parai)
+RUB:(\D+) $(\1: Rusijos rublis, Rusijos rublių, Rusijos rubliai, kapeika, kapeikų, kapeikos)
+RWF:(\D+) $(\1: Ruandos frankas, Ruandos frankų, Ruandos frankai, sentimas, sentimų, sentimai)
+SDG:(\D+) $(\1: Sudano svaras, Sudano svarų, Sudano svarai, piastras, piastrų, piastrai)
+SEK:(\D+) $(\1: Švedijos krona, Švedijos kronų, Švedijos kronos, erė, erių, erės)
+SGD:(\D+) $(\1: Singapūro doleris, Singapūro dolerių, Singapūro doleriai, centas, centų, centai)
+SLL:(\D+) $(\1: leonė, leonių, leonės, centas, centų, centai)
+THB:(\D+) $(\1: Tailando batas, Tailando batų, Tailando batai, satangas, satangų, satangai)
+TRY:(\D+) $(\1: Turkijos lira, Turkijos lirų, Turkijos liros, kurušas, kurušų, kurušai)
+TTD:(\D+) $(\1: Trinidado ir Tobago doleris, Trinidado ir Tobago dolerių, Trinidado ir Tobago doleriai, centas, centų, centai)
+TZS:(\D+) $(\1: Tanzanijos šilingas, Tanzanijos šilingų, Tanzanijos šilingai, centas, centų, centai)
+UAH:(\D+) $(\1: grivina, grivinų, grivinos, kapeika, kapeikų, kapeikos)
+UGX:(\D+) $(\1: Ugandos šilingas, Ugandos šilingų, Ugandos šilingai, centas, centų, centai)
+USD:(\D+) $(\1: JAV doleris, JAV dolerių, JAV doleriai, centas, centų, centai)
+ZAR:(\D+) $(\1: Pietų Afrikos randas, Pietų Afrikos randų, Pietų Afrikos randai, centas, centų, centai)
+ZMK:(\D+) $(\1: Zambijos kvača, Zambijos kvačų, Zambijos kvačos, ngvi, ngvių, ngvės)
+ZWL:(\D+) $(\1: Zimbabvės doleris, Zimbabvės dolerių, Zimbabvės doleriai, centas, centų, centai)
+
+# female gender
+# before delimiter
+"(CZK|EEK|HRK|INR|MUR|MWK|NGN|NOK|PGK|PKR|RON|SEK|SLL|TRY|UAH|ZMK) ([-−]?(1|\d*[02-9]1))([.,]00?)?" $(f:$2)|$(\1:us) 		# 1| *01| *21 ...
+"(CZK|EEK|HRK|INR|MUR|MWK|NGN|NOK|PGK|PKR|RON|SEK|SLL|TRY|UAH|ZMK) ([-−]?(0|\d*(1[1-9]|[01-9]0)))([.,]00?)?" $2|$(\1:upa)	# 0 | *11| *19| *10| *30 ...
+"(CZK|EEK|HRK|INR|MUR|MWK|NGN|NOK|PGK|PKR|RON|SEK|SLL|TRY|UAH|ZMK) ([-−]?\d*[2-9])([.,]00?)?" $(f:$2)|$(\1:upb)			# *2| *8 ...
+
+# atfer delimiter
+"((BGN|GHS|HRK|INR|MWK|NGN|NOK|PGK|PKR|SEK|RUB|UAH|ZMK) [-−]?\d+)[.,](0+)" $1|					# 0, 00
+"((BGN|GHS|HRK|INR|MWK|NGN|NOK|PGK|PKR|SEK|RUB|UAH|ZMK) [-−]?\d+)[.,]([02-9]1)" $1| ir |$(f:$3)|$(\2:ss)	# 1, 21, 31, ..., 91
+"((BGN|GHS|HRK|INR|MWK|NGN|NOK|PGK|PKR|SEK|RUB|UAH|ZMK) [-−]?\d+)[.,](\d)" $1| ir |$(\30)$(\2:spa)		# *,x conversion to *,x0
+"((BGN|GHS|HRK|INR|MWK|NGN|NOK|PGK|PKR|SEK|RUB|UAH|ZMK) [-−]?\d+)[.,](1[0-9]|[2-9]0)" $1| ir |$3|$(\2:spa)	# 10-19, 20, 30, ..., 90
+"((BGN|GHS|HRK|INR|MWK|NGN|NOK|PGK|PKR|SEK|RUB|UAH|ZMK) [-−]?\d+)[.,](\d\d)" $1| ir |$(f:$3)$(\2:spb)		# all the rest
+
+# male gender (all except female gender filter matches)
+# before delimiter
+"([A-Z]{3}) ([-−]?(1|\d*[02-9]1))([.,]00?)?" $2|$(\1:us)
+"([A-Z]{3}) ([-−]?0|\d*(1[1-9]|[01-9]0))([.,]00?)?" $2|$(\1:upa)
+"([A-Z]{3}) ([-−]?\d*[2-9])([.,]00?)?" $2|$(\1:upb)
+
+# atfer delimiter
+"(([A-Z]{3}) [-−]?\d+)[.,]([02-9]1)" $1| ir |$3|$(\2:ss)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1| ir |$(\30)$(\2:spa)
+"(([A-Z]{3}) [-−]?\d+)[.,](1[0-9]|[2-9]0)" $1| ir |$3|$(\2:spa)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1| ir |$3$(\2:spb)
+
+== feminine ==
+
+([-−]?\d+)	$(feminine $1)
+(.*)vienas	\1viena
+(.*)du		\1dvi
+(.*)i		\1ios
+
+== masculine ==
+
+([-−]?\d+)	$1
+
+== ordinal ==
+
+([-−]?\d+)	$(ordinal $1)
+
+(.*)vienas	\1pirmas
+(.*)du		\1antras
+(.*)trys	\1trečias
+(.*)keturi	\1ketvirtas
+(.*)penki	\1penktas
+(.*)šeši	\1šeštas
+(.*)septyni	\1septintas
+(.*)aštuoni	\1aštuntas
+(.*)devyni	\1devintas
+(.*)dešimt	\1dešimtas
+(.*)lika	\1liktas
+(.*)šimt	\1šimtas
+(.*)		\1	# FIXME (tūkstančių etc.)
+
+== ordinal-masculine ==
+
+([-−]?\d+)	$(ordinal $1)
+
+== ordinal-feminine ==
+
+([-−]?\d+)	$(ordinal-feminine $(ordinal $1))
+
+(.*)tasis	\1toji
+(.*)s		\1
+(.*)		\1	# FIXME (tūkstančių etc.)
+
+== ordinal-number(-masculine)? ==
+
+((\d*[02-9])?3)	 \2-ias		# ends in 3 but not 13
+(\d+)	 \2-as
+
+== ordinal-number-feminine ==
+
+((\d*[02-9])?3)	 \1-ia
+(\d+)	 \1-a
+
+== help ==
+
+"" $(help feminine)$(help masculine)$(help ordinal-feminine)$(help ordinal-masculine)$(help ordinal-number-feminine)$(help ordinal-number-masculine)
+(feminine|masculine|ordinal(-feminine|-masculine|-number|-number-masculine|-number-feminine)?) \1: $(\1 1), $(\1 2), $(\1 3)\n

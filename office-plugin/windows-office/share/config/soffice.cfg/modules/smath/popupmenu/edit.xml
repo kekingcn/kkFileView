@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+-->
+<!-- BEWARE: We store most labels here because they are not translatable.
+     Labels that are supposed to be translatable should be added to
+     officecfg/.../MathCommands.xcu instead.
+-->
+<menu:menupopup xmlns:menu="http://openoffice.org/2001/menu">
+  <menu:menuitem menu:id=".uno:Cut"/>
+  <menu:menuitem menu:id=".uno:Copy"/>
+  <menu:menuitem menu:id=".uno:Paste"/>
+  <menu:menuseparator/>
+  <menu:menu menu:id=".uno:UnaryBinaryMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="+a" menu:id=".uno:InsertCommandText?Text:string=+&lt;?&gt; "/>
+      <menu:menuitem menu:label="-a" menu:id=".uno:InsertCommandText?Text:string=-&lt;?&gt; "/>
+      <menu:menuitem menu:label="+-a" menu:id=".uno:InsertCommandText?Text:string=+-&lt;?&gt; "/>
+      <menu:menuitem menu:label="-+a" menu:id=".uno:InsertCommandText?Text:string=-+&lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="a + b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; + &lt;?&gt; "/>
+      <menu:menuitem menu:label="a - b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; - &lt;?&gt; "/>
+      <menu:menuitem menu:label="a cdot b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; cdot &lt;?&gt; "/>
+      <menu:menuitem menu:label="a times b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; times &lt;?&gt; "/>
+      <menu:menuitem menu:label="a * b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; * &lt;?&gt; "/>
+      <menu:menuitem menu:label="a over b" menu:id=".uno:InsertCommandText?Text:string={&lt;?&gt;} over {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="a div b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; div &lt;?&gt; "/>
+      <menu:menuitem menu:label="a / b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; / &lt;?&gt; "/>
+      <menu:menuitem menu:label="a circ b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; circ &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="a wideslash b" menu:id=".uno:InsertCommandText?Text:string={&lt;?&gt;} wideslash {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="a widebslash b" menu:id=".uno:InsertCommandText?Text:string={&lt;?&gt;} widebslash {&lt;?&gt;} "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="neg a" menu:id=".uno:InsertCommandText?Text:string=neg &lt;?&gt; "/>
+      <menu:menuitem menu:label="a and b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; and &lt;?&gt; "/>
+      <menu:menuitem menu:label="a or b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; or &lt;?&gt; "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:RelationsMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="a = b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; %3D &lt;?&gt; "/>
+      <menu:menuitem menu:label="a &lt;&gt; b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; &lt;&gt; &lt;?&gt; "/>
+      <menu:menuitem menu:label="a &lt; b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; &lt; &lt;?&gt; "/>
+      <menu:menuitem menu:label="a &lt;= b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; &lt;%3D &lt;?&gt; "/>
+      <menu:menuitem menu:label="a leslant b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; leslant &lt;?&gt; "/>
+      <menu:menuitem menu:label="a &gt; b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; &gt; &lt;?&gt; "/>
+      <menu:menuitem menu:label="a &gt;= b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; &gt;%3D &lt;?&gt; "/>
+      <menu:menuitem menu:label="a geslant b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; geslant &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="a approx b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; approx &lt;?&gt; "/>
+      <menu:menuitem menu:label="a sim b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; sim &lt;?&gt; "/>
+      <menu:menuitem menu:label="a simeq b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; simeq &lt;?&gt; "/>
+      <menu:menuitem menu:label="a equiv b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; equiv &lt;?&gt; "/>
+      <menu:menuitem menu:label="a prop b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; prop &lt;?&gt; "/>
+      <menu:menuitem menu:label="a parallel b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; parallel &lt;?&gt; "/>
+      <menu:menuitem menu:label="a ortho b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; ortho &lt;?&gt; "/>
+      <menu:menuitem menu:label="a divides b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; divides &lt;?&gt; "/>
+      <menu:menuitem menu:label="a ndivides b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; ndivides &lt;?&gt; "/>
+      <menu:menuitem menu:label="a toward b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; toward &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="a dlarrow b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; dlarrow &lt;?&gt; "/>
+      <menu:menuitem menu:label="a dlrarrow b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; dlrarrow &lt;?&gt; "/>
+      <menu:menuitem menu:label="a drarrow b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; drarrow &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="a prec b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; prec &lt;?&gt; "/>
+      <menu:menuitem menu:label="a succ b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; succ &lt;?&gt; "/>
+      <menu:menuitem menu:label="a preccurlyeq b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; preccurlyeq &lt;?&gt; "/>
+      <menu:menuitem menu:label="a succcurlyeq b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; succcurlyeq &lt;?&gt; "/>
+      <menu:menuitem menu:label="a precsim b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; precsim &lt;?&gt; "/>
+      <menu:menuitem menu:label="a succsim b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; succsim &lt;?&gt; "/>
+      <menu:menuitem menu:label="a nprec b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; nprec &lt;?&gt; "/>
+      <menu:menuitem menu:label="a nsucc b" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; nsucc &lt;?&gt; "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:SetOperationsMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="a in A" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; in &lt;?&gt; "/>
+      <menu:menuitem menu:label="a notin A" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; notin &lt;?&gt; "/>
+      <menu:menuitem menu:label="A owns a" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; owns &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="A intersection B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; intersection &lt;?&gt; "/>
+      <menu:menuitem menu:label="A union B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; union &lt;?&gt; "/>
+      <menu:menuitem menu:label="A \ B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; setminus &lt;?&gt; "/>
+      <menu:menuitem menu:label="A / B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; slash &lt;?&gt; "/>
+      <menu:menuitem menu:label="A subset B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; subset &lt;?&gt; "/>
+      <menu:menuitem menu:label="A subseteq B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; subseteq &lt;?&gt; "/>
+      <menu:menuitem menu:label="A supset B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; supset &lt;?&gt; "/>
+      <menu:menuitem menu:label="A supseteq B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; supseteq &lt;?&gt; "/>
+      <menu:menuitem menu:label="A nsubset B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; nsubset &lt;?&gt; "/>
+      <menu:menuitem menu:label="A nsubseteq B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; nsubseteq &lt;?&gt; "/>
+      <menu:menuitem menu:label="A nsupset B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; nsupset &lt;?&gt; "/>
+      <menu:menuitem menu:label="A nsupseteq B" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; nsupseteq &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="emptyset" menu:id=".uno:InsertCommandText?Text:string=emptyset "/>
+      <menu:menuitem menu:label="aleph" menu:id=".uno:InsertCommandText?Text:string=aleph "/>
+      <menu:menuitem menu:label="setN" menu:id=".uno:InsertCommandText?Text:string=setN "/>
+      <menu:menuitem menu:label="setZ" menu:id=".uno:InsertCommandText?Text:string=setZ "/>
+      <menu:menuitem menu:label="setQ" menu:id=".uno:InsertCommandText?Text:string=setQ "/>
+      <menu:menuitem menu:label="setR" menu:id=".uno:InsertCommandText?Text:string=setR "/>
+      <menu:menuitem menu:label="setC" menu:id=".uno:InsertCommandText?Text:string=setC "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:FunctionsMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="|x|" menu:id=".uno:InsertCommandText?Text:string=abs{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="x!" menu:id=".uno:InsertCommandText?Text:string=fact{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="sqrt x" menu:id=".uno:InsertCommandText?Text:string=sqrt{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="nroot x y" menu:id=".uno:InsertCommandText?Text:string=nroot{&lt;?&gt;}{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="x^y" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt;^{&lt;?&gt;}"/>
+      <menu:menuitem menu:label="e^x" menu:id=".uno:InsertCommandText?Text:string=func e^{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="ln(x)" menu:id=".uno:InsertCommandText?Text:string=ln(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="exp(x)" menu:id=".uno:InsertCommandText?Text:string=exp(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="log(x)" menu:id=".uno:InsertCommandText?Text:string=log(&lt;?&gt;) "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="sin(x)" menu:id=".uno:InsertCommandText?Text:string=sin(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="cos(x)" menu:id=".uno:InsertCommandText?Text:string=cos(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="tan(x)" menu:id=".uno:InsertCommandText?Text:string=tan(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="cot(x)" menu:id=".uno:InsertCommandText?Text:string=cot(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="sinh(x)" menu:id=".uno:InsertCommandText?Text:string=sinh(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="cosh(x)" menu:id=".uno:InsertCommandText?Text:string=cosh(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="tanh(x)" menu:id=".uno:InsertCommandText?Text:string=tanh(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="coth(x)" menu:id=".uno:InsertCommandText?Text:string=coth(&lt;?&gt;) "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="arcsin(x)" menu:id=".uno:InsertCommandText?Text:string=arcsin(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="arccos(x)" menu:id=".uno:InsertCommandText?Text:string=arccos(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="arctan(x)" menu:id=".uno:InsertCommandText?Text:string=arctan(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="arccot(x)" menu:id=".uno:InsertCommandText?Text:string=arccot(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="arsinh(x)" menu:id=".uno:InsertCommandText?Text:string=arsinh(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="arcosh(x)" menu:id=".uno:InsertCommandText?Text:string=arcosh(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="artanh(x)" menu:id=".uno:InsertCommandText?Text:string=artanh(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="arcoth(x)" menu:id=".uno:InsertCommandText?Text:string=arcoth(&lt;?&gt;) "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:OperatorsMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="lim x" menu:id=".uno:InsertCommandText?Text:string=lim &lt;?&gt; "/>
+      <menu:menuitem menu:label="sum x" menu:id=".uno:InsertCommandText?Text:string=sum &lt;?&gt; "/>
+      <menu:menuitem menu:label="prod x" menu:id=".uno:InsertCommandText?Text:string=prod &lt;?&gt; "/>
+      <menu:menuitem menu:label="coprod x" menu:id=".uno:InsertCommandText?Text:string=coprod &lt;?&gt; "/>
+      <menu:menuitem menu:label="int x" menu:id=".uno:InsertCommandText?Text:string=int &lt;?&gt; "/>
+      <menu:menuitem menu:label="iint x" menu:id=".uno:InsertCommandText?Text:string=iint &lt;?&gt; "/>
+      <menu:menuitem menu:label="iiint x" menu:id=".uno:InsertCommandText?Text:string=iiint &lt;?&gt; "/>
+      <menu:menuitem menu:label="lint x" menu:id=".uno:InsertCommandText?Text:string=lint &lt;?&gt; "/>
+      <menu:menuitem menu:label="llint x" menu:id=".uno:InsertCommandText?Text:string=llint &lt;?&gt; "/>
+      <menu:menuitem menu:label="lllint x" menu:id=".uno:InsertCommandText?Text:string=lllint &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="... from a to b" menu:id=".uno:InsertCommandText?Text:string=from{&lt;?&gt;} to{&lt;?&gt;} &lt;?&gt; "/>
+      <menu:menuitem menu:label="... from a" menu:id=".uno:InsertCommandText?Text:string=from{&lt;?&gt;} &lt;?&gt; "/>
+      <menu:menuitem menu:label="... to b" menu:id=".uno:InsertCommandText?Text:string=to{&lt;?&gt;} &lt;?&gt; "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:AttributesMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="acute a" menu:id=".uno:InsertCommandText?Text:string=acute &lt;?&gt; "/>
+      <menu:menuitem menu:label="grave a" menu:id=".uno:InsertCommandText?Text:string=grave &lt;?&gt; "/>
+      <menu:menuitem menu:label="check a" menu:id=".uno:InsertCommandText?Text:string=check &lt;?&gt; "/>
+      <menu:menuitem menu:label="breve a" menu:id=".uno:InsertCommandText?Text:string=breve &lt;?&gt; "/>
+      <menu:menuitem menu:label="circle a" menu:id=".uno:InsertCommandText?Text:string=circle &lt;?&gt; "/>
+      <menu:menuitem menu:label="dot a" menu:id=".uno:InsertCommandText?Text:string=dot &lt;?&gt; "/>
+      <menu:menuitem menu:label="ddot a" menu:id=".uno:InsertCommandText?Text:string=ddot &lt;?&gt; "/>
+      <menu:menuitem menu:label="dddot a" menu:id=".uno:InsertCommandText?Text:string=dddot &lt;?&gt; "/>
+      <menu:menuitem menu:label="bar a" menu:id=".uno:InsertCommandText?Text:string=bar &lt;?&gt; "/>
+      <menu:menuitem menu:label="vec a" menu:id=".uno:InsertCommandText?Text:string=vec &lt;?&gt; "/>
+      <menu:menuitem menu:label="harpoon a" menu:id=".uno:InsertCommandText?Text:string=harpoon &lt;?&gt; "/>
+      <menu:menuitem menu:label="tilde a" menu:id=".uno:InsertCommandText?Text:string=tilde &lt;?&gt; "/>
+      <menu:menuitem menu:label="hat a" menu:id=".uno:InsertCommandText?Text:string=hat &lt;?&gt; "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="widevec abc" menu:id=".uno:InsertCommandText?Text:string=widevec {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="wideharpoon abc" menu:id=".uno:InsertCommandText?Text:string=wideharpoon {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="widetilde abc" menu:id=".uno:InsertCommandText?Text:string=widetilde {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="widehat abc" menu:id=".uno:InsertCommandText?Text:string=widehat {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="overline abc" menu:id=".uno:InsertCommandText?Text:string=overline {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="underline abc" menu:id=".uno:InsertCommandText?Text:string=underline {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="overstrike abc" menu:id=".uno:InsertCommandText?Text:string=overstrike {&lt;?&gt;} "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="phantom b" menu:id=".uno:InsertCommandText?Text:string=phantom {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="bold b" menu:id=".uno:InsertCommandText?Text:string=bold &lt;?&gt; "/>
+      <menu:menuitem menu:label="ital b" menu:id=".uno:InsertCommandText?Text:string=ital &lt;?&gt; "/>
+      <menu:menuitem menu:label="size s b" menu:id=".uno:InsertCommandText?Text:string=size &lt;?&gt; {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="font f b" menu:id=".uno:InsertCommandText?Text:string=font &lt;?&gt; {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="color rgb" menu:id=".uno:InsertCommandText?Text:string=color rgb 0 0 0 "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:BracketsMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="{...}" menu:id=".uno:InsertCommandText?Text:string={&lt;?&gt;} "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="(x)" menu:id=".uno:InsertCommandText?Text:string=(&lt;?&gt;) "/>
+      <menu:menuitem menu:label="[x]" menu:id=".uno:InsertCommandText?Text:string=[&lt;?&gt;] "/>
+      <menu:menuitem menu:label="ldbracket x rdbracket " menu:id=".uno:InsertCommandText?Text:string=ldbracket &lt;?&gt; rdbracket "/>
+      <menu:menuitem menu:label="{x}" menu:id=".uno:InsertCommandText?Text:string=lbrace &lt;?&gt; rbrace "/>
+      <menu:menuitem menu:label="langle x rangle" menu:id=".uno:InsertCommandText?Text:string=langle &lt;?&gt; rangle "/>
+      <menu:menuitem menu:label="langle x mline y rangle" menu:id=".uno:InsertCommandText?Text:string=langle &lt;?&gt; mline &lt;?&gt; rangle "/>
+      <menu:menuitem menu:label="lceil x rceil" menu:id=".uno:InsertCommandText?Text:string=lceil &lt;?&gt; rceil "/>
+      <menu:menuitem menu:label="lfloor x rfloor" menu:id=".uno:InsertCommandText?Text:string=lfloor &lt;?&gt; rfloor "/>
+      <menu:menuitem menu:label="lline x rline" menu:id=".uno:InsertCommandText?Text:string=lline &lt;?&gt; rline "/>
+      <menu:menuitem menu:label="ldline x rdline" menu:id=".uno:InsertCommandText?Text:string=ldline &lt;?&gt; rdline "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="left ( x right )" menu:id=".uno:InsertCommandText?Text:string=left ( &lt;?&gt; right ) "/>
+      <menu:menuitem menu:label="left [ x right ]" menu:id=".uno:InsertCommandText?Text:string=left [ &lt;?&gt; right ] "/>
+      <menu:menuitem menu:label="left ldbracket x right rdbracket " menu:id=".uno:InsertCommandText?Text:string=left ldbracket &lt;?&gt; right rdbracket "/>
+      <menu:menuitem menu:label="left { x right }" menu:id=".uno:InsertCommandText?Text:string=left lbrace &lt;?&gt; right rbrace "/>
+      <menu:menuitem menu:label="left langle x right rangle" menu:id=".uno:InsertCommandText?Text:string=left langle &lt;?&gt; right rangle "/>
+      <menu:menuitem menu:label="left langle x mline y right rangle" menu:id=".uno:InsertCommandText?Text:string=left langle &lt;?&gt; mline &lt;?&gt; right rangle "/>
+      <menu:menuitem menu:label="left lceil x right rceil" menu:id=".uno:InsertCommandText?Text:string=left lceil &lt;?&gt; right rceil "/>
+      <menu:menuitem menu:label="left lfloor x right rfloor" menu:id=".uno:InsertCommandText?Text:string=left lfloor &lt;?&gt; right rfloor "/>
+      <menu:menuitem menu:label="left lline x right rline" menu:id=".uno:InsertCommandText?Text:string=left lline &lt;?&gt; right rline "/>
+      <menu:menuitem menu:label="left ldline x right rdline" menu:id=".uno:InsertCommandText?Text:string=left ldline &lt;?&gt; right rdline "/>
+      <menu:menuitem menu:label="left none x right rline_y" menu:id=".uno:InsertCommandText?Text:string=left none {&lt;?&gt;} right rline_{&lt;?&gt;} "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="x overbrace y" menu:id=".uno:InsertCommandText?Text:string={&lt;?&gt;} overbrace {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="x underbrace y" menu:id=".uno:InsertCommandText?Text:string={&lt;?&gt;} underbrace {&lt;?&gt;} "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:FormatsMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="^x" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt;^{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="_x" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt;_{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="lsup x" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; lsup{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="lsub x" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; lsub{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="csup x" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; csup{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="csub x" menu:id=".uno:InsertCommandText?Text:string=&lt;?&gt; csub{&lt;?&gt;} "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:id=".uno:InsertCommandText?Text:string=newline "/>
+      <menu:menuitem menu:id=".uno:InsertCommandText?Text:string=`"/>
+      <menu:menuitem menu:id=".uno:InsertCommandText?Text:string=~"/>
+      <menu:menuitem menu:label="nospace {...}" menu:id=".uno:InsertCommandText?Text:string=nospace {&lt;?&gt;} "/>
+      <menu:menuitem menu:label="binom x y" menu:id=".uno:InsertCommandText?Text:string=binom{&lt;?&gt;}{&lt;?&gt;} "/>
+      <menu:menuitem menu:label="stack {...}" menu:id=".uno:InsertCommandText?Text:string=stack{&lt;?&gt; # &lt;?&gt; # &lt;?&gt;} "/>
+      <menu:menuitem menu:label="matrix {...}" menu:id=".uno:InsertCommandText?Text:string=matrix{&lt;?&gt; # &lt;?&gt; ## &lt;?&gt; # &lt;?&gt;} "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="alignl x" menu:id=".uno:InsertCommandText?Text:string=alignl &lt;?&gt; "/>
+      <menu:menuitem menu:label="alignc x" menu:id=".uno:InsertCommandText?Text:string=alignc &lt;?&gt; "/>
+      <menu:menuitem menu:label="alignr x" menu:id=".uno:InsertCommandText?Text:string=alignr &lt;?&gt; "/>
+    </menu:menupopup>
+  </menu:menu>
+  <menu:menu menu:id=".uno:OthersMenu">
+    <menu:menupopup>
+      <menu:menuitem menu:label="infinity" menu:id=".uno:InsertCommandText?Text:string=infinity "/>
+      <menu:menuitem menu:label="partial" menu:id=".uno:InsertCommandText?Text:string=partial "/>
+      <menu:menuitem menu:label="nabla" menu:id=".uno:InsertCommandText?Text:string=nabla "/>
+      <menu:menuitem menu:label="exists" menu:id=".uno:InsertCommandText?Text:string=exists "/>
+      <menu:menuitem menu:label="not exists" menu:id=".uno:InsertCommandText?Text:string=notexists "/>
+      <menu:menuitem menu:label="forall" menu:id=".uno:InsertCommandText?Text:string=forall "/>
+      <menu:menuitem menu:label="hbar" menu:id=".uno:InsertCommandText?Text:string=hbar "/>
+      <menu:menuitem menu:label="lambdabar" menu:id=".uno:InsertCommandText?Text:string=lambdabar "/>
+      <menu:menuitem menu:label="Re" menu:id=".uno:InsertCommandText?Text:string=Re "/>
+      <menu:menuitem menu:label="Im" menu:id=".uno:InsertCommandText?Text:string=Im "/>
+      <menu:menuitem menu:label="wp" menu:id=".uno:InsertCommandText?Text:string=wp "/>
+      <menu:menuitem menu:label="laplace" menu:id=".uno:InsertCommandText?Text:string=laplace "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="leftarrow" menu:id=".uno:InsertCommandText?Text:string=leftarrow "/>
+      <menu:menuitem menu:label="rightarrow" menu:id=".uno:InsertCommandText?Text:string=rightarrow "/>
+      <menu:menuitem menu:label="uparrow" menu:id=".uno:InsertCommandText?Text:string=uparrow "/>
+      <menu:menuitem menu:label="downarrow" menu:id=".uno:InsertCommandText?Text:string=downarrow "/>
+      <menu:menuseparator/>
+      <menu:menuitem menu:label="dotslow" menu:id=".uno:InsertCommandText?Text:string=dotslow "/>
+      <menu:menuitem menu:label="dotsaxis" menu:id=".uno:InsertCommandText?Text:string=dotsaxis "/>
+      <menu:menuitem menu:label="dotsvert" menu:id=".uno:InsertCommandText?Text:string=dotsvert "/>
+      <menu:menuitem menu:label="dotsup" menu:id=".uno:InsertCommandText?Text:string=dotsup "/>
+      <menu:menuitem menu:label="dotsdown" menu:id=".uno:InsertCommandText?Text:string=dotsdown "/>
+    </menu:menupopup>
+  </menu:menu>
+</menu:menupopup>

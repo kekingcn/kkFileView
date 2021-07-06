@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<widgets>
+    <style>
+        <faceColor value="#F7F7F7"/>
+        <checkedColor value="#C0C0C0"/>
+        <lightColor value="#FFFFFF"/>
+        <lightBorderColor value="#F7F7F7"/>
+        <shadowColor value="#808080"/>
+        <darkShadowColor value="#000000"/>
+        <buttonTextColor value="#007AFF"/>
+        <defaultActionButtonTextColor value="#007AFF"/>
+        <actionButtonTextColor value="#007AFF"/>
+        <actionButtonRolloverTextColor value="#007AFF"/>
+        <buttonRolloverTextColor value="#FFFFFF"/>
+        <radioCheckTextColor value="#000000"/>
+        <groupTextColor value="#000000"/>
+        <labelTextColor value="#000000"/>
+        <windowColor value="#FFFFFF"/>
+        <windowTextColor value="#000000"/>
+        <dialogColor value="#FFFFFF"/>
+        <dialogTextColor value="#000000"/>
+        <workspaceColor value="#F7F7F7"/>
+        <monoColor value="#000000"/>
+        <fieldColor value="#FFFFFF"/>
+        <fieldTextColor value="#000000"/>
+        <fieldRolloverTextColor value="#000000"/>
+        <activeColor value="#007AFF"/>
+        <activeTextColor value="#FFFFFF"/>
+        <activeBorderColor value="#C0C0C0"/>
+        <deactiveColor value="#808080"/>
+        <deactiveTextColor value="#C0C0C0"/>
+        <deactiveBorderColor value="#C0C0C0"/>
+        <menuColor value="#FFFFFF"/>
+        <menuBarColor value="#FFFFFF"/>
+        <menuBarRolloverColor value="#007AFF"/>
+        <menuBorderColor value="#C0C0C0"/>
+        <menuTextColor value="#000000"/>
+        <menuBarTextColor value="#000000"/>
+        <menuBarRolloverTextColor value="#000000"/>
+        <menuBarHighlightTextColor value="#000000"/>
+        <menuHighlightColor value="#007AFF"/>
+        <menuHighlightTextColor value="#FFFFFF"/>
+        <highlightColor value="#007AFF"/>
+        <highlightTextColor value="#FFFFFF"/>
+        <activeTabColor value="#FFFFFF"/>
+        <inactiveTabColor value="#C0C0C0"/>
+        <tabTextColor value="#007AFF"/>
+        <tabRolloverTextColor value="#007AFF"/>
+        <tabHighlightTextColor value="#FFFFFF"/>
+        <disableColor value="#808080"/>
+        <helpColor value="#FFFFE0"/>
+        <helpTextColor value="#000000"/>
+        <linkColor value="#007AFF"/>
+        <visitedLinkColor value="#0464AA"/>
+        <toolTextColor value="#000000"/>
+        <fontColor value="#000000"/>
+    </style>
+
+    <!--
+        Various setting for controls that aren't style colors.
+        Empty "value" attribute or if setting is not present means default will be used.
+    -->
+
+    <settings>
+        <noActiveTabTextRaise value="true"/>
+        <centeredTabs value="true"/>
+        <listBoxEntryMargin value="20"/>
+        <defaultFontSize value="10"/>
+        <titleHeight value="16"/>
+        <floatTitleHeight value="12"/>
+        <listBoxPreviewDefaultLogicWidth value="16"/>
+        <listBoxPreviewDefaultLogicHeight value="16"/>
+    </settings>
+
+    <!--
+    Follows the definitions od various controls.
+    The definition is always in form:
+
+    <{ControlType} attributes...>
+        <{ControlPart} attributes...>
+            <state attributes...>
+                {draw commands}
+                ...
+            </state>
+        </{ControlPart}>
+    </{ControlType}>
+
+    Supported <state> attributes are:
+        enabled="true|false|any"
+        focused="true|false|any"
+        pressed="true|false|any"
+        rollover="true|false|any"
+        default="true|false|any"
+        selected="true|false|any"
+        button-value="true|false|any"
+        extra="{various}"
+
+    control specific:
+    <spinbox> attributes:
+        - orientation: stacked (default), edit-decrease-increase, decrease-edit-increase
+
+    -->
+
+    <pushbutton>
+        <part value="Entire">
+            <state enabled="true">
+                <external source="pushbutton-default.svg" />
+            </state>
+            <state enabled="true" rollover="true">
+                <external source="pushbutton-rollover.svg" />
+            </state>
+            <state enabled="false">
+                <external source="pushbutton-disabled.svg" />
+            </state>
+        </part>
+        <part value="Focus">
+            <state>
+                <external source="common-rect-focus.svg" />
+            </state>
+        </part>
+    </pushbutton>
+
+    <radiobutton>
+        <part value="Entire" width="26" height="26">
+           <state enabled="true" pressed="false" button-value="true">
+                <image source="tick-on.svg" />
+            </state>
+            <state enabled="true" pressed="true" button-value="true">
+                <image source="tick-on-pressed.svg" />
+            </state>
+            <state enabled="false" button-value="true">
+                <image source="tick-on-disabled.svg" />
+            </state>
+            <state enabled="true" pressed="false" button-value="false">
+                <image source="tick-off.svg" />
+            </state>
+            <state enabled="true" pressed="true" button-value="false">
+                <image source="tick-off-pressed.svg" />
+            </state>
+            <state enabled="false" button-value="false">
+                <image source="tick-off-disabled.svg" />
+            </state>
+        </part>
+        <part value="Focus">
+            <state>
+                <external source="common-rect-focus-slim.svg" />
+            </state>
+        </part>
+    </radiobutton>
+
+    <checkbox>
+        <part value="Entire" width="46" height="32">
+           <state enabled="true" pressed="false" button-value="true">
+                <image source="switch-on.svg" />
+            </state>
+            <state enabled="true" pressed="true" button-value="true">
+                <image source="switch-on-pressed.svg" />
+            </state>
+            <state enabled="false" button-value="true">
+                <image source="switch-on-disabled.svg" />
+            </state>
+            <state enabled="true" pressed="false" button-value="false">
+                <image source="switch-off.svg" />
+            </state>
+            <state enabled="true" pressed="true" button-value="false">
+                <image source="switch-off-pressed.svg" />
+            </state>
+            <state enabled="false" button-value="false">
+                <image source="switch-off-disabled.svg" />
+            </state>
+        </part>
+        <part value="Focus">
+            <state>
+                <external source="common-rect-focus-slim.svg" />
+            </state>
+        </part>
+    </checkbox>
+
+    <combobox>
+        <part value="Entire">
+            <state enabled="true">
+                <external source="combobox.svg" />
+            </state>
+            <state enabled="false">
+                <external source="combobox-disabled.svg" />
+            </state>
+        </part>
+        <part value="SubEdit">
+            <state>
+            </state>
+        </part>
+        <part value="ButtonDown" width="35" height="36">
+            <state enabled="true">
+                <image source="combobox-button.svg" />
+            </state>
+            <state enabled="false">
+                <image source="combobox-button-disabled.svg" />
+            </state>
+        </part>
+        <part value="Focus">
+            <state>
+                <external source="common-rect-focus.svg" />
+            </state>
+        </part>
+    </combobox>
+
+    <editbox>
+        <part value="Entire" height="32">
+            <state enabled="true">
+                <external source="common-rect.svg" />
+            </state>
+            <state enabled="false">
+                <external source="common-rect-disabled.svg" />
+            </state>
+            <state focused="true">
+                <external source="common-rect-focus.svg" />
+            </state>
+        </part>
+    </editbox>
+
+    <listbox>
+        <part value="Entire">
+            <state enabled="true">
+                <external source="combobox.svg" />
+            </state>
+            <state enabled="false">
+                <external source="combobox-disabled.svg" />
+            </state>
+        </part>
+        <part value="SubEdit">
+            <state/> <!-- Intentional empty - don't draw anything -->
+        </part>
+        <part value="ButtonDown" width="35" height="36">
+            <state enabled="true">
+                <image source="combobox-button.svg" />
+            </state>
+            <state enabled="false">
+                <image source="combobox-button-disabled.svg" />
+            </state>
+        </part>
+        <part value="Focus">
+            <state>
+                <external source="common-rect-focus.svg" />
+            </state>
+        </part>
+    </listbox>
+
+    <spinbox>
+        <part value="Entire" orientation="decrease-edit-increase">
+            <state>
+                <rect stroke="#ffffff" fill="#ffffff" stroke-width="0" />
+            </state>
+        </part>
+        <part value="SubEdit">
+            <state/> <!-- Intentional empty - don't draw anything -->
+        </part>
+        <part value="ButtonDown" width="44" height="26">
+            <state enabled="true">
+                <external source="spinbox-left.svg" />
+            </state>
+            <state enabled="true" pressed="true">
+                <external source="spinbox-left-pressed.svg" />
+            </state>
+            <state enabled="false">
+                <external source="spinbox-left-disabled.svg" />
+            </state>
+        </part>
+        <part value="ButtonUp" width="44" height="26">
+            <state enabled="true">
+                <external source="spinbox-right.svg" />
+            </state>
+            <state enabled="true" pressed="true">
+                <external source="spinbox-right-pressed.svg" />
+            </state>
+            <state enabled="false">
+                <external source="spinbox-right-disabled.svg" />
+            </state>
+        </part>
+        <part value="Focus">
+            <state>
+                <external source="common-rect-focus-slim.svg" />
+            </state>
+        </part>
+    </spinbox>
+
+    <scrollbar>
+        <part value="ThumbHorz">
+            <state>
+                <external source="scrollbar-horizontal.svg" />
+            </state>
+        </part>
+        <part value="ThumbVert">
+            <state>
+                <external source="scrollbar-vertical.svg" />
+            </state>
+        </part>
+        <part value="ButtonUp">
+        </part>
+        <part value="ButtonDown">
+        </part>
+        <part value="ButtonLeft">
+        </part>
+        <part value="ButtonRight">
+        </part>
+        <part value="TrackHorzLeft">
+            <state>
+                <rect stroke="#8e8e93" fill="#ffffff" stroke-width="0" />
+            </state>
+        </part>
+        <part value="TrackHorzRight">
+            <state>
+                <rect stroke="#8e8e93" fill="#ffffff" stroke-width="0" />
+            </state>
+        </part>
+        <part value="TrackVertUpper">
+            <state>
+                <rect stroke="#8e8e93" fill="#ffffff" stroke-width="0" />
+            </state>
+        </part>
+        <part value="TrackVertLower">
+            <state>
+                <rect stroke="#8e8e93" fill="#ffffff" stroke-width="0" />
+            </state>
+        </part>
+    </scrollbar>
+
+    <slider>
+        <part value="Button">
+            <state enabled="true">
+                <image source="slider-button.svg" />
+            </state>
+            <state enabled="false">
+                <image source="slider-button-disabled.svg" />
+            </state>
+        </part>
+        <part value="TrackHorzLeft">
+            <state enabled="true">
+                <line stroke="#007AFF" stroke-width="6" x1="0.0" y1="0.5" x2="1.0" y2="0.5"/>
+            </state>
+            <state enabled="false">
+                <line stroke="#8e8e93" stroke-width="6" x1="0.0" y1="0.5" x2="1.0" y2="0.5"/>
+            </state>
+        </part>
+        <part value="TrackHorzRight">
+            <state>
+                <line stroke="#8e8e93" stroke-width="6" x1="0.0" y1="0.5" x2="1.0" y2="0.5"/>
+            </state>
+        </part>
+        <part value="TrackVertUpper">
+            <state enabled="true">
+                <line stroke="#007AFF" stroke-width="6" x1="0.5" y1="0.0" x2="0.5" y2="1.0"/>
+            </state>
+            <state enabled="false">
+                <line stroke="#8e8e93" stroke-width="6" x1="0.5" y1="0.0" x2="0.5" y2="1.0"/>
+            </state>
+        </part>
+        <part value="TrackVertLower">
+            <state>
+                <line stroke="#8e8e93" stroke-width="6" x1="0.5" y1="0.0" x2="0.5" y2="1.0"/>
+            </state>
+        </part>
+    </slider>
+
+    <fixedline>
+        <part value="SeparatorHorz">
+            <state>
+                <line stroke="#007AFF" fill="#007AFF" stroke-width="2" x1="0.0" y1="0.5" x2="1.0" y2="0.5"/>
+            </state>
+        </part>
+        <part value="SeparatorVert">
+            <state>
+                <line stroke="#007AFF" fill="#007AFF" stroke-width="2" x1="0.5" y1="0.0" x2="0.5" y2="1.0"/>
+            </state>
+        </part>
+    </fixedline>
+
+    <progress>
+        <part value="Entire">
+            <state>
+                <rect stroke="#007AFF" fill="#007AFF" stroke-width="1" rx="7" ry="7"/>
+            </state>
+        </part>
+    </progress>
+
+    <tabitem>
+        <part value="Entire" margin-width="8" height="32">
+            <state selected="false" extra="first">
+                <external source="tabitem-first.svg" />
+            </state>
+            <state selected="false" extra="middle">
+                <external source="tabitem-middle.svg" />
+            </state>
+            <state selected="false" extra="last">
+                <external source="tabitem-last.svg" />
+            </state>
+            <state selected="true" extra="first">
+                <external source="tabitem-first-selected.svg" />
+            </state>
+            <state selected="true" extra="middle">
+                <external source="tabitem-middle-selected.svg" />
+            </state>
+            <state selected="true" extra="last">
+                <external source="tabitem-last-selected.svg" />
+            </state>
+        </part>
+    </tabitem>
+
+    <tabheader>
+        <part value="Entire">
+            <state>
+                <rect stroke="#FFFFFF" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+    </tabheader>
+
+    <tabpane>
+        <part value="Entire">
+            <state>
+                <rect stroke="#FFFFFF" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+    </tabpane>
+
+    <tabbody>
+        <part value="Entire">
+            <state>
+                <rect stroke="#f4f5f5" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+    </tabbody>
+
+    <windowbackground>
+        <part value="BackgroundWindow">
+            <state>
+                <rect stroke="#f4f5f5" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+        <part value="BackgroundDialog">
+            <state>
+                <rect stroke="#f4f5f5" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+    </windowbackground>
+
+    <frame>
+        <part value="Border">
+            <state>
+                <rect stroke="#FFFFFF" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+    </frame>
+
+    <toolbar>
+        <part value="DrawBackgroundHorz">
+            <state>
+                <rect stroke="#FFFFFF" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+
+        <part value="DrawBackgroundVert">
+            <state>
+                <rect stroke="#FFFFFF" fill="#FFFFFF" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+
+        <part value="ThumbHorz">
+            <state/> <!-- Intentional empty - don't draw anything -->
+        </part>
+
+        <part value="ThumbVert">
+            <state/> <!-- Intentional empty - don't draw anything -->
+        </part>
+
+        <part value="SeparatorVert">
+            <state>
+                <line stroke="#007AFF" fill="#007AFF" stroke-width="2" x1="0.5" y1="0.0" x2="0.5" y2="1.0"/>
+            </state>
+        </part>
+
+        <part value="SeparatorHorz">
+            <state>
+                <line stroke="#007AFF" fill="#007AFF" stroke-width="2" x1="0.0" y1="0.5" x2="1.0" y2="0.5"/>
+            </state>
+        </part>
+
+        <part value="Button">
+            <state enabled="true" button-value="true">
+                <rect stroke="#c0c0c0" fill="#c0c0c0" stroke-width="1" rx="4" ry="4"/>
+            </state>
+            <state enabled="true" button-value="false">
+                <rect stroke="#f4f5f5" fill="#f4f5f5" stroke-width="1" rx="4" ry="4"/>
+            </state>
+            <state enabled="false">
+                <rect stroke="#007AFF" fill="#00FF00" stroke-width="1" rx="4" ry="4"/>
+            </state>
+        </part>
+    </toolbar>
+
+    <listnode>
+    </listnode>
+
+    <listnet>
+    </listnet>
+
+    <listheader>
+         <part value="Button">
+            <state>
+                <rect stroke="#8e8e93" fill="#f4f5f5" stroke-width="1" rx="1" ry="1"/>
+            </state>
+        </part>
+        <part value="Arrow">
+            <state extra="up">
+                <image source="arrow-up.svg"/>
+            </state>
+            <state extra="down">
+                <image source="arrow-down.svg"/>
+            </state>
+        </part>
+    </listheader>
+
+    <menubar>
+    </menubar>
+
+    <menupopup>
+    </menupopup>
+
+    <tooltip>
+    </tooltip>
+</widgets>

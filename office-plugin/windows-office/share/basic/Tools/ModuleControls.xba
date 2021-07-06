@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="ModuleControls" script:language="StarBasic">Option Explicit
 
 Public DlgOverwrite as Object
@@ -279,7 +276,7 @@ Dim FilterIndex as Integer
 		End If
 		On Local Error Goto NOSAVING
 		If FilterName = &quot;&quot;  Then
-			&apos; Todo: Catch the case that a document that has to be overwritten is writeportected (e.g. it is open)
+			&apos; Todo: Catch the case that a document that has to be overwritten is writeprotected (e.g. it is open)
 			oDocument.StoreAsUrl(sPath, NoArgs())
 		Else
 			oStoreProperties(0).Name = &quot;FilterName&quot;
@@ -314,7 +311,7 @@ Dim sProdName as String
 		Filternames(i,0) = ReplaceString(Filternames(i,0), sProdName,&quot;%productname%&quot;)
 		oDialog.AppendFilter(FilterNames(i,0), FilterNames(i,1))
 	Next i
-	oDialog.SetCurrentFilter(FilterNames(0,0)
+	oDialog.SetCurrentFilter(FilterNames(0,0))
 End Sub
 
 
@@ -338,17 +335,17 @@ Dim lblNo as String
 Dim lblYesToAll as String
 Dim lblCancel as String
 Dim OverwriteModel as Object
-	If InitResources(GetProductName(), &quot;dbw&quot;) Then
-		QueryString = GetResText(507)
+	If InitResources(GetProductName()) Then
+		QueryString = GetResText(&quot;RID_COMMON_7&quot;)
 		QueryString = ReplaceString(QueryString, ConvertFromUrl(FilePath), &quot;&lt;PATH&gt;&quot;)
 		If Len(QueryString) &gt; 190 Then
 			QueryString = DeleteStr(QueryString, &quot;.&lt;BR&gt;&quot;)
 		End If
 		QueryString = ReplaceString(QueryString, chr(13), &quot;&lt;BR&gt;&quot;)
-		lblYes = GetResText(508)
-		lblYesToAll = GetResText(509)
-		lblNo = GetResText(510)
-		lblCancel = GetResText(511)
+		lblYes = GetResText(&quot;RID_COMMON_8&quot;)
+		lblYesToAll = GetResText(&quot;RID_COMMON_9&quot;)
+		lblNo = GetResText(&quot;RID_COMMON_10&quot;)
+		lblCancel = GetResText(&quot;RID_COMMON_11&quot;)
 		DlgOverwrite = LoadDialog(&quot;Tools&quot;, &quot;DlgOverwriteAll&quot;)
 		DlgOverwrite.Title = sTitle
 		OverwriteModel = DlgOverwrite.Model

@@ -1,0 +1,149 @@
+---------------------------------------------------------------------
+This file is a summary of the switches used in the en_GB affix file.
+A description of the affix file format is appended to the end of this
+
+In addition to the new suffix and prefix rules a modified TRY list is
+used in order to properly find spelling errors in words having . (period)
+' (apostrophe) and - (hyphen) within them. A replacement list for common
+mis-spellings has also been incorporated.
+
+The en_GB.aff affix file was created from scratch by David Bartlett and 
+Andrew Brown.
+
+15/12/02
+---------------------------------------------------------------------
+
+A re- Prefix
+a mis- Prefix
+B -able, -ability, last syllable of stem stressed, -ate words > 2 syllables
+b -ible, very basic rules, only dropped e
+C de- Prefix
+c over- Prefix
+D -ed, regular verb past tenses, last syllable of stem stressed
+d -ed, -ing, regular verb past tenses and adverbial form, last syllable NOT stressed
+E dis- Prefix for negation
+e out- Prefix
+F con- prefix
+f under - Prefix
+G -ing, ending for verbs, stress on last syllable of stem
+g -ability, last syllable NOT stressed
+H -th, -fold - number specific suffixes, both generated
+h -edly, adverbial, simplified rules
+I in- im- il- ir- Prefix, opposite of.
+i -edness, degree, simplified rules
+J -ings, plural noun version of verb ing ending, simplified rules
+j -fully, suffix
+K pre-, prefix
+k -ingly, adverbial form, simplified rules
+L -ment, -ments, -ment's, suffix, both generated
+l -ably, simplified rules
+M -'s, possessive form
+m -man, -men, -man's, -men's suffixes, all generated
+N -ion, noun from verb, stress on last syllable of stem
+n -ion, -ions, noun from verb, stress NOT on last syllable of stem
+O non- Prefix
+o -ally, adverb from verb, simplified rules
+P -ness, -ness's, adjective degree of comparison
+p -less, comparative suffix
+Q -ise, -ised, -ises, -ising, -ize, -ized, -izes, -izing, all generated!
+q -isation, -isations, -ization, -izations, all generated
+R -er, -ers, er's, doer, last syllable stressed, both forms generated
+r -er, -ers, er's, doer, last syllable NOT stressed, both forms generated
+S -s, noun plurals, verb conjugation
+s -iser, -isers, -izer, -izers, -iser's, -izer's, all generated
+T -er, -est, adjectival comparatives, both generated
+t -isable, -isability, -izable, -izability, all generated
+U un- Prefix
+u -iveness, ending for verbs
+V -ive, ending for verbs (simplified rules)
+v -ively, ending for verbs
+W -ic, adjectival ending, simplified rules
+w -ical, adjectival ending, simplified rules
+X -ions, noun plural, stress on last syllable of stem, simplified rules
+x -ional, -ionally, simplified rules, both endings formed
+Y -ly, adverb endings for adjectives
+y -ry, adjectival and noun forms, simplified rules.
+Z -y, diminutive and adjectival form, simplified rules
+z -ily, adverbial ending where adjective adds y
+0 -al, noun from verb, simplified rules
+1 -ically, adverbial double suffix, simplified rules
+2 -iness, y+ness ending, simplified rules
+3 -ist, -ists, -ists's, professions
+4 trans-, Prefix
+5 -woman, -women, -woman's suffixes, all generated
+6 -ful, suffix
+7 -able, last syllable NOT stressed, -ate words <= 2 syllables
+8
+9
+
+---------------------------------------------------------------------
+To Do:
+-ity
+-en
+-ify, -ified, -ifies, -ifing
+-ism
+-ish
+-ous
+-ously
+
+---------------------------------------------------------------------
+The following minor suffixes have been ignored, based on 
+frequency counts in the standard word list
+-fulness
+-lessly
+-lessness
+-ousness
+-ifier
+-ification
+-ward
+-ship
+-ishly
+-ible
+-ibility
+-iveity
+-edness
+-icable
+-icability
+-ality
+-alism
+-ics
+-ional
+-ology
+-ologist
+-istic
+
+---------------------------------------------------------------------
+What follows is cut and pasted from the instructions at
+http://whiteboard.openoffice.org/lingucomponent/affix.readme
+
+The first line has 4 fields:
+
+Field
+-----
+1     SFX - indicates this is a suffix
+2     D   - is the name of the character which represents this suffix
+3     Y   - indicates it can be combined with prefixes (cross product)
+4     4   - indicates that sequence of 4 affix entries are needed to
+               properly store the affix information
+
+The remaining lines describe the unique information for the 4 affix
+entries that make up this affix.  Each line can be interpreted
+as follows: (note fields 1 and 2 are used as a check against line 1 info)
+
+Field
+-----
+1     SFX         - indicates this is a suffix
+2     D           - is the name of the character which represents this affix
+3     y           - the string of chars to strip off before adding affix
+                         (a 0 here indicates the NULL string)
+4     ied         - the string of affix characters to add
+                         (a 0 here indicates the NULL string)
+5     [^aeiou]y   - the conditions which must be met before the affix
+                    can be applied
+
+Field 5 is interesting.  Since this is a suffix, field 5 tells us that
+there are 2 conditions that must be met.  The first condition is that
+the next to the last character in the word must *NOT* be any of the
+following "a", "e", "i", "o" or "u".  The second condition is that
+the last character of the word must end in "y".
+

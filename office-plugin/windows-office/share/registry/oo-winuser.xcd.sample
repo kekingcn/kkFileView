@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<!-- This is a fully functional configuration for WinUserInfo configuration backend.
+
+     Removing the ".sample" from the file name allows to get user data from Windows:
+     first, domain data (from Active Directory) is attempted; if unsuccessful, then
+     only given name is configured that is taken from system information.
+     In the latter case, display name (like "John Smith") would be used if present;
+     if it's not configured, then user logon name would be used.
+
+     Any properties that are not required to be set may be commented out as needed.
+-->
+
+<oor:data xmlns:oor="http://openoffice.org/2001/registry">
+  <dependency file="main"/>
+  <oor:component-data oor:package="org.openoffice" oor:name="UserProfile">
+    <node oor:name="Data">
+      <prop oor:name="o" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe o"/>
+      </prop>
+      <prop oor:name="givenname" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe givenname"/>
+      </prop>
+      <prop oor:name="sn" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe sn"/>
+      </prop>
+      <prop oor:name="initials" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe initials"/>
+      </prop>
+      <prop oor:name="street" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe street"/>
+      </prop>
+      <prop oor:name="l" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe l"/>
+      </prop>
+      <prop oor:name="st" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe st"/>
+      </prop>
+      <prop oor:name="postalcode" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe postalcode"/>
+      </prop>
+      <prop oor:name="c" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe c"/>
+      </prop>
+      <prop oor:name="title" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe title"/>
+      </prop>
+      <prop oor:name="position" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe position"/>
+      </prop>
+      <prop oor:name="homephone" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe homephone"/>
+      </prop>
+      <prop oor:name="telephonenumber" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe telephonenumber"/>
+      </prop>
+      <prop oor:name="facsimiletelephonenumber" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe facsimiletelephonenumber"/>
+      </prop>
+      <prop oor:name="mail" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe mail"/>
+      </prop>
+      <prop oor:name="fathersname" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe fathersname"/>
+      </prop>
+      <prop oor:name="apartment" oor:finalized="true">
+        <value oor:external=
+            "com.sun.star.configuration.backend.WinUserInfoBe apartment"/>
+      </prop>
+    </node>
+  </oor:component-data>
+</oor:data>

@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="svx">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">99</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkDialog" id="FloatingContour">
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="title" translatable="yes" context="floatingcontour|FloatingContour">Contour Editor</property>
+    <property name="default_width">0</property>
+    <property name="default_height">0</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkStatusbar" id="statusbar">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">end</property>
+                <property name="hexpand">True</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkDrawingArea" id="statuscolor">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes" context="floatingcontour|statuscolor">Color</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="separator1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="statussize">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">100%</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="separator4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="statuspos">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">100%</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="cancel">
+                <property name="label">gtk-cancel</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="mainbox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="hexpand">True</property>
+                <property name="column_spacing">12</property>
+                <child>
+                  <object class="GtkToolbar" id="toolbar">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="toolbar_style">icons</property>
+                    <property name="show_arrow">False</property>
+                    <property name="icon_size">2</property>
+                    <child>
+                      <object class="GtkToolButton" id="TBI_APPLY">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_APPLY">Apply</property>
+                        <property name="icon_name">svx/res/cd01.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_APPLY-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_APPLY">Applies the contour to the selected object.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separatortoolitem1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_WORKPLACE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_WORKPLACE">Workspace</property>
+                        <property name="icon_name">svx/res/cd02.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_WORKPLACE-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_WORKPLACE">Deletes the custom contour. Click here, and then click in the preview area.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separatortoolitem2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_SELECT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_SELECT">Select</property>
+                        <property name="icon_name">svx/res/cd05.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_SELECT-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_SELECT">Changes to selection mode, so that you can select the contour.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_RECT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_RECT">Rectangle</property>
+                        <property name="icon_name">svx/res/cd06.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_RECT-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_RECT">Draws a rectangular contour where you drag in the object preview. To draw a square, hold down Shift while you drag.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_CIRCLE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_CIRCLE">Ellipse</property>
+                        <property name="icon_name">svx/res/cd07.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_CIRCLE-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_CIRCLE">Draws an oval contour where you drag in the object preview.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_POLY">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_POLY">Polygon</property>
+                        <property name="icon_name">svx/res/cd08.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_POLY-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_POLY">Draws a closed contour consisting of straight line segments. Click where you want to start the polygon, and drag to draw a line segment. Click again to define the end of the line segment, and continue clicking to define the remaining line segments of the polygon. Double-click to finish drawing the polygon. To constrain the polygon to angles of 45 degree, hold down Shift when you click.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separatortoolitem3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_POLYEDIT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_POLYEDIT">Edit Points</property>
+                        <property name="icon_name">svx/res/cd015.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_POLYEDIT-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_POLYEDIT">Lets you change the shape of the contour. Click here, and then drag the handles of the contour.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_POLYMOVE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_POLYMOVE">Move Points</property>
+                        <property name="icon_name">svx/res/cd016.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_POLYMOVE-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_POLYMOVE">Lets you drag the handles of the contour to change the shape of the contour.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_POLYINSERT">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_POLYINSERT">Insert Points</property>
+                        <property name="icon_name">svx/res/cd017.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_POLYINSERT-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_POLYINSERT">Inserts a handle that you can drag to change the shape of the contour. Click here, and then click on the contour outline.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="TBI_POLYDELETE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_POLYDELETE">Delete Points</property>
+                        <property name="icon_name">svx/res/cd018.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_POLYDELETE-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_POLYDELETE">Removes a point from the contour outline. Click here, and then click the point that you want to delete.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separatortoolitem4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="TBI_AUTOCONTOUR">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_AUTOCONTOUR">AutoContour</property>
+                        <property name="use_underline">True</property>
+                        <property name="icon_name">svx/res/cd025.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_AUTOCONTOUR-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_AUTOCONTOUR">Automatically draws a contour around the object that you can edit.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="separatortoolitem5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="TBI_UNDO">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_UNDO">Undo </property>
+                        <property name="icon_name">svx/res/cd020.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_UNDO-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_UNDO">Reverses the last action.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="TBI_REDO">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_REDO">Redo</property>
+                        <property name="icon_name">svx/res/cd021.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_REDO-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_REDO">Reverses the action of the last Undo command.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="TBI_PIPETTE">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="label" translatable="yes" context="floatingcontour|TBI_PIPETTE">Pipette</property>
+                        <property name="icon_name">svx/res/cd026.png</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="TBI_PIPETTE-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|TBI_PIPETTE">Selects the parts of the bitmap that are the same color. Click here, and then click a color in the bitmap. To increase the color range that is selected, increase the value in the Tolerance box.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="spinbutton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes" context="floatingcontour|spinbutton|tooltip_text">Color Tolerance</property>
+                    <property name="adjustment">adjustment1</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="spinbutton-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|spinbutton">Enter the color tolerance for the Color Replacer as a percentage. To increase the color range that the Color Replacer selects, enter a high percentage.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hscrollbar_policy">never</property>
+                <property name="vscrollbar_policy">never</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkViewport">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkDrawingArea" id="container">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="events">GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="container-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|container">Displays a preview of the contour.</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">cancel</action-widget>
+    </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="FloatingContour-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="floatingcontour|extended_tip|FloatingContour">Changes the contour of the selected object. %PRODUCTNAME uses the contour when determining the text wrap options for the object.</property>
+      </object>
+    </child>
+  </object>
+</interface>

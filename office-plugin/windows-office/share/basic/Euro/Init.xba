@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Init" script:language="StarBasic">Option Explicit
-REM  *****  BASIC  *****
-
-
+REM ***** BASIC *****
 
 Public Const SBRANGEUBOUND = 20
 Public StyleRangeAssignmentList(SBRANGEUBOUND)as String
@@ -91,15 +86,16 @@ Public sCurrSLOVENIAN as String
 Public sCurrCYPRIOT as String
 Public sCurrMALTESE as String
 Public sCurrSLOVAK as String
-Public sCurrUNKNOWN as String
-Public sCurrSYSUNKNOWN as String
+Public sCurrESTONIAN as String
+Public sCurrLATVIAN as String
+Public sCurrLITHUANIAN as String
 
 Public sPrgsRETRIEVAL as String
 Public sPrgsCONVERTING as String
 Public sPrgsUNPROTECT as String
 Public sInclusiveSubDir as String
 
-Public Const SBCOUNTRYCOUNT = 15
+Public Const SBCOUNTRYCOUNT = 19
 Public CurMimeType as String
 Public CurCellCount as Long
 Public oSheets as Object
@@ -135,8 +131,8 @@ Public CurExtension(2) as String
 Public Currfactor as Double
 Public CurrSymbolList(2) as String
 Public CurrLanguage as String
-Public CurrValue(15,5)
-Public LangIDValue(15,2,2) as String
+Public CurrValue(18,5)
+Public LangIDValue(18,2,2) as String
 Public PreName as String
 Public Separator as String
 Public BitmapDir as String
@@ -160,94 +156,95 @@ Sub InitializeResources()
 Dim LocWorkPath as String
 	With DialogModel
 		&apos; Strings that are also needed by the Password Dialog
-		sGoOn = GetResText(1003)
-		sHelp = GetResText(1001)
-		sCANCEL = GetResText(1418)
-		sEnd = GetResText(1000)
-		sPROTECT = GetResText(1005)
-		sCONTINUE = GetResText(1007)
-		sSELTEMPL = GetResText(1106)
-		sSELCELL = GetResText(1107)
-		sCURRRANGES = GetResText(1108)
-		sTEMPLATES = GetResText(1109)
-		sStsPROGRESS = GetResText(1300)
-		sStsCELLPROGRSS = GetResText(1301)
-		sStsRELSHEETRANGES = GetResText(1302)
-		sStsRELRANGES = GetResText(1303)
-		sStsREPROTECT = GetResText(1304)
-		sREADY = GetResText(1400)
-		sMsgSELDIR = GetResText(1401)
-		sMsgSELFILE = GetResText(1402)
-		sMsgTARGETDIR = GetResText(1403)
-		sMsgNOTTHERE = GetResText(1404)
-		sMsgDLGTITLE = GetResText(1405)
-		sMsgUNPROTECT = GetResText(1406)
-		sMsgPWPROTECT = GetResText(1407)
-		sMsgWRONGPW = GetResText(1408)
-		sMsgSHEETPROTECTED = GetResText(1409)
-		sMsgWARNING = GetResText(1410)
-		sMsgSHEETSNOPROTECT = GetResText(1411)
-		sMsgSHEETNOPROTECT = GetResText(1412)
-		sMsgCHOOSECURRENCY = GetResText(1415)
-		sMsgPASSWORD = GetResText(1416)
-		sMsgOK = GetResText(1417)
-		sMsgCANCEL = GetResText(1418)
-		sMsgFILEINVALID = GetResText(1419)
+		sGoOn = GetResText(&quot;STEP_ZERO_3&quot;)
+		sHelp = GetResText(&quot;STEP_ZERO_1&quot;)
+		sCANCEL = GetResText(&quot;MESSAGES_18&quot;)
+		sEnd = GetResText(&quot;STEP_ZERO_0&quot;)
+		sPROTECT = GetResText(&quot;STEP_ZERO_5&quot;)
+		sCONTINUE = GetResText(&quot;STEP_ZERO_7&quot;)
+		sSELTEMPL = GetResText(&quot;STEP_CONVERTER_6&quot;)
+		sSELCELL = GetResText(&quot;STEP_CONVERTER_7&quot;)
+		sCURRRANGES = GetResText(&quot;STEP_CONVERTER_8&quot;)
+		sTEMPLATES = GetResText(&quot;STEP_CONVERTER_9&quot;)
+		sStsPROGRESS = GetResText(&quot;STATUSLINE_0&quot;)
+		sStsCELLPROGRSS = GetResText(&quot;STATUSLINE_1&quot;)
+		sStsRELSHEETRANGES = GetResText(&quot;STATUSLINE_2&quot;)
+		sStsRELRANGES = GetResText(&quot;STATUSLINE_3&quot;)
+		sStsREPROTECT = GetResText(&quot;STATUSLINE_4&quot;)
+		sREADY = GetResText(&quot;MESSAGES_0&quot;)
+		sMsgSELDIR = GetResText(&quot;MESSAGES_1&quot;)
+		sMsgSELFILE = GetResText(&quot;MESSAGES_2&quot;)
+		sMsgTARGETDIR = GetResText(&quot;MESSAGES_3&quot;)
+		sMsgNOTTHERE = GetResText(&quot;MESSAGES_4&quot;)
+		sMsgDLGTITLE = GetResText(&quot;MESSAGES_5&quot;)
+		sMsgUNPROTECT = GetResText(&quot;MESSAGES_6&quot;)
+		sMsgPWPROTECT = GetResText(&quot;MESSAGES_7&quot;)
+		sMsgWRONGPW = GetResText(&quot;MESSAGES_8&quot;)
+		sMsgSHEETPROTECTED = GetResText(&quot;MESSAGES_9&quot;)
+		sMsgWARNING = GetResText(&quot;MESSAGES_10&quot;)
+		sMsgSHEETSNOPROTECT = GetResText(&quot;MESSAGES_11&quot;)
+		sMsgSHEETNOPROTECT = GetResText(&quot;MESSAGES_12&quot;)
+		sMsgCHOOSECURRENCY = GetResText(&quot;MESSAGES_15&quot;)
+		sMsgPASSWORD = GetResText(&quot;MESSAGES_16&quot;)
+		sMsgOK = GetResText(&quot;MESSAGES_17&quot;)
+		sMsgCANCEL = GetResText(&quot;MESSAGES_18&quot;)
+		sMsgFILEINVALID = GetResText(&quot;MESSAGES_19&quot;)
 		sMsgFILEINVALID = ReplaceString(sMsgFILEINVALID,&quot;%PRODUCTNAME&quot;, GetProductname())
-		SMsgNODIRECTORY = GetResText(1420)
-		sMsgDOCISREADONLY = GetResText(1421)
-		sMsgFileExists = GetResText(1422)
-		sMsgCancelConversion = GetResText(1423)
-		sMsgCancelTitle = GetResText(1424)
-		sCurrPORTUGUESE = GetResText(1500)
-		sCurrDUTCH = GetResText(1501)
-		sCurrFRENCH = GetResText(1502)
-		sCurrSPANISH = GetResText(1503)
-		sCurrITALIAN = GetResText(1504)
-		sCurrGERMAN = GetResText(1505)
-		sCurrBELGIAN = GetResText(1506)
-		sCurrIRISH = GetResText(1507)
-		sCurrLUXEMBOURG = GetResText(1508)
-		sCurrAUSTRIAN = GetResText(1509)
-		sCurrFINNISH = GetResText(1510)
-		sCurrGREEK = GetResText(1511)
-		sCurrSLOVENIAN = GetResText(1512)
-		sCurrCYPRIOT = GetResText(1513)
-		sCurrMALTESE = GetResText(1514)
-		sCurrSLOVAK = GetResText(1515)
-		sCurrUNKNOWN = GetResText(1516)
-		sCurrSYSUNKNOWN = GetResText(1517)
+		SMsgNODIRECTORY = GetResText(&quot;MESSAGES_20&quot;)
+		sMsgDOCISREADONLY = GetResText(&quot;MESSAGES_21&quot;)
+		sMsgFileExists = GetResText(&quot;MESSAGES_22&quot;)
+		sMsgCancelConversion = GetResText(&quot;MESSAGES_23&quot;)
+		sMsgCancelTitle = GetResText(&quot;MESSAGES_24&quot;)
+		sCurrPORTUGUESE = GetResText(&quot;CURRENCIES_0&quot;)
+		sCurrDUTCH = GetResText(&quot;CURRENCIES_1&quot;)
+		sCurrFRENCH = GetResText(&quot;CURRENCIES_2&quot;)
+		sCurrSPANISH = GetResText(&quot;CURRENCIES_3&quot;)
+		sCurrITALIAN = GetResText(&quot;CURRENCIES_4&quot;)
+		sCurrGERMAN = GetResText(&quot;CURRENCIES_5&quot;)
+		sCurrBELGIAN = GetResText(&quot;CURRENCIES_6&quot;)
+		sCurrIRISH = GetResText(&quot;CURRENCIES_7&quot;)
+		sCurrLUXEMBOURG = GetResText(&quot;CURRENCIES_8&quot;)
+		sCurrAUSTRIAN = GetResText(&quot;CURRENCIES_9&quot;)
+		sCurrFINNISH = GetResText(&quot;CURRENCIES_10&quot;)
+		sCurrGREEK = GetResText(&quot;CURRENCIES_11&quot;)
+		sCurrSLOVENIAN = GetResText(&quot;CURRENCIES_12&quot;)
+		sCurrCYPRIOT = GetResText(&quot;CURRENCIES_13&quot;)
+		sCurrMALTESE = GetResText(&quot;CURRENCIES_14&quot;)
+		sCurrSLOVAK = GetResText(&quot;CURRENCIES_15&quot;)
+		sCurrESTONIAN = GetResText(&quot;CURRENCIES_16&quot;)
+		sCurrLATVIAN = GetResText(&quot;CURRENCIES_17&quot;)
+		sCurrLITHUANIAN = GetResText(&quot;CURRENCIES_18&quot;)
 		.cmdCancel.Label =  sCANCEL
 		.cmdHelp.Label =  sHELP
-		.cmdBack.Label =  GetResText(1002)
+		.cmdBack.Label =  GetResText(&quot;STEP_ZERO_2&quot;)
 		.cmdGoOn.Label =  sGOON
-		.lblHint.Label =  GetResText(1004)
-		.lblCurrencies.Label = GetResText(1006)
+		.lblHint.Label =  GetResText(&quot;STEP_ZERO_4&quot;)
+		.lblCurrencies.Label = GetResText(&quot;STEP_ZERO_6&quot;)
 		.cmdBack.Enabled = False		
 		If .Step = 1 Then
-			.chkComplete.Label = GetResText(1100)
-			.hlnSelection.Label = GetResText(1101)
-			.optCellTemplates.Label = GetResText(1102)
-			.optSheetRanges.Label = GetResText(1103)
-			.optDocRanges.Label = GetResText(1104)
-			.optSelRange.Label = GetResText(1105)
-			sCURRRANGES = GetResText(1108)
+			.chkComplete.Label = GetResText(&quot;STEP_CONVERTER_0&quot;)
+			.hlnSelection.Label = GetResText(&quot;STEP_CONVERTER_1&quot;)
+			.optCellTemplates.Label = GetResText(&quot;STEP_CONVERTER_2&quot;)
+			.optSheetRanges.Label = GetResText(&quot;STEP_CONVERTER_3&quot;)
+			.optDocRanges.Label = GetResText(&quot;STEP_CONVERTER_4&quot;)
+			.optSelRange.Label = GetResText(&quot;STEP_CONVERTER_5&quot;)
+			sCURRRANGES = GetResText(&quot;STEP_CONVERTER_8&quot;)
 			.lblSelection.Label = sCURRRANGES
 		Else
 			.lblProgress.Label = sStsPROGRESS
-		 	.hlnExtent.Label = GetResText(1200)
-			.optSingleFile.Label = GetResText(1201) 
- 			.optWholeDir.Label = GetResText(1202)
- 			.chkProtect.Label = GetResText(1207)
- 			.chkTextDocuments.Label = GetResText(1210) 
+			.hlnExtent.Label = GetResText(&quot;STEP_AUTOPILOT_0&quot;)
+			.optSingleFile.Label = GetResText(&quot;STEP_AUTOPILOT_1&quot;)
+			.optWholeDir.Label = GetResText(&quot;STEP_AUTOPILOT_2&quot;)
+			.chkProtect.Label = GetResText(&quot;STEP_AUTOPILOT_7&quot;)
+			.chkTextDocuments.Label = GetResText(&quot;STEP_AUTOPILOT_10&quot;)
 
-			sSOURCEFILE = GetResText(1203)
-			sSOURCEDIR = GetResText(1204)
- 			.lblSource.Label = sSOURCEDIR
- 			sInclusiveSubDir = GetResText(1205)
- 			.chkRecursive.Label = sInclusiveSubDir
-			sTARGETDIR = GetResText(1206)
- 			.lblTarget.Label = STARGETDIR 
+			sSOURCEFILE = GetResText(&quot;STEP_AUTOPILOT_3&quot;)
+			sSOURCEDIR = GetResText(&quot;STEP_AUTOPILOT_4&quot;)
+			.lblSource.Label = sSOURCEDIR
+			sInclusiveSubDir = GetResText(&quot;STEP_AUTOPILOT_5&quot;)
+			.chkRecursive.Label = sInclusiveSubDir
+			sTARGETDIR = GetResText(&quot;STEP_AUTOPILOT_6&quot;)
+			.lblTarget.Label = STARGETDIR
 			
 			LocWorkPath = GetPathSettings(&quot;Work&quot;)
 			If Not oUcb.Exists(LocWorkPath) Then
@@ -256,14 +253,14 @@ Dim LocWorkPath as String
 			End If
 
 			.txtSource.Text = ConvertfromUrl(LocWorkPath)
-			
+
 			SubstDir = .txtSource.Text
 			.txtTarget.Text = .txtSource.Text
-			.hlnProgress.Label = GetResText(1600)
-			.lblConfig.Label = GetResText(1603)
-			sPrgsRETRIEVAL = GetResText(1601)
-			sPrgsCONVERTING = GetResText(1602)
-			sPrgsUNPROTECT = GetResText(1604)
+			.hlnProgress.Label = GetResText(&quot;STEP_LASTPAGE_0&quot;)
+			.lblConfig.Label = GetResText(&quot;STEP_LASTPAGE_3&quot;)
+			sPrgsRETRIEVAL = GetResText(&quot;STEP_LASTPAGE_1&quot;)
+			sPrgsCONVERTING = GetResText(&quot;STEP_LASTPAGE_2&quot;)
+			sPrgsUNPROTECT = GetResText(&quot;STEP_LASTPAGE_4&quot;)
 		End If
 	End With
 End Sub
@@ -290,7 +287,7 @@ Sub InitializeLanguages()
 	LangIDValue(3,0,0) = &quot;es&quot;
 	LangIDValue(3,0,1) = &quot;&quot;
 	LangIDValue(3,0,2) = &quot;-40A&quot;
-	
+
 	&apos;Spanish modern
 	LangIDValue(3,1,0) = &quot;es&quot;
 	LangIDValue(3,1,1) = &quot;&quot;
@@ -333,7 +330,7 @@ Sub InitializeLanguages()
 	LangIDValue(8,0,0) = &quot;fr&quot;
 	LangIDValue(8,0,1) = &quot;LU&quot;
 	LangIDValue(8,0,2) = &quot;-140C&quot;
-	
+
 	LangIDValue(8,1,0) = &quot;de&quot;
 	LangIDValue(8,1,1) = &quot;LU&quot;
 	LangIDValue(8,1,2) = &quot;-1007&quot;
@@ -376,6 +373,25 @@ Sub InitializeLanguages()
 	LangIDValue(15,0,0) = &quot;sk&quot;
 	LangIDValue(15,0,1) = &quot;SK&quot;
 	LangIDValue(15,0,2) = &quot;-41B&quot;
+
+&apos; CURRENCIES_ESTONIAN
+    LangIDValue(16,0,0) = &quot;et&quot;
+    LangIDValue(16,0,1) = &quot;ET&quot;
+    LangIDValue(16,0,2) = &quot;-425&quot;
+
+&apos; CURRENCIES_LATVIAN
+    LangIDValue(17,0,0) = &quot;lv&quot;
+    LangIDValue(17,0,1) = &quot;LV&quot;
+    LangIDValue(17,0,2) = &quot;-426&quot;
+    &apos; and Latgalian
+    LangIDValue(17,1,0) = &quot;ltg&quot;
+    LangIDValue(17,1,1) = &quot;LV&quot;
+    LangIDValue(17,1,2) = &quot;-64B&quot;
+
+&apos; CURRENCIES_LITHUANIAN
+    LangIDValue(18,0,0) = &quot;lt&quot;
+    LangIDValue(18,0,1) = &quot;LT&quot;
+    LangIDValue(18,0,2) = &quot;-427&quot;
 
 End Sub
 
@@ -529,6 +545,33 @@ Dim i as Integer
 	CurrValue(15,4) = &quot;Sk&quot;
 	CurrValue(15,5) = &quot;SKK&quot;
 
+	CurrValue(16,0) = sCurrESTONIAN
+	&apos; real conversion rate
+	CurrValue(16,1) = 15.6466
+	&apos; rounded conversion rate
+	CurrValue(16,2) = 16
+	CurrValue(16,3) = &quot;kr&quot;
+	CurrValue(16,4) = &quot;kr&quot;
+	CurrValue(16,5) = &quot;EEK&quot;
+
+	CurrValue(17,0) = sCurrLATVIAN
+	&apos; real conversion rate
+	CurrValue(17,1) = 0.702804
+	&apos; rounded conversion rate
+	CurrValue(17,2) = 0.7
+	CurrValue(17,3) = &quot;Ls&quot;
+	CurrValue(17,4) = &quot;Ls&quot;
+	CurrValue(17,5) = &quot;LVL&quot;
+
+	CurrValue(18,0) = sCurrLITHUANIAN
+	&apos; real conversion rate
+	CurrValue(18,1) = 3.45280
+	&apos; rounded conversion rate
+	CurrValue(18,2) = 3.5
+	CurrValue(18,3) = &quot;Lt&quot;
+	CurrValue(18,4) = &quot;Lt&quot;
+	CurrValue(18,5) = &quot;LTL&quot;
+
 	i = -1
 	CurrSymbolList(0) = &quot;&quot;
 	CurrSymbolList(1) = &quot;&quot;
@@ -544,7 +587,7 @@ Sub InitializeControls()
 			EnableStep2DialogControls(True)
 		End If
 	End If
-End Sub	
+End Sub
 
 
 Sub InitializeConverter(oLocale, iDialogPage as Integer)
@@ -558,7 +601,7 @@ Dim Isthere as Boolean
 		If sDocType = &quot;sCalc&quot; Then
 			bDocHasProtectedSheets = CheckSheetProtection(oSheets)
 		End If
-	    oStatusline = ThisComponent.GetCurrentController.GetFrame.CreateStatusIndicator()
+		oStatusline = ThisComponent.GetCurrentController.GetFrame.CreateStatusIndicator()
 	End If
 	DialogConvert = LoadDialog(&quot;Euro&quot;, &quot;DlgConvert&quot;)
 	DialogModel = DialogConvert.Model
@@ -575,9 +618,9 @@ Dim Isthere as Boolean
 		Stop
 	End If
 	FillUpCurrencyListbox()
-	DialogModel.imgPreview.ImageUrl = BitmapDir &amp; &quot;euro_&quot; &amp; DialogModel.Step &amp; &quot;.bmp&quot;	
+	DialogModel.imgPreview.ImageUrl = BitmapDir &amp; &quot;euro_&quot; &amp; DialogModel.Step &amp; &quot;.png&quot;
 	DialogConvert.Title = sMsgDLGTITLE
-	DialogModel.cmdGoOn.DefaultButton = True	
+	DialogModel.cmdGoOn.DefaultButton = True
 	If iDialogPage = 1 Then
 		ToggleWindow(True)
 	End If
@@ -592,7 +635,7 @@ Sub	InitializeCurrencyValues(CurrIndex)
 		CurrSymbolList(1) = CurrValue(CurrIndex,4)
 		CurrSymbolList(2) = CurrValue(CurrIndex,5)
 	End If
-End Sub		
+End Sub
 
 
 Function InitializeLocales(oLocale) as Boolean

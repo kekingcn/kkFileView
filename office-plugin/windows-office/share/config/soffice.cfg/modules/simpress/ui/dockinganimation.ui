@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface domain="sd">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="lower">1</property>
+    <property name="upper">999</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">600</property>
+    <property name="step_increment">10</property>
+    <property name="page_increment">60</property>
+  </object>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">sd/res/get1obj.png</property>
+  </object>
+  <object class="GtkImage" id="image2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">sd/res/getallob.png</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">sd/res/del1bmp.png</property>
+  </object>
+  <object class="GtkImage" id="image4">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">sd/res/delall.png</property>
+  </object>
+  <object class="GtkImage" id="image5">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-goto-first</property>
+  </object>
+  <object class="GtkImage" id="image6">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-previous</property>
+  </object>
+  <object class="GtkImage" id="image7">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-stop</property>
+  </object>
+  <object class="GtkImage" id="image8">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-next</property>
+  </object>
+  <object class="GtkImage" id="image9">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-goto-last</property>
+  </object>
+  <object class="GtkBox" id="DockingAnimation">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <!-- n-columns=1 n-rows=1 -->
+      <object class="GtkGrid" id="grid1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="row_spacing">24</property>
+        <child>
+          <!-- n-columns=1 n-rows=1 -->
+          <object class="GtkGrid" id="grid2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="row_spacing">12</property>
+            <child>
+              <!-- n-columns=1 n-rows=1 -->
+              <object class="GtkGrid" id="grid3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="column_spacing">12</property>
+                <child>
+                  <object class="GtkComboBoxText" id="loopcount">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes" context="dockinganimation|loopcount|tooltip_text">Loop Count</property>
+                    <items>
+                      <item>1</item>
+                      <item>2</item>
+                      <item>3</item>
+                      <item>4</item>
+                      <item>5</item>
+                      <item>6</item>
+                      <item>7</item>
+                      <item>8</item>
+                      <item>9</item>
+                      <item>10</item>
+                      <item>12</item>
+                      <item>15</item>
+                      <item>20</item>
+                      <item>25</item>
+                      <item>50</item>
+                      <item>100</item>
+                      <item>500</item>
+                      <item>1000</item>
+                      <item translatable="yes" context="dockinganimation|loopcount">Max.</item>
+                    </items>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="loopcount-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|loopcount">Sets the number of times that the animation is played.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="duration">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes" context="dockinganimation|duration|tooltip_text">Duration</property>
+                    <property name="adjustment">adjustment2</property>
+                    <property name="digits">2</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="duration-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|duration">Enter the number of seconds to display the current image. This option is only available if you select the Bitmap object option in the Animation group field.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="numbitmap">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes" context="dockinganimation|numbitmap|tooltip_text">Image Number</property>
+                    <property name="text">1</property>
+                    <property name="adjustment">adjustment1</property>
+                    <property name="value">1</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="numbitmap-atkobject">
+                        <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|numbitmap">Indicates the position of the current image in the animation sequence.</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="grid9">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">center</property>
+                    <property name="column_spacing">6</property>
+                    <child>
+                      <object class="GtkButton" id="first">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes" context="dockinganimation|first|tooltip_text">First Image</property>
+                        <property name="image">image5</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="first-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|first">Jumps to the first image in the animation sequence.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="prev">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes" context="dockinganimation|prev|tooltip_text">Backwards</property>
+                        <property name="image">image6</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="prev-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|prev">Plays the animation backwards.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="stop">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes" context="dockinganimation|stop|tooltip_text">Stop</property>
+                        <property name="image">image7</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="stop-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|stop">Stops playing the animation.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="next">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes" context="dockinganimation|next|tooltip_text">Play</property>
+                        <property name="image">image8</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="next-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|next">Plays the animation.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">3</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="last">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes" context="dockinganimation|last|tooltip_text">Last Image</property>
+                        <property name="image">image9</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="last-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|last">Jumps to the last image in the animation sequence.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">4</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkDrawingArea" id="preview">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frame1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
+            <child>
+              <object class="GtkAlignment" id="alignment1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="top_padding">6</property>
+                <property name="left_padding">12</property>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="grid6">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="row_spacing">6</property>
+                    <child>
+                      <object class="GtkRadioButton" id="group">
+                        <property name="label" translatable="yes" context="dockinganimation|group">Group object</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="group-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|group">Assembles images into a single object so that they can be moved as a group. You can still edit individual objects by double-clicking the group in the slide.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="bitmap">
+                        <property name="label" translatable="yes" context="dockinganimation|bitmap">Bitmap object</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                        <property name="group">group</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="bitmap-atkobject">
+                            <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|bitmap">Combines images into a single image.</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <!-- n-columns=1 n-rows=1 -->
+                      <object class="GtkGrid" id="grid10">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="column_spacing">12</property>
+                        <child>
+                          <object class="GtkLabel" id="alignmentft">
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes" context="dockinganimation|alignmentft">Alignment</property>
+                            <property name="use_underline">True</property>
+                            <property name="mnemonic_widget">alignment</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="alignment">
+                            <property name="can_focus">False</property>
+                            <items>
+                              <item translatable="yes" context="dockinganimation|alignment">Top Left</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Left</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Bottom Left</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Top</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Centered</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Bottom</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Top Right</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Right</item>
+                              <item translatable="yes" context="dockinganimation|alignment">Bottom Right</item>
+                            </items>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="alignment-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|alignment">Aligns the images in your animation.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="dockinganimation|label1">Animation Group</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frame2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
+            <child>
+              <object class="GtkAlignment" id="alignment2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="top_padding">6</property>
+                <property name="left_padding">12</property>
+                <child>
+                  <!-- n-columns=1 n-rows=1 -->
+                  <object class="GtkGrid" id="grid7">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="column_spacing">24</property>
+                    <child>
+                      <!-- n-columns=1 n-rows=1 -->
+                      <object class="GtkGrid" id="grid11">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="hexpand">True</property>
+                        <property name="column_spacing">12</property>
+                        <child>
+                          <object class="GtkButton" id="getone">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes" context="dockinganimation|getone|tooltip_text">Apply Object</property>
+                            <property name="image">image1</property>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="getone-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|getone">Adds selected object(s) as a single image.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="getall">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes" context="dockinganimation|getall|tooltip_text">Apply Objects Individually</property>
+                            <property name="image">image2</property>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="getall-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|getall">Adds an image for each selected object.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <!-- n-columns=1 n-rows=1 -->
+                      <object class="GtkGrid" id="grid12">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">end</property>
+                        <property name="hexpand">True</property>
+                        <property name="column_spacing">12</property>
+                        <child>
+                          <object class="GtkLabel" id="label3">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes" context="dockinganimation|label3">Number</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="count">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label">67</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <!-- n-columns=1 n-rows=1 -->
+                      <object class="GtkGrid" id="grid13">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">center</property>
+                        <property name="hexpand">True</property>
+                        <property name="column_spacing">12</property>
+                        <child>
+                          <object class="GtkButton" id="delone">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes" context="dockinganimation|delone|tooltip_text">Delete Current Image</property>
+                            <property name="image">image3</property>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="delone-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|delone">Deletes current image from the animation sequence.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="delall">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes" context="dockinganimation|delall|tooltip_text">Delete All Images</property>
+                            <property name="image">image4</property>
+                            <child internal-child="accessible">
+                              <object class="AtkObject" id="delall-atkobject">
+                                <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|delall">Deletes all of the images in the animation.</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="dockinganimation|label2">Image</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkButtonBox" id="buttonbox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="layout_style">end</property>
+        <child>
+          <object class="GtkButton" id="help">
+            <property name="label">gtk-help</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="use_stock">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+            <property name="secondary">True</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="create">
+            <property name="label" translatable="yes" context="dockinganimation|create">Create</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="can_default">True</property>
+            <property name="receives_default">True</property>
+            <property name="use_underline">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="create-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|create">Inserts the animation into the current slide.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="pack_type">end</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="DockingAnimation-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="dockinganimation|extended_tip|DockingAnimation">Creates a custom animation on the current slide.</property>
+      </object>
+    </child>
+  </object>
+</interface>

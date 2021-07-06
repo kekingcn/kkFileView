@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="FilesModul" script:language="StarBasic">Option Explicit
 
 Public AbsTemplateFound as Integer
@@ -36,7 +33,6 @@ Public FileCount as Integer
 Public XMLTemplateCount as Integer
 Public PathCollection(7,3) as String
 Public bIsFirstLogTable as Boolean
-Public bFilterTracerIsinsideTable as Boolean
 
 
 Function ReadCollectionPaths(FilesList() as String, sFilterName() as String)
@@ -61,6 +57,7 @@ Dim NewContentList() as String
 Dim XMLTemplateContentString as String
 Dim ApplIndex as Integer
 Dim bAssignFileName as Boolean
+Dim bInterruptSearch as Boolean
 	bInterruptSearch = False
 	For i = 0 To MaxCollectIndex
 		SearchDir = PathCollection(i,0)
@@ -190,7 +187,7 @@ Dim LocXMLTemplateContent as String
 	iKey = Applications(ApplIndex, SBAPPLKEY)
 	CurListString = PathCollection(CollectIndex, 2)
 	LocExtension = sFilterName(iKey +DistIndex, 0)
-	If Len(LocExtension) &gt; SBMAXEXTENSIONLENGTH Then 			&apos; 7 == Length of two extensions like &apos;sda|sdd
+	If Instr(LocExtension, &quot;vnd.sun.xml.&quot;) = 1 Then
 		LocExtension = SetExtension(LocExtension)
 		LocContentString = sFilterName(iKey +DistIndex, 0)
 		LocContentString = ReplaceString(LocContentString, &quot;|&quot;, &quot;;&quot;)
@@ -241,9 +238,6 @@ Dim	XMLTemplateContentString as String
 	XMLTemplateCount = 0
 	XMLTemplateContentString = &quot;&quot;
 	For i = 0 To ApplCount-1
-		If WizardMode = SBXMLMODE Then
-			XMLTemplateCount = XMLTemplateCount + 1
-		End If
 		CheckIfToAddPathToCollection(i, SBTEMPLCONVERT, SBTEMPLSOURCE, SBTEMPLRECURSIVE, sFilterName(), MaxApplCount)
 	Next i
 End Sub
@@ -301,7 +295,7 @@ Dim sPrevMimeTypeorExtension as String
 		Exit Sub
 	End If
 	TotFound = Ubound(FilesList()) + 1 			
-	If FilesList(0,0) = &quot;&quot; Then					&apos; Querying the number of fields in a multidimensionl Array is unsecure
+	If FilesList(0,0) = &quot;&quot; Then					&apos; Querying the number of fields in a multidimensional Array is unsecure
 		TotFound = 0							&apos; because it will return the value 0 (and not -1) even when the Array is empty
 		SetProgressDisplay(0)
 	End If
@@ -333,7 +327,7 @@ Dim sPrevMimeTypeorExtension as String
 			CurFiltername =	GetFilterName(sMimeTypeorExtension, sFilterName(), sExtension, FilterIndex)
 			ApplIndex = FilesList(i,2)
 			If sMimeTypeorExtension &lt;&gt; sPrevMimeTypeorExtension Then
-				CreateLogTable(ApplIndex, sMimeTypeOrExtension, sFiltername()
+				CreateLogTable(ApplIndex, sMimeTypeOrExtension, sFiltername())
 			End If
 			If ApplIndex &gt; Ubound(Applications) or (ApplIndex &lt; 0) Then
 				Msgbox &quot;Applicationindex out of bounds:&quot; &amp; sSourcUrl
@@ -362,7 +356,7 @@ Dim sPrevMimeTypeorExtension as String
 					Elseif iGeneralOverwrite = SBOVERWRITENEVER Then
 						bDoSave = False					
 					ElseIf ((iGeneralOverWrite = SBOVERWRITEQUERY) OR (iGeneralOverwrite = SBOVERWRITECANCEL)) Then
-						&apos; Todo: According to AS there might come a new feature that storeasUrl could possibly rise a UI dialog. 
+						&apos; Todo: According to AS there might come a new feature that storeasUrl could possibly rise a UI dialog.
 						&apos; In this case my own UI becomes obsolete
 						sCurFileExists = ReplaceString(sFileExists, ConvertFromUrl(sTargetUrl), &quot;&lt;1&gt;&quot;)
 						sCurFileExists = ReplaceString(sCurFileExists, chr(13), &quot;&lt;CR&gt;&quot;)
@@ -417,7 +411,7 @@ Dim sPrevMimeTypeorExtension as String
 							FileCount = FileCount + 1
 						End If
 						oDocument.Dispose()
-						InsertTargetUrlToLogDocument(sTargetUrl, sComment, ApplIndex)
+						InsertTargetUrlToLogDocument(sTargetUrl, sComment)
 					Else
 						sCurcouldnotopenDocument = ReplaceString(scouldnotopenDocument, ConvertFromUrl(sSourceUrl), &quot;&lt;1&gt;&quot;)
 						sComment = ConcatComment(sComment, sCurCouldnotopenDocument)
@@ -456,8 +450,8 @@ Dim s as Integer
 		FirstList(i,1) = SecList(s,1)
 		sLocExtension = lcase(FirstList(i,1))
 		Select Case sLocExtension
-			Case &quot;sdw&quot;, &quot;sdc&quot;, &quot;sda&quot;, &quot;sdd&quot;, &quot;smf&quot;, &quot;sgl&quot;, &quot;doc&quot;, &quot;xls&quot;, &quot;ppt&quot;, &quot;sxi&quot; , &quot;sxw&quot; , &quot;sxd&quot; , &quot;sxg&quot; , &quot;sxm&quot; , &quot;sxc&quot; , &quot;pps&quot; , &quot;docx&quot; , &quot;docm&quot; , &quot;xlsx&quot; , &quot;xlsm&quot; , &quot;xlsb&quot; , &quot;pptx&quot; , &quot;pptm&quot;
-				AbsDocuFound = AbsDocuFound + 1
+			Case &quot;sdw&quot;, &quot;sdc&quot;, &quot;sda&quot;, &quot;sdd&quot;, &quot;smf&quot;, &quot;sgl&quot;, &quot;doc&quot;, &quot;docx&quot;, &quot;docm&quot;, &quot;xls&quot;, &quot;xlsx&quot;, &quot;xlsm&quot;, &quot;ppt&quot;, &quot;pps&quot;, &quot;pptx&quot;, &quot;pptm&quot;, &quot;ppsx&quot;, &quot;ppsm&quot;, &quot;pub&quot;, &quot;sxi&quot;, &quot;sxw&quot;, &quot;sxd&quot;, &quot;sxg&quot;, &quot;sxm&quot;, &quot;sxc&quot;
+                        AbsDocuFound = AbsDocuFound + 1
 			Case else
 				AbsTemplateFound = AbsTemplateFound + 1
 		End Select
@@ -473,13 +467,6 @@ Function GetTargetTemplatePath(Index as Integer)
 	Select Case WizardMode
 		Case SBMICROSOFTMODE
 			GetTargetTemplatePath() = SOTemplatePath &amp; &quot;/&quot; &amp; sTemplateGroupName
-		Case SBXMLMODE
-			If Index = 3 Then
-				&apos; Helper Application
-				GetTargetTemplatePath = SOWorkPath
-			Else
-				GetTargetTemplatePath = SOTemplatePath
-			End If
 	End Select
 End Function
 
@@ -539,7 +526,6 @@ Dim oCell
 	If Not bLogExists Then
         Exit Sub
     End If 
-	bFilterTracerIsinsideTable = False
 	FilterIndex = GetIndexForPartStringinMultiArray(sFilterName(), CurFileContent, 0)
 	sDocumentType = sFiltername(FilterIndex,3)
 	oLogCursor = oLogDocument.Text.createTextCursor()
@@ -554,36 +540,15 @@ Dim oCell
 	oLogCursor.HyperLinkTarget = &quot;&quot;
 	oLogCursor.ParaStyleName = &quot;Heading 1&quot;
 	oLogCursor.setString(sDocumentType)
-	If WizardMode = SBMICROSOFTMODE Then
-		If bFilterTracingAvailable Then
-			If bMSApplFilterTracingAvailable(ApplIndex) Then
-				Dim CurFilterTracingPath as String
-				CurFilterTracingPath = FilterTracingLogPath(ApplIndex)
-				bFilterTracerIsinsideTable = (bTakeOverTargetName(ApplIndex) Or bTakeOverPathName(ApplIndex))
-				If Not bFilterTracerIsinsideTable Then
-					oLogCursor.CollapseToEnd()
-					oLogDocument.Text.insertControlCharacter(oLogCursor, com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK, False)
-					InsertCommandButtonatViewCursor(oLogDocument, oLogCursor, CurFilterTracingPath)
-				End If
-			End If
-		End If
-	End If
 	oLogCursor.CollapsetoEnd()
 	oLogDocument.Text.insertControlCharacter(oLogCursor, com.sun.star.text.ControlCharacter.PARAGRAPH_BREAK, False)
 	oLogTable =  oLogDocument.CreateInstance(&quot;com.sun.star.text.TextTable&quot;)
 	oLogTable.RepeatHeadline = true
-	If bFilterTracerIsinsideTable Then
-		oLogTable.initialize(2,3)
-	End If
 	oLogCursor.Text.InsertTextContent(oLogCursor, oLogTable, True)
 	oTextCursor = oLogTable.GetCellbyPosition(0,0).createTextCursor()
 	oTextCursor.SetString(sSourceDocuments)	
 	oTextCursor = oLogTable.GetCellbyPosition(1,0).createTextCursor()
 	oTextCursor.SetString(sTargetDocuments)
-	If bFilterTracerIsinsideTable Then
-		oTextCursor = oLogTable.GetCellbyPosition(2,0).createTextCursor()
-		oTextCursor.SetString(&quot;FilterTracer&quot;)
-	End If
 	bInsertRow = False
 End Sub
 
@@ -650,27 +615,7 @@ Dim bLogIsThere as Boolean
 End Sub
 
 
-Function GetFilterTracingLogPath(sTargetUrl as String, ApplIndex) as String				
-Dim TargetFileName as String
-Dim sTargetFolder as String
-Dim CurFilterTracingPath as String
-Dim CurFilterTracingname as String
-Dim CurFilterFolder as String
-		CurFilterTracingPath = FilterTracingLogPath(ApplIndex)
-		If bTakeOverTargetName(ApplIndex) Then			
-			TargetFilename = GetFileNameWithoutextension(sTargetUrl, &quot;/&quot;)
-			CurFilterFolder = DirectoryNameoutofPath(FilterTracingLogPath(ApplIndex), &quot;/&quot;)
-			CurFilterTracingpath = CurFilterFolder &amp; &quot;/&quot; &amp; TargetFilename &amp; &quot;.log&quot;
-		End If
-		If bTakeOverPathName(ApplIndex) Then  &apos;Replace the Folder in the FilterTracerpath by the Folder of the targetUrl
-			sTargetFolder = DirectoryNameoutofPath(sTargetUrl,&quot;/&quot;)
-			CurFilterTracingPath = sTargetFolder &amp; &quot;/&quot; &amp; FileNameoutofPath(CurFilterTracingPath, &quot;/&quot;)
-		End If
-		GetFilterTracingLogPath() = CurFilterTracingPath
-End Function
-
-
-Sub InsertTargetUrlToLogDocument(sTargetUrl as String, sComment as String, ApplIndex as Integer)
+Sub InsertTargetUrlToLogDocument(sTargetUrl as String, sComment as String)
 Dim oCell
 Dim oTextCursor
 Dim CurFilterTracingpath as String
@@ -679,12 +624,6 @@ Dim CurFilterTracingpath as String
 			oCell = oLogTable.GetCellbyPosition(1,oLogTable.Rows.Count-1)
 			InsertCommentToLogCell(sComment, oCell)
 			InsertHyperLinkToLogCell(sTargetUrl, oCell)
-			If bFilterTracerIsinsideTable Then
-				oCell = oLogTable.getCellByPosition(2, oLogTable.Rows.Count-1)
-				oTextCursor = oCell.Text.CreateTextCursor()
-				CurFilterTracingpath = GetFilterTracingLogPath(sTargetUrl, ApplIndex)
-				InsertCommandButtonatViewCursor(oLogDocument, oTextCursor, CurFilterTracingPath)
-			End If
 			oLogDocument.Store()
 		End If
 	End If

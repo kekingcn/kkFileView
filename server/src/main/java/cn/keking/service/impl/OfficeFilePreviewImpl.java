@@ -73,6 +73,8 @@ public class OfficeFilePreviewImpl implements FilePreview {
     }
 
     static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {
+        String suffix = fileAttribute.getSuffix();
+        boolean isPPT = suffix.equalsIgnoreCase("ppt") || suffix.equalsIgnoreCase("pptx");
         List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
         if (imageUrls == null || imageUrls.size() < 1) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
@@ -80,7 +82,8 @@ public class OfficeFilePreviewImpl implements FilePreview {
         model.addAttribute("imgurls", imageUrls);
         model.addAttribute("currentUrl", imageUrls.get(0));
         if (officePreviewTypeImage.equals(officePreviewType)) {
-            return OFFICE_PICTURE_FILE_PREVIEW_PAGE;
+            // PPT 图片模式使用专用预览页面
+            return (isPPT ? PPT_FILE_PREVIEW_PAGE : OFFICE_PICTURE_FILE_PREVIEW_PAGE);
         } else {
             return PICTURE_FILE_PREVIEW_PAGE;
         }

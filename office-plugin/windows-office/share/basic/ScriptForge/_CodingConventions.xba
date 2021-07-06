@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="_CodingConventions" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+&apos;&apos;&apos;
+&apos;	Conventions used in the coding of the *ScriptForge* library
+&apos;	-----------------------------------------------------------
+&apos;&apos;&apos;
+&apos;	Library and Modules
+&apos;	===================
+&apos;		*	Module names are all prefixed with &quot;SF_&quot;.
+&apos;			*	The *Option Explicit* statement is mandatory in every module.
+&apos;			*	The *Option Private Module* statement is recommended in internal modules.
+&apos;		*	A standard header presenting the module/class is mandatory
+&apos;		*	An end of file (eof) comment line is mandatory
+&apos;		*	Every module lists the constants that are related to it and documented as return values, arguments, etc.
+&apos;			They are defined as *Global Const*.
+&apos;			The scope of global constants being limited to one single library, their invocation from user scripts shall be qualified.
+&apos;		*	The Basic reserved words are *Proper-Cased*.
+&apos;&apos;&apos;
+&apos;	Functions and Subroutines
+&apos;	=========================
+&apos;		*	LibreOffice ignores the Private/Public attribute in Functions or Subs declarations.
+&apos;			Nevertheless the attribute must be present.
+&apos;			Rules to recognize their scope are:
+&apos;			*	Public + name starts with a letter  
+&apos;					The Sub/Function belongs to the official ScriptForge API.
+&apos;					As such it may be called from any user script.
+&apos;			*	Public + name starts with an underscore &quot;_&quot;
+&apos;					The Sub/Function may be called only from within the ScriptForge library.
+&apos;					As such it MUST NOT be called from another library or from a user script,
+&apos;					as there is no guarantee about the arguments, the semantic or even the existence of that piece of code in a later release.
+&apos;			*	Private - The Sub/Function name must start with an underscore &quot;_&quot;.  
+&apos;					The Sub/Function may be called only from the module in which it is located.
+&apos;		*	Functions and Subroutines belonging to the API (= &quot;standard&quot; functions/Subs) are defined in their module in alphabetical order.
+&apos;			For class modules, all the properties precede the methods which precede the events.
+&apos;		*	Functions and Subroutines not belonging to the API are defined in their module in alphabetical order below the standard ones.
+&apos;		*	The return value of a function is always declared explicitly.
+&apos;		*	The parameters are always declared explicitly even if they&apos;re variants.
+&apos;		*	The Function and Sub declarations start at the 1st column of the line.
+&apos;		*	The End Function/Sub statement is followed by a comment reminding the name of the containing library.module and of the function or sub.
+&apos;			If the Function/Sub is declared for the first time or modified in a release &gt; initial public release, the actual release number is mentioned as well.
+&apos;&apos;&apos;
+&apos;	Variable declarations
+&apos;	=====================
+&apos;		*	Variable names use only alpha characters, the underscore and digits (no accented characters).
+&apos;			Exceptionally, names of private variables may be embraced with `[` and `]` if `Option Compatible` is present.
+&apos;		*	The Global, Dim and Const statements always start in the first column of the line.
+&apos;		*	The type (*Dim ... As ...*, *Function ... As ...*) is always declared explicitly, even if the type is Variant.
+&apos;		*	Variables are *Proper-Cased*. They are always preceded by a lower-case letter indicating their type.
+&apos;			With next exception: variables i, j, k, l, m and n must be declared as integers or longs.
+&apos;				&gt; b Boolean
+&apos;				&gt; d Date
+&apos;				&gt; v Variant
+&apos;				&gt; o Object
+&apos;				&gt; i Integer
+&apos;				&gt; l Long
+&apos;				&gt; s String
+&apos;			Example:  
+&apos;				Dim sValue As String
+&apos;		*	Parameters are preceded by the letter *p* which itself precedes the single *typing letter*.
+&apos;			In official methods, to match their published documentation, the *p* and the *typing letter* may be omitted. Like in:  
+&apos;				Private Function MyFunction(psValue As String) As Variant
+&apos;				Public Function MyOfficialFunction(Value As String) As Variant
+&apos;		*	Global variables in the ScriptForge library are ALL preceded by an underscore &quot;_&quot; as NONE of them should be invoked from outside the library.
+&apos;		*	Constant values with a local scope are *Proper-Cased* and preceded by the letters *cst*.
+&apos;		*	Constants with a global scope are *UPPER-CASED*.  
+&apos;			Example:
+&apos;				Global Const ACONSTANT = &quot;This is a global constant&quot;  
+&apos;				Function MyFunction(pocControl As Object, piValue) As Variant  
+&apos;				Dim iValue As Integer  
+&apos;				Const cstMyConstant = 3 
+&apos;&apos;&apos;
+&apos;	Indentation
+&apos;	===========
+&apos;		Code shall be indented with TAB characters.
+&apos;&apos;&apos;
+&apos;	Goto/Gosub
+&apos;	==========
+&apos;		The *GoSub* … *Return* statement is forbidden.  
+&apos;		The *GoTo* statement is forbidden.  
+&apos;		However *GoTo* is highly recommended for *error* and *exception* handling.
+&apos;&apos;&apos;
+&apos;	Comments (english only)
+&apos;	========
+&apos;		*	Every public routine should be documented with a python-like &quot;docstring&quot;:
+&apos;			1.	Role of Sub/Function
+&apos;			2.	List of arguments, mandatory/optional, role
+&apos;			3.	Returned value(s) type and meaning
+&apos;			4.	Examples when useful
+&apos;			5.	Eventual specific exception codes
+&apos;		*	The &quot;docstring&quot; comments shall be marked by a triple (single) quote character at the beginning of the line
+&apos;		*	Meaningful variables shall be declared one per line. Comment on same line.
+&apos;		*	Comments about a code block should be left indented.
+&apos;			If it concerns only the next line, no indent required (may also be put at the end of the line).
+&apos;&apos;&apos;
+</script:module>

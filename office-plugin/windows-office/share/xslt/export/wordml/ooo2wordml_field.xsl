@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
-
-
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+ -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml" xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:aml="http://schemas.microsoft.com/aml/2001/core" xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" exclude-result-prefixes="office table style text draw svg   dc config xlink meta oooc dom ooo chart math dr3d form script ooow draw">
     <!-- the following are common used  fields -->
     <xsl:template match="text:page-number | text:page-count | text:subject | text:initial-creator |  text:title  | text:date
@@ -200,7 +195,7 @@
                             <!--wx:font wx:val="MS Mincho"/ -->
                             <w:lang w:fareast="JA"/>
                         </xsl:when>
-                        <xsl:when test=" @style:num-format  ='壹, 	貳, 參, ...' or @style:num-format  ='壹, 貳, 參, ...' or @style:num-format  ='壹, 贰, 	叁, ...'or  @style:num-format  = '一, 二, 三, ...' ">
+                        <xsl:when test=" @style:num-format  ='壹, 貳, 參, ...' or @style:num-format  ='壹, 貳, 參, ...' or @style:num-format  ='壹, 贰, 叁, ...'or  @style:num-format  = '一, 二, 三, ...' ">
                             <w:rFonts w:hint="fareast"/>
                             <!--wx:font wx:val="宋体"/ -->
                         </xsl:when>
@@ -217,7 +212,7 @@
         <!-- this template get the various of number formats for number type field-->
         <xsl:param name="field_number_format_style"/>
         <xsl:choose>
-            <xsl:when test=" $field_number_format_style = '１, ２, ３, ...' or $field_number_format_style = '1'  	">
+            <xsl:when test=" $field_number_format_style = '１, ２, ３, ...' or $field_number_format_style = '1'      ">
                 <xsl:text>  \* Arabic </xsl:text>
             </xsl:when>
             <xsl:when test="$field_number_format_style = '①, ②, ③, ...' ">
@@ -232,8 +227,7 @@
             <xsl:when test="$field_number_format_style = '一, 二, 三, ...'">
                 <xsl:text>  \* CHINESENUM3  </xsl:text>
             </xsl:when>
-            <xsl:when test="  $field_number_format_style ='壹, 	貳, 參, ...' or $field_number_format_style ='壹, 貳, 參, ...' or
-$field_number_format_style ='壹, 贰, 叁, ...' ">
+            <xsl:when test="  $field_number_format_style ='壹, 貳, 參, ...' or $field_number_format_style ='壹, 貳, 參, ...' or $field_number_format_style ='壹, 贰, 叁, ...' ">
                 <xsl:text>  \* CHINESENUM2  </xsl:text>
             </xsl:when>
             <xsl:when test="$field_number_format_style = '壱, 弐, 参, ...' ">
@@ -269,6 +263,9 @@ $field_number_format_style ='壹, 贰, 叁, ...' ">
             <xsl:when test="$field_number_format_style ='A' ">
                 <xsl:text>  \* ALPHABETIC </xsl:text>
             </xsl:when>
+            <xsl:when test="$field_number_format_style = 'א, י, ק, ...' ">
+                <xsl:text>  \* hebrew1  </xsl:text>
+            </xsl:when>
             <xsl:when test="$field_number_format_style = 'א, ב, ג, ...' ">
                 <xsl:text>  \* hebrew2  </xsl:text>
             </xsl:when>
@@ -286,13 +283,13 @@ $field_number_format_style ='壹, 贰, 叁, ...' ">
     <xsl:template name="field_get_date_format">
         <xsl:param name="field_date_stylename"/>
         <xsl:param name="field_date_value"/>
-        <!-- this template retun null date format ATM-->
+        <!-- this template return null date format ATM-->
         <xsl:text/>
     </xsl:template>
     <xsl:template name="field_get_time_format">
         <xsl:param name="field_time_stylename"/>
         <xsl:param name="field_time_value"/>
-        <!-- this template retun null date format ATM-->
+        <!-- this template return null date format ATM-->
         <xsl:text/>
     </xsl:template>
     <xsl:template match="text:template-name">
@@ -359,7 +356,7 @@ $field_number_format_style ='壹, 贰, 叁, ...' ">
         </w:fldSimple>
     </xsl:template>
     <xsl:template name="field_convert_linebreak">
-        <!-- this template convert the linebreak (&#x0A; and &#x0D;) in continous text to Ms word element<w:br/> -->
+        <!-- this template convert the linebreak (&#x0A; and &#x0D;) in continuous text to Ms word element<w:br/> -->
         <xsl:param name="field_input_text"/>
         <xsl:if test="not (contains($field_input_text,'&#x0A;'))">
             <w:t>
@@ -512,7 +509,7 @@ $field_number_format_style ='壹, 贰, 叁, ...' ">
         <xsl:call-template name="export_hyoerlink"/>
     </xsl:template>
     <xsl:template name="export_hyoerlink">
-        <!-- all params are useed by draw -->
+        <!-- all params are used by draw -->
         <xsl:param name="TargetMeasure"/>
         <xsl:param name="x-adjust"/>
         <xsl:param name="y-adjust"/>

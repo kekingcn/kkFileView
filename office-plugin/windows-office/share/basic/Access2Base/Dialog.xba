@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Dialog" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private	_Type					As String				&apos;	Must be DIALOG
+Private _This					As Object				&apos;	Workaround for absence of This builtin function
+Private _Parent					As Object
+Private	_Name					As String
+Private _Shortcut				As String
+Private _Dialog					As Object				&apos;	com.sun.star.io.XInputStreamProvider
+Private _Storage				As String				&apos;	GLOBAL or DOCUMENT
+Private _Library				As String
+Private UnoDialog				As Object				&apos;	com.sun.star.awt.XControl
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJDIALOG
+	Set _This = Nothing
+	Set _Parent = Nothing
+	_Name = &quot;&quot;
+	Set _Dialog = Nothing
+	_Storage = &quot;&quot;
+	_Library = &quot;&quot;
+	Set UnoDialog = Nothing
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Caption() As Variant
+	Caption = _PropertyGet(&quot;Caption&quot;)
+End Property	&apos;	Caption (get)
+
+Property Let Caption(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Caption&quot;, pvValue)
+End Property	&apos;	Caption (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Height() As Variant
+	Height = _PropertyGet(&quot;Height&quot;)
+End Property	&apos;	Height (get)
+
+Property Let Height(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Height&quot;, pvValue)
+End Property	&apos;	Height (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get IsLoaded() As Boolean
+	IsLoaded = _PropertyGet(&quot;IsLoaded&quot;)
+End Property
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Name() As String
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property	&apos;	Name (get)
+
+Public Function pName() As String		&apos;	For compatibility with &lt; V0.9.0
+	pName = _PropertyGet(&quot;Name&quot;)
+End Function	&apos;	pName (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnFocusGained() As Variant
+	OnFocusGained = _PropertyGet(&quot;OnFocusGained&quot;)
+End Property		&apos;	OnFocusGained (get)
+
+Property Let OnFocusGained(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnFocusGained&quot;, pvValue)
+End Property		&apos;	OnFocusGained (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnFocusLost() As Variant
+	OnFocusLost = _PropertyGet(&quot;OnFocusLost&quot;)
+End Property		&apos;	OnFocusLost (get)
+
+Property Let OnFocusLost(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnFocusLost&quot;, pvValue)
+End Property		&apos;	OnFocusLost (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnKeyPressed() As Variant
+	OnKeyPressed = _PropertyGet(&quot;OnKeyPressed&quot;)
+End Property		&apos;	OnKeyPressed (get)
+
+Property Let OnKeyPressed(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnKeyPressed&quot;, pvValue)
+End Property		&apos;	OnKeyPressed (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnKeyReleased() As Variant
+	OnKeyReleased = _PropertyGet(&quot;OnKeyReleased&quot;)
+End Property		&apos;	OnKeyReleased (get)
+
+Property Let OnKeyReleased(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnKeyReleased&quot;, pvValue)
+End Property		&apos;	OnKeyReleased (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseDragged() As Variant
+	OnMouseDragged = _PropertyGet(&quot;OnMouseDragged&quot;)
+End Property		&apos;	OnMouseDragged (get)
+
+Property Let OnMouseDragged(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseDragged&quot;, pvValue)
+End Property		&apos;	OnMouseDragged (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseEntered() As Variant
+	OnMouseEntered = _PropertyGet(&quot;OnMouseEntered&quot;)
+End Property		&apos;	OnMouseEntered (get)
+
+Property Let OnMouseEntered(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseEntered&quot;, pvValue)
+End Property		&apos;	OnMouseEntered (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseExited() As Variant
+	OnMouseExited = _PropertyGet(&quot;OnMouseExited&quot;)
+End Property		&apos;	OnMouseExited (get)
+
+Property Let OnMouseExited(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseExited&quot;, pvValue)
+End Property		&apos;	OnMouseExited (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseMoved() As Variant
+	OnMouseMoved = _PropertyGet(&quot;OnMouseMoved&quot;)
+End Property		&apos;	OnMouseMoved (get)
+
+Property Let OnMouseMoved(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseMoved&quot;, pvValue)
+End Property		&apos;	OnMouseMoved (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMousePressed() As Variant
+	OnMousePressed = _PropertyGet(&quot;OnMousePressed&quot;)
+End Property		&apos;	OnMousePressed (get)
+
+Property Let OnMousePressed(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMousePressed&quot;, pvValue)
+End Property		&apos;	OnMousePressed (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnMouseReleased() As Variant
+	OnMouseReleased = _PropertyGet(&quot;OnMouseReleased&quot;)
+End Property		&apos;	OnMouseReleased (get)
+
+Property Let OnMouseReleased(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnMouseReleased&quot;, pvValue)
+End Property		&apos;	OnMouseReleased (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function OptionGroup(ByVal Optional pvGroupName As Variant) As Variant
+&apos;	Return either an error or an object of type OPTIONGROUP based on its name
+&apos;	A group is determined by the successive TabIndexes of the radio button
+&apos;	The name of the group = the name of its first element
+
+	Utils._SetCalledSub(&quot;Dialog.OptionGroup&quot;)
+	If IsMissing(pvGroupName) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+
+	Set OptionGroup = Nothing
+	If Not Utils._CheckArgument(pvGroupName, 1, vbString) Then Goto Exit_Function
+
+Dim iAllCount As Integer, iRadioLast As Integer, iGroupCount As Integer, iBegin As Integer, iEnd As Integer
+Dim oRadios() As Object, sGroupName As String
+Dim i As Integer, j As Integer, bFound As Boolean, ocControl As Object, oRadio As Object, iTabIndex As Integer
+Dim ogGroup As Object, vGroup() As Variant, vIndex() As Variant
+	iAllCount = Controls.Count
+	If iAllCount &gt; 0 Then
+		iRadioLast = -1
+		ReDim oRadios(0 To iAllCount - 1)
+		For i = 0 To iAllCount - 1			&apos;	Store all RadioButtons objects
+			Set ocControl = Controls(i)
+			If ocControl._SubType = CTLRADIOBUTTON Then
+				iRadioLast = iRadioLast + 1
+				Set oRadios(iRadioLast) = ocControl
+			End If
+		Next i
+	Else
+		Goto Error_Arg							&apos;	No control in dialog
+	End If
+	
+	If iRadioLast &lt; 0 then Goto Error_Arg		&apos;	No radio buttons in the dialog
+	
+	&apos;Resort oRadio array based on tab indexes
+	If iRadioLast &gt; 0 Then
+		For i = 0 To iRadioLast - 1		&apos;	Bubble sort
+			For j = i + 1 To iRadioLast
+				If oRadios(i).TabIndex &gt; oRadios(j).TabIndex Then
+					Set oRadio = oRadios(i)
+					Set oRadios(i) = oRadios(j)
+					Set oRadios(j) = oRadio
+				End If
+			Next j
+		Next i
+	End If
+	
+	&apos;Scan Names to find match with argument
+	bFound = False
+	For i = 0 To iRadioLast
+		If UCase(oRadios(i)._Name) = UCase(pvGroupName) Then
+			Select Case i
+				Case 0			:	bFound = True
+				Case Else
+					If oRadios(i).TabIndex &gt; oRadios(i - 1).TabIndex + 1 Then
+						bFound = True
+					Else
+						Goto Error_Arg		&apos;	same group as preceding item although name correct
+					End If
+			End Select
+			If bFound Then
+				iBegin = i
+				iEnd = i
+				sGroupName = oRadios(i)._Name
+			End If
+		ElseIf bFound Then
+			If oRadios(i).TabIndex = oRadios(i - 1).TabIndex + 1 Then iEnd = i
+		End If
+	Next i
+
+	If bFound Then		&apos;	Create OptionGroup
+		iGroupCount = iEnd - iBegin + 1
+		Set ogGroup = New OptionGroup
+		ReDim vGroup(0 To iGroupCount - 1)
+		ReDim vIndex(0 To iGroupCount - 1)
+		With ogGroup
+			._This = ogGroup
+			._Name = sGroupName
+			._Count = iGroupCount
+			._ButtonsGroup = vGroup
+			._ButtonsIndex = vIndex
+			For i = 0 To iGroupCount - 1
+				Set ._ButtonsGroup(i) = oRadios(iBegin + i).ControlModel
+				._ButtonsIndex(i) = i
+			Next i
+			._ParentType = CTLPARENTISDIALOG
+			._ParentComponent = UnoDialog
+		End With
+	Else Goto Error_Arg
+	End If
+	
+	Set OptionGroup = ogGroup
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.OptionGroup&quot;)
+	Exit Function
+Error_Arg:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, , Array(1, pvGroupName))
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog.OptionGroup&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	OptionGroup	V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Page() As Variant
+	Page = _PropertyGet(&quot;Page&quot;)
+End Property		&apos;	Page (get)
+
+Property Let Page(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Page&quot;, pvValue)
+End Property		&apos;	Page (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Parent() As Object
+	Parent = _Parent
+End Function		&apos;	Parent (get)	V6.4.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Const cstThisSub = &quot;Dialog.Properties&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Visible() As Variant
+	Visible = _PropertyGet(&quot;Visible&quot;)
+End Property	&apos;	Visible (get)
+
+Property Let Visible(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Visible&quot;, pvValue)
+End Property	&apos;	Visible (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Width() As Variant
+	Width = _PropertyGet(&quot;Width&quot;)
+End Property	&apos;	Width (get)
+
+Property Let Width(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Width&quot;, pvValue)
+End Property	&apos;	Width (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Public Function Controls(Optional ByVal pvIndex As Variant) As Variant
+&apos;	Return a Control object with name or index = pvIndex
+
+If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Dialog.Controls&quot;)
+
+Dim ocControl As Variant, sParentShortcut As String, iControlCount As Integer
+Dim oCounter As Variant, sControls() As Variant, i As Integer, bFound As Boolean, sIndex As String
+Dim j As Integer
+
+	Set ocControl = Nothing
+	If Not IsLoaded Then Goto Trace_Error_NotOpen
+	Set ocControl = New Control
+	Set ocControl._This = ocControl
+	Set ocControl._Parent = _This
+	ocControl._ParentType = CTLPARENTISDIALOG
+	sParentShortcut = _Shortcut
+	sControls() = UnoDialog.Model.getElementNames()
+	iControlCount = UBound(sControls) + 1
+	
+	If IsMissing(pvIndex) Then					&apos;	No argument, return Collection object
+		Set oCounter = New Collect
+		Set oCounter._This = oCounter
+		oCounter._CollType = COLLCONTROLS
+		oCounter._Count = iControlCount
+		Set oCounter._Parent = _This
+		Set Controls = oCounter
+		Goto Exit_Function
+	End If
+	
+	If Not Utils._CheckArgument(pvIndex, 1, Utils._AddNumeric(vbString)) Then Goto Exit_Function
+				
+	&apos;	Start building the ocControl object
+	&apos;	Determine exact name
+	
+	Select Case VarType(pvIndex)
+		Case vbInteger, vbLong, vbSingle, vbDouble, vbCurrency, vbBigint, vbDecimal
+			If pvIndex &lt; 0 Or pvIndex &gt; iControlCount - 1 Then Goto Trace_Error_Index
+			ocControl._Name = sControls(pvIndex)
+		Case vbString			&apos;	Check control name validity (non case sensitive)
+			bFound = False
+			sIndex = UCase(Utils._Trim(pvIndex))
+			For i = 0 To iControlCount - 1
+				If UCase(sControls(i)) = sIndex Then
+					bFound = True
+					Exit For
+				End If
+			Next i
+			If bFound Then ocControl._Name = sControls(i) Else Goto Trace_NotFound
+	End Select
+
+	ocControl._Shortcut = sParentShortcut &amp; &quot;!&quot; &amp; Utils._Surround(ocControl._Name)
+	Set ocControl.ControlModel = UnoDialog.Model.getByName(ocControl._Name)
+	Set ocControl.ControlView = UnoDialog.getControl(ocControl._Name)
+	ocControl._ImplementationName = ocControl.ControlModel.getImplementationName()
+	ocControl._FormComponent = UnoDialog
+
+	ocControl._Initialize()
+	Set Controls = ocControl
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.Controls&quot;)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, , Array(iArg, pvIndex))
+	Set Controls = Nothing
+	Goto Exit_Function
+Trace_Error_NotOpen:
+	TraceError(TRACEFATAL, ERRDIALOGNOTSTARTED, Utils._CalledSub(), 0, , _Name)
+	Set Controls = Nothing
+	Goto Exit_Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRCOLLECTION, Utils._CalledSub(), 0, 1)
+	Set Controls = Nothing
+	Goto Exit_Function
+Trace_NotFound:
+	TraceError(TRACEFATAL, ERRCONTROLNOTFOUND, Utils._CalledSub(), 0, , Array(pvIndex, pvIndex))
+	Set Controls = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog.Controls&quot;, Erl)
+	Set Controls = Nothing
+	GoTo Exit_Function
+End Function		&apos;	Controls
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub EndExecute(ByVal Optional pvReturn As Variant)
+&apos;	Stop executing the dialog
+
+If _ErrorHandler() Then On Local Error Goto Error_Sub
+	Utils._SetCalledSub(&quot;Dialog.endExecute&quot;)
+
+	If IsMissing(pvReturn) Then pvReturn = 0
+	If Not Utils._CheckArgument(pvReturn, 1, Utils._AddNumeric(), , False) Then Goto Trace_Error
+	
+Dim lExecute As Long
+	lExecute = CLng(pvReturn)
+	If IsNull(_Dialog) Then Goto Error_Execute
+	If IsNull(UnoDialog) Then Goto Error_Not_Started
+	Call UnoDialog.endDialog(lExecute)
+
+Exit_Sub:
+	Utils._ResetCalledSub(&quot;Dialog.endExecute&quot;)
+	Exit Sub
+Trace_Error:
+	TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, , Array(&quot;1&quot;, Utils._CStr(pvReturn)))
+	Goto Exit_Sub
+Error_Execute:
+	TraceError(TRACEFATAL, ERRDIALOGUNDEFINED, Utils._CalledSub(), 0)
+	Goto Exit_Sub
+Error_Not_Started:
+	TraceError(TRACEWARNING, ERRDIALOGNOTSTARTED, Utils._CalledSub(), 0, 1, _Name)
+	Goto Exit_Sub
+Error_Sub:
+	TraceError(TRACEABORT, Err, &quot;Dialog.endExecute&quot;, Erl)
+	GoTo Exit_Sub
+End Sub			&apos;	EndExecute
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Execute() As Long
+&apos;	Execute dialog
+
+&apos;If _ErrorHandler() Then On Local Error Goto Error_Function
+&apos;Seems smart not to trap errors: debugging of dialog events otherwise made very difficult !
+	Utils._SetCalledSub(&quot;Dialog.Execute&quot;)
+
+Dim lExecute As Long
+	If IsNull(_Dialog) Then Goto Error_Execute
+	If IsNull(UnoDialog) Then Goto Error_Not_Started
+	lExecute = UnoDialog.execute()
+
+	Select Case lExecute
+		Case 1		:	Execute = dlgOK
+		Case 0		:	Execute = dlgCancel
+		Case Else	:	Execute = lExecute
+	End Select
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.Execute&quot;)
+	Exit Function
+Error_Execute:
+	TraceError(TRACEFATAL, ERRDIALOGUNDEFINED, Utils._CalledSub(), 0)
+	Goto Exit_Function
+Error_Not_Started:
+	TraceError(TRACEWARNING, ERRDIALOGNOTSTARTED, Utils._CalledSub(), 0, 1, _Name)
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog.Execute&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	Execute
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+	Utils._SetCalledSub(&quot;Dialog.getProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(&quot;Dialog.getProperty&quot;)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Move(	  ByVal Optional pvLeft As Variant _
+						, ByVal Optional pvTop As Variant _
+						, ByVal Optional pvWidth As Variant _
+						, ByVal Optional pvHeight As Variant _
+						) As Variant
+&apos;	Execute Move method
+	Utils._SetCalledSub(&quot;Dialog.Move&quot;)
+	On Local Error Goto Error_Function
+	Move = False
+Dim iArgNr As Integer
+	Select Case UCase(_A2B_.CalledSub)
+		Case UCase(&quot;Move&quot;)					:	iArgNr = 1
+		Case UCase(&quot;Dialog.Move&quot;)			:	iArgNr = 0
+	End Select
+	If IsMissing(pvLeft) Then pvLeft = -1
+	If IsMissing(pvTop) Then pvTop = -1
+	If IsMissing(pvWidth) Then pvWidth = -1
+	If IsMissing(pvHeight) Then pvHeight = -1
+	If Not Utils._CheckArgument(pvLeft,	iArgNr + 1, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvTop,	iArgNr + 2, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvWidth,	iArgNr + 3, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvHeight, iArgNr + 4, Utils._AddNumeric()) Then Goto Exit_Function
+	
+Dim iArg As Integer, iWrong As Integer		&apos;	Check arguments values
+	iArg = 0
+	If pvHeight &lt; -1 Then
+		iArg = 4		:		iWrong = pvHeight
+	ElseIf pvWidth &lt; -1 Then
+		iArg = 3		:		iWrong = pvWidth
+	ElseIf pvTop &lt; -1 Then
+		iArg = 2		:		iWrong = pvTop
+	ElseIf pvLeft &lt; -1 Then
+		iArg = 1		:		iWrong = pvLeft
+	End If
+	If iArg &gt; 0 Then
+		TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, 1, Array(iArgNr + iArg, iWrong))
+		Goto Exit_Function
+	End If
+	
+Dim iPosSize As Integer
+	iPosSize = 0
+	If pvLeft &gt;= 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.X
+	If pvTop &gt;= 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.Y
+	If pvWidth &gt; 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.WIDTH
+	If pvHeight &gt; 0		Then iPosSize = iPosSize + com.sun.star.awt.PosSize.HEIGHT
+	If iPosSize &gt; 0 Then UnoDialog.setPosSize(pvLeft, pvTop, pvWidth, pvHeight, iPosSize)
+	Move = True
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.Move&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog.Move&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	Move
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function setProperty(ByVal Optional psProperty As String, ByVal Optional pvValue As Variant) As Boolean
+&apos;	Return True if property setting OK
+	Utils._SetCalledSub(&quot;Dialog.setProperty&quot;)
+	setProperty = _PropertySet(psProperty, pvValue)
+	Utils._ResetCalledSub(&quot;Dialog.setProperty&quot;)
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Start() As Boolean
+&apos;	Create dialog
+
+If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Dialog.Start&quot;)
+
+Dim oStart As Object
+	Start = False
+	If IsNull(_Dialog) Then Goto Error_Start
+	If Not IsNull(UnoDialog) Then Goto Error_Yet_Started
+	Set oStart = CreateUnoDialog(_Dialog)
+	If IsNull(oStart) Then
+		Goto Error_Start
+	Else
+		Start = True
+		Set UnoDialog = oStart
+		With _A2B_
+			If .hasItem(COLLALLDIALOGS, _Name) Then .Dialogs.Remove(_Name)		&apos;	Inserted to solve errors, when aborts between start and terminate
+			.Dialogs.Add(UnoDialog, UCase(_Name))
+		End With
+	End If
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.Start&quot;)
+	Exit Function
+Error_Start:
+	TraceError(TRACEFATAL, ERRDIALOGUNDEFINED, Utils._CalledSub(), 0)
+	Goto Exit_Function
+Error_Yet_Started:
+	TraceError(TRACEWARNING, ERRDIALOGSTARTED, Utils._CalledSub(), 0)
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog.Start&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	Start
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Terminate() As Boolean
+&apos;	Close dialog
+
+If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Dialog.Terminate&quot;)
+
+	Terminate = False
+	If IsNull(_Dialog) Then Goto Error_Terminate
+	If IsNull(UnoDialog) Then Goto Error_Not_Started
+	UnoDialog.Dispose()
+	Set UnoDialog = Nothing
+	_A2B_.Dialogs.Remove(_Name)
+	Terminate = True
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.Terminate&quot;)
+	Exit Function
+Error_Terminate:
+	TraceError(TRACEFATAL, ERRDIALOGUNDEFINED, Utils._CalledSub(), 0)
+	Goto Exit_Function
+Error_Not_Started:
+	TraceError(TRACEWARNING, ERRDIALOGNOTSTARTED, Utils._CalledSub(), 0, 1, _Name)
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog.Terminate&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	Terminate
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _GetListener(ByVal psProperty As String) As String
+&apos;	Return the X...Listener corresponding with the property in argument
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;)
+			_GetListener = &quot;XFocusListener&quot;
+		Case UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;)
+			_GetListener = &quot;XKeyListener&quot;
+		Case UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseMoved&quot;)
+			_GetListener = &quot;XMouseMotionListener&quot;
+		Case UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;)
+			_GetListener = &quot;XMouseListener&quot;
+	End Select
+	
+End Function	&apos;	_GetListener	V1.7.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+
+	If IsLoaded Then
+		_PropertiesList =  Array(&quot;Caption&quot;, &quot;Height&quot;, &quot;IsLoaded&quot;, &quot;Name&quot; _
+									, &quot;OnFocusGained&quot;, &quot;OnFocusLost&quot;, &quot;OnKeyPressed&quot;, &quot;OnKeyReleased&quot;, &quot;OnMouseDragged&quot; _
+									, &quot;OnMouseEntered&quot;, &quot;OnMouseExited&quot;, &quot;OnMouseMoved&quot;, &quot;OnMousePressed&quot;, &quot;OnMouseReleased&quot; _
+									, &quot;ObjectType&quot;, &quot;Page&quot;, &quot;Visible&quot;, &quot;Width&quot; _
+									)
+	Else
+		 _PropertiesList = Array(&quot;IsLoaded&quot;, &quot;Name&quot; _
+									)
+	End If
+	
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Dialog.get&quot; &amp; psProperty)
+
+Dim oDialogEvents As Object, sEventName As String
+
+&apos;Execute
+	_PropertyGet = EMPTY
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Name&quot;), UCase(&quot;IsLoaded&quot;)
+		Case Else
+			If IsNull(UnoDialog) Then Goto Trace_Error_Dialog
+	End Select
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Caption&quot;)
+			_PropertyGet = UnoDialog.getTitle()
+		Case UCase(&quot;Height&quot;)
+			_PropertyGet = UnoDialog.getPosSize().Height
+		Case UCase(&quot;IsLoaded&quot;)
+			_PropertyGet = _A2B_.hasItem(COLLALLDIALOGS, _Name)
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;), UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;) _
+				, UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMouseMoved&quot;) _
+				, UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;)
+			Set oDialogEvents = unoDialog.Model.getEvents()
+			sEventName = &quot;com.sun.star.awt.&quot; &amp; _GetListener(psProperty) &amp; &quot;::&quot; &amp; Utils._GetEventName(psProperty)
+			If oDialogEvents.hasByName(sEventName) Then
+				_PropertyGet = oDialogEvents.getByName(sEventName).ScriptCode
+			Else
+				_PropertyGet = &quot;&quot;
+			End If
+		Case UCase(&quot;Page&quot;)
+			_PropertyGet = UnoDialog.Model.Step
+		Case UCase(&quot;Visible&quot;)
+			_PropertyGet = UnoDialog.IsVisible()
+		Case UCase(&quot;Width&quot;)
+			_PropertyGet = UnoDialog.getPosSize().Width
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.get&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEWARNING, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Trace_Error_Dialog:
+	TraceError(TRACEFATAL, ERRDIALOGNOTSTARTED, Utils._CalledSub(), 0, 1, _Name)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog._PropertyGet&quot;, Erl)
+	_PropertyGet = EMPTY
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertySet(ByVal psProperty As String, ByVal pvValue As Variant) As Boolean
+
+	Utils._SetCalledSub(&quot;Dialog.set&quot; &amp; psProperty)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	_PropertySet = True
+
+Dim oDialogEvents As Object, sEventName As String, oEvent As Object, sListener As String, sEvent As String
+
+&apos;Execute
+Dim iArgNr As Integer
+
+	If _IsLeft(_A2B_.CalledSub, &quot;Dialog.&quot;) Then iArgNr = 1 Else iArgNr = 2
+	If IsNull(UnoDialog) Then Goto Trace_Error_Dialog
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Caption&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			UnoDialog.setTitle(pvValue)
+		Case UCase(&quot;Height&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			UnoDialog.setPosSize(0, 0, 0, pvValue, com.sun.star.awt.PosSize.HEIGHT)
+		Case UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;), UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;) _
+				, UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMouseMoved&quot;) _
+				, UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			If Not Utils._RegisterDialogEventScript(UnoDialog.Model _
+						, psProperty _
+						, _GetListener(psProperty) _
+						, pvValue _
+						) Then GoTo Trace_Error_Dialog
+		Case UCase(&quot;Page&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric(), , False) Then Goto Trace_Error_Value
+			If pvValue &lt; 0 Then Goto Trace_Error_Value
+			UnoDialog.Model.Step = pvValue
+		Case UCase(&quot;Visible&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			UnoDialog.setVisible(pvValue)
+		Case UCase(&quot;Width&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, Utils._AddNumeric()) Then Goto Trace_Error_Value
+			UnoDialog.setPosSize(0, 0,  pvValue, 0, com.sun.star.awt.PosSize.WIDTH)
+		Case Else
+			Goto Trace_Error
+	End Select
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Dialog.set&quot; &amp; psProperty)
+	Exit Function
+Trace_Error_Dialog:
+	TraceError(TRACEFATAL, ERRDIALOGNOTSTARTED, Utils._CalledSub(), 0, 1, _Name)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Value:
+	TraceError(TRACEFATAL, ERRPROPERTYVALUE, Utils._CalledSub(), 0, 1, Array(pvValue, psProperty))
+	_PropertySet = False
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Dialog._PropertySet&quot;, Erl)
+	_PropertySet = False
+	GoTo Exit_Function
+End Function		&apos;	_PropertySet
+
+</script:module>

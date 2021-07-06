@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<baf:BusinessAuthorization xmlns:baf="urn:tscp:names:baf:1.1">
+    <baf:PolicyAuthorityName>Autoritat de polítiques TSCP de exemple</baf:PolicyAuthorityName>
+    <baf:PolicyName>Política TSCP de exemple</baf:PolicyName>
+    <baf:AdministrativeData>
+        <baf:ProgramID>urn:example:tscp:1</baf:ProgramID>
+    </baf:AdministrativeData>
+    <baf:Included>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:non-business" Name="Altres afers">
+            <baf:LabelingRules/>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>0</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:general-business" Name="Afers generals">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Classificació: afers generals</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>1</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:confidential" Name="Confidencial">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Classificació: confidencial</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <baf:Value>Aquest contingut és de caràcter confidencial. No el distribuïu externament sense autorització.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <baf:Value>Confidencial</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>2</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:internal-only" Name="Ús intern">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Classificació: només d’ús intern</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <baf:Value>Aquest contingut és només d’ús intern. No el distribuïu externament.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <baf:Value>Ús intern</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>3</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+    </baf:Included>
+</baf:BusinessAuthorization>
+<!-- vim:set shiftwidth=4 softtabstop=4 expandtab:
+-->

@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="CommandBarControl" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private _Type					As String		&apos;	Must be COMMANDBARCONTROL
+Private _This					As Object		&apos;	Workaround for absence of This builtin function
+Private _Parent					As Object
+Private _InternalIndex			As Integer		&apos;	Index in toolbar including separators
+Private _Index					As Integer		&apos;	Index in collection, starting at 1 !!
+Private _ControlType			As Integer		&apos;	1 of the msoControl* constants
+Private _ParentCommandBarName	As String
+Private _ParentCommandBar		As Object		&apos;	com.sun.star.ui.XUIElement
+Private _ParentBuiltin			As Boolean
+Private _Element				As Variant
+Private _BeginGroup				As Boolean
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJCOMMANDBARCONTROL
+	Set _This = Nothing
+	Set _Parent = Nothing
+	_Index = -1
+	_ParentCommandBarName = &quot;&quot;
+	Set _ParentCommandBar = Nothing
+	_ParentBuiltin = False
+	_Element = Array()
+	_BeginGroup = False
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get BeginGroup() As Boolean
+	BeginGroup = _PropertyGet(&quot;BeginGroup&quot;)
+End Property		&apos;	BeginGroup (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get BuiltIn() As Boolean
+	BuiltIn = _PropertyGet(&quot;BuiltIn&quot;)
+End Property		&apos;	BuiltIn (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Caption() As Variant
+	Caption = _PropertyGet(&quot;Caption&quot;)
+End Property		&apos;	Caption (get)
+
+Property Let Caption(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Caption&quot;, pvValue)
+End Property		&apos;	Caption (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Index() As Integer
+	Index = _PropertyGet(&quot;Index&quot;)
+End Property		&apos;	Index (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get OnAction() As Variant
+	OnAction = _PropertyGet(&quot;OnAction&quot;)
+End Property		&apos;	OnAction (get)
+
+Property Let OnAction(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;OnAction&quot;, pvValue)
+End Property		&apos;	OnAction (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Parent() As Object
+	Parent = _PropertyGet(&quot;Parent&quot;)
+End Property		&apos;	Parent (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get TooltipText() As Variant
+	TooltipText = _PropertyGet(&quot;TooltipText&quot;)
+End Property		&apos;	TooltipText (get)
+
+Property Let TooltipText(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;TooltipText&quot;, pvValue)
+End Property		&apos;	TooltipText (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function pType() As Integer
+	pType = _PropertyGet(&quot;Type&quot;)
+End Function		&apos;	Type (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Visible() As Variant
+	Visible = _PropertyGet(&quot;Visible&quot;)
+End Property		&apos;	Visible (get)
+
+Property Let Visible(ByVal pvValue As Variant)
+	Call _PropertySet(&quot;Visible&quot;, pvValue)
+End Property		&apos;	Visible (set)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Execute()
+&apos;	Execute the command stored in a toolbar button
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+Const cstThisSub = &quot;CommandBarControl.Execute&quot;
+	Utils._SetCalledSub(cstThisSub)
+
+Dim sExecute As String
+
+	Execute = True
+	sExecute = _GetPropertyValue(_Element, &quot;CommandURL&quot;, &quot;&quot;)
+
+	Select Case True
+		Case sExecute = &quot;&quot;		:	Execute = False
+		Case _IsLeft(sExecute, &quot;.uno:&quot;)
+			Execute = DoCmd.RunCommand(sExecute)
+		Case _IsLeft(sExecute, &quot;vnd.sun.star.script:&quot;)
+			Execute = Utils._RunScript(sExecute, Array(Nothing))
+		Case Else
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	Execute = False
+	GoTo Exit_Function
+End Function	&apos;	Execute	V1.3.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+	Utils._SetCalledSub(&quot;CommandBarControl.getProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(&quot;CommandBar.getProperty&quot;)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+	 _PropertiesList = Array(&quot;BeginGroup&quot;, &quot;BuiltIn&quot;, &quot;Caption&quot;, &quot;Index&quot; _
+	 							, &quot;ObjectType&quot;, &quot;OnAction&quot;, &quot;Parent&quot; _
+	 							, &quot;TooltipText&quot;, &quot;Type&quot;, &quot;Visible&quot; _
+	 							)
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+Dim cstThisSub As String
+	cstThisSub = &quot;CommandBarControl.get&quot; &amp; psProperty
+	Utils._SetCalledSub(cstThisSub)
+	_PropertyGet = Null
+
+Dim oLayout As Object, iElementIndex As Integer
+Dim sValue As String
+Const cstUnoPrefix = &quot;.uno:&quot;
+	
+	Select Case UCase(psProperty)
+		Case UCase(&quot;BeginGroup&quot;)
+			_PropertyGet = _BeginGroup
+		Case UCase(&quot;BuiltIn&quot;)
+			sValue = _GetPropertyValue(_Element, &quot;CommandURL&quot;, &quot;&quot;)
+			_PropertyGet = ( _IsLeft(sValue, cstUnoPrefix) )
+		Case UCase(&quot;Caption&quot;)
+			_PropertyGet = _GetPropertyValue(_Element, &quot;Label&quot;, &quot;&quot;)
+		Case UCase(&quot;Index&quot;)
+			_PropertyGet = _Index
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;OnAction&quot;)
+			_PropertyGet = _GetPropertyValue(_Element, &quot;CommandURL&quot;, &quot;&quot;)
+		Case UCase(&quot;Parent&quot;)
+			Set _PropertyGet = _Parent
+		Case UCase(&quot;TooltipText&quot;)
+				sValue = _GetPropertyValue(_Element, &quot;Tooltip&quot;, &quot;&quot;)
+				If sValue &lt;&gt; &quot;&quot; Then _PropertyGet = sValue Else _PropertyGet = _GetPropertyValue(_Element, &quot;Label&quot;, &quot;&quot;)
+		Case UCase(&quot;Type&quot;)
+				_PropertyGet = msoControlButton
+		Case UCase(&quot;Visible&quot;)
+			_PropertyGet = _GetPropertyValue(_Element, &quot;IsVisible&quot;, &quot;&quot;)
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_PropertyGet = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, Utils._CalledSub(), Erl)
+	_PropertyGet = Nothing
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertySet(ByVal psProperty As String, ByVal pvValue As Variant) As Boolean
+&apos;	Return True if property setting OK
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+Dim cstThisSub As String
+	cstThisSub = &quot;CommandBarControl.set&quot; &amp; psProperty
+	Utils._SetCalledSub(cstThisSub)
+	_PropertySet = True
+Dim iArgNr As Integer
+Dim oSettings As Object, sValue As String
+
+
+	Select Case UCase(_A2B_.CalledSub)
+		Case UCase(&quot;setProperty&quot;)				:	iArgNr = 3
+		Case UCase(&quot;CommandBar.setProperty&quot;)	:	iArgNr = 2
+		Case UCase(cstThisSub)					:	iArgNr = 1
+	End Select
+	
+	If Not hasProperty(psProperty) Then Goto Trace_Error
+	If _ParentBuiltin Then Goto Trace_Error		&apos;	Modifications of individual controls forbidden for builtin toolbars (design choice)
+
+Const cstUnoPrefix = &quot;.uno:&quot;
+Const cstScript = &quot;vnd.sun.star.script:&quot;
+
+	Set oSettings = _ParentCommandBar.getSettings(True)
+	Select Case UCase(psProperty)
+		Case UCase(&quot;OnAction&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, _AddNumeric(vbString), , False) Then Goto Trace_Error_Value
+			Select Case VarType(pvValue)
+				Case vbString
+					If _IsLeft(pvValue, cstUnoPrefix) Then
+						sValue = pvValue
+					ElseIf _IsLeft(pvValue, cstScript) Then
+						sValue = pvValue
+					Else
+						sValue = DoCmd.RunCommand(pvValue, True)
+					End If
+				Case Else				&apos;	Numeric
+					sValue = DoCmd.RunCommand(pvValue, True)
+			End Select
+			_SetPropertyValue(_Element, &quot;CommandURL&quot;, sValue)
+		Case UCase(&quot;TooltipText&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbString, , False) Then Goto Trace_Error_Value
+			_SetPropertyValue(_Element, &quot;Tooltip&quot;, pvValue)
+		Case UCase(&quot;Visible&quot;)
+			If Not Utils._CheckArgument(pvValue, iArgNr, vbBoolean, , False) Then Goto Trace_Error_Value
+			_SetPropertyValue(_Element, &quot;IsVisible&quot;, pvValue)
+		Case Else
+			Goto Trace_Error
+	End Select
+	oSettings.replaceByIndex(_InternalIndex, _Element)
+	_ParentCommandBar.setSettings(oSettings)
+	
+Exit_Function:
+	Utils._ResetCalledSub(cstThisSub)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, , psProperty)
+	_PropertySet = False
+	Goto Exit_Function
+Trace_Error_Value:
+	TraceError(TRACEFATAL, ERRPROPERTYVALUE, Utils._CalledSub(), 0, 1, Array(pvValue, psProperty))
+	_PropertySet = False
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, cstThisSub, Erl)
+	_PropertySet = False
+	GoTo Exit_Function
+End Function			&apos;	_PropertySet
+
+</script:module>

@@ -15,21 +15,7 @@ $(document).ready(function() {
 	
 	// async method:
 	$.get('onlinePreview?' , params,  function(data, status) {
-		
-   var data = JSON.parse(data);
-	//$.get('http://nw.runmin.net/url.json?start=1&size=0' + size, params,  function(data, status) {
-	/* sync method, used by sync view (speaker & audience)
-	$.ajax({
-		type: "GET",
-		url: contextPath + '/view/' + uuid + '.json',
-		async: false,
-		dataType: "json",
-		data: params,
-	}).done(function( data ) {
-	*/
-	//console.log(data);
-		var viewCheck = authMap.view;
-		var downCheck = authMap.down;
+		var data = JSON.parse(data);
 		var code = data.code;
 		if (1 == code) {
 			uuid = data.uuid;
@@ -51,7 +37,7 @@ $(document).ready(function() {
 		} else {
 			$('.container-fluid .row-fluid').html('<section><div class="alert alert-error">' + data.desc + '</div></section>');
 		}
-		
+
 		clearProgress();
 	});
 
@@ -83,7 +69,7 @@ $(document).ready(function() {
 	$('.slide-img-container .ppt-turn-right-mask').click(function () {
 		nextSlide();
 	});
-	
+
 	// Right click (NOT supported in SOUGOU browser)
 	/*
 	$.contextMenu({

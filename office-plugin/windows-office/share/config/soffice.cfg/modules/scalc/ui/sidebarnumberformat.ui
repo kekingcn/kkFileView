@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
+<interface domain="sc">
+  <requires lib="gtk+" version="3.20"/>
+  <!-- n-columns=1 n-rows=1 -->
+  <object class="GtkGrid" id="NumberFormatPropertyPanel">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="row_homogeneous">True</property>
+    <property name="column_homogeneous">True</property>
+    <child>
+      <object class="GtkBox" id="box1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="border_width">6</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkToolbar" id="numberformat">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="toolbar_style">icons</property>
+                <property name="show_arrow">False</property>
+                <property name="icon_size">2</property>
+                <child>
+                  <object class="GtkToggleToolButton" id=".uno:NumberFormatDecimal">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id=".uno:NumberFormatPercent">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuToolButton" id=".uno:NumberFormatCurrency">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">False</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="numberformatcombobox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes" context="sidebarnumberformat|numberformatcombobox|tooltip_text">Select a category of contents.</property>
+                <property name="valign">center</property>
+                <property name="hexpand">True</property>
+                <items>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">General</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Number</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Percent</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Currency</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Date </item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Time</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Scientific</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Fraction</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Boolean Value</item>
+                  <item translatable="yes" context="sidebarnumberformat|numberformatcombobox">Text</item>
+                </items>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="numberformatcombobox-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes" context="sidebarnumberformat|numberformatcombobox-atkobject">Category</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkBox" id="box4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">center</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="decimalplaceslabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="sidebarnumberformat|decimalplaceslabel">_Decimal places:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">decimalplaces</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="denominatorplaceslabel">
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes" context="sidebarnumberformat|denominatorplaceslabel">Den_ominator places:</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">denominatorplaces</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">center</property>
+                <property name="hexpand">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkSpinButton" id="denominatorplaces">
+                    <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes" context="sidebarnumberformat|denominatorplaces|tooltip_text">Enter the number of places for the denominator that you want to display.</property>
+                    <property name="adjustment">adjustment2</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="denominatorplaces-atkobject">
+                        <property name="AtkObject::accessible-name" translatable="yes" context="sidebarnumberformat|denominatorplaces-atkobject">Denominator Places</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="decimalplaces">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes" context="sidebarnumberformat|decimalplaces|tooltip_text">Enter the number of decimal places that you want to display.</property>
+                    <property name="adjustment">adjustment3</property>
+                    <property name="truncate-multiline">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="decimalplaces-atkobject">
+                        <property name="AtkObject::accessible-name" translatable="yes" context="sidebarnumberformat|decimalplaces-atkobject">Decimal Places</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box5">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkLabel" id="leadingzeroeslabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="sidebarnumberformat|leadingzeroeslabel">Leading _zeroes:</property>
+                <property name="use_underline">True</property>
+                <property name="mnemonic_widget">leadingzeroes</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="leadingzeroes">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes" context="sidebarnumberformat|leadingzeroes|tooltip_text">Enter the maximum number of zeroes to display before the decimal point.</property>
+                <property name="hexpand">True</property>
+                <property name="adjustment">adjustment1</property>
+                <property name="truncate-multiline">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="leadingzeroes-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes" context="sidebarnumberformat|leadingzeroes-atkobject">Leading Zeroes</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="negativenumbersred">
+            <property name="label" translatable="yes" context="sidebarnumberformat|negativenumbersred">_Negative numbers in red</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="tooltip_text" translatable="yes" context="sidebarnumberformat|negativenumbersred|tooltip_text">Changes the font color of negative numbers to red.</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="thousandseparator">
+            <property name="label" translatable="yes" context="sidebarnumberformat|thousandseparator">_Thousands separator</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="tooltip_text" translatable="yes" context="sidebarnumberformat|thousandseparator|tooltip_text">Inserts a separator between thousands.</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="engineeringnotation">
+            <property name="label" translatable="yes" context="sidebarnumberformat|engineeringnotation">_Engineering notation</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="tooltip_text" translatable="yes" context="sidebarnumberformat|engineeringnotation|tooltip_text">Ensures that exponent is a multiple of 3.</property>
+            <property name="use_underline">True</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">5</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
+      </packing>
+    </child>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroupLabel">
+    <widgets>
+      <widget name="box4"/>
+      <widget name="leadingzeroeslabel"/>
+      <widget name="numberformat"/>
+    </widgets>
+  </object>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">20</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">8</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment3">
+    <property name="upper">20</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+</interface>

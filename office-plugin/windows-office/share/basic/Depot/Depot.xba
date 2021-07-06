@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Depot" script:language="StarBasic">Option Explicit
 
 
@@ -132,7 +129,7 @@ Dim LocStockName as String
 		End If
 	End If
 	CurRate = TransactModel.txtRate.Value
-	TransactDate = CDateFromISO(TransactModel.txtDate.Date)
+	TransactDate = CDateFromUNODate(TransactModel.txtDate.Date)
 	DlgTransaction.EndExecute()
 	UnprotectSheets(oSheets)
 
@@ -151,7 +148,7 @@ Dim LocStockName as String
 		oMovementSheet.GetCellByPosition(SBCOLUMNQUANTITY2, iNewRow).Value = -TransactModel.txtQuantity.Value
 	End If
 	
-	oMovementSheet.GetCellByPosition(SBCOLUMNDATE2, iNewRow).Value = CDateFromISO(TransactModel.txtDate.Date)
+	oMovementSheet.GetCellByPosition(SBCOLUMNDATE2, iNewRow).Value = CDateFromUNODate(TransactModel.txtDate.Date)
 	oMovementSheet.GetCellByPosition(SBCOLUMNRATE2, iNewRow).Value = TransactModel.txtRate.Value
 	oMovementSheet.GetCellByPosition(SBCOLUMNPROVPERCENT2, iNewRow).Value = TransactModel.txtCommission.EffectiveValue
 	oMovementSheet.GetCellByPosition(SBCOLUMNPROVMIN2, iNewRow).Value = TransactModel.txtMinimum.Value
@@ -293,7 +290,7 @@ Dim oModel as Object
 			&apos; Store entered values in variables
 			OldNumber = oModel.txtOldRate.Value
 			NewNumber = oModel.txtNewRate.Value
-			SplitDate = CDateFromISO(oModel.txtDate.Date)
+			SplitDate = CDateFromUNODate(oModel.txtDate.Date)
 			iRow = SBROWFIRSTTRANSACT2
 			NoteText = cSplit &amp; SplitDate &amp; &quot;, &quot; &amp; oModel.txtOldRate.Value &amp; oModel.lblColon.Label &amp; oModel.txtNewRate.Value
 			Do 
@@ -401,8 +398,8 @@ End Sub
 Sub SetupTransactionControls(CurStep as Integer)
 	DlgReference = DlgTransaction
 	With TransactModel
-		.txtDate.Date = CDateToISO(Date())
-		.txtDate.DateMax = CDateToISO(Date())
+		.txtDate.Date = CDateToUNODate(Date())
+		.txtDate.DateMax = CDateToUNODate(Date())
 		.txtStockID.Enabled = False
 		.lblStockID.Enabled = False
 		.lblStockID.Label = sCurStockIDLabel
@@ -507,12 +504,12 @@ Sub InitializeStockRatesControls(CurStep as Integer)
 			Case 2
 				.txtOldRate.Value = 1
 				.txtNewRate.Value = 1
-				.txtDate.Date = CDateToISO(Date())
+				.txtDate.Date = CDateToUNODate(Date())
 			Case 3
-				.txtStartDate.DateMax = CDateToISO(CDate(Date())-1)
-				.txtEndDate.DateMax = CDateToISO(CDate(Date())-1)
-				.txtStartDate.Date = CDateToISO(CDate(Date())-8)
-				.txtEndDate.Date = CDateToISO(CDate(Date())-1)
+				.txtStartDate.DateMax = CDateToUNODate(CDate(Date())-1)
+				.txtEndDate.DateMax = CDateToUNODate(CDate(Date())-1)
+				.txtStartDate.Date = CDateToUNODate(CDate(Date())-8)
+				.txtEndDate.Date = CDateToUNODate(CDate(Date())-1)
 				.optDaily.State = 1
 		End Select
 	End With

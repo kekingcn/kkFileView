@@ -35,6 +35,7 @@ public class ConfigConstants {
     private static String fileDir = ConfigUtils.getHomePath() + File.separator + "file" + File.separator;
     private static CopyOnWriteArraySet<String> trustHostSet;
     private static String pdfDownloadDisable;
+    private static Boolean fileUploadDisable;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -48,6 +49,7 @@ public class ConfigConstants {
     public static final String DEFAULT_FILE_DIR_VALUE = "default";
     public static final String DEFAULT_TRUST_HOST = "default";
     public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
+    public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
 
 
     public static Boolean isCacheEnabled() {
@@ -250,4 +252,16 @@ public class ConfigConstants {
         ConfigConstants.officePreviewSwitchDisabled = officePreviewSwitchDisabled;
     }
 
+    public static Boolean getFileUploadDisable() {
+        return fileUploadDisable;
+    }
+
+    @Value("${file.upload.disable:false}")
+    public static void setFileUploadDisable(Boolean fileUploadDisable) {
+        setFileUploadDisableValue(fileUploadDisable);
+    }
+
+    public static void setFileUploadDisableValue(Boolean fileUploadDisable) {
+        ConfigConstants.fileUploadDisable = fileUploadDisable;
+    }
 }

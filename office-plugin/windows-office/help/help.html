@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--
+* This file is part of the LibreOffice project.
+*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' piwik.documentfoundation.org"/>
+</head>
+<body>
+<script type="text/javascript">
+    function getParameterByName(name, url) {
+        if (!url) {
+            url = window.location.href;
+        }
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+        var results = regex.exec(url);
+        if (!results) {
+            return null;
+        }
+        if (!results[2]) {
+            return '';
+        }
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    var url = window.location.href;
+    var n = url.indexOf('?');
+    if (n != -1) {
+        // the URL came from LibreOffice help (F1)
+        var version = getParameterByName("Version", url);
+        var query = url.substr(n + 1, url.length);
+        var newURL = version + '/index.html?' + query;
+        window.location.replace(newURL);
+    } else {
+        window.location.replace('latest/index.html');
+    }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<baf:BusinessAuthorization xmlns:baf="urn:tscp:names:baf:1.1">
+    <baf:PolicyAuthorityName>Voorbeeld beleidsauthoriteit TSCP</baf:PolicyAuthorityName>
+    <baf:PolicyName>Voorbeeld beleid TSCP</baf:PolicyName>
+    <baf:AdministrativeData>
+        <baf:ProgramID>urn:example:tscp:1</baf:ProgramID>
+    </baf:AdministrativeData>
+    <baf:Included>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:non-business" Name="Openbaar">
+            <baf:LabelingRules/>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>0</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:general-business" Name="Algemeen bedrijfsvoering">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Classificatie: Algemeen bedrijfsvoering</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>1</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:confidential" Name="Vertrouwelijk">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Classificatie: Vertrouwelijk</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <baf:Value>De inhoud van dit document is vertrouwelijk. Verspreid het uitsluitend met de vereiste toestemming.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <baf:Value>Vertrouwelijk</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>2</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:internal-only" Name="Intern">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <baf:Value>Classificatie: Intern</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <baf:Value>De inhoud van dit document is uitsluitend voor intern gebruik. Verspreid het niet buiten de organisatie.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <baf:Value>Intern</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>3</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+    </baf:Included>
+</baf:BusinessAuthorization>
+<!-- vim:set shiftwidth=4 softtabstop=4 expandtab:
+-->

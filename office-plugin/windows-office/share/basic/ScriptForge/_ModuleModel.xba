@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="_ModuleModel" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+&apos;Option Private Module
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	ModuleModel (aka SF_Model)
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		Illustration of how the ScriptForge modules are structured
+&apos;&apos;&apos;		Copy and paste this code in an empty Basic module to start a new service
+&apos;&apos;&apos;		Comment in, comment out, erase what you want, but at the end respect the overall structure
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+&apos;&apos;&apos;		 FAKENEWSERROR
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]				As Object		&apos; Should be initialized immediately after the New statement
+											&apos;	Dim obj As Object	:	Set obj = New SF_Model
+											&apos;	Set obj.[Me] = obj
+Private [_Parent]			As Object		&apos; To keep trace of the instance having created a sub-instance
+											&apos;	Set obj._Parent = [Me]
+Private ObjectType			As String		&apos; Must be UNIQUE
+
+REM ============================================================ MODULE CONSTANTS
+
+Private Const SOMECONSTANT				=	1
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;MODEL&quot;
+End Sub		&apos;	ScriptForge.SF_Model Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	ScriptForge.SF_Model Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	ScriptForge.SF_Model Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get MyProperty() As Boolean
+&apos;&apos;&apos;	Returns True or False
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		myModel.MyProperty
+
+	MyProperty = _PropertyGet(&quot;MyProperty&quot;)
+
+End Property	&apos;	ScriptForge.SF_Model.MyProperty
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;		If the property does not exist, returns Null
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		see the exceptions of the individual properties
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		myModel.GetProperty(&quot;MyProperty&quot;)
+
+Const cstThisSub = &quot;Model.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Model.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Model service as an array
+
+	Methods = Array( _
+					&quot;MyFunction&quot; _
+					, &quot;etc&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_Model.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function MyFunction(Optional ByVal Arg1 As Variant _
+								, Optional ByVal Arg2 As Variant _
+								) As Variant
+&apos;&apos;&apos; Fictive function that concatenates Arg1 Arg2 times
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Arg1            String      Text
+&apos;&apos;&apos;		Arg2            Numeric     Number of times (default = 2)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The new string
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		FAKENEWSERROR
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		MyFunction(&quot;value1&quot;) returns &quot;value1value1&quot;
+
+Dim sOutput As String       &apos;   Output buffer
+Dim i As Integer
+Const cstThisSub = &quot;Model.myFunction&quot;
+Const cstSubArgs = &quot;Arg1, [Arg2=2]&quot;
+
+	&apos;   _ErrorHandling returns False when, for debugging, the standard error handling is preferred
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	myFunction = &quot;&quot;
+
+Check:
+	If IsMissing(Arg2) Then Arg2 = 2
+	&apos;	_EnterFunction returns True when current method is invoked from a user script
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		&apos;	Check Arg1 is a string and Arg2 is a number.
+		&apos;	Validation rules for scalars and arrays are described in SF_Utils
+		If Not SF_Utils._Validate(Arg1, &quot;Arg1&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Arg2, &quot;Arg2&quot;, V_NUMERIC) Then GoTo Finally
+		&apos;	Fatal error ?
+		If Arg2 &lt; 0 Then GoTo CatchFake
+	End If
+
+Try:
+	sOutput = &quot;&quot;
+	For i = 0 To Arg2
+		sOutput = sOutput &amp; Arg1
+	Next i
+	myFunction = sOutput
+
+Finally:
+	&apos;	_ExitFunction manages internal (On Local) errors
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchFake:
+	SF_Exception.RaiseFatal(&quot;FAKENEWSERROR&quot;, cstThisSub)
+	GoTo Finally
+End Function    &apos;   ScriptForge.SF_Model.myFunction
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Model class as an array
+
+	Properties = Array( _
+					&quot;MyProperty&quot; _
+					, &quot;etc&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_Model.Properties
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SF_Model.get&quot; &amp; psProperty
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+	Select Case psProperty
+		Case &quot;MyProperty&quot;
+			_PropertyGet = TBD
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Model._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the Model instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[MODEL]: A readable string&quot;
+
+	_Repr = &quot;[MODEL]: A readable string&quot;
+
+End Function	&apos;	ScriptForge.SF_Model._Repr
+
+REM ============================================ END OF SCRIPTFORGE.SF_MODEL
+</script:module>

@@ -1,0 +1,145 @@
+^0 zero
+1 jeden
+2 dwa
+3 trzy
+4 cztery
+5 pięć
+6 sześć
+7 siedem
+8 osiem
+9 dziewięć
+10 dziesięć
+11 jedenaście
+14 czternaście
+15 piętnaście
+16 szesnaście
+19 dziewiętnaście
+1(\d) $1naście
+2(\d) dwadzieścia[ $1]
+3(\d) trzydzieści[ $1]
+4(\d) czterdzieści[ $1]
+(\d)(\d) $1dziesiąt[ $2]
+1(\d\d) sto[ $1]
+2(\d\d) dwieście[ $1]
+([34])(\d\d) $1sta[ $2]
+(\d)(\d\d) $1set[ $2]
+1(\d{3}) tysiąc[ $1]
+([234]|[2-9][234]|\d[02-9][234])(\d{3}) $1 tysiące[ $2]
+(\d{1,3})(\d{3}) $1 tysięcy[ $2]
+
+# affix function
+:1,(.+) \1
+:(1[1-9]),(.+) $1 \2ów
+:([234]|[2-9][234]|\d[02-9][234]),(.+) $1 \2y
+:(\d+),(.+) $1 \2ów
+
+(\d{1,3})(\d{6}) $(:\1,milion)[ $2]
+(\d{1,3})(\d{9}) $(:\1,miliard)[ $2]
+(\d{1,3})(\d{12}) $(:\1,bilion)[ $2]
+(\d{1,3})(\d{15}) $(:\1,biliard)[ $2]
+(\d{1,3})(\d{18}) $(:\1,trylion)[ $2]
+(\d{1,3})(\d{21}) $(:\1,tryliard)[ $2]
+(\d{1,3})(\d{24}) $(:\1,kwadrylion)[ $2]
+
+# negative number
+
+[-−](\d+) minus |$1
+
+# decimals
+
+"([-−]?\d+)[.,]" $1| przecinek
+"([-−]?\d+[.,])([^0]\d)" $1| |$2
+"([-−]?\d+[.,])(\d)(\d)(\d)" $1| |$2 |$3 |$4
+"([-−]?\d+[.,]\d*)(\d)" $1| |$2
+
+# currency
+
+# unit/subunit singular / nominative plural / genitive plural
+
+us:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \1
+up:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \2
+ug:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \3
+ss:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \4
+sp:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \5
+sg:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \6
+
+AUD:(\D+) $(\1: dolar australijski, dolary australijskie, dolarów australijskich, cent, centy, centów)
+BGN:(\D+) $(\1: lew bułgarski, lewy bułgarskie, lewów bułgarskich, stotinka, stotinki, stotinek)
+CHF:(\D+) $(\1: frank szwajcarski, franki szwajcarskie, franków szwajcarskich, centym, centymy, centymów)
+CAD:(\D+) $(\1: dolar kanadyjski, dolary kanadyjskie, dolarów kanadyjskich, cent, centy, centów)
+CNY:(\D+) $(\1: juan, juany, juanów, fen, feny, fenów)
+EUR:(\D+) $(\1: euro, euro, euro, cent, centy, centów)
+GBP:(\D+) $(\1: funt szterling, funty szterlingi, funtów szterlingów, pens, pensy, pensów)
+HUF:(\D+) $(\1: forint, forinty, forintów, filler, fillery, fillerów)
+JPY:(\D+) $(\1: jen, jeny, jenów, sen, seny, senów)
+PLN:(\D+) $(\1: złoty, złote, złotych, grosz, grosze, groszy)
+RUB:(\D+) $(\1: rubel rosyjski, ruble rosyjskie, rubli rosyjskich, kopiejka, kopiejki, kopiejek)
+USD:(\D+) $(\1: dolar amerykański, dolary amerykańskie, dolarów amerykańskich, cent, centy, centów)
+
+"([A-Z]{3}) ([-−]?1)([.,]00?)?" $2$(\1:us)
+"([A-Z]{3}) ([-−]?[234])([.,]00?)?" $2$(\1:up)
+"([A-Z]{3}) ([-−]?\d*[02-9][234])([.,]00?)?" $2$(\1:up)
+"([A-Z]{3}) ([-−]?\d+)([.,]00?)?" $2$(\1:ug)
+
+"(CNY [-−]?\d+)[.,]10?" $1 $2 jiao
+"(CNY [-−]?\d+)[.,](\d)0?" $1 $2 jiao
+"(CNY [-−]?\d+[.,]\d)1" $1 $2 fen
+"(CNY [-−]?\d+[.,]\d)(\d)" $1 $2 fenów
+
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 |$(1)$(\2:ss)
+"(([A-Z]{3}) [-−]?\d+)[.,]([02-9][234])" $1 |$3$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 |$(\30)$(\2:sg)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 |$3$(\2:sg)
+
+== ordinal(-masculine)? ==
+
+([-−]?\d+)	$(ordinal |$2)
+"(.*)siąt (.*)"	$(ordinal \2siąty \3)
+"(.*)eści (.*)"	$(ordinal \2esty \3)
+
+(.*)jeden	\2pierwszy
+(.*)dwa		\2drugi
+(.*)trzy	\2trzeci
+(.*)cztery	\2czwarty
+(.*)pięć	\2piąty
+(.*)sześć	\2szósty
+(.*)siedem	\2siódmy
+(.*)osiem	\2ósmy
+(.*)dziewięć	\2dziewiąty
+(.*)dziesięć	\2dziesiąty
+(.*)jedenaście	\2jedenasty
+(.*)dwanaście	\2dwunasty
+(.*)dwieście	\2dwusetny
+(.*)siąt	\2siąty
+(.*)trzysta	\2trzechsetny
+(.*)czterysta	\2czterechsetny
+(.*)ści[ea]	\2sty
+(.*)eści	\2esty
+(.*)(sto|set)	\2setny
+"(.*)dwa tysiące"	\2dwutysięczny
+"(.*)pięć tysięcy"	\2pięciotysięczny
+"(.*)sto tysięcy"	\2stutysięczny
+"(.*) (tysi[ąę]c[ey]?)"	\2tysięczny
+(.*)tysiąc	\2tysięczny
+(.*(on|ard))(y|ów)?	\2owy
+
+== ordinal-feminine ==
+
+([-−]?\d+)	$(ordinal-feminine $(ordinal |$1))
+"(.*)[yi] (.*)"		$(ordinal-feminine \1a \2)
+(.*)[yi]	\1a
+
+== ordinal-neuter ==
+
+([-−]?\d+)	$(ordinal-neuter $(ordinal |$1))
+"(.*)[yi] (.*)"		$(ordinal-neuter \1e \2)
+(.*)[yi]	\1e
+
+== ordinal-number ==
+
+(\d+)	\1.
+
+== help ==
+
+"" $(1), $(2), $(3)\n$(help ordinal)$(help ordinal-number)
+(ordinal(-number)?) \1: $(\1 1), $(\1 2), $(\1 3)\n

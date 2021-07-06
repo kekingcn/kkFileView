@@ -21,11 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -49,15 +46,11 @@ public class OfficePluginManager {
     @Value("${office.plugin.task.timeout:5m}")
     private String timeOut;
 
-    @PostConstruct
-    public void initOfficeManager() {
-        new Thread(this::startOfficeManager).start();
-    }
-
     /**
      * 启动Office组件进程
      */
-    private void startOfficeManager(){
+    @PostConstruct
+    public void startOfficeManager(){
         File officeHome = OfficeUtils.getDefaultOfficeHome();
         if (officeHome == null) {
             throw new RuntimeException("找不到office组件，请确认'office.home'配置是否有误");
@@ -143,6 +136,7 @@ public class OfficePluginManager {
     @PreDestroy
     public void destroyOfficeManager(){
         if (null != officeManager && officeManager.isRunning()) {
+            logger.info("Shutting down office process");
             officeManager.stop();
         }
     }

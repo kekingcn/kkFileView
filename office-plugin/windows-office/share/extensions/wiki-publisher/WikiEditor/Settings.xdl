@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="Settings" dlg:left="142" dlg:top="89" dlg:width="260" dlg:height="185" dlg:closeable="true" dlg:withtitlebar="false" dlg:help-url="vnd.com.sun.star.wiki:settings">
+ <dlg:bulletinboard>
+  <dlg:button dlg:id="AddButton" dlg:tab-index="1" dlg:left="204" dlg:top="20" dlg:width="50" dlg:height="14" dlg:help-url="com.sun.star.wiki.MediaWiki.Settings.AddButton" dlg:value="Add...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:Add" script:language="UNO"/>
+  </dlg:button>
+  <dlg:button dlg:id="EditButton" dlg:tab-index="2" dlg:left="204" dlg:top="36" dlg:width="50" dlg:height="14" dlg:help-url="com.sun.star.wiki.MediaWiki.Settings.EditButton" dlg:value="Edit...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:Edit" script:language="UNO"/>
+  </dlg:button>
+  <dlg:button dlg:id="RemoveButton" dlg:tab-index="3" dlg:left="204" dlg:top="52" dlg:width="50" dlg:height="14" dlg:help-url="com.sun.star.wiki.MediaWiki.Settings.RemoveButton" dlg:value="Remove">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:Remove" script:language="UNO"/>
+  </dlg:button>
+  <dlg:menulist dlg:id="WikiList" dlg:tab-index="0" dlg:left="9" dlg:top="20" dlg:width="189" dlg:height="120" dlg:help-url="com.sun.star.wiki.MediaWiki.Settings.WikiList" dlg:multiselection="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.UNO:ListStatus" script:language="UNO"/>
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:ListEdit" script:language="UNO"/>
+  </dlg:menulist>
+  <dlg:fixedline dlg:id="FixedLine1" dlg:tab-index="1" dlg:left="6" dlg:top="6" dlg:width="248" dlg:height="8" dlg:help-text="" dlg:value="Wiki Publisher"/>
+ </dlg:bulletinboard>
+</dlg:window>

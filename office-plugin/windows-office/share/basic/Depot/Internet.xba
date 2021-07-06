@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Internet" script:language="StarBasic">REM  *****  BASIC  *****
 Option Explicit
 Public sNewSheetName as String
@@ -28,8 +25,8 @@ Function CheckHistoryControls()
 Dim bLocGoOn as Boolean
 Dim Firstdate as Date
 Dim LastDate as Date
-	LastDate = CDateFromISO(StockRatesModel.txtEndDate.Date)
-	FirstDate = CDateFromISO(StockRatesModel.txtStartDate.Date)
+	LastDate = CDateFromUNODate(StockRatesModel.txtEndDate.Date)
+	FirstDate = CDateFromUNODate(StockRatesModel.txtStartDate.Date)
 	bLocGoOn = FirstDate &lt;&gt; 0 And LastDate &lt;&gt; 0
 	If bLocGoOn Then
 		If FirstDate &gt;= LastDate Then
@@ -50,8 +47,8 @@ Dim oCell as Object
 Dim sStockID as String
 Dim ChartSource as String	
 	If CheckHistoryControls() Then
-		StartDate = CDateFromISO(StockRatesModel.txtStartDate.Date)
-		EndDate = CDateFromISO(StockRatesModel.txtEndDate.Date)
+		StartDate = CDateFromUNODate(StockRatesModel.txtStartDate.Date)
+		EndDate = CDateFromUNODate(StockRatesModel.txtEndDate.Date)
 		DlgStockRates.EndExecute()
 		If StockRatesModel.optDaily.State = 1 Then
 			sInterval = &quot;d&quot;
@@ -175,17 +172,17 @@ Sub UpdateValue(ByVal sName As String, fDate As Double, fValue As Double )
 Dim oSheet As Object
 Dim iColumn As Long
 Dim iRow As Long
-Dim i as Integer
+Dim i as Long
 Dim oCell As Object
 Dim LastDate as Date
 Dim bLeaveLoop as Boolean
-Dim RemoveCount as Integer
-Dim iLastRow as Integer
-Dim iLastLinkRow as Integer
+Dim RemoveCount as Long
+Dim iLastRow as Long
+Dim iLastLinkRow as Long
 Dim dDate as Date
 Dim CurDate as Date
 Dim oLinkSheet as Object
-Dim StartIndex as Integer
+Dim StartIndex as Long
 Dim iCellValue as Long
 	&apos; Insert Sheet with Company - Chart
 	sName = CheckNewSheetname(oSheets, sName)
@@ -226,7 +223,7 @@ Dim iCellValue as Long
 		If iCellValue &gt; 0 Then
 			oCell.SetValue(oLinkSheet.GetCellByPosition(0,i).Value)
 		Else
-			oCell.SetValue(StringToDate(oLinkSheet.GetCellByPosition(0,i).String)
+			oCell.SetValue(StringToDate(oLinkSheet.GetCellByPosition(0,i).String))
 		End If
 		oCell = oSheet.GetCellbyPosition(SBVALUECOLUMN,iCurRow)
 		oCell.SetValue(oLinkSheet.GetCellByPosition(4,i).Value)

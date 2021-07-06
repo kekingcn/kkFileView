@@ -55,7 +55,7 @@ public class CompressFileReader {
             List<Map<String, ZipArchiveEntry>> entriesToBeExtracted = new LinkedList<>();
             while (entries.hasMoreElements()) {
                 ZipArchiveEntry entry = entries.nextElement();
-                String fullName = entry.getName();
+                String fullName = entry.getName().replaceAll("//", "").replaceAll("\\\\", "");
                 int level = fullName.split(archiveSeparator).length;
                 // 展示名
                 String originName = getLastFileName(fullName, archiveSeparator);
@@ -151,7 +151,7 @@ public class CompressFileReader {
             List<Map<String, SevenZArchiveEntry>> entriesToBeExtracted = new ArrayList<>();
             while (newEntries.hasMoreElements()) {
                 SevenZArchiveEntry entry = newEntries.nextElement();
-                String fullName = entry.getName();
+                String fullName = entry.getName().replaceAll("//", "").replaceAll("\\\\", "");
                 int level = fullName.split(archiveSeparator).length;
                 // 展示名
                 String originName = getLastFileName(fullName, archiveSeparator);

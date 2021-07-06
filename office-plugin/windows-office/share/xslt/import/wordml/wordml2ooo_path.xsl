@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
-
-
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml" xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:aml="http://schemas.microsoft.com/aml/2001/core" xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" exclude-result-prefixes="w wx aml o dt  v">
     <xsl:include href="../../common/math.xsl"/>
     <xsl:template name="dummy">
@@ -440,7 +435,7 @@
                     <xsl:with-param name="current-y" select=" $current-y"/>
                 </xsl:call-template>
             </xsl:when>
-            <!--Code below is for the support of h-command like ha,hb....hi, maybe still need to revise-->
+            <!--Code below is for the support of h-command like ha,hb...hi, maybe still need to revise-->
             <xsl:when test="$command = 'ha' ">
                 <xsl:variable name="new-svg-path" select="$svg-path"/>
                 <!--simply did nothing which might be wrong-->
@@ -585,12 +580,12 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    <!-- 
+    <!--
     **Template vmlpath2enhancedpath**
-    The template is resposible for converting the vml-path to enhanced-path, because the svg:path 
-    cann't support command a now.(But heard that will be supported in OOo3.0)
-    And  the 2nd reason of using an enhanced-path is that enhanced-path have a perfect maping to 
-    vmlpath.(You will find out that often,we  even don't need to change the parameters).
+    The template is responsible for converting the vml-path to enhanced-path, because the svg:path
+    can't support command a now.(But heard that will be supported in OOo3.0)
+    And  the 2nd reason of using an enhanced-path is that enhanced-path have a perfect mapping to
+    vmlpath.(You will find out that often, we even don't need to change the parameters).
     -->
     <xsl:template name="vmlpath2enhancedpath">
         <xsl:param name="vml-path"/>
@@ -702,7 +697,7 @@
             <xsl:when test="$command = 't' ">
                 <!-- relative moveto -->
                 <xsl:variable name="new-enhanced-path" select="concat($enhanced-path ,' M ' ) "/>
-                <!--####maybe this is not crect because t r and v hasn't direct image in enhaced-path-->
+                <!--####maybe this is not created because t r and v haven't direct image in enhanced-path-->
                 <xsl:variable name="num-and-pos">
                     <xsl:call-template name="get-number-after">
                         <xsl:with-param name="vml-path" select="$vml-path"/>
@@ -721,7 +716,7 @@
             </xsl:when>
             <xsl:when test="$command = 'r' ">
                 <!-- relative lineto -->
-                <!--####maybe this is not crect because 't' 'r' and 'v' hasn't direct image in enhaced-path-->
+                <!--####maybe this is not created because 't' 'r' and 'v' haven't direct image in enhanced-path-->
                 <!-- 'l' command is not supported currently, so we use 'L' -->
                 <xsl:message>'l' command is not supported currently, so we use 'L'. This may case problem.</xsl:message>
                 <xsl:variable name="new-enhanced-path" select="concat($enhanced-path ,' L ' ) "/>
@@ -747,7 +742,7 @@
             </xsl:when>
             <xsl:when test="$command = 'v' ">
                 <!-- relative curveto -->
-                <!--####maybe this is not crect because 't' 'r' and 'v' hasn't direct image in enhaced-path-->
+                <!--####maybe this is not created because 't' 'r' and 'v' haven't direct image in enhanced-path-->
                 <xsl:variable name="new-enhanced-path" select="concat($enhanced-path ,' C ' ) "/>
                 <!--<xsl:variable name="control-and-pos">
                     <xsl:call-template name="get-number-after">
@@ -763,7 +758,7 @@
                         <xsl:with-param name="count" select="2"/>
                     </xsl:call-template>
                 </xsl:variable>
-				<xsl:call-template name="vmlpath2enhancedpath">
+                <xsl:call-template name="vmlpath2enhancedpath">
                     <xsl:with-param name="vml-path" select="$vml-path"/>
                     <xsl:with-param name="enhanced-path" select=" concat($new-enhanced-path , substring-before( $control-and-pos , ':')  , ' ' ,  substring-before( $num-and-pos , ':')  , ' ') "/>
                     <xsl:with-param name="position" select=" substring-after( $num-and-pos , ':')  "/>
@@ -847,7 +842,7 @@
                     <xsl:with-param name="current-y" select=" $val_y "/>
                 </xsl:call-template>
             </xsl:when>
-            <!--Code below is for the support of h-command like ha,hb....hi, maybe still need to revise-->
+            <!--Code below is for the support of h-command like ha,hb...hi, maybe still need to revise-->
             <xsl:when test="$command = 'ha' ">
                 <xsl:variable name="new-enhanced-path" select="$enhanced-path"/>
                 <!--simply did nothing which might be wrong-->
@@ -981,10 +976,10 @@
                 </xsl:call-template>
             </xsl:when>
             <!--The following is 6 command which deal with arcs:
-                ae   ->T    	al -> U
-                at   -> A		ar  -> B
-				wa -> W 	wr  ->V 
-			  These pairs of commands have shown the perfect mapping from vml-path to enhanced-path-->
+                ae   -> T       al -> U
+                at   -> A       ar -> B
+                wa   -> W       wr -> V
+              These pairs of commands have shown the perfect mapping from vml-path to enhanced-path-->
             <xsl:when test="$command = 'ae' ">
                 <!-- arc on the screen with the start and end angles -->
                 <xsl:variable name="new-enhanced-path" select="concat($enhanced-path ,' T ' ) "/>
@@ -1005,7 +1000,7 @@
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="$command = 'al' ">
-                <!-- ae command plus a implicitly moveto startpoint-->
+                <!-- ae command plus an implicitly moveto startpoint-->
                 <xsl:variable name="new-enhanced-path" select="concat($enhanced-path ,' U ' ) "/>
                 <xsl:variable name="num-and-pos">
                     <xsl:call-template name="get-number-after">
@@ -1043,7 +1038,7 @@
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="$command = 'ar' ">
-                <!-- at command plus a implicitly moveto startpoint-->
+                <!-- at command plus an implicitly moveto startpoint-->
                 <xsl:variable name="new-enhanced-path" select="concat($enhanced-path ,' B ' ) "/>
                 <xsl:variable name="num-and-pos">
                     <xsl:call-template name="get-number-after">
@@ -1081,7 +1076,7 @@
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="$command = 'wr' ">
-                <!-- wa command plus a implicitly moveto startpoint-->
+                <!-- wa command plus an implicitly moveto startpoint-->
                 <xsl:variable name="new-enhanced-path" select="concat($enhanced-path ,' V ' ) "/>
                 <xsl:variable name="num-and-pos">
                     <xsl:call-template name="get-number-after">
@@ -1162,7 +1157,7 @@
         </xsl:choose>
     </xsl:template>
     <xsl:template name="get-number-before">
-        <!--  get $count number of number before current position , output format:number1 number2 ... numberN:newpostion 
+        <!--  get $count number of number before current position , output format:number1 number2 ... numberN:newposition
             skip $skipcount of numbers
         -->
         <xsl:param name="vml-path"/>
@@ -1216,7 +1211,7 @@
         </xsl:choose>
     </xsl:template>
     <xsl:template name="get-number-after">
-        <!--  get $count number of number after current position, output format:number1 number2 ... numberN:newpostion
+        <!--  get $count number of number after current position, output format:number1 number2 ... numberN:newposition
             skip $skipcount of numbers
         -->
         <xsl:param name="vml-path"/>
@@ -1439,7 +1434,7 @@
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:when test="string-length(translate($curr-char ,  '+-' ,'') ) = 0  and string-length($number) &gt; 0">
-                        <!-- finsh it with +/- -->
+                        <!-- finish it with +/- -->
                         <xsl:call-template name="format-number-pos">
                             <xsl:with-param name="number" select="$number"/>
                             <xsl:with-param name="position" select="$position"/>
@@ -1465,7 +1460,7 @@
                 <xsl:variable name="curr-char" select="substring($vml-path, $position , 1)"/>
                 <xsl:choose>
                     <xsl:when test="string-length(translate($curr-char ,  'mlcxetrvnfsawqyb' ,'')) = 0 ">
-                        <!-- "MmZzLlHhVvCcSsQqTtAa" are all possiable  command chars -->
+                        <!-- "MmZzLlHhVvCcSsQqTtAa" are all possible  command chars -->
                         <xsl:value-of select="concat( $curr-char , ':'  , $position +1)"/>
                     </xsl:when>
                     <xsl:when test="string-length(translate($curr-char ,  '+-.0123456789@' ,'')) = 0 ">
@@ -1493,15 +1488,15 @@
     </xsl:template>
     <!--
         **get-path- command**
-		This function will collect the next command from a string. If the input string should has a start of number character,
-		we here implictly think the command is the last-command
+        This function will collect the next command from a string. If the input string should has a start of number character,
+        we here implicitly think the command is the last-command
         All of the command of vml is listed as following:
         __Basic commands:__
-		m		l		c		x		e		t		r		v		nf		ns		ae		al		at		ar		wa		wr		qx		qy		qb	
-		__Edit behavior extensions commands__
-		ha 	hb	hc	hd	he	hf	hg	hh	hi
+        m       l       c       x       e       t       r       v       nf      ns      ae      al      at      ar      wa      wr      qx      qy      qb
+        __Edit behavior extensions commands__
+        ha  hb  hc  hd  he  hf  hg  hh  hi
 
-		So we know the longest command should be four character.The function is implemented on this basis:
+        So we know the longest command should be four character.The function is implemented on this basis:
      -->
     <xsl:template name="get-path-command">
         <xsl:param name="vml-path"/>
@@ -1529,7 +1524,7 @@
                             <xsl:value-of select="concat( $curr-char,$second-char , ':'  , $position +2)"/>
                         </xsl:if>
                         <xsl:if test="$isvalid = '0' ">
-                            <xsl:message>ooo2wordml_path.xsl: Error command occured </xsl:message>
+                            <xsl:message>ooo2wordml_path.xsl: Error command occurred </xsl:message>
                         </xsl:if>
                     </xsl:when>
                     <xsl:when test="$curr-char = 'n' ">
@@ -1546,7 +1541,7 @@
                             <xsl:value-of select="concat( $curr-char,$second-char , ':'  , $position +2)"/>
                         </xsl:if>
                         <xsl:if test="$isvalid = '0' ">
-                            <xsl:message>ooo2wordml_path.xsl: Error command occured </xsl:message>
+                            <xsl:message>ooo2wordml_path.xsl: Error command occurred </xsl:message>
                         </xsl:if>
                     </xsl:when>
                     <xsl:when test="$curr-char = 'w' ">
@@ -1563,7 +1558,7 @@
                             <xsl:value-of select="concat( $curr-char,$second-char , ':'  , $position +2)"/>
                         </xsl:if>
                         <xsl:if test="$isvalid = '0' ">
-                            <xsl:message>ooo2wordml_path.xsl: Error command occured </xsl:message>
+                            <xsl:message>ooo2wordml_path.xsl: Error command occurred </xsl:message>
                         </xsl:if>
                     </xsl:when>
                     <xsl:when test="$curr-char = 'q' ">
@@ -1581,7 +1576,7 @@
                             <xsl:value-of select="concat( $curr-char,$second-char , ':'  , $position +2)"/>
                         </xsl:if>
                         <xsl:if test="$isvalid = '0' ">
-                            <xsl:message>ooo2wordml_path.xsl: Error command occured </xsl:message>
+                            <xsl:message>ooo2wordml_path.xsl: Error command occurred </xsl:message>
                         </xsl:if>
                     </xsl:when>
                     <xsl:when test="$curr-char = 'h' ">
@@ -1597,7 +1592,7 @@
                             <xsl:value-of select="concat( $curr-char,$second-char , ':'  , $position +2)"/>
                         </xsl:if>
                         <xsl:if test="$isvalid = '0' ">
-                            <xsl:message>ooo2wordml_path.xsl: Error command occured </xsl:message>
+                            <xsl:message>ooo2wordml_path.xsl: Error command occurred </xsl:message>
                         </xsl:if>
                     </xsl:when>
                     <xsl:when test="string-length(translate($curr-char ,  'mlcxetrv' ,'')) = 0 ">

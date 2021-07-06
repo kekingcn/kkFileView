@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Event" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS ROOT FIELDS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private	_Type					As String				&apos;	Must be EVENT
+Private	_EventSource			As Object
+Private	_EventType				As String
+Private	_EventName				As String
+Private _SubComponentName		As String
+Private _SubComponentType		As Long
+Private	_ContextShortcut		As String
+Private	_ButtonLeft				As Boolean				&apos;	com.sun.star.awt.MouseButton.XXX
+Private	_ButtonRight			As Boolean
+Private	_ButtonMiddle			As Boolean
+Private	_XPos					As Variant				&apos;	Null or Long
+Private	_YPos					As Variant				&apos;	Null or Long
+Private	_ClickCount				As Long
+Private	_KeyCode				As Integer				&apos;	com.sun.star.awt.Key.XXX
+Private	_KeyChar				As String
+Private	_KeyFunction			As Integer				&apos;	com.sun.star.awt.KeyFunction.XXX
+Private _KeyAlt					As Boolean
+Private _KeyCtrl				As Boolean
+Private _KeyShift				As Boolean
+Private	_FocusChangeTemporary	As Boolean				&apos;	False if user action in same window
+Private	_RowChangeAction		As Long					&apos;	com.sun.star.sdb.RowChangeAction.XXX
+Private _Recommendation			As String				&apos;	&quot;IGNORE&quot; or &quot;&quot;
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CONSTRUCTORS / DESTRUCTORS						        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	_Type = OBJEVENT
+	_EventSource = Nothing
+	_EventType = &quot;&quot;
+	_EventName = &quot;&quot;
+	_SubComponentName = &quot;&quot;
+	_SubComponentType = -1
+	_ContextShortcut = &quot;&quot;
+	_ButtonLeft = False		&apos;	See com.sun.star.awt.MouseButton.XXX
+	_ButtonRight = False
+	_ButtonMiddle = False
+	_XPos = Null
+	_YPos = Null
+	_ClickCount = 0
+	_KeyCode = 0
+	_KeyChar = &quot;&quot;
+	_KeyFunction = com.sun.star.awt.KeyFunction.DONTKNOW
+	_KeyAlt = False
+	_KeyCtrl = False
+	_KeyShift = False
+	_FocusChangeTemporary	= False
+	_RowChangeAction = 0
+	_Recommendation = &quot;&quot;
+End Sub		&apos;	Constructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	On Local Error Resume Next
+	Call Class_Initialize()
+End Sub		&apos;	Destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub Dispose()
+	Call Class_Terminate()
+End Sub		&apos;	Explicit destructor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS GET/LET/SET PROPERTIES					        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ButtonLeft() As Variant
+	ButtonLeft = _PropertyGet(&quot;ButtonLeft&quot;)
+End Property		&apos;	ButtonLeft (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ButtonMiddle() As Variant
+	ButtonMiddle = _PropertyGet(&quot;ButtonMiddle&quot;)
+End Property		&apos;	ButtonMiddle (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ButtonRight() As Variant
+	ButtonRight = _PropertyGet(&quot;ButtonRight&quot;)
+End Property		&apos;	ButtonRight (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ClickCount() As Variant
+	ClickCount = _PropertyGet(&quot;ClickCount&quot;)
+End Property		&apos;	ClickCount (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ContextShortcut() As Variant
+	ContextShortcut = _PropertyGet(&quot;ContextShortcut&quot;)
+End Property		&apos;	ContextShortcut (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get EventName() As Variant
+	EventName = _PropertyGet(&quot;EventName&quot;)
+End Property		&apos;	EventName (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get EventSource() As Variant
+	EventSource = _PropertyGet(&quot;EventSource&quot;)
+End Property		&apos;	EventSource (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get EventType() As Variant
+	EventType = _PropertyGet(&quot;EventType&quot;)
+End Property		&apos;	EventType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get FocusChangeTemporary() As Variant
+	FocusChangeTemporary = _PropertyGet(&quot;FocusChangeTemporary&quot;)
+End Property		&apos;	FocusChangeTemporary (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get KeyAlt() As Variant
+	KeyAlt = _PropertyGet(&quot;KeyAlt&quot;)
+End Property		&apos;	KeyAlt (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get KeyChar() As Variant
+	KeyChar = _PropertyGet(&quot;KeyChar&quot;)
+End Property		&apos;	KeyChar (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get KeyCode() As Variant
+	KeyCode = _PropertyGet(&quot;KeyCode&quot;)
+End Property		&apos;	KeyCode (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get KeyCtrl() As Variant
+	KeyCtrl = _PropertyGet(&quot;KeyCtrl&quot;)
+End Property		&apos;	KeyCtrl (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get KeyFunction() As Variant
+	KeyFunction = _PropertyGet(&quot;KeyFunction&quot;)
+End Property		&apos;	KeyFunction (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get KeyShift() As Variant
+	KeyShift = _PropertyGet(&quot;KeyShift&quot;)
+End Property		&apos;	KeyShift (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get ObjectType() As String
+	ObjectType = _PropertyGet(&quot;ObjectType&quot;)
+End Property		&apos;	ObjectType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Dim vProperty As Variant, vPropertiesList() As Variant, sObject As String
+	vPropertiesList = _PropertiesList()
+	sObject = Utils._PCase(_Type)
+	If IsMissing(pvIndex) Then
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList)
+	Else
+		vProperty = PropertiesGet._Properties(sObject, _This, vPropertiesList, pvIndex)
+		vProperty._Value = _PropertyGet(vPropertiesList(pvIndex))
+	End If
+	
+Exit_Function:
+	Set Properties = vProperty
+	Exit Function
+End Function	&apos;	Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get Recommendation() As Variant
+	Recommendation = _PropertyGet(&quot;Recommendation&quot;)
+End Property		&apos;	Recommendation (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get RowChangeAction() As Variant
+	RowChangeAction = _PropertyGet(&quot;RowChangeAction&quot;)
+End Property		&apos;	RowChangeAction (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Source() As Variant
+&apos;	Return the object having fired the event: Form, Control or SubForm
+&apos;	Else return the root Database object
+	Source = _PropertyGet(&quot;Source&quot;)
+End Function	&apos;	Source (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SubComponentName() As String
+	SubComponentName = _PropertyGet(&quot;SubComponentName&quot;)
+End Property		&apos;	SubComponentName (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get SubComponentType() As Long
+	SubComponentType = _PropertyGet(&quot;SubComponentType&quot;)
+End Property		&apos;	SubComponentType (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get XPos() As Variant
+	XPos = _PropertyGet(&quot;XPos&quot;)
+End Property		&apos;	XPos (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Property Get YPos() As Variant
+	YPos = _PropertyGet(&quot;YPos&quot;)
+End Property		&apos;	YPos (get)
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- CLASS METHODS	 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional ByVal pvProperty As Variant) As Variant
+&apos;	Return property value of psProperty property name
+
+	Utils._SetCalledSub(&quot;Form.getProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	getProperty = _PropertyGet(pvProperty)
+	Utils._ResetCalledSub(&quot;Form.getProperty&quot;)
+	
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+
+	If IsMissing(pvProperty) Then hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList()) Else hasProperty = PropertiesGet._hasProperty(_Type, _PropertiesList(), pvProperty)
+	Exit Function
+	
+End Function	&apos;	hasProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub _Initialize(poEvent As Object)
+
+Dim oObject As Object, i As Integer
+Dim sShortcut As String, sAddShortcut As String, sArray() As String
+Dim sImplementation As String, oSelection As Object
+Dim iCurrentDoc As Integer, oDoc As Object
+Dim vPersistent As Variant
+Const cstDatabaseForm = &quot;com.sun.star.comp.forms.ODatabaseForm&quot;
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+
+	Set oObject = poEvent.Source
+	_EventSource = oObject
+	sArray = Split(Utils._getUNOTypeName(poEvent), &quot;.&quot;)
+	_EventType = UCase(sArray(UBound(sArray)))
+	If Utils._hasUNOProperty(poEvent, &quot;EventName&quot;) Then _EventName = poEvent.EventName
+
+	Select Case _EventType
+		Case &quot;DOCUMENTEVENT&quot;
+			&apos;SubComponent processing
+			Select Case UCase(_EventName)
+				Case UCase(&quot;OnSubComponentClosed&quot;), UCase(&quot;OnSubComponentOpened&quot;)
+					Set oSelection = poEvent.ViewController.getSelection()(0)
+					_SubComponentName = oSelection.Name
+					With  com.sun.star.sdb.application.DatabaseObject
+						Select Case oSelection.Type
+							Case .TABLE		:	_SubComponentType = acTable
+							Case .QUERY		:	_SubComponentType = acQuery
+							Case .FORM		:	_SubComponentType = acForm
+							Case .REPORT	:	_SubComponentType = acReport
+							Case Else
+						End Select
+					End With
+				Case Else
+			End Select
+		Case &quot;EVENTOBJECT&quot;
+		Case &quot;ACTIONEVENT&quot;
+		Case &quot;FOCUSEVENT&quot;
+			_FocusChangeTemporary = poEvent.Temporary
+		Case &quot;ITEMEVENT&quot;
+		Case &quot;INPUTEVENT&quot;, &quot;KEYEVENT&quot;
+			_KeyCode		= poEvent.KeyCode
+			_KeyChar		= poEvent.KeyChar
+			_KeyFunction	= poEvent.KeyFunc
+			_KeyAlt			= Utils._BitShift(poEvent.Modifiers, com.sun.star.awt.KeyModifier.MOD2)
+			_KeyCtrl		= Utils._BitShift(poEvent.Modifiers, com.sun.star.awt.KeyModifier.MOD1)
+			_KeyShift		= Utils._BitShift(poEvent.Modifiers, com.sun.star.awt.KeyModifier.SHIFT)
+		Case &quot;MOUSEEVENT&quot;
+			_ButtonLeft		=	Utils._BitShift(poEvent.Buttons, com.sun.star.awt.MouseButton.LEFT)
+			_ButtonRight	=	Utils._BitShift(poEvent.Buttons, com.sun.star.awt.MouseButton.RIGHT)
+			_ButtonMiddle	=	Utils._BitShift(poEvent.Buttons, com.sun.star.awt.MouseButton.MIDDLE)
+			_XPos = poEvent.X
+			_YPos = poEvent.Y
+			_ClickCount = poEvent.ClickCount
+		Case &quot;ROWCHANGEEVENT&quot;
+			_RowChangeAction = poEvent.Action
+		Case &quot;TEXTEVENT&quot;
+		Case &quot;ADJUSTMENTEVENT&quot;, &quot;DOCKINGEVENT&quot;, &quot;ENDDOCKINGEVENT&quot;, &quot;ENDPOPUPMODEEVENT&quot;, &quot;ENHANCEDMOUSEEVENT&quot; _
+				, &quot;MENUEVENT&quot;, &quot;PAINTEVENT&quot;, &quot;SPINEVENT&quot;, &quot;VCLCONTAINEREVENT&quot;, &quot;WINDOWEVENT&quot;
+			Goto Exit_Function
+		Case Else
+			Goto Exit_Function
+	End Select
+
+	&apos;	Evaluate ContextShortcut
+	sShortcut = &quot;&quot;
+	sImplementation = Utils._ImplementationName(oObject)
+	
+	Select Case True
+		Case sImplementation = &quot;stardiv.Toolkit.UnoDialogControl&quot;			&apos;	Dialog
+			_ContextShortcut = &quot;Dialogs!&quot; &amp; _EventSource.Model.Name
+			Goto Exit_Function
+		Case Left(sImplementation, 16) = &quot;stardiv.Toolkit.&quot;					&apos;	Control in Dialog
+			_ContextShortcut = &quot;Dialogs!&quot; &amp; _EventSource.Context.Model.Name _
+								&amp; &quot;!&quot; &amp; _EventSource.Model.Name
+			Goto Exit_Function
+		Case Else
+	End Select
+	
+	iCurrentDoc = _A2B_.CurrentDocIndex(, False)
+	If iCurrentDoc &lt; 0 Then Goto Exit_Function
+	Set oDoc = _A2B_.CurrentDocument(iCurrentDoc)
+
+	&apos;	To manage 2x triggers of &quot;Before record action&quot; form event
+	If _EventType = &quot;ROWCHANGEEVENT&quot; And sImplementation &lt;&gt; &quot;com.sun.star.comp.forms.ODatabaseForm&quot; Then _Recommendation = &quot;IGNORE&quot;
+
+	Do While sImplementation &lt;&gt; &quot;SwXTextDocument&quot;
+		sAddShortcut = &quot;&quot;
+		Select Case sImplementation
+			Case &quot;com.sun.star.comp.forms.OFormsCollection&quot;			&apos;	Do nothing
+			Case Else
+				If Utils._hasUNOProperty(oObject, &quot;Model&quot;) Then
+					If oObject.Model.Name &lt;&gt; &quot;MainForm&quot; And oObject.Model.Name &lt;&gt; &quot;Form&quot; Then sAddShortcut = Utils._Surround(oObject.Model.Name)
+				ElseIf Utils._hasUNOProperty(oObject, &quot;Name&quot;) Then
+					If oObject.Name &lt;&gt; &quot;MainForm&quot; And  oObject.Name &lt;&gt; &quot;Form&quot; Then sAddShortcut = Utils._Surround(oObject.Name)
+				End If
+				If sAddShortcut &lt;&gt; &quot;&quot; Then
+					If sImplementation = cstDatabaseForm And oDoc.DbConnect = DBCONNECTBASE Then sAddShortcut = sAddShortcut &amp; &quot;.Form&quot;
+					sShortcut = sAddShortcut &amp; Iif(Len(sShortcut) &gt; 0, &quot;!&quot; &amp; sShortcut, &quot;&quot;)
+				End If
+		End Select
+		Select Case True
+			Case Utils._hasUNOProperty(oObject, &quot;Model&quot;)
+				Set oObject = oObject.Model.Parent
+			Case Utils._hasUNOProperty(oObject, &quot;Parent&quot;)
+				Set oObject = oObject.Parent
+			Case Else
+				Goto Exit_Function
+		End Select
+		sImplementation = Utils._ImplementationName(oObject)
+	Loop
+	&apos;	Add Forms! prefix
+	Select Case oDoc.DbConnect
+		Case DBCONNECTBASE
+			vPersistent = Split(oObject.StringValue, &quot;/&quot;)
+			sAddShortcut = Utils._Surround(_GetHierarchicalName(vPersistent(UBound(vPersistent) - 1)))
+			sShortcut = &quot;Forms!&quot; &amp; sAddShortcut &amp; &quot;!&quot; &amp; sShortcut
+		Case DBCONNECTFORM
+			sShortcut = &quot;Forms!0!&quot; &amp; sShortcut
+	End Select
+
+	sArray = Split(sShortcut, &quot;!&quot;)
+	&apos;	If presence of &quot;Forms!myform!myform.Form&quot;, eliminate 2nd element
+	&apos;	Eliminate anyway blanco subcomponents (e.g. Forms!!myForm)
+	If UBound(sArray) &gt;= 2 Then
+		If UCase(sArray(1)) &amp; &quot;.FORM&quot; = UCase(sArray(2)) Then sArray(1) = &quot;&quot;
+		sArray = Utils._TrimArray(sArray)
+	End If
+	&apos;	If first element ends with .Form, remove suffix
+	If UBound(sArray) &gt;= 1 Then
+		If Len(sArray(1)) &gt; 5 And Right(sArray(1), 5) = &quot;.Form&quot; Then sArray(1) = left(sArray(1), Len(sArray(1)) - 5)
+		sShortcut = Join(sArray, &quot;!&quot;)
+	End If
+	If Len(sShortcut) &gt;= 2 Then
+		If Right(sShortcut, 1) = &quot;!&quot; Then
+			_ContextShortcut = Left(sShortcut, Len(sShortcut) - 1)
+		Else
+			_ContextShortcut = sShortcut
+		End If
+	End If
+
+Exit_Function:
+	Exit Sub			
+Error_Function:
+	TraceError(TRACEWARNING, Err, &quot;Event.Initialize&quot;, Erl)
+	GoTo Exit_Function
+End Sub			&apos;	_Initialize		V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertiesList() As Variant
+
+Dim sSubComponentName As String, sSubComponentType As String
+	sSubComponentName = Iif(_SubComponentType &gt; -1, &quot;SubComponentName&quot;, &quot;&quot;)
+	sSubComponentType = Iif(_SubComponentType &gt; -1, &quot;SubComponentType&quot;, &quot;&quot;)
+Dim sXPos As String, sYPos As String
+	sXPos = Iif(IsNull(_XPos), &quot;&quot;, &quot;XPos&quot;)
+	sYPos = Iif(IsNull(_YPos), &quot;&quot;, &quot;YPos&quot;)
+
+	_PropertiesList = Utils._TrimArray(Array( _
+										&quot;ButtonLeft&quot;, &quot;ButtonRight&quot;, &quot;ButtonMiddle&quot;, &quot;ClickCount&quot; _
+										, &quot;ContextShortcut&quot;, &quot;EventName&quot;, &quot;EventType&quot;, &quot;FocusChangeTemporary&quot;,  _
+										, &quot;KeyAlt&quot;, &quot;KeyChar&quot;, &quot;KeyCode&quot;, &quot;KeyCtrl&quot;, &quot;KeyFunction&quot;, &quot;KeyShift&quot; _
+										, &quot;ObjectType&quot;, &quot;Recommendation&quot;, &quot;RowChangeAction&quot;, &quot;Source&quot; _
+										, sSubComponentName, sSubComponentType, sXPos, sYPos _
+									))
+
+End Function	&apos;	_PropertiesList
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _PropertyGet(ByVal psProperty As String) As Variant
+&apos;	Return property value of the psProperty property name
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;Event.get&quot; &amp; psProperty)
+
+	_PropertyGet = EMPTY
+	
+	Select Case UCase(psProperty)
+		Case UCase(&quot;ButtonLeft&quot;)
+			_PropertyGet = _ButtonLeft
+		Case UCase(&quot;ButtonMiddle&quot;)
+			_PropertyGet = _ButtonMiddle
+		Case UCase(&quot;ButtonRight&quot;)
+			_PropertyGet = _ButtonRight
+		Case UCase(&quot;ClickCount&quot;)
+			_PropertyGet = _ClickCount
+		Case UCase(&quot;ContextShortcut&quot;)
+			_PropertyGet = _ContextShortcut
+		Case UCase(&quot;FocusChangeTemporary&quot;)
+			_PropertyGet = _FocusChangeTemporary
+		Case UCase(&quot;EventName&quot;)
+			_PropertyGet = _EventName
+		Case UCase(&quot;EventSource&quot;)
+			_PropertyGet = _EventSource
+		Case UCase(&quot;EventType&quot;)
+			_PropertyGet = _EventType
+		Case UCase(&quot;KeyAlt&quot;)
+			_PropertyGet = _KeyAlt
+		Case UCase(&quot;KeyChar&quot;)
+			_PropertyGet = _KeyChar
+		Case UCase(&quot;KeyCode&quot;)
+			_PropertyGet = _KeyCode
+		Case UCase(&quot;KeyCtrl&quot;)
+			_PropertyGet = _KeyCtrl
+		Case UCase(&quot;KeyFunction&quot;)
+			_PropertyGet = _KeyFunction
+		Case UCase(&quot;KeyShift&quot;)
+			_PropertyGet = _KeyShift
+		Case UCase(&quot;ObjectType&quot;)
+			_PropertyGet = _Type
+		Case UCase(&quot;Recommendation&quot;)
+			_PropertyGet = _Recommendation
+		Case UCase(&quot;RowChangeAction&quot;)
+			_PropertyGet = _RowChangeAction
+		Case UCase(&quot;Source&quot;)
+			If _ContextShortcut = &quot;&quot; Then
+				_PropertyGet = _EventSource
+			Else
+				_PropertyGet = getObject(_ContextShortcut)
+			End If
+		Case UCase(&quot;SubComponentName&quot;)
+			_PropertyGet = _SubComponentName
+		Case UCase(&quot;SubComponentType&quot;)
+			_PropertyGet = _SubComponentType
+		Case UCase(&quot;XPos&quot;)
+			If IsNull(_XPos) Then Goto Trace_Error
+			_PropertyGet = _XPos
+		Case UCase(&quot;YPos&quot;)
+			If IsNull(_YPos) Then Goto Trace_Error
+			_PropertyGet = _YPos
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Event.get&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	&apos;	Errors are not displayed to avoid display infinite cycling
+	TraceError(TRACEWARNING, ERRPROPERTY, Utils._CalledSub(), 0, False, psProperty)
+	_PropertyGet = EMPTY
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Event._PropertyGet&quot;, Erl)
+	_PropertyGet = EMPTY
+	GoTo Exit_Function
+End Function		&apos;	_PropertyGet	V1.1.0
+
+</script:module>

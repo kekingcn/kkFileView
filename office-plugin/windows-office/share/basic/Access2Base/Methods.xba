@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Methods" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function AddItem(Optional pvBox As Variant, ByVal Optional pvItem As Variant, ByVal Optional pvIndex) As Boolean
+&apos;	Add an item in a Listbox
+
+	Utils._SetCalledSub(&quot;AddItem&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+	If IsMissing(pvBox) Or IsMissing(pvItem) Then Call _TraceArguments()
+	If IsMissing(pvIndex) Then pvIndex = -1
+	If Not Utils._CheckArgument(pvBox, 1, Array(CTLLISTBOX, CTLCOMBOBOX)) Then Goto Exit_Function
+
+	AddItem = pvBox.AddItem(pvItem, pvIndex)
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;AddItem&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;AddItem&quot;, Erl)
+	AddItem = False
+	GoTo Exit_Function
+End Function		&apos;	AddItem		V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function hasProperty(Optional pvObject As Variant, ByVal Optional pvProperty As Variant) As Boolean
+&apos;	Return True if pvObject has a valid property called pvProperty (case-insensitive comparison !)
+
+Dim vPropertiesList As Variant
+
+	Utils._SetCalledSub(&quot;hasProperty&quot;)
+	If IsMissing(pvObject) Or IsMissing(pvProperty) Then Call _TraceArguments()
+	
+	hasProperty = False
+	If Not Utils._CheckArgument(pvObject, 1, Array(OBJCOLLECTION, OBJFORM, OBJSUBFORM, OBJCONTROL, OBJOPTIONGROUP, OBJEVENT _
+						, OBJPROPERTY, OBJDATABASE, OBJQUERYDEF, OBJTABLEDEF, OBJRECORDSET _
+						)) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvProperty, 2, vbString) Then Goto Exit_Function
+	
+	hasProperty = pvObject.hasProperty(pvProperty)
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;hasProperty&quot;)
+	Exit Function
+End Function	&apos;	hasProperty		V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Move(Optional pvObject As Object _
+						, ByVal Optional pvLeft As Variant _
+						, ByVal Optional pvTop As Variant _
+						, ByVal Optional pvWidth As Variant _
+						, ByVal Optional pvHeight As Variant _
+						) As Variant
+&apos;	Execute Move method
+	Utils._SetCalledSub(&quot;Move&quot;)
+	If IsMissing(pvObject) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Move = False
+	If Not Utils._CheckArgument(pvObject,	1, Array(OBJFORM, OBJDIALOG)) Then Goto Exit_Function	
+	If IsMissing(pvLeft) Then Call _TraceArguments()
+	If IsMissing(pvTop) Then pvTop = -1
+	If IsMissing(pvWidth) Then pvWidth = -1
+	If IsMissing(pvHeight) Then pvHeight = -1
+
+	Move = pvObject.Move(pvLeft, pvTop, pvWidth, pvHeight)
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Move&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Move&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	Move	V.0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function OpenHelpFile()
+&apos;	Open the help file from the Help menu (IDE only)
+Const cstHelpFile = &quot;http://www.access2base.com/access2base.html&quot;
+
+	On Local Error Resume Next
+	Call _ShellExecute(cstHelpFile)
+	
+End Function	&apos;	OpenHelpFile	V0.8.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Properties(Optional pvObject As Variant, ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+
+Dim vProperties As Variant, oCounter As Variant, opProperty As Variant
+Dim vPropertiesList() As Variant
+	
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments()
+	Utils._SetCalledSub(&quot;Properties&quot;)
+	
+	Set vProperties = Nothing
+	If Not Utils._CheckArgument(pvObject, 1, Array(OBJCOLLECTION, OBJFORM, OBJSUBFORM, OBJCONTROL, OBJOPTIONGROUP, OBJEVENT _
+						, OBJPROPERTY, OBJDATABASE, OBJQUERYDEF, OBJTABLEDEF, OBJRECORDSET _
+						)) Then Goto Exit_Function
+
+	If IsMissing(pvIndex) Then vProperties = pvObject.Properties Else vProperties = pvObject.Properties(pvIndex)
+				
+Exit_Function:
+	Set Properties = vProperties
+	Utils._ResetCalledSub(&quot;Properties&quot;)
+	Exit Function
+End Function		&apos;	Properties	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Refresh(Optional pvObject As Variant) As Boolean
+&apos;	Refresh data with its most recent value in the database in a form or subform
+	Utils._SetCalledSub(&quot;Refresh&quot;)
+	If IsMissing(pvObject) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Refresh = False
+	If Not Utils._CheckArgument(pvObject, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+
+	Refresh = pvObject.Refresh()
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Refresh&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Refresh&quot;, Erl)
+	GoTo Exit_Function
+End Function	&apos;	Refresh		V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function RemoveItem(Optional pvBox As Variant,ByVal Optional pvIndex) As Boolean
+&apos;	Remove an item from a Listbox
+&apos;	Index may be a string value or an index-position
+
+	Utils._SetCalledSub(&quot;RemoveItem&quot;)
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	
+	If IsMissing(pvBox) Or IsMissing(pvIndex) Then Call _TraceArguments()
+	If Not Utils._CheckArgument(pvBox, 1, Array(CTLLISTBOX, CTLCOMBOBOX)) Then Goto Exit_Function
+	
+	RemoveItem = pvBox.RemoveItem(pvIndex)
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;RemoveItem&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;RemoveItem&quot;, Erl)
+	RemoveItem = False
+	GoTo Exit_Function
+End Function		&apos;	RemoveItem		V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function Requery(Optional pvObject As Variant) As Boolean
+&apos;	Refresh data displayed in a form, subform, combobox or listbox
+	Utils._SetCalledSub(&quot;Requery&quot;)
+	If IsMissing(pvObject) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	If Not Utils._CheckArgument(pvObject, 1, Array(OBJFORM, OBJCONTROL, OBJSUBFORM)) Then Goto Exit_Function
+	
+	Requery = pvObject.Requery()
+
+Exit_Function:
+	Utils._ResetCalledSub(&quot;Requery&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;Requery&quot;, Erl)
+	GoTo Exit_Function
+End Function	&apos;	Requery		V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function SetFocus(Optional pvObject As Variant) As Boolean
+&apos;	Execute SetFocus method
+	Utils._SetCalledSub(&quot;setFocus&quot;)
+	If IsMissing(pvObject) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	If Not Utils._CheckArgument(pvObject, 1, Array(OBJFORM, OBJCONTROL)) Then Goto Exit_Function	
+
+	SetFocus = pvObject.setFocus()
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;SetFocus&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;SetFocus&quot;, Erl)
+	Goto Exit_Function
+Error_Grid:
+	TraceError(TRACEFATAL, ERRFOCUSINGRID, Utils._CalledSub(), 0, 1, Array(pvObject._Name, ocGrid._Name))
+	Goto Exit_Function
+End Function	&apos;	SetFocus	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _OptionGroup(ByVal pvGroupName As Variant _
+					, ByVal psParentType As String _
+					, poComponent As Object _
+					, poParent As Object _
+					) As Variant
+&apos;	Return either an error or an object of type OPTIONGROUP based on its name
+
+	If IsMissing(pvGroupName) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Set _OptionGroup = Nothing
+	
+	If Not Utils._CheckArgument(pvGroupName, 1, vbString) Then Goto Exit_Function
+
+Dim ogGroup As Variant, i As Integer, j As Integer, bFound As Boolean
+Dim vOptionButtons() As Variant, sGroupName As String
+Dim lXY() As Long, iIndex() As Integer		&apos;	Two indexes X-Y coordinates
+Dim oView As Object, oDatabaseForm As Object, vControls As Variant
+
+Const cstPixels = 10							&apos;	Tolerance on coordinates when drawn approximately
+
+	bFound = False
+	Select Case psParentType
+		Case CTLPARENTISFORM
+			&apos;poParent is a forms collection, find the appropriate database form
+			For i = 0 To poParent.Count - 1
+				Set oDatabaseForm = poParent.getByIndex(i)
+				If Not IsNull(oDatabaseForm) Then
+					For j = 0 To oDatabaseForm.GroupCount - 1		&apos;	Does a group with the right name exist ?
+						oDatabaseForm.getGroup(j, vOptionButtons, sGroupName)
+						If UCase(sGroupName) = UCase(Utils._Trim(pvGroupName)) Then
+							bFound = True
+							Exit For
+						End If
+					Next j
+					If bFound Then Exit For
+				End If
+				If bFound Then Exit For
+			Next i
+		Case CTLPARENTISSUBFORM
+			&apos;poParent is already a database form
+			Set oDatabaseForm = poParent
+			For j = 0 To oDatabaseForm.GroupCount - 1		&apos;	Does a group with the right name exist ?
+				oDatabaseForm.getGroup(j, vOptionButtons, sGroupName)
+				If UCase(sGroupName) = UCase(Utils._Trim(pvGroupName)) Then
+					bFound = True
+					Exit For
+				End If
+			Next j
+	End Select
+
+	If bFound Then
+
+		ogGroup = New Optiongroup
+		ogGroup._This = ogGroup
+		ogGroup._Name = sGroupName
+		ogGroup._ButtonsGroup = vOptionButtons
+		ogGroup._Count = UBound(vOptionButtons) + 1
+		ogGroup._ParentType = psParentType
+		ogGroup._MainForm = oDatabaseForm.Name
+		Set ogGroup._ParentComponent = poComponent
+
+		ReDim lXY(1, ogGroup._Count - 1)
+		ReDim iIndex(ogGroup._Count - 1)
+		For i = 0 To ogGroup._Count - 1			&apos;	Find the position of each radiobutton
+			Set oView = poComponent.CurrentController.getControl(ogGroup._ButtonsGroup(i))
+			lXY(0, i) = oView.PosSize.X
+			lXY(1, i) = oView.PosSize.Y
+		Next i
+		For i = 0 To ogGroup._Count - 1			&apos;	Sort them on XY coordinates		
+			If i = 0 Then
+				iIndex(0) = 0
+			Else
+				iIndex(i) = i
+				For j = i - 1 To 0 Step -1
+					If lXY(1, i) - lXY(1, j) &lt; - cstPixels Or ( Abs(lXY(1, i) - lXY(1, j)) &lt;= cstPixels And lXY(0, i) - lXY(0, j) &lt; - cstPixels ) Then
+						iIndex(i) = iIndex(j)
+						iIndex(j) = iIndex(j) + 1
+					End If
+				Next j
+			End If
+		Next i
+		ogGroup._ButtonsIndex = iIndex()
+
+		Set _OptionGroup = ogGroup
+
+	Else
+
+		Set _OptionGroup = Nothing
+		TraceError(TRACEFATAL, ERRWRONGARGUMENT, Utils._CalledSub(), 0, , Array(1, pvGroupName))
+
+	End If
+	
+Exit_Function:
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err,&quot;_OptionGroup&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	_OptionGroup	V1.1.0
+
+</script:module>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="UtilProperty" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+&apos;**********************************************************************
+&apos;	UtilProperty module
+&apos;
+&apos;	Module of utilities to manipulate arrays of PropertyValue&apos;s.
+&apos;**********************************************************************
+
+&apos;**********************************************************************
+&apos;	Copyright (c) 2003-2004 Danny Brewer
+&apos;	d29583@groovegarden.com
+&apos;**********************************************************************
+
+&apos;**********************************************************************
+&apos;	If you make changes, please append to the change log below.
+&apos;
+&apos;	Change Log
+&apos;		Danny Brewer			Revised 2004-02-25-01
+&apos;		Jean-Pierre Ledure		Adapted to Access2Base coding conventions
+&apos;								PropValuesToStr rewritten and addition of StrToPropValues
+&apos;								Bug corrected on date values
+&apos;								Addition of support of 2-dimensional arrays
+&apos;								Support of empty arrays to allow JSON conversions
+&apos;**********************************************************************
+
+Option Explicit
+
+Private Const cstHEADER = &quot;### PROPERTYVALUES ###&quot;
+Private Const cstEMPTYARRAY = &quot;### EMPTY ARRAY ###&quot;
+
+REM =======================================================================================================================
+Public Function _MakePropertyValue(ByVal Optional psName As String, Optional pvValue As Variant) As com.sun.star.beans.PropertyValue
+&apos;   Create and return a new com.sun.star.beans.PropertyValue.
+
+Dim oPropertyValue As New com.sun.star.beans.PropertyValue
+
+	If Not IsMissing(psName) Then oPropertyValue.Name = psName
+	If Not IsMissing(pvValue) Then oPropertyValue.Value = _CheckPropertyValue(pvValue)
+	_MakePropertyValue() = oPropertyValue
+	
+End Function	&apos;	_MakePropertyValue V1.3.0
+
+REM =======================================================================================================================
+Public Function _CheckPropertyValue(ByRef pvValue As Variant) As Variant
+&apos;	Date BASIC variables give error. Change them to strings
+&apos;	Empty arrays should be replaced by cstEMPTYARRAY
+
+	If VarType(pvValue) = vbDate Then
+		_CheckPropertyValue = Utils._CStr(pvValue, False)
+	ElseIf IsArray(pvValue) Then
+		If UBound(pvValue, 1) &lt; LBound(pvValue, 1) Then _CheckPropertyValue = cstEMPTYARRAY Else _CheckPropertyValue = pvValue
+	Else
+		_CheckPropertyValue = pvValue
+	End If
+
+End Function	&apos;	_CheckPropertyValue
+	
+REM =======================================================================================================================
+Public Function _NumPropertyValues(ByRef pvPropertyValuesArray As Variant) As Integer
+&apos; Return the number of PropertyValue&apos;s in an array.
+&apos; Parameters:
+&apos; 	pvPropertyValuesArray - an array of PropertyValue&apos;s, that is an array of com.sun.star.beans.PropertyValue.
+&apos; Returns zero if the array contains no elements.
+
+Dim iNumProperties As Integer
+	If Not IsArray(pvPropertyValuesArray) Then iNumProperties = 0 Else iNumProperties = UBound(pvPropertyValuesArray) + 1
+	_NumPropertyValues() = iNumProperties
+
+End Function	&apos;	_NumPropertyValues V1.3.0
+
+REM =======================================================================================================================
+Public Function _FindPropertyIndex(ByRef pvPropertyValuesArray As Variant, ByVal psPropName As String ) As Integer
+&apos; Find a particular named property from an array of PropertyValue&apos;s.
+&apos; Finds the index in the array of PropertyValue&apos;s and returns it, or returns -1 if it was not found.
+
+Dim iNumProperties As Integer, i As Integer, vProp As Variant
+	iNumProperties = _NumPropertyValues(pvPropertyValuesArray)
+	For i = 0 To iNumProperties - 1
+		vProp = pvPropertyValuesArray(i)
+		If UCase(vProp.Name) = UCase(psPropName) Then
+			_FindPropertyIndex() = i
+			Exit Function
+		EndIf
+	Next i
+	_FindPropertyIndex() = -1
+
+End Function	&apos;	_FindPropertyIndex V1.3.0
+
+REM =======================================================================================================================
+Public Function _FindProperty(ByRef pvPropertyValuesArray As Variant, ByVal psPropName As String) As com.sun.star.beans.PropertyValue
+&apos; Find a particular named property from an array of PropertyValue&apos;s.
+&apos; Finds the PropertyValue and returns it, or returns Null if not found.
+
+Dim iPropIndex As Integer, vProp As Variant
+	iPropIndex = _FindPropertyIndex(pvPropertyValuesArray, psPropName)
+	If iPropIndex &gt;= 0 Then
+		vProp = pvPropertyValuesArray(iPropIndex) &apos; access array subscript
+		_FindProperty() = vProp
+	EndIf
+
+End Function	&apos;	_FindProperty V1.3.0
+
+REM =======================================================================================================================
+Public Function _GetPropertyValue(ByRef pvPropertyValuesArray As Variant, ByVal psPropName As String, Optional pvDefaultValue) As Variant
+&apos; Get the value of a particular named property from an array of PropertyValue&apos;s.
+&apos; vDefaultValue      -   This value is returned if the property is not found in the array.
+
+Dim iPropIndex As Integer, vProp As Variant, vValue As Variant, vMatrix As Variant, i As Integer, j As Integer
+	iPropIndex = _FindPropertyIndex(pvPropertyValuesArray, psPropName)
+	If iPropIndex &gt;= 0 Then
+		vProp = pvPropertyValuesArray(iPropIndex)	&apos; access array subscript
+		vValue = vProp.Value						&apos; get the value from the PropertyValue
+		If VarType(vValue) = vbString Then
+			If vValue = cstEMPTYARRAY Then _GetPropertyValue() = Array() Else _GetPropertyValue() = vValue
+		ElseIf IsArray(vValue) Then
+			If IsArray(vValue(0)) Then				&apos; Array of arrays
+				vMatrix = Array()
+				ReDim vMatrix(0 To UBound(vValue), 0 To UBound(vValue(0)))
+				For i = 0 To UBound(vValue)
+					For j = 0 To UBound(vValue(0))
+						vMatrix(i, j) = vValue(i)(j)
+					Next j
+				Next i
+				_GetPropertyValue() = vMatrix
+			Else
+				_GetPropertyValue() = vValue		&apos; Simple vector OK
+			End If
+		Else
+			_GetPropertyValue() = vValue
+		End If
+	Else
+		If IsMissing(pvDefaultValue) Then pvDefaultValue = Null
+		_GetPropertyValue() = pvDefaultValue
+	EndIf
+
+End Function	&apos;	_GetPropertyValue V1.3.0
+
+REM =======================================================================================================================
+Public Sub _SetPropertyValue(ByRef pvPropertyValuesArray As Variant, ByVal psPropName As String, ByVal pvValue As Variant)
+&apos; Set the value of a particular named property from an array of PropertyValue&apos;s.
+
+Dim iPropIndex As Integer, vProp As Variant, iNumProperties As Integer
+
+	iPropIndex = _FindPropertyIndex(pvPropertyValuesArray, psPropName)
+	If iPropIndex &gt;= 0 Then
+	&apos;	Found, the PropertyValue is already in the array. Just modify its value.
+		vProp = pvPropertyValuesArray(iPropIndex)	&apos; access array subscript
+		vProp.Value = _CheckPropertyValue(pvValue)	&apos; set the property value.
+		pvPropertyValuesArray(iPropIndex) = vProp	&apos; put it back into array
+	Else
+	&apos;	Not found, the array contains no PropertyValue with this name. Append new element to array.
+		iNumProperties = _NumPropertyValues(pvPropertyValuesArray)
+		If iNumProperties = 0 Then
+			pvPropertyValuesArray = Array(_MakePropertyValue(psPropName, pvValue))
+		Else
+		&apos;	Make array larger.
+			Redim Preserve pvPropertyValuesArray(iNumProperties)
+			&apos;	Assign new PropertyValue
+			pvPropertyValuesArray(iNumProperties) = _MakePropertyValue(psPropName, pvValue)
+		EndIf
+	EndIf
+
+End Sub		&apos;	_SetPropertyValue V1.3.0
+
+REM =======================================================================================================================
+Public Sub _DeleteProperty(ByRef pvPropertyValuesArray As Variant, ByVal psPropName As String)
+&apos; Delete a particular named property from an array of PropertyValue&apos;s.
+
+Dim iPropIndex As Integer
+	iPropIndex = _FindPropertyIndex(pvPropertyValuesArray, psPropName)
+	If iPropIndex &gt;= 0 Then _DeleteIndexedProperty(pvPropertyValuesArray, iPropIndex)
+
+End Sub		&apos;	_DeletePropertyValue V1.3.0
+
+REM =======================================================================================================================
+Public Sub _DeleteIndexedProperty(ByRef pvPropertyValuesArray As Variant, ByVal piPropIndex As Integer)
+&apos; Delete a particular indexed property from an array of PropertyValue&apos;s.
+
+Dim iNumProperties As Integer, i As Integer
+	iNumProperties = _NumPropertyValues(pvPropertyValuesArray)
+
+	&apos; Did we find it?
+	If piPropIndex &lt; 0 Then
+		&apos;	Do nothing
+	ElseIf iNumProperties = 1 Then
+		&apos;	Just return a new empty array
+		pvPropertyValuesArray = Array()
+	Else
+		&apos;	If it is NOT the last item in the array, then shift other elements down into it&apos;s position.
+		If piPropIndex &lt; iNumProperties - 1 Then
+			&apos;	Bump items down lower in the array.
+			For i = piPropIndex To iNumProperties - 2
+				pvPropertyValuesArray(i) = pvPropertyValuesArray(i + 1)
+			Next i
+		EndIf
+		&apos;	Redimension the array to have one fewer element.
+		Redim Preserve pvPropertyValuesArray(iNumProperties - 2)
+	EndIf
+
+End Sub		&apos;	_DeleteIndexedProperty V1.3.0
+
+REM =======================================================================================================================
+Public Function _PropValuesToStr(ByRef pvPropertyValuesArray As Variant) As String
+&apos; Return a string with dumped content of the array of PropertyValue&apos;s.
+&apos;	SYNTAX:
+&apos;		NameOfProperty = This is a string (or 12 or 2016-12-31 12:05 or 123.45 or -0.12E-05 ...)
+&apos;		NameOfArray = (10)
+&apos;		1;2;3;4;5;6;7;8;9;10
+&apos;		NameOfMatrix = (2,10)
+&apos;		1;2;3;4;5;6;7;8;9;10
+&apos;		A;B;C;D;E;F;G;H;I;J
+&apos;	Semicolons and backslashes are escaped with a backslash (see _CStr and _CVar functions)
+
+Dim iNumProperties As Integer, sResult As String, i As Integer, j As Integer, vProp As Variant
+Dim sName As String, vValue As Variant, iType As Integer
+Dim cstLF As String
+
+	cstLF = vbLf()
+	iNumProperties = _NumPropertyValues(pvPropertyValuesArray)
+
+	sResult = cstHEADER &amp; cstLF
+	For i = 0 To iNumProperties - 1
+		vProp = pvPropertyValuesArray(i)
+		sName = vProp.Name
+		vValue = vProp.Value
+		iType = VarType(vValue)
+		Select Case iType
+			Case &lt; vbArray					&apos;	Scalar
+				sResult = sResult &amp; sName &amp; &quot; = &quot; &amp; Utils._CStr(vValue, False) &amp; cstLF
+			Case Else						&apos;	Vector or matrix
+				If uBound(vValue, 1) &lt; 0 Then
+					sResult = sResult &amp; sName &amp; &quot; = (0)&quot; &amp; cstLF
+				&apos;	1-dimension but vector of vectors must also be considered
+				ElseIf VarType(vValue(0)) &gt;= vbArray Then
+					sResult = sResult &amp; sName &amp; &quot; = (&quot; &amp; UBound(vValue) + 1 &amp; &quot;,&quot; &amp; UBound(vValue(0)) + 1 &amp; &quot;)&quot; &amp; cstLF
+					For j = 0 To UBound(vValue)
+						sResult = sResult &amp; Utils._CStr(vValue(j), False) &amp; cstLF
+					Next j			
+				Else
+					sResult = sResult &amp; sName &amp; &quot; = (&quot; &amp; UBound(vValue, 1) + 1 &amp; &quot;)&quot; &amp; cstLF
+					sResult = sResult &amp; Utils._CStr(vValue, False) &amp; cstLF
+				End If
+		End Select
+	Next i
+
+	_PropValuesToStr() = Left(sResult, Len(sResult) - 1)	&apos;	Remove last LF
+
+End Function	&apos;	_PropValuesToStr V1.3.0
+
+REM =======================================================================================================================
+Public Function _StrToPropValues(psString) As Variant
+&apos; Return an array of PropertyValue&apos;s rebuilt from the string parameter
+
+Dim vString() As Variant, i As Integer,iArray As Integer, iRows As Integer, iCols As Integer
+Dim lPosition As Long, sName As String, vValue As Variant, vResult As Variant, sDim As String
+Dim lSearch As Long
+Dim cstLF As String
+Const cstEqualArray = &quot; = (&quot;, cstEqual = &quot; = &quot;
+
+	cstLF = Chr(10)
+	_StrToPropValues = Array()
+	vResult = Array()
+	
+	If psString = &quot;&quot; Then Exit Function
+	vString = Split(psString, cstLF)
+	If UBound(vString) &lt;= 0 Then Exit Function		&apos;	There must be at least one name-value pair
+	If vString(0) &lt;&gt; cstHEADER Then Exit Function	&apos;	Check origin
+
+	iArray = -1
+	For i = 1 To UBound(vString)
+		If vString(i) &lt;&gt; &quot;&quot; Then			&apos;	Skip empty lines
+			If iArray &lt; 0 Then				&apos;	Not busy with array row
+				lPosition = 1
+				sName = Utils._RegexSearch(vString(i), &quot;^\b\w+\b&quot;, lPosition)		&apos;	Identifier
+				If sName = &quot;&quot; Then Exit Function
+				If InStr(vString(i), cstEqualArray) = lPosition + Len(sName) Then	&apos;	Start array processing
+					lSearch = lPosition + Len(sName) + Len(cstEqualArray) - 1
+					sDim = Utils._RegexSearch(vString(i), &quot;\([0-9]+\)&quot;, lSearch)	&apos;	e.g. (10)
+					If sDim = &quot;(0)&quot; Then		&apos;	Empty array
+						iRows = -1
+						vValue = Array()
+						_SetPropertyValue(vResult, sName, vValue)
+					ElseIf sDim &lt;&gt; &quot;&quot; Then		&apos;	Vector with content
+						iCols = CInt(Mid(sDim, 2, Len(sDim) - 2))
+						iRows = 0
+						ReDim vValue(0 To iCols - 1)
+						iArray = 0
+					Else						&apos;	Matrix with content
+						lSearch = lPosition + Len(sName) + Len(cstEqualArray) - 1
+						sDim = Utils._RegexSearch(vString(i), &quot;\([0-9]+,&quot;, lSearch)	&apos;	e.g. (10,
+						iRows = CInt(Mid(sDim, 2, Len(sDim) - 2))
+						sDim = Utils._RegexSearch(vString(i), &quot;,[0-9]+\)&quot;, lSearch)	&apos;	e.g. ,20)
+						iCols = CInt(Mid(sDim, 2, Len(sDim) - 2))
+						ReDim vValue(0 To iRows - 1)
+						iArray = 0
+					End If
+				ElseIf InStr(vString(i), cstEqual) = lPosition + Len(sName) Then
+					vValue = Utils._CVar(Mid(vString(i), Len(sName) + Len(cstEqual) + 1))
+					_SetPropertyValue(vResult, sName, vValue)
+				Else
+					Exit Function
+				End If
+			Else							&apos;	Line is an array row
+				If iRows = 0 Then
+					vValue = Utils._CVar(vString(i), True)		&apos;	Keep dates as strings
+					iArray = -1
+					_SetPropertyValue(vResult, sName, vValue)
+				Else
+					vValue(iArray) = Utils._CVar(vString(i), True)
+					If iArray &lt; iRows - 1 Then
+						iArray = iArray + 1
+					Else
+						iArray = -1
+						_SetPropertyValue(vResult, sName, vValue)
+					End If
+				End If
+			End If
+		End If
+	Next i
+	
+	_StrToPropValues = vResult
+
+End Function
+
+</script:module>

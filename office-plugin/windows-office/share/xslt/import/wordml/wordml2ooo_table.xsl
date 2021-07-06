@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
-
-
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+ -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml" xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:aml="http://schemas.microsoft.com/aml/2001/core" xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" exclude-result-prefixes="w wx aml o dt  v">
     <xsl:template match="w:style[@w:type='table']" mode="table">
         <style:style style:family="table">
@@ -175,13 +170,13 @@
                 <xsl:attribute name="fo:margin-right">
                     <xsl:value-of select="concat($tbl_margin_right, 'in')"/>
                 </xsl:attribute>
-                <!-- If previous w:p has a page break, the table must have the page break attribute applied to it	 May need this for tables starting on new pages -->
-                <!--	<xsl:if test="parent::w:tbl/preceding-sibling::w:p[1][descendant::w:br/@w:type='page']">
-							<xsl:attribute name="fo:break-before">page</xsl:attribute></xsl:if>	-->
+                <!-- If previous w:p has a page break, the table must have the page break attribute applied to it    May need this for tables starting on new pages -->
+                <!--    <xsl:if test="parent::w:tbl/preceding-sibling::w:p[1][descendant::w:br/@w:type='page']">
+                            <xsl:attribute name="fo:break-before">page</xsl:attribute></xsl:if> -->
                 <!-- initial values for tables-->
             </xsl:element>
         </xsl:element>
-        <!-- the following style is for conveting Word table text wrapping to SO Writer. Since SO Writer has no table text wrapping feature, so we use the draw:text-box as a container and put the table in draw:text-box -->
+        <!-- the following style is for converting Word table text wrapping to SO Writer. Since SO Writer has no table text wrapping feature, so we use the draw:text-box as a container and put the table in draw:text-box -->
         <xsl:if test="w:tblpPr">
             <xsl:element name="style:style">
                 <xsl:attribute name="style:name">TableFrame<xsl:number count="w:tblpPr" from="/w:wordDocument/w:body" level="any" format="1"/>
@@ -286,7 +281,7 @@
                         <xsl:value-of select="$frame_v_anchor"/>
                     </xsl:attribute>
                     <!--/xsl:if-->
-                    <!--xsl:if test="w:tblpPr/@w:tblpXSpec" to get the horizntal alignment-->
+                    <!--xsl:if test="w:tblpPr/@w:tblpXSpec" to get the horizontal alignment-->
                     <xsl:variable name="horizental_alignment">
                         <xsl:choose>
                             <xsl:when test="w:tblpPr/@w:tblpXSpec = 'left' ">
@@ -1266,11 +1261,11 @@
     </xsl:template>
     <xsl:template name="convert2in_special">
         <!-- this template is specially to  deal with w:type ='dxa' situation -->
-        <xsl:param name="orignal_value"/>
+        <xsl:param name="original_value"/>
         <xsl:choose>
-            <xsl:when test="contains($orignal_value, 'dxa') ">
+            <xsl:when test="contains($original_value, 'dxa') ">
                 <xsl:variable name="table_measurement_new_value">
-                    <xsl:value-of select="concat( substring-before($orignal_value,'dxa'), 'twip')"/>
+                    <xsl:value-of select="concat( substring-before($original_value,'dxa'), 'twip')"/>
                 </xsl:variable>
                 <xsl:call-template name="ConvertMeasure">
                     <xsl:with-param name="TargetMeasure" select="'in'"/>

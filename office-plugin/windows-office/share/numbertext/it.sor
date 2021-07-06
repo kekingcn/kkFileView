@@ -1,0 +1,151 @@
+^0 zero
+1 uno
+2 due
+^3$ tre
+3$ tré
+3 tre
+4 quattro
+5 cinque
+6 sei
+7 sette
+8 otto
+9 nove
+10 dieci
+11 undici
+12 dodici
+13 tredici
+14 quattordici
+15 quindici
+16 sedici
+17 diciassette
+18 diciotto
+19 diciannove
+2([18]) vent$1
+2(\d) venti$1
+3([18]) trent$1
+3(\d) trenta$1
+4([18]) quarant$1
+4(\d) quaranta$1
+5([18]) cinquant$1
+5(\d) cinquanta$1
+6([18]) sessant$1
+6(\d) sessanta$1
+7([18]) settant$1
+7(\d) settanta$1
+8([18]) ottant$1
+8(\d) ottanta$1
+9([18]) novant$1
+9(\d) novanta$1
+1(\d\d) cento$1
+(\d)(\d\d) $1cento$2
+1(\d{3}) mille$1
+(\d{1,2})(\d{3}) $1mila$2
+(\d{3})(\d{3}) $1mila[ $2]
+1(\d{6}) un milione[ $1]
+(\d{1,3})(\d{6}) $1 milioni[ $2]
+1(\d{9}) un miliardo[ $1]
+(\d{1,3})(\d{9}) $1 miliardi[ $2]
+1(\d{12}) un bilione[ $1]
+(\d{1,3})(\d{12}) $1 bilioni[ $2]
+1(\d{15}) un biliardo[ $1]
+(\d{1,3})(\d{15}) $1 biliardi[ $2]
+1(\d{18}) un trilione[ $1]
+(\d{1,3})(\d{18}) $1 trilioni[ $2]
+1(\d{21}) un triliardo[ $1]
+(\d{1,3})(\d{21}) $1 triliardi[ $2]
+
+# negative numbers
+
+[-−](\d+) meno |$1
+
+# decimals
+
+([-−]?\d+)[.,] $1| virgola
+([-−]?\d+[.,])([^0]\d) $1| |$2
+([-−]?\d+[.,])(\d)(\d)(\d) |$1 |$2| |$3| |$4
+([-−]?\d+[.,]\d*)(\d) $1| |$2
+
+# currencies
+	
+# unit/subunit
+
+u:([^,]*),([^,]*),([^,]*)	\1
+s:([^,]*),([^,]*),([^,]*)	\2
+p:([^,]*),([^,]*),([^,]*)	\3
+
+CHF:(.)	$(\1: franco svizzero, centesimo, centesimi)
+CNY:(.)	$(\1: yuan renminbi, fen, fen)
+EUR:(.)	$(\1: euro, centesimo, centesimi)
+GBP:(.)	$(\1: lira sterlina, penny, pence)
+JPY:(.)	$(\1: yen, sen, sen)
+USD:(.)	$(\1: dollaro USA, cent, cent)
+
+"(JPY [-−]?\d+)[.,](\d\d)0" $1
+"(JPY [-−]?\d+[.,]\d\d)(\d)" $1 $2 rin
+
+"([A-Z]{3}) ([-−]?\d+)([.,]00?)?" $2$(\1:u)
+
+"(CNY [-−]?\d+)[.,](\d)0?" $1 $2 jiao
+"(CNY [-−]?\d+[.,]\d)(\d)" $1 $2 fen
+
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 uno$(\2:s)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 $(\30)$(\2:p)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 $3$(\2:p)
+
+== cardinal-feminine ==
+
+1 una
+
+== cardinal-masculine ==
+
+1 un
+
+== cardinal-(feminine|masculine) ==
+
+(.*) $(\1 $2)
+
+== feminine ==
+
+(.*)uno \1una
+
+== masculine ==
+
+(.*)uno \1un
+
+== (feminine|masculine) ==
+
+(.*) \2
+
+== ordinal-feminine ==
+
+([-−]?\d+)	$(ordinal-feminine |$1)
+un[ao]		\1prima
+(.*)un[ao]	\1unesima
+due		seconda
+(.*)due		\1duesima
+(.*)tre		\1terza
+(.*)quattro	\1quarta
+(.*)cinque	\1quinta
+(.*)sei		\1sesta
+(.*)sette	\1settesima
+(.*)ootto	\1ottesima
+(.*)otto	\1ottesima
+(.*)nove	\1novesima
+(.*)dieci	\1decima
+(.*tr)é		\1eesima
+(.*sei)		\1esima
+"(.*)[^ ][ ]*"	\1esima
+
+== ordinal(-masculine)? ==
+([-−]?\d+) $(ordinal-masculine $(ordinal-feminine \2))
+(.*)a \2o
+
+== (ordinal)-number(-feminine|-masculine)? ==
+([-−]?\d+) \3$(ordinal-number $(\1\2 \3))
+.*a ª
+.*o º
+
+== help ==
+
+"" $(1), $(2), |$(3)|\n$(help cardinal-feminine)$(help cardinal-masculine)$(help ordinal-feminine)$(help ordinal-masculine)$(help ordinal-number-feminine)$(help ordinal-number-masculine)
+(.*) \1: $(\1 1), $(\1 2), |$(\1 3)|\n

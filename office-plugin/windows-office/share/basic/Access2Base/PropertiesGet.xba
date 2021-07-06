@@ -1,0 +1,1120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="PropertiesGet" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getAbsolutePosition(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getAbsolutePosition&quot;)
+	getAbsolutePosition = PropertiesGet._getProperty(pvObject, &quot;AbsolutePosition&quot;)
+End Function		&apos;	getAbsolutePosition
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getAllowAdditions(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getAllowAdditions&quot;)
+	getAllowAdditions = PropertiesGet._getProperty(pvObject, &quot;AllowAdditions&quot;)
+End Function		&apos;	getAllowAdditions
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getAllowDeletions(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getAllowDeletions&quot;)
+	getAllowDeletions = PropertiesGet._getProperty(pvObject, &quot;AllowDeletions&quot;)
+End Function		&apos;	getAllowDeletions
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getAllowEdits(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getAllowEdits&quot;)
+	getAllowEdits = PropertiesGet._getProperty(pvObject, &quot;AllowEdits&quot;)
+End Function		&apos;	getAllowEdits
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBackColor(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBackColor&quot;)
+	getBackColor = PropertiesGet._getProperty(pvObject, &quot;BackColor&quot;)
+End Function		&apos;	getBackColor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBeginGroup(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBeginGroup&quot;)
+	getBeginGroup = PropertiesGet._getProperty(pvObject, &quot;BeginGroup&quot;)
+End Function		&apos;	getBeginGroup
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBOF(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBOF&quot;)
+	getBOF = PropertiesGet._getProperty(pvObject, &quot;BOF&quot;)
+End Function		&apos;	getBOF
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBookmark(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBookmark&quot;)
+	getBookmark = PropertiesGet._getProperty(pvObject, &quot;Bookmark&quot;)
+End Function		&apos;	getBookmark
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBookmarkable(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBookmarkable&quot;)
+	getBookmarkable = PropertiesGet._getProperty(pvObject, &quot;Bookmarkable&quot;)
+End Function		&apos;	getBookmarkable
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBorderColor(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBorderColor&quot;)
+	getBorderColor = PropertiesGet._getProperty(pvObject, &quot;BorderColor&quot;)
+End Function		&apos;	getBorderColor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBorderStyle(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBorderStyle&quot;)
+	getBorderStyle = PropertiesGet._getProperty(pvObject, &quot;BorderStyle&quot;)
+End Function		&apos;	getBorderStyle
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getBuiltIn(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getBuiltIn&quot;)
+	getBuiltIn = PropertiesGet._getProperty(pvObject, &quot;BuiltIn&quot;)
+End Function		&apos;	getBuiltIn
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getButtonLeft(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getButtonLeft&quot;)
+	getButtonLeft = PropertiesGet._getProperty(pvObject, &quot;ButtonLeft&quot;)
+End Function		&apos;	getButtonLeft
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getButtonMiddle(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getButtonMiddle&quot;)
+	getButtonMiddle = PropertiesGet._getProperty(pvObject, &quot;ButtonMiddle&quot;)
+End Function		&apos;	getButtonMiddle
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getButtonRight(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getButtonRight&quot;)
+	getButtonRight = PropertiesGet._getProperty(pvObject, &quot;ButtonRight&quot;)
+End Function		&apos;	getButtonRight
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getCancel(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getCancel&quot;)
+	getCancel = PropertiesGet._getProperty(pvObject, &quot;Cancel&quot;)
+End Function		&apos;	getCancel
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getCaption(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getCaption&quot;)
+	getCaption = PropertiesGet._getProperty(pvObject, &quot;Caption&quot;)
+End Function		&apos;	getCaption
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getClickCount(Optional pvObject As Variant) As Long
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getClickCount&quot;)
+	getClickCount = PropertiesGet._getProperty(pvObject, &quot;ClickCount&quot;)
+End Function		&apos;	getClickCount
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getContextShortcut(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getContextShortcut&quot;)
+	getContextShortcut = PropertiesGet._getProperty(pvObject, &quot;ContextShortcut&quot;)
+End Function		&apos;	getContextShortcut
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getControlSource(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getControlSource&quot;)
+	getControlSource = PropertiesGet._getProperty(pvObject, &quot;ControlSource&quot;)
+End Function		&apos;	getControlSource
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getControlTipText(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getControlTipText&quot;)
+	getControlTipText = PropertiesGet._getProperty(pvObject, &quot;ControlTipText&quot;)
+End Function		&apos;	getControlTipText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getControlType(Optional pvObject As Variant) As Integer
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getControlType&quot;)
+	getControlType = PropertiesGet._getProperty(pvObject, &quot;ControlType&quot;)
+End Function		&apos;	getControlType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getCount(Optional pvObject As Variant) As Integer
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getCount&quot;)
+	getCount = PropertiesGet._getProperty(pvObject, &quot;Count&quot;)
+End Function		&apos;	getCount
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getCurrentRecord(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getCurrentRecord&quot;)
+	getCurrentRecord = PropertiesGet._getProperty(pvObject, &quot;CurrentRecord&quot;)
+End Function		&apos;	getCurrentRecord
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getDataType(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getDataType&quot;)
+	getDataType = PropertiesGet._getProperty(pvObject, &quot;DataType&quot;)
+End Function		&apos;	getDataType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getDbType(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getDbType&quot;)
+	getDbType = PropertiesGet._getProperty(pvObject, &quot;DbType&quot;)
+End Function		&apos;	getDbType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getDefault(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getDefault&quot;)
+	getDefault = PropertiesGet._getProperty(pvObject, &quot;Default&quot;)
+End Function		&apos;	getDefault
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getDefaultValue(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getDefaultValue&quot;)
+	getDefaultValue = PropertiesGet._getProperty(pvObject, &quot;DefaultValue&quot;)
+End Function		&apos;	getDefaultValue
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getDescription(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getDescription&quot;)
+	getDescription = PropertiesGet._getProperty(pvObject, &quot;Description&quot;)
+End Function		&apos;	getDescription
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getEditMode(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getEditMode&quot;)
+	getEditMode = PropertiesGet._getProperty(pvObject, &quot;EditMode&quot;)
+End Function		&apos;	getEditMode
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getEnabled(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getEnabled&quot;)
+	getEnabled = PropertiesGet._getProperty(pvObject, &quot;Enabled&quot;)
+End Function		&apos;	getEnabled
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getEOF(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getEOF&quot;)
+	getEOF = PropertiesGet._getProperty(pvObject, &quot;EOF&quot;)
+End Function		&apos;	getEOF
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getEventName(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getEventName&quot;)
+	getEventName = PropertiesGet._getProperty(pvObject, &quot;EventName&quot;)
+End Function		&apos;	getEventName
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getEventType(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getEventType&quot;)
+	getEventType = PropertiesGet._getProperty(pvObject, &quot;EventType&quot;)
+End Function		&apos;	getEventType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFieldSize(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFieldSize&quot;)
+	getFieldSize = PropertiesGet._getProperty(pvObject, &quot;FieldSize&quot;)
+End Function		&apos;	getFieldSize
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFilter(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFilter&quot;)
+	getFilter = PropertiesGet._getProperty(pvObject, &quot;Filter&quot;)
+End Function		&apos;	getFilter
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFilterOn(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFilterOn&quot;)
+	getFilterOn = PropertiesGet._getProperty(pvObject, &quot;FilterOn&quot;)
+End Function		&apos;	getFilterOn
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFocusChangeTemporary(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFocusChangeTemporary&quot;)
+	getFocusChangeTemporary = PropertiesGet._getProperty(pvObject, &quot;FocusChangeTemporary&quot;)
+End Function		&apos;	getFocusChangeTemporary
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFontBold(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFontBold&quot;)
+	getFontBold = PropertiesGet._getProperty(pvObject, &quot;FontBold&quot;)
+End Function		&apos;	getFontBold
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFontItalic(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFontItalic&quot;)
+	getFontItalic = PropertiesGet._getProperty(pvObject, &quot;FontItalic&quot;)
+End Function		&apos;	getFontItalic
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFontName(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFontName&quot;)
+	getFontName = PropertiesGet._getProperty(pvObject, &quot;FontName&quot;)
+End Function		&apos;	getFontName
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFontSize(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFontSize&quot;)
+	getFontSize = PropertiesGet._getProperty(pvObject, &quot;FontSize&quot;)
+End Function		&apos;	getFontSize
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFontUnderline(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFontUnderline&quot;)
+	getFontUnderline = PropertiesGet._getProperty(pvObject, &quot;FontUnderline&quot;)
+End Function		&apos;	getFontUnderline
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFontWeight(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFontWeight&quot;)
+	getFontWeight = PropertiesGet._getProperty(pvObject, &quot;FontWeight&quot;)
+End Function		&apos;	getFontWeight
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getForm(Optional pvObject As Variant) As Variant			&apos;	Return Subform pseudo
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getForm&quot;)
+	getForm = PropertiesGet._getProperty(pvObject, &quot;Form&quot;)
+End Function		&apos;	getForm
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getFormat(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getFormat&quot;)
+	getFormat = PropertiesGet._getProperty(pvObject, &quot;Format&quot;)
+End Function		&apos;	getFormat
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getHeight(Optional pvObject As Variant) As Long
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getHeight&quot;)
+	getHeight = PropertiesGet._getProperty(pvObject, &quot;Height&quot;)
+End Function		&apos;	getHeight
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getForeColor(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getForeColor&quot;)
+	getForeColor = PropertiesGet._getProperty(pvObject, &quot;ForeColor&quot;)
+End Function		&apos;	getForeColor
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getIsLoaded(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getIsLoaded&quot;)
+	getIsLoaded = PropertiesGet._getProperty(pvObject, &quot;IsLoaded&quot;)
+End Function		&apos;	getIsLoaded
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getItemData(Optional pvObject As Variant, ByVal Optional pvIndex As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getItemData&quot;)
+	If IsMissing(pvIndex) Then
+		getItemData = PropertiesGet._getProperty(pvObject, &quot;ItemData&quot;)
+	Else
+		getItemData = PropertiesGet._getProperty(pvObject, &quot;ItemData&quot;, pvIndex)
+	End If
+End Function		&apos;	getItemData
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getKeyAlt(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getKeyAlt&quot;)
+	getKeyAlt = PropertiesGet._getProperty(pvObject, &quot;KeyAlt&quot;)
+End Function		&apos;	getKeyAlt
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getKeyChar(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getKeyChar&quot;)
+	getKeyChar = PropertiesGet._getProperty(pvObject, &quot;KeyChar&quot;)
+End Function		&apos;	getKeyChar
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getKeyCode(Optional pvObject As Variant) As Integer
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getKeyCode&quot;)
+	getKeyCode = PropertiesGet._getProperty(pvObject, &quot;KeyCode&quot;)
+End Function		&apos;	getKeyCode
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getKeyCtrl(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getKeyCtrl&quot;)
+	getKeyCtrl = PropertiesGet._getProperty(pvObject, &quot;KeyCtrl&quot;)
+End Function		&apos;	getKeyCtrl
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getKeyFunction(Optional pvObject As Variant) As Integer
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getKeyFunction&quot;)
+	getKeyFunction = PropertiesGet._getProperty(pvObject, &quot;KeyFunction&quot;)
+End Function		&apos;	getKeyFunction
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getKeyShift(pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getKeyShift&quot;)
+	getKeyShift = PropertiesGet._getProperty(pvObject, &quot;KeyShift&quot;)
+End Function		&apos;	getKeyShift
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getLinkChildFields(Optional pvObject As Variant, ByVal Optional pvIndex As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getLinkChildFields&quot;)
+	If IsMissing(pvObject) Then
+		getLinkChildFields = PropertiesGet._getProperty(pvObject, &quot;LinkChildFields&quot;)
+	Else
+		getLinkChildFields = PropertiesGet._getProperty(pvObject, &quot;LinkChildFields&quot;, pvIndex)
+	End If
+End Function		&apos;	getLinkChildFields
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getLinkMasterFields(Optional pvObject As Variant, ByVal Optional pvIndex As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getLinkMasterFields&quot;)
+	If IsMissing(pvIndex) Then
+		getLinkMasterFields = PropertiesGet._getProperty(pvObject, &quot;LinkMasterFields&quot;)
+	Else
+		getLinkMasterFields = PropertiesGet._getProperty(pvObject, &quot;LinkMasterFields&quot;, pvIndex)
+	End If
+End Function		&apos;	getLinkMasterFields
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getListCount(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getListCount&quot;)
+	getListCount = PropertiesGet._getProperty(pvObject, &quot;ListCount&quot;)
+End Function		&apos;	getListCount
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getListIndex(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getListIndex&quot;)
+	getListIndex = PropertiesGet._getProperty(pvObject, &quot;ListIndex&quot;)
+End Function		&apos;	getListIndex
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getLocked(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getLocked&quot;)
+	getLocked = PropertiesGet._getProperty(pvObject, &quot;Locked&quot;)
+End Function		&apos;	getLocked
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getMultiSelect(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getMultiSelect&quot;)
+	getMultiSelect = PropertiesGet._getProperty(pvObject, &quot;MultiSelect&quot;)
+End Function		&apos;	getMultiSelect
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getName(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getName&quot;)
+	getName = PropertiesGet._getProperty(pvObject, &quot;Name&quot;)
+End Function		&apos;	getName
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getObjectType(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getObjectType&quot;)
+	getObjectType = PropertiesGet._getProperty(pvObject, &quot;ObjectType&quot;)
+End Function		&apos;	getObjectType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getOpenArgs(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getOpenArgs&quot;)
+	getOpenArgs = PropertiesGet._getProperty(pvObject, &quot;OpenArgs&quot;)
+End Function		&apos;	getOpenArgs
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getOptionGroup(Optional pvObject As Variant, pvName As variant) As Variant
+&apos; Return an OptionGroup object based on its name
+
+	Utils._SetCalledSub(&quot;getOptionGroup&quot;)
+	If IsMissing(pvObject) Or IsMissing(pvName) Then Call _TraceArguments()
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+
+	If Not Utils._CheckArgument(pvObject, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvName, 2, vbString) Then Goto Exit_Function
+	
+	getOptionGroup = pvObject.OptionGroup(pvName)
+				
+Exit_Function:
+	Utils._ResetCalledSub(&quot;getOptionGroup&quot;)
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;getOptionGroup&quot;, Erl)
+	GoTo Exit_Function
+End Function		&apos;	getOptionGroup	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getOptionValue(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getOptionValue&quot;)
+	getOptionValue = PropertiesGet._getProperty(pvObject, &quot;OptionValue&quot;)
+End Function		&apos;	getOptionValue
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getOrderBy(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getOrderBy&quot;)
+	getOrderBy = PropertiesGet._getProperty(pvObject, &quot;OrderBy&quot;)
+End Function		&apos;	getOrderBy
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getOrderByOn(Optional pvObject As Variant) As Boolean
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getOrderByOn&quot;)
+	getOrderByOn = PropertiesGet._getProperty(pvObject, &quot;OrderByOn&quot;)
+End Function		&apos;	getOrderByOn
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getPage(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getPage&quot;)
+	getPage = PropertiesGet._getProperty(pvObject, &quot;Page&quot;)
+End Function		&apos;	getPage		V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getParent(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getParent&quot;)
+	getParent = PropertiesGet._getProperty(pvObject, &quot;Parent&quot;)
+End Function		&apos;	getParent	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getProperty(Optional pvItem As Variant, Optional ByVal pvProperty As Variant, ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return property value of object pvItem, and psProperty property name
+	Utils._SetCalledSub(&quot;getProperty&quot;)
+	If IsMissing(pvItem) Then Call _TraceArguments()
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	If IsMissing(pvIndex) Then getProperty = PropertiesGet._getProperty(pvItem, pvProperty) Else getProperty = PropertiesGet._getProperty(pvItem, pvProperty, pvIndex)
+	Utils._ResetCalledSub(&quot;getProperty&quot;)
+End Function		&apos;	getProperty
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRecommendation(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRecommendation&quot;)
+	getRecommendation = PropertiesGet._getProperty(pvObject, &quot;Recommendation&quot;)
+End Function		&apos;	getRecommendation
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRecordCount(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRecordCount&quot;)
+	getRecordCount = PropertiesGet._getProperty(pvObject, &quot;RecordCount&quot;)
+End Function		&apos;	getRecordCount
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRecordset(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRecordset&quot;)
+	getRecordset = PropertiesGet._getProperty(pvObject, &quot;Recordset&quot;)
+End Function		&apos;	getRecordset		V0.9.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRecordSource(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRecordSource&quot;)
+	getRecordSource = PropertiesGet._getProperty(pvObject, &quot;RecordSource&quot;)
+End Function		&apos;	getRecordSource
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRequired(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRequired&quot;)
+	getRequired = PropertiesGet._getProperty(pvObject, &quot;Required&quot;)
+End Function		&apos;	getRequired
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRowChangeAction(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRowChangeAction&quot;)
+	getRowChangeAction = PropertiesGet._getProperty(pvObject, &quot;RowChangeAction&quot;)
+End Function		&apos;	getRowChangeAction
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRowSource(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRowSource&quot;)
+	getRowSource = PropertiesGet._getProperty(pvObject, &quot;RowSource&quot;)
+End Function		&apos;	getRowSource
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getRowSourceType(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getRowSourceType&quot;)
+	getRowSourceType = PropertiesGet._getProperty(pvObject, &quot;RowSourceType&quot;)
+End Function		&apos;	getRowSourceType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSelected(Optional pvObject As Variant, ByVal Optional pvIndex As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSelected&quot;)
+	If IsMissing(pvIndex) Then
+		getSelected = PropertiesGet._getProperty(pvObject, &quot;Selected&quot;)
+	Else
+		getSelected = PropertiesGet._getProperty(pvObject, &quot;Selected&quot;, pvIndex)
+	End If
+End Function		&apos;	getSelected
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSize(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSize&quot;)
+	getSize = PropertiesGet._getProperty(pvObject, &quot;Size&quot;)
+End Function		&apos;	getSize
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSource(Optional pvObject As Variant) As String
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSource&quot;)
+	getSource = PropertiesGet._getProperty(pvObject, &quot;Source&quot;)
+End Function		&apos;	getSource	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSourceField(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSourceField&quot;)
+	getSourceField = PropertiesGet._getProperty(pvObject, &quot;SourceField&quot;)
+End Function		&apos;	getSourceField
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSourceTable(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSourceTable&quot;)
+	getSourceTable = PropertiesGet._getProperty(pvObject, &quot;SourceTable&quot;)
+End Function		&apos;	getSourceTable
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSpecialEffect(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSpecialEffect&quot;)
+	getSpecialEffect = PropertiesGet._getProperty(pvObject, &quot;SpecialEffect&quot;)
+End Function		&apos;	getSpecialEffect
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSubType(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSubType&quot;)
+	getSubType = PropertiesGet._getProperty(pvObject, &quot;SubType&quot;)
+End Function		&apos;	getSubType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSubComponentName(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSubComponentName&quot;)
+	getSubComponentName = PropertiesGet._getProperty(pvObject, &quot;SubComponentName&quot;)
+End Function		&apos;	getSubComponentName
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getSubComponentType(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getSubComponentType&quot;)
+	getSubComponentType = PropertiesGet._getProperty(pvObject, &quot;SubComponentType&quot;)
+End Function		&apos;	getSubComponentType
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getTabIndex(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getTabIndex&quot;)
+	getTabIndex = PropertiesGet._getProperty(pvObject, &quot;TabIndex&quot;)
+End Function		&apos;	getTabIndex
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getTabStop(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getTabStop&quot;)
+	getTabStop = PropertiesGet._getProperty(pvObject, &quot;TabStop&quot;)
+End Function		&apos;	getTabStop
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getTag(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getTag&quot;)
+	getTag = PropertiesGet._getProperty(pvObject, &quot;Tag&quot;)
+End Function		&apos;	getTag
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getText(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getText&quot;)
+	getText = PropertiesGet._getProperty(pvObject, &quot;Text&quot;)
+End Function		&apos;	getText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getTextAlign(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getTextAlign&quot;)
+	getTextAlign = PropertiesGet._getProperty(pvObject, &quot;TextAlign&quot;)
+End Function		&apos;	getTextAlign
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getTooltipText(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getTooltipText&quot;)
+	getTooltipText = PropertiesGet._getProperty(pvObject, &quot;TooltipText&quot;)
+End Function		&apos;	getTooltipText
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getTripleState(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getTripleState&quot;)
+	getTripleState = PropertiesGet._getProperty(pvObject, &quot;TripleState&quot;)
+End Function		&apos;	getTripleState
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getTypeName(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getTypeName&quot;)
+	getTypeName = PropertiesGet._getProperty(pvObject, &quot;TypeName&quot;)
+End Function		&apos;	getTypeName
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getVisible(Optional pvObject As Variant) As Variant
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getVisible&quot;)
+	getVisible = PropertiesGet._getProperty(pvObject, &quot;Visible&quot;)
+End Function		&apos;	getVisible
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getWidth(Optional pvObject As Variant) As Long
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getWdth&quot;)
+	getWidth = PropertiesGet._getProperty(pvObject, &quot;Width&quot;)
+End Function		&apos;	getWidth
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getXPos(Optional pvObject As Variant) As Long
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getXPos&quot;)
+	getXPos = PropertiesGet._getProperty(pvObject, &quot;XPos&quot;)
+End Function		&apos;	getXPos
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function getYPos(Optional pvObject As Variant) As Long
+	If IsMissing(pvObject) Or IsEmpty(pvObject) Then Call _TraceArguments(&quot;getYPos&quot;)
+	getYPos = PropertiesGet._getProperty(pvObject, &quot;YPos&quot;)
+End Function		&apos;	getYPos
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Public Function _getProperty(pvItem As Variant, ByVal psProperty As String, ByVal Optional pvIndex As Variant) As Variant
+&apos;	Return property value of the psProperty property name within object pvItem
+
+	If _ErrorHandler() Then On Local Error Goto Error_Function
+	Utils._SetCalledSub(&quot;get&quot; &amp; psProperty)
+	_getProperty = Nothing
+	
+&apos;pvItem must be an object and have the requested property
+	If Not Utils._CheckArgument(pvItem, 1, vbObject) Then Goto Exit_Function
+	If Not PropertiesGet._hasProperty(pvItem._Type, pvItem._PropertiesList(), psProperty) Then Goto Trace_Error
+&apos;Check Index argument
+	If Not IsMissing(pvIndex) Then
+		If Not Utils._CheckArgument(pvIndex, 3, Utils._AddNumeric()) Then Goto Exit_Function
+	End If
+&apos;Execute
+	Select Case UCase(psProperty)
+		Case UCase(&quot;AbsolutePosition&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJRECORDSET) Then Goto Exit_Function
+			_getProperty = pvItem.AbsolutePosition
+		Case UCase(&quot;AllowAdditions&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.AllowAdditions
+		Case UCase(&quot;AllowDeletions&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.AllowDeletions
+		Case UCase(&quot;AllowEdits&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.AllowEdits
+		Case UCase(&quot;BackColor&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.BackColor
+		Case UCase(&quot;BeginGroup&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCOMMANDBARCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.BeginGroup
+		Case UCase(&quot;BOF&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJRECORDSET) Then Goto Exit_Function
+			_getProperty = pvItem.BOF
+		Case UCase(&quot;Bookmark&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJRECORDSET)) Then Goto Exit_Function
+			_getProperty = pvItem.Bookmark
+		Case UCase(&quot;Bookmarkable&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJRECORDSET) Then Goto Exit_Function
+			_getProperty = pvItem.Bookmarkable
+		Case UCase(&quot;BorderColor&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.BorderColor
+		Case UCase(&quot;BorderStyle&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.BorderStyle
+		Case UCase(&quot;BuiltIn&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJCOMMANDBAR, OBJCOMMANDBARCONTROL)) Then Goto Exit_Function
+			_getProperty = pvItem.BuiltIn
+		Case UCase(&quot;ButtonLeft&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.ButtonLeft
+		Case UCase(&quot;ButtonMiddle&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.ButtonMiddle
+		Case UCase(&quot;ButtonRight&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.ButtonRight
+		Case UCase(&quot;Cancel&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Cancel
+		Case UCase(&quot;Caption&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG, OBJCONTROL, OBJCOMMANDBARCONTROL)) Then Goto Exit_Function
+			_getProperty = pvItem.Caption
+		Case UCase(&quot;ClickCount&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.ClickCount
+		Case UCase(&quot;ContextShortcut&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.ContextShortcut
+		Case UCase(&quot;ControlSource&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.ControlSource
+		Case UCase(&quot;ControlTipText&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.ControlTipText
+		Case UCase(&quot;ControlType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.ControlType
+		Case UCase(&quot;Count&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJCOLLECTION,OBJOPTIONGROUP)) Then Goto Exit_Function
+			_getProperty = pvItem.Count
+		Case UCase(&quot;CurrentRecord&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.CurrentRecord
+		Case UCase(&quot;DataType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.DataType
+		Case UCase(&quot;DbType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.DbType
+		Case UCase(&quot;Default&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Default
+		Case UCase(&quot;DefaultValue&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJCONTROL, OBJFIELD)) Then Goto Exit_Function
+			_getProperty = pvItem.DefaultValue
+		Case UCase(&quot;Description&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.Description
+		Case UCase(&quot;EditMode&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJRECORDSET) Then Goto Exit_Function
+			_getProperty = pvItem.EditMode
+		Case UCase(&quot;Enabled&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Enabled
+		Case UCase(&quot;EOF&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJRECORDSET) Then Goto Exit_Function
+			_getProperty = pvItem.EOF
+		Case UCase(&quot;EventName&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.EventName
+		Case UCase(&quot;EventType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.EventType
+		Case UCase(&quot;FieldSize&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.FieldSize
+		Case UCase(&quot;Filter&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM, OBJRECORDSET)) Then Goto Exit_Function
+			_getProperty = pvItem.Filter
+		Case UCase(&quot;FilterOn&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.FilterOn
+		Case UCase(&quot;FocusChangeTemporary&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.FocusChangeTemporary
+		Case UCase(&quot;FontBold&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.FontBold
+		Case UCase(&quot;FontItalic&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.FontItalic
+		Case UCase(&quot;FontName&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.FontName
+		Case UCase(&quot;FontSize&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.FontSize
+		Case UCase(&quot;FontUnderline&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.FontUnderline
+		Case UCase(&quot;FontWeight&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.FontWeight
+		Case UCase(&quot;ForeColor&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.ForeColor
+		Case UCase(&quot;Form&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, CTLSUBFORM) Then Goto Exit_Function
+			_getProperty = pvItem.Form
+		Case UCase(&quot;Format&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Format
+		Case UCase(&quot;Height&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG)) Then Goto Exit_Function
+			_getProperty = pvItem.Height
+		Case UCase(&quot;Index&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCOMMANDBARCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Index
+		Case UCase(&quot;IsLoaded&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFORM) Then Goto Exit_Function
+			_getProperty = pvItem.IsLoaded
+		Case UCase(&quot;ItemData&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			If IsMissing(pvIndex) Then _getProperty = pvItem.ItemData Else _getProperty = pvItem.ItemData(pvIndex)
+		Case UCase(&quot;KeyAlt&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.KeyAlt
+		Case UCase(&quot;KeyChar&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.KeyChar
+		Case UCase(&quot;KeyCode&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.KeyCode
+		Case UCase(&quot;KeyCtrl&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.KeyCtrl
+		Case UCase(&quot;KeyFunction&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.KeyFunction
+		Case UCase(&quot;KeyShift&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.KeyShift
+		Case UCase(&quot;LinkChildFields&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJSUBFORM) Then Goto Exit_Function
+			If IsMissing(pvIndex) Then _getProperty = pvItem.LinkChildFields Else _getProperty = pvItem.LinkChildFields(pvIndex)
+		Case UCase(&quot;LinkMasterFields&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJSUBFORM) Then Goto Exit_Function
+			If IsMissing(pvIndex) Then _getProperty = pvItem.LinkMasterFields Else _getProperty = pvItem.LinkMasterFields(pvIndex)
+		Case UCase(&quot;ListCount&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.ListCount
+		Case UCase(&quot;ListIndex&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.ListIndex
+		Case UCase(&quot;Locked&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			If IsNull(pvItem.Locked) Then Goto Trace_Error
+			_ge						ExitProperty = pvItem.Locked
+		Case UCase(&quot;MultiSelect&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.MultiSelect
+		Case UCase(&quot;Name&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, _
+				Array(OBJFORM, OBJSUBFORM, OBJCONTROL, OBJOPTIONGROUP, OBJPROPERTY, OBJDIALOG, OBJTABLEDEF, OBJRECORDSET, OBJFIELD, OBJTEMPVAR, OBJCOMMANDBAR) _
+				) Then Goto Exit_Function
+			_getProperty = pvItem.Name
+		Case UCase(&quot;ObjectType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJDATABASE, OBJCOLLECTION, OBJFORM, OBJDIALOG, OBJSUBFORM, OBJCONTROL _
+				, OBJEVENT, OBJOPTIONGROUP, OBJPROPERTY, OBJRECORDSET, OBJTABLEDEF, OBJFIELD, OBJTEMPVAR _
+				, OBJCOMMANDBAR, OBJCOMMANDBARCONTROL) _
+				) Then Goto Exit_Function
+			_getProperty = pvItem.ObjectType
+		Case UCase(&quot;OnAction&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCOMMANDBARCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.OnAction
+		Case UCase(&quot;OpenArgs&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFORM) Then Goto Exit_Function
+			_getProperty = pvItem.OpenArgs
+		Case UCase(&quot;OptionValue&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.OptionValue
+		Case UCase(&quot;OrderBy&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.OrderBy
+		Case UCase(&quot;OrderByOn&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.OrderByOn
+		Case UCase(&quot;Page&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJDIALOG, OBJCONTROL)) Then Goto Exit_Function
+			_getProperty = pvItem.Page
+		Case UCase(&quot;Parent&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJSUBFORM, OBJCONTROL, OBJCOMMANDBARCONTROL)) Then Goto Exit_Function
+			_getProperty = pvItem.Parent
+		Case UCase(&quot;Recommendation&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.Recommendation
+		Case UCase(&quot;RecordCount&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJRECORDSET) Then Goto Exit_Function
+			_getProperty = pvItem.RecordCount
+		Case UCase(&quot;Recordset&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.Recordset
+		Case UCase(&quot;RecordSource&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJSUBFORM)) Then Goto Exit_Function
+			_getProperty = pvItem.RecordSource
+		Case UCase(&quot;Required&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Required
+		Case UCase(&quot;RowChangeAction&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.RowChangeAction
+		Case UCase(&quot;RowSource&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.RowSource
+		Case UCase(&quot;RowSourceType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.RowSourceType
+		Case UCase(&quot;Selected&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			If IsMissing(pvIndex) Then _getProperty = pvItem.Selected Else _getProperty = pvItem.Selected(pvIndex)
+		Case UCase(&quot;Size&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.Size
+		Case UCase(&quot;Source&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.Source
+		Case UCase(&quot;SourceTable&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.SourceTable
+		Case UCase(&quot;SourceField&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.SourceField
+		Case UCase(&quot;SpecialEffect&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.SpecialEffect
+		Case UCase(&quot;SubComponentName&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.SubComponentName
+		Case UCase(&quot;SubComponentType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			_getProperty = pvItem.SubComponentType
+		Case UCase(&quot;SubType&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.SubType
+		Case UCase(&quot;TabIndex&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.TabIndex
+		Case UCase(&quot;TabStop&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.TabStop
+		Case UCase(&quot;Tag&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Tag
+		Case UCase(&quot;Text&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.Text
+		Case UCase(&quot;TextAlign&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.TextAlign
+		Case UCase(&quot;TooltipText&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCOMMANDBARCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.TooltipText
+		Case UCase(&quot;TripleState&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJCONTROL) Then Goto Exit_Function
+			_getProperty = pvItem.TripleState
+		Case UCase(&quot;TypeName&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJFIELD) Then Goto Exit_Function
+			_getProperty = pvItem.TypeName
+		Case UCase(&quot;Value&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJCONTROL, OBJOPTIONGROUP, OBJPROPERTY, OBJFIELD, OBJTEMPVAR)) Then Goto Exit_Function
+			_getProperty = pvItem.Value
+		Case UCase(&quot;Visible&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG, OBJCONTROL, OBJCOMMANDBAR, OBJCOMMANDBARCONTROL)) Then Goto Exit_Function
+			_getProperty = pvItem.Visible
+		Case UCase(&quot;Width&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, Array(OBJFORM, OBJDIALOG)) Then Goto Exit_Function
+			_getProperty = pvItem.Width
+		Case UCase(&quot;XPos&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			If IsNull(pvItem.XPos) Then Goto Trace_Error
+			_getProperty = pvItem.XPos
+		Case UCase(&quot;YPos&quot;)
+			If Not Utils._CheckArgument(pvItem, 1, OBJEVENT) Then Goto Exit_Function
+			If IsNull(pvItem.YPos) Then Goto Trace_Error
+			_getProperty = pvItem.YPos
+		Case Else
+			Goto Trace_Error
+	End Select
+	
+Exit_Function:
+	Utils._ResetCalledSub(&quot;get&quot; &amp; psProperty)
+	Exit Function
+Trace_Error:
+	TraceError(TRACEFATAL, ERRPROPERTY, Utils._CalledSub(), 0, 1, psProperty)
+	_getProperty = Nothing
+	Goto Exit_Function
+Trace_Error_Index:
+	TraceError(TRACEFATAL, ERRINDEXVALUE, Utils._CalledSub(), 0, 1, psProperty)
+	_getProperty = Nothing
+	Goto Exit_Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;_getProperty&quot;, Erl)
+	_getProperty = Nothing
+	GoTo Exit_Function
+End Function		&apos;	_getProperty	V0.9.1
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _hasProperty(ByVal psObject As String, ByVal pvPropertiesList() As Variant, Optional ByVal pvProperty As Variant) As Boolean
+&apos;	Return True if object has a valid property called pvProperty (case-insensitive comparison !)
+&apos;	Generic hasProperty function called from all class modules
+
+Dim sObject As String
+	sObject = Utils._PCase(psObject)
+	Utils._SetCalledSub(sObject &amp; &quot;.hasProperty&quot;)
+	If IsMissing(pvProperty) Then Call _TraceArguments()
+	
+	_hasProperty = False
+	If Not Utils._CheckArgument(pvProperty, 1, vbString) Then Goto Exit_Function
+	
+	_hasProperty = Utils._InList(pvProperty, pvPropertiesList(), False, True)
+
+Exit_Function:
+	Utils._ResetCalledSub(sObject &amp; &quot;.hasProperty&quot;)
+	Exit Function
+End Function	&apos;	_hasProperty
+
+REM ------------------------------------------------------------------------------------------------------------------------
+Public Function _ParentObject(psShortcut As String) As Object
+&apos;	Return parent object from shortcut as a string
+
+Dim sParent As String, vParent() As Variant, iBound As Integer
+	vParent = Split(psShortcut, &quot;!&quot;)
+	iBound = UBound(vParent) - 1
+	ReDim Preserve vParent(0 To iBound)	&apos;	Remove last element
+	sParent = Join(vParent, &quot;!&quot;)
+	
+	&apos;Remove &quot;.Form&quot; if present
+Const cstForm = &quot;.FORM&quot;
+	Set _ParentObject = Nothing
+	If Len(sParent) &gt; Len(cstForm) Then
+		If UCase(Right(sParent, Len(cstForm))) = cstForm Then
+			Set _ParentObject = getValue(sParent)
+		Else
+			Set _ParentObject = getObject(sParent)
+		End If
+	End If
+	
+End Function		&apos;	_ParentObject	V0.9.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _Properties(ByVal psObject As String _
+						, ByRef pvParent As Object _
+						, ByVal pvPropertiesList() As Variant _
+						, ByVal Optional pvIndex As Variant _
+						) As Variant
+&apos;	Return
+&apos;		a Collection object if pvIndex absent
+&apos;		a Property object otherwise
+&apos;	Generic function called from Properties methods stored in classes
+
+Dim vProperties As Variant, oCounter As Object, opProperty As Object
+Dim iArgNr As Integer, iLen As Integer
+	
+	Utils._SetCalledSub(psObject &amp; &quot;.Properties&quot;)
+	
+	vProperties = Null
+				
+	If IsMissing(pvIndex) Then					&apos;	Call without index argument prepares a Collection object
+		Set oCounter = New Collect
+		Set oCounter._This = oCounter
+		oCounter._CollType = COLLPROPERTIES
+		Set oCounter._Parent = pvParent
+		oCounter._Count = UBound(pvPropertiesList) + 1
+		Set vProperties = oCounter
+	Else
+		iLen = Len(psObject) + 1
+		If Len(_A2B_.CalledSub) &gt;  iLen Then
+			If Left(_A2B_.CalledSub, iLen) = psObject &amp; &quot;.&quot; Then iArgNr = 1 Else iArgNr = 2
+		End If
+		If Not Utils._CheckArgument(pvIndex, iArgNr, Utils._AddNumeric()) Then Goto Exit_Function
+		If pvIndex &lt; LBound(pvPropertiesList) Or pvIndex &gt; UBound(pvPropertiesList) Then
+			TraceError(TRACEFATAL, ERRCOLLECTION, Utils._CalledSub(), 0, 1)
+		Else
+			Set opProperty = New Property
+			Set opProperty._This = opProperty
+			opProperty._Name = pvPropertiesList(pvIndex)
+			opProperty._Value = Null
+			Set vProperties = opProperty
+		End If
+	End If
+	
+Exit_Function:
+	Set _Properties = vProperties
+	Utils._ResetCalledSub(psObject &amp; &quot;.Properties&quot;)
+	Exit Function
+End Function	&apos;	_Properties
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _PropertiesList(pvObject As Variant) As Variant
+&apos;	Return an array of strings containing the list of valid properties of pvObject
+
+Dim vProperties As Variant
+Dim vPropertiesList As Variant, bPropertiesList() As Boolean, sPropertiesList() As String
+Dim i As Integer, j As Integer, iCount As Integer
+		
+	Set vProperties = Nothing
+	Select Case pvObject._Type
+		Case OBJCOLLECTION, OBJPROPERTY, OBJFORM, OBJEVENT, OBJSUBFORM, OBJCONTROL, OBJOPTIONGROUP _
+				, OBJDATABASE, OBJTABLEDEF, OBJQUERYDEF, OBJDIALOG, OBJFIELD, OBJRECORDSET, OBJTEMPVAR _
+				, OBJCOMMANDBAR, OBJCOMMANDBARCONTROL
+			vPropertiesList = pvObject._PropertiesList()
+		Case Else
+	End Select
+		
+Exit_Function:
+	Set _PropertiesList = vPropertiesList
+	Exit Function
+End Function		&apos;	PropertiesList		V0.9.0
+
+</script:module>

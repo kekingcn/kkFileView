@@ -53,6 +53,7 @@ public class FilterConfiguration {
     @Bean
     public FilterRegistrationBean getWatermarkConfigFilter() {
         Set<String> filterUri = new HashSet<>();
+        filterUri.add("/index");
         filterUri.add("/onlinePreview");
         filterUri.add("/picturesPreview");
         AttributeSetFilter filter = new AttributeSetFilter();

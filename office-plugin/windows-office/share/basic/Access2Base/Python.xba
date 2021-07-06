@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Python" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub DebugPrint(ParamArray pvArgs() As Variant)
+
+&apos;Print arguments unconditionally in console
+&apos;Arguments are separated by a TAB (simulated by spaces)
+&apos;Some pvArgs might be missing: a TAB is still generated
+
+Dim vVarTypes() As Variant, i As Integer
+Const cstTab = 5
+	On Local Error Goto Exit_Sub	&apos;	Never interrupt processing
+	Utils._SetCalledSub(&quot;DebugPrint&quot;)
+	vVarTypes = Utils._AddNumeric(Array(vbEmpty, vbNull, vbDate, vbString, vbBoolean, vbObject, vbVariant, vbByte, vbArray + vbByte))
+	
+	If UBound(pvArgs) &gt;= 0 Then
+		For i = 0 To UBound(pvArgs)
+			If Not Utils._CheckArgument(pvArgs(i), i + 1, vVarTypes(), , False) Then pvArgs(i) = &quot;[TYPE?]&quot;
+		Next i
+	End If
+
+Dim sOutput As String, sArg As String
+	sOutput = &quot;&quot;	
+	For i = 0 To UBound(pvArgs)
+		sArg = Replace(Utils._CStr(pvArgs(i), _A2B_.DebugPrintShort), &quot;\;&quot;, &quot;;&quot;)
+		&apos; Add argument to output
+		If i = 0 Then
+			sOutput = sArg
+		Else
+			sOutput = sOutput &amp; Space(cstTab - (Len(sOutput) Mod cstTab)) &amp; sArg
+		End If
+	Next i
+	
+	TraceLog(TRACEANY, sOutput, False)
+	
+Exit_Sub:
+	Utils._ResetCalledSub(&quot;DebugPrint&quot;)
+	Exit Sub
+End Sub			&apos;	DebugPrint		V0.9.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PYTHON WRAPPERS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PythonEventsWrapper(Optional poEvent As Variant) As Variant
+&apos;		Python wrapper when Application.Events() method is invoked
+&apos; 		The ParamArray mechanism empties UNO objects when they are member of the arguments list
+&apos; 		As a workaround, the Application.Events function is executed directly
+
+	If _ErrorHandler() Then On Local Error GoTo Exit_Function	&apos;	Do never interrupt
+	PythonEventsWrapper = Null
+
+Dim vReturn As Variant, vArray As Variant
+Const cstObject = 1
+
+	vReturn = Application.Events(poEvent)
+	vArray = Array(cstObject, _A2B_.AddPython(vReturn), vReturn._Type)
+
+	PythonEventsWrapper = vArray
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PythonEventsWrapper V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PythonWrapper(ByVal pvCallType As Variant _
+									, ByVal pvObject As Variant _
+									, ByVal pvScript As Variant _
+									, ParamArray pvArgs() As Variant _
+								) As Variant
+&apos;		Called from Python to apply
+&apos;			- on object with entry pvObject in PythonCache
+&apos;				Conventionally:	-1 = Application
+&apos;									-2 = DoCmd
+&apos;			- a script pvScript which type is described by pvCallType
+&apos;			- with arguments pvArgs(0)... (max. 8 for object methods)
+&apos; 		The value returned by the method/property is encapsulated in an array
+&apos;				[0] =&gt; 0 = scalar or array returned by the method
+&apos;					=&gt; 1 = basic object returned by the method
+&apos;					=&gt; 2 = a null value
+&apos;				[1] =&gt; the object reference or the returned value (complemented with arguments passed by reference, if any) or Null
+&apos;				[2] =&gt; the object type or Null
+&apos;				[3] =&gt; the object name, if any
+&apos; 		or, when pvCallType == vbUNO, as the UNO object returned by the property
+
+Dim vReturn As Variant, vArray As Variant
+Dim vObject As Variant, sScript As String, sModule As String
+Dim i As Integer, iNbArgs As Integer, vArg As Variant, vArgs() As Variant
+
+Const cstApplication = -1, cstDoCmd = -2
+Const cstScalar = 0, cstObject = 1, cstNull = 2, cstUNO = 3
+
+&apos;Conventional special values
+Const cstNoArgs = &quot;+++NOARGS+++&quot;, cstSymEmpty = &quot;+++EMPTY+++&quot;, cstSymNull = &quot;+++NULL+++&quot;, cstSymMissing = &quot;+++MISSING+++&quot;
+
+&apos;https://support.office.com/en-us/article/CallByName-fonction-49ce9475-c315-4f13-8d35-e98cfe98729a
+&apos;Determines the pvCallType
+Const vbGet = 2, vbLet = 4, vbMethod = 1, vbSet = 8, vbUNO = 16
+
+	If _ErrorHandler() Then On Local Error GoTo Error_Function
+	PythonWrapper = Null
+
+	&apos;Reinterpret arguments one by one into vArgs, examine iso-dates and conventional NoArgs/Empty/Null values
+	iNbArgs = -1
+	vArgs = Array()
+	If UBound(pvArgs) &gt;= 0 Then
+		For i = 0 To UBound(pvArgs)
+			vArg = pvArgs(i)
+			If i = 0 And VarType(vArg) = vbString Then
+				If vArg = cstNoArgs Then Exit For
+			End If
+			If VarType(vArg) = vbString Then
+				If vArg = cstSymEmpty Then
+					vArg = Empty
+				ElseIf vArg = cstSymNull Then
+					vArg = Null
+				ElseIf vArg = cstSymMissing Then
+					Exit For	&apos;	Next arguments must be missing also
+				Else
+					vArg = _CDate(vArg)
+				End If
+			End If
+			iNbArgs = iNbArgs + 1
+			ReDim Preserve vArgs(iNbArgs)
+			vArgs(iNbArgs) = vArg
+		Next i
+	End If
+
+	&apos;Check pvObject
+	Select Case pvObject	&apos;	Always numeric
+		Case cstApplication
+			sModule = &quot;Application&quot;
+			Select Case pvScript
+				Case &quot;AllDialogs&quot;	:	If iNbArgs &lt; 0 Then vReturn = Application.AllDialogs() Else vReturn = Application.AllDialogs(vArgs(0))
+				Case &quot;AllForms&quot;		:	If iNbArgs &lt; 0 Then vReturn = Application.AllForms() Else vReturn = Application.AllForms(vArgs(0))
+				Case &quot;AllModules&quot;	:	If iNbArgs &lt; 0 Then vReturn = Application.AllModules() Else vReturn = Application.AllModules(vArgs(0))
+				Case &quot;CloseConnection&quot;
+										vReturn = Application.CloseConnection()
+				Case &quot;CommandBars&quot;	:	If iNbArgs &lt; 0 Then vReturn = Application.CommandBars() Else vReturn = Application.CommandBars(vArgs(0))
+				Case &quot;CurrentDb&quot;	:	vReturn = Application.CurrentDb()
+				Case &quot;CurrentUser&quot;	:	vReturn = Application.CurrentUser()
+				Case &quot;DAvg&quot;			:	vReturn = Application.DAvg(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DCount&quot;		:	vReturn = Application.DCount(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DLookup&quot;		:	vReturn = Application.DLookup(vArgs(0), vArgs(1), vArgs(2), vArgs(3))
+				Case &quot;DMax&quot;			:	vReturn = Application.DMax(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DMin&quot;			:	vReturn = Application.DMin(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DStDev&quot;		:	vReturn = Application.DStDev(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DStDevP&quot;		:	vReturn = Application.DStDevP(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DSum&quot;			:	vReturn = Application.DSum(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DVar&quot;			:	vReturn = Application.DVar(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;DVarP&quot;		:	vReturn = Application.DVarP(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;Forms&quot;		:	If iNbArgs &lt; 0 Then vReturn = Application.Forms() Else vReturn = Application.Forms(vArgs(0))
+				Case &quot;getObject&quot;	:	vReturn = Application.getObject(vArgs(0))
+				Case &quot;getValue&quot;		:	vReturn = Application.getValue(vArgs(0))
+				Case &quot;HtmlEncode&quot;	:	vReturn = Application.HtmlEncode(vArgs(0), vArgs(1))
+				Case &quot;OpenDatabase&quot;	:	vReturn = Application.OpenDatabase(vArgs(0), vArgs(1), vArgs(2), vArgs(3))
+				Case &quot;ProductCode&quot;	:	vReturn = Application.ProductCode()
+				Case &quot;setValue&quot;		:	vReturn = Application.setValue(vArgs(0), vArgs(1))
+				Case &quot;SysCmd&quot;		:	vReturn = Application.SysCmd(vArgs(0), vArgs(1), vARgs(2))
+				Case &quot;TempVars&quot;		:	If iNbArgs &lt; 0 Then vReturn = Application.TempVars() Else vReturn = Application.TempVars(vArgs(0))
+				Case &quot;Version&quot;		:	vReturn = Application.Version()
+				Case Else
+					GoTo Error_Proc
+			End Select
+		Case cstDoCmd
+			sModule = &quot;DoCmd&quot;
+			Select Case pvScript
+				Case &quot;ApplyFilter&quot;	:	vReturn = DoCmd.ApplyFilter(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;Close&quot;		:	vReturn = DoCmd.mClose(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;CopyObject&quot;	:	vReturn = DoCmd.CopyObject(vArgs(0), vArgs(1), vArgs(2), vArgs(3))
+				Case &quot;FindNext&quot;		:	vReturn = DoCmd.FindNext()
+				Case &quot;FindRecord&quot;	:	vReturn = DoCmd.FindRecord(vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4), vArgs(5), vArgs(6))
+				Case &quot;GetHiddenAttribute&quot;
+										vReturn = DoCmd.GetHiddenAttribute(vArgs(0), vArgs(1))
+				Case &quot;GoToControl&quot;	:	vReturn = DoCmd.GoToControl(vArgs(0))
+				Case &quot;GoToRecord&quot;	:	vReturn = DoCmd.GoToRecord(vArgs(0), vArgs(1), vArgs(2), vArgs(3))
+				Case &quot;Maximize&quot;		:	vReturn = DoCmd.Maximize()
+				Case &quot;Minimize&quot;		:	vReturn = DoCmd.Minimize()
+				Case &quot;MoveSize&quot;		:	vReturn = DoCmd.MoveSize(vArgs(0), vArgs(1), vArgs(2), vArgs(3))
+				Case &quot;OpenForm&quot;		:	vReturn = DoCmd.OpenForm(vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4), vArgs(5), vArgs(6))
+				Case &quot;OpenQuery&quot;	:	vReturn = DoCmd.OpenQuery(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;OpenReport&quot;	:	vReturn = DoCmd.OpenReport(vArgs(0), vArgs(1))
+				Case &quot;OpenSQL&quot;		:	vReturn = DoCmd.OpenSQL(vArgs(0), vArgs(1))
+				Case &quot;OpenTable&quot;	:	vReturn = DoCmd.OpenTable(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;OutputTo&quot;		:	vReturn = DoCmd.OutputTo(vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4), vArgs(5), vArgs(6), vArgs(7))
+				Case &quot;Quit&quot;			:	_A2B_.CalledSub = &quot;Quit&quot;	:		GoTo Error_Action
+				Case &quot;RunApp&quot;		:	vReturn = DoCmd.RunApp(vArgs(0))
+				Case &quot;RunCommand&quot;	:	vReturn = DoCmd.RunCommand(vArgs(0))
+				Case &quot;RunSQL&quot;		:	vReturn = DoCmd.RunSQL(vArgs(0), vArgs(1))
+				Case &quot;SelectObject&quot;	:	vReturn = DoCmd.SelectObject(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;SendObject&quot;	:	vReturn = DoCmd.SendObject(vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4), vArgs(5), vArgs(6), vArgs(7), vArgs(8), vArgs(9))
+				Case &quot;SetHiddenAttribute&quot;
+										vReturn = DoCmd.SetHiddenAttribute(vArgs(0), vArgs(1), vArgs(2))
+				Case &quot;SetOrderBy&quot;	:	vReturn = DoCmd.SetOrderBy(vArgs(0), vArgs(1))
+				Case &quot;ShowAllRecords&quot;
+										vReturn = DoCmd.ShowAllRecords()
+				Case Else
+					GoTo Error_Proc
+			End Select
+		Case Else
+		&apos; Locate targeted object
+			If pvObject &gt; UBound(_A2B_.PythonCache) Or pvObject &lt; 0 Then GoTo Error_Object
+			Set vObject = _A2B_.PythonCache(pvObject)
+			If IsNull(vObject) Then
+				If pvScript = &quot;Dispose&quot; Then GoTo Exit_Function Else GoTo Error_Object
+			End If
+		&apos; Preprocessing
+			sScript = pvScript
+			sModule = vObject._Type
+			Select Case sScript
+				Case &quot;Add&quot;
+					If vObject._Type = &quot;COLLECTION&quot; And vObject._CollType = COLLTABLEDEFS Then vArgs = Array(_A2B_.PythonCache(vArgs(0)))
+				Case &quot;Close&quot;
+					sSCript = &quot;mClose&quot;
+				Case &quot;Type&quot;
+					sScript = &quot;pType&quot;
+				Case Else
+			End Select
+		&apos; Execute method
+			Select Case UBound(vArgs)		&apos;	Dirty but ... CallByName does not support an array of arguments or return values
+				Case -1
+					If pvCallType = vbUNO Then
+						With vObject
+							Select Case sScript					&apos; List all properties that should be called directly (UNO)
+								Case &quot;BoundField&quot;		:	vReturn = .BoundField
+								Case &quot;Column&quot;			:	vReturn = .Column
+								Case &quot;Connection&quot;		:	vReturn = .Connection
+								case &quot;ContainerWindow&quot;	:	vReturn = .ContainerWindow
+								Case &quot;ControlModel&quot;		:	vReturn = .ControlModel
+								Case &quot;ControlView&quot;		:	vReturn = .ControlView
+								Case &quot;DatabaseForm&quot;		:	vReturn = .DatabaseForm
+								Case &quot;Document&quot;			:	vReturn = .Document
+								Case &quot;FormsCollection&quot;	:	vReturn = .FormsCollection
+								Case &quot;LabelControl&quot;		:	vReturn = .LabelControl
+								Case &quot;MetaData&quot;			:	vReturn = .MetaData
+								Case &quot;ParentComponent&quot;	:	vReturn = .ParentComponent
+								Case &quot;Query&quot;			:	vReturn = .Query
+								Case &quot;RowSet&quot;			:	vReturn = .RowSet
+								Case &quot;Table&quot;			:	vReturn = .Table
+								Case &quot;UnoDialog&quot;		:	vReturn = .UnoDialog
+								Case Else
+							End Select
+						End With
+					ElseIf sScript = &quot;ItemData&quot; Then			&apos;	List all properties that should be called directly (arrays not supported by CallByName)
+						vReturn = vObject.ItemData
+					ElseIf sScript = &quot;LinkChildFields&quot; Then
+						vReturn = vObject.LinkChildFields
+					ElseIf sScript = &quot;LinkMasterFields&quot; Then
+						vReturn = vObject.LinkMasterFields
+					ElseIf sScript = &quot;OpenArgs&quot; Then
+						vReturn = vObject.OpenArgs
+					ElseIf sScript = &quot;Selected&quot; Then
+						vReturn = vObject.Selected
+					ElseIf sScript = &quot;Value&quot; Then
+						vReturn = vObject.Value
+					Else
+						vReturn = CallByName(vObject, sScript, pvCallType)
+					End If
+				Case 0
+					Select Case sScript
+						Case &quot;AppendChunk&quot;		&apos;	Arg is a vector, not supported by CallByName
+							vReturn = vObject.GetChunk(vArgs(0), vArgs(1))
+						Case &quot;GetRows&quot;			&apos;	Returns an array, not supported by CallByName
+							vReturn = vObject.GetRows(vArgs(0), True)		&apos; Force iso dates
+						Case Else
+							vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0))
+					End Select
+				Case 1
+					Select Case sScript
+						Case &quot;GetChunk&quot;		&apos;	Returns a vector, not supported by CallByName
+							vReturn = vObject.GetChunk(vArgs(0), vArgs(1))
+						Case Else
+							vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0), vArgs(1))
+					End Select
+				Case 2		:	vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0), vArgs(1), vArgs(2))
+				Case 3		:	vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0), vArgs(1), vArgs(2), vArgs(3))
+				Case 4		:	vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4))
+				Case 5		:	vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4), vArgs(5))
+				Case 6		:	vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4), vArgs(5), vArgs(6))
+				Case 7		:	vReturn = CallByName(vObject, sScript, pvCallType, vArgs(0), vArgs(1), vArgs(2), vArgs(3), vArgs(4), vArgs(5), vArgs(6), vArgs(7))
+			End Select
+		&apos; Postprocessing
+			Select Case pvScript
+				Case &quot;Close&quot;, &quot;Dispose&quot;, &quot;Terminate&quot;
+					Set _A2B_.PythonCache(pvObject) = Nothing
+				Case &quot;Move&quot;, &quot;MoveFirst&quot;, &quot;MoveLast&quot;, &quot;MoveNext&quot;, &quot;MovePrevious&quot;	&apos;	Pass the new BOF, EOF values (binary format)
+					If vObject._Type = &quot;RECORDSET&quot; Then
+						vReturn = (Iif(vObject.BOF, 1, 0) * 2 + Iif(vObject.EOF, 1, 0)) * Iif(vReturn, 1, -1)
+					End If
+				Case &quot;Find&quot;				&apos;	Store in array the arguments passed by reference
+					If vObject._Type = &quot;MODULE&quot; And vReturn = True Then
+						vReturn = Array(vReturn, vArgs(1), vArgs(2), vArgs(3), vArgs(4))
+					End If
+				Case &quot;ProcOfLine&quot;		&apos;	Store in array the arguments passed by reference
+					vReturn = Array(vReturn, vArgs(1))
+				Case Else
+			End Select
+	End Select
+
+	&apos; Structure the returned array
+	If pvCallType = vbUNO Then
+		vArray = vReturn
+	Else
+		If IsNull(vReturn) Then
+			vArray = Array(cstNull, Null, Null)
+		ElseIf IsObject(vReturn) Then
+			Select Case vReturn._Type
+				Case &quot;COLLECTION&quot;, &quot;COMMANDBARCONTROL&quot;, &quot;EVENT&quot;
+					vArray = Array(cstObject, _A2B_.AddPython(vReturn), vReturn._Type)
+				Case Else
+					vArray = Array(cstObject, _A2B_.AddPython(vReturn), vReturn._Type, vReturn.Name)
+			End Select
+		Else
+			If VarType(vReturn) = vbDate Then
+				vArray = Array(cstScalar, _CStr(vReturn), Null)
+			ElseIf VarType(vReturn) = vbBigint Then		&apos;	Could happen for big integer database fields
+				vArray = Array(cstScalar, CLng(vReturn), Null)
+			Else
+				vArray = Array(cstScalar, vReturn, Null)
+			End If
+		End If
+	End If
+
+	PythonWrapper = vArray
+
+Exit_Function:
+	Exit Function
+Error_Function:
+	TraceError(TRACEABORT, Err, &quot;PythonWrapper&quot;, Erl)
+	GoTo Exit_Function
+Error_Object:
+	TraceError(TRACEFATAL, ERROBJECTNOTFOUND, &quot;Python Wrapper (&quot; &amp; pvScript &amp; &quot;)&quot;, 0, , Array(_GetLabel(&quot;OBJECT&quot;), &quot;#&quot; &amp; pvObject))
+	GoTo Exit_Function
+Error_Action:
+	TraceError(TRACEFATAL, ERRACTION, Utils._CalledSub(), 0)
+	GoTo Exit_Function
+Error_Proc:
+	TraceError(TRACEFATAL, ERRPROCEDURENOTFOUND, &quot;Python Wrapper&quot;, 0, , Array(pvScript, sModule))
+	GoTo Exit_Function
+End Function	&apos;	PythonWrapper V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PYTHON HELPER FUNCTIONS							        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyConvertFromUrl(ByVal pvFile As Variant) As String
+&apos;	Convenient function to have common conversions of filenames from/to url notations both in Python and Basic
+
+	On Local Error GoTo Exit_Function
+	PyConvertFromUrl = &quot;&quot;
+	If Not Utils._CheckArgument(pvFile, 1, vbString) Then Goto Exit_Function
+
+	PyConvertFromUrl = ConvertFromUrl(pvFile)
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyConvertFromUrl V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyConvertToUrl(ByVal pvFile As Variant) As String
+&apos;	Convenient function to have common conversions of filenames from/to url notations both in Python and Basic
+
+	On Local Error GoTo Exit_Function
+	PyConvertToUrl = &quot;&quot;
+	If Not Utils._CheckArgument(pvFile, 1, vbString) Then Goto Exit_Function
+
+	PyConvertToUrl = ConvertToUrl(pvFile)
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyConvertToUrl V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyCreateUnoService(ByVal pvService As Variant) As Variant
+&apos;	Convenient function to create a UNO service in Python
+
+	On Local Error GoTo Exit_Function
+	Set PyCreateUnoService = Nothing
+	If Not Utils._CheckArgument(pvService, 1, vbString) Then Goto Exit_Function
+
+	Set PyCreateUnoService = CreateUnoService(pvService)
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyCreateUnoService V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyDateAdd(ByVal pvAdd As Variant _
+							, ByVal pvCount As Variant _
+							, ByVal pvDate As Variant _
+						) As Variant
+&apos;	Convenient shortcut to useful and easy-to-use Basic date functions
+
+Dim vDate As Variant, vNewDate As Variant
+	On Local Error GoTo Exit_Function
+	PyDateAdd = Null
+
+	If Not Utils._CheckArgument(pvAdd, 1, vbString) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvCount, 2, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvDate, 3, vbString) Then Goto Exit_Function
+
+	vDate = _CDate(pvDate)
+	vNewDate = DateAdd(pvAdd, pvCount, vDate)
+	If VarType(vNewDate) = vbDate Then PyDateAdd = _CStr(vNewDate) Else PyDateAdd = vNewDate
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyDateAdd V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyDateDiff(ByVal pvAdd As Variant _
+							, ByVal pvDate1 As Variant _
+							, ByVal pvDate2 As Variant _
+							, ByVal pvWeekStart As Variant _
+							, ByVal pvYearStart As Variant _
+						) As Variant
+&apos;	Convenient shortcut to useful and easy-to-use Basic date functions
+
+Dim vDate1 As Variant, vDate2 As Variant
+	On Local Error GoTo Exit_Function
+	PyDateDiff = Null
+
+	If Not Utils._CheckArgument(pvAdd, 1, vbString) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvDate1, 2, vbString) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvDate2, 3, vbString) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvWeekStart, 4, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvWeekStart, 5, Utils._AddNumeric()) Then Goto Exit_Function
+
+	vDate1 = _CDate(pvDate1)
+	vDate2 = _CDate(pvDate2)
+	PyDateDiff = DateDiff(pvAdd, vDate1, vDate2, pvWeekStart, pvYearStart)
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyDateDiff V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyDatePart(ByVal pvAdd As Variant _
+							, ByVal pvDate As Variant _
+							, ByVal pvWeekStart As Variant _
+							, ByVal pvYearStart As Variant _
+						) As Variant
+&apos;	Convenient shortcut to useful and easy-to-use Basic date functions
+
+Dim vDate As Variant
+	On Local Error GoTo Exit_Function
+	PyDatePart = Null
+
+	If Not Utils._CheckArgument(pvAdd, 1, vbString) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvDate, 2, vbString) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvWeekStart, 3, Utils._AddNumeric()) Then Goto Exit_Function
+	If Not Utils._CheckArgument(pvWeekStart, 4, Utils._AddNumeric()) Then Goto Exit_Function
+
+	vDate = _CDate(pvDate)
+	PyDatePart = DatePart(pvAdd, vDate, pvWeekStart, pvYearStart)
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyDatePart V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyDateValue(ByVal pvDate As Variant) As Variant
+&apos;	Convenient shortcut to useful and easy-to-use Basic date functions
+
+Dim vDate As Variant
+	On Local Error GoTo Exit_Function
+	PyDateValue = Null
+	If Not Utils._CheckArgument(pvDate, 1, vbString) Then Goto Exit_Function
+
+	vDate = DateValue(pvDate)
+	If VarType(vDate) = vbDate Then PyDateValue = _CStr(vDate) Else PyDateValue = vDate
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyDateValue V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyFormat(ByVal pvValue As Variant, pvFormat As Variant) As String
+&apos;	Convenient function to format numbers or dates
+
+	On Local Error GoTo Exit_Function
+	PyFormat = &quot;&quot;
+	If Not Utils._CheckArgument(pvValue, 1, Utils._AddNumeric(vbString)) Then Goto Exit_Function
+	pvValue = _CDate(pvValue)
+	If IsEmpty(pvFormat) Then
+		PyFormat = Str(pvValue)
+	Else
+		If Not Utils._CheckArgument(pvFormat, 2, vbString) Then Goto Exit_Function
+		PyFormat = Format(pvValue, pvFormat)
+	End If
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyFormat V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyGetGUIType() As Variant
+
+	PyGetGUIType = GetGUIType()
+
+End Function	&apos;	PyGetGUIType V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyGetSystemTicks() As Variant
+
+	PyGetSystemTicks = GetSystemTicks()
+
+End Function	&apos;	PyGetSystemTicks V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyGlobalScope(ByVal pvLib As Variant) As Variant
+
+	Select Case pvLib
+		Case &quot;Basic&quot;
+			PyGlobalScope = GlobalScope.BasicLibraries()
+		Case &quot;Dialog&quot;
+			PyGlobalScope = GlobalScope.DialogLibraries()
+		Case Else
+	End Select
+
+End Function	&apos;	PyGlobalScope V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyInputBox(ByVal pvText As Variant _
+									, ByVal pvTitle As Variant _
+									, ByVal pvDefault As Variant _
+									, ByVal pvXPos As Variant _
+									, ByVal pvYPos As Variant _
+									) As Variant
+&apos;	Convenient function to open input box from Python
+
+	On Local Error GoTo Exit_Function
+	PyInputBox = Null
+
+	If Not Utils._CheckArgument(pvText, 1, vbString) Then Goto Exit_Function
+	If IsEmpty(pvTitle) Then pvTitle = &quot;&quot;
+	If Not Utils._CheckArgument(pvTitle, 2, vbString) Then Goto Exit_Function
+	If IsEmpty(pvDefault) Then pvDefault = &quot;&quot;
+	If Not Utils._CheckArgument(pvDefault, 3, vbString) Then Goto Exit_Function
+
+	If IsEmpty(pvXPos) Or IsEmpty(pvYPos) Then
+		PyInputBox = InputBox(pvText, pvTitle, pvDefault)
+	Else
+		If Not Utils._CheckArgument(pvXPos, 4, Utils._AddNumeric()) Then Goto Exit_Function
+		If Not Utils._CheckArgument(pvYPos, 5, Utils._AddNumeric()) Then Goto Exit_Function
+		PyInputBox = InputBox(pvText, pvTitle, pvDefault, pvXPos, pvYPos)
+	End If
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyInputBox V6.4.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyMsgBox(ByVal pvText As Variant _
+									, ByVal pvType As Variant _
+									, ByVal pvDialogTitle As Variant _
+									) As Variant
+&apos;	Convenient function to open message box from Python
+
+	On Local Error GoTo Exit_Function
+	PyMsgBox = Null
+
+	If Not Utils._CheckArgument(pvText, 1, vbString) Then Goto Exit_Function
+	If IsEmpty(pvType) Then pvType = 0
+	If Not Utils._CheckArgument(pvType, 2, Utils._AddNumeric()) Then Goto Exit_Function
+	If IsEmpty(pvDialogTitle) Then
+		PyMsgBox = MsgBox(pvText, pvType)
+	Else
+		If Not Utils._CheckArgument(pvDialogTitle, 3, vbString) Then Goto Exit_Function
+		PyMsgBox = MsgBox(pvText, pvType, pvDialogTitle)
+	End If
+
+Exit_Function:
+	Exit Function
+End Function	&apos;	PyMsgBox V6.4.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function PyTimer() As Long
+&apos;	Convenient function to call Timer from Python
+
+	PyTimer = Timer
+
+End Function	&apos;	PyTimer V6.4
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _CDate(ByVal pvValue As Variant) As Variant
+&apos;	Return a Date type if iso date, otherwise return input
+
+Dim vValue As Variant
+	vValue = pvValue
+	If VarType(pvValue) = vbString Then
+		If pvValue &lt;&gt; &quot;&quot; And IsDate(pvValue) Then vValue = CDate(pvValue)		&apos;	IsDate(&quot;&quot;) gives True !?
+	End If
+	_CDate = vValue
+
+End Function
+
+</script:module>

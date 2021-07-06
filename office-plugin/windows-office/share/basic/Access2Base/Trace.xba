@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Trace" script:language="StarBasic">
+REM =======================================================================================================================
+REM ===					The Access2Base library is a part of the LibreOffice project.									===
+REM ===					Full documentation is available on http://www.access2base.com									===
+REM =======================================================================================================================
+
+Option Explicit
+
+Public Const cstLogMaxEntries = 99
+
+REM Typical Usage
+REM		TraceLog(&quot;INFO&quot;, &quot;The OK button was pressed&quot;)
+REM
+REM Typical Usage for error logging
+REM		Sub MySub()
+REM			On Local Error GoTo Error_Sub
+REM			...
+REM		Exit_Sub:
+REM			Exit Sub
+REM		Error_Sub:
+REM			TraceError(&quot;ERROR&quot;, Err, &quot;MySub&quot;, Erl)
+REM			GoTo Exit_Sub
+REM		End Sub
+REM
+REM	To display the current logged traces and/or to set parameters
+REM		TraceConsole()
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub TraceConsole()
+&apos;	Display the Trace dialog with current trace log values and parameter choices
+	If _ErrorHandler() Then On Local Error Goto Error_Sub
+
+Dim sLineBreak As String, oTraceDialog As Object
+	sLineBreak = vbNewLine
+
+	Set oTraceDialog = CreateUnoDialog(Utils._GetDialogLib().dlgTrace)
+	oTraceDialog.Title = _GetLabel(&quot;DLGTRACE_TITLE&quot;)
+	oTraceDialog.Model.HelpText = _GetLabel(&quot;DLGTRACE_HELP&quot;)
+
+Dim oEntries As Object, oTraceLog As Object, oClear As Object, oMinLevel As Object, oNbEntries As Object, oDump As Object
+Dim oControl As Object
+Dim i As Integer, sText As String, iOKCancel As Integer
+	
+	Set oNbEntries = oTraceDialog.Model.getByName(&quot;numNbEntries&quot;)
+	oNbEntries.Value = _A2B_.TraceLogCount
+	oNbEntries.HelpText = _GetLabel(&quot;DLGTRACE_LBLNBENTRIES_HELP&quot;)
+
+	Set oControl = oTraceDialog.Model.getByName(&quot;lblNbEntries&quot;)
+	oControl.Label = _GetLabel(&quot;DLGTRACE_LBLNBENTRIES_LABEL&quot;)
+	oControl.HelpText = _GetLabel(&quot;DLGTRACE_LBLNBENTRIES_HELP&quot;)
+
+	Set oEntries = oTraceDialog.Model.getByName(&quot;numEntries&quot;)
+	If _A2B_.TraceLogMaxEntries = 0 Then _A2B_.TraceLogMaxEntries = cstLogMaxEntries
+	oEntries.Value = _A2B_.TraceLogMaxEntries
+	oEntries.HelpText = _GetLabel(&quot;DLGTRACE_LBLENTRIES_HELP&quot;)
+
+	Set oControl = oTraceDialog.Model.getByName(&quot;lblEntries&quot;)
+	oControl.Label = _GetLabel(&quot;DLGTRACE_LBLENTRIES_LABEL&quot;)
+	oControl.HelpText = _GetLabel(&quot;DLGTRACE_LBLENTRIES_HELP&quot;)
+
+	Set oDump = oTraceDialog.Model.getByName(&quot;cmdDump&quot;)
+	oDump.Enabled = 0
+	oDump.Label = _GetLabel(&quot;DLGTRACE_CMDDUMP_LABEL&quot;)
+	oDump.HelpText = _GetLabel(&quot;DLGTRACE_CMDDUMP_HELP&quot;)
+	
+	Set oTraceLog = oTraceDialog.Model.getByName(&quot;txtTraceLog&quot;)
+	oTraceLog.HelpText = _GetLabel(&quot;DLGTRACE_TXTTRACELOG_HELP&quot;)
+	If UBound(_A2B_.TraceLogs) &gt;= 0 Then			&apos;	Array yet initialized
+		oTraceLog.HardLineBreaks = True
+		sText = &quot;&quot;
+		If _A2B_.TraceLogCount &gt; 0 Then
+			If _A2B_.TraceLogCount &lt; _A2B_.TraceLogMaxEntries Then i = -1 Else i = _A2B_.TraceLogLast
+			Do
+				If i &lt; _A2B_.TraceLogMaxEntries - 1 Then i = i + 1 Else i = 0
+				If Len(_A2B_.TraceLogs(i)) &gt; 11 Then
+					sText = sText &amp; Right(_A2B_.TraceLogs(i), Len(_A2B_.TraceLogs(i)) - 11) &amp; sLineBreak		&apos;	Skip date in display
+				End If
+			Loop While i &lt;&gt; _A2B_.TraceLogLast
+			oDump.Enabled = 1		&apos;	Enable DumpToFile only if there is something to dump
+		End If
+		If Len(sText) &gt; 0 Then sText = Left(sText, Len(sText) - Len(sLineBreak))	&apos;	Skip last linefeed
+		oTraceLog.Text = sText
+	Else
+		oTraceLog.Text = _GetLabel(&quot;DLGTRACE_TXTTRACELOG_TEXT&quot;)
+	End If
+	
+	Set oClear = oTraceDialog.Model.getByName(&quot;chkClear&quot;)
+	oClear.State = 0		&apos;	Unchecked
+	oClear.HelpText = _GetLabel(&quot;DLGTRACE_LBLCLEAR_HELP&quot;)
+	
+	Set oControl = oTraceDialog.Model.getByName(&quot;lblClear&quot;)
+	oControl.Label = _GetLabel(&quot;DLGTRACE_LBLCLEAR_LABEL&quot;)
+	oControl.HelpText = _GetLabel(&quot;DLGTRACE_LBLCLEAR_HELP&quot;)
+
+	Set oMinLevel = oTraceDialog.Model.getByName(&quot;cboMinLevel&quot;)
+	If _A2B_.MinimalTraceLevel = 0 Then _A2B_.MinimalTraceLevel = _TraceLevel(TRACEERRORS)
+	oMinLevel.Text = _TraceLevel(_A2B_.MinimalTraceLevel)
+	oMinLevel.HelpText = _GetLabel(&quot;DLGTRACE_LBLMINLEVEL_HELP&quot;)
+	
+	Set oControl = oTraceDialog.Model.getByName(&quot;lblMinLevel&quot;)
+	oControl.Label = _GetLabel(&quot;DLGTRACE_LBLMINLEVEL_LABEL&quot;)
+	oControl.HelpText = _GetLabel(&quot;DLGTRACE_LBLMINLEVEL_HELP&quot;)
+
+	Set oControl = oTraceDialog.Model.getByName(&quot;cmdOK&quot;)
+	oControl.Label = _GetLabel(&quot;DLGTRACE_CMDOK_LABEL&quot;)
+	oControl.HelpText = _GetLabel(&quot;DLGTRACE_CMDOK_HELP&quot;)
+
+	Set oControl = oTraceDialog.Model.getByName(&quot;cmdCancel&quot;)
+	oControl.Label = _GetLabel(&quot;DLGTRACE_CMDCANCEL_LABEL&quot;)
+	oControl.HelpText = _GetLabel(&quot;DLGTRACE_CMDCANCEL_HELP&quot;)
+
+	iOKCancel = oTraceDialog.Execute()
+
+	Select Case iOKCancel
+		Case 1					&apos;	OK
+			If oClear.State = 1 Then
+				_A2B_.TraceLogs() = Array()		&apos;	Erase logged traces
+				_A2B_.TraceLogCount = 0
+			End If
+			If oMinLevel.Text &lt;&gt; &quot;&quot; Then _A2B_.MinimalTraceLevel = _TraceLevel(oMinLevel.Text)
+			If oEntries.Value &lt;&gt; 0 And oEntries.Value &lt;&gt; _A2B_.TraceLogMaxEntries Then
+				_A2B_.TraceLogs() = Array()
+				_A2B_.TraceLogMaxEntries = oEntries.Value
+			End If
+		Case 0					&apos;	Cancel
+		Case Else
+	End Select
+			
+Exit_Sub:
+	If Not IsNull(oTraceDialog) Then oTraceDialog.Dispose()
+	Exit Sub
+Error_Sub:
+	With _A2B_
+		.TraceLogs() = Array()
+		.TraceLogCount = 0
+		.TraceLogLast = 0
+	End With
+	GoTo Exit_Sub	
+End Sub		&apos;	TraceConsole	V1.1.0
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub TraceError(ByVal psErrorLevel As String _
+						, ByVal piErrorCode As Integer _
+						, ByVal psErrorProc As String _
+						, ByVal piErrorLine As Integer _
+						, ByVal Optional pvMsgBox As Variant _
+						, ByVal Optional pvArgs As Variant _
+						)
+&apos;	Store error code and description in trace rolling buffer
+&apos;	Display error message if errorlevel &gt;= ERROR
+&apos;	Stop program execution if errorlevel = FATAL or ABORT
+
+	On Local Error Resume Next
+	If IsEmpty(_A2B_) Then Call Application._RootInit()	&apos;	First use of Access2Base in current LibO/AOO session
+
+Dim sErrorText As String, sErrorDesc As String, oDb As Object, bMsgBox As Boolean
+	sErrorDesc = _ErrorMessage(piErrorCode, pvArgs)
+	sErrorText = _GetLabel(&quot;ERR#&quot;) &amp; CStr(piErrorCode) _
+							&amp; &quot; (&quot; &amp; sErrorDesc &amp; &quot;) &quot; &amp; _GetLabel(&quot;ERROCCUR&quot;) _
+							&amp; Iif(piErrorLine &gt; 0, &quot; &quot; &amp; _GetLabel(&quot;ERRLINE&quot;) &amp; &quot; &quot; &amp; CStr(piErrorLine), &quot;&quot;) _
+							&amp; Iif(psErrorProc &lt;&gt; &quot;&quot;, &quot; &quot; &amp; _GetLabel(&quot;ERRIN&quot;) &amp; &quot; &quot; &amp; psErrorProc, Iif(_A2B_.CalledSub = &quot;&quot;, &quot;&quot;, &quot; &quot; &amp; _Getlabel(&quot;ERRIN&quot;) &amp; &quot; &quot; &amp; _A2B_.CalledSub))
+	With _A2B_
+		.LastErrorCode = piErrorCode
+		.LastErrorLevel = psErrorLevel
+		.ErrorText = sErrorDesc
+		.ErrorLongText = sErrorText
+		.CalledSub = &quot;&quot;
+	End With
+	If VarType(pvMsgBox) = vbError Then
+		bMsgBox = ( psErrorLevel = TRACEERRORS Or psErrorLevel = TRACEFATAL Or psErrorLevel = TRACEABORT )
+	ElseIf IsMissing(pvMsgBox) Then
+		bMsgBox = ( psErrorLevel = TRACEERRORS Or psErrorLevel = TRACEFATAL Or psErrorLevel = TRACEABORT )
+	Else
+		bMsgBox = pvMsgBox
+	End If
+	TraceLog(psErrorLevel, sErrorText, bMsgBox)
+	
+	&apos;	Unexpected error detected in user program or in Access2Base
+	If psErrorLevel = TRACEFATAL Or psErrorLevel = TRACEABORT Then
+		If psErrorLevel = TRACEFATAL Then
+			Set oDb = _A2B_.CurrentDb()
+			If Not IsNull(oDb) Then oDb.CloseAllrecordsets()
+		End If
+		Stop
+	End If
+
+End Sub		&apos;	TraceError	V0.9.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function TraceErrorCode() As Variant
+&apos;	Return the last encountered error code, level, description in an array
+&apos;	UNPUBLISHED
+
+Dim vError As Variant
+
+	With _A2B_
+		vError = Array( _
+			.LastErrorCode _
+			, .LastErrorLevel _
+			, .ErrorText _
+			, .ErrorLongText _
+			)
+	End With
+	TraceErrorCode = vError
+
+End Function	&apos;	TraceErrorCode V6.3
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub TraceLevel(ByVal Optional psTraceLevel As String)
+&apos;	Set trace level to argument
+
+	If _ErrorHandler() Then On Local Error Goto Error_Sub
+	Select Case True
+		Case IsMissing(psTraceLevel)		:		psTraceLevel = &quot;ERROR&quot;
+		Case psTraceLevel = &quot;&quot;				:		psTraceLevel = &quot;ERROR&quot;
+		Case Utils._InList(UCase(psTraceLevel), Array( _
+			TRACEDEBUG, TRACEINFO, TRACEWARNING, TRACEERRORS, TRACEFATAL, TRACEABORT _
+			))
+		Case Else							:		Goto Exit_Sub
+	End Select
+	_A2B_.MinimalTraceLevel = _TraceLevel(psTraceLevel)
+	
+Exit_Sub:
+	Exit Sub
+Error_Sub:
+	With _A2B_
+		.TraceLogs() = Array()
+		.TraceLogCount = 0
+		.TraceLogLast = 0
+	End With
+	GoTo Exit_Sub	
+End Sub			&apos;	TraceLevel	V0.9.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub TraceLog(Byval psTraceLevel As String _
+						, ByVal psText As String _
+						, ByVal Optional pbMsgBox As Boolean _
+						)
+&apos;	Store Text in trace log (circular buffer)
+
+	If _ErrorHandler() Then On Local Error Goto Error_Sub
+Dim vTraceLogs() As String, sTraceLevel As String
+
+	With _A2B_
+		If .MinimalTraceLevel = 0 Then .MinimalTraceLevel = _TraceLevel(TRACEERRORS)
+		If _TraceLevel(psTraceLevel) &lt; .MinimalTraceLevel Then Exit Sub
+
+		If UBound(.TraceLogs) = -1 Then				&apos;		Initialize TraceLog
+			If .TraceLogMaxEntries = 0 Then .TraceLogMaxEntries = cstLogMaxEntries
+		
+			Redim vTraceLogs(0 To .TraceLogMaxEntries - 1)
+			.TraceLogs = vTraceLogs
+			.TraceLogCount = 0
+			.TraceLogLast = -1
+			If .MinimalTraceLevel = 0 Then .MinimalTraceLevel = _TraceLevel(TRACEERRORS)		&apos;	Set default value
+		End If
+	
+		.TraceLogLast = .TraceLogLast + 1
+		If .TraceLogLast &gt; UBound(.TraceLogs) Then .TraceLogLast = LBound(.TraceLogs)			&apos;	Circular buffer
+		If Len(psTraceLevel) &gt; 7 Then sTraceLevel = Left(psTraceLevel, 7) Else sTraceLevel = psTraceLevel &amp; Spc(8 - Len(psTraceLevel))
+		.TraceLogs(.TraceLogLast) = Format(Now(), &quot;YYYY-MM-DD hh:mm:ss&quot;) &amp; &quot; &quot; &amp; sTraceLevel &amp; psText
+		If .TraceLogCount &lt;= UBound(.TraceLogs) Then .TraceLogCount = .TraceLogCount + 1		&apos;	# of active entries
+	End With
+	
+	If IsMissing(pbMsgBox) Then pbMsgBox = True
+Dim iMsgBox As Integer
+	If pbMsgBox Then
+		Select Case psTraceLevel
+			Case TRACEINFO:							iMsgBox = vbInformation
+			Case TRACEERRORS, TRACEWARNING:			iMsgBox = vbExclamation
+			Case TRACEFATAL, TRACEABORT:			iMsgBox = vbCritical
+			Case Else:								iMsgBox = vbInformation
+		End Select
+		MsgBox psText, vbOKOnly + iMsgBox, psTraceLevel
+	End If
+
+Exit_Sub:
+	Exit Sub
+Error_Sub:
+	With _A2B_
+		.TraceLogs() = Array()
+		.TraceLogCount = 0
+		.TraceLogLast = 0
+	End With
+	GoTo Exit_Sub	
+End Sub			&apos;	TraceLog	V0.9.5
+
+
+REM -----------------------------------------------------------------------------------------------------------------------
+REM --- PRIVATE FUNCTIONS 								        														---
+REM -----------------------------------------------------------------------------------------------------------------------
+
+Private Sub _DumpToFile(oEvent As Object)
+&apos;		Execute the Dump To File command from the Trace dialog
+&apos;		Modified from Andrew Pitonyak&apos;s Base Macro Programming §10.4
+
+
+	If _ErrorHandler() Then On Local Error GoTo Error_Sub
+
+Dim sPath as String, iFileNumber As Integer, i As Integer
+
+	sPath = _PromptFilePicker(&quot;txt&quot;)	
+	If sPath &lt;&gt; &quot;&quot; Then			&apos;	Save button pressed
+		If UBound(_A2B_.TraceLogs) &gt;= 0 Then			&apos;	Array yet initialized
+			iFileNumber = FreeFile()
+			Open sPath For Append Access Write Lock Read As iFileNumber
+			If _A2B_.TraceLogCount &gt; 0 Then
+				If _A2B_.TraceLogCount &lt; _A2B_.TraceLogMaxEntries Then i = -1 Else i = _A2B_.TraceLogLast
+				Do
+					If i &lt; _A2B_.TraceLogMaxEntries - 1 Then i = i + 1 Else i = 0
+					Print #iFileNumber _A2B_.TraceLogs(i)
+				Loop While i &lt;&gt; _A2B_.TraceLogLast
+			End If
+			Close iFileNumber
+			MsgBox _GetLabel(&quot;SAVECONSOLEENTRIES&quot;), vbOK + vbInformation, _GetLabel(&quot;SAVECONSOLE&quot;)
+		End If
+	End If
+	
+Exit_Sub:
+	Exit Sub
+Error_Sub:
+	TraceError(&quot;ERROR&quot;, Err, &quot;DumpToFile&quot;, Erl)
+	GoTo Exit_Sub	
+End Sub			&apos;	DumpToFile		V0.8.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _ErrorHandler(Optional ByVal pbCheck As Boolean) As Boolean
+&apos; Indicate if error handler is activated or not
+&apos; When argument present set error handler
+	If IsEmpty(_A2B_) Then Call Application._RootInit()	&apos;	First use of Access2Base in current LibO/AOO session
+	If Not IsMissing(pbCheck) Then _A2B_.ErrorHandler = pbCheck
+	_ErrorHandler = _A2B_.ErrorHandler
+	Exit Function		
+End Function
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _ErrorMessage(ByVal piErrorNumber As Integer, Optional ByVal pvArgs As Variant) As String
+&apos;	Return error message corresponding to ErrorNumber (standard or not)
+&apos;	and replaces %0, %1, ... , %9 by psArgs(0), psArgs(1), ...
+
+Dim sErrorMessage As String, i As Integer, sErrLabel
+	_ErrorMessage = &quot;&quot;
+	If piErrorNumber &gt; ERRINIT Then
+		sErrLabel = &quot;ERR&quot; &amp; piErrorNumber
+		sErrorMessage = _Getlabel(sErrLabel)
+		If Not IsMissing(pvArgs) Then
+			If Not IsArray(pvArgs) Then
+				sErrorMessage = Join(Split(sErrorMessage, &quot;%0&quot;), Utils._CStr(pvArgs, False))
+			Else
+				For i = LBound(pvArgs) To UBound(pvArgs)
+					sErrorMessage = Join(Split(sErrorMessage, &quot;%&quot; &amp; i), Utils._CStr(pvArgs(i), False))
+				Next i
+			End If
+		End If
+	Else
+		sErrorMessage = Error(piErrorNumber)
+		&apos;	Most (or all?) error messages terminate with a &quot;.&quot;
+		If Len(sErrorMessage) &gt; 1 And Right(sErrorMessage, 1) = &quot;.&quot; Then sErrorMessage = Left(sErrorMessage, Len(sErrorMessage)-1)
+	End If
+
+	_ErrorMessage = sErrorMessage
+	Exit Function
+	
+End Function	&apos;	ErrorMessage	V0.8.9
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Function _PromptFilePicker(ByVal psSuffix As String) As String
+&apos;		Prompt for output file name
+&apos;		Return &quot;&quot; if Cancel
+&apos;		Modified from Andrew Pitonyak&apos;s Base Macro Programming §10.4
+
+	If _ErrorHandler() Then On Local Error GoTo Error_Function
+
+Dim oFileDialog as Object, oUcb as object, oPath As Object
+Dim iAccept as Integer, sInitPath as String
+
+	Set oFileDialog = CreateUnoService(&quot;com.sun.star.ui.dialogs.FilePicker&quot;)
+	oFileDialog.Initialize(Array(com.sun.star.ui.dialogs.TemplateDescription.FILESAVE_AUTOEXTENSION)) 
+	Set oUcb = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;) 
+
+	oFileDialog.appendFilter(&quot;*.&quot; &amp; psSuffix, &quot;*.&quot; &amp; psSuffix)
+	oFileDialog.appendFilter(&quot;*.*&quot;, &quot;*.*&quot;)
+	oFileDialog.setCurrentFilter(&quot;*.&quot; &amp; psSuffix)
+	Set oPath = createUnoService(&quot;com.sun.star.util.PathSettings&quot;)
+	sInitPath = oPath.Work		&apos;	Probably My Documents
+	If oUcb.Exists(sInitPath) Then oFileDialog.SetDisplayDirectory(sInitPath) 
+
+	iAccept = oFileDialog.Execute()
+	
+	_PromptFilePicker = &quot;&quot;
+	If iAccept = 1 Then			&apos;	Save button pressed
+		_PromptFilePicker = oFileDialog.Files(0)
+	End If
+	
+Exit_Function:
+	If Not IsEmpty(oFileDialog) And Not IsNull(oFileDialog) Then oFileDialog.Dispose()
+	Exit Function
+Error_Function:
+	TraceError(&quot;ERROR&quot;, Err, &quot;PromptFilePicker&quot;, Erl)
+	GoTo Exit_Function	
+End Function			&apos;	PromptFilePicker	V0.8.5
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Public Sub _TraceArguments(Optional psCall As String)
+&apos;	Process the ERRMISSINGARGUMENTS error
+&apos;	psCall is present if error detected before call to _SetCalledSub
+
+	If Not IsMissing(psCall) Then Utils._SetCalledSub(psCall)
+	TraceError(TRACEFATAL, ERRMISSINGARGUMENTS, Utils._CalledSub(), 0)
+	Exit Sub
+	
+End Sub			&apos;	TraceArguments
+
+REM -----------------------------------------------------------------------------------------------------------------------
+Private Function _TraceLevel(ByVal pvTraceLevel As Variant) As Variant
+&apos;	Convert string trace level to numeric value or the opposite
+
+Dim vTraces As Variant, i As Integer
+	vTraces = Array(TRACEDEBUG, TRACEINFO, TRACEWARNING, TRACEERRORS, TRACEFATAL, TRACEABORT, TRACEANY)
+	
+	Select Case VarType(pvTraceLevel)
+		Case vbString
+			_TraceLevel = 4		&apos;	4 = Default
+			For i = 0 To UBound(vTraces)
+				If UCase(pvTraceLevel) = UCase(vTraces(i)) Then
+					_TraceLevel = i + 1
+					Exit For
+				End If
+			Next i
+		Case vbInteger, vbLong, vbSingle, vbDouble, vbCurrency, vbBigint, vbDecimal
+			If pvTraceLevel &lt; 1 Or pvTraceLevel &gt; UBound(vTraces) + 1 Then _TraceLevel = TRACEERRORS Else _TraceLevel = vTraces(pvTraceLevel - 1)
+	End Select
+							
+End Function	&apos;	TraceLevel
+
+</script:module>

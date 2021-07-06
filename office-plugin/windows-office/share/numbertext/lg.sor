@@ -1,0 +1,98 @@
+^0 zeero
+:1 mu
+:2 biri
+:3 satu
+:4 na
+:5 taano
+:6 kaaga
+:7 sanvu
+:8 naana
+:9 enda
+:10 kumi
+1 emu
+2 b$(:2)
+3 s$(:3)
+4 nnya
+5 t$(:5)
+6 mu$(:6)
+7 mu$(:7)
+8 mu$(:8)
+9 mw$(:9)
+
+1(\d) k$(:10) [na $1]
+([2-5])(\d) ama$(:10) a$(:\1) [mu $2]
+([67])(\d) n$(:\1) [mu $2]
+8(\d) ki$(:8) [mu $1]
+9(\d) ky$(:9) [mu $1]
+
+1(\d\d) ki$(:10) [mu $1]
+([2-5])(\d\d) bi$(:10) bi$(:\1) [mu $2]
+([6-8])(\d\d) lu$(:\1) [mu $2]
+9(\d\d) lw$(:9) [mu $1]
+
+1(\d\d\d) lu$(:10) [mu $1]
+([2-5])(\d\d\d) n$(:10) $1 [mu $2]
+([6-8])(\d\d\d) ka$(:\1) [mu $2]
+9(\d\d\d) k$(:9) [mu $1]
+
+1(\d{4}) mutwalo [gu$(:1) mu $1]
+([2-5])(\d{4}) mitwalo e$(:\1) [mu $2]
+([6-9])(\d{4}) mitwalo $1 [mu $2]
+(\d\d)(\d{4}) mitwalo $1 [mu $2]
+
+1(\d{6}) kakadde [ka$(:1) ne $1]
+9(\d{6}) bukadde bw$(:9) [ne $1]
+(\d)(\d{6}) bukadde bu$(:\1) [ne $2]
+(\d{2,6})(\d{6}) bukadde $1 [ne $2]
+
+1(\d{12}) kawumbi [ka$(:1) ne $1]
+9(\d{12}) buwumbi bw$(:9) [ne $1]
+(\d)(\d{12}) buwumbi bu$(:\1) [ne $2]
+(\d{2,6})(\d{12}) buwumbi $1 [ne $2]
+
+1(\d{18}) kafukunya [ka$(:1) ne $1]
+9(\d{18}) bufukunya bw$(:9) [ne $1]
+(\d)(\d{18}) bufukunya bu$(:\1) [ne $2]
+(\d{2,6})(\d{18}) bufukunya $1 [ne $2]
+
+1(\d{24}) kasedde [ka$(:1) ne $1]
+9(\d{24}) busedde bw$(:9) [ne $1]
+(\d)(\d{24}) busedde bu$(:\1) [ne $2]
+(\d{2,6})(\d{24}) busedde $1 [ne $2]
+
+# eŋŋaanyi
+
+[-−](\d+) eŋŋaanyi |$1
+
+# decimals
+0[.,] katonnyeze
+([-−]?\d+)[.,] $1| katonnyeze
+([-−]?\d+[.,]\d*)(\d) $1| |$2
+
+
+# unit/subunit
+u:([^,]*),([^,]*) \1
+#s:([^,]*),([^,]*) \2
+
+GBP:(\D) $(\1: pound za U.K)
+KES:(\D) $(\1: ssiringi za Kenya)
+UGX:(\D) $(\1: ssiringi za Uganda)
+USD:(\D) $(\1: U.S. doola)
+TZS:(\D) $(\1: ssiringi za Tanzania)
+
+
+"([A-Z]{3}) (.+)" $(\1:u) |$2
+
+== ordinal ==
+1 esooka
+([2-5]) eyoku$(:\1)
+([6-9]) eyo$1
+(1\d) eye$1
+(\d+) eya $1
+[-−](\d+) eŋŋaanyi $(ordinal \1)
+
+== ordinal-number ==
+(\d+) ey\1
+
+== year ==
+(\d+) mwaka $1

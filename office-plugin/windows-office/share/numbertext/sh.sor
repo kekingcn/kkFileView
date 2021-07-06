@@ -1,0 +1,108 @@
+#
+# Regular number to text transducer for Serbian (Cyrillic) written in Soros
+# Copyright (c) Goran Rakic <grakic@devbase.net> 2009.
+#              
+# Released under Creative Commons 3.0 Attribution - Share Alike license
+# and relicensed under GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Visit http://numbertext.org for more info on Soros language and syntax 
+#
+
+(\d{1,3})\.([\d.,]+) $(\1\2)
+
+^0 nula
+1 jedan
+2 dva
+3 tri
+4 četiri
+5 pet
+6 šest
+7 sedam
+8 osam
+9 devet
+10 deset
+
+11 jedanaest
+14 četrnaest
+16 šesnaest
+1(\d) $1naest
+
+4(\d) četrdeset[ $1]
+5(\d) pedeset[ $1]
+6(\d) šezdeset[ $1]
+9(\d) devedeset[ $1]
+(\d)(\d) $1deset[ $2]
+
+1(\d\d) sto[ $1]
+2(\d\d) dvesta[ $1]
+3(\d\d) trista[ $1]
+(\d)(\d\d) $1sto[ $2]
+
+1(\d\d\d) hiljadu[ $1]
+2(\d\d\d) dve hiljade[ $1]
+([34])(\d\d\d) $1 hiljade[ $2]
+(\d{0,1})1(\d)(\d\d\d) $(\11\2) hiljada[ $3]
+(\d{1,2})1(\d\d\d) $(\10) jedna hiljada[ $2]
+(\d{1,2})2(\d\d\d) $(\10) dve hiljade[ $2]
+(\d{1,2})([34])(\d\d\d) $(\10) $2 hiljade[ $3]
+(\d{1,3})(\d\d\d) $1 hiljada[ $2]
+
+1(\d{6}) milion[ $1]
+(\d{0,4})1(\d)(\d{6}) $(\11\2) miliona[ $3]
+(\d{1,5})1(\d{6}) $(\10) jedan milion[ $2]
+(\d{1,3})(\d{6}) $1 miliona[ $2]
+
+1(\d{9}) milijarda[ $1]
+2(\d{9}) dve milijarde[ $1]
+([34])(\d{9}) $1 milijarde[ $2]
+(\d{1,2})0(\d{9}) $(\10) milijardi[ $2]
+(\d{0,1})1(\d)(\d{9}) $(\11\2) milijardi[ $3]
+(\d{1,2})1(\d{9}) $(\10) jedna milijarda[ $2]
+(\d{1,2})2(\d{9}) $(\10) dve milijarde[ $2]
+(\d{1,2})([34])(\d{9}) $(\10) $2 milijarde[ $3]
+(\d{1,3})(\d{9}) $1 milijarde[ $2]
+
+1(\d{12}) bilion[ $1]
+(\d{0,4})1(\d)(\d{12}) $(\11\2) biliona[ $3]
+(\d{1,5})1(\d{12}) $(\10) jedan bilion[ $2]
+(\d{1,6})(\d{12}) $1 biliona[ $2]
+
+1(\d{18}) trilion[ $1]
+(\d{0,4})1(\d)(\d{18}) $(\11\2) triliona[ $3]
+(\d{1,5})1(\d{18}) $(\10) jedan trilion[ $2]
+(\d{1,6})(\d{18}) $1 triliona[ $2]
+
+1(\d{24}) kvadrilion[ $1]
+(\d{0,4})1(\d)(\d{24}) $(\11\2) kvadriliona[ $3]
+(\d{1,5})1(\d{24}) $(\10) jedan kvadrilion[ $2]
+(\d{1,6})(\d{24}) $1 kvadriliona[ $2]
+
+1(\d{30}) kvintilion[ $1]
+(\d{0,4})1(\d)(\d{30}) $(\11\2) kvintiliona[ $3]
+(\d{1,5})1(\d{30}) $(\10) jedan kvintilion[ $2]
+(\d{1,6})(\d{30}) $1 kvintiliona[ $2]
+
+1(\d{36}) sekstilion[ $1]
+(\d{0,4})1(\d)(\d{36}) $(\11\2) sekstiliona[ $3]
+(\d{1,5})1(\d{36}) $(\10) jedan sekstilion[ $2]
+(\d{1,6})(\d{36}) $1 sekstiliona[ $2]
+
+[-−](\d+) minus $1
+
+# Decimal code by https://twitter.com/_uranium_
+"([-−]?\d+)," $1| koma
+"([-−]?\d+,)([^0]\d)" $1 $2
+"([-−]?\d+,\d*[1-9]?)0+$" $1
+"([-−]?\d+,)(\d)(\d)(\d)" $1| |$2 |$3 |$4 
+"([-−]?\d+,\d*)(\d)" $1 |$2
+
+== ordinal-number ==
+
+(\d+)	\1.
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help ordinal-number)
+(.*) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n

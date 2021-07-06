@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<baf:BusinessAuthorization xmlns:baf="urn:tscp:names:baf:1.1">
+    <!-- Translators: this string can be localized -->
+    <baf:PolicyAuthorityName>Exemple d'autorité TSCP</baf:PolicyAuthorityName>
+    <!-- Translators: this string can be localized -->
+    <baf:PolicyName>Exemple de stratégie TSCP</baf:PolicyName>
+    <baf:AdministrativeData>
+        <baf:ProgramID>urn:example:tscp:1</baf:ProgramID>
+    </baf:AdministrativeData>
+    <baf:Included>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:non-business" Name="Public">
+            <baf:LabelingRules/>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>0</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:general-business" Name="Professionnel">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Classification : professionnel</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>1</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:confidential" Name="Confidentiel">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Classification : confidentiel</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Ce contenu est marqué confidentiel. Ne le communiquez pas à l'extérieur sans un accord de l'entreprise.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Confidentiel</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>2</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:internal-only" Name="Exclusivement en interne">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Classification : exclusivement en interne</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Ce contenu est marqué pour un usage interne exclusivement. Il ne doit pas être communiqué  à l'extérieur de l'entreprise.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Interne exclusivement</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>3</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+    </baf:Included>
+</baf:BusinessAuthorization>
+<!-- vim:set shiftwidth=4 softtabstop=4 expandtab:
+-->

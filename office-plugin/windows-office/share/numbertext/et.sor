@@ -1,0 +1,131 @@
+^0 null
+1 üks
+2 kaks
+3 kolm
+4 neli
+5 viis
+6 kuus
+7 seitse
+8 kaheksa
+9 üheksa
+10 kümme
+1(\d) $1teist
+(\d)(\d) $1kümmend[ $2]
+1(\d\d) sada[ $1]
+(\d)(\d\d) $1sada[ $2]
+1(\d{3}) tuhat[ $1]
+(\d{1,3})(\d{3}) $1 tuhat[ $2]
+1(\d{6}) miljon[ $1]
+(\d{1,3})(\d{6}) $1 miljonit[ $2]
+1(\d{9}) miljard[ $1]
+(\d{1,3})(\d{9}) $1 miljardit[ $2]
+1(\d{12}) biljon[ $1]
+(\d{1,3})(\d{12}) $1 biljonit[ $2]
+1(\d{15}) biljard[ $1]
+(\d{1,3})(\d{15}) $1 biljardit[ $2]
+1(\d{18}) triljon[ $1]
+(\d{1,3})(\d{18}) $1 triljonit[ $2]
+1(\d{21}) triljard[ $1]
+(\d{1,3})(\d{21}) $1 triljardit[ $2]
+1(\d{24}) kvadriljon[ $1]
+(\d{1,3})(\d{24}) $1 kvadriljonit[ $2]
+
+# negative numbers
+
+[-−](\d+) miinus |$1
+
+# decimals
+
+([-−]?\d+)[.,]([01])	|$1| ja |$2 kümnendikku
+([-−]?\d+)[.,](\d)	|$1| ja |$2 kümnendikku
+([-−]?\d+)[.,]0([01])	|$1| ja |$2 sajandikku
+([-−]?\d+)[.,](\d\d)	|$1| ja |$2 sajandikku
+([-−]?\d+)[.,]00([01])	|$1| ja |$2 tuhandikku
+([-−]?\d+)[.,](\d\d\d)	|$1| ja |$2 tuhandikku
+"([-−]?\d+)[.,](\d)(\d)(\d)(\d)" |$1| ja |$2| |$3| |$4| |$5|
+"([-−]?\d+[.,]\d+)(\d)" $1 |$2|
+
+# currency
+
+# unit/subunit singular/singular partitive
+
+us:([^,]*),([^,]*),([^,]*),([^,]*) \1
+up:([^,]*),([^,]*),([^,]*),([^,]*) \2
+ss:([^,]*),([^,]*),([^,]*),([^,]*) \3
+sp:([^,]*),([^,]*),([^,]*),([^,]*) \4
+
+CHF:(\D+) $(\1: Šveitsi frank,  Šveitsi franki, rapp, rappi)
+CNY:(\D+) $(\1: Hiina jüaan, Hiina jüaan, sent, senti)
+EEK:(\D+) $(\1: Eesti kroon, Eesti krooni, sent, senti)
+EUR:(\D+) $(\1: euro, eurot, sent, senti)
+GBP:(\D+) $(\1: Suurbritannia nael, Suurbritannia naela, penn, penni)
+JPY:(\D+) $(\1: Jaapani jeen, Jaapani jeeni, seniks, seniks)
+USD:(\D+) $(\1: USA dollar, USA dollarit, sent, senti)
+RUB:(\D+) $(\1: Vene rubla, Vene rublat, kopikas, kopikat)
+
+"(JPY [-−]?\d+)[.,](\d\d)0" $1
+"(JPY [-−]?\d+[.,]\d\d)1" $1 $2 riniks
+"(JPY [-−]?\d+[.,]\d\d)(\d)" $1 $2 riniks
+
+"([A-Z]{3}) ([-−]?1)([.,]00?)?" $2$(\1:us)
+"([A-Z]{3}) ([-−]?\d+)([.,]00?)?" $2$(\1:up)
+
+"(CNY [-−]?\d+)[.,]10?" $1 $2 tsjao
+"(CNY [-−]?\d+)[.,](\d)0?" $1 $2 tsjaoga
+"(CNY [-−]?\d+[.,]\d)1" $1 $2  fõn
+"(CNY [-−]?\d+[.,]\d)(\d)" $1 $2  fõniga
+
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 ja $(1)$(\2:ss)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 ja $(\30)$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 ja $3$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d\d)" $1 ja $3$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d\d\d)" $1 ja $3$(\2:sp)
+
+
+
+== ordinal ==
+
+^0 null
+1 esimene
+2 teine
+3 kolmas
+([4-9])$ $(ordinal \1)s
+4 nelja
+5 viie
+6 kuue
+7 seitsme
+8 kaheksa
+9 üheksa
+10 kümnes
+11 üheteistkümnes
+12 kaheteistkümnes
+13 kolmeteistkümnes
+1(\d) $(ordinal \1)teistkümnes
+20 kahekümnes
+2(\d) kahekümne[ $(ordinal \1)]
+30 kolmekümnes
+3(\d) kolmekümne[ $(ordinal \1)]
+(\d)0 $(ordinal \1)kümnes
+(\d)(\d) $(ordinal \1)kümne $(ordinal \2)
+100 sajas
+1(\d\d) saja[ $(ordinal \1)]
+200 kahesajas
+2(\d\d) kahesaja[ $(ordinal \1)]
+(\d)(\d\d) $(ordinal \1)saja[ $(ordinal \2)]
+1(\d{3}) tuhandes[ $(ordinal \1)]
+(\d{1,3})(\d{3}) $(ordinal \1)tuhande[ $(ordinal \2)]
+1(\d{6}) miljones[ $(ordinal \1)]
+(\d{1,3})(\d{6}) $(ordinal \1)miljone[ $(ordinal \2)]
+1(\d{9}) miljardes[ $(ordinal \1)]
+(\d{1,3})(\d{9}) $(ordinal \1)miljarde[ $(ordinal \2)]
+1(\d{12}) biljones[ $(ordinal \1)]
+(\d{1,3})(\d{12}) $(ordinal \1)biljone[ $(ordinal \2)]
+
+== ordinal-number ==
+
+(\d+)	\1.
+
+== help ==
+
+"" $(1), $(2), $(3)\n$(help ordinal)$(help ordinal-number)
+(ordinal(-number)?) \1: $(\1 1)|, $(\1 2)|, $(\1 3)\n

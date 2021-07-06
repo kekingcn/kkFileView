@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--***********************************************************
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * 
- ***********************************************************-->
-
-
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file incorporates work covered by the following license notice:
+ *
+ *   Licensed to the Apache Software Foundation (ASF) under one or more
+ *   contributor license agreements. See the NOTICE file distributed
+ *   with this work for additional information regarding copyright
+ *   ownership. The ASF licenses this file to you under the Apache
+ *   License, Version 2.0 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+ -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml" xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:aml="http://schemas.microsoft.com/aml/2001/core" xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" exclude-result-prefixes="office table style text draw svg   dc config xlink meta oooc dom ooo chart math dr3d form script ooow draw">
     <xsl:key name="table-style" match="style:style[@style:family='table']" use="@style:name"/>
     <xsl:key name="table-column-style" match="style:style[@style:family='table-column']" use="@style:name"/>
@@ -103,7 +98,7 @@
                 <xsl:if test="@table:is-sub-table ='true' ">
                     <w:tblW w:type="dxa">
                         <xsl:variable name="sub-table-width">
-                            <xsl:call-template name="caculate-sub-table-width">
+                            <xsl:call-template name="calculate-sub-table-width">
                                 <xsl:with-param name="sub-table-column-node" select="table:table-column[1]"/>
                                 <xsl:with-param name="total-sub-table-width" select="0"/>
                             </xsl:call-template>
@@ -142,7 +137,7 @@
             <w:p/>
         </xsl:if>
     </xsl:template>
-    <xsl:template name="caculate-sub-table-width">
+    <xsl:template name="calculate-sub-table-width">
         <xsl:param name="sub-table-column-node"/>
         <xsl:param name="total-sub-table-width"/>
         <xsl:variable name="column-width" select="key('table-column-style', $sub-table-column-node/@table:style-name)/style:table-column-properties/@style:column-width"/>
@@ -155,13 +150,13 @@
             <xsl:when test="$sub-table-column-node/following-sibling::table:table-column">
                 <xsl:choose>
                     <xsl:when test="$sub-table-column-node/@table:number-columns-repeated">
-                        <xsl:call-template name="caculate-sub-table-width">
+                        <xsl:call-template name="calculate-sub-table-width">
                             <xsl:with-param name="sub-table-column-node" select="$sub-table-column-node/following-sibling::table:table-column[ 1]"/>
                             <xsl:with-param name="total-sub-table-width" select="$total-sub-table-width + $column-width-in-twip *  $sub-table-column-node/@table:number-columns-repeated"/>
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="caculate-sub-table-width">
+                        <xsl:call-template name="calculate-sub-table-width">
                             <xsl:with-param name="sub-table-column-node" select="$sub-table-column-node/following-sibling::table:table-column[1]"/>
                             <xsl:with-param name="total-sub-table-width" select="$total-sub-table-width + $column-width-in-twip "/>
                         </xsl:call-template>
@@ -189,7 +184,7 @@
         </xsl:variable>
         <xsl:choose>
             <!-- if table:table-column has attribute table:number-columns-repeated, then call the recursion
-			temple repeat-gridcol to produce multiple w:gridCol in MS word. Gary.Yang   -->
+            temple repeat-gridcol to produce multiple w:gridCol in MS word. Gary.Yang   -->
             <xsl:when test="@table:number-columns-repeated">
                 <xsl:call-template name="repeat-gridcol">
                     <xsl:with-param name="grid-repeat-count" select="@table:number-columns-repeated"/>
@@ -234,12 +229,12 @@
     <xsl:template match="table:table-cell ">
         <xsl:element name="w:tc">
             <xsl:element name="w:tcPr">
-                <!-- to caclate the table-cell width Gary.Yang -->
+                <!-- to calculate the table-cell width Gary.Yang -->
                 <xsl:choose>
-                    <!--when the table-cell  contains the sub-table -->
+                    <!--when the table-cell contains the sub-table -->
                     <xsl:when test="table:table/@table:is-sub-table= 'true' ">
                         <xsl:variable name="table-cell-width">
-                            <xsl:call-template name="caculate-sub-table-width">
+                            <xsl:call-template name="calculate-sub-table-width">
                                 <xsl:with-param name="sub-table-column-node" select="table:table/table:table-column[1]"/>
                                 <xsl:with-param name="total-sub-table-width" select="0"/>
                             </xsl:call-template>
@@ -251,7 +246,7 @@
                     <xsl:otherwise>
                         <!-- when the table-cell doesn't contain the sub-table -->
                         <xsl:variable name="table-cell-width">
-                            <xsl:call-template name="caculate-table-cell-width">
+                            <xsl:call-template name="calculate-table-cell-width">
                                 <xsl:with-param name="table-cell-position" select="position()"/>
                                 <xsl:with-param name="table-column" select="ancestor::table:table[1]/table:table-column[1]"/>
                             </xsl:call-template>
@@ -305,7 +300,7 @@
                         </w:right>
                     </xsl:if>
                 </w:tcMar>
-                <!-- the following code is to get the cell borders if they exsits Gary.Yang-->
+                <!-- the following code is to get the cell borders if they exist -->
                 <xsl:variable name="border-top" select="$cell-style-properties/@fo:border-top | $cell-style-properties/@fo:border"/>
                 <xsl:variable name="border-bottom" select="$cell-style-properties/@fo:border-bottom | $cell-style-properties/@fo:border"/>
                 <xsl:variable name="border-left" select="$cell-style-properties/@fo:border-left | $cell-style-properties/@fo:border"/>
@@ -359,7 +354,7 @@
             <xsl:apply-templates select=" text:p | table:table | text:h | office:annotation"/>
         </xsl:element>
     </xsl:template>
-    <xsl:template name="caculate-table-cell-width">
+    <xsl:template name="calculate-table-cell-width">
         <xsl:param name="table-cell-position"/>
         <xsl:param name="table-column"/>
         <xsl:choose>
@@ -375,7 +370,7 @@
                         <xsl:value-of select="$table-cell-width-in-twip"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="caculate-table-cell-width">
+                        <xsl:call-template name="calculate-table-cell-width">
                             <xsl:with-param name="table-cell-position" select="$table-cell-position - $table-column/@table:number-columns-repeated"/>
                             <xsl:with-param name="table-column" select="$table-column/following-sibling::table:table-column[1]"/>
                         </xsl:call-template>
@@ -395,14 +390,14 @@
                         <xsl:value-of select="$table-cell-width-in-twip"/>
                     </xsl:when>
                     <xsl:when test="($table-cell-position - 1) &gt; 0">
-                        <xsl:call-template name="caculate-table-cell-width">
+                        <xsl:call-template name="calculate-table-cell-width">
                             <xsl:with-param name="table-cell-position" select=" $table-cell-position - 1 "/>
                             <xsl:with-param name="table-column" select="$table-column/following-sibling::table:table-column[1]"/>
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:message>
-                            <xsl:value-of select=" 'caculate table cell width wrong ' "/>
+                            <xsl:value-of select=" 'calculate table cell width wrong ' "/>
                         </xsl:message>
                     </xsl:otherwise>
                 </xsl:choose>

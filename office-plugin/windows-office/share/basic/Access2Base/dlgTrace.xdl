@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="dlgTrace" dlg:left="81" dlg:top="63" dlg:width="438" dlg:height="154" dlg:help-text="Manage the console file and its entries" dlg:closeable="true" dlg:moveable="true" dlg:title="Console">
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:font-name="Courier New" dlg:font-stylename="Regular" dlg:font-family="modern"/>
+  <dlg:style dlg:style-id="1" dlg:look="simple"/>
+  <dlg:style dlg:style-id="2" dlg:background-color="0xe6e6e6" dlg:border="none"/>
+ </dlg:styles>
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="lblEntries" dlg:tab-index="3" dlg:left="265" dlg:top="134" dlg:width="130" dlg:height="9" dlg:help-text="Clear the list and resize the circular buffer" dlg:value="Set max number of entries" dlg:align="right"/>
+  <dlg:numericfield dlg:id="numEntries" dlg:tab-index="4" dlg:left="399" dlg:top="129" dlg:width="28" dlg:height="16" dlg:help-text="Clear the list and resize the circular buffer" dlg:decimal-accuracy="0" dlg:value="20" dlg:value-min="5" dlg:value-max="999" dlg:spin="true"/>
+  <dlg:textfield dlg:style-id="0" dlg:id="txtTraceLog" dlg:tab-index="0" dlg:left="9" dlg:top="20" dlg:width="360" dlg:height="105" dlg:help-text="Text can be selected, copied, ..." dlg:hscroll="true" dlg:vscroll="true" dlg:multiline="true" dlg:readonly="true" dlg:value="--- Log file is empty ---"/>
+  <dlg:checkbox dlg:style-id="1" dlg:id="chkClear" dlg:tab-index="5" dlg:left="58" dlg:top="133" dlg:width="6" dlg:height="9" dlg:help-text="Clear the list" dlg:value="Clear" dlg:checked="false"/>
+  <dlg:button dlg:id="cmdCancel" dlg:tab-index="6" dlg:left="381" dlg:top="38" dlg:width="40" dlg:height="12" dlg:help-text="Cancel and close the dialog" dlg:value="Cancel" dlg:button-type="cancel"/>
+  <dlg:text dlg:id="lblClear" dlg:tab-index="7" dlg:left="9" dlg:top="133" dlg:width="46" dlg:height="9" dlg:help-text="Clear the list" dlg:value="Clear the list" dlg:align="right"/>
+  <dlg:text dlg:id="lblMinLevel" dlg:tab-index="8" dlg:left="74" dlg:top="133" dlg:width="130" dlg:height="9" dlg:help-text="Register only logging requests above given level" dlg:value="Set minimal trace level" dlg:align="right"/>
+  <dlg:combobox dlg:id="cboMinLevel" dlg:tab-index="9" dlg:left="209" dlg:top="133" dlg:width="50" dlg:height="9" dlg:help-text="Register only logging requests above given level" dlg:spin="true">
+   <dlg:menupopup>
+    <dlg:menuitem dlg:value="DEBUG"/>
+    <dlg:menuitem dlg:value="INFO"/>
+    <dlg:menuitem dlg:value="WARNING"/>
+    <dlg:menuitem dlg:value="ERROR"/>
+    <dlg:menuitem dlg:value="ABORT"/>
+   </dlg:menupopup>
+  </dlg:combobox>
+  <dlg:button dlg:id="cmdOK" dlg:tab-index="1" dlg:left="381" dlg:top="20" dlg:width="40" dlg:height="12" dlg:help-text="Validate" dlg:default="true" dlg:value="OK" dlg:button-type="ok"/>
+  <dlg:button dlg:id="cmdDump" dlg:tab-index="2" dlg:left="381" dlg:top="68" dlg:width="40" dlg:height="31" dlg:help-text="Choose a file and dump the actual list content in it" dlg:value="Dump to file" dlg:multiline="true">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Access2Base.Trace._DumpToFile?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="lblNbEntries" dlg:tab-index="10" dlg:left="9" dlg:top="10" dlg:width="105" dlg:height="7" dlg:help-text="Actual size of list" dlg:value="Actual number of entries:"/>
+  <dlg:numericfield dlg:style-id="2" dlg:id="numNbEntries" dlg:tab-index="11" dlg:left="123" dlg:top="9" dlg:width="17" dlg:height="9" dlg:help-text="Actual size of list" dlg:readonly="true" dlg:decimal-accuracy="0" dlg:value="0"/>
+ </dlg:bulletinboard>
+</dlg:window>

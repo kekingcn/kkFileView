@@ -1,0 +1,918 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Session" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Session
+&apos;&apos;&apos;	==========
+&apos;&apos;&apos;		Singleton class implementing the &quot;ScriptForge.Session&quot; service
+&apos;&apos;&apos;		Implemented as a usual Basic module
+&apos;&apos;&apos;	
+&apos;&apos;&apos;		Gathers diverse general-purpose properties and methods about :
+&apos;&apos;&apos;			- installation/execution environment
+&apos;&apos;&apos;			- UNO introspection utilities
+&apos;&apos;&apos;			- clipboard management
+&apos;&apos;&apos;			- invocation of external scripts or programs
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation example:
+&apos;&apos;&apos;			Dim session As Variant
+&apos;&apos;&apos;			session = CreateScriptService(&quot;Session&quot;)
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Const CALCFUNCERROR				=	&quot;CALCFUNCERROR&quot;		&apos;	Calc function execution failed
+Const NOSCRIPTERROR				=	&quot;NOSCRIPTERROR&quot;		&apos;	Script could not be located
+Const SCRIPTEXECERROR			=	&quot;SCRIPTEXECERROR&quot;	&apos;	Exception during script execution
+Const WRONGEMAILERROR			=	&quot;WRONGEMAILERROR&quot;	&apos;	Wrong email address
+Const SENDMAILERROR				=	&quot;SENDMAILERROR&quot;		&apos;	Mail could not be sent
+Const UNKNOWNFILEERROR			=	&quot;UNKNOWNFILEERROR&quot;	&apos;	Source file does not exist
+
+REM ============================================================ MODULE CONSTANTS
+
+&apos;&apos;&apos;	Script locations
+&apos;&apos;&apos;	================
+&apos;&apos;&apos;		Use next constants as Scope argument when invoking next methods:
+&apos;&apos;&apos;			ExecuteBasicScript()
+&apos;&apos;&apos;			ExecutePythonScript()
+&apos;&apos;&apos;		Example:
+&apos;&apos;&apos;			session.ExecuteBasicScript(session.SCRIPTISEMBEDDED, &quot;Standard.myLib.myFunc&quot;, etc)
+
+Const cstSCRIPTISEMBEDDED		= &quot;document&quot;				&apos; a library of the document						(BASIC + PYTHON)
+Const cstSCRIPTISAPPLICATION	= &quot;application&quot;				&apos; a shared library								(BASIC)
+Const cstSCRIPTISPERSONAL		= &quot;user&quot;					&apos; a library of My Macros						(PYTHON)
+Const cstSCRIPTISPERSOXT		= &quot;user:uno_packages&quot;		&apos; an extension for the current user				(PYTHON)
+Const cstSCRIPTISSHARED			= &quot;share&quot;					&apos; a library of LibreOffice Macros				(PYTHON)
+Const cstSCRIPTISSHAROXT		= &quot;share:uno_packages&quot;		&apos; an extension for all users					(PYTHON)
+Const cstSCRIPTISOXT			= &quot;uno_packages&quot;			&apos; an extension but install params are unknown	(PYTHON)
+
+REM ===================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Set Dispose = Nothing
+End Function	&apos;	ScriptForge.SF_Array Explicit destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get ObjectType As String
+&apos;&apos;&apos;	Only to enable object representation
+	ObjectType = &quot;SF_Session&quot;
+End Property	&apos;	ScriptForge.SF_Session.ObjectType
+
+REM -----------------------------------------------------------------------------
+Property Get ServiceName As String
+&apos;&apos;&apos;	Internal use
+	ServiceName = &quot;ScriptForge.Session&quot;
+End Property	&apos;	ScriptForge.SF_Array.ServiceName
+
+REM -----------------------------------------------------------------------------
+Property Get SCRIPTISAPPLICATION As String
+&apos;&apos;&apos;	Convenient constants
+	SCRIPTISAPPLICATION = cstSCRIPTISAPPLICATION
+End Property	&apos;	ScriptForge.SF_Session.SCRIPTISAPPLICATION
+
+REM -----------------------------------------------------------------------------
+Property Get SCRIPTISEMBEDDED As String
+&apos;&apos;&apos;	Convenient constants
+	SCRIPTISEMBEDDED = cstSCRIPTISEMBEDDED
+End Property	&apos;	ScriptForge.SF_Session.SCRIPTISEMBEDDED
+
+REM -----------------------------------------------------------------------------
+Property Get SCRIPTISOXT As String
+&apos;&apos;&apos;	Convenient constants
+	SCRIPTISOXT = cstSCRIPTISOXT
+End Property	&apos;	ScriptForge.SF_Session.SCRIPTISOXT
+
+REM -----------------------------------------------------------------------------
+Property Get SCRIPTISPERSONAL As String
+&apos;&apos;&apos;	Convenient constants
+	SCRIPTISPERSONAL = cstSCRIPTISPERSONAL
+End Property	&apos;	ScriptForge.SF_Session.SCRIPTISPERSONAL
+
+REM -----------------------------------------------------------------------------
+Property Get SCRIPTISPERSOXT As String
+&apos;&apos;&apos;	Convenient constants
+	SCRIPTISPERSOXT = cstSCRIPTISPERSOXT
+End Property	&apos;	ScriptForge.SF_Session.SCRIPTISPERSOXT
+
+REM -----------------------------------------------------------------------------
+Property Get SCRIPTISSHARED As String
+&apos;&apos;&apos;	Convenient constants
+	SCRIPTISSHARED = cstSCRIPTISSHARED
+End Property	&apos;	ScriptForge.SF_Session.SCRIPTISSHARED
+
+REM -----------------------------------------------------------------------------
+Property Get SCRIPTISSHAROXT As String
+&apos;&apos;&apos;	Convenient constants
+	SCRIPTISSHAROXT = cstSCRIPTISSHAROXT
+End Property	&apos;	ScriptForge.SF_Session.SCRIPTISSHAROXT
+
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function ExecuteBasicScript(Optional ByVal Scope As Variant _
+										, Optional ByVal Script As Variant _
+										, ParamArray pvArgs As Variant _
+										) As Variant
+&apos;&apos;&apos;	Execute the Basic script given as a string and return the value returned by the script
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Scope: &quot;Application&quot; (default) or &quot;Document&quot; (NOT case-sensitive)
+&apos;&apos;&apos;			(or use one of the SCRIPTIS... public constants above)
+&apos;&apos;&apos;		Script: library.module.method (Case sensitive)
+&apos;&apos;&apos;			library =&gt; The library may be not loaded yet
+&apos;&apos;&apos;			module =&gt; Must not be a class module
+&apos;&apos;&apos;			method =&gt; Sub or Function
+&apos;&apos;&apos;			Read https://wiki.openoffice.org/wiki/Documentation/DevGuide/Scripting/Scripting_Framework_URI_Specification
+&apos;&apos;&apos;		pvArgs: the arguments of the called script
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The value returned by the call to the script
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		NOSCRIPTERROR		The script could not be found
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		session.ExecuteBasicScript(, &quot;XrayTool._Main.Xray&quot;, someuno)	&apos;	Sub: no return expected
+
+Dim oScript As Object			&apos;	Script to be invoked
+Dim vReturn As Variant			&apos;	Returned value
+
+Const cstThisSub = &quot;Session.ExecuteBasicScript&quot;
+Const cstSubArgs = &quot;[Scope], Script, arg0[, arg1] ...&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	vReturn = Empty
+
+Check:
+	If IsMissing(Scope) Or IsEmpty(Scope) Then Scope = SCRIPTISAPPLICATION
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(Scope, &quot;Scope&quot;, V_STRING _
+				, Array(SCRIPTISAPPLICATION, SCRIPTISEMBEDDED)) Then GoTo Finally
+		If Not SF_Utils._Validate(Script, &quot;Script&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Execute script
+	Set oScript = SF_Session._GetScript(&quot;Basic&quot;, Scope, Script)
+	On Local Error GoTo CatchExec
+	If Not IsNull(oScript) Then vReturn = oScript.Invoke(pvArgs(), Array(), Array())
+
+Finally:
+	ExecuteBasicScript = vReturn
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchExec:
+	SF_Exception.RaiseFatal(SCRIPTEXECERROR, &quot;Script&quot;, Script, Error$)
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.ExecuteBasicScript
+
+REM -----------------------------------------------------------------------------
+Public Function ExecuteCalcFunction(Optional ByVal CalcFunction As Variant _
+										, ParamArray pvArgs As Variant _
+										) As Variant
+&apos;&apos;&apos;	Execute a Calc function by its (english) name and based on the given arguments
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		CalcFunction: the english name of the function to execute
+&apos;&apos;&apos;		pvArgs: the arguments of the called function
+&apos;&apos;&apos;			Each argument must be either a string, a numeric value
+&apos;&apos;&apos;			or an array of arrays combining those types
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The (string or numeric) value or the array of arrays returned by the call to the function
+&apos;&apos;&apos;		When the arguments contain arrays, the function is executed as an array function
+&apos;&apos;&apos;		Wrong arguments generate an error
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		CALCFUNCERROR			&apos;	Execution error in calc function
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		session.ExecuteCalcFunction(&quot;AVERAGE&quot;, 1, 5, 3, 7) returns 4
+&apos;&apos;&apos;		session.ExecuteCalcFunction(&quot;ABS&quot;, Array(Array(-1,2,3),Array(4,-5,6),Array(7,8,-9)))(2)(2) returns 9
+&apos;&apos;&apos;		session.ExecuteCalcFunction(&quot;LN&quot;, -3) generates an error
+
+Dim oCalc As Object				&apos;	Give access to the com.sun.star.sheet.FunctionAccess service
+Dim vReturn As Variant			&apos;	Returned value
+Const cstThisSub = &quot;Session.ExecuteCalcFunction&quot;
+Const cstSubArgs = &quot;CalcFunction, arg0[, arg1] ...&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vReturn = Empty
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(CalcFunction, &quot;CalcFunction&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Execute function
+	Set oCalc = SF_Utils._GetUNOService(&quot;FunctionAccess&quot;)
+	On Local Error GoTo CatchCall
+	vReturn = oCalc.callFunction(UCase(CalcFunction), pvArgs())
+
+Finally:
+	ExecuteCalcFunction = vReturn
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchCall:
+	SF_Exception.RaiseFatal(CALCFUNCERROR, CalcFunction)
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.ExecuteCalcFunction
+
+REM -----------------------------------------------------------------------------
+Public Function ExecutePythonScript(Optional ByVal Scope As Variant _
+										, Optional ByVal Script As Variant _
+										, ParamArray pvArgs As Variant _
+										) As Variant
+&apos;&apos;&apos;	Execute the Python script given as a string and return the value returned by the script
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Scope: one of the SCRIPTIS... public constants above (default = &quot;share&quot;)
+&apos;&apos;&apos;		Script:	 (Case sensitive)
+&apos;&apos;&apos;				&quot;library/module.py$method&quot;
+&apos;&apos;&apos;				or &quot;module.py$method&quot;
+&apos;&apos;&apos;				or &quot;myExtension.oxt|myScript|module.py$method&quot;
+&apos;&apos;&apos;			library =&gt; The library may be not loaded yet
+&apos;&apos;&apos;			myScript =&gt; The directory containing the python module
+&apos;&apos;&apos;			module.py =&gt; The python module
+&apos;&apos;&apos;			method =&gt; The python function
+&apos;&apos;&apos;			Read https://wiki.openoffice.org/wiki/Documentation/DevGuide/Scripting/Scripting_Framework_URI_Specification
+&apos;&apos;&apos;		pvArgs: the arguments of the called script
+&apos;&apos;&apos;			Date arguments are converted to iso format. However dates in arrays are not converted
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The value(s) returned by the call to the script. If &gt;1 values, enclosed in an array
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		NOSCRIPTERROR		The script could not be found
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		session.ExecutePythonScript(session.SCRIPTISSHARED, &quot;Capitalise.py$getNewString&quot;, &quot;Abc&quot;) returns &quot;abc&quot;
+
+Dim oScript As Object			&apos;	Script to be invoked
+Dim vArg As Variant				&apos;	Individual argument
+Dim vReturn As Variant			&apos;	Returned value
+Dim i As Long
+
+Const cstThisSub = &quot;Session.ExecutePythonScript&quot;
+Const cstSubArgs = &quot;[Scope], Script, arg0[, arg1] ...&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	vReturn = Empty
+
+Check:
+	If IsError(Scope) Or IsMissing(Scope) Then Scope = SCRIPTISSHARED
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(Scope, &quot;Scope&quot;, V_STRING _
+				, Array(SCRIPTISSHARED, SCRIPTISEMBEDDED, SCRIPTISPERSONAL, SCRIPTISSHAROXT, SCRIPTISPERSOXT, SCRIPTISOXT) _
+				) Then GoTo Finally
+		If Not SF_Utils._Validate(Script, &quot;Script&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Filter date arguments - NB: dates in arrays are not filtered
+	For i = 0 To UBound(pvArgs)		&apos;	pvArgs always zero-based
+		vArg = pvArgs(i)
+		If VarType(vArg) = V_DATE Then pvArgs(i) = SF_Utils._CDateToIso(vArg)
+	Next i
+
+	&apos;	Find script
+	Set oScript = SF_Session._GetScript(&quot;Python&quot;, Scope, Script)
+
+	&apos;	Execute script
+	If Not IsNull(oScript) Then
+		vReturn = oScript.Invoke(pvArgs(), Array(), Array())
+		&apos;	Remove surrounding array when single returned value
+		If IsArray(vReturn) Then
+			If UBound(vReturn) = 0 Then vReturn = vReturn(0)
+		End If
+	End If
+
+Finally:
+	ExecutePythonScript = vReturn
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.ExecutePythonScript
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;Session.GetProperty&quot;
+Const cstSubArgs = &quot;PropertyName&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	Select Case UCase(PropertyName)
+		Case Else
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function HasUnoMethod(Optional ByRef UnoObject As Variant _
+									, Optional ByVal MethodName As Variant _
+									) As Boolean
+&apos;&apos;&apos;	Returns True if a UNO object contains the given method
+&apos;&apos;&apos; Code-snippet derived from XRAY
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		UnoObject: the object to identify
+&apos;&apos;&apos;		MethodName: the name of the method as a string. The search is case-sensitive
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False when the method is not found or when an argument is invalid
+
+Dim oIntrospect As Object		&apos;	com.sun.star.beans.Introspection
+Dim oInspect As Object			&apos;	com.sun.star.beans.XIntrospectionAccess
+Dim bMethod As Boolean			&apos;	Return value
+Const cstThisSub = &quot;Session.HasUnoMethod&quot;
+Const cstSubArgs = &quot;UnoObject, MethodName&quot;
+
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+Check:
+	bMethod = False
+	If VarType(UnoObject) &lt;&gt; V_OBJECT Then GoTo Finally
+	If IsNull(UnoObject) Then GoTo Finally
+	If VarType(MethodName) &lt;&gt; V_STRING Then GoTo Finally
+	If MethodName = Space(Len(MethodName)) Then GoTo Finally
+
+Try:
+	On Local Error GoTo Catch
+	Set oIntrospect = SF_Utils._GetUNOService(&quot;Introspection&quot;)
+	Set oInspect = oIntrospect.inspect(UnoObject)
+	bMethod = oInspect.hasMethod(MethodName, com.sun.star.beans.MethodConcept.ALL)
+
+Finally:
+	HasUnoMethod = bMethod
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	On Local Error GoTo 0
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.HasUnoMethod
+
+REM -----------------------------------------------------------------------------
+Public Function HasUnoProperty(Optional ByRef UnoObject As Variant _
+									, Optional ByVal PropertyName As Variant _
+									) As Boolean
+&apos;&apos;&apos;	Returns True if a UNO object contains the given property
+&apos;&apos;&apos; Code-snippet derived from XRAY
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		UnoObject: the object to identify
+&apos;&apos;&apos;		PropertyName: the name of the property as a string. The search is case-sensitive
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False when the property is not found or when an argument is invalid
+
+Dim oIntrospect As Object		&apos;	com.sun.star.beans.Introspection
+Dim oInspect As Object			&apos;	com.sun.star.beans.XIntrospectionAccess
+Dim bProperty As Boolean		&apos;	Return value
+Const cstThisSub = &quot;Session.HasUnoProperty&quot;
+Const cstSubArgs = &quot;UnoObject, PropertyName&quot;
+
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+Check:
+	bProperty = False
+	If VarType(UnoObject) &lt;&gt; V_OBJECT Then GoTo Finally
+	If IsNull(UnoObject) Then GoTo Finally
+	If VarType(PropertyName) &lt;&gt; V_STRING Then GoTo Finally
+	If PropertyName = Space(Len(PropertyName)) Then GoTo Finally
+
+Try:
+	On Local Error GoTo Catch
+	Set oIntrospect = SF_Utils._GetUNOService(&quot;Introspection&quot;)
+	Set oInspect = oIntrospect.inspect(UnoObject)
+	bProperty = oInspect.hasProperty(PropertyName, com.sun.star.beans.PropertyConcept.ALL)
+
+Finally:
+	HasUnoProperty = bProperty
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	On Local Error GoTo 0
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.HasUnoProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Session service as an array
+
+	Methods = Array( _
+					&quot;ExecuteBasicScript&quot; _
+					, &quot;ExecuteCalcFunction&quot; _
+					, &quot;ExecutePythonScript&quot; _
+					, &quot;HasUnoMethod&quot; _
+					, &quot;HasUnoProperty&quot; _
+					, &quot;OpenURLInBrowser&quot; _
+					, &quot;RunApplication&quot; _
+					, &quot;SendMail&quot; _
+					, &quot;UnoMethods&quot; _
+					, &quot;UnoObjectType&quot; _
+					, &quot;UnoProperties&quot; _
+					, &quot;WebService&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_Session.Methods
+
+REM -----------------------------------------------------------------------------
+Public Sub OpenURLInBrowser(Optional ByVal URL As Variant)
+&apos;&apos;&apos;	Opens a URL in the default browser
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		URL: The URL to open in the browser
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		session.OpenURLInBrowser(&quot;https://docs.python.org/3/library/webbrowser.html&quot;)
+
+Const cstPyHelper = &quot;$&quot; &amp; &quot;_SF_Session__OpenURLInBrowser&quot;
+
+Const cstThisSub = &quot;Session.OpenURLInBrowser&quot;
+Const cstSubArgs = &quot;URL&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(URL, &quot;URL&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	ExecutePythonScript(SCRIPTISSHARED, _SF_.PythonHelper &amp; cstPyHelper, URL)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub			&apos;	ScriptForge.SF_Session.OpenURLInBrowser
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties as an array
+
+	Properties = Array( _
+					)
+
+End Function	&apos;	ScriptForge.SF_Session.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function RunApplication(Optional ByVal Command As Variant _
+									, Optional ByVal Parameters As Variant _
+									) As Boolean
+&apos;&apos;&apos;	Executes an arbitrary system command
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Command: The command to execute
+&apos;&apos;&apos;			This may be an executable file or a document which is registered with an application
+&apos;&apos;&apos;			so that the system knows what application to launch for that document
+&apos;&apos;&apos;		Parameters: a list of space separated parameters as a single string
+&apos;&apos;&apos;			The method does not validate the given parameters, but only passes them to the specified command
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if success
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		session.RunApplication(&quot;Notepad.exe&quot;)
+&apos;&apos;&apos;		session.RunApplication(&quot;C:\myFolder\myDocument.odt&quot;)
+&apos;&apos;&apos;		session.RunApplication(&quot;kate&quot;, &quot;/home/me/install.txt&quot;)	&apos;	(Linux)
+
+Dim bReturn As Boolean			&apos;	Returned value
+Dim oShell As Object			&apos;	com.sun.star.system.SystemShellExecute
+Dim sCommand As String			&apos;	Command as an URL
+Const cstThisSub = &quot;Session.RunApplication&quot;
+Const cstSubArgs = &quot;Command, [Parameters]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bReturn = False
+
+Check:
+	If IsMissing(Parameters) Then Parameters = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._ValidateFile(Command, &quot;Command&quot;) Then GoTo Finally
+		If Not SF_Utils._Validate(Parameters, &quot;Parameters&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	Set oShell = SF_Utils._GetUNOService(&quot;SystemShellExecute&quot;)
+	sCommand = SF_FileSystem._ConvertToUrl(Command)
+	oShell.execute(sCommand, Parameters, com.sun.star.system.SystemShellExecuteFlags.DEFAULTS)
+	bReturn = True
+
+Finally:
+	RunApplication = bReturn
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.RunApplication
+
+REM -----------------------------------------------------------------------------
+Public Sub SendMail(Optional ByVal Recipient As Variant _
+						, Optional ByRef Cc As Variant _
+						, Optional ByRef Bcc As Variant _
+						, Optional ByVal Subject As Variant _
+						, Optional ByRef Body As Variant _
+						, Optional ByVal FileNames As Variant _
+						, Optional ByVal EditMessage As Variant _
+						)
+&apos;&apos;&apos;	Send a message (with or without attachments) to recipients from the user&apos;s mail client
+&apos;&apos;&apos;	The message may be edited by the user before sending or, alternatively, be sent immediately
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Recipient: an email addresses (To recipient)
+&apos;&apos;&apos;		Cc: a comma-delimited list of email addresses (carbon copy)
+&apos;&apos;&apos;		Bcc: a comma-delimited list of email addresses (blind carbon copy)
+&apos;&apos;&apos;		Subject: the header of the message
+&apos;&apos;&apos;		FileNames: a comma-separated list of filenames to attach to the mail. SF_FileSystem naming conventions apply
+&apos;&apos;&apos;		Body: the unformatted text of the message
+&apos;&apos;&apos;		EditMessage: when True (default) the message is editable before being sent
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		UNKNOWNFILEERROR		File does not exist
+&apos;&apos;&apos;		WRONGEMAILERROR			String not recognized as an email address
+&apos;&apos;&apos;		SENDMAILERROR			System error, probably no mail client
+
+Dim sEmail As String				&apos;	An single email address
+Dim sFile As String					&apos;	A single file name
+Dim sArg As String					&apos;	Argument name
+Dim vCc As Variant					&apos;	Array alias of Cc
+Dim vBcc As Variant					&apos;	Array alias of Bcc
+Dim vFileNames As Variant			&apos;	Array alias of FileNames
+Dim oMailService As Object			&apos;	com.sun.star.system.SimpleCommandMail or com.sun.star.system.SimpleSystemMail
+Dim oMail As Object					&apos;	com.sun.star.system.XSimpleMailClient
+Dim oMessage As Object				&apos;	com.sun.star.system.XSimpleMailMessage
+Dim lFlag As Long					&apos;	com.sun.star.system.SimpleMailClientFlags.XXX
+Dim ARR As Object	: ARR = ScriptForge.SF_Array
+Dim i As Long
+Const cstComma = &quot;,&quot;, cstSemiColon = &quot;;&quot;
+Const cstThisSub = &quot;Session.SendMail&quot;
+Const cstSubArgs = &quot;Recipient, [Cc=&quot;&quot;&quot;&quot;], [Bcc=&quot;&quot;&quot;&quot;], [Subject=&quot;&quot;&quot;&quot;], [FileNames=&quot;&quot;&quot;&quot;], [Body=&quot;&quot;&quot;&quot;], [EditMessage=True]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(Cc) Or IsEmpty(Cc) Then Cc = &quot;&quot;
+	If IsMissing(Bcc) Or IsEmpty(Bcc) Then Bcc = &quot;&quot;
+	If IsMissing(Subject) Or IsEmpty(Subject) Then Subject = &quot;&quot;
+	If IsMissing(FileNames) Or IsEmpty(FileNames) Then FileNames = &quot;&quot;
+	If IsMissing(Body) Or IsEmpty(Body) Then Body = &quot;&quot;
+	If IsMissing(EditMessage) Or IsEmpty(EditMessage) Then EditMessage = True
+
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(Cc, &quot;Recipient&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Cc, &quot;Cc&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Bcc, &quot;Bcc&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Subject, &quot;Subject&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(FileNames, &quot;FileNames&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Body, &quot;Body&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(EditMessage, &quot;EditMessage&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+	&apos;	Check email addresses
+	sArg = &quot;Recipient&quot;	:	sEmail = Recipient
+	If Not SF_String.IsEmail(sEmail) Then GoTo CatchEmail
+	sArg = &quot;Cc&quot;			:	vCc = ARR.TrimArray(Split(Cc, cstComma))
+	For Each sEmail In vCc
+		If Not SF_String.IsEmail(sEmail) Then GoTo CatchEmail
+	Next sEmail
+	sArg = &quot;Bcc&quot;		:	vBcc = ARR.TrimArray(Split(Bcc, cstComma))
+	For Each sEmail In vBcc
+		If Not SF_String.IsEmail(sEmail) Then GoTo CatchEmail
+	Next sEmail
+
+	&apos;	Check file existence
+	If Len(FileNames) &gt; 0 Then
+		vFileNames = ARR.TrimArray(Split(FileNames, cstComma))
+		For i = 0 To UBound(vFileNames)
+			sFile = vFileNames(i)
+			If Not SF_Utils._ValidateFile(sFile, &quot;FileNames&quot;) Then GoTo Finally
+			If Not SF_FileSystem.FileExists(sFile) Then GoTo CatchNotExists
+			vFileNames(i) = ConvertToUrl(sFile)
+		Next i
+	End If
+
+Try:
+	&apos;	Initialize the mail service
+	Set oMailService = SF_Utils._GetUNOService(&quot;MailService&quot;)
+	If IsNull(oMailService) Then GoTo CatchMail
+	Set oMail = oMailService.querySimpleMailClient()
+	If IsNull(oMail) Then GoTo CatchMail
+	Set oMessage = oMail.createSimpleMailMessage()
+	If IsNull(oMessage) Then GoTo CatchMail
+
+	&apos;	Feed the new mail message
+	With oMessage
+		.setRecipient(Recipient)
+		If Subject &lt;&gt; &quot;&quot; Then .setSubject(Subject)
+		If UBound(vCc) &gt;= 0 Then .setCcRecipient(vCc)
+		If UBound(vBcc) &gt;= 0 Then .setBccRecipient(vBcc)
+		.Body = Iif(Len(Body) = 0, &quot; &quot;, Body)		&apos;	Body must not be the empty string ??
+		.setAttachement(vFileNames)
+	End With
+	lFlag = Iif(EditMessage, com.sun.star.system.SimpleMailClientFlags.DEFAULTS, com.sun.star.system.SimpleMailClientFlags.NO_USER_INTERFACE)
+
+	&apos;	Send using the mail service
+	oMail.sendSimpleMailMessage(oMessage, lFlag)
+		
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+Catch:
+	GoTo Finally
+CatchEmail:
+	SF_Exception.RaiseFatal(WRONGEMAILERROR, sArg, sEmail)
+	GoTo Finally
+CatchNotExists:
+	SF_Exception.RaiseFatal(UNKNOWNFILEERROR, &quot;FileNames&quot;, sFile)
+	GoTo Finally
+CatchMail:
+	SF_Exception.RaiseFatal(SENDMAILERROR)
+	GoTo Finally
+End Sub			&apos;	ScriptForge.SF_Session.SendMail
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;Session.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	Select Case UCase(PropertyName)
+		Case Else
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.SetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function UnoMethods(Optional ByRef UnoObject As Variant) As Variant
+&apos;&apos;&apos;	Returns a list of the methods callable from an UNO object
+&apos;&apos;&apos; Code-snippet derived from XRAY
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		UnoObject: the object to identify
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-based sorted array. May be empty
+
+Dim oIntrospect As Object		&apos;	com.sun.star.beans.Introspection
+Dim oInspect As Object			&apos;	com.sun.star.beans.XIntrospectionAccess
+Dim vMethods As Variant			&apos;	Array of com.sun.star.reflection.XIdlMethod
+Dim vMethod As Object			&apos;	com.sun.star.reflection.XIdlMethod
+Dim lMax As Long				&apos;	UBounf of vMethods
+Dim vMethodsList As Variant		&apos;	Return value
+Dim i As Long
+Const cstThisSub = &quot;Session.UnoMethods&quot;
+Const cstSubArgs = &quot;UnoObject&quot;
+
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+Check:
+	vMethodsList = Array()
+	If VarType(UnoObject) &lt;&gt; V_OBJECT Then GoTo Finally
+	If IsNull(UnoObject) Then GoTo Finally
+
+Try:
+	On Local Error GoTo Catch
+	Set oIntrospect = SF_Utils._GetUNOService(&quot;Introspection&quot;)
+	Set oInspect = oIntrospect.inspect(UnoObject)
+	vMethods = oInspect.getMethods(com.sun.star.beans.MethodConcept.ALL)
+
+	&apos;	The names must be extracted from com.sun.star.reflection.XIdlMethod structures
+	lMax = UBound(vMethods)
+	If lMax &gt;= 0 Then
+		ReDim vMethodsList(0 To lMax)
+		For i = 0 To lMax
+			vMethodsList(i) = vMethods(i).Name
+		Next i
+		vMethodsList = SF_Array.Sort(vMethodsList, CaseSensitive := True)
+	End If
+
+Finally:
+	UnoMethods = vMethodsList
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	On Local Error GoTo 0
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.UnoMethods
+
+REM -----------------------------------------------------------------------------
+Public Function UnoObjectType(Optional ByRef UnoObject As Variant) As String
+&apos;&apos;&apos;	Identify the UNO type of an UNO object
+&apos;&apos;&apos; Code-snippet derived from XRAY
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		UnoObject: the object to identify
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		com.sun.star. ... as a string
+&apos;&apos;&apos;		a zero-length string if identification was not successful
+
+Dim oService As Object			&apos;	com.sun.star.reflection.CoreReflection
+Dim vClass as Variant			&apos;	com.sun.star.reflection.XIdlClass
+Dim sObjectType As String		&apos;	Return value
+Const cstThisSub = &quot;Session.UnoObjectType&quot;
+Const cstSubArgs = &quot;UnoObject&quot;
+
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+Check:
+	sObjectType = &quot;&quot;
+	If VarType(UnoObject) &lt;&gt; V_OBJECT Then GoTo Finally
+	If IsNull(UnoObject) Then GoTo Finally
+
+Try:
+	On Local Error Resume Next
+	&apos;	Try usual ImplementationName method
+	sObjectType = UnoObject.getImplementationName()
+	If sObjectType = &quot;&quot; Then
+		&apos;	Now try CoreReflection trick
+		Set oService = SF_Utils._GetUNOService(&quot;CoreReflection&quot;)
+		vClass = oService.getType(UnoObject)
+		If vClass.TypeClass &gt;= com.sun.star.uno.TypeClass.STRUCT  Then sObjectType = vClass.Name
+	End If
+
+Finally:
+	UnoObjectType = sObjectType
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Session.UnoObjectType
+
+REM -----------------------------------------------------------------------------
+Public Function UnoProperties(Optional ByRef UnoObject As Variant) As Variant
+&apos;&apos;&apos;	Returns a list of the properties of an UNO object
+&apos;&apos;&apos; Code-snippet derived from XRAY
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		UnoObject: the object to identify
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-based sorted array. May be empty
+
+Dim oIntrospect As Object		&apos;	com.sun.star.beans.Introspection
+Dim oInspect As Object			&apos;	com.sun.star.beans.XIntrospectionAccess
+Dim vProperties As Variant		&apos;	Array of com.sun.star.beans.Property
+Dim vProperty As Object			&apos;	com.sun.star.beans.Property
+Dim lMax As Long				&apos;	UBounf of vProperties
+Dim vPropertiesList As Variant	&apos;	Return value
+Dim i As Long
+Const cstThisSub = &quot;Session.UnoProperties&quot;
+Const cstSubArgs = &quot;UnoObject&quot;
+
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+Check:
+	vPropertiesList = Array()
+	If VarType(UnoObject) &lt;&gt; V_OBJECT Then GoTo Finally
+	If IsNull(UnoObject) Then GoTo Finally
+
+Try:
+	On Local Error GoTo Catch
+	Set oIntrospect = SF_Utils._GetUNOService(&quot;Introspection&quot;)
+	Set oInspect = oIntrospect.inspect(UnoObject)
+	vProperties = oInspect.getProperties(com.sun.star.beans.PropertyConcept.ALL)
+
+	&apos;	The names must be extracted from com.sun.star.beans.Property structures
+	lMax = UBound(vProperties)
+	If lMax &gt;= 0 Then
+		ReDim vPropertiesList(0 To lMax)
+		For i = 0 To lMax
+			vPropertiesList(i) = vProperties(i).Name
+		Next i
+		vPropertiesList = SF_Array.Sort(vPropertiesList, CaseSensitive := True)
+	End If
+
+Finally:
+	UnoProperties = vPropertiesList
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	On Local Error GoTo 0
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.UnoProperties
+
+REM -----------------------------------------------------------------------------
+Public Function WebService(Optional ByVal URI As Variant) As String
+&apos;&apos;&apos;	Get some web content from a URI
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		URI: URI text of the web service
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The web page content of the URI
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		CALCFUNCERROR
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		session.WebService(&quot;wiki.documentfoundation.org/api.php?&quot; _
+&apos;&apos;&apos;			&amp; &quot;hidebots=1&amp;days=7&amp;limit=50&amp;action=feedrecentchanges&amp;feedformat=rss&quot;)
+
+Dim sReturn As String			&apos;	Returned value
+Const cstThisSub = &quot;Session.WebService&quot;
+Const cstSubArgs = &quot;URI&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sReturn = &quot;&quot;
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(URI, &quot;URI&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	sReturn = SF_Session.ExecuteCalcFunction(&quot;WEBSERVICE&quot;, URI)
+
+Finally:
+	WebService = sReturn
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session.WebService
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _GetScript(ByVal psLanguage As String _
+								, ByVal psScope As String _
+								, ByVal psScript As String _
+								) As Object
+&apos;&apos;&apos;	Get the adequate script provider and from there the requested script
+&apos;&apos;&apos;	Called by ExecuteBasicScript() and ExecutePythonScript()
+&apos;&apos;&apos;		The execution of the script is done by the caller
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psLanguage: Basic or Python
+&apos;&apos;&apos;		psScope: one of the SCRIPTISxxx constants
+&apos;&apos;&apos;			The SCRIPTISOXT constant is an alias for 2 cases, extension either
+&apos;&apos;&apos;			installed for one user only, or for all users
+&apos;&apos;&apos;			Managed here by trial and error
+&apos;&apos;&apos;		psScript: Read https://wiki.openoffice.org/wiki/Documentation/DevGuide/Scripting/Scripting_Framework_URI_Specification
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A com.sun.star.script.provider.XScript object
+
+Dim sScript As String			&apos;	The complete script string
+Dim oScriptProvider As Object	&apos;	Script provider singleton
+Dim oScript As Object			&apos;	Return value
+Const cstScript1 = &quot;vnd.sun.star.script:&quot;
+Const cstScript2 = &quot;?language=&quot;
+Const cstScript3 = &quot;&amp;location=&quot;
+
+Try:
+	&apos;	Build script string
+	sScript = cstScript1 &amp; psScript &amp; cstScript2 &amp; psLanguage &amp; cstScript3 &amp; LCase(psScope)
+
+	&apos;	Find script
+	Set oScript = Nothing
+	&apos;	Python only: installation of extension is determined by user =&gt; unknown to script author
+	If psScope = SCRIPTISOXT Then	&apos;		=&gt; Trial and error
+		On Local Error GoTo ForAllUsers
+		sScript = cstScript1 &amp; psScript &amp; cstScript2 &amp; psLanguage &amp; cstScript3 &amp; SCRIPTISPERSOXT
+		Set oScriptProvider = SF_Utils._GetUNOService(&quot;ScriptProvider&quot;, SCRIPTISPERSOXT)
+		Set oScript = oScriptProvider.getScript(sScript)
+	End If
+  ForAllUsers:
+	On Local Error GoTo CatchNotFound
+	If IsNull(oScript) Then
+		If psScope = SCRIPTISOXT Then psScope = SCRIPTISSHAROXT
+		Set oScriptProvider = SF_Utils._GetUNOService(&quot;ScriptProvider&quot;, psScope)
+		Set oScript = oScriptProvider.getScript(sScript)
+	End If
+
+Finally:
+	_GetScript = oScript
+	Exit Function
+CatchNotFound:
+	SF_Exception.RaiseFatal(NOSCRIPTERROR, psLanguage, &quot;Scope&quot;, psScope, &quot;Script&quot;, psScript)
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Session._GetScript
+
+REM =============================================== END OF SCRIPTFORGE.SF_SESSION
+</script:module>

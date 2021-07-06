@@ -1,0 +1,118 @@
+^0 null
+1$ eent
+1 een
+2 zwee
+3 dräi
+4 véier
+5 fënnef
+6 sechs
+7 siwen
+8 aacht
+9 néng
+10 zéng
+11 eelef
+12 zwielef
+15 fofzéng
+16 siechzéng
+17 siwwenzéng
+18 uechzéng
+19 nonzéng
+1(\d) $1zéng
+20 zwanzeg
+2(\d) $1anzwanzeg
+30 drësseg
+3(\d) $1andrësseg
+4(\d) $1avéierzeg
+50 foffzeg
+5(\d) $1afoffzeg
+60 siechzeg
+6(\d) $1asiechzeg
+70 siwwenzeg
+7(\d) $1asiwwenzeg
+80 achtzeg
+8(\d) $1anachtzeg
+90 nonzeg
+9(\d) $1annonzeg
+(\d)0 $1zeg
+(\d)(\d) $2an$1zeg
+1(\d\d) honnert$1
+(\d)(\d\d) $1honnert$2
+1(\d{3}) dausend$1
+(\d{1,3})(\d{3}) $1dausend$2
+1(\d{6}) eng Millioun[ $1]
+(\d{1,3})(\d{6}) $1 Milliounen[ $2]
+1(\d{9}) eng Milliard[ $1]
+(\d{1,3})(\d{9}) $1 Milliarden[ $2]
+1(\d{12}) eng Billioun[ $1]
+(\d{1,3})(\d{12}) $1 Billiounen[ $2]
+1(\d{15}) eng Billiard[ $1]
+(\d{1,3})(\d{15}) $1 Billiarden[ $2]
+1(\d{18}) eng Trillioun[ $1]
+(\d{1,3})(\d{18}) $1 Trilliounen[ $2]
+1(\d{21}) eng Trilliard[ $1]
+(\d{1,3})(\d{21}) $1 Trilliarden[ $2]
+
+# negative number
+
+[-−](\d+) minus |$1
+
+# decimals
+
+"([-−]?\d+)[.,]" $1| Komma
+"([-−]?\d+[.,]\d*)(\d)" $1| |$2
+
+# currency
+
+# unit/subunit singular/plural
+
+us:([^,]*),([^,]*),([^,]*),([^,]*) \1
+up:([^,]*),([^,]*),([^,]*),([^,]*) \2
+ss:([^,]*),([^,]*),([^,]*),([^,]*) \3
+sp:([^,]*),([^,]*),([^,]*),([^,]*) \4
+
+CHF:(\D+) $(\1: Schwäizer Frang, Schwäizer Frang, Rappen, Rappen)
+CNY:(\D+) $(\1: Yuan, Yuan, Fen, Fen)
+EUR:(\D+) $(\1: Euro, Euro, Cent, Cent)
+GBP:(\D+) $(\1: Pond Sterling, Pond Sterling, Penny, Pence)
+USD:(\D+) $(\1: US-Dollar, US-Dollar, Cent, Cents)
+
+"JPY ([-−]?\d+([.,]\d+)?)" $1 Yen
+
+"([A-Z]{3}) ([-−]?1)([.,]00?)?" $2$(\1:us)
+"([A-Z]{3}) ([-−]?\d+)([.,]00?)?" $2$(\1:up)
+
+"(CNY [-−]?\d+)[.,]10?" $1 $2 Jiao
+"(CNY [-−]?\d+)[.,](\d)0?" $1 $2 Jiao
+"(CNY [-−]?\d+[.,]\d)1" $1 $2 Fen
+"(CNY [-−]?\d+[.,]\d)(\d)" $1 $2 Fen
+
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 an $(1)$(\2:ss)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 an $(\30)$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 an $3$(\2:sp)
+
+== ordinal ==
+
+([-−]?[0245679])	$1t
+([-−]?\d*0[245679])	$1t
+([-−]?\d*1\d)		$1t
+([-−]?\d+)		$(ordinal $1)
+
+(.*)eent	\1éischt
+(.*)dräi	\1drëtt
+(.*)aacht	\1aacht
+"(.*)eine Milli(on|ard)e?"	\1einmilli\2st
+"(.*)eine Billi(on|ard)e?"	\1einbilli\2st
+"(.*)eine Trilli(on|ard)e?"	\1eintrilli\2st
+"(.*) Milli(on|ard)en"	\1milli\2st
+"(.*) Billi(on|ard)en"	\1billi\2st
+"(.*) Trilli(on|ard)en"	\1trilli\2st
+(.*)		\1st
+
+== ordinal-number ==
+
+(\d+)	\1.
+
+== help ==
+
+"" |$(1)|, $(2), $(3)\n$(help ordinal)$(help ordinal-number)
+(ordinal(-number)?) \1: |$(\1 1)|, $(\1 2), $(\1 3)\n

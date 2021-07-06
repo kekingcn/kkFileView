@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+-->
+<!--
+ * To get glade to use this, put this .xml into a dir e.g. ~/glade
+ * and
+ * export GLADE_CATALOG_SEARCH_PATH=~/glade
+ * for system-wide installation copy into /usr/share/glade/catalogs/
+-->
+<glade-catalog name="LibreOffice" domain="glade-3" depends="gtk+" version="1.0">
+  <glade-widget-classes>
+
+    <glade-widget-class title="Notebookbar ToolBox" name="sfxlo-NotebookbarToolBox" generic-name="Notebookbar ToolBox" parent="GtkToolbar" icon-name="widget-gtk-toolbar">
+        <properties>
+            <!-- Must override the default value of "icon-size", so "Large Toolbar" will be saved into .ui -->
+            <property id="icon-size" optional-default="False" optional="True" default="GTK_ICON_SIZE_BUTTON"/>
+        </properties>
+    </glade-widget-class>
+
+    <glade-widget-class title="Notebook switching tabs depending on context" name="sfxlo-NotebookbarTabControl" generic-name="NotebookbarTabControl" parent="GtkNotebook" icon-name="widget-gtk-notebook"/>
+    <glade-widget-class title="Horizontal box hiding children depending on its priorities" name="sfxlo-PriorityHBox" generic-name="PriorityHBox" parent="GtkBox" icon-name="widget-gtk-box"/>
+    <glade-widget-class title="Horizontal box hiding children depending on its priorities" name="sfxlo-PriorityMergedHBox" generic-name="PriorityMergedHBox" parent="GtkBox" icon-name="widget-gtk-box"/>
+    <glade-widget-class title="Box which can move own content to the popup" name="sfxlo-DropdownBox" generic-name="DropdownBox" parent="GtkBox" icon-name="widget-gtk-box"/>
+    <glade-widget-class title="Box which can hide own content" name="VclOptionalBox" generic-name="VclOptionalBox" parent="GtkBox" icon-name="widget-gtk-box"/>
+    <glade-widget-class title="Vertical box hiding children depending on context" name="sfxlo-ContextVBox" generic-name="ContextVBox" parent="GtkBox" icon-name="widget-gtk-box"/>
+    <glade-widget-class title="Managed Menu Button" name="svtlo-ManagedMenuButton" generic-name="ManagedMenuButton" parent="GtkButton" icon-name="widget-gtk-button"/>
+    <glade-widget-class title="NotebookBar Toolbar Addons" name="NotebookBarAddonsToolMergePoint" generic-name="ShowText" parent="GtkToolButton" icon-name="widget-gtk-toolbutton"/>
+    <glade-widget-class title="NotebookBar MenuItem Addons" name="NotebookBarAddonsMenuMergePoint" generic-name="ShowText" parent="GtkMenuItem" icon-name="widget-gtk-menuitem"/>
+  </glade-widget-classes>
+
+  <glade-widget-group name="libreoffice" title="LibreOffice">
+    <glade-widget-class-ref name="sfxlo-NotebookbarToolBox"/>
+    <glade-widget-class-ref name="sfxlo-NotebookbarTabControl"/>
+    <glade-widget-class-ref name="sfxlo-PriorityHBox"/>
+    <glade-widget-class-ref name="sfxlo-PriorityMergedHBox"/>
+    <glade-widget-class-ref name="sfxlo-DropdownBox"/>
+    <glade-widget-class-ref name="VclOptionalBox"/>
+    <glade-widget-class-ref name="sfxlo-ContextVBox"/>
+    <glade-widget-class-ref name="svtlo-ManagedMenuButton"/>
+    <glade-widget-class-ref name="NotebookBarAddonsToolMergePoint"/>
+    <glade-widget-class-ref name="NotebookBarAddonsMenuMergePoint"/>
+  </glade-widget-group>
+</glade-catalog>

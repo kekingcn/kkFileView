@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.1 -->
+<interface domain="cui">
+  <requires lib="gtk+" version="3.20"/>
+  <!-- n-columns=2 n-rows=2 -->
+  <object class="GtkGrid" id="additionsEntry">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="valign">start</property>
+    <property name="hexpand">True</property>
+    <property name="border-width">6</property>
+    <property name="row-spacing">24</property>
+    <property name="column-spacing">12</property>
+    <child>
+      <object class="GtkButton" id="buttonShowMore">
+        <property name="label" translatable="yes" context="additionsDialog|buttonShowMore">Show More Extensions</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="buttonShowMore-atkobject">
+            <property name="AtkObject::accessible-name" translatable="yes" context="additionsDialog|buttonShowMore">ButtonShowMore</property>
+            <property name="AtkObject::accessible-description" translatable="yes" context="additionsDialog|buttonShowMore">This button shows more extensions.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">1</property>
+        <property name="width">2</property>
+      </packing>
+    </child>
+    <child>
+      <!-- n-columns=3 n-rows=8 -->
+      <object class="GtkGrid">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="valign">start</property>
+        <property name="hexpand">True</property>
+        <property name="column-spacing">12</property>
+        <child>
+          <object class="GtkLabel" id="labelDescription">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="valign">start</property>
+            <property name="margin-bottom">3</property>
+            <property name="label">description</property>
+            <property name="wrap">True</property>
+            <property name="wrap-mode">word-char</property>
+            <property name="width-chars">40</property>
+            <property name="max-width-chars">40</property>
+            <property name="xalign">0</property>
+            <accessibility>
+              <relation type="label-for" target="imageScreenshot"/>
+            </accessibility>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">1</property>
+            <property name="width">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="votingLabel">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes" context="additionsEntry|votingLabel">Voting:</property>
+            <property name="xalign">0</property>
+            <accessibility>
+              <relation type="label-for" target="imageVoting1"/>
+              <relation type="label-for" target="imageVoting2"/>
+              <relation type="label-for" target="imageVoting3"/>
+              <relation type="label-for" target="imageVoting4"/>
+              <relation type="label-for" target="imageVoting5"/>
+            </accessibility>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="labelLicense">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes" context="additionsEntry|labelLicense">License:</property>
+            <property name="xalign">0</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="labelLicense-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="labelVersion">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes" context="additionsEntry|labelVersion">Required version:</property>
+            <property name="xalign">0</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="labelVersion-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="labelComments">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes" context="additionsEntry|labelComments">Comments:</property>
+            <property name="xalign">0</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="labelComments-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="labelComments1">
+            <property name="visible">False</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes" context="additionsEntry|labelComments">Downloads:</property>
+            <property name="xalign">0</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="labelComments1-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="labelDownloadNumber">
+            <property name="visible">False</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label">label</property>
+            <property name="xalign">0</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="labelDownloadNumber-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLinkButton" id="linkButtonComments">
+            <property name="label">button</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="halign">start</property>
+            <property name="relief">none</property>
+            <property name="xalign">0</property>
+            <property name="uri">http://glade.gnome.org</property>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lbVersionText">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label">label</property>
+            <property name="xalign">0</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="lbVersionText-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lbLicenseText">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="label">label</property>
+            <property name="xalign">0</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="lbLicenseText-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="valign">center</property>
+            <property name="hexpand">True</property>
+            <child>
+              <object class="GtkImage" id="imageVoting1">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="icon-name">cmd/sc_stars-empty.png</property>
+                <accessibility>
+                  <relation type="labelled-by" target="votingLabel"/>
+                </accessibility>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="imageVoting2">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="icon-name">cmd/sc_stars-empty.png</property>
+                <accessibility>
+                  <relation type="labelled-by" target="votingLabel"/>
+                </accessibility>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="imageVoting3">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="icon-name">cmd/sc_stars-empty.png</property>
+                <accessibility>
+                  <relation type="labelled-by" target="votingLabel"/>
+                </accessibility>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="imageVoting4">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="icon-name">cmd/sc_stars-empty.png</property>
+                <accessibility>
+                  <relation type="labelled-by" target="votingLabel"/>
+                </accessibility>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="imageVoting5">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="icon-name">cmd/sc_stars-empty.png</property>
+                <accessibility>
+                  <relation type="labelled-by" target="votingLabel"/>
+                </accessibility>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="imageScreenshot">
+            <property name="width-request">180</property>
+            <property name="height-request">120</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="valign">start</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="xalign">0</property>
+            <accessibility>
+              <relation type="labelled-by" target="labelDescription"/>
+            </accessibility>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
+            <property name="height">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-top">6</property>
+            <property name="homogeneous">True</property>
+            <child>
+              <object class="GtkButton" id="buttonInstall">
+                <property name="label" translatable="yes" context="additionsEntry|buttonInstall">Install</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="valign">end</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLinkButton" id="btnWebsite">
+                <property name="label" translatable="yes" context="additionsEntry|buttonWebsite">Website</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="relief">none</property>
+                <property name="uri">http://glade.gnome.org</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">7</property>
+            <property name="width">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lbName">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-bottom">6</property>
+            <property name="label">Name</property>
+            <property name="xalign">0</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="lbName-atkobject">
+                <property name="AtkObject::accessible-role" translatable="no">static</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">0</property>
+            <property name="width">2</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">0</property>
+        <property name="width">2</property>
+      </packing>
+    </child>
+  </object>
+</interface>

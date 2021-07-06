@@ -1,23 +1,21 @@
-#**************************************************************
-#  
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#  
-#    http://www.apache.org/licenses/LICENSE-2.0
-#  
-#  Unless required by applicable law or agreed to in writing,
-#  software distributed under the License is distributed on an
-#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-#  specific language governing permissions and limitations
-#  under the License.
-#  
-#**************************************************************
+# -*- tab-width: 4; indent-tabs-mode: nil; py-indent-offset: 4 -*-
+#
+# This file is part of the LibreOffice project.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# This file incorporates work covered by the following license notice:
+#
+#   Licensed to the Apache Software Foundation (ASF) under one or more
+#   contributor license agreements. See the NOTICE file distributed
+#   with this work for additional information regarding copyright
+#   ownership. The ASF licenses this file to you under the Apache
+#   License, Version 2.0 (the "License"); you may not use this file
+#   except in compliance with the License. You may obtain a copy of
+#   the License at http://www.apache.org/licenses/LICENSE-2.0 .
+#
 import uno
 import pyuno
 import os
@@ -41,7 +39,7 @@ from com.sun.star.beans.PropertyAttribute import \
      READONLY as PROP_ATTR_READONLY, \
      MAYBEAMBIGUOUS as PROP_ATTR_MAYBEAMBIGUOUS, \
      MAYBEDEFAULT as PROP_ATTR_MAYBEDEFAULT, \
-     REMOVEABLE as PROP_ATTR_REMOVEABLE
+     REMOVABLE as PROP_ATTR_REMOVABLE
 
 def _mode_to_str( mode ):
     ret = "[]"
@@ -55,16 +53,16 @@ def _mode_to_str( mode ):
 
 def _propertymode_to_str( mode ):
     ret = ""
-    if PROP_ATTR_REMOVEABLE & mode:
-        ret = ret + "removeable "
+    if PROP_ATTR_REMOVABLE & mode:
+        ret = ret + "removable "
     if PROP_ATTR_MAYBEDEFAULT & mode:
         ret = ret + "maybedefault "
     if PROP_ATTR_MAYBEAMBIGUOUS & mode:
-        ret = ret + "maybeambigous "
+        ret = ret + "maybeambiguous "
     if PROP_ATTR_READONLY & mode:
         ret = ret + "readonly "
     if PROP_ATTR_TRANSIENT & mode:
-        ret = ret + "tranient "
+        ret = ret + "transient "
     if PROP_ATTR_CONSTRAINED & mode:
         ret = ret + "constrained "
     if PROP_ATTR_BOUND & mode:
@@ -147,19 +145,19 @@ class ImplementationHelper:
 
     def getComponentFactory( self, implementationName , regKey, smgr ):
         entry = self.impls.get( implementationName, None )
-        if entry == None:
+        if entry is None:
             raise RuntimeException( implementationName + " is unknown" , None )
         return createSingleServiceFactory( entry.ctor, implementationName, entry.serviceNames )
 
     def getSupportedServiceNames( self, implementationName ):
         entry = self.impls.get( implementationName, None )
-        if entry == None:
+        if entry is None:
             raise RuntimeException( implementationName + " is unknown" , None )
         return entry.serviceNames
 
     def supportsService( self, implementationName, serviceName ):
         entry = self.impls.get( implementationName,None )
-        if entry == None:
+        if entry is None:
             raise RuntimeException( implementationName + " is unknown", None )
         return serviceName in entry.serviceNames
 
@@ -245,15 +243,15 @@ def _unohelper_getHandle( self):
             t = uno.getTypeByName( x )
             types.append( t )
 
-        ret = tuple(types) , uno.generateUuid()
+        ret = tuple(types)
         _g_typeTable[self.__class__] = ret
     return ret
 
 class Base(XTypeProvider):
     def getTypes( self ):
-        return _unohelper_getHandle( self )[0]
+        return _unohelper_getHandle( self )
     def getImplementationId(self):
-        return _unohelper_getHandle( self )[1]
+        return ()
 
 class CurrentContext(XCurrentContext, Base ):
     """a current context implementation, which first does a lookup in the given
@@ -267,7 +265,7 @@ class CurrentContext(XCurrentContext, Base ):
     def getValueByName( self, name ):
         if name in self.hashMap:
             return self.hashMap[name]
-        elif self.oldContext != None:
+        elif self.oldContext is not None:
             return self.oldContext.getValueByName( name )
         else:
             return None
@@ -295,3 +293,5 @@ class _FactoryHelper_( XSingleComponentFactory, XServiceInfo, Base ):
 
     def createInstanceWithArgumentsAndContext( self, args, context ):
         return self.clazz( context, *args )
+
+# vim: set shiftwidth=4 softtabstop=4 expandtab:
