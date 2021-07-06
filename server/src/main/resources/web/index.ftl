@@ -81,6 +81,17 @@
         </div>
         <div class="panel-body">
             <div>
+
+                2021年7月6日，v4.0.0 版本 :<br>
+                1. 底层集成OpenOffice替换为LibreOffice，Office文件兼容性增强，预览效果提升<br>
+                2. 修复压缩文件目录穿越漏洞<br>
+                3. 修复PPT预览使用PDF模式无效<br>
+                4. 修复PPT图片预览模式前端显示异常<br>
+                5. 新增功能：首页文件上传功能可通过配置实时开启或禁用<br>
+                6. 优化增加Office进程关闭日志<br>
+                7. 优化Windows环境下，查找Office组件逻辑(内置的LibreOffice优先)<br>
+                8. 优化启动Office进程改同步执行<br><br>
+
                 2021年6月17日，v3.6.0版本 ：<br>
                 ofd 类型文件支持版本，本次版本重要功能均由社区开发贡献，感谢 @gaoxingzaq、@zhangxiaoxiao9527 的代码贡献<br>
                 1、新增 ofd 类型文件预览支持，ofd 是国产的类似 pdf 格式的文件<br>
