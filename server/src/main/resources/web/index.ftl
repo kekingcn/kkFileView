@@ -58,12 +58,14 @@
             </h4>
         </div>
         <div class="panel-body">
-            <div style="padding: 10px">
-                <form enctype="multipart/form-data" id="fileUpload">
-                    <input type="file" name="file"/>
-                    <input type="button" id="btnSubmit" value=" 上 传 "/>
-                </form>
-            </div>
+            <#if fileUploadDisable == false>
+                <div style="padding: 10px">
+                    <form enctype="multipart/form-data" id="fileUpload">
+                        <input type="file" name="file"/>
+                        <input type="button" id="btnSubmit" value=" 上 传 "/>
+                    </form>
+                </div>
+            </#if>
             <div>
                 <table id="table" data-pagination="true"></table>
             </div>
@@ -250,7 +252,6 @@
             var height = window.document.documentElement.clientHeight - 1;
             $(".loading_container").css("height", height).show();
         }
-
         $("#btnSubmit").click(function () {
             showLoadingDiv();
             $("#fileUpload").ajaxSubmit({
