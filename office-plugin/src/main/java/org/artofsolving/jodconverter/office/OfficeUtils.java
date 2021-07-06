@@ -87,10 +87,10 @@ public class OfficeUtils {
                 programFiles = System.getenv("ProgramFiles");
             }
             return findOfficeHome(
-                programFiles + File.separator + "LibreOffice",
-                programFiles + File.separator + "OpenOffice 4",
-                programFiles + File.separator + "LibreOffice 4",
-                officePluginPath + File.separator + "windows-office"
+                    officePluginPath + File.separator + "windows-office",
+                    programFiles + File.separator + "LibreOffice",
+                    programFiles + File.separator + "OpenOffice 4",
+                    programFiles + File.separator + "LibreOffice 4"
             );
         } else if (PlatformUtils.isMac()) {
             return findOfficeHome(
