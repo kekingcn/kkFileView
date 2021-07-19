@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR_HOME=("/opt/openoffice.org3" "/opt/libreoffice" "/opt/libreoffice6.1" "/opt/libreoffice7.0" "/opt/libreoffice7.1" "/opt/openoffice4" "/usr/lib/openoffice" "/usr/lib/libreoffice")
+DIR_HOME=("/opt/openoffice.org3" "/opt/libreoffice" "/opt/libreoffice6.1" "/opt/libreoffice7.0" "/opt/libreoffice7.1" "/opt/openoffice4" "/usr/lib/openoffice" "/usr/lib/libreoffice" "/usr/lib64/libreoffice")
 FLAG=
 OFFICE_HOME=
 KKFILEVIEW_BIN_FOLDER=$(cd "$(dirname "$0")";pwd)
