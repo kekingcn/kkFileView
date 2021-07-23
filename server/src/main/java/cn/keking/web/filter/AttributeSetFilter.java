@@ -43,6 +43,7 @@ public class AttributeSetFilter implements Filter {
      */
     private void setWatermarkAttribute(ServletRequest request) {
         String watermarkTxt = request.getParameter("watermarkTxt");
+        String watermarkAngle=request.getParameter("watermarkAngle");
         request.setAttribute("watermarkTxt", watermarkTxt != null ? watermarkTxt : WatermarkConfigConstants.getWatermarkTxt());
         request.setAttribute("watermarkXSpace", WatermarkConfigConstants.getWatermarkXSpace());
         request.setAttribute("watermarkYSpace", WatermarkConfigConstants.getWatermarkYSpace());
@@ -52,7 +53,7 @@ public class AttributeSetFilter implements Filter {
         request.setAttribute("watermarkAlpha", WatermarkConfigConstants.getWatermarkAlpha());
         request.setAttribute("watermarkWidth", WatermarkConfigConstants.getWatermarkWidth());
         request.setAttribute("watermarkHeight", WatermarkConfigConstants.getWatermarkHeight());
-        request.setAttribute("watermarkAngle", WatermarkConfigConstants.getWatermarkAngle());
+        request.setAttribute("watermarkAngle", watermarkAngle!=null ? watermarkAngle : WatermarkConfigConstants.getWatermarkAngle());
     }
 
     @Override
