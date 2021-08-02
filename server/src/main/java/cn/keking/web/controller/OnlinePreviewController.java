@@ -64,8 +64,13 @@ public class OnlinePreviewController {
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         model.addAttribute("file", fileAttribute);
         FilePreview filePreview = previewFactory.get(fileAttribute);
-        logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
-        return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+        String result = filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+
+        logger.info(
+                "预览文件 url={} previewType={} handler={} result={}",
+                fileUrl, fileAttribute.getType(), filePreview, result
+        );
+        return result;
     }
 
     @RequestMapping(value = "/picturesPreview")

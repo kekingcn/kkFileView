@@ -23,8 +23,9 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -133,9 +134,9 @@ public class FileHandlerService {
     }
 
     /**
-     * 对转换后的文件进行操作(改变编码方式)
+     * 对 HTML 格式的中间生成文件作必要的修改，以免后面渲染出现问题
      *
-     * @param outFilePath 文件绝对路径
+     * @param outFilePath 中间生成文件的绝对路径
      */
     public void doActionConvertedFile(String outFilePath) {
         StringBuilder sb = new StringBuilder();
@@ -153,45 +154,45 @@ public class FileHandlerService {
             sb.append("<script src=\"js/excel.header.js\" type=\"text/javascript\"></script>");
             sb.append("<link rel=\"stylesheet\" href=\"bootstrap/css/bootstrap.min.css\">");
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // TODO 用框架输出错误信息
         }
         // 重新写入文件
         try (FileOutputStream fos = new FileOutputStream(outFilePath);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
             writer.write(sb.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // TODO 用框架输出错误信息
         }
     }
 
     /**
-     *  pdf文件转换成jpg图片集
+     * pdf文件转换成jpg图片集。
+     * <p>
+     *     <i>修改 2021-08-02: </i> 这个方法职责只在于文件格式转换，它不关心转换完之后还要把路径再转成什么样子。
+     *     面向 Controller 的路径转换应该是 {@link FilePreview} 的职责，这个类只关注文件处理。修改后这个方法
+     *     的使用场景将变得更广。
+     * </p>
+     *
      * @param pdfFilePath pdf文件路径
-     * @param pdfName pdf文件名称
-     * @param baseUrl 基础访问地址
-     * @return 图片访问集合
+     *
+     * @return 生成的图片文件路径集合
      */
-    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl) {
+    public List<String> pdf2jpg(String pdfFilePath) {
+
+        Integer cachedImgCount = this.getConvertedPdfImage(pdfFilePath);
+        String fileExt = ".jpg";
+        String imageFolder = pdfFilePath.substring(0, pdfFilePath.lastIndexOf("."));
+
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = this.getConvertedPdfImage(pdfFilePath);
-        String imageFileSuffix = ".jpg";
-        String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
-        String urlPrefix;
-        try {
-            urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            logger.error("UnsupportedEncodingException", e);
-            urlPrefix = baseUrl + pdfFolder;
-        }
-        if (imageCount != null && imageCount > 0) {
-            for (int i = 0; i < imageCount; i++) {
-                imageUrls.add(urlPrefix + "/" + i + imageFileSuffix);
+        if (cachedImgCount != null && cachedImgCount > 0) {
+            for (int i = 0; i < cachedImgCount; i++) {
+                imageUrls.add(imageFolder + "/" + i + fileExt);
             }
             return imageUrls;
         }
+
         try {
-            File pdfFile = new File(pdfFilePath);
-            PDDocument doc = PDDocument.load(pdfFile);
+            PDDocument doc = PDDocument.load(Files.readAllBytes(Paths.get(pdfFilePath)));
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
 
@@ -204,10 +205,10 @@ public class FileHandlerService {
             }
             String imageFilePath;
             for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-                imageFilePath = folder + File.separator + pageIndex + imageFileSuffix;
+                imageFilePath = folder + File.separator + pageIndex + fileExt;
                 BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, 105, ImageType.RGB);
                 ImageIOUtil.writeImage(image, imageFilePath, 105);
-                imageUrls.add(urlPrefix + "/" + pageIndex + imageFileSuffix);
+                imageUrls.add(imageFolder + "/" + pageIndex + fileExt);
             }
             doc.close();
             this.addConvertedPdfImage(pdfFilePath, pageCount);

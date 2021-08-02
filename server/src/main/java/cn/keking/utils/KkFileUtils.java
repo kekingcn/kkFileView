@@ -1,6 +1,7 @@
 package cn.keking.utils;
 
 import cpdetector.CharsetPrinter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,21 @@ public class KkFileUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(KkFileUtils.class);
 
     public static final String DEFAULT_FILE_ENCODING = "UTF-8";
+
+    /**
+     * 将文件路径替换扩展名后缀。如果原文件路径没有扩展名则直接添加。
+     *
+     * @param filePath     原文件路径
+     * @param newExtension 新的扩展名，如果不以 '.' 开头则自动加上去
+     *
+     * @return 替换后的新文件路径
+     */
+    public static String changeExtension(String filePath, String newExtension) {
+        newExtension = StringUtils.prependIfMissing(newExtension, ".");  // 如果没有带点则加上去
+        return filePath.contains(".") ?
+                (filePath.substring(0, filePath.lastIndexOf(".")) + newExtension) :
+                (filePath + newExtension);
+    }
 
     /**
      * 判断url是否是http资源
@@ -95,7 +111,6 @@ public class KkFileUtils {
     public static String suffixFromFileName(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
     }
-
 
     /**
      * 根据文件路径删除文件

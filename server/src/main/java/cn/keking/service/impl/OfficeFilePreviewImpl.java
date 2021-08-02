@@ -1,18 +1,28 @@
 package cn.keking.service.impl;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.FilePreview;
-import cn.keking.utils.DownloadUtils;
+import cn.keking.service.DownloadService;
 import cn.keking.service.FileHandlerService;
+import cn.keking.service.FilePreview;
 import cn.keking.service.OfficeToPdfService;
 import cn.keking.web.filter.BaseUrlFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
+import static cn.keking.utils.KkFileUtils.changeExtension;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Created by kl on 2018/1/17.
@@ -22,61 +32,62 @@ import java.util.List;
 public class OfficeFilePreviewImpl implements FilePreview {
 
     public static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
+
     public static final String OFFICE_PREVIEW_TYPE_ALL_IMAGES = "allImages";
-    private static final String FILE_DIR = ConfigConstants.getFileDir();
 
     private final FileHandlerService fileHandlerService;
+
     private final OfficeToPdfService officeToPdfService;
+
     private final OtherFilePreviewImpl otherFilePreview;
 
-    public OfficeFilePreviewImpl(FileHandlerService fileHandlerService, OfficeToPdfService officeToPdfService, OtherFilePreviewImpl otherFilePreview) {
+    private final DownloadService downloadService;
+
+    private final Map<String, BiFunction<Model, FileAttribute, String>> handlerMappings = new HashMap<>();
+
+    {
+        handlerMappings.put("xls", this::handleSpreadSheet);
+        handlerMappings.put("xlsx", this::handleSpreadSheet);
+    }
+
+    public OfficeFilePreviewImpl(
+            FileHandlerService fileHandlerService, OfficeToPdfService officeToPdfService,
+            OtherFilePreviewImpl otherFilePreview, DownloadService downloadService
+    ) {
         this.fileHandlerService = fileHandlerService;
         this.officeToPdfService = officeToPdfService;
         this.otherFilePreview = otherFilePreview;
+        this.downloadService = downloadService;
     }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        // 预览Type，参数传了就取参数的，没传取系统默认
-        String officePreviewType = fileAttribute.getOfficePreviewType();
-        String baseUrl = BaseUrlFilter.getBaseUrl();
-        String suffix = fileAttribute.getSuffix();
-        String fileName = fileAttribute.getName();
-        boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx");
-        String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
-        String outFilePath = FILE_DIR + pdfName;
-        // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
-        if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
-            String filePath;
-            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
-            if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
-            }
-            filePath = response.getContent();
-            if (StringUtils.hasText(outFilePath)) {
-                officeToPdfService.openOfficeToPDF(filePath, outFilePath);
-                if (isHtml) {
-                    // 对转换后的文件进行操作(改变编码方式)
-                    fileHandlerService.doActionConvertedFile(outFilePath);
-                }
-                if (ConfigConstants.isCacheEnabled()) {
-                    // 加入缓存
-                    fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
-                }
-            }
-        }
-        if (!isHtml && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
-            return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE, otherFilePreview);
-        }
-        model.addAttribute("pdfUrl", pdfName);
-        return isHtml ? EXEL_FILE_PREVIEW_PAGE : PDF_FILE_PREVIEW_PAGE;
+
+        // Office 文件有多种类型，需要不同的流程来处理
+        BiFunction<Model, FileAttribute, String>
+                handler = handlerMappings.getOrDefault(fileAttribute.getSuffix(), this::handleDefault);
+
+        return handler.apply(model, fileAttribute);
     }
 
-    static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {
+    // 将中间格式的文件转换为图片
+    static String getPreviewType(
+            Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl,
+            String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage,
+            OtherFilePreviewImpl otherFilePreview) {
+
         String suffix = fileAttribute.getSuffix();
         boolean isPPT = suffix.equalsIgnoreCase("ppt") || suffix.equalsIgnoreCase("pptx");
-        List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
-        if (imageUrls == null || imageUrls.size() < 1) {
+
+        // 执行格式转换，并将转换结果的图片文件列表转为浏览器可访问的路径
+        List<String> imageUrls = fileHandlerService
+                .pdf2jpg(outFilePath)
+                .stream()
+                .map(path -> path.replace("\\", "/"))
+                .map(path -> appendIfMissing(baseUrl, "/") + removeStart(fileHandlerService.getRelativePath(path), "/"))
+                .collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(imageUrls)) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
         }
         model.addAttribute("imgurls", imageUrls);
@@ -86,6 +97,90 @@ public class OfficeFilePreviewImpl implements FilePreview {
             return (isPPT ? PPT_FILE_PREVIEW_PAGE : OFFICE_PICTURE_FILE_PREVIEW_PAGE);
         } else {
             return PICTURE_FILE_PREVIEW_PAGE;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////
+
+    // 是否要以图片方式预览
+    private boolean isImagePreview(FileAttribute fileAttribute) {
+        String type = fileAttribute.getOfficePreviewType();
+        return Objects.equals(OFFICE_PREVIEW_TYPE_IMAGE, type) ||
+                Objects.equals(OFFICE_PREVIEW_TYPE_ALL_IMAGES, type);
+    }
+
+    // 判断中间文件是否缓存。如果没有启用缓存则返回 false
+    private boolean isIntermediateFileNotCached(String intermediateFileName) {
+        return !ConfigConstants.isCacheEnabled() ||
+                !fileHandlerService.listConvertedFiles().containsKey(intermediateFileName);
+    }
+
+    // 当启用缓存时，将文件路径缓存到 ConvertedFile 下
+    private void cacheIntermediateFileIfNeeded(String key, String filePath) {
+        if (ConfigConstants.isCacheEnabled()) {
+            fileHandlerService.addConvertedFile(key, filePath);
+        }
+    }
+
+    // 将本地绝对路径转为浏览器可访问的相对路径
+    private String toRelativeUrl(String absolutePath) {
+        return fileHandlerService.getRelativePath(absolutePath).replace("\\", "/");
+    }
+
+    ///////////////////////////////////////////////////////////////////
+
+    private String handleSpreadSheet(Model model, FileAttribute fileAttribute) {
+        String fileName = fileAttribute.getName();
+        String intermediateKey = changeExtension(fileName, ".html");
+        String intermediateFilePath;
+
+        if (isIntermediateFileNotCached(intermediateKey)) {
+            ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
+            if (response.isFailure()) {
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+            }
+
+            String originFilePath = response.getContent().getSavePath();
+            intermediateFilePath = changeExtension(originFilePath, ".html");
+
+            officeToPdfService.openOfficeToPDF(originFilePath, intermediateFilePath);
+            fileHandlerService.doActionConvertedFile(intermediateFilePath);
+            cacheIntermediateFileIfNeeded(intermediateKey, intermediateFilePath);
+        } else {
+            intermediateFilePath = fileHandlerService.getConvertedFile(intermediateKey);
+        }
+
+        model.addAttribute("pdfUrl", toRelativeUrl(intermediateFilePath));
+        return EXEL_FILE_PREVIEW_PAGE;
+    }
+
+    private String handleDefault(Model model, FileAttribute fileAttribute) {
+        String fileName = fileAttribute.getName();
+        String intermediateKey = changeExtension(fileName, ".pdf");
+        String intermediateFilePath;
+
+        if (isIntermediateFileNotCached(intermediateKey)) {
+            ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
+            if (response.isFailure()) {
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+            }
+
+            String originFilePath = response.getContent().getSavePath();
+            intermediateFilePath = changeExtension(originFilePath, ".pdf");
+            officeToPdfService.openOfficeToPDF(originFilePath, intermediateFilePath);
+            cacheIntermediateFileIfNeeded(intermediateKey, intermediateFilePath);
+        } else {
+            intermediateFilePath = fileHandlerService.getConvertedFile(intermediateKey);
+        }
+
+        if (isImagePreview(fileAttribute)) {
+            return getPreviewType(
+                    model, fileAttribute, fileAttribute.getOfficePreviewType(),
+                    BaseUrlFilter.getBaseUrl(), intermediateFilePath, fileHandlerService,
+                    OFFICE_PREVIEW_TYPE_IMAGE, otherFilePreview);
+        } else {
+            model.addAttribute("pdfUrl", toRelativeUrl(intermediateFilePath));
+            return PDF_FILE_PREVIEW_PAGE;
         }
     }
 }

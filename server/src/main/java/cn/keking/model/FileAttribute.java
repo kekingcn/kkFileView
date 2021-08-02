@@ -80,4 +80,17 @@ public class FileAttribute {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    // 添加 toString 方法，方便查看日志
+    @Override
+    public String toString() {
+        return "FileAttribute{" +
+                "type=" + type +
+                ", suffix='" + suffix + '\'' +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", fileKey='" + fileKey + '\'' +
+                ", officePreviewType='" + officePreviewType + '\'' +
+                '}';
+    }
 }
