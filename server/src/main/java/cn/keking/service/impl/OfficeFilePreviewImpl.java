@@ -109,7 +109,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 Objects.equals(OFFICE_PREVIEW_TYPE_ALL_IMAGES, type);
     }
 
-    // 判断中间文件是否缓存。如果没有启用缓存则返回 false
+    // 判断中间文件是否未缓存。如果没有启用缓存则返回 true
     private boolean isIntermediateFileNotCached(String intermediateFileName) {
         return !ConfigConstants.isCacheEnabled() ||
                 !fileHandlerService.listConvertedFiles().containsKey(intermediateFileName);
