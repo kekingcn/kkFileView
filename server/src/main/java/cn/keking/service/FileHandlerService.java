@@ -6,6 +6,7 @@ import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
+import cn.keking.web.filter.BaseUrlFilter;
 import com.aspose.cad.Color;
 import com.aspose.cad.fileformats.cad.CadDrawTypeMode;
 import com.aspose.cad.imageoptions.CadRasterizationOptions;
@@ -91,6 +92,20 @@ public class FileHandlerService {
      */
     public String getRelativePath(String absolutePath) {
         return absolutePath.substring(fileDir.length());
+    }
+
+    /**
+     * 文件路径转为浏览器可访问的地址
+     */
+    public String getFileUrl(String absoluteFilePath) {
+        String relativePath = getRelativePath(absoluteFilePath).replace("\\", "/");
+        return org.apache.commons.lang3.StringUtils.appendIfMissing(BaseUrlFilter.getBaseUrl(), "/") +
+            org.apache.commons.lang3.StringUtils.removeStart(relativePath, "/");
+    }
+
+    public String getRelativeUrl(String absoluteFilePath) {
+        String relativePath = getRelativePath(absoluteFilePath).replace("\\", "/");
+        return org.apache.commons.lang3.StringUtils.removeStart(relativePath, "/");
     }
 
     /**

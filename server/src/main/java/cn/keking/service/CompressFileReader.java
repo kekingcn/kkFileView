@@ -13,10 +13,16 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.*;
@@ -42,41 +48,53 @@ public class CompressFileReader {
     }
 
     public String readZipFile(String filePath, String fileKey) {
+
         String archiveSeparator = "/";
         Map<String, FileNode> appender = new HashMap<>();
         List<String> imgUrls = new LinkedList<>();
-        String baseUrl = BaseUrlFilter.getBaseUrl();
         String archiveFileName = fileHandlerService.getFileNameFromPath(filePath);
+        String extractRootPath = filePath.substring(0, filePath.lastIndexOf("."));  // 文件夹 + basename
+
         try {
             ZipFile zipFile = new ZipFile(filePath, KkFileUtils.getFileEncode(filePath));
-            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
-            // 排序
-            entries = sortZipEntries(entries);
-            List<Map<String, ZipArchiveEntry>> entriesToBeExtracted = new LinkedList<>();
+            Enumeration<ZipArchiveEntry> entries = sortZipEntries(zipFile.getEntries());
+            List<ExtractItem> extractItems = new LinkedList<>();
+
             while (entries.hasMoreElements()) {
                 ZipArchiveEntry entry = entries.nextElement();
-                String fullName = entry.getName().replaceAll("//", "").replaceAll("\\\\", "");
-                int level = fullName.split(archiveSeparator).length;
-                // 展示名
-                String originName = getLastFileName(fullName, archiveSeparator);
-                String childName = level + "_" + originName;
                 boolean directory = entry.isDirectory();
+                String fullName = entry.getName().replaceAll("//", "").replaceAll("\\\\", "");
+
+                int level = fullName.split(archiveSeparator).length;
+                String entryFileName = getLastFileName(fullName, archiveSeparator);
+                String saveFileName = level + "_" + entryFileName;
+                String saveFilePath = extractRootPath + File.separator + saveFileName;
+
+                // 处理解压列表
                 if (!directory) {
-                    childName = archiveFileName + "_" + originName;
-                    entriesToBeExtracted.add(Collections.singletonMap(childName, entry));
+                    saveFileName = archiveFileName + "_" + entryFileName;
+                    extractItems.add(new ExtractItem(entry.getName(), saveFileName));
                 }
-                String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
-                parentName = (level - 1) + "_" + parentName;
-                FileType type = FileType.typeFromUrl(childName);
-                if (type.equals(FileType.PICTURE)) {//添加图片文件到图片列表
-                    imgUrls.add(baseUrl + childName);
+
+                // 处理图片列表
+                FileType type = FileType.typeFromUrl(saveFileName);
+                if (type.equals(FileType.PICTURE)) {
+                    imgUrls.add(fileHandlerService.getFileUrl(saveFilePath));
                 }
-                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory, fileKey);
+
+                // 处理树节点列表
+                String parentName = (level - 1) + "_" + getLast2FileName(fullName, archiveSeparator, archiveFileName);
+                FileNode node = new FileNode(entryFileName, saveFileName, parentName, new ArrayList<>(), directory, fileKey);
                 addNodes(appender, parentName, node);
-                appender.put(childName, node);
+                appender.put(saveFileName, node);
             }
+
             // 开启新的线程处理文件解压
-            executors.submit(new ZipExtractorWorker(entriesToBeExtracted, zipFile, filePath));
+            executors.submit(new ZipEntryExtractor(
+                zipFile, extractRootPath, extractItems,
+                () -> KkFileUtils.deleteFileByPath(filePath)
+            ));
+
             fileHandlerService.putImgCache(fileKey, imgUrls);
             return new ObjectMapper().writeValueAsString(appender.get(""));
         } catch (IOException e) {
@@ -85,6 +103,7 @@ public class CompressFileReader {
         }
     }
 
+    // 对压缩包内容进行排序，以便展现在界面上是有序的
     private Enumeration<ZipArchiveEntry> sortZipEntries(Enumeration<ZipArchiveEntry> entries) {
         List<ZipArchiveEntry> sortedEntries = new LinkedList<>();
         while (entries.hasMoreElements()) {
@@ -278,7 +297,9 @@ public class CompressFileReader {
         private String fileKey;
         private List<FileNode> childList;
 
-        public FileNode(String originName, String fileName, String parentFileName, List<FileNode> childList, boolean directory) {
+        public FileNode(
+                String originName, String fileName, String parentFileName, List<FileNode> childList,
+                boolean directory) {
             this.originName = originName;
             this.fileName = fileName;
             this.parentFileName = parentFileName;
@@ -286,7 +307,9 @@ public class CompressFileReader {
             this.directory = directory;
         }
 
-        public FileNode(String originName, String fileName, String parentFileName, List<FileNode> childList, boolean directory, String fileKey) {
+        public FileNode(
+                String originName, String fileName, String parentFileName, List<FileNode> childList, boolean directory,
+                String fileKey) {
             this.originName = originName;
             this.fileName = fileName;
             this.parentFileName = parentFileName;
@@ -354,13 +377,110 @@ public class CompressFileReader {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////
+
+    public static class ExtractItem {
+
+        public final String entryName;          // 要解压的项
+        public final String extractFileName;    // 解压到的文件名
+
+        public ExtractItem(String entryName, String extractFileName) {
+            this.entryName = entryName;
+            this.extractFileName = extractFileName;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////
+
+    /**
+     * 解压操作
+     */
+    public static abstract class EntryExtractor<T> implements Runnable {
+
+        private static final Logger log = LoggerFactory.getLogger(EntryExtractor.class);
+
+        /**
+         * 被解压的文件类型
+         */
+        protected final T fileArchive;
+
+        /**
+         * 解压到哪个目录下
+         */
+        protected final String extractRoot;
+
+        /**
+         * 要解压哪些内容
+         */
+        protected final List<ExtractItem> entries;
+
+        /**
+         * 解压完毕后的操作
+         */
+        protected final Runnable afterExtraction;
+
+        public EntryExtractor(
+            T fileArchive, String extractRoot, List<ExtractItem> entries, Runnable afterExtraction
+        ) {
+            this.fileArchive = fileArchive;
+            this.extractRoot = extractRoot;
+            this.entries = entries;
+            this.afterExtraction = afterExtraction;
+        }
+
+        @Override
+        public void run() {
+            try {
+                extract(fileArchive, entries, extractRoot);
+                if (afterExtraction != null) {
+                    afterExtraction.run();
+                }
+            } catch (Exception e) {
+                log.error("Error extracting archive, archive={}", fileArchive, e);
+            }
+        }
+
+        protected abstract void extract(
+            T fileArchive, List<ExtractItem> entries, String extractRoot) throws IOException;
+    }
+
+    /**
+     * 解压 ZIP 格式的压缩包
+     */
+    public static class ZipEntryExtractor extends EntryExtractor<ZipFile> {
+
+        public ZipEntryExtractor(
+            ZipFile fileArchive, String extractRoot, List<ExtractItem> entries, Runnable afterExtraction
+        ) {
+            super(fileArchive, extractRoot, entries, afterExtraction);
+        }
+
+        @Override
+        protected void extract(ZipFile fileArchive, List<ExtractItem> entries, String extractRoot) throws IOException {
+            Files.createDirectories(Paths.get(extractRoot));
+            for (ExtractItem e : entries) {
+                Path outputPath = Paths.get(extractRoot).resolve(e.extractFileName);
+                try (
+                        OutputStream os = Files.newOutputStream(outputPath);
+                        InputStream is = fileArchive.getInputStream(fileArchive.getEntry(e.entryName))
+                ) {
+                    IOUtils.copy(is, os);
+                }
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////
+
     class ZipExtractorWorker implements Runnable {
 
         private final List<Map<String, ZipArchiveEntry>> entriesToBeExtracted;
         private final ZipFile zipFile;
         private final String filePath;
 
-        public ZipExtractorWorker(List<Map<String, ZipArchiveEntry>> entriesToBeExtracted, ZipFile zipFile, String filePath) {
+        public ZipExtractorWorker(
+                List<Map<String, ZipArchiveEntry>> entriesToBeExtracted, ZipFile zipFile, String filePath
+        ) {
             this.entriesToBeExtracted = entriesToBeExtracted;
             this.zipFile = zipFile;
             this.filePath = filePath;
@@ -444,6 +564,7 @@ public class CompressFileReader {
     }
 
     class RarExtractorWorker implements Runnable {
+
         private final List<Map<String, FileHeader>> headersToBeExtracted;
         private final Archive archive;
         /**
@@ -451,7 +572,8 @@ public class CompressFileReader {
          */
         private final String filePath;
 
-        public RarExtractorWorker(List<Map<String, FileHeader>> headersToBeExtracted, Archive archive, String filePath) {
+        public RarExtractorWorker(
+                List<Map<String, FileHeader>> headersToBeExtracted, Archive archive, String filePath) {
             this.headersToBeExtracted = headersToBeExtracted;
             this.archive = archive;
             this.filePath = filePath;

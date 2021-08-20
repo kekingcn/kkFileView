@@ -85,4 +85,9 @@ public class ReturnResponse<T> implements Serializable {
     public void setContent(T content) {
         this.content = content;
     }
+
+    public ReturnResponse<T> setContentObject(T content) {
+        this.content = content;
+        return this;
+    }
 }

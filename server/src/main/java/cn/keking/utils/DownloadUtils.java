@@ -18,6 +18,7 @@ import static cn.keking.utils.KkFileUtils.isHttpUrl;
 /**
  * @author yudian-it
  */
+@Deprecated
 public class DownloadUtils {
 
     private final static Logger logger = LoggerFactory.getLogger(DownloadUtils.class);
