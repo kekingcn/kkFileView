@@ -4,19 +4,25 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.CompressFileReader;
 import cn.keking.service.DownloadService;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.service.compress.ArchiveResult;
+import cn.keking.service.compress.RarProcessor;
+import cn.keking.service.compress.SevenZipProcessor;
 import cn.keking.service.compress.ZipProcessor;
 import cn.keking.utils.Jackson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,11 +32,11 @@ import java.util.Map;
 @Service
 public class CompressFilePreviewImpl implements FilePreview {
 
+    private static final Logger log = LoggerFactory.getLogger(CompressFilePreviewImpl.class);
+
     private final FileHandlerService fileHandlerService;
-    private final CompressFileReader compressFileReader;
     private final OtherFilePreviewImpl otherFilePreview;
     private final DownloadService downloadService;
-
     private final Map<String, Extractor> extractors = new HashMap<>();
 
     @FunctionalInterface
@@ -44,17 +50,15 @@ public class CompressFilePreviewImpl implements FilePreview {
          *
          * @return 解压出来的文件列表
          */
-        String extract(String archivePath, String archiveCacheKey);
+        ArchiveResult extract(String archivePath, String archiveCacheKey) throws IOException;
     }
 
     public CompressFilePreviewImpl(
-            FileHandlerService fileHandlerService,
-            CompressFileReader compressFileReader,
-            OtherFilePreviewImpl otherFilePreview,
-            DownloadService downloadService
+        FileHandlerService fileHandlerService,
+        OtherFilePreviewImpl otherFilePreview,
+        DownloadService downloadService
     ) {
         this.fileHandlerService = fileHandlerService;
-        this.compressFileReader = compressFileReader;
         this.otherFilePreview = otherFilePreview;
         this.downloadService = downloadService;
     }
@@ -62,52 +66,67 @@ public class CompressFilePreviewImpl implements FilePreview {
     @PostConstruct
     private void init() {
         extractors.put("zip", this::readZipFile);
-        extractors.put("jar", compressFileReader::readZipFile);
-        extractors.put("gzip", compressFileReader::readZipFile);
-        extractors.put("rar", compressFileReader::unRar);
-        extractors.put("7z", compressFileReader::read7zFile);
+        extractors.put("jar", this::readZipFile);
+        extractors.put("gzip", this::readZipFile);
+        extractors.put("rar", this::readRarFile);
+        extractors.put("7z", this::read7zFile);
     }
 
-    private String readZipFile(String filePath, String fileKey) {
-
-        ReturnResponse<ArchiveResult> response =
-            new ZipProcessor(filePath, fileHandlerService).process();
-
-        if (response.isFailure()) {
-            return null;
-        } else {
-            return Jackson.toJsonString(response.getContent().getTree());
-        }
+    private ArchiveResult read7zFile(String filePath, String fileKey) throws IOException {
+        return new SevenZipProcessor(filePath, fileHandlerService).process();
     }
 
-    private String handleDefault(String savePath, String convertedKey) {
+    private ArchiveResult readRarFile(String filePath, String fileKey) throws IOException {
+        return new RarProcessor(filePath, fileHandlerService).process();
+    }
+
+    private ArchiveResult readZipFile(String filePath, String fileKey) throws IOException {
+        return new ZipProcessor(filePath, fileHandlerService).process();
+    }
+
+    // 默认处理方法
+    private ArchiveResult handleDefault(String savePath, String convertedKey) {
         return null;
     }
+
+    ///////////////////////////////////////////////////////////////////
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String convertedKey = fileAttribute.getName();
         String suffix = fileAttribute.getSuffix();
-        String entryTreeJson;
+        String entryTreeJson = null;
+        List<String> imgUrls = new ArrayList<>();
 
-        // 判断文件名是否存在(redis缓存读取)
-        if (!StringUtils.hasText(fileHandlerService.getConvertedFile(convertedKey)) || !ConfigConstants.isCacheEnabled()) {
+        try {
+            // 判断文件名是否存在(redis缓存读取)
+            String convertedFile = fileHandlerService.getConvertedFile(convertedKey);
+            if (!StringUtils.hasText(convertedFile) || !ConfigConstants.isCacheEnabled()) {
+                ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
+                if (response.isFailure()) {
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                }
 
-            ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
-            if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                String savePath = response.getContent().getSavePath();
+                Extractor extractor = extractors.getOrDefault(suffix, this::handleDefault);
+                ArchiveResult result = extractor.extract(savePath, convertedKey);
+                if (result != null) {
+                    entryTreeJson = Jackson.toJsonString(result.getTree());
+                    imgUrls = result.getImageUrls();
+                }
+            } else {
+                entryTreeJson = convertedFile;
             }
-
-            String savePath = response.getContent().getSavePath();
-            Extractor extractor = extractors.getOrDefault(suffix, this::handleDefault);
-            entryTreeJson = extractor.extract(savePath, convertedKey);
-
-        } else {
-            entryTreeJson = fileHandlerService.getConvertedFile(convertedKey);
+        } catch (Exception e) {
+            log.error("打开压缩文件失败", e);
+            return otherFilePreview.notSupportedFile(
+                model, fileAttribute, e.getMessage() == null ? e.toString() : e.getMessage()
+            );
         }
 
         if (entryTreeJson != null && !"null".equals(entryTreeJson)) {
             model.addAttribute("fileTree", entryTreeJson);
+            model.addAttribute("imgUrls", imgUrls);
             return COMPRESS_FILE_PREVIEW_PAGE;
         } else {
             return otherFilePreview.notSupportedFile(model, fileAttribute, "压缩文件类型不受支持，尝试在压缩的时候选择RAR4格式");

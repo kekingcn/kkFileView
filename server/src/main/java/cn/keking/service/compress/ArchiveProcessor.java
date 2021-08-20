@@ -2,7 +2,6 @@ package cn.keking.service.compress;
 
 import cn.keking.model.FileNode;
 import cn.keking.model.FileType;
-import cn.keking.model.ReturnResponse;
 import cn.keking.service.FileHandlerService;
 import cn.keking.utils.KkFileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -46,12 +45,9 @@ public abstract class ArchiveProcessor<EntryType> {
             .toAbsolutePath().toString();
     }
 
-    public ReturnResponse<ArchiveResult> process() {
+    public ArchiveResult process() throws IOException {
         try {
             return process0();
-        } catch (IOException e) {
-            log.error("Error processing compressed archive {}", archiveFilePath, e);
-            return ReturnResponse.failure(e.toString());
         } finally {
             try {
                 closeFile();
@@ -62,7 +58,7 @@ public abstract class ArchiveProcessor<EntryType> {
         }
     }
 
-    private ReturnResponse<ArchiveResult> process0() throws IOException {
+    private ArchiveResult process0() throws IOException {
         Map<String, EntryType> entries = getEntries(archiveFilePath);
         Map<String, FileNode> fileNodeMap = new HashMap<>();
         List<String> imageUrls = new ArrayList<>();
@@ -113,11 +109,9 @@ public abstract class ArchiveProcessor<EntryType> {
             }
         }
 
-        fileHandlerService.putImgCache(archiveFilePath, imageUrls);
+        fileHandlerService.putImgCache(archiveName, imageUrls);
 
-        return ReturnResponse
-            .<ArchiveResult>success()
-            .setContentObject(new ArchiveResult(root));
+        return new ArchiveResult(root, imageUrls);
     }
 
     private String getParentName(String entryName) {
