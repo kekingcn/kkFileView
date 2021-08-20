@@ -1,14 +1,10 @@
 package cn.keking.service.compress;
 
 import cn.keking.service.FileHandlerService;
-import org.apache.commons.io.IOUtils;
+import cn.keking.utils.KkFileUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -27,11 +23,7 @@ public class ZipProcessor extends ArchiveProcessor<ZipEntry> {
     protected Map<String, ZipEntry> getEntries(String archiveFilePath) throws IOException {
         Map<String, ZipEntry> result = new HashMap<>();
         zipFile = new ZipFile(archiveFilePath);
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry zipEntry = entries.nextElement();
-            result.put(zipEntry.getName(), zipEntry);
-        }
+        zipFile.stream().forEach(entry -> result.put(entry.getName(), entry));
         return result;
     }
 
@@ -42,11 +34,8 @@ public class ZipProcessor extends ArchiveProcessor<ZipEntry> {
 
     @Override
     protected void extract(ZipEntry entry, String outputFilePath) throws IOException {
-        Files.createDirectories(Paths.get(outputFilePath).getParent());
         InputStream is = zipFile.getInputStream(entry);
-        try (OutputStream os = Files.newOutputStream(Paths.get(outputFilePath))) {
-            IOUtils.copy(is, os);
-        }
+        KkFileUtils.writeFile(is, outputFilePath);
     }
 
     @Override

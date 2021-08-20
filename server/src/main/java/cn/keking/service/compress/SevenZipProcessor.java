@@ -2,14 +2,12 @@ package cn.keking.service.compress;
 
 import cn.keking.service.FileHandlerService;
 import cn.keking.utils.Bytes;
+import cn.keking.utils.KkFileUtils;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,9 +49,7 @@ public class SevenZipProcessor extends ArchiveProcessor<SevenZArchiveEntry> {
     protected void extract(SevenZArchiveEntry entry, String outputFilePath) throws IOException {
         byte[] bytes = contentMap.get(entry.getName());
         if (bytes != null) {
-            Path path = Paths.get(outputFilePath);
-            Files.createDirectories(path.getParent());
-            Files.write(path, bytes);
+            KkFileUtils.writeFile(bytes, outputFilePath);
         }
     }
 

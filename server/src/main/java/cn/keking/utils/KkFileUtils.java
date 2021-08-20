@@ -1,13 +1,19 @@
 package cn.keking.utils;
 
 import cpdetector.CharsetPrinter;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 public class KkFileUtils {
@@ -27,14 +33,15 @@ public class KkFileUtils {
     public static String changeExtension(String filePath, String newExtension) {
         newExtension = StringUtils.prependIfMissing(newExtension, ".");  // 如果没有带点则加上去
         return filePath.contains(".") ?
-                (filePath.substring(0, filePath.lastIndexOf(".")) + newExtension) :
-                (filePath + newExtension);
+            (filePath.substring(0, filePath.lastIndexOf(".")) + newExtension) :
+            (filePath + newExtension);
     }
 
     /**
      * 判断url是否是http资源
      *
      * @param url url
+     *
      * @return 是否http
      */
     public static boolean isHttpUrl(URL url) {
@@ -45,6 +52,7 @@ public class KkFileUtils {
      * 判断url是否是ftp资源
      *
      * @param url url
+     *
      * @return 是否ftp
      */
     public static boolean isFtpUrl(URL url) {
@@ -55,6 +63,7 @@ public class KkFileUtils {
      * 删除单个文件
      *
      * @param fileName 要删除的文件的文件名
+     *
      * @return 单个文件删除成功返回true，否则返回false
      */
     public static boolean deleteFileByName(String fileName) {
@@ -78,6 +87,7 @@ public class KkFileUtils {
      * 检测文件编码格式
      *
      * @param filePath 绝对路径
+     *
      * @return 编码格式
      */
     public static String getFileEncode(String filePath) {
@@ -88,6 +98,7 @@ public class KkFileUtils {
      * 检测文件编码格式
      *
      * @param file 检测的文件
+     *
      * @return 编码格式
      */
     public static String getFileEncode(File file) {
@@ -106,6 +117,7 @@ public class KkFileUtils {
      * 通过文件名获取文件后缀
      *
      * @param fileName 文件名称
+     *
      * @return 文件后缀
      */
     public static String suffixFromFileName(String fileName) {
@@ -128,6 +140,7 @@ public class KkFileUtils {
      * 删除目录及目录下的文件
      *
      * @param dir 要删除的目录的文件路径
+     *
      * @return 目录删除成功返回true，否则返回false
      */
     public static boolean deleteDirectory(String dir) {
@@ -167,4 +180,33 @@ public class KkFileUtils {
         return true;
     }
 
+    /**
+     * 写文件，自动创建目录
+     *
+     * @param is         文件内容
+     * @param outputPath 文件路径
+     *
+     * @throws IOException 如果创建目录或写文件失败
+     */
+    public static void writeFile(InputStream is, String outputPath) throws IOException {
+        Path path = Paths.get(outputPath);
+        Files.createDirectories(path.getParent());
+        try (OutputStream os = Files.newOutputStream(path)) {
+            IOUtils.copy(is, os);
+        }
+    }
+
+    /**
+     * 写文件，自动创建目录
+     *
+     * @param content    文件内容
+     * @param outputPath 文件路径
+     *
+     * @throws IOException 如果创建目录或写文件失败
+     */
+    public static void writeFile(byte[] content, String outputPath) throws IOException {
+        Path path = Paths.get(outputPath);
+        Files.createDirectories(path.getParent());
+        Files.write(path, content);
+    }
 }

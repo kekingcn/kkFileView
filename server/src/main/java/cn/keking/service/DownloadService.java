@@ -4,9 +4,9 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.MD5;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,11 +86,7 @@ public class DownloadService {
      * @param savePath 要保存到的位置
      */
     private void downloadAndSave(URL url, String savePath) throws IOException {
-        Path path = Paths.get(savePath);
-        Files.createDirectories(path.getParent());
-        try (OutputStream fos = Files.newOutputStream(path)) {
-            IOUtils.copy(url.openStream(), fos);
-        }
+        KkFileUtils.writeFile(url.openStream(), savePath);
     }
 
     /**
