@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 将 {@link cn.keking.utils.DownloadUtils} 重新实现为 DownloadService 是为了解决两个问题：
+ * 将原来的 cn.keking.utils.DownloadUtils 重新实现为 DownloadService 是为了解决两个问题：
  * <ol>
  *     <li>缓存问题，下载服务应该能够利用 ETag 等机制判断已缓存的文件是否可以跳过下载</li>
  *     <li>因为没有区分域名，会导致不同域名下的同名文件相互覆盖。这里先实现将域名纳入缓存key，实际上需要更加细致的判断，比如是否要将参数纳入缓存key。</li>
@@ -38,6 +38,7 @@ public class DownloadService {
     private static final Logger log = LoggerFactory.getLogger(DownloadService.class);
 
     // 这是一个配置项。之所以不使用静态成员，是为了给运行时修改配置留出余地。
+    @SuppressWarnings("FieldMayBeFinal")
     private String fileDir = ConfigConstants.getFileDir();
 
     /**

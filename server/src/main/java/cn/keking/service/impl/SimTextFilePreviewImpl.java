@@ -1,10 +1,10 @@
 package cn.keking.service.impl;
 
-import cn.keking.config.ConfigConstants;
+import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.DownloadService;
 import cn.keking.service.FilePreview;
-import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.EncodingDetects;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
@@ -21,23 +21,23 @@ import java.io.*;
 public class SimTextFilePreviewImpl implements FilePreview {
 
     private final OtherFilePreviewImpl otherFilePreview;
+    private final DownloadService downloadService;
 
-    public SimTextFilePreviewImpl(OtherFilePreviewImpl otherFilePreview) {
+    public SimTextFilePreviewImpl(
+        OtherFilePreviewImpl otherFilePreview, DownloadService downloadService
+    ) {
         this.otherFilePreview = otherFilePreview;
+        this.downloadService = downloadService;
     }
-    private static final String FILE_DIR = ConfigConstants.getFileDir();
+
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-
-        String fileName = fileAttribute.getName();
-        String baseUrll = FILE_DIR + fileName;
-        //  String suffix = fileAttribute.getSuffix();
-        ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
+        ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
         if (response.isFailure()) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
         }
         try {
-            String   fileData = HtmlUtils.htmlEscape(textData(baseUrll));
+            String fileData = HtmlUtils.htmlEscape(textData(response.getContent().getSavePath()));
             model.addAttribute("textData", Base64.encodeBase64String(fileData.getBytes()));
         } catch (IOException e) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
@@ -45,15 +45,14 @@ public class SimTextFilePreviewImpl implements FilePreview {
         return TXT_FILE_PREVIEW_PAGE;
     }
 
-    private String textData(String baseUrll) throws IOException {
-        File file = new File(baseUrll);
-        if(!file.exists() || file.length() == 0) {
-            String line="";
-            return line;
-        }else {
-            String charset = EncodingDetects.getJavaEncode(baseUrll);
+    private String textData(String filePath) throws IOException {
+        File file = new File(filePath);
+        if (!file.exists() || file.length() == 0) {
+            return "";
+        } else {
+            String charset = EncodingDetects.getJavaEncode(filePath);
             System.out.println(charset);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(baseUrll), charset));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), charset));
             StringBuilder result = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
