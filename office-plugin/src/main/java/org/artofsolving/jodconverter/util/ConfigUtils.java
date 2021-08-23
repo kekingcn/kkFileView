@@ -49,7 +49,7 @@ public class ConfigUtils {
 
     public static String getOfficePluginPath() {
         String userDir = System.getProperty("user.dir");
-        String binFolder = env("KKFILEVIEW_BIN_FOLDER", userDir);
+        String binFolder = envOrDefault("KKFILEVIEW_BIN_FOLDER", userDir);
 
         File pluginPath = new File(binFolder);
 
