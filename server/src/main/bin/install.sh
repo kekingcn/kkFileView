@@ -15,7 +15,7 @@ install_redhat() {
 }
 
 install_ubuntu() {
-   wget  https://kkfileview.keking.cn/LibreOffice_7.1.4_Linux_x86-64_deb.tar.gz  -cO LibreOffice_7_deb.gz && tar -zxf /tmp/LibreOffice_7_deb.tar.gz && cd /tmp/LibreOffice_7.1.4.2_Linux_x86-deb/RPMS
+   wget  https://kkfileview.keking.cn/LibreOffice_7.1.4_Linux_x86-64_deb.tar.gz  -cO LibreOffice_7_deb.tar.gz && tar -zxf /tmp/LibreOffice_7_deb.tar.gz && cd /tmp/LibreOffice_7.1.4.2_Linux_x86-64_deb/DEBS
    echo $?
  if [ $? -eq 0 ];then
      apt-get install -y libxinerama1 libcairo2 libcups2 libx11-xcb1
