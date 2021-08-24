@@ -2,8 +2,10 @@ package cn.keking.utils;
 
 import io.mola.galimatias.GalimatiasParseException;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,5 +98,24 @@ public class WebUtils {
         String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
         return KkFileUtils.suffixFromFileName(fileName);
+    }
+
+    /**
+     * 对url中的文件名进行UTF-8编码
+     *
+     * @param url url
+     * @return 文件名编码后的url
+     */
+    public static String encodeUrlFileName(String url) {
+        String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
+        int fileNameStartIndex = noQueryUrl.lastIndexOf('/') + 1;
+        int fileNameEndIndex = noQueryUrl.lastIndexOf('.');
+        String encodedFileName;
+        try {
+            encodedFileName = URLEncoder.encode(noQueryUrl.substring(fileNameStartIndex, fileNameEndIndex), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+        return url.substring(0, fileNameStartIndex) + encodedFileName + url.substring(fileNameEndIndex);
     }
 }
