@@ -1,12 +1,13 @@
 package cn.keking.service.impl;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.FilePreview;
-import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FileHandlerService;
 import cn.keking.service.CompressFileReader;
+import cn.keking.service.DownloadService;
+import cn.keking.service.FileHandlerService;
+import cn.keking.service.FilePreview;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -21,11 +22,18 @@ public class CompressFilePreviewImpl implements FilePreview {
     private final FileHandlerService fileHandlerService;
     private final CompressFileReader compressFileReader;
     private final OtherFilePreviewImpl otherFilePreview;
+    private final DownloadService downloadService;
 
-    public CompressFilePreviewImpl(FileHandlerService fileHandlerService, CompressFileReader compressFileReader, OtherFilePreviewImpl otherFilePreview) {
+    public CompressFilePreviewImpl(
+            FileHandlerService fileHandlerService,
+            CompressFileReader compressFileReader,
+            OtherFilePreviewImpl otherFilePreview,
+            DownloadService downloadService
+    ) {
         this.fileHandlerService = fileHandlerService;
         this.compressFileReader = compressFileReader;
         this.otherFilePreview = otherFilePreview;
+        this.downloadService = downloadService;
     }
 
     @Override
@@ -35,11 +43,11 @@ public class CompressFilePreviewImpl implements FilePreview {
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
         if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
-            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
+            ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
-            String filePath = response.getContent();
+            String filePath = response.getContent().getSavePath();
             if ("zip".equalsIgnoreCase(suffix) || "jar".equalsIgnoreCase(suffix) || "gzip".equalsIgnoreCase(suffix)) {
                 fileTree = compressFileReader.readZipFile(filePath, fileName);
             } else if ("rar".equalsIgnoreCase(suffix)) {

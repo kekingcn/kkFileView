@@ -1,12 +1,13 @@
 package cn.keking.service.impl;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.FilePreview;
-import cn.keking.utils.DownloadUtils;
+import cn.keking.service.DownloadService;
 import cn.keking.service.FileHandlerService;
+import cn.keking.service.FilePreview;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.artofsolving.jodconverter.util.ConfigUtils;
 import org.bytedeco.ffmpeg.global.avcodec;
@@ -15,6 +16,7 @@ import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+
 import java.io.File;
 
 /**
@@ -28,23 +30,29 @@ public class MediaFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
+    private final DownloadService downloadService;
 
     private static Object LOCK=new Object();
 
-    public MediaFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
+    public MediaFilePreviewImpl(
+        FileHandlerService fileHandlerService,
+        OtherFilePreviewImpl otherFilePreview,
+        DownloadService downloadService
+    ) {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
+        this.downloadService = downloadService;
     }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         // 不是http开头，浏览器不能直接访问，需下载到本地
         if (url != null && !url.toLowerCase().startsWith("http")) {
-            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
+            ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             } else {
-                url=BaseUrlFilter.getBaseUrl() + fileHandlerService.getRelativePath(response.getContent());
+                url=BaseUrlFilter.getBaseUrl() + fileHandlerService.getRelativePath(response.getContent().getSavePath());
                 fileAttribute.setUrl(url);
             }
         }
