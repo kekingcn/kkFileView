@@ -238,6 +238,7 @@
     }
 
     $(function () {
+        console.log('${baseUrl}onlinePreview?url='+encodeURIComponent(Base64.encode('${baseUrl}' + '1.ppt')));
         $('#table').bootstrapTable({
             url: 'listFiles',
             columns: [{

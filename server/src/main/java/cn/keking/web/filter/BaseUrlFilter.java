@@ -19,6 +19,10 @@ public class BaseUrlFilter implements Filter {
         String baseUrl;
         try {
             baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+            if (baseUrl == null)
+            {
+                baseUrl = "http://localhost:8012/";
+            }
         } catch (Exception e) {
             baseUrl = BASE_URL;
         }

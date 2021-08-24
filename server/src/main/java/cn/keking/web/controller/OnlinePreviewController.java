@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,6 +67,33 @@ public class OnlinePreviewController {
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
         return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+    }
+
+    @RequestMapping(value = "/getImgs")
+    @ResponseBody
+    public List<String> getImgs(String url, Model model, HttpServletRequest req) {
+        String fileUrl;
+        try {
+            fileUrl = new String(Base64.decodeBase64(url), StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
+            return new ArrayList<>();
+        }
+        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
+        model.addAttribute("file", fileAttribute);
+        FilePreview filePreview = previewFactory.get(fileAttribute);
+        logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
+
+        filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+        List<String> resList = (ArrayList)model.getAttribute("imgurls");
+        if (resList == null)
+        {
+            return new ArrayList<>();
+        }
+        else
+        {
+            return resList;
+        }
     }
 
     @RequestMapping(value = "/picturesPreview")
