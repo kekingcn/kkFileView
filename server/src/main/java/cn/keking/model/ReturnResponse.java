@@ -38,19 +38,19 @@ public class ReturnResponse<T> implements Serializable {
         this.content = content;
     }
 
-    public static ReturnResponse<Object> failure(String errMsg) {
+    public static <T> ReturnResponse<T> failure(String errMsg) {
         return new ReturnResponse<>(FAILURE_CODE, errMsg, null);
     }
 
-    public static ReturnResponse<Object> failure() {
+    public static <T> ReturnResponse<T> failure() {
         return failure(FAILURE_MSG);
     }
 
-    public static ReturnResponse<Object> success(){
+    public static <T> ReturnResponse<T> success(){
         return success(null);
     }
 
-    public static ReturnResponse<Object> success(Object content) {
+    public static <T> ReturnResponse<T> success(T content) {
         return new ReturnResponse<>(SUCCESS_CODE, SUCCESS_MSG, content);
     }
 
@@ -84,5 +84,10 @@ public class ReturnResponse<T> implements Serializable {
 
     public void setContent(T content) {
         this.content = content;
+    }
+
+    public ReturnResponse<T> setContentObject(T content) {
+        this.content = content;
+        return this;
     }
 }

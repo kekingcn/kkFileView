@@ -1,13 +1,15 @@
 package cn.keking.service.impl;
 
+import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.FilePreview;
-import cn.keking.utils.DownloadUtils;
+import cn.keking.service.DownloadService;
 import cn.keking.service.FileHandlerService;
+import cn.keking.service.FilePreview;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +22,16 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
+    private final DownloadService downloadService;
 
-    public PictureFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
+    public PictureFilePreviewImpl(
+        FileHandlerService fileHandlerService,
+        OtherFilePreviewImpl otherFilePreview,
+        DownloadService downloadService
+    ) {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
+        this.downloadService = downloadService;
     }
 
     @Override
@@ -37,11 +45,11 @@ public class PictureFilePreviewImpl implements FilePreview {
         }
         // 不是http开头，浏览器不能直接访问，需下载到本地
         if (url != null && !url.toLowerCase().startsWith("http")) {
-            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
+            ReturnResponse<DownloadResult> response = downloadService.downloadFile(fileAttribute);
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             } else {
-                String file = fileHandlerService.getRelativePath(response.getContent());
+                String file = fileHandlerService.getRelativePath(response.getContent().getSavePath());
                 imgUrls.clear();
                 imgUrls.add(file);
                 model.addAttribute("imgUrls", imgUrls);

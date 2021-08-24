@@ -96,4 +96,17 @@ public class FileAttribute {
     public void setTifPreviewType(String previewType) {
         this.tifPreviewType = previewType;
     }
+
+    // 添加 toString 方法，方便查看日志
+    @Override
+    public String toString() {
+        return "FileAttribute{" +
+                "type=" + type +
+                ", suffix='" + suffix + '\'' +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", fileKey='" + fileKey + '\'' +
+                ", officePreviewType='" + officePreviewType + '\'' +
+                '}';
+    }
 }
