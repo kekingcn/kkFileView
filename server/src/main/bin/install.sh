@@ -7,7 +7,7 @@ install_redhat() {
    if [ $? -eq 0 ];then
      yum install -y libXext.x86_64
      yum groupinstall -y  "X Window System"
-     yum installlocalho
+     yum localinstall *.rpm
      echo 'install finshed...'
    else
      echo 'download package error...'
