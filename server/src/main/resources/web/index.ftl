@@ -51,6 +51,22 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion">
+                    输入下载地址预览文件
+                </a>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <label>文件下载地址：<input type="text" id="_url" style="min-width:50em"/></label>
+            <form action="${baseUrl}onlinePreview" target="_blank" id="preview_by_url" style="display: inline-block">
+                <input type="hidden" name="url"/>
+                <input type="submit" value="预览">
+            </form>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion"
                    href="#collapseTwo">
                     预览测试
@@ -256,6 +272,13 @@
             return data;
         }).on('post-body.bs.table', function (e, data) {
             return data;
+        });
+
+        $('#preview_by_url').submit(function() {
+            var _url = $("#_url").val();
+            var urlField = $(this).find('[name=url]');
+            var b64Encoded = Base64.encode(_url);
+            urlField.val(b64Encoded);
         });
 
 
