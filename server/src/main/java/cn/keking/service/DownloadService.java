@@ -4,8 +4,10 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.DownloadResult;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.utils.FtpUtils;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.MD5;
+import cn.keking.utils.WebUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,6 +34,12 @@ import java.util.Map;
  */
 @Service
 public class DownloadService {
+
+    private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
+
+    private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
+
+    private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
 
     private static final Logger log = LoggerFactory.getLogger(DownloadService.class);
 
@@ -83,6 +91,29 @@ public class DownloadService {
      * @param savePath 要保存到的位置
      */
     private void downloadAndSave(URL url, String savePath) throws IOException {
+        String protocol = url.getProtocol();
+        switch (protocol) {
+            case "http":
+            case "https":
+                downloadHttpFile(url, savePath);
+                break;
+            case "ftp":
+                downloadFtpFile(url, savePath);
+                break;
+            default:
+                throw new IllegalArgumentException("无法下载文件：不能识别的协议类型, url=" + url);
+        }
+    }
+
+    private void downloadFtpFile(URL url, String savePath) throws IOException {
+        String urlString = url.toString();
+        String ftpUsername = WebUtils.getUrlParameterReg(urlString, URL_PARAM_FTP_USERNAME);
+        String ftpPassword = WebUtils.getUrlParameterReg(urlString, URL_PARAM_FTP_PASSWORD);
+        String ftpControlEncoding = WebUtils.getUrlParameterReg(urlString, URL_PARAM_FTP_CONTROL_ENCODING);
+        FtpUtils.download(urlString, savePath, ftpUsername, ftpPassword, ftpControlEncoding);
+    }
+
+    private void downloadHttpFile(URL url, String savePath) throws IOException {
         KkFileUtils.writeFile(url.openStream(), savePath);
     }
 
@@ -130,6 +161,10 @@ public class DownloadService {
      * 获取指定地址的 ETag，如果没有则返回 null
      */
     private String getEtag(URL url) throws IOException {
+        if (!url.getProtocol().equals("http") && !url.getProtocol().equals("https")) {
+            return null;
+        }
+
         String etag = null;
 
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

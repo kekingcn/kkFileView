@@ -230,4 +230,13 @@ public class KkFileUtils {
         Files.createDirectories(path.getParent());
         Files.write(path, content);
     }
+
+    /**
+     * 如果文件不存在则自动创建空文件
+     */
+    public static void createFileIfNotExists(String path) throws IOException {
+        Path p = Paths.get(path);
+        Files.createDirectories(p.getParent());
+        Files.createFile(p);
+    }
 }
