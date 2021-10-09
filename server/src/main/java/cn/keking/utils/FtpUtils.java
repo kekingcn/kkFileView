@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -37,21 +38,33 @@ public class FtpUtils {
     }
 
     public static void download(String ftpUrl, String localFilePath, String ftpUsername, String ftpPassword, String ftpControlEncoding) throws IOException {
+        ftpUrl = URLDecoder.decode(ftpUrl, StandardCharsets.UTF_8.name());
         String username = StringUtils.isEmpty(ftpUsername) ? ConfigConstants.getFtpUsername() : ftpUsername;
         String password = StringUtils.isEmpty(ftpPassword) ? ConfigConstants.getFtpPassword() : ftpPassword;
         String controlEncoding = StringUtils.isEmpty(ftpControlEncoding) ? ConfigConstants.getFtpControlEncoding() : ftpControlEncoding;
         URL url = new URL(ftpUrl);
         String host = url.getHost();
         int port = (url.getPort() == -1) ? url.getDefaultPort() : url.getPort();
-        String remoteFilePath = url.getPath();
+
         LOGGER.debug("FTP connection url:{}, username:{}, password:{}, controlEncoding:{}, localFilePath:{}", ftpUrl, username, password, controlEncoding, localFilePath);
         FTPClient ftpClient = connect(host, port, username, password, controlEncoding);
-        OutputStream outputStream = new FileOutputStream(localFilePath);
         ftpClient.enterLocalPassiveMode();
-        boolean downloadResult = ftpClient.retrieveFile(new String(remoteFilePath.getBytes(controlEncoding), StandardCharsets.ISO_8859_1), outputStream);
-        LOGGER.debug("FTP download result {}", downloadResult);
-        outputStream.flush();
-        outputStream.close();
+
+        // 确定文件是否存在
+        String remoteFilePath = url.getPath();
+        String remotePathEncoded = new String(remoteFilePath.getBytes(controlEncoding), StandardCharsets.ISO_8859_1);
+        String[] existFiles = ftpClient.listNames(remotePathEncoded);
+        if (existFiles.length == 0) {
+            throw new IllegalStateException("FTP服务器上没有找到文件 '" + remoteFilePath + "'");
+        }
+
+        // 下载文件
+        KkFileUtils.createFileIfNotExists(localFilePath);
+        try (OutputStream outputStream = new FileOutputStream(localFilePath)) {
+            boolean downloadResult = ftpClient.retrieveFile(remotePathEncoded, outputStream);
+            LOGGER.info("FTP download result {}", downloadResult);
+        }
+
         ftpClient.logout();
         ftpClient.disconnect();
     }
