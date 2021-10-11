@@ -8,6 +8,7 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
 import cn.keking.web.filter.BaseUrlFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.artofsolving.jodconverter.util.ConfigUtils;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -39,7 +40,7 @@ public class MediaFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         // 不是http开头，浏览器不能直接访问，需下载到本地
-        if (url != null && !url.toLowerCase().startsWith("http")) {
+        if ((url != null && !url.toLowerCase().startsWith("http")) || StringUtils.isNotEmpty(fileAttribute.getToken())) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());

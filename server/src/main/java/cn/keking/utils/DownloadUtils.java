@@ -4,9 +4,15 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import io.mola.galimatias.GalimatiasParseException;
+import okhttp3.Headers;
+import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.*;
@@ -18,6 +24,7 @@ import static cn.keking.utils.KkFileUtils.isHttpUrl;
 /**
  * @author yudian-it
  */
+@Component
 public class DownloadUtils {
 
     private final static Logger logger = LoggerFactory.getLogger(DownloadUtils.class);
@@ -25,6 +32,13 @@ public class DownloadUtils {
     private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
     private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
+
+    private static String tokenName;
+
+    @Value("${request.auth.name:Authorization}")
+    public void setTokenName(String tokenName) {
+        DownloadUtils.tokenName = tokenName;
+    }
 
     /**
      * @param fileAttribute fileAttribute
@@ -38,8 +52,12 @@ public class DownloadUtils {
         try {
             URL url = WebUtils.normalizedURL(urlStr);
             if (isHttpUrl(url)) {
-                File realFile = new File(realPath);
-                FileUtils.copyURLToFile(url,realFile);
+                if (StringUtils.isEmpty(fileAttribute.getToken())) {
+                    File realFile = new File(realPath);
+                    FileUtils.copyURLToFile(url, realFile);
+                } else {
+                    downloadFileByOkHttpClient(url, realPath, tokenName, fileAttribute.getToken());
+                }
             } else if (isFtpUrl(url)) {
                 String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
@@ -86,6 +104,25 @@ public class DownloadUtils {
             logger.error("创建目录【{}】失败,可能是权限不够，请检查", fileDir);
         }
         return realPath;
+    }
+
+    /**
+     * 使用ok httpclient下载文件,并在header中携带token
+     *
+     * @param url       下载文件的路径
+     * @param realPath  文件存放的路径
+     * @param tokenName header中token名字
+     * @param token     权限校验
+     * @author Zy
+     * @date 2021/10/9
+     */
+    public static void downloadFileByOkHttpClient(URL url, String realPath, String tokenName, String token) throws IOException {
+        Headers headers = new Headers.Builder().add(tokenName, token).build();
+        Response response = OkHttpClientUtils.executeGet(url, headers);
+        assert response.body() != null;
+        InputStream inputStream = response.body().byteStream();
+        FileOutputStream fileOutputStream = new FileOutputStream(realPath);
+        IOUtils.copy(inputStream, fileOutputStream);
     }
 
 }

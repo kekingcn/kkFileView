@@ -13,6 +13,7 @@ public class FileAttribute {
     private String name;
     private String url;
     private String fileKey;
+    private String token;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
 
     public FileAttribute() {
@@ -79,5 +80,13 @@ public class FileAttribute {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

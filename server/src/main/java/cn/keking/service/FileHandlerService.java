@@ -45,6 +45,11 @@ public class FileHandlerService {
     @Value("${server.tomcat.uri-encoding:UTF-8}")
     private String uriEncoding;
 
+    @Value("${request.auth.name:Authorization}")
+    private String tokenName;
+
+
+
     public FileHandlerService(CacheService cacheService) {
         this.cacheService = cacheService;
     }
@@ -261,6 +266,8 @@ public class FileHandlerService {
         FileType type;
         String fileName;
         String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
+        String token = WebUtils.getUrlParameterReg(url, tokenName);
+        attribute.setToken(token);
         if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
             type = FileType.typeFromFileName(fullFileName);
@@ -269,11 +276,11 @@ public class FileHandlerService {
             fileName = WebUtils.getFileNameFromURL(url);
             type = FileType.typeFromUrl(url);
             suffix = WebUtils.suffixFromUrl(url);
+            url = WebUtils.encodeUrlFileName(url);
         }
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
-        url = WebUtils.encodeUrlFileName(url);
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
