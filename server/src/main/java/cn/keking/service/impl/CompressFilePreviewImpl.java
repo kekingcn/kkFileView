@@ -3,10 +3,10 @@ package cn.keking.service.impl;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.CompressFileReader;
+import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FileHandlerService;
-import cn.keking.service.CompressFileReader;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -40,16 +40,7 @@ public class CompressFilePreviewImpl implements FilePreview {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
             String filePath = response.getContent();
-            if ("zip".equalsIgnoreCase(suffix) || "jar".equalsIgnoreCase(suffix) || "gzip".equalsIgnoreCase(suffix)) {
-                fileTree = compressFileReader.readZipFile(filePath, fileName);
-            } else if ("rar".equalsIgnoreCase(suffix)) {
-                fileTree = compressFileReader.unRar(filePath, fileName);
-            } else if ("7z".equalsIgnoreCase(suffix)) {
-                fileTree = compressFileReader.read7zFile(filePath, fileName);
-            }
-            if (fileTree != null && !"null".equals(fileTree) && ConfigConstants.isCacheEnabled()) {
-                fileHandlerService.addConvertedFile(fileName, fileTree);
-            }
+            fileTree = compressFileReader.unRar(filePath, fileName);
         } else {
             fileTree = fileHandlerService.getConvertedFile(fileName);
         }
