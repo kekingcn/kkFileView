@@ -2089,11 +2089,19 @@ function loadAndEnablePDFBug(enabledTabs) {
 function webViewerInitialized() {
   var appConfig = PDFViewerApplication.appConfig;
   var file;
+  var disablePresentationMode;
+  var disableOpenFile;
+  var disablePrint;
   var disableDownload;
+  var disableBookmark;
   var queryString = document.location.search.substring(1);
   var params = (0, _ui_utils.parseQueryString)(queryString);
   file = "file" in params ? params.file : _app_options.AppOptions.get("defaultUrl");
+  disablePresentationMode = 'disablepresentationmode' in params ? params.disablepresentationmode : 'false';
+  disableOpenFile = 'disableopenfile' in params ? params.disableopenfile : 'false';
+  disablePrint = 'disableprint' in params ? params.disableprint : 'false';
   disableDownload = 'disabledownload' in params ? params.disabledownload : 'false';
+  disableBookmark = 'disablebookmark' in params ? params.disablebookmark : 'false';
   validateFileURL(file);
   var fileInput = document.createElement("input");
   fileInput.id = appConfig.openFileInputName;
@@ -2176,8 +2184,30 @@ function webViewerInitialized() {
       PDFViewerApplication.error(msg, reason);
     });
   }
+
+  if ('true' === disablePresentationMode) {
+    document.getElementById("presentationMode").style.display='none';
+    document.getElementById("secondaryPresentationMode").style.display='none';
+  }
+
+  if ('true' === disableOpenFile) {
+    document.getElementById("openFile").style.display='none';
+    document.getElementById("secondaryOpenFile").style.display='none';
+  }
+
+  if ('true' === disablePrint) {
+    document.getElementById("print").style.display='none';
+    document.getElementById("secondaryPrint").style.display='none';
+  }
+
   if ('true' === disableDownload) {
     document.getElementById("download").style.display='none';
+    document.getElementById("secondaryDownload").style.display='none';
+  }
+
+  if ('true' === disableBookmark) {
+    document.getElementById("viewBookmark").style.display='none';
+    document.getElementById("secondaryViewBookmark").style.display='none';
   }
 }
 

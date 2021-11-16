@@ -34,7 +34,11 @@ public class ConfigConstants {
     private static String baseUrl;
     private static String fileDir = ConfigUtils.getHomePath() + File.separator + "file" + File.separator;
     private static CopyOnWriteArraySet<String> trustHostSet;
+    private static String pdfPresentationModeDisable;
+    private static String pdfOpenFileDisable;
+    private static String pdfPrintDisable;
     private static String pdfDownloadDisable;
+    private static String pdfBookmarkDisable;
     private static Boolean fileUploadDisable;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
@@ -48,7 +52,11 @@ public class ConfigConstants {
     public static final String DEFAULT_BASE_URL = "default";
     public static final String DEFAULT_FILE_DIR_VALUE = "default";
     public static final String DEFAULT_TRUST_HOST = "default";
+    public static final String DEFAULT_PDF_PRESENTATION_MODE_DISABLE = "true";
+    public static final String DEFAULT_PDF_OPEN_FILE_DISABLE = "true";
+    public static final String DEFAULT_PDF_PRINT_DISABLE = "true";
     public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
+    public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
     public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
 
 
@@ -228,10 +236,45 @@ public class ConfigConstants {
         ConfigConstants.trustHostSet = trustHostSet;
     }
 
+    public static String getPdfPresentationModeDisable() {
+        return pdfPresentationModeDisable;
+    }
+
+    @Value("${pdf.presentationMode.disable:true}")
+    public void setPdfPresentationModeDisable(String pdfPresentationModeDisable) {
+        setPdfPresentationModeDisableValue(pdfPresentationModeDisable);
+    }
+
+    public static void setPdfPresentationModeDisableValue(String pdfPresentationModeDisable) {
+        ConfigConstants.pdfPresentationModeDisable = pdfPresentationModeDisable;
+    }
+
+    public static String getPdfOpenFileDisable() {
+        return pdfOpenFileDisable;
+    }
+
+    @Value("${pdf.openFile.disable:true}")
+    public static void setPdfOpenFileDisable(String pdfOpenFileDisable) {
+        setPdfOpenFileDisableValue(pdfOpenFileDisable);
+    }
+    public static void setPdfOpenFileDisableValue(String pdfOpenFileDisable) {
+        ConfigConstants.pdfOpenFileDisable = pdfOpenFileDisable;
+    }
+
+    public static String getPdfPrintDisable() {
+        return pdfPrintDisable;
+    }
+    @Value("${pdf.print.disable:true}")
+    public  void setPdfPrintDisable(String pdfPrintDisable) {
+        setPdfPrintDisableValue(pdfPrintDisable);
+    }
+    public static void setPdfPrintDisableValue(String pdfPrintDisable) {
+        ConfigConstants.pdfPrintDisable = pdfPrintDisable;
+    }
+
     public static String getPdfDownloadDisable() {
         return pdfDownloadDisable;
     }
-
 
     @Value("${pdf.download.disable:true}")
     public void setPdfDownloadDisable(String pdfDownloadDisable) {
@@ -239,6 +282,17 @@ public class ConfigConstants {
     }
     public static void setPdfDownloadDisableValue(String pdfDownloadDisable) {
         ConfigConstants.pdfDownloadDisable = pdfDownloadDisable;
+    }
+
+    public static String getPdfBookmarkDisable() {
+        return pdfBookmarkDisable;
+    }
+    @Value("${pdf.bookmark.disable:true}")
+    public void setPdfBookmarkDisable(String pdfBookmarkDisable) {
+        setPdfBookmarkDisableValue(pdfBookmarkDisable);
+    }
+    public static void setPdfBookmarkDisableValue(String pdfBookmarkDisable) {
+        ConfigConstants.pdfBookmarkDisable = pdfBookmarkDisable;
     }
 
     public static String getOfficePreviewSwitchDisabled() {
