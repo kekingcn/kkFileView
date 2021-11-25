@@ -33,6 +33,7 @@ public class ConfigConstants {
     private static String ftpControlEncoding;
     private static String baseUrl;
     private static String fileDir = ConfigUtils.getHomePath() + File.separator + "file" + File.separator;
+    private static String localPreviewDir;
     private static CopyOnWriteArraySet<String> trustHostSet;
     private static String pdfDownloadDisable;
     private static Boolean fileUploadDisable;
@@ -47,6 +48,7 @@ public class ConfigConstants {
     public static final String DEFAULT_FTP_CONTROL_ENCODING = "UTF-8";
     public static final String DEFAULT_BASE_URL = "default";
     public static final String DEFAULT_FILE_DIR_VALUE = "default";
+    public static final String DEFAULT_LOCAL_PREVIEW_DIR_VALUE = "default";
     public static final String DEFAULT_TRUST_HOST = "default";
     public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
     public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
@@ -201,6 +203,24 @@ public class ConfigConstants {
             }
             ConfigConstants.fileDir = fileDir;
         }
+    }
+
+    public static String getLocalPreviewDir() {
+        return localPreviewDir;
+    }
+
+    @Value("${local.preview.dir:default}")
+    public void setLocalPreviewDir(String localPreviewDir) {
+        setLocalPreviewDirValue(localPreviewDir);
+    }
+
+    public static void setLocalPreviewDirValue(String localPreviewDir) {
+        if (!DEFAULT_LOCAL_PREVIEW_DIR_VALUE.equals(localPreviewDir)) {
+            if (!localPreviewDir.endsWith(File.separator)) {
+                localPreviewDir = localPreviewDir + File.separator;
+            }
+        }
+        ConfigConstants.localPreviewDir = localPreviewDir;
     }
 
     @Value("${trust.host:default}")
