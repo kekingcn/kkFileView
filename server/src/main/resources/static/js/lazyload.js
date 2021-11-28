@@ -19,8 +19,12 @@ function checkImgs() {
 }
 
 function loadImg(el) {
-    var source = el.getAttribute("data-src");
-    el.src = source;
+    var loaded = el.getAttribute("loaded");
+    if (!Boolean(loaded)) {
+        var source = el.getAttribute("data-src");
+        el.setAttribute("loaded", true);
+        el.src = source;
+    }
 }
 // var mustRun = 500
 // function throttle(fn, mustRun) {
