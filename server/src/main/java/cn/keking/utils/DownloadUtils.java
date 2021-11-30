@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.*;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static cn.keking.utils.KkFileUtils.isFtpUrl;
 import static cn.keking.utils.KkFileUtils.isHttpUrl;
@@ -39,7 +41,36 @@ public class DownloadUtils {
             URL url = WebUtils.normalizedURL(urlStr);
             if (isHttpUrl(url)) {
                 File realFile = new File(realPath);
-                FileUtils.copyURLToFile(url,realFile);
+                try {
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    if (fileAttribute.getAuthorization() != null) {
+                        connection.setRequestProperty("Authorization", fileAttribute.getAuthorization());
+                    }
+                    connection.connect();
+                    if (connection.getResponseCode() != 200) {
+                        response.setCode(1);
+                        response.setMsg("url不能识别url" + urlStr);
+                    } else {
+                        InputStream in =  connection.getInputStream();
+                        int num = 0;
+                        FileOutputStream fos = new FileOutputStream(realFile);
+                        byte bytes[] =new byte[1*1024];
+                        int readSize =-1;
+
+                        while((readSize = in.read(bytes))!=-1){
+                            //写入文件
+                            fos.write(bytes, 0, readSize);
+                        }
+                        //关闭流
+                        fos.close();
+                        in.close();
+                    }
+                    connection.disconnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             } else if (isFtpUrl(url)) {
                 String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                 String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);

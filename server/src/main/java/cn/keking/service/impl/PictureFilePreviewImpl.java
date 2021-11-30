@@ -8,6 +8,7 @@ import cn.keking.service.FileHandlerService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,21 +37,21 @@ public class PictureFilePreviewImpl implements FilePreview {
             imgUrls.addAll(zipImgUrls);
         }
         // 不是http开头，浏览器不能直接访问，需下载到本地
-        if (url != null && !url.toLowerCase().startsWith("http")) {
-            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
-            if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
-            } else {
-                String file = fileHandlerService.getRelativePath(response.getContent());
-                imgUrls.clear();
-                imgUrls.add(file);
-                model.addAttribute("imgUrls", imgUrls);
-                model.addAttribute("currentUrl", file);
-            }
+//        if (url != null && !url.toLowerCase().startsWith("http")) {
+        ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
+        if (response.isFailure()) {
+            return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
         } else {
+            String file = fileHandlerService.getRelativePath(response.getContent());
+            imgUrls.clear();
+            imgUrls.add(file);
             model.addAttribute("imgUrls", imgUrls);
-            model.addAttribute("currentUrl", url);
+            model.addAttribute("currentUrl", file);
         }
+//        } else {
+//            model.addAttribute("imgUrls", imgUrls);
+//            model.addAttribute("currentUrl", url);
+//        }
         return PICTURE_FILE_PREVIEW_PAGE;
     }
 }

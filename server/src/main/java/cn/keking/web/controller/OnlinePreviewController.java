@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -68,8 +70,16 @@ public class OnlinePreviewController {
         if (!allowPreview(fileUrl)) {
             return otherFilePreview.notSupportedFile(model, "该文件不允许预览：" + fileUrl);
         }
+        String authorization = req.getHeader("Authorization");
+        if (fileUrl.contains("&token=")){
+            authorization = fileUrl.substring(fileUrl.lastIndexOf("&token=") + "&token=".length());
+            fileUrl = fileUrl.substring(0,fileUrl.lastIndexOf("&token="));
+        }
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         model.addAttribute("file", fileAttribute);
+        if (authorization != null) {
+            fileAttribute.setAuthorization(authorization);
+        }
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
         return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
@@ -115,6 +125,11 @@ public class OnlinePreviewController {
      */
     @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
     public void getCorsFile(String urlPath, HttpServletResponse response) {
+        String authorization = null;
+        if (urlPath.contains("&token=")){
+            authorization = urlPath.substring(urlPath.lastIndexOf("&token=") + "&token=".length());
+            urlPath = urlPath.substring(0,urlPath.lastIndexOf("&token="));
+        }
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
             URL url = WebUtils.normalizedURL(urlPath);
@@ -124,8 +139,39 @@ public class OnlinePreviewController {
                 response.setStatus(401);
                 return;
             }
-            byte[] bytes = NetUtil.downloadBytes(url.toString());
-            IOUtils.write(bytes, response.getOutputStream());
+            //byte[] bytes = NetUtil.downloadBytes(url.toString());
+            ServletOutputStream outputStream = response.getOutputStream();
+            try {
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                if (authorization != null) {
+                    connection.setRequestProperty("Authorization", authorization);
+                }
+                connection.connect();
+                if (connection.getResponseCode() != 200) {
+                    response.setHeader("content-type", "text/html;charset=utf-8");
+                    response.getOutputStream().println("forbidden");
+                    response.setStatus(401);
+                    return;
+                } else {
+                    InputStream in = connection.getInputStream();
+                    int num = 0;
+                    byte bytes[] = new byte[1 * 1024];
+                    int readSize = -1;
+
+                    while ((readSize = in.read(bytes)) != -1) {
+                        //写入文件
+                        outputStream.write(bytes, 0, readSize);
+                    }
+                    //关闭流
+                    outputStream.close();
+                    in.close();
+                }
+                connection.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+//            IOUtils.write(bytes, response.getOutputStream());
         } catch (IOException | GalimatiasParseException e) {
             logger.error("下载跨域pdf文件异常，url：{}", urlPath, e);
         }

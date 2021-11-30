@@ -13,6 +13,7 @@ public class FileAttribute {
     private String name;
     private String url;
     private String fileKey;
+    private String authorization;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
 
     public FileAttribute() {
@@ -31,6 +32,14 @@ public class FileAttribute {
         this.name = name;
         this.url = url;
         this.officePreviewType = officePreviewType;
+    }
+
+    public String getAuthorization() {
+        return authorization;
+    }
+
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
     }
 
     public String getFileKey() {

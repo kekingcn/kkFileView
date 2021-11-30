@@ -76,7 +76,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                     model.addAttribute("pdfUrl", pdfName);
                 }
             } else {
-                model.addAttribute("pdfUrl", url);
+                model.addAttribute("pdfUrl", url + "&token=" + fileAttribute.getAuthorization());
             }
         }
         return PDF_FILE_PREVIEW_PAGE;
