@@ -17,6 +17,7 @@ public class WebUtils {
 
     /**
      * 获取标准的URL
+     *
      * @param urlStr url
      * @return 标准的URL
      */
@@ -118,6 +119,9 @@ public class WebUtils {
         String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         int fileNameStartIndex = noQueryUrl.lastIndexOf('/') + 1;
         int fileNameEndIndex = noQueryUrl.lastIndexOf('.');
+        if (fileNameEndIndex < fileNameStartIndex) {
+            return url;
+        }
         String encodedFileName;
         try {
             encodedFileName = URLEncoder.encode(noQueryUrl.substring(fileNameStartIndex, fileNameEndIndex), "UTF-8");
