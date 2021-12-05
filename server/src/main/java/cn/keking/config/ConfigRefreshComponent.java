@@ -49,6 +49,8 @@ public class ConfigRefreshComponent {
                 String trustHost;
                 String pdfDownloadDisable;
                 boolean fileUploadDisable;
+                String tifPreviewType;
+
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -68,6 +70,8 @@ public class ConfigRefreshComponent {
                     trustHost = properties.getProperty("trust.host", ConfigConstants.DEFAULT_TRUST_HOST);
                     pdfDownloadDisable = properties.getProperty("pdf.download.disable", ConfigConstants.DEFAULT_PDF_DOWNLOAD_DISABLE);
                     fileUploadDisable = Boolean.parseBoolean(properties.getProperty("file.upload.disable", ConfigConstants.DEFAULT_FILE_UPLOAD_DISABLE));
+                    tifPreviewType = properties.getProperty("tif.preview.type", ConfigConstants.DEFAULT_TIF_PREVIEW_TYPE);
+
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
                     ConfigConstants.setSimTextValue(textArray);
                     ConfigConstants.setMediaValue(mediaArray);
@@ -80,6 +84,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setOfficePreviewSwitchDisabledValue(officePreviewSwitchDisabled);
                     ConfigConstants.setPdfDownloadDisableValue(pdfDownloadDisable);
                     ConfigConstants.setFileUploadDisableValue(fileUploadDisable);
+                    ConfigConstants.setTifPreviewTypeValue(tifPreviewType);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();
