@@ -6,6 +6,7 @@ RUN echo "deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe m
 	apt-get clean && apt-get update &&\
 	apt-get install -y locales && apt-get install -y language-pack-zh-hans &&\
 	localedef -i zh_CN -c -f UTF-8 -A /usr/share/locale/locale.alias zh_CN.UTF-8 && locale-gen zh_CN.UTF-8 &&\
+    export DEBIAN_FRONTEND=noninteractive &&\
 	apt-get install -y tzdata && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &&\
 	apt-get install -y libxrender1 && apt-get install -y libxt6 && apt-get install -y libxext-dev && apt-get install -y libfreetype6-dev &&\
 	apt-get install -y wget && apt-get install -y ttf-mscorefonts-installer && apt-get install -y fontconfig &&\
@@ -37,5 +38,5 @@ ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 ENV PATH $PATH:$JAVA_HOME/bin
 ENV LANG zh_CN.UTF-8
 ENV LC_ALL zh_CN.UTF-8
-ENV KKFILEVIEW_BIN_FOLDER /opt/kkFileView-4.0.0/bin
-ENTRYPOINT ["java","-Dfile.encoding=UTF-8","-Dspring.config.location=/opt/kkFileView-4.0.0/config/application.properties","-jar","/opt/kkFileView-4.0.0/bin/kkFileView-4.0.0.jar"]
+ENV KKFILEVIEW_BIN_FOLDER /opt/kkFileView-4.1.0-SNAPSHOT/bin
+ENTRYPOINT ["java","-Dfile.encoding=UTF-8","-Dspring.config.location=/opt/kkFileView-4.1.0-SNAPSHOT/config/application.properties","-jar","/opt/kkFileView-4.1.0-SNAPSHOT/bin/kkFileView-4.1.0-SNAPSHOT.jar"]
