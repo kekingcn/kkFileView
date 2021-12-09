@@ -41,6 +41,7 @@ public class TiffFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
 
         String tifPreviewType = ConfigConstants.getTifPreviewType();
+        String priveiwType = String.valueOf(model.getAttribute("previewType"));
 
         if("tif".equalsIgnoreCase(tifPreviewType)){
 
@@ -71,15 +72,14 @@ public class TiffFilePreviewImpl implements FilePreview {
 
             if(fileJpg.exists()){
                 // 转换后的tif没用了，可以删掉了
-                fileTiff.delete();
+                if(fileTiff.exists()){
+                    fileTiff.delete();
+                }
 
                 String baseUrl = BaseUrlFilter.getBaseUrl();
-                if("pdf".equalsIgnoreCase(tifPreviewType)){
+                if("pdf".equalsIgnoreCase(tifPreviewType) && !"image".equalsIgnoreCase(priveiwType)){
                     File filePdf = ConvertPicUtil.convertJpg2Pdf(fileDir + uuid + ".jpg", fileDir + uuid + ".pdf");
                     if(filePdf.exists()){
-                        // 转换后的jpg没用了，可以删掉了
-                        fileJpg.delete();
-
                         String pdfUrl = baseUrl + uuid + ".pdf";
                         model.addAttribute("pdfUrl", pdfUrl);
 

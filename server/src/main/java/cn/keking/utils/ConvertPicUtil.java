@@ -8,13 +8,11 @@ import com.lowagie.text.pdf.PdfWriter;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
 import com.sun.media.jai.codec.JPEGEncodeParam;
-import org.springframework.stereotype.Component;
 
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import java.io.*;
 
-@Component
 public class ConvertPicUtil {
 
     /**
