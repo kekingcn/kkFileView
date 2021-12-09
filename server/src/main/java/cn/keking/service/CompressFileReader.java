@@ -17,6 +17,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -592,9 +593,11 @@ public class CompressFileReader {
 
         @Override
         public ISequentialOutStream getStream(int index, ExtractAskMode extractAskMode) throws SevenZipException {
+            String filePath = inArchive.getStringProperty(index, PropID.PATH);
+            String real = folderName + filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+            File f = new File(extractPath + real);
+            f.delete();
             return data -> {
-                String filePath = inArchive.getStringProperty(index, PropID.PATH);
-                String real = folderName + filePath.substring(filePath.lastIndexOf(File.separator) + 1);
                 FileOutputStream fos = null;
                 try {
                     File path = new File(extractPath + real);
