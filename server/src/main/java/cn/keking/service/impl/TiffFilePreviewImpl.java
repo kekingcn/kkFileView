@@ -39,9 +39,11 @@ public class TiffFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-
         String tifPreviewType = ConfigConstants.getTifPreviewType();
-        String priveiwType = String.valueOf(model.getAttribute("previewType"));
+        String previewType = fileAttribute.getPreviewType();
+        if (StringUtils.hasText(previewType)) {
+            tifPreviewType = previewType;
+        }
 
         if("tif".equalsIgnoreCase(tifPreviewType)){
 
@@ -77,7 +79,7 @@ public class TiffFilePreviewImpl implements FilePreview {
                 }
 
                 String baseUrl = BaseUrlFilter.getBaseUrl();
-                if("pdf".equalsIgnoreCase(tifPreviewType) && !"image".equalsIgnoreCase(priveiwType)){
+                if("pdf".equalsIgnoreCase(tifPreviewType)){
                     File filePdf = ConvertPicUtil.convertJpg2Pdf(fileDir + uuid + ".jpg", fileDir + uuid + ".pdf");
                     if(filePdf.exists()){
                         String pdfUrl = baseUrl + uuid + ".pdf";

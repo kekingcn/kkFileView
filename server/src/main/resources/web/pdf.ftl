@@ -37,14 +37,12 @@
     }
 
     function goForImage() {
-        var url = window.location.href + "&previewType=image"
-        console.log(url);
+        var url = window.location.href + "&previewType=jpg"
         if (url.indexOf("officePreviewType=pdf") != -1) {
             url = url.replace("officePreviewType=pdf", "officePreviewType=image");
         } else {
             url = url + "&officePreviewType=image";
         }
-        console.log(url);
         window.location.href = url;
     }
 
