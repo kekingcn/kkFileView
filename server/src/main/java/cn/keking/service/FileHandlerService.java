@@ -284,6 +284,11 @@ public class FileHandlerService {
             if (StringUtils.hasText(fileKey)) {
                 attribute.setFileKey(fileKey);
             }
+
+            String previewType = req.getParameter("previewType");
+            if (StringUtils.hasText(previewType)) {
+                attribute.setPreviewType(previewType);
+            }
         }
         return attribute;
     }
