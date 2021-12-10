@@ -30,8 +30,12 @@ public class AttributeSetFilter implements Filter {
      * @param request request
      */
     private void setFileAttribute(ServletRequest request){
-        HttpServletRequest httpRequest = (HttpServletRequest)request;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        request.setAttribute("pdfPresentationModeDisable", ConfigConstants.getPdfPresentationModeDisable());
+        request.setAttribute("pdfOpenFileDisable", ConfigConstants.getPdfOpenFileDisable());
+        request.setAttribute("pdfPrintDisable", ConfigConstants.getPdfPrintDisable());
         request.setAttribute("pdfDownloadDisable", ConfigConstants.getPdfDownloadDisable());
+        request.setAttribute("pdfBookmarkDisable", ConfigConstants.getPdfBookmarkDisable());
         request.setAttribute("fileKey", httpRequest.getParameter("fileKey"));
         request.setAttribute("switchDisabled", ConfigConstants.getOfficePreviewSwitchDisabled());
         request.setAttribute("fileUploadDisable", ConfigConstants.getFileUploadDisable());

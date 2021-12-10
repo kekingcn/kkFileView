@@ -47,7 +47,11 @@ public class ConfigRefreshComponent {
                 String configFilePath = ConfigUtils.getCustomizedConfigPath();
                 String baseUrl;
                 String trustHost;
+                String pdfPresentationModeDisable;
+                String pdfOpenFileDisable;
+                String pdfPrintDisable;
                 String pdfDownloadDisable;
+                String pdfBookmarkDisable;
                 boolean fileUploadDisable;
                 String tifPreviewType;
 
@@ -68,7 +72,11 @@ public class ConfigRefreshComponent {
                     mediaArray = media.split(",");
                     baseUrl = properties.getProperty("base.url", ConfigConstants.DEFAULT_BASE_URL);
                     trustHost = properties.getProperty("trust.host", ConfigConstants.DEFAULT_TRUST_HOST);
+                    pdfPresentationModeDisable = properties.getProperty("pdf.presentationMode.disable", ConfigConstants.DEFAULT_PDF_PRESENTATION_MODE_DISABLE);
+                    pdfOpenFileDisable = properties.getProperty("pdf.openFile.disable", ConfigConstants.DEFAULT_PDF_OPEN_FILE_DISABLE);
+                    pdfPrintDisable = properties.getProperty("pdf.print.disable", ConfigConstants.DEFAULT_PDF_PRINT_DISABLE);
                     pdfDownloadDisable = properties.getProperty("pdf.download.disable", ConfigConstants.DEFAULT_PDF_DOWNLOAD_DISABLE);
+                    pdfBookmarkDisable = properties.getProperty("pdf.bookmark.disable", ConfigConstants.DEFAULT_PDF_BOOKMARK_DISABLE);
                     fileUploadDisable = Boolean.parseBoolean(properties.getProperty("file.upload.disable", ConfigConstants.DEFAULT_FILE_UPLOAD_DISABLE));
                     tifPreviewType = properties.getProperty("tif.preview.type", ConfigConstants.DEFAULT_TIF_PREVIEW_TYPE);
 
@@ -82,7 +90,11 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setBaseUrlValue(baseUrl);
                     ConfigConstants.setTrustHostValue(trustHost);
                     ConfigConstants.setOfficePreviewSwitchDisabledValue(officePreviewSwitchDisabled);
+                    ConfigConstants.setPdfPresentationModeDisableValue(pdfPresentationModeDisable);
+                    ConfigConstants.setPdfOpenFileDisableValue(pdfOpenFileDisable);
+                    ConfigConstants.setPdfPrintDisableValue(pdfPrintDisable);
                     ConfigConstants.setPdfDownloadDisableValue(pdfDownloadDisable);
+                    ConfigConstants.setPdfBookmarkDisableValue(pdfBookmarkDisable);
                     ConfigConstants.setFileUploadDisableValue(fileUploadDisable);
                     ConfigConstants.setTifPreviewTypeValue(tifPreviewType);
                     setWatermarkConfig(properties);
