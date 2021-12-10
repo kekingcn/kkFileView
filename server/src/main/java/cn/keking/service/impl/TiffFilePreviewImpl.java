@@ -40,9 +40,9 @@ public class TiffFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String tifPreviewType = ConfigConstants.getTifPreviewType();
-        String previewType = fileAttribute.getPreviewType();
-        if (StringUtils.hasText(previewType)) {
-            tifPreviewType = previewType;
+        String tifOnLinePreviewType = fileAttribute.getTifPreviewType();
+        if (StringUtils.hasText(tifOnLinePreviewType)) {
+            tifPreviewType = tifOnLinePreviewType;
         }
 
         if("tif".equalsIgnoreCase(tifPreviewType)){

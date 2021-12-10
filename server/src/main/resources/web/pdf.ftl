@@ -37,7 +37,7 @@
     }
 
     function goForImage() {
-        var url = window.location.href + "&previewType=jpg"
+        var url = window.location.href + "&tifPreviewType=jpg"
         if (url.indexOf("officePreviewType=pdf") != -1) {
             url = url.replace("officePreviewType=pdf", "officePreviewType=image");
         } else {
