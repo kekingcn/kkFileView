@@ -273,6 +273,10 @@ public class FileHandlerService {
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
+        //压缩文件跳过下载
+        if (url.contains("?fileKey=")) {
+            attribute.setSkipDownLoad(true);
+        }
         url = WebUtils.encodeUrlFileName(url);
         attribute.setUrl(url);
         if (req != null) {

@@ -36,7 +36,7 @@ public class DownloadUtils {
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         String realPath = DownloadUtils.getRelFilePath(fileName, fileAttribute);
         try {
-            if (!urlStr.contains("?fileKey=")) {
+            if (!fileAttribute.getSkipDownLoad()) {
                 URL url = WebUtils.normalizedURL(urlStr);
                 if (isHttpUrl(url)) {
                     File realFile = new File(realPath);
