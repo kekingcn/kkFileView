@@ -29,6 +29,7 @@
 
 <script type="text/javascript">
     const data = JSON.parse('${fileTree}');
+    console.log(data);
     var baseUrl = "${baseUrl}";
     var setting = {
         view: {

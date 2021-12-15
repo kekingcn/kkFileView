@@ -111,14 +111,14 @@ public class CompressFileReader {
             List<Map<String, FileHeaderRar>> headersToBeExtract = new ArrayList<>();
             for (FileHeaderRar header : items) {
                 String fullName = header.getFileNameW();
-                String originName = getLastFileName(fullName, "\\");
+                String originName = getLastFileName(fullName, File.separator);
                 String childName = originName;
                 boolean directory = header.getDirectory();
                 if (!directory) {
                     childName = archiveFileName + "_" + originName;
                     headersToBeExtract.add(Collections.singletonMap(childName, header));
                 }
-                String parentName = getLast2FileName(fullName, "\\", archiveFileName);
+                String parentName = getLast2FileName(fullName, File.separator, archiveFileName);
                 FileType type = FileType.typeFromUrl(childName);
                 if (type.equals(FileType.PICTURE)) {
                     imgUrls.add(baseUrl + childName);
