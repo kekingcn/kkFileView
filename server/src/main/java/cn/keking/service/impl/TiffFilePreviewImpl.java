@@ -2,7 +2,6 @@ package cn.keking.service.impl;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
-import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.ConvertPicUtil;
@@ -16,7 +15,6 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * tiff 图片文件处理
@@ -58,50 +56,53 @@ public class TiffFilePreviewImpl implements FilePreview {
 
         }else if("jpg".equalsIgnoreCase(tifPreviewType) || "pdf".equalsIgnoreCase(tifPreviewType)){
             String inputFileName = url.substring(url.lastIndexOf("/") + 1);
-            String inputFileExt = inputFileName.substring(inputFileName.lastIndexOf(".") + 1);
-            String uuid = UUID.randomUUID().toString().replaceAll("-","");
-            String tiffFileName = uuid + "." + inputFileExt;
+            String inputFileNamePrefix = inputFileName.substring(0, inputFileName.lastIndexOf("."));
 
-            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, tiffFileName);
-            if (response.isFailure()) {
-                return NOT_SUPPORTED_FILE_PAGE;
+            String strLocalTif = fileDir + inputFileName;
+            File fileTiff = new File(strLocalTif);
+            // 如果本地不存在这个tif文件，则下载
+            if(!fileTiff.exists()){
+                ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, inputFileName);
+                if (response.isFailure()) {
+                    return NOT_SUPPORTED_FILE_PAGE;
+                }
             }
-            String strTiffPath = response.getContent();
 
-            File fileTiff = new File(strTiffPath);
-
-            File fileJpg = ConvertPicUtil.convertPic2Jpg(strTiffPath, fileDir + uuid + ".jpg");
-
-            if(fileJpg.exists()){
-                // 转换后的tif没用了，可以删掉了
-                if(fileTiff.exists()){
-                    fileTiff.delete();
+            String baseUrl = BaseUrlFilter.getBaseUrl();
+            if("pdf".equalsIgnoreCase(tifPreviewType)){
+                // 以PDF模式预览的过程
+                File filePdf = new File(fileDir + inputFileNamePrefix + ".pdf");
+                // 如果本地不存在对应的pdf，则调用转换过程。否则直接用现有的pdf文件
+                if(!filePdf.exists()){
+                    filePdf = ConvertPicUtil.convertTif2Pdf(strLocalTif, fileDir + inputFileNamePrefix + ".pdf");
                 }
 
-                String baseUrl = BaseUrlFilter.getBaseUrl();
-                if("pdf".equalsIgnoreCase(tifPreviewType)){
-                    File filePdf = ConvertPicUtil.convertJpg2Pdf(fileDir + uuid + ".jpg", fileDir + uuid + ".pdf");
-                    if(filePdf.exists()){
-                        String pdfUrl = baseUrl + uuid + ".pdf";
-                        model.addAttribute("pdfUrl", pdfUrl);
+                // 如果pdf已经存在，则将url路径加入到对象中，返回给页面
+                if(filePdf.exists()){
+                    String pdfUrl = baseUrl + inputFileNamePrefix + ".pdf";
+                    model.addAttribute("pdfUrl", pdfUrl);
 
-                        return PDF_FILE_PREVIEW_PAGE;
-                    }
-                }else{
-                    String jpgUrl = baseUrl + uuid + ".jpg";
-
-                    fileAttribute.setName(uuid + ".jpg");
-                    fileAttribute.setType(FileType.PICTURE);
-                    fileAttribute.setSuffix("jpg");
-                    fileAttribute.setUrl(jpgUrl);
-
-                    List<String> imgUrls = new ArrayList<>();
-                    imgUrls.add(jpgUrl);
-
-                    model.addAttribute("imgUrls", imgUrls);
-                    model.addAttribute("currentUrl", jpgUrl);
+                    return PDF_FILE_PREVIEW_PAGE;
+                }
+            }else{
+                // 以JPG模式预览的过程
+                String strJpgFilePathName = fileDir + inputFileNamePrefix + ".jpg";
+                // 将tif转换为jpg，返回转换后的文件路径、文件名的list
+                List<String> listPic2Jpg = ConvertPicUtil.convertTif2Jpg(strLocalTif, strJpgFilePathName);
+                // 将返回页面的图片url的list对象
+                List<String> listImageUrls = new ArrayList<>();
+                // 循环，拼装url的list对象
+                for(String strJpg : listPic2Jpg){
+                    listImageUrls.add(baseUrl + strJpg);
                 }
 
+                model.addAttribute("imgUrls", listImageUrls);
+                model.addAttribute("currentUrl", listImageUrls.get(0));
+            }
+
+            // 转换后的tif没用了，可以删掉了
+            if(fileTiff.exists()){
+                fileTiff.delete();
             }
 
             return PICTURE_FILE_PREVIEW_PAGE;
