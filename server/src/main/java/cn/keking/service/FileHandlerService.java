@@ -288,6 +288,11 @@ public class FileHandlerService {
             if (StringUtils.hasText(fileKey)) {
                 attribute.setFileKey(fileKey);
             }
+
+            String tifPreviewType = req.getParameter("tifPreviewType");
+            if (StringUtils.hasText(tifPreviewType)) {
+                attribute.setTifPreviewType(tifPreviewType);
+            }
         }
         return attribute;
     }
