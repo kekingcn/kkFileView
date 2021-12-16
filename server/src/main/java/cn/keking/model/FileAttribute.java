@@ -82,7 +82,6 @@ public class FileAttribute {
     public void setUrl(String url) {
         this.url = url;
     }
-
     public Boolean getSkipDownLoad() {
         return skipDownLoad;
     }
@@ -90,7 +89,6 @@ public class FileAttribute {
     public void setSkipDownLoad(Boolean skipDownLoad) {
         this.skipDownLoad = skipDownLoad;
     }
-
     public String getTifPreviewType() {
         return tifPreviewType;
     }
