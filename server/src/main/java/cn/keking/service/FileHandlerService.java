@@ -270,6 +270,9 @@ public class FileHandlerService {
             type = FileType.typeFromUrl(url);
             suffix = WebUtils.suffixFromUrl(url);
         }
+        if (url.contains("?fileKey=")) {
+            attribute.setSkipDownLoad(true);
+        }
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);

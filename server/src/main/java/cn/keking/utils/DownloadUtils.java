@@ -37,17 +37,19 @@ public class DownloadUtils {
         String realPath = DownloadUtils.getRelFilePath(fileName, fileAttribute);
         try {
             URL url = WebUtils.normalizedURL(urlStr);
-            if (isHttpUrl(url)) {
-                File realFile = new File(realPath);
-                FileUtils.copyURLToFile(url,realFile);
-            } else if (isFtpUrl(url)) {
-                String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
-                String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
-                String ftpControlEncoding = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
-                FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
-            } else {
-                response.setCode(1);
-                response.setMsg("url不能识别url" + urlStr);
+            if (!fileAttribute.getSkipDownLoad()) {
+                if (isHttpUrl(url)) {
+                    File realFile = new File(realPath);
+                    FileUtils.copyURLToFile(url, realFile);
+                } else if (isFtpUrl(url)) {
+                    String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
+                    String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
+                    String ftpControlEncoding = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
+                    FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
+                } else {
+                    response.setCode(1);
+                    response.setMsg("url不能识别url" + urlStr);
+                }
             }
             response.setContent(realPath);
             response.setMsg(fileName);
