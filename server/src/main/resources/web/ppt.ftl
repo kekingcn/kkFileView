@@ -43,11 +43,11 @@
     <!-- Le styles -->
     
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<link href="/pptx/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="pptx/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-<link href="/pptx/idocv/idocv_common.min.css" rel="stylesheet">
+<link href="pptx/idocv/idocv_common.min.css" rel="stylesheet">
 
-<link href="/pptx/jquery.contextMenu.css" rel="stylesheet">
+<link href="pptx/jquery.contextMenu.css" rel="stylesheet">
 
     <!-- BOOTSTRAP STYLE end -->
     
@@ -79,7 +79,7 @@
 
 <div class="loading-mask" style="display: block;">
     <div class="loading-zone">
-        <div class="text"><img src="/pptx/img/loader_indicator_lite.gif">加载中...</div>
+        <div class="text"><img src="pptx/img/loader_indicator_lite.gif">加载中...</div>
     </div>
   
 </div>
@@ -139,9 +139,9 @@
     <!-- JavaSript
     ================================================== -->
     
-<script src="/pptx/jquery-3.5.1.min.js"></script>
-<script src="/pptx/jquery.contextMenu.js?v=11.2.5_20210128"></script>
-<script src="/pptx/idocv/idocv_common.min.js"></script>
+<script src="pptx/jquery-3.5.1.min.js"></script>
+<script src="pptx/jquery.contextMenu.js?v=11.2.5_20210128"></script>
+<script src="pptx/idocv/idocv_common.min.js"></script>
 
 <script>
     var contextPath = '';
@@ -166,8 +166,8 @@
     }
 </script>
 <!-- 客户自定义JS -->
-    <script src="/pptx/jquery.mobile-events.min.js"></script>
-    <script src="/pptx/ppt.js"></script>
+    <script src="pptx/jquery.mobile-events.min.js"></script>
+    <script src="pptx/ppt.js"></script>
 </body>
 </html>
 </body>

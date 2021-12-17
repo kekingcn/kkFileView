@@ -1,4 +1,4 @@
-# file-online-preview
+# kkFileView
 
 [![GitHub license](https://img.shields.io/github/license/kekingcn/kkFileView.svg?style=flat-square)](https://github.com/kekingcn/kkFileView/blob/master/LICENSE)
 
