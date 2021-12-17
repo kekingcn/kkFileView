@@ -2,6 +2,7 @@ package cn.keking.service;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
+import cn.keking.utils.FileHeaderRar;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,10 +10,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.rarfile.FileHeader;
+import net.sf.sevenzipjbinding.*;
+import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -24,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author yudian-it
@@ -99,42 +105,82 @@ public class CompressFileReader {
         List<String> imgUrls = new ArrayList<>();
         String baseUrl = BaseUrlFilter.getBaseUrl();
         try {
-            Archive archive = new Archive(new FileInputStream(filePath));
-            List<FileHeader> headers = archive.getFileHeaders();
-            headers = sortedHeaders(headers);
+            List<FileHeaderRar> items = getRar4Paths(filePath);
             String archiveFileName = fileHandlerService.getFileNameFromPath(filePath);
-            List<Map<String, FileHeader>> headersToBeExtracted = new ArrayList<>();
-            for (FileHeader header : headers) {
-                String fullName;
-                if (header.isUnicode()) {
-                    fullName = header.getFileNameW();
-                } else {
-                    fullName = header.getFileNameString();
-                }
-                // 展示名
-                String originName = getLastFileName(fullName, "\\");
+            List<Map<String, FileHeaderRar>> headersToBeExtract = new ArrayList<>();
+            for (FileHeaderRar header : items) {
+                String fullName = header.getFileNameW();
+                String originName = getLastFileName(fullName, File.separator);
                 String childName = originName;
-                boolean directory = header.isDirectory();
+                boolean directory = header.getDirectory();
                 if (!directory) {
                     childName = archiveFileName + "_" + originName;
-                    headersToBeExtracted.add(Collections.singletonMap(childName, header));
+                    headersToBeExtract.add(Collections.singletonMap(childName, header));
                 }
-                String parentName = getLast2FileName(fullName, "\\", archiveFileName);
+                String parentName = getLast2FileName(fullName, File.separator, archiveFileName);
                 FileType type = FileType.typeFromUrl(childName);
-                if (type.equals(FileType.PICTURE)) {//添加图片文件到图片列表
+                if (type.equals(FileType.PICTURE)) {
                     imgUrls.add(baseUrl + childName);
                 }
-                FileNode node = new FileNode(originName, childName, parentName, new ArrayList<>(), directory, fileKey);
+                FileNode node =
+                        new FileNode(originName, childName, parentName, new ArrayList<>(), directory, fileKey);
                 addNodes(appender, parentName, node);
                 appender.put(childName, node);
             }
-            executors.submit(new RarExtractorWorker(headersToBeExtracted, archive, filePath));
             fileHandlerService.putImgCache(fileKey, imgUrls);
+            executors.submit(new RarExtractorWorker(headersToBeExtract, filePath));
             return new ObjectMapper().writeValueAsString(appender.get(""));
-        } catch (RarException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<FileHeaderRar> getRar4Paths(String paths) {
+        RandomAccessFile randomAccessFile = null;
+        IInArchive inArchive = null;
+        List<FileHeaderRar> itemPath = null;
+        try {
+            randomAccessFile = new RandomAccessFile(paths, "r");
+            inArchive = SevenZip.openInArchive(null, new RandomAccessFileInStream(randomAccessFile));
+            String folderName = paths.substring(paths.lastIndexOf(File.separator) + 1);
+            String extractPath = paths.substring(0, paths.lastIndexOf(folderName));
+            inArchive.extract(null, false, new ExtractCallback(inArchive, extractPath, folderName + "_"));
+            ISimpleInArchive simpleInArchive = inArchive.getSimpleInterface();
+            itemPath =
+                    Arrays.stream(simpleInArchive.getArchiveItems())
+                            .map(
+                                    o -> {
+                                        try {
+                                            return new FileHeaderRar(o.getPath(), o.isFolder());
+                                        } catch (SevenZipException e) {
+                                            e.printStackTrace();
+                                        }
+                                        return null;
+                                    })
+                            .collect(Collectors.toList())
+                            .stream()
+                            .sorted(Comparator.comparing(FileHeaderRar::getFileNameW))
+                            .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error occurs: " + e);
+        } finally {
+            if (inArchive != null) {
+                try {
+                    inArchive.close();
+                } catch (SevenZipException e) {
+                    System.err.println("Error closing archive: " + e);
+                }
+            }
+            if (randomAccessFile != null) {
+                try {
+                    randomAccessFile.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing file: " + e);
+                }
+            }
+        }
+        return itemPath;
     }
 
     public String read7zFile(String filePath, String fileKey) {
@@ -206,10 +252,21 @@ public class CompressFileReader {
     private List<FileHeader> sortedHeaders(List<FileHeader> headers) {
         List<FileHeader> sortedHeaders = new ArrayList<>();
         Map<Integer, FileHeader> mapHeaders = new TreeMap<>();
-        headers.forEach(header -> mapHeaders.put(new Integer(0).equals(header.getFileNameW().length()) ? header.getFileNameString().length() : header.getFileNameW().length(), header));
+        headers.forEach(
+                header ->
+                        mapHeaders.put(
+                                new Integer(0).equals(header.getFileNameW().length())
+                                        ? header.getFileNameString().length()
+                                        : header.getFileNameW().length(),
+                                header));
         for (Map.Entry<Integer, FileHeader> entry : mapHeaders.entrySet()) {
             for (FileHeader header : headers) {
-                if (entry.getKey().equals(new Integer(0).equals(header.getFileNameW().length()) ? header.getFileNameString().length() : header.getFileNameW().length())) {
+                if (entry
+                        .getKey()
+                        .equals(
+                                new Integer(0).equals(header.getFileNameW().length())
+                                        ? header.getFileNameString().length()
+                                        : header.getFileNameW().length())) {
                     sortedHeaders.add(header);
                 }
             }
@@ -445,16 +502,29 @@ public class CompressFileReader {
 
     class RarExtractorWorker implements Runnable {
         private final List<Map<String, FileHeader>> headersToBeExtracted;
+
+        private final List<Map<String, FileHeaderRar>> headersToBeExtract;
+
         private final Archive archive;
         /**
          * 用以删除源文件
          */
         private final String filePath;
 
-        public RarExtractorWorker(List<Map<String, FileHeader>> headersToBeExtracted, Archive archive, String filePath) {
+        public RarExtractorWorker(
+                List<Map<String, FileHeader>> headersToBeExtracted, Archive archive, String filePath) {
             this.headersToBeExtracted = headersToBeExtracted;
             this.archive = archive;
             this.filePath = filePath;
+            headersToBeExtract = null;
+        }
+
+        public RarExtractorWorker(
+                List<Map<String, FileHeaderRar>> headersToBeExtract, String filePath) {
+            this.headersToBeExtract = headersToBeExtract;
+            this.filePath = filePath;
+            archive = null;
+            headersToBeExtracted = null;
         }
 
         @Override
@@ -479,5 +549,75 @@ public class CompressFileReader {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static class ExtractCallback implements IArchiveExtractCallback {
+        private final IInArchive inArchive;
+
+        private final String extractPath;
+        private final String folderName;
+
+        public ExtractCallback(IInArchive inArchive, String extractPath, String folderName) {
+            this.inArchive = inArchive;
+            if (!extractPath.endsWith("/") && !extractPath.endsWith("\\")) {
+                extractPath += File.separator;
+            }
+            this.extractPath = extractPath;
+            this.folderName = folderName;
+        }
+
+        @Override
+        public void setTotal(long total) {
+
+        }
+
+        @Override
+        public void setCompleted(long complete) {
+
+        }
+
+        @Override
+        public ISequentialOutStream getStream(int index, ExtractAskMode extractAskMode) throws SevenZipException {
+            String filePath = inArchive.getStringProperty(index, PropID.PATH);
+            String real = folderName + filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+            File f = new File(extractPath + real);
+            f.delete();
+            return data -> {
+                FileOutputStream fos = null;
+                try {
+                    File path = new File(extractPath + real);
+                    if (!path.getParentFile().exists()) {
+                        path.getParentFile().mkdirs();
+                    }
+                    if (!path.exists()) {
+                        path.createNewFile();
+                    }
+                    fos = new FileOutputStream(path, true);
+                    fos.write(data);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (fos != null) {
+                            fos.flush();
+                            fos.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return data.length;
+            };
+        }
+
+        @Override
+        public void prepareOperation(ExtractAskMode extractAskMode) {
+
+        }
+
+        @Override
+        public void setOperationResult(ExtractOperationResult extractOperationResult) {
+        }
+
     }
 }
