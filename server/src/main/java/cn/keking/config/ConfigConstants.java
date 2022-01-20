@@ -42,6 +42,7 @@ public class ConfigConstants {
     private static String pdfBookmarkDisable;
     private static Boolean fileUploadDisable;
     private static String tifPreviewType;
+    private static String streamUrlFileNameRegex;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -353,4 +354,18 @@ public class ConfigConstants {
     public static void setTifPreviewTypeValue(String tifPreviewType) {
         ConfigConstants.tifPreviewType = tifPreviewType;
     }
+
+    public static String getStreamUrlFileNameRegex() {
+        return streamUrlFileNameRegex;
+    }
+
+    @Value("${file.stream-url.file-name.regex:[^\\/\\\\&\\?]+\\.\\w{1,4}(?=([\\?&].*$|$))}")
+    public void setStreamUrlFileNameRegex(String streamUrlFileNameRegex) {
+        setStreamUrlFileNameRegexValue(streamUrlFileNameRegex);
+    }
+
+    public static void setStreamUrlFileNameRegexValue(String streamUrlFileNameRegex) {
+        ConfigConstants.streamUrlFileNameRegex = streamUrlFileNameRegex;
+    }
+
 }

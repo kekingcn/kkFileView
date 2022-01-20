@@ -1,6 +1,7 @@
 package cn.keking.model;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.utils.WebUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -87,6 +88,17 @@ public enum FileType {
      * @return 文件类型
      */
     public static FileType typeFromUrl(String url) {
+        String fileName = WebUtils.getFileNameFromURL(url);
+        return typeFromFileName(fileName);
+    }
+
+    /**
+     * 查看文件类型(防止参数中存在.点号或者其他特殊字符，所以先抽取文件名，然后再获取文件类型)
+     *
+     * @param url url
+     * @return 文件类型
+     */
+    public static FileType typeFromUrlOld(String url) {
         String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
         return typeFromFileName(fileName);

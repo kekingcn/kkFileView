@@ -1,5 +1,6 @@
 package cn.keking.utils;
 
+import cn.keking.config.ConfigConstants;
 import io.mola.galimatias.GalimatiasParseException;
 
 import java.io.UnsupportedEncodingException;
@@ -8,6 +9,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author : kl
@@ -74,13 +77,33 @@ public class WebUtils {
         return strAllParam;
     }
 
+    public static String getFileNameFromURL(String url) {
+        String regex = ConfigConstants.getStreamUrlFileNameRegex();
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            String name = matcher.group(0);
+            // 文件名在查询参数中，如：http://www.tonoinfo.com/file?fileName=文件名.docx
+            // name = fileName=文件名.docx
+            int eqIndex = name.indexOf("=");
+            if (eqIndex >= 0) {
+                eqIndex = eqIndex + 1;
+                name = name.substring(eqIndex);
+            }
+            return name;
+        } else {
+            return getFileNameFromURLOld(url);
+        }
+    }
+
     /**
      * 从url中剥离出文件名
      *
      * @param url 格式如：http://www.com.cn/20171113164107_月度绩效表模板(新).xls?UCloudPublicKey=ucloudtangshd@weifenf.com14355492830001993909323&Expires=&Signature=I D1NOFtAJSPT16E6imv6JWuq0k=
      * @return 文件名
      */
-    public static String getFileNameFromURL(String url) {
+    public static String getFileNameFromURLOld(String url) {
         if (url.toLowerCase().startsWith("file:")) {
             try {
                 URL urlObj = new URL(url);
@@ -103,6 +126,18 @@ public class WebUtils {
      * @return 文件后缀
      */
     public static String suffixFromUrl(String url) {
+        String fileName = getFileNameFromURL(url);
+
+        return KkFileUtils.suffixFromFileName(fileName);
+    }
+
+    /**
+     * 从url中获取文件后缀
+     *
+     * @param url url
+     * @return 文件后缀
+     */
+    public static String suffixFromUrlOld(String url) {
         String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
         return KkFileUtils.suffixFromFileName(fileName);
@@ -115,6 +150,18 @@ public class WebUtils {
      * @return 文件名编码后的url
      */
     public static String encodeUrlFileName(String url) {
+        String fileName = getFileNameFromURL(url);
+        int fileNameStartIndex = url.indexOf(fileName);
+        int fileNameEndIndex = fileNameStartIndex + fileName.length();
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            fileName = "";
+        }
+        return url.substring(0, fileNameStartIndex) + fileName + url.substring(fileNameEndIndex);
+    }
+
+    public static String encodeUrlFileNameOld(String url) {
         String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         int fileNameStartIndex = noQueryUrl.lastIndexOf('/') + 1;
         int fileNameEndIndex = noQueryUrl.lastIndexOf('.');
