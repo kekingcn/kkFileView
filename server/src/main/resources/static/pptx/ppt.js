@@ -56,9 +56,24 @@ $(document).ready(function() {
 		} else {
 			$('.slide-img-container').css('background-color', '');
 			$('.slide-img-container').contextMenu(false);
+			// $('.img-polaroid').height = '100%'
+			// $('.img-polaroid').marginTop = '0'
 		}
 	});
-	
+	// $(window).bind("orientationchange", function () {
+	// 	if(screenfull.isFullscreen) {
+	// 		if(Math.abs(window.orientation) === 90) {
+	// 			//横屏
+	// 			$('.img-polaroid').height = '100%'
+	// 			$('.img-polaroid').marginTop = '0'
+	// 		}else {
+	// 			//竖屏
+	// 			$('.img-polaroid').height = ''
+	// 			$('.img-polaroid').marginTop = '50%'
+	// 		}
+	// 	}
+	// })
+
 	$('.select-page-selector').change(function() {
 		var selectNum = $(".select-page-selector option:selected").text();
 		gotoSlide(selectNum);
@@ -150,7 +165,7 @@ function resetContent() {
 		$('.row-fluid .span2').prepend('<div style="color: red;">转换中(' + Math.floor((totalSize / slideCount) * 100) + '%)，请稍候……</div>');
 	}
 
-	$('.slide-img-container').append('<img src="' + slideUrls[curSlide - 1] + '" class="img-polaroid" style="height: 100%;">');
+	$('.slide-img-container').append('<img src="' + slideUrls[curSlide - 1] + '" class="img-polaroid">');
 	var thumbnailWidth = $('.thumbnail:first').width();
 	var thumbnailHeight = thumbnailWidth * ratio;
 	$('.thumbnail').height(thumbnailHeight);

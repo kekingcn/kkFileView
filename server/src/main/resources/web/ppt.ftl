@@ -46,6 +46,7 @@
 <link href="pptx/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
 <link href="pptx/idocv/idocv_common.min.css" rel="stylesheet">
+<link href="pptx/custom-media.css" rel="stylesheet">
 
 <link href="pptx/jquery.contextMenu.css" rel="stylesheet">
 
