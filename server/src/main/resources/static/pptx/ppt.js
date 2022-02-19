@@ -56,23 +56,8 @@ $(document).ready(function() {
 		} else {
 			$('.slide-img-container').css('background-color', '');
 			$('.slide-img-container').contextMenu(false);
-			// $('.img-polaroid').height = '100%'
-			// $('.img-polaroid').marginTop = '0'
 		}
 	});
-	// $(window).bind("orientationchange", function () {
-	// 	if(screenfull.isFullscreen) {
-	// 		if(Math.abs(window.orientation) === 90) {
-	// 			//横屏
-	// 			$('.img-polaroid').height = '100%'
-	// 			$('.img-polaroid').marginTop = '0'
-	// 		}else {
-	// 			//竖屏
-	// 			$('.img-polaroid').height = ''
-	// 			$('.img-polaroid').marginTop = '50%'
-	// 		}
-	// 	}
-	// })
 
 	$('.select-page-selector').change(function() {
 		var selectNum = $(".select-page-selector option:selected").text();
