@@ -154,6 +154,7 @@ function resetContent() {
 	var thumbnailWidth = $('.thumbnail:first').width();
 	var thumbnailHeight = thumbnailWidth * ratio;
 	$('.thumbnail').height(thumbnailHeight);
+	$('.thumbnail>img').width(thumbnailWidth).height(thumbnailHeight);
 
 	var slideImgContainerWidth = $('.slide-img-container:first').width();
 	var slideImgContainerHeight = slideImgContainerWidth * ratio;

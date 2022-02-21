@@ -2,7 +2,7 @@
 {
 	"code": 1,
 	"name": "PPT预览",
-	"totalSize": 0,
+	"totalSize": ${imgurls?size},
 	"curPage": 1,
 	"totalPage": 1,
 	"pageSize": 10,
