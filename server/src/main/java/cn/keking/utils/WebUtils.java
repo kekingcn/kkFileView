@@ -115,10 +115,22 @@ public class WebUtils {
      * @return 文件名编码后的url
      */
     public static String encodeUrlFileName(String url) {
+        String encodedFileName;
+        String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
+        if (fullFileName != null && fullFileName.length() > 0) {
+            try {
+                encodedFileName = URLEncoder.encode(fullFileName, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                return null;
+            }
+            String noQueryUrl = url.substring(0, url.indexOf("?"));
+            String parameterStr = url.substring(url.indexOf("?"));
+            parameterStr = parameterStr.replaceFirst(fullFileName, encodedFileName);
+            return noQueryUrl + parameterStr;
+        }
         String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         int fileNameStartIndex = noQueryUrl.lastIndexOf('/') + 1;
         int fileNameEndIndex = noQueryUrl.lastIndexOf('.');
-        String encodedFileName;
         try {
             encodedFileName = URLEncoder.encode(noQueryUrl.substring(fileNameStartIndex, fileNameEndIndex), "UTF-8");
         } catch (UnsupportedEncodingException e) {
