@@ -1,6 +1,7 @@
 package cn.keking.service.impl;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.config.MediaConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
@@ -53,7 +54,7 @@ public class MediaFilePreviewImpl implements FilePreview {
             url=convertUrl(fileAttribute);
         }else{
             //正常media类型
-            String[] medias = ConfigConstants.getMedia();
+            String[] medias = MediaConfigConstants.getMedia();
             for(String media:medias){
                 if(media.equals(fileAttribute.getSuffix())){
                     model.addAttribute("mediaUrl", url);
@@ -96,7 +97,7 @@ public class MediaFilePreviewImpl implements FilePreview {
      */
     private boolean checkNeedConvert(String suffix) {
         //1.检查开关是否开启
-        if("false".equals(ConfigConstants.getMediaConvertDisable())){
+        if("false".equals(MediaConfigConstants.getMediaConvertDisable())){
             return false;
         }
         //2.检查当前文件是否需要转换

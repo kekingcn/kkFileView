@@ -1,6 +1,7 @@
 package cn.keking.web.filter;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.config.PDFConfigConstants;
 import cn.keking.config.WatermarkConfigConstants;
 
 import javax.servlet.*;
@@ -31,11 +32,11 @@ public class AttributeSetFilter implements Filter {
      */
     private void setFileAttribute(ServletRequest request){
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        request.setAttribute("pdfPresentationModeDisable", ConfigConstants.getPdfPresentationModeDisable());
-        request.setAttribute("pdfOpenFileDisable", ConfigConstants.getPdfOpenFileDisable());
-        request.setAttribute("pdfPrintDisable", ConfigConstants.getPdfPrintDisable());
-        request.setAttribute("pdfDownloadDisable", ConfigConstants.getPdfDownloadDisable());
-        request.setAttribute("pdfBookmarkDisable", ConfigConstants.getPdfBookmarkDisable());
+        request.setAttribute("pdfPresentationModeDisable", PDFConfigConstants.getPdfPresentationModeDisable());
+        request.setAttribute("pdfOpenFileDisable", PDFConfigConstants.getPdfOpenFileDisable());
+        request.setAttribute("pdfPrintDisable", PDFConfigConstants.getPdfPrintDisable());
+        request.setAttribute("pdfDownloadDisable", PDFConfigConstants.getPdfDownloadDisable());
+        request.setAttribute("pdfBookmarkDisable", PDFConfigConstants.getPdfBookmarkDisable());
         request.setAttribute("fileKey", httpRequest.getParameter("fileKey"));
         request.setAttribute("switchDisabled", ConfigConstants.getOfficePreviewSwitchDisabled());
         request.setAttribute("fileUploadDisable", ConfigConstants.getFileUploadDisable());

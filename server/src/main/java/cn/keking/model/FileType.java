@@ -1,6 +1,7 @@
 package cn.keking.model;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.config.MediaConfigConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,8 +36,8 @@ public enum FileType {
     private static final String[] CAD_TYPES = {"dwg", "dxf"};
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
     private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "yaml", "yml", "json", "h", "cpp", "cs", "aspx", "jsp"};
-    private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
-    public static final String[] MEDIA_TYPES_CONVERT = ConfigConstants.getConvertMedias();
+    private static final String[] MEDIA_TYPES = MediaConfigConstants.getMedia();
+    public static final String[] MEDIA_TYPES_CONVERT = MediaConfigConstants.getConvertMedias();
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
 
     static {

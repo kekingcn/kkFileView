@@ -1,6 +1,7 @@
 package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.config.FtpConfigConstants;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
@@ -37,9 +38,9 @@ public class FtpUtils {
     }
 
     public static void download(String ftpUrl, String localFilePath, String ftpUsername, String ftpPassword, String ftpControlEncoding) throws IOException {
-        String username = StringUtils.isEmpty(ftpUsername) ? ConfigConstants.getFtpUsername() : ftpUsername;
-        String password = StringUtils.isEmpty(ftpPassword) ? ConfigConstants.getFtpPassword() : ftpPassword;
-        String controlEncoding = StringUtils.isEmpty(ftpControlEncoding) ? ConfigConstants.getFtpControlEncoding() : ftpControlEncoding;
+        String username = StringUtils.isEmpty(ftpUsername) ? FtpConfigConstants.getFtpUsername() : ftpUsername;
+        String password = StringUtils.isEmpty(ftpPassword) ? FtpConfigConstants.getFtpPassword() : ftpPassword;
+        String controlEncoding = StringUtils.isEmpty(ftpControlEncoding) ? FtpConfigConstants.getFtpControlEncoding() : ftpControlEncoding;
         URL url = new URL(ftpUrl);
         String host = url.getHost();
         int port = (url.getPort() == -1) ? url.getDefaultPort() : url.getPort();
