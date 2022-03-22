@@ -39,7 +39,7 @@ public class CompressFilePreviewImpl implements FilePreview {
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             }
-            String filePath = response.getContent();
+            String filePath = response.getResponseContent();
             fileTree = compressFileReader.unRar(filePath, fileName);
         } else {
             fileTree = fileHandlerService.getConvertedFile(fileName);

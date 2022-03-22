@@ -13,8 +13,8 @@ public class ReturnResponse<T> implements Serializable {
 
     public static final int SUCCESS_CODE = 0;
     public static final int FAILURE_CODE = 1;
-    public static final String SUCCESS_MSG = "SUCCESS";
-    public static final String FAILURE_MSG = "FAILURE";
+    public static final String SUCCESS_RESPONSE_MESSAGE = "SUCCESS";
+    public static final String FAILURE_RESPONSE_MESSAGE = "FAILURE";
 
     /**
      * 返回状态
@@ -30,12 +30,12 @@ public class ReturnResponse<T> implements Serializable {
      */
     private String responseMessage;
 
-    private T content;
+    private T responseContent;
 
-    public ReturnResponse(int responseCode, String responseMessage, T content) {
+    public ReturnResponse(int responseCode, String responseMessage, T responseContent) {
         this.responseCode = responseCode;
         this.responseMessage = responseMessage;
-        this.content = content;
+        this.responseContent = responseContent;
     }
 
     public static ReturnResponse<Object> failure(String errMsg) {
@@ -43,7 +43,7 @@ public class ReturnResponse<T> implements Serializable {
     }
 
     public static ReturnResponse<Object> failure() {
-        return failure(FAILURE_MSG);
+        return failure(FAILURE_RESPONSE_MESSAGE);
     }
 
     public static ReturnResponse<Object> success(){
@@ -51,7 +51,7 @@ public class ReturnResponse<T> implements Serializable {
     }
 
     public static ReturnResponse<Object> success(Object content) {
-        return new ReturnResponse<>(SUCCESS_CODE, SUCCESS_MSG, content);
+        return new ReturnResponse<>(SUCCESS_CODE, SUCCESS_RESPONSE_MESSAGE, content);
     }
 
     public boolean isSuccess(){
@@ -78,11 +78,11 @@ public class ReturnResponse<T> implements Serializable {
         this.responseMessage = responseMessage;
     }
 
-    public T getContent() {
-        return content;
+    public T getResponseContent() {
+        return responseContent;
     }
 
-    public void setContent(T content) {
-        this.content = content;
+    public void setResponseContent(T responseContent) {
+        this.responseContent = responseContent;
     }
 }

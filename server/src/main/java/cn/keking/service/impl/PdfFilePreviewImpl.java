@@ -42,7 +42,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                 if (response.isFailure()) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
                 }
-                outFilePath = response.getContent();
+                outFilePath = response.getResponseContent();
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
                     fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
@@ -67,7 +67,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                     if (response.isFailure()) {
                         return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
                     }
-                    model.addAttribute("pdfUrl", fileHandlerService.getRelativePath(response.getContent()));
+                    model.addAttribute("pdfUrl", fileHandlerService.getRelativePath(response.getResponseContent()));
                     if (ConfigConstants.isCacheEnabled()) {
                         // 加入缓存
                         fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));

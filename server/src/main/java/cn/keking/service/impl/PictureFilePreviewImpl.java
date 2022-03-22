@@ -41,7 +41,7 @@ public class PictureFilePreviewImpl implements FilePreview {
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             } else {
-                String file = fileHandlerService.getRelativePath(response.getContent());
+                String file = fileHandlerService.getRelativePath(response.getResponseContent());
                 imgUrls.clear();
                 imgUrls.add(file);
                 model.addAttribute("imgUrls", imgUrls);

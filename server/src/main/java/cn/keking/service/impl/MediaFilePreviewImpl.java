@@ -44,7 +44,7 @@ public class MediaFilePreviewImpl implements FilePreview {
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             } else {
-                url=BaseUrlFilter.getBaseUrl() + fileHandlerService.getRelativePath(response.getContent());
+                url=BaseUrlFilter.getBaseUrl() + fileHandlerService.getRelativePath(response.getResponseContent());
                 fileAttribute.setUrl(url);
             }
         }

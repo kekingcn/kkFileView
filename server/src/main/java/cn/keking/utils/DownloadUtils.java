@@ -51,13 +51,13 @@ public class DownloadUtils {
                     response.setResponseMessage("url不能识别url" + urlStr);
                 }
             }
-            response.setContent(realPath);
+            response.setResponseContent(realPath);
             response.setResponseMessage(fileName);
             return response;
         } catch (IOException | GalimatiasParseException e) {
             logger.error("文件下载失败，url：{}", urlStr, e);
             response.setResponseCode(1);
-            response.setContent(null);
+            response.setResponseContent(null);
             if (e instanceof FileNotFoundException) {
                 response.setResponseMessage("文件不存在!!!");
             } else {

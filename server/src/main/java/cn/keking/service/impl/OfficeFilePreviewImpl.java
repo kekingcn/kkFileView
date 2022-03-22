@@ -52,7 +52,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             }
-            filePath = response.getContent();
+            filePath = response.getResponseContent();
             if (StringUtils.hasText(outFilePath)) {
                 officeToPdfService.openOfficeToPDF(filePath, outFilePath);
                 if (isHtml) {
