@@ -138,7 +138,7 @@ public class FileHandlerService {
      * @param outFilePath 文件绝对路径
      */
     public void doActionConvertedFile(String outFilePath) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         try (InputStream inputStream = new FileInputStream(outFilePath);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_CONVERTER_CHARSET))) {
             String line;
@@ -146,19 +146,19 @@ public class FileHandlerService {
                 if (line.contains("charset=gb2312")) {
                     line = line.replace("charset=gb2312", "charset=utf-8");
                 }
-                sb.append(line);
+                stringBuilder.append(line);
             }
             // 添加sheet控制头
-            sb.append("<script src=\"js/jquery-3.0.0.min.js\" type=\"text/javascript\"></script>");
-            sb.append("<script src=\"js/excel.header.js\" type=\"text/javascript\"></script>");
-            sb.append("<link rel=\"stylesheet\" href=\"bootstrap/css/bootstrap.min.css\">");
+            stringBuilder.append("<script src=\"js/jquery-3.0.0.min.js\" type=\"text/javascript\"></script>");
+            stringBuilder.append("<script src=\"js/excel.header.js\" type=\"text/javascript\"></script>");
+            stringBuilder.append("<link rel=\"stylesheet\" href=\"bootstrap/css/bootstrap.min.css\">");
         } catch (IOException e) {
             e.printStackTrace();
         }
         // 重新写入文件
-        try (FileOutputStream fos = new FileOutputStream(outFilePath);
-             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-            writer.write(sb.toString());
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outFilePath);
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8))) {
+            writer.write(stringBuilder.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
