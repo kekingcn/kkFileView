@@ -49,6 +49,32 @@ public class FileHandlerService {
         this.cacheService = cacheService;
     }
 
+    public static String getLast2FileName(String fullName, String seperator, String rootName) {
+        if (fullName.endsWith(seperator)) {
+            fullName = fullName.substring(0, fullName.length() - 1);
+        }
+        // 1.获取剩余部分
+        int endIndex = fullName.lastIndexOf(seperator);
+        String leftPath = fullName.substring(0, endIndex == -1 ? 0 : endIndex);
+        if (leftPath.length() > 1) {
+            // 2.获取倒数第二个
+            return getLastFileName(leftPath, seperator);
+        } else {
+            return rootName;
+        }
+    }
+
+    public static String getLastFileName(String fullName, String seperator) {
+        if (fullName.endsWith(seperator)) {
+            fullName = fullName.substring(0, fullName.length() - 1);
+        }
+        String newName = fullName;
+        if (fullName.contains(seperator)) {
+            newName = fullName.substring(fullName.lastIndexOf(seperator) + 1);
+        }
+        return newName;
+    }
+
     /**
      * @return 已转换过的文件集合(缓存)
      */

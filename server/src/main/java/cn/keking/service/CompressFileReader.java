@@ -17,7 +17,6 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -64,14 +63,14 @@ public class CompressFileReader {
                 String fullName = entry.getName().replaceAll("//", "").replaceAll("\\\\", "");
                 int level = fullName.split(archiveSeparator).length;
                 // 展示名
-                String originName = getLastFileName(fullName, archiveSeparator);
+                String originName = FileHandlerService.getLastFileName(fullName, archiveSeparator);
                 String childName = level + "_" + originName;
                 boolean directory = entry.isDirectory();
                 if (!directory) {
                     childName = archiveFileName + "_" + originName;
                     entriesToBeExtracted.add(Collections.singletonMap(childName, entry));
                 }
-                String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
+                String parentName = FileHandlerService.getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level - 1) + "_" + parentName;
                 FileType type = FileType.typeFromUrl(childName);
                 if (type.equals(FileType.PICTURE)) {//添加图片文件到图片列表
@@ -110,14 +109,14 @@ public class CompressFileReader {
             List<Map<String, FileHeaderRar>> headersToBeExtract = new ArrayList<>();
             for (FileHeaderRar header : items) {
                 String fullName = header.getFileNameW();
-                String originName = getLastFileName(fullName, File.separator);
+                String originName = FileHandlerService.getLastFileName(fullName, File.separator);
                 String childName = originName;
                 boolean directory = header.getDirectory();
                 if (!directory) {
                     childName = archiveFileName + "_" + originName;
                     headersToBeExtract.add(Collections.singletonMap(childName, header));
                 }
-                String parentName = getLast2FileName(fullName, File.separator, archiveFileName);
+                String parentName = FileHandlerService.getLast2FileName(fullName, File.separator, archiveFileName);
                 FileType type = FileType.typeFromUrl(childName);
                 if (type.equals(FileType.PICTURE)) {
                     imgUrls.add(baseUrl + childName);
@@ -200,14 +199,14 @@ public class CompressFileReader {
                 String fullName = entry.getName().replaceAll("//", "").replaceAll("\\\\", "");
                 int level = fullName.split(archiveSeparator).length;
                 // 展示名
-                String originName = getLastFileName(fullName, archiveSeparator);
+                String originName = FileHandlerService.getLastFileName(fullName, archiveSeparator);
                 String childName = level + "_" + originName;
                 boolean directory = entry.isDirectory();
                 if (!directory) {
                     childName = archiveFileName + "_" + originName;
                     entriesToBeExtracted.add(Collections.singletonMap(childName, entry));
                 }
-                String parentName = getLast2FileName(fullName, archiveSeparator, archiveFileName);
+                String parentName = FileHandlerService.getLast2FileName(fullName, archiveSeparator, archiveFileName);
                 parentName = (level - 1) + "_" + parentName;
                 FileType type = FileType.typeFromUrl(childName);
                 if (type.equals(FileType.PICTURE)) {//添加图片文件到图片列表
@@ -272,32 +271,6 @@ public class CompressFileReader {
             }
         }
         return sortedHeaders;
-    }
-
-    private static String getLast2FileName(String fullName, String seperator, String rootName) {
-        if (fullName.endsWith(seperator)) {
-            fullName = fullName.substring(0, fullName.length() - 1);
-        }
-        // 1.获取剩余部分
-        int endIndex = fullName.lastIndexOf(seperator);
-        String leftPath = fullName.substring(0, endIndex == -1 ? 0 : endIndex);
-        if (leftPath.length() > 1) {
-            // 2.获取倒数第二个
-            return getLastFileName(leftPath, seperator);
-        } else {
-            return rootName;
-        }
-    }
-
-    private static String getLastFileName(String fullName, String seperator) {
-        if (fullName.endsWith(seperator)) {
-            fullName = fullName.substring(0, fullName.length() - 1);
-        }
-        String newName = fullName;
-        if (fullName.contains(seperator)) {
-            newName = fullName.substring(fullName.lastIndexOf(seperator) + 1);
-        }
-        return newName;
     }
 
     public static Comparator<FileNode> sortComparator = new Comparator<FileNode>() {
