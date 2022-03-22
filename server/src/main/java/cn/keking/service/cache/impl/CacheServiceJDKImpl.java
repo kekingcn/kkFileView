@@ -1,5 +1,6 @@
 package cn.keking.service.cache.impl;
 
+import cn.keking.service.cache.CacheInitService;
 import cn.keking.service.cache.CacheService;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.googlecode.concurrentlinkedhashmap.Weighers;
@@ -21,7 +22,7 @@ import java.util.concurrent.BlockingQueue;
  */
 @Service
 @ConditionalOnExpression("'${cache.type:default}'.equals('jdk')")
-public class CacheServiceJDKImpl implements CacheService {
+public class CacheServiceJDKImpl extends CacheInitService {
 
     private Map<String, String> pdfCache;
     private Map<String, List<String>> imgCache;

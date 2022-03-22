@@ -1,5 +1,6 @@
 package cn.keking.service.cache.impl;
 
+import cn.keking.service.cache.CacheInitService;
 import cn.keking.service.cache.CacheService;
 import org.redisson.Redisson;
 import org.redisson.api.RBlockingQueue;
@@ -25,18 +26,6 @@ public class CacheServiceRedisImpl implements CacheService {
 
     public CacheServiceRedisImpl(Config config) {
         this.redissonClient = Redisson.create(config);
-    }
-
-    @Override
-    public void initPDFCachePool(Integer capacity) { }
-    @Override
-    public void initIMGCachePool(Integer capacity) { }
-    @Override
-    public void initPdfImagesCachePool(Integer capacity) { }
-
-    @Override
-    public void initMediaConvertCachePool(Integer capacity) {
-
     }
 
     @Override

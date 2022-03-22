@@ -20,10 +20,6 @@ public interface CacheService {
     Integer DEFAULT_PDFIMG_CAPACITY = 500000;
     Integer DEFAULT_MEDIACONVERT_CAPACITY = 500000;
 
-    void initPDFCachePool(Integer capacity);
-    void initIMGCachePool(Integer capacity);
-    void initPdfImagesCachePool(Integer capacity);
-    void initMediaConvertCachePool(Integer capacity);
     void putPDFCache(String key, String value);
     void putImgCache(String key, List<String> value);
     Map<String, String> getPDFCache();

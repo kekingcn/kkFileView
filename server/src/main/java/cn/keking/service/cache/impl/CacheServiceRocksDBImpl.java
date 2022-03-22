@@ -59,26 +59,6 @@ public class CacheServiceRocksDBImpl implements CacheService {
 
 
     @Override
-    public void initPDFCachePool(Integer capacity) {
-
-    }
-
-    @Override
-    public void initIMGCachePool(Integer capacity) {
-
-    }
-
-    @Override
-    public void initPdfImagesCachePool(Integer capacity) {
-
-    }
-
-    @Override
-    public void initMediaConvertCachePool(Integer capacity) {
-
-    }
-
-    @Override
     public void putPDFCache(String key, String value) {
         try {
             Map<String, String> pdfCacheItem = getPDFCache();
