@@ -21,20 +21,20 @@ public class ReturnResponse<T> implements Serializable {
      * 0. 成功
      * 1. 失败
      */
-    private int code;
+    private int responseCode;
 
     /**
      * 返回状态描述
      * XXX成功
      * XXX失败
      */
-    private String msg;
+    private String responseMessage;
 
     private T content;
 
-    public ReturnResponse(int code, String msg, T content) {
-        this.code = code;
-        this.msg = msg;
+    public ReturnResponse(int responseCode, String responseMessage, T content) {
+        this.responseCode = responseCode;
+        this.responseMessage = responseMessage;
         this.content = content;
     }
 
@@ -55,27 +55,27 @@ public class ReturnResponse<T> implements Serializable {
     }
 
     public boolean isSuccess(){
-        return SUCCESS_CODE == code;
+        return SUCCESS_CODE == responseCode;
     }
 
     public boolean isFailure(){
         return !isSuccess();
     }
 
-    public int getCode() {
-        return code;
+    public int getResponseCode() {
+        return responseCode;
     }
 
-    public void setCode(int code) {
-        this.code = code;
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getResponseMessage() {
+        return responseMessage;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setResponseMessage(String responseMessage) {
+        this.responseMessage = responseMessage;
     }
 
     public T getContent() {

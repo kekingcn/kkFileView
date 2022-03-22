@@ -1,6 +1,5 @@
 package cn.keking.service.impl;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.config.MediaConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
@@ -43,7 +42,7 @@ public class MediaFilePreviewImpl implements FilePreview {
         if (url != null && !url.toLowerCase().startsWith("http")) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
             if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             } else {
                 url=BaseUrlFilter.getBaseUrl() + fileHandlerService.getRelativePath(response.getContent());
                 fileAttribute.setUrl(url);

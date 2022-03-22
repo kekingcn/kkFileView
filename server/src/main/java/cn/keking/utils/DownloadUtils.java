@@ -47,21 +47,21 @@ public class DownloadUtils {
                     String ftpControlEncoding = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_CONTROL_ENCODING);
                     FtpUtils.download(fileAttribute.getUrl(), realPath, ftpUsername, ftpPassword, ftpControlEncoding);
                 } else {
-                    response.setCode(1);
-                    response.setMsg("url不能识别url" + urlStr);
+                    response.setResponseCode(1);
+                    response.setResponseMessage("url不能识别url" + urlStr);
                 }
             }
             response.setContent(realPath);
-            response.setMsg(fileName);
+            response.setResponseMessage(fileName);
             return response;
         } catch (IOException | GalimatiasParseException e) {
             logger.error("文件下载失败，url：{}", urlStr, e);
-            response.setCode(1);
+            response.setResponseCode(1);
             response.setContent(null);
             if (e instanceof FileNotFoundException) {
-                response.setMsg("文件不存在!!!");
+                response.setResponseMessage("文件不存在!!!");
             } else {
-                response.setMsg(e.getMessage());
+                response.setResponseMessage(e.getMessage());
             }
             return response;
         }

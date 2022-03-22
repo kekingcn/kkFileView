@@ -37,7 +37,7 @@ public class CompressFilePreviewImpl implements FilePreview {
         if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
             if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             }
             String filePath = response.getContent();
             fileTree = compressFileReader.unRar(filePath, fileName);

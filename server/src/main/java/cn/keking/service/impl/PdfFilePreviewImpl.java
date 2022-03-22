@@ -40,7 +40,7 @@ public class PdfFilePreviewImpl implements FilePreview {
             if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                 ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
                 if (response.isFailure()) {
-                    return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
                 }
                 outFilePath = response.getContent();
                 if (ConfigConstants.isCacheEnabled()) {
@@ -65,7 +65,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                 if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                     ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, pdfName);
                     if (response.isFailure()) {
-                        return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                        return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
                     }
                     model.addAttribute("pdfUrl", fileHandlerService.getRelativePath(response.getContent()));
                     if (ConfigConstants.isCacheEnabled()) {

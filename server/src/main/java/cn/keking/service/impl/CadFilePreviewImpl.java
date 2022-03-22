@@ -45,7 +45,7 @@ public class CadFilePreviewImpl implements FilePreview {
             String filePath;
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             }
             filePath = response.getContent();
             if (StringUtils.hasText(outFilePath)) {

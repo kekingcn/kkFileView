@@ -34,7 +34,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
         //  String suffix = fileAttribute.getSuffix();
         ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
         if (response.isFailure()) {
-            return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+            return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
         }
         try {
             String   fileData = HtmlUtils.htmlEscape(textData(baseUrll));

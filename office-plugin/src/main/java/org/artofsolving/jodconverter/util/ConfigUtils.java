@@ -31,7 +31,7 @@ public class ConfigUtils {
 
     // 获取环境变量，如果找不到则返回默认值
     @SuppressWarnings("SameParameterValue")
-    private static String getEnvOrDefault(String key, String def) {
+    private static String getEnvironmentVariableOrDefaultValue(String key, String def) {
         String value = System.getenv(key);
         return value == null ? def : value;
     }
@@ -48,7 +48,7 @@ public class ConfigUtils {
 
     public static String getOfficePluginPath() {
         String userDir = System.getProperty("user.dir");
-        String binFolder = getEnvOrDefault("KKFILEVIEW_BIN_FOLDER", userDir);
+        String binFolder = getEnvironmentVariableOrDefaultValue("KKFILEVIEW_BIN_FOLDER", userDir);
 
         File pluginPath = new File(binFolder);
 

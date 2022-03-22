@@ -39,7 +39,7 @@ public class PictureFilePreviewImpl implements FilePreview {
         if (url != null && !url.toLowerCase().startsWith("http")) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getResponseMessage());
             } else {
                 String file = fileHandlerService.getRelativePath(response.getContent());
                 imgUrls.clear();
