@@ -1,6 +1,7 @@
 package cn.keking.web.controller;
 
-import cn.keking.config.ConfigConstants;
+import cn.keking.config.configconstants.ConfigConstants;
+import cn.keking.config.configconstants.FtpConfigConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,7 +36,7 @@ public class FileController {
 
     @RequestMapping(value = "fileUpload", method = RequestMethod.POST)
     public String fileUpload(@RequestParam("file") MultipartFile file) throws JsonProcessingException {
-        if (ConfigConstants.getFileUploadDisable()) {
+        if (FtpConfigConstants.getFileUploadDisable()) {
             return new ObjectMapper().writeValueAsString(ReturnResponse.failure("文件传接口已禁用"));
         }
         // 获取文件名

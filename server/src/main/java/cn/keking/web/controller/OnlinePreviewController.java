@@ -1,6 +1,6 @@
 package cn.keking.web.controller;
 
-import cn.keking.config.ConfigConstants;
+import cn.keking.config.configconstants.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;

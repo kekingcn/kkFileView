@@ -1,6 +1,6 @@
 package cn.keking.service;
 
-import cn.keking.config.ConfigConstants;
+import cn.keking.config.configconstants.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;

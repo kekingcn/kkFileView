@@ -1,5 +1,6 @@
 package cn.keking.config;
 
+import cn.keking.config.configconstants.ConfigConstants;
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.KkFileUtils;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package cn.keking.config;
+package cn.keking.config.configconstants;
 
 import org.artofsolving.jodconverter.util.ConfigUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +29,6 @@ public class ConfigConstants {
     private static String fileDir = ConfigUtils.getHomePath() + File.separator + "file" + File.separator;
     private static String localPreviewDir;
     private static CopyOnWriteArraySet<String> trustHostSet;
-    private static Boolean fileUploadDisable;
     private static String tifPreviewType;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
@@ -42,11 +41,6 @@ public class ConfigConstants {
     public static final String DEFAULT_FILE_DIR_VALUE = "default";
     public static final String DEFAULT_LOCAL_PREVIEW_DIR_VALUE = "default";
     public static final String DEFAULT_TRUST_HOST = "default";
-    public static final String DEFAULT_PDF_PRESENTATION_MODE_DISABLE = "true";
-    public static final String DEFAULT_PDF_OPEN_FILE_DISABLE = "true";
-    public static final String DEFAULT_PDF_PRINT_DISABLE = "true";
-    public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
-    public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
     public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
     public static final String DEFAULT_TIF_PREVIEW_TYPE = "tif";
 
@@ -164,7 +158,6 @@ public class ConfigConstants {
         ConfigConstants.trustHostSet = trustHostSet;
     }
 
-
     public static String getOfficePreviewSwitchDisabled() {
         return officePreviewSwitchDisabled;
     }
@@ -175,20 +168,6 @@ public class ConfigConstants {
     public static void setOfficePreviewSwitchDisabledValue(String officePreviewSwitchDisabled) {
         ConfigConstants.officePreviewSwitchDisabled = officePreviewSwitchDisabled;
     }
-
-    public static Boolean getFileUploadDisable() {
-        return fileUploadDisable;
-    }
-
-    @Value("${file.upload.disable:false}")
-    public static void setFileUploadDisable(Boolean fileUploadDisable) {
-        setFileUploadDisableValue(fileUploadDisable);
-    }
-
-    public static void setFileUploadDisableValue(Boolean fileUploadDisable) {
-        ConfigConstants.fileUploadDisable = fileUploadDisable;
-    }
-
 
     public static String getTifPreviewType() {
         return tifPreviewType;

@@ -1,6 +1,6 @@
 package cn.keking.web.filter;
 
-import cn.keking.config.ConfigConstants;
+import cn.keking.config.configconstants.ConfigConstants;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.*;

@@ -1,5 +1,8 @@
 package cn.keking.config;
 
+import cn.keking.config.configconstants.ConfigConstants;
+import cn.keking.config.configconstants.FtpConfigConstants;
+import cn.keking.config.configconstants.PDFConfigConstants;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.artofsolving.jodconverter.util.ConfigUtils;
 import org.slf4j.Logger;
@@ -72,11 +75,11 @@ public class ConfigRefreshComponent {
                     mediaArray = media.split(",");
                     baseUrl = properties.getProperty("base.url", ConfigConstants.DEFAULT_BASE_URL);
                     trustHost = properties.getProperty("trust.host", ConfigConstants.DEFAULT_TRUST_HOST);
-                    pdfPresentationModeDisable = properties.getProperty("pdf.presentationMode.disable", ConfigConstants.DEFAULT_PDF_PRESENTATION_MODE_DISABLE);
-                    pdfOpenFileDisable = properties.getProperty("pdf.openFile.disable", ConfigConstants.DEFAULT_PDF_OPEN_FILE_DISABLE);
-                    pdfPrintDisable = properties.getProperty("pdf.print.disable", ConfigConstants.DEFAULT_PDF_PRINT_DISABLE);
-                    pdfDownloadDisable = properties.getProperty("pdf.download.disable", ConfigConstants.DEFAULT_PDF_DOWNLOAD_DISABLE);
-                    pdfBookmarkDisable = properties.getProperty("pdf.bookmark.disable", ConfigConstants.DEFAULT_PDF_BOOKMARK_DISABLE);
+                    pdfPresentationModeDisable = properties.getProperty("pdf.presentationMode.disable", PDFConfigConstants.DEFAULT_PDF_PRESENTATION_MODE_DISABLE);
+                    pdfOpenFileDisable = properties.getProperty("pdf.openFile.disable", PDFConfigConstants.DEFAULT_PDF_OPEN_FILE_DISABLE);
+                    pdfPrintDisable = properties.getProperty("pdf.print.disable", PDFConfigConstants.DEFAULT_PDF_PRINT_DISABLE);
+                    pdfDownloadDisable = properties.getProperty("pdf.download.disable", PDFConfigConstants.DEFAULT_PDF_DOWNLOAD_DISABLE);
+                    pdfBookmarkDisable = properties.getProperty("pdf.bookmark.disable", PDFConfigConstants.DEFAULT_PDF_BOOKMARK_DISABLE);
                     fileUploadDisable = Boolean.parseBoolean(properties.getProperty("file.upload.disable", ConfigConstants.DEFAULT_FILE_UPLOAD_DISABLE));
                     tifPreviewType = properties.getProperty("tif.preview.type", ConfigConstants.DEFAULT_TIF_PREVIEW_TYPE);
 
@@ -95,7 +98,7 @@ public class ConfigRefreshComponent {
                     PDFConfigConstants.setPdfPrintDisableValue(pdfPrintDisable);
                     PDFConfigConstants.setPdfDownloadDisableValue(pdfDownloadDisable);
                     PDFConfigConstants.setPdfBookmarkDisableValue(pdfBookmarkDisable);
-                    ConfigConstants.setFileUploadDisableValue(fileUploadDisable);
+                    FtpConfigConstants.setFileUploadDisableValue(fileUploadDisable);
                     ConfigConstants.setTifPreviewTypeValue(tifPreviewType);
                     setWatermarkConfig(properties);
                     bufferedReader.close();

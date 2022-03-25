@@ -1,7 +1,6 @@
 package cn.keking.utils;
 
-import cn.keking.config.ConfigConstants;
-import cn.keking.config.FtpConfigConstants;
+import cn.keking.config.configconstants.FtpConfigConstants;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;

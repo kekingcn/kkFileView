@@ -1,5 +1,6 @@
 package cn.keking.config;
 
+import cn.keking.config.configconstants.ConfigConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;

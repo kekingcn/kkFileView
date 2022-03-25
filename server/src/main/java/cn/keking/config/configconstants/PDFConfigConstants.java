@@ -1,4 +1,4 @@
-package cn.keking.config;
+package cn.keking.config.configconstants;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -9,6 +9,12 @@ public class PDFConfigConstants
     private static String pdfPrintDisable;
     private static String pdfDownloadDisable;
     private static String pdfBookmarkDisable;
+
+    public static final String DEFAULT_PDF_PRESENTATION_MODE_DISABLE = "true";
+    public static final String DEFAULT_PDF_OPEN_FILE_DISABLE = "true";
+    public static final String DEFAULT_PDF_PRINT_DISABLE = "true";
+    public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
+    public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
 
     public static String getPdfPresentationModeDisable() {
         return pdfPresentationModeDisable;

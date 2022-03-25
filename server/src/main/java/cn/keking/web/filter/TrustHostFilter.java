@@ -1,6 +1,6 @@
 package cn.keking.web.filter;
 
-import cn.keking.config.ConfigConstants;
+import cn.keking.config.configconstants.ConfigConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.Base64Utils;

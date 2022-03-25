@@ -1,7 +1,8 @@
 package cn.keking.web.filter;
 
-import cn.keking.config.ConfigConstants;
-import cn.keking.config.PDFConfigConstants;
+import cn.keking.config.configconstants.ConfigConstants;
+import cn.keking.config.configconstants.FtpConfigConstants;
+import cn.keking.config.configconstants.PDFConfigConstants;
 import cn.keking.config.WatermarkConfigConstants;
 
 import javax.servlet.*;
@@ -39,7 +40,7 @@ public class AttributeSetFilter implements Filter {
         request.setAttribute("pdfBookmarkDisable", PDFConfigConstants.getPdfBookmarkDisable());
         request.setAttribute("fileKey", httpRequest.getParameter("fileKey"));
         request.setAttribute("switchDisabled", ConfigConstants.getOfficePreviewSwitchDisabled());
-        request.setAttribute("fileUploadDisable", ConfigConstants.getFileUploadDisable());
+        request.setAttribute("fileUploadDisable", FtpConfigConstants.getFileUploadDisable());
     }
 
     /**

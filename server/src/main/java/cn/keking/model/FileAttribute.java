@@ -1,6 +1,6 @@
 package cn.keking.model;
 
-import cn.keking.config.ConfigConstants;
+import cn.keking.config.configconstants.ConfigConstants;
 
 /**
  * Created by kl on 2018/1/17.
