@@ -1,7 +1,7 @@
 package cn.keking.model;
 
 import cn.keking.config.configconstants.ConfigConstants;
-import cn.keking.config.MediaConfigConstants;
+import cn.keking.config.configconstants.MediaConfigConstants;
 
 import java.util.HashMap;
 import java.util.Map;

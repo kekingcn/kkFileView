@@ -1,6 +1,6 @@
 package cn.keking.service.impl;
 
-import cn.keking.config.MediaConfigConstants;
+import cn.keking.config.configconstants.MediaConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;

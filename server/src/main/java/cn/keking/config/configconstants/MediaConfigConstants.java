@@ -1,4 +1,4 @@
-package cn.keking.config;
+package cn.keking.config.configconstants;
 
 import org.springframework.beans.factory.annotation.Value;
 

@@ -2,6 +2,7 @@ package cn.keking.config;
 
 import cn.keking.config.configconstants.ConfigConstants;
 import cn.keking.config.configconstants.FtpConfigConstants;
+import cn.keking.config.configconstants.MediaConfigConstants;
 import cn.keking.config.configconstants.PDFConfigConstants;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.artofsolving.jodconverter.util.ConfigUtils;
