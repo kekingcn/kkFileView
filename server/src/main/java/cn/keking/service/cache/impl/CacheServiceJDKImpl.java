@@ -1,5 +1,6 @@
 package cn.keking.service.cache.impl;
 
+import cn.keking.service.cache.CacheDBService;
 import cn.keking.service.cache.CacheInitService;
 import cn.keking.service.cache.CacheService;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
@@ -22,14 +23,13 @@ import java.util.concurrent.BlockingQueue;
  */
 @Service
 @ConditionalOnExpression("'${cache.type:default}'.equals('jdk')")
-public class CacheServiceJDKImpl extends CacheInitService {
+public class CacheServiceJDKImpl extends CacheInitService implements CacheDBService {
 
     private Map<String, String> pdfCache;
     private Map<String, List<String>> imgCache;
     private Map<String, Integer> pdfImagesCache;
     private Map<String, String> mediaConvertCache;
-    private static final int QUEUE_SIZE = 500000;
-    private final BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
+
 
     @PostConstruct
     public void initCache(){

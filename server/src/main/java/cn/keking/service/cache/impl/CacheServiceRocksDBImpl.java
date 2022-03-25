@@ -1,5 +1,6 @@
 package cn.keking.service.cache.impl;
 
+import cn.keking.service.cache.CacheDBService;
 import cn.keking.service.cache.CacheService;
 import org.artofsolving.jodconverter.util.ConfigUtils;
 import org.rocksdb.RocksDB;
@@ -24,16 +25,14 @@ import java.util.concurrent.BlockingQueue;
  */
 @ConditionalOnExpression("'${cache.type:default}'.equals('default')")
 @Service
-public class CacheServiceRocksDBImpl implements CacheService {
+public class CacheServiceRocksDBImpl implements CacheService, CacheDBService {
 
     static {
         RocksDB.loadLibrary();
     }
 
     private static final String DB_PATH = ConfigUtils.getHomePath() + File.separator + "cache";
-    private static final int QUEUE_SIZE = 500000;
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceRocksDBImpl.class);
-    private final BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     private RocksDB db;
 
