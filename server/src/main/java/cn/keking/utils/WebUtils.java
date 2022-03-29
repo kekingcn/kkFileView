@@ -5,6 +5,7 @@ import io.mola.galimatias.GalimatiasParseException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -132,7 +133,7 @@ public class WebUtils {
         int fileNameStartIndex = noQueryUrl.lastIndexOf('/') + 1;
         int fileNameEndIndex = noQueryUrl.lastIndexOf('.');
         try {
-            encodedFileName = URLEncoder.encode(noQueryUrl.substring(fileNameStartIndex, fileNameEndIndex), "UTF-8");
+            encodedFileName = URLEncoder.encode(URLDecoder.decode(noQueryUrl.substring(fileNameStartIndex, fileNameEndIndex),"UTF-8"), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             return null;
         }
