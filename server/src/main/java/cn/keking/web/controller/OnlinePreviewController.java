@@ -1,19 +1,16 @@
 package cn.keking.web.controller;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
+import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
-
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
-import cn.keking.service.FileHandlerService;
 import cn.keking.utils.WebUtils;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
 import jodd.io.NetUtil;
 import org.apache.commons.codec.binary.Base64;
-import org.artofsolving.jodconverter.util.PlatformUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -25,13 +22,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
 
@@ -65,9 +61,6 @@ public class OnlinePreviewController {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
         }
-        if (!allowPreview(fileUrl)) {
-            return otherFilePreview.notSupportedFile(model, "该文件不允许预览：" + fileUrl);
-        }
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         model.addAttribute("file", fileAttribute);
         FilePreview filePreview = previewFactory.get(fileAttribute);
@@ -93,14 +86,8 @@ public class OnlinePreviewController {
         String currentUrl = req.getParameter("currentUrl");
         if (StringUtils.hasText(currentUrl)) {
             String decodedCurrentUrl = new String(Base64.decodeBase64(currentUrl));
-            if (!allowPreview(decodedCurrentUrl)) {
-                return otherFilePreview.notSupportedFile(model, "该文件不允许预览：" + decodedCurrentUrl);
-            }
             model.addAttribute("currentUrl", decodedCurrentUrl);
         } else {
-            if (!allowPreview(imgUrls.get(0))) {
-                return otherFilePreview.notSupportedFile(model, "该文件不允许预览：" + imgUrls.get(0));
-            }
             model.addAttribute("currentUrl", imgUrls.get(0));
         }
         return PICTURE_FILE_PREVIEW_PAGE;
@@ -118,12 +105,6 @@ public class OnlinePreviewController {
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
             URL url = WebUtils.normalizedURL(urlPath);
-            if (!allowPreview(urlPath)) {
-                response.setHeader("content-type", "text/html;charset=utf-8");
-                response.getOutputStream().println("forbidden");
-                response.setStatus(401);
-                return;
-            }
             byte[] bytes = NetUtil.downloadBytes(url.toString());
             IOUtils.write(bytes, response.getOutputStream());
         } catch (IOException | GalimatiasParseException e) {
@@ -144,24 +125,6 @@ public class OnlinePreviewController {
         return "success";
     }
 
-    private boolean allowPreview(String urlPath) {
-        try {
-            URL url = WebUtils.normalizedURL(urlPath);
-            if ("file".equals(url.getProtocol().toLowerCase(Locale.ROOT))) {
-                String filePath = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.name());
-                if (PlatformUtils.isWindows()) {
-                    filePath = filePath.replaceAll("/", "\\\\");
-                }
-                filePath = filePath.substring(1);
-                if (!filePath.startsWith(ConfigConstants.getFileDir()) && !filePath.startsWith(ConfigConstants.getLocalPreviewDir())) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (IOException | GalimatiasParseException e) {
-            logger.error("解析URL异常，url：{}", urlPath, e);
-            return false;
-        }
-    }
+
 
 }

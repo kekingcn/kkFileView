@@ -1,11 +1,15 @@
 package cn.keking.utils;
 
 import io.mola.galimatias.GalimatiasParseException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Base64Utils;
 
+import javax.servlet.ServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +21,7 @@ public class WebUtils {
 
     /**
      * 获取标准的URL
+     *
      * @param urlStr url
      * @return 标准的URL
      */
@@ -137,5 +142,47 @@ public class WebUtils {
             return null;
         }
         return url.substring(0, fileNameStartIndex) + encodedFileName + url.substring(fileNameEndIndex);
+    }
+
+    /**
+     * 从 ServletRequest 获取预览的源 url , 已 base64 解码
+     *
+     * @param request 请求 request
+     * @return url
+     */
+    public static String getSourceUrl(ServletRequest request) {
+        String url = request.getParameter("url");
+        String urls = request.getParameter("urls");
+        String currentUrl = request.getParameter("currentUrl");
+        String urlPath = request.getParameter("urlPath");
+        if (StringUtils.isNotBlank(url)) {
+            return new String(Base64Utils.decodeFromString(url), StandardCharsets.UTF_8);
+        }
+        if (StringUtils.isNotBlank(currentUrl)) {
+            return new String(Base64Utils.decodeFromString(currentUrl), StandardCharsets.UTF_8);
+        }
+        if (StringUtils.isNotBlank(urlPath)) {
+            return new String(Base64Utils.decodeFromString(urlPath), StandardCharsets.UTF_8);
+        }
+        if (StringUtils.isNotBlank(urls)) {
+            urls = new String(Base64Utils.decodeFromString(urls), StandardCharsets.UTF_8);
+            String[] images = urls.split("\\|");
+            return images[0];
+        }
+        return null;
+    }
+
+    /**
+     * 获取 url 的 host
+     * @param urlStr url
+     * @return host
+     */
+    public static String getHost(String urlStr) {
+        try {
+            URL url = new URL(urlStr);
+            return url.getHost().toLowerCase();
+        } catch (MalformedURLException ignored) {
+        }
+        return null;
     }
 }
