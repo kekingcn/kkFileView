@@ -106,6 +106,12 @@ public class OnlinePreviewController {
      */
     @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
     public void getCorsFile(String urlPath, HttpServletResponse response) {
+        try {
+            urlPath = new String(Base64.decodeBase64(urlPath), StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath, ex));
+            return;
+        }
         if (urlPath == null || urlPath.toLowerCase().startsWith("file:") || urlPath.toLowerCase().startsWith("file%3") || !urlPath.toLowerCase().startsWith("http")) {
             logger.info("读取跨域文件异常，可能存在非法访问，urlPath：{}", urlPath);
             return;
