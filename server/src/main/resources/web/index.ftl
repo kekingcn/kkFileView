@@ -5,6 +5,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0"/>
     <title>kkFileView演示首页</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/viewer.min.css"/>
     <link rel="stylesheet" href="css/loading.css"/>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>

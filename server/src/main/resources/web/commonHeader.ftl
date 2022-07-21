@@ -1,4 +1,5 @@
 <#setting classic_compatible=true>
+<link rel="icon" href="./favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
 <script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
 <script src="js/jquery.form.min.js" type="text/javascript"></script>
