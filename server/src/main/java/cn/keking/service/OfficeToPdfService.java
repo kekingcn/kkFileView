@@ -1,5 +1,6 @@
 package cn.keking.service;
 
+import cn.keking.model.FileAttribute;
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,22 +21,23 @@ public class OfficeToPdfService {
         this.officePluginManager = officePluginManager;
     }
 
-    public void openOfficeToPDF(String inputFilePath, String outputFilePath) {
-        office2pdf(inputFilePath, outputFilePath);
+    public void openOfficeToPDF(String inputFilePath, String outputFilePath, FileAttribute fileAttribute) {
+        office2pdf(inputFilePath, outputFilePath, fileAttribute);
     }
 
 
-    public static void converterFile(File inputFile, String outputFilePath_end, OfficeDocumentConverter converter) {
+    public static void converterFile(File inputFile, String outputFilePath_end, OfficeDocumentConverter converter, FileAttribute fileAttribute) {
         File outputFile = new File(outputFilePath_end);
         // 假如目标路径不存在,则新建该路径
         if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs()) {
             logger.error("创建目录【{}】失败，请检查目录权限！",outputFilePath_end);
         }
-        converter.convert(inputFile, outputFile);
+
+        converter.convert(inputFile, outputFile, fileAttribute.toFileProperties());
     }
 
 
-    public void office2pdf(String inputFilePath, String outputFilePath) {
+    public void office2pdf(String inputFilePath, String outputFilePath, FileAttribute fileAttribute) {
         OfficeDocumentConverter converter = officePluginManager.getDocumentConverter();
         if (null != inputFilePath) {
             File inputFile = new File(inputFilePath);
@@ -45,12 +47,12 @@ public class OfficeToPdfService {
                 String outputFilePath_end = getOutputFilePath(inputFilePath);
                 if (inputFile.exists()) {
                     // 找不到源文件, 则返回
-                    converterFile(inputFile, outputFilePath_end,converter);
+                    converterFile(inputFile, outputFilePath_end, converter, fileAttribute);
                 }
             } else {
                 if (inputFile.exists()) {
                     // 找不到源文件, 则返回
-                    converterFile(inputFile, outputFilePath, converter);
+                    converterFile(inputFile, outputFilePath, converter, fileAttribute);
                 }
             }
         }

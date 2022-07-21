@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -7,6 +6,7 @@
     <title>PDF预览</title>
     <#include "*/commonHeader.ftl">
 </head>
+
 <body>
 <#if pdfUrl?contains("http://") || pdfUrl?contains("https://")>
     <#assign finalUrl="${pdfUrl}">
@@ -20,6 +20,7 @@
          onclick="goForImage()"/>
 </#if>
 </body>
+
 <script type="text/javascript">
     var url = '${finalUrl}';
     var baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';

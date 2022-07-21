@@ -1,6 +1,7 @@
 package cn.keking.model;
 
 import cn.keking.config.ConfigConstants;
+import org.artofsolving.jodconverter.model.FileProperties;
 
 /**
  * Created by kl on 2018/1/17.
@@ -13,6 +14,8 @@ public class FileAttribute {
     private String name;
     private String url;
     private String fileKey;
+    private String filePassword;
+    private String userToken;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
     private String tifPreviewType;
     private Boolean skipDownLoad = false;
@@ -35,12 +38,34 @@ public class FileAttribute {
         this.officePreviewType = officePreviewType;
     }
 
+    public FileProperties toFileProperties() {
+        FileProperties fileProperties = new FileProperties();
+        fileProperties.setFilePassword(filePassword);
+        return fileProperties;
+    }
+
     public String getFileKey() {
         return fileKey;
     }
 
     public void setFileKey(String fileKey) {
         this.fileKey = fileKey;
+    }
+
+    public String getFilePassword() {
+        return filePassword;
+    }
+
+    public void setFilePassword(String filePassword) {
+        this.filePassword = filePassword;
+    }
+
+    public String getUserToken() {
+        return userToken;
+    }
+
+    public void setUserToken(String userToken) {
+        this.userToken = userToken;
     }
 
     public String getOfficePreviewType() {
@@ -82,6 +107,7 @@ public class FileAttribute {
     public void setUrl(String url) {
         this.url = url;
     }
+
     public Boolean getSkipDownLoad() {
         return skipDownLoad;
     }
@@ -89,6 +115,7 @@ public class FileAttribute {
     public void setSkipDownLoad(Boolean skipDownLoad) {
         this.skipDownLoad = skipDownLoad;
     }
+
     public String getTifPreviewType() {
         return tifPreviewType;
     }
@@ -96,4 +123,5 @@ public class FileAttribute {
     public void setTifPreviewType(String previewType) {
         this.tifPreviewType = previewType;
     }
+
 }

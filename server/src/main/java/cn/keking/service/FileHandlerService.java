@@ -292,7 +292,18 @@ public class FileHandlerService {
             if (StringUtils.hasText(tifPreviewType)) {
                 attribute.setTifPreviewType(tifPreviewType);
             }
+
+            String filePassword = req.getParameter("filePassword");
+            if (StringUtils.hasText(filePassword)) {
+                attribute.setFilePassword(filePassword);
+            }
+
+            String userToken = req.getParameter("userToken");
+            if (StringUtils.hasText(userToken)) {
+                attribute.setUserToken(userToken);
+            }
         }
+
         return attribute;
     }
 

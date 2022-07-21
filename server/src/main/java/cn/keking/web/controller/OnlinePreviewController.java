@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -73,10 +74,13 @@ public class OnlinePreviewController {
         String fileUrls;
         try {
             fileUrls = new String(Base64.decodeBase64(urls));
+            // 防止XSS攻击
+            fileUrls = HtmlUtils.htmlEscape(fileUrls);
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "urls");
             return otherFilePreview.notSupportedFile(model, errorMsg);
         }
+
         logger.info("预览文件url：{}，urls：{}", fileUrls, urls);
         // 抽取文件并返回文件列表
         String[] images = fileUrls.split("\\|");
@@ -102,6 +106,11 @@ public class OnlinePreviewController {
      */
     @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
     public void getCorsFile(String urlPath, HttpServletResponse response) {
+        if (urlPath == null || urlPath.toLowerCase().startsWith("file:") || urlPath.toLowerCase().startsWith("file%3") || !urlPath.toLowerCase().startsWith("http")) {
+            logger.info("读取跨域文件异常，可能存在非法访问，urlPath：{}", urlPath);
+            return;
+        }
+
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
             URL url = WebUtils.normalizedURL(urlPath);
@@ -124,7 +133,5 @@ public class OnlinePreviewController {
         cacheService.addQueueTask(url);
         return "success";
     }
-
-
 
 }

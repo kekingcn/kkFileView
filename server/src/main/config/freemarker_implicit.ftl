@@ -5,6 +5,8 @@
 [#-- @ftlvariable name="file" type="cn.keking.model.FileAttribute" --]
 [#-- @ftlvariable name="fileName" type="java.lang.String" --]
 [#-- @ftlvariable name="fileTree" type="java.lang.String" --]
+[#-- @ftlvariable name="needFilePassword" type="java.lang.Boolean" --]
+[#-- @ftlvariable name="filePasswordError" type="java.lang.Boolean" --]
 [#-- @ftlvariable name="baseUrl" type="java.lang.String" --]
 [#-- @ftlvariable name="imgUrls" type="String" --]
 [#-- @ftlvariable name="textData" type="java.lang.String" --]

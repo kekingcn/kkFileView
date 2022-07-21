@@ -25,20 +25,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-freemarker</artifactId>
+            <groupId>cn.keking</groupId>
+            <artifactId>office-plugin</artifactId>
+            <version>${project.version}</version>
         </dependency>
-        <!-- 对 rar5 的支持 和其他众多压缩支持 可参考 package net.sf.sevenzipjbinding.ArchiveFormat; -->
-        <dependency>
-            <groupId>net.sf.sevenzipjbinding</groupId>
-            <artifactId>sevenzipjbinding</artifactId>
-            <version>16.02-2.01</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.sevenzipjbinding</groupId>
-            <artifactId>sevenzipjbinding-all-platforms</artifactId>
-            <version>16.02-2.01</version>
-        </dependency>
+
+        <!-- web start -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -53,28 +45,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jetty</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
-        <dependency>
-            <groupId>cn.keking</groupId>
-            <artifactId>office-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.7</version>
-        </dependency>
-        <!-- REDISSON -->
-        <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson</artifactId>
-            <version>3.2.0</version>
-        </dependency>
+        <!-- web end -->
+
+        <!-- poi start -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -83,7 +60,12 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
-            <version>3.12</version>
+            <version>3.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.17</version>
         </dependency>
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
@@ -106,6 +88,31 @@
             <artifactId>fr.opensagres.xdocreport.document</artifactId>
             <version>1.0.5</version>
         </dependency>
+        <!-- poi start -->
+
+        <!-- 对 rar5 的支持 和其他众多压缩支持 可参考 package net.sf.sevenzipjbinding.ArchiveFormat; -->
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding</artifactId>
+            <version>16.02-2.01</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding-all-platforms</artifactId>
+            <version>16.02-2.01</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+
         <!-- 解压(apache) -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -135,22 +142,11 @@
             <version>2.7.7</version>
         </dependency>
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
+
         <!-- FTP -->
         <dependency>
             <groupId>commons-net</groupId>
@@ -210,7 +206,6 @@
             <artifactId>javacv</artifactId>
             <version>1.5.2</version>
         </dependency>
-
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacpp</artifactId>
@@ -224,43 +219,36 @@
             <version>4.1.2-1.5.2</version>
             <classifier>linux-x86_64</classifier>
         </dependency>
-
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>opencv</artifactId>
             <version>4.1.2-1.5.2</version>
             <classifier>windows-x86_64</classifier>
         </dependency>
-
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>openblas</artifactId>
             <version>0.3.6-1.5.1</version>
             <classifier>linux-x86_64</classifier>
         </dependency>
-
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>openblas</artifactId>
             <version>0.3.6-1.5.1</version>
             <classifier>windows-x86_64</classifier>
         </dependency>
-
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>ffmpeg</artifactId>
             <version>4.2.1-1.5.2</version>
             <classifier>linux-x86_64</classifier>
         </dependency>
-
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>ffmpeg</artifactId>
             <version>4.2.1-1.5.2</version>
             <classifier>windows-x86_64</classifier>
         </dependency>
-
-
         <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
@@ -274,7 +262,6 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/jai_core-1.1.3.jar</systemPath>
         </dependency>
-
         <dependency>
             <groupId>javax.media</groupId>
             <artifactId>jai_codec</artifactId>
@@ -283,6 +270,25 @@
             <systemPath>${basedir}/lib/jai_codec-1.1.3.jar</systemPath>
         </dependency>
 
+        <!-- test dependency - start -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- test dependency - end -->
     </dependencies>
 
     <build>
@@ -336,5 +342,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

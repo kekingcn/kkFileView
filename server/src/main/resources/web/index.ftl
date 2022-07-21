@@ -262,13 +262,14 @@
             }, {
                 field: 'action',
                 title: '操作'
-            },]
+            }]
         }).on('pre-body.bs.table', function (e, data) {
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
                 item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "'>预览</a>" +
                     "<a class='btn btn-default' href='javascript:void(0);' onclick='deleteFile(\"" + item.fileName + "\")'>删除</a>";
             });
+
             return data;
         }).on('post-body.bs.table', function (e, data) {
             return data;
@@ -280,7 +281,6 @@
             var b64Encoded = Base64.encode(_url);
             urlField.val(b64Encoded);
         });
-
 
         function showLoadingDiv() {
             var height = window.document.documentElement.clientHeight - 1;
@@ -307,6 +307,7 @@
                 dataType: "json" /*设置返回值类型为文本*/
             });
         });
+
         var gitalk = new Gitalk({
             clientID: '525d7f16e17aab08cef5',
             clientSecret: 'd1154e3aee5c8f1cbdc918b5c97a4f4157e0bfd9',
