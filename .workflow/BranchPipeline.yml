@@ -2,7 +2,7 @@ version: '1.0'
 name: branch-pipeline
 displayName: BranchPipeline
 stages:
-  - stage: 
+  - stage:
     name: compile
     displayName: 编译
     steps:
@@ -22,7 +22,7 @@ stages:
           - name: BUILD_ARTIFACT
             # 构建产物获取路径，是指代码编译完毕之后构建物的所在路径，如通常jar包在target目录下。当前目录为代码库根目录
             path:
-              - ./target
+              - ./server/target
       - step: publish@general_artifacts
         name: publish_general_artifacts
         displayName: 上传制品
@@ -31,7 +31,7 @@ stages:
         # 上传到制品库时的制品命名，默认output
         artifactName: output
         dependsOn: build_maven
-  - stage: 
+  - stage:
     name: release
     displayName: 发布
     steps:
