@@ -48,15 +48,24 @@ public class AttributeSetFilter implements Filter {
     private void setWatermarkAttribute(ServletRequest request) {
         String watermarkTxt = request.getParameter("watermarkTxt");
         request.setAttribute("watermarkTxt", watermarkTxt != null ? watermarkTxt : WatermarkConfigConstants.getWatermarkTxt());
-        request.setAttribute("watermarkXSpace", WatermarkConfigConstants.getWatermarkXSpace());
-        request.setAttribute("watermarkYSpace", WatermarkConfigConstants.getWatermarkYSpace());
-        request.setAttribute("watermarkFont", WatermarkConfigConstants.getWatermarkFont());
-        request.setAttribute("watermarkFontsize", WatermarkConfigConstants.getWatermarkFontsize());
-        request.setAttribute("watermarkColor", WatermarkConfigConstants.getWatermarkColor());
-        request.setAttribute("watermarkAlpha", WatermarkConfigConstants.getWatermarkAlpha());
-        request.setAttribute("watermarkWidth", WatermarkConfigConstants.getWatermarkWidth());
-        request.setAttribute("watermarkHeight", WatermarkConfigConstants.getWatermarkHeight());
-        request.setAttribute("watermarkAngle", WatermarkConfigConstants.getWatermarkAngle());
+        String watermarkXSpace = request.getParameter("watermarkXSpace");
+        request.setAttribute("watermarkXSpace", watermarkXSpace != null ? watermarkXSpace : WatermarkConfigConstants.getWatermarkXSpace());
+        String watermarkYSpace = request.getParameter("watermarkYSpace");
+        request.setAttribute("watermarkYSpace", watermarkYSpace != null ? watermarkYSpace : WatermarkConfigConstants.getWatermarkYSpace());
+        String watermarkFont = request.getParameter("watermarkFont");
+        request.setAttribute("watermarkFont", watermarkFont != null ? watermarkFont : WatermarkConfigConstants.getWatermarkFont());
+        String watermarkFontsize = request.getParameter("watermarkFontsize");
+        request.setAttribute("watermarkFontsize", watermarkFontsize != null ? watermarkFontsize : WatermarkConfigConstants.getWatermarkFontsize());
+        String watermarkColor = request.getParameter("watermarkColor");
+        request.setAttribute("watermarkColor", watermarkColor != null ? watermarkColor : WatermarkConfigConstants.getWatermarkColor());
+        String watermarkAlpha = request.getParameter("watermarkAlpha");
+        request.setAttribute("watermarkAlpha", watermarkAlpha != null ? watermarkAlpha : WatermarkConfigConstants.getWatermarkAlpha());
+        String watermarkWidth = request.getParameter("watermarkWidth");
+        request.setAttribute("watermarkWidth", watermarkWidth != null ? watermarkWidth : WatermarkConfigConstants.getWatermarkWidth());
+        String watermarkHeight = request.getParameter("watermarkHeight");
+        request.setAttribute("watermarkHeight", watermarkHeight != null ? watermarkHeight : WatermarkConfigConstants.getWatermarkHeight());
+        String watermarkAngle = request.getParameter("watermarkAngle");
+        request.setAttribute("watermarkAngle", watermarkAngle != null ? watermarkAngle : WatermarkConfigConstants.getWatermarkAngle());
     }
 
     @Override
