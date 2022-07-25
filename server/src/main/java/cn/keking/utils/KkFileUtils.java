@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class KkFileUtils {
@@ -14,6 +16,33 @@ public class KkFileUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(KkFileUtils.class);
 
     public static final String DEFAULT_FILE_ENCODING = "UTF-8";
+
+    private static final List<String> illegalFileStrList = new ArrayList<>();
+
+    static {
+        illegalFileStrList.add("../");
+        illegalFileStrList.add("./");
+        illegalFileStrList.add("..\\");
+        illegalFileStrList.add(".\\");
+        illegalFileStrList.add("\\..");
+        illegalFileStrList.add("\\.");
+        illegalFileStrList.add("..");
+        illegalFileStrList.add("...");
+    }
+
+    /**
+     * 检查文件名是否合规
+     * @param fileName 文件名
+     * @return 合规结果,true:不合规，false:合规
+     */
+    public static boolean isIllegalFileName(String fileName){
+        for (String str: illegalFileStrList){
+            if(fileName.contains(str)){
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * 判断url是否是http资源
