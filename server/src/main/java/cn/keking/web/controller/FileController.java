@@ -2,8 +2,8 @@ package cn.keking.web.controller;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
+import cn.keking.utils.KkFileUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StreamUtils;
@@ -41,9 +41,9 @@ public class FileController {
     private final String demoPath = demoDir + File.separator;
 
     @PostMapping("/fileUpload")
-    public String fileUpload(@RequestParam("file") MultipartFile file) throws JsonProcessingException {
+    public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file) throws JsonProcessingException {
         if (ConfigConstants.getFileUploadDisable()) {
-            return new ObjectMapper().writeValueAsString(ReturnResponse.failure("文件传接口已禁用"));
+            return ReturnResponse.failure("文件传接口已禁用");
         }
         // 获取文件名
         String fileName = file.getOriginalFilename();
@@ -64,7 +64,7 @@ public class FileController {
         }
         // 判断是否存在同名文件
         if (existsFile(fileName)) {
-            return new ObjectMapper().writeValueAsString(ReturnResponse.failure("存在同名文件，请先删除原有文件再次上传"));
+            return ReturnResponse.failure("存在同名文件，请先删除原有文件再次上传");
         }
         File outFile = new File(fileDir + demoPath);
         if (!outFile.exists() && !outFile.mkdirs()) {
@@ -73,28 +73,33 @@ public class FileController {
         logger.info("上传文件：{}", fileDir + demoPath + fileName);
         try (InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(fileDir + demoPath + fileName)) {
             StreamUtils.copy(in, out);
-            return new ObjectMapper().writeValueAsString(ReturnResponse.success(null));
+            return ReturnResponse.success(null);
         } catch (IOException e) {
             logger.error("文件上传失败", e);
-            return new ObjectMapper().writeValueAsString(ReturnResponse.failure());
+            return ReturnResponse.failure();
         }
     }
 
     @GetMapping("/deleteFile")
-    public String deleteFile(String fileName) throws JsonProcessingException {
+    public ReturnResponse<Object> deleteFile(String fileName) throws JsonProcessingException {
         if (fileName.contains("/")) {
             fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
+        }
+        if (KkFileUtils.isIllegalFileName(fileName)) {
+            return ReturnResponse.failure("非法文件名，删除失败！");
         }
         File file = new File(fileDir + demoPath + fileName);
         logger.info("删除文件：{}", file.getAbsolutePath());
         if (file.exists() && !file.delete()) {
-            logger.error("删除文件【{}】失败，请检查目录权限！", file.getPath());
+            String msg = String.format("删除文件【%s】失败，请检查目录权限！", file.getPath());
+            logger.error(msg);
+            return ReturnResponse.failure(msg);
         }
-        return new ObjectMapper().writeValueAsString(ReturnResponse.success());
+        return ReturnResponse.success();
     }
 
     @GetMapping("/listFiles")
-    public String getFiles() throws JsonProcessingException {
+    public List<Map<String, String>> getFiles() throws JsonProcessingException {
         List<Map<String, String>> list = new ArrayList<>();
         File file = new File(fileDir + demoPath);
         if (file.exists()) {
@@ -104,7 +109,7 @@ public class FileController {
                 list.add(fileName);
             });
         }
-        return new ObjectMapper().writeValueAsString(list);
+        return list;
     }
 
     private boolean existsFile(String fileName) {
