@@ -27,6 +27,7 @@ public class ConvertPicUtil {
 
     /**
      * Tif 转  JPG。
+     *
      * @param strInputFile  输入文件的路径和文件名
      * @param strOutputFile 输出文件的路径和文件名
      * @return boolean 是否转换成功
@@ -60,8 +61,8 @@ public class ConvertPicUtil {
             int intTifCount = imageDecoder.getNumPages();
             logger.info("该tif文件共有【" + intTifCount + "】页");
 
-            String strJpgPath = "";
-            String strJpgUrl = "";
+            String strJpgPath;
+            String strJpgUrl;
             if (intTifCount == 1) {
                 // 如果是单页tif文件，则转换的目标文件夹就在指定的位置
                 strJpgPath = strOutputFile.substring(0, strOutputFile.lastIndexOf("/"));
@@ -72,17 +73,17 @@ public class ConvertPicUtil {
 
             // 处理目标文件夹，如果不存在则自动创建
             File fileJpgPath = new File(strJpgPath);
-            if (!fileJpgPath.exists()) {
-                fileJpgPath.mkdirs();
+            if (!fileJpgPath.exists() && !fileJpgPath.mkdirs()) {
+                logger.error("{} 创建失败", strJpgPath);
             }
 
             // 循环，处理每页tif文件，转换为jpg
             for (int i = 0; i < intTifCount; i++) {
-                String strJpg = "";
-                if(intTifCount == 1){
+                String strJpg;
+                if (intTifCount == 1) {
                     strJpg = strJpgPath + "/" + strFilePrefix + ".jpg";
                     strJpgUrl = strFilePrefix + ".jpg";
-                }else{
+                } else {
                     strJpg = strJpgPath + "/" + i + ".jpg";
                     strJpgUrl = strFilePrefix + "/" + i + ".jpg";
                 }
@@ -90,7 +91,7 @@ public class ConvertPicUtil {
                 File fileJpg = new File(strJpg);
 
                 // 如果文件不存在，则生成
-                if(!fileJpg.exists()){
+                if (!fileJpg.exists()) {
                     RenderedImage renderedImage = imageDecoder.decodeAsRenderedImage(i);
                     ParameterBlock pb = new ParameterBlock();
                     pb.addSource(renderedImage);
@@ -102,7 +103,7 @@ public class ConvertPicUtil {
                     renderedOp.dispose();
 
                     logger.info("每页分别保存至： " + fileJpg.getCanonicalPath());
-                }else{
+                } else {
                     logger.info("JPG文件已存在： " + fileJpg.getCanonicalPath());
                 }
 
@@ -118,21 +119,19 @@ public class ConvertPicUtil {
                 try {
                     fileSeekStream.close();
                 } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
                 }
-                fileSeekStream = null;
             }
         }
     }
-
 
     /**
      * 将Jpg图片转换为Pdf文件
      *
      * @param strJpgFile 输入的jpg的路径和文件名
      * @param strPdfFile 输出的pdf的路径和文件名
-     * @return
      */
-    public static File convertJpg2Pdf(String strJpgFile, String strPdfFile) {
+    public static void convertJpg2Pdf(String strJpgFile, String strPdfFile) {
         Document document = new Document();
         // 设置文档页边距
         document.setMargins(0, 0, 0, 0);
@@ -157,23 +156,18 @@ public class ConvertPicUtil {
             document.add(image);
         } catch (Exception ioe) {
             ioe.printStackTrace();
-            return null;
         } finally {
             //关闭文档
             document.close();
             try {
+                assert fos != null;
                 fos.flush();
                 fos.close();
-
-                File filePDF = new File(strPdfFile);
-                return filePDF;
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
-
-        return null;
     }
 
 
@@ -182,7 +176,7 @@ public class ConvertPicUtil {
      *
      * @param strTifFile 输入的tif的路径和文件名
      * @param strPdfFile 输出的pdf的路径和文件名
-     * @return
+     * @return File
      */
     public static File convertTif2Pdf(String strTifFile, String strPdfFile) {
         try {
@@ -198,16 +192,16 @@ public class ConvertPicUtil {
             Image image;
             File filePDF;
 
-            if(intPages == 1){
+            if (intPages == 1) {
                 String strJpg = strTifFile.substring(0, strTifFile.lastIndexOf(".")) + ".jpg";
                 File fileJpg = new File(strJpg);
                 List<String> listPic2Jpg = convertTif2Jpg(strTifFile, strJpg);
 
-                if(listPic2Jpg != null && fileJpg.exists()){
-                    filePDF = convertJpg2Pdf(strJpg, strPdfFile);
+                if (listPic2Jpg != null && fileJpg.exists()) {
+                    convertJpg2Pdf(strJpg, strPdfFile);
                 }
 
-            }else{
+            } else {
                 for (int i = 1; i <= intPages; i++) {
                     image = TiffImage.getTiffImage(rafa, i);
                     // 设置页面宽高与图片一致
@@ -229,7 +223,7 @@ public class ConvertPicUtil {
 
             return filePDF;
         } catch (Exception e) {
-            System.out.println(e.toString());
+            logger.error(e.getMessage(), e);
         }
         return null;
     }
