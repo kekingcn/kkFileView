@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
@@ -53,7 +52,7 @@ public class OnlinePreviewController {
         this.otherFilePreview = otherFilePreview;
     }
 
-    @RequestMapping(value = "/onlinePreview")
+    @GetMapping( "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl;
         try {
@@ -69,7 +68,7 @@ public class OnlinePreviewController {
         return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
     }
 
-    @RequestMapping(value = "/picturesPreview")
+    @GetMapping( "/picturesPreview")
     public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String fileUrls;
         try {
@@ -104,15 +103,16 @@ public class OnlinePreviewController {
      * @param urlPath  url
      * @param response response
      */
-    @RequestMapping(value = "/getCorsFile", method = RequestMethod.GET)
+    @GetMapping("/getCorsFile")
     public void getCorsFile(String urlPath, HttpServletResponse response) {
         try {
             urlPath = new String(Base64.decodeBase64(urlPath), StandardCharsets.UTF_8);
         } catch (Exception ex) {
-            logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath, ex));
+            logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath),ex);
             return;
         }
-        if (urlPath == null || urlPath.toLowerCase().startsWith("file:") || urlPath.toLowerCase().startsWith("file%3") || !urlPath.toLowerCase().startsWith("http")) {
+        if (urlPath.toLowerCase().startsWith("file:") || urlPath.toLowerCase().startsWith("file%3")
+            || !urlPath.toLowerCase().startsWith("http")) {
             logger.info("读取跨域文件异常，可能存在非法访问，urlPath：{}", urlPath);
             return;
         }
@@ -132,7 +132,7 @@ public class OnlinePreviewController {
      *
      * @param url 请编码后在入队
      */
-    @RequestMapping("/addTask")
+    @GetMapping("/addTask")
     @ResponseBody
     public String addQueueTask(String url) {
         logger.info("添加转码队列url：{}", url);
