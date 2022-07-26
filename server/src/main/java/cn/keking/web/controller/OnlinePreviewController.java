@@ -56,7 +56,7 @@ public class OnlinePreviewController {
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl;
         try {
-            fileUrl = new String(Base64.decodeBase64(url), StandardCharsets.UTF_8);
+            fileUrl = new String(Base64.decodeBase64(url.replaceAll(" ","+").replaceAll("\n","")), StandardCharsets.UTF_8);
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
@@ -72,7 +72,7 @@ public class OnlinePreviewController {
     public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String fileUrls;
         try {
-            fileUrls = new String(Base64.decodeBase64(urls));
+            fileUrls = new String(Base64.decodeBase64(urls.replaceAll(" ","+").replaceAll("\n","")));
             // 防止XSS攻击
             fileUrls = HtmlUtils.htmlEscape(fileUrls);
         } catch (Exception ex) {
@@ -106,7 +106,7 @@ public class OnlinePreviewController {
     @GetMapping("/getCorsFile")
     public void getCorsFile(String urlPath, HttpServletResponse response) {
         try {
-            urlPath = new String(Base64.decodeBase64(urlPath), StandardCharsets.UTF_8);
+            urlPath = new String(Base64.decodeBase64(urlPath.replaceAll(" ","+").replaceAll("\n","")), StandardCharsets.UTF_8);
         } catch (Exception ex) {
             logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath),ex);
             return;

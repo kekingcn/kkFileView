@@ -156,16 +156,16 @@ public class WebUtils {
         String currentUrl = request.getParameter("currentUrl");
         String urlPath = request.getParameter("urlPath");
         if (StringUtils.isNotBlank(url)) {
-            return new String(Base64Utils.decodeFromString(url), StandardCharsets.UTF_8);
+            return new String(Base64Utils.decodeFromString(url.replaceAll(" ","+").replaceAll("\n","")), StandardCharsets.UTF_8);
         }
         if (StringUtils.isNotBlank(currentUrl)) {
-            return new String(Base64Utils.decodeFromString(currentUrl), StandardCharsets.UTF_8);
+            return new String(Base64Utils.decodeFromString(currentUrl.replaceAll(" ","+").replaceAll("\n","")), StandardCharsets.UTF_8);
         }
         if (StringUtils.isNotBlank(urlPath)) {
-            return new String(Base64Utils.decodeFromString(urlPath), StandardCharsets.UTF_8);
+            return new String(Base64Utils.decodeFromString(urlPath.replaceAll(" ","+").replaceAll("\n","")), StandardCharsets.UTF_8);
         }
         if (StringUtils.isNotBlank(urls)) {
-            urls = new String(Base64Utils.decodeFromString(urls), StandardCharsets.UTF_8);
+            urls = new String(Base64Utils.decodeFromString(urls.replaceAll(" ","+").replaceAll("\n","")), StandardCharsets.UTF_8);
             String[] images = urls.split("\\|");
             return images[0];
         }
