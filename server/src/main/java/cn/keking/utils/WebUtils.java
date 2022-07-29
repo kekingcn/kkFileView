@@ -189,8 +189,13 @@ public class WebUtils {
      * @return decoded string
      */
     public static String decodeBase64String(String source, Charset charsets) {
+        /*
+         * url 传入的参数里加号会被替换成空格，导致解析出错，这里需要把空格替换回加号
+         * 有些 Base64 实现可能每 76 个字符插入换行符，也一并去掉
+         * https://github.com/kekingcn/kkFileView/pull/340
+         */
         return new String(Base64Utils.decodeFromString(
-                source.replaceAll(" ","+").replaceAll("\n","")
+                source.replaceAll(" ", "+").replaceAll("\n", "")
         ), charsets);
     }
 
