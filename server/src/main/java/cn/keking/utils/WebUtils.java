@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,20 +157,46 @@ public class WebUtils {
         String currentUrl = request.getParameter("currentUrl");
         String urlPath = request.getParameter("urlPath");
         if (StringUtils.isNotBlank(url)) {
-            return new String(Base64Utils.decodeFromString(url), StandardCharsets.UTF_8);
+            return decodeBase64String(url);
         }
         if (StringUtils.isNotBlank(currentUrl)) {
-            return new String(Base64Utils.decodeFromString(currentUrl), StandardCharsets.UTF_8);
+            return decodeBase64String(currentUrl);
         }
         if (StringUtils.isNotBlank(urlPath)) {
-            return new String(Base64Utils.decodeFromString(urlPath), StandardCharsets.UTF_8);
+            return decodeBase64String(urlPath);
         }
         if (StringUtils.isNotBlank(urls)) {
-            urls = new String(Base64Utils.decodeFromString(urls), StandardCharsets.UTF_8);
+            urls = decodeBase64String(urls);
             String[] images = urls.split("\\|");
             return images[0];
         }
         return null;
+    }
+
+    /**
+     * 将 Base64 字符串解码，默认使用 UTF-8
+     * @param source 原始 Base64 字符串
+     * @return decoded string
+     */
+    public static String decodeBase64String(String source) {
+        return decodeBase64String(source, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 将 Base64 字符串使用指定字符集解码
+     * @param source 原始 Base64 字符串
+     * @param charsets 字符集
+     * @return decoded string
+     */
+    public static String decodeBase64String(String source, Charset charsets) {
+        /*
+         * url 传入的参数里加号会被替换成空格，导致解析出错，这里需要把空格替换回加号
+         * 有些 Base64 实现可能每 76 个字符插入换行符，也一并去掉
+         * https://github.com/kekingcn/kkFileView/pull/340
+         */
+        return new String(Base64Utils.decodeFromString(
+                source.replaceAll(" ", "+").replaceAll("\n", "")
+        ), charsets);
     }
 
     /**
