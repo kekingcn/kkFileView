@@ -1,5 +1,6 @@
 package cn.keking.service.impl;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
@@ -28,6 +29,7 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
+    	String base_url=ConfigConstants.getBaseUrl();
         List<String> imgUrls = new ArrayList<>();
         imgUrls.add(url);
         String fileKey = fileAttribute.getFileKey();
@@ -35,14 +37,16 @@ public class PictureFilePreviewImpl implements FilePreview {
         if (!CollectionUtils.isEmpty(zipImgUrls)) {
             imgUrls.addAll(zipImgUrls);
         }
-        // 不是http开头，浏览器不能直接访问，需下载到本地
-        if (url != null && !url.toLowerCase().startsWith("http")) {
+        // ftp 或 http 文件先下载到本地
+        if (url != null && (url.toLowerCase().startsWith("http")||url.toLowerCase().startsWith("ftp"))) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, null);
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             } else {
                 String file = fileHandlerService.getRelativePath(response.getContent());
                 imgUrls.clear();
+                //xuenhua 修正currentUrl为下载后文件地址进行预览
+                file=base_url+ "/"+file;
                 imgUrls.add(file);
                 model.addAttribute("imgUrls", imgUrls);
                 model.addAttribute("currentUrl", file);
