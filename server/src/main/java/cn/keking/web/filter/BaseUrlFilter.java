@@ -36,24 +36,26 @@ public class BaseUrlFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
         String baseUrl;
-        String baseUrlTmp = ConfigConstants.getBaseUrl();
+        String configBaseUrl = ConfigConstants.getBaseUrl();
 
         final HttpServletRequest servletRequest = (HttpServletRequest) request;
-        // 支持通过 http header 中 X-Base-Url 来动态设置 baseUrl 以支持多个域名/项目的共享使用
+        //1、支持通过 http header 中 X-Base-Url 来动态设置 baseUrl 以支持多个域名/项目的共享使用
         final String urlInHeader = servletRequest.getHeader("X-Base-Url");
         if (StringUtils.isNotEmpty(urlInHeader)) {
             baseUrl = urlInHeader;
-        } else if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(baseUrlTmp)) {
-            // 如果配置文件中配置了 baseUrl 且不为 default 则以配置文件为准
-            if (!baseUrlTmp.endsWith("/")) {
-                baseUrlTmp = baseUrlTmp.concat("/");
-            }
-            baseUrl = baseUrlTmp;
+        } else if (configBaseUrl != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(configBaseUrl)) {
+            //2、如果配置文件中配置了 baseUrl 且不为 default 则以配置文件为准
+            baseUrl = configBaseUrl;
         } else {
-            // 动态拼接 baseUrl
+            //3、默认动态拼接 baseUrl
             baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
                     + servletRequest.getContextPath() + "/";
         }
+
+        if (!baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.concat("/");
+        }
+
         BASE_URL = baseUrl;
         request.setAttribute("baseUrl", baseUrl);
         filterChain.doFilter(request, response);
