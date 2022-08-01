@@ -1,6 +1,7 @@
 package cn.keking.web.filter;
 
 import cn.keking.config.ConfigConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.*;
@@ -18,7 +19,7 @@ public class BaseUrlFilter implements Filter {
     public static String getBaseUrl() {
         String baseUrl;
         try {
-            baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl",0);
+            baseUrl = (String) RequestContextHolder.currentRequestAttributes().getAttribute("baseUrl", 0);
         } catch (Exception e) {
             baseUrl = BASE_URL;
         }
@@ -33,18 +34,25 @@ public class BaseUrlFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+
         String baseUrl;
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(request.getScheme()).append("://").append(request.getServerName()).append(":")
-                .append(request.getServerPort()).append(((HttpServletRequest) request).getContextPath()).append("/");
         String baseUrlTmp = ConfigConstants.getBaseUrl();
-        if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(baseUrlTmp)) {
+
+        final HttpServletRequest servletRequest = (HttpServletRequest) request;
+        // 支持通过 http header 中 X-Base-Url 来动态设置 baseUrl 以支持多个域名/项目的共享使用
+        final String urlInHeader = servletRequest.getHeader("X-Base-Url");
+        if (StringUtils.isNotEmpty(urlInHeader)) {
+            baseUrl = urlInHeader;
+        } else if (baseUrlTmp != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(baseUrlTmp)) {
+            // 如果配置文件中配置了 baseUrl 且不为 default 则以配置文件为准
             if (!baseUrlTmp.endsWith("/")) {
                 baseUrlTmp = baseUrlTmp.concat("/");
             }
             baseUrl = baseUrlTmp;
         } else {
-            baseUrl = pathBuilder.toString();
+            // 动态拼接 baseUrl
+            baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                    + servletRequest.getContextPath() + "/";
         }
         BASE_URL = baseUrl;
         request.setAttribute("baseUrl", baseUrl);
