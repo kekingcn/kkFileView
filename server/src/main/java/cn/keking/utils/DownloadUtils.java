@@ -32,6 +32,12 @@ public class DownloadUtils {
      * @return 本地文件绝对路径
      */
     public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
+        // 忽略ssl证书
+        try {
+            SslUtils.ignoreSsl();
+        } catch (Exception e) {
+            logger.error("忽略SSL证书异常:", e);
+        }
         String urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         String realPath = DownloadUtils.getRelFilePath(fileName, fileAttribute);
