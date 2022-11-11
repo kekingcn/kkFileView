@@ -1,12 +1,12 @@
 package cn.keking.utils;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.extractor.ExtractorFactory;
 import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
 import org.springframework.lang.Nullable;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  * Office工具类
@@ -15,6 +15,8 @@ import java.io.FileInputStream;
  * @since 2022/7/5
  */
 public class OfficeUtils {
+
+    private static final String POI_INVALID_PASSWORD_MSG = "Invalid password specified";
 
     /**
      * 判断office（word,excel,ppt）文件是否受密码保护
@@ -25,17 +27,18 @@ public class OfficeUtils {
     public static boolean isPwdProtected(String path) {
         try {
             ExtractorFactory.createExtractor(new FileInputStream(path));
-        } catch (EncryptedDocumentException e) {
-            return true;
+        } catch (IOException e) {
+            if (POI_INVALID_PASSWORD_MSG.equals(e.getMessage())) {
+                return true;
+            }
         } catch (Exception e) {
-            Throwable[] throwables = ExceptionUtils.getThrowables(e);
-            for (Throwable throwable : throwables) {
-                if (throwable instanceof EncryptedDocumentException) {
+            Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
+            for (Throwable throwable : throwableArray) {
+                if (throwable instanceof IOException && POI_INVALID_PASSWORD_MSG.equals(throwable.getMessage())) {
                     return true;
                 }
             }
         }
-
         return false;
     }
 
@@ -55,7 +58,6 @@ public class OfficeUtils {
         } finally {
             Biff8EncryptionKey.setCurrentUserPassword(null);
         }
-
         return true;
     }
 
