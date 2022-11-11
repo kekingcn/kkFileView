@@ -56,7 +56,7 @@ public class OnlinePreviewController {
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
         String fileUrl;
         try {
-            fileUrl = WebUtils.decodeBase64String(url);
+            fileUrl = WebUtils.decodeUrl(url);
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
@@ -72,20 +72,18 @@ public class OnlinePreviewController {
     public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String fileUrls;
         try {
-            fileUrls = WebUtils.decodeBase64String(urls);
+            fileUrls = WebUtils.decodeUrl(urls);
             // 防止XSS攻击
             fileUrls = HtmlUtils.htmlEscape(fileUrls);
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "urls");
             return otherFilePreview.notSupportedFile(model, errorMsg);
         }
-
         logger.info("预览文件url：{}，urls：{}", fileUrls, urls);
         // 抽取文件并返回文件列表
         String[] images = fileUrls.split("\\|");
         List<String> imgUrls = Arrays.asList(images);
         model.addAttribute("imgUrls", imgUrls);
-
         String currentUrl = req.getParameter("currentUrl");
         if (StringUtils.hasText(currentUrl)) {
             String decodedCurrentUrl = new String(Base64.decodeBase64(currentUrl));
@@ -106,7 +104,7 @@ public class OnlinePreviewController {
     @GetMapping("/getCorsFile")
     public void getCorsFile(String urlPath, HttpServletResponse response) {
         try {
-            urlPath = WebUtils.decodeBase64String(urlPath);
+            urlPath = WebUtils.decodeUrl(urlPath);
         } catch (Exception ex) {
             logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath),ex);
             return;
@@ -116,7 +114,6 @@ public class OnlinePreviewController {
             logger.info("读取跨域文件异常，可能存在非法访问，urlPath：{}", urlPath);
             return;
         }
-
         logger.info("下载跨域pdf文件url：{}", urlPath);
         try {
             URL url = WebUtils.normalizedURL(urlPath);

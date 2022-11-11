@@ -8,6 +8,7 @@ import javax.servlet.ServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -157,16 +158,16 @@ public class WebUtils {
         String currentUrl = request.getParameter("currentUrl");
         String urlPath = request.getParameter("urlPath");
         if (StringUtils.isNotBlank(url)) {
-            return decodeBase64String(url);
+            return decodeUrl(url);
         }
         if (StringUtils.isNotBlank(currentUrl)) {
-            return decodeBase64String(currentUrl);
+            return decodeUrl(currentUrl);
         }
         if (StringUtils.isNotBlank(urlPath)) {
-            return decodeBase64String(urlPath);
+            return decodeUrl(urlPath);
         }
         if (StringUtils.isNotBlank(urls)) {
-            urls = decodeBase64String(urls);
+            urls = decodeUrl(urls);
             String[] images = urls.split("\\|");
             return images[0];
         }
@@ -174,12 +175,20 @@ public class WebUtils {
     }
 
     /**
-     * 将 Base64 字符串解码，默认使用 UTF-8
+     * 将 Base64 字符串解码，再解码URL参数, 默认使用 UTF-8
      * @param source 原始 Base64 字符串
      * @return decoded string
+     *
+     * aHR0cHM6Ly9maWxlLmtla2luZy5jbi9kZW1vL%2BS4reaWhy5wcHR4 -> https://file.keking.cn/demo/%E4%B8%AD%E6%96%87.pptx -> https://file.keking.cn/demo/中文.pptx
      */
-    public static String decodeBase64String(String source) {
-        return decodeBase64String(source, StandardCharsets.UTF_8);
+    public static String decodeUrl(String source) {
+        String url = decodeBase64String(source, StandardCharsets.UTF_8);
+        try {
+            url = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        return url;
     }
 
     /**
