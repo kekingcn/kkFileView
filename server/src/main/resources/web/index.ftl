@@ -36,15 +36,15 @@
                 如果你的项目需要接入文件预览项目，达到对docx、excel、ppt、jpg等文件的预览效果，那么通过在你的项目中加入下面的代码就可以
                 成功实现：
                 <pre style="background-color: #2f332a;color: #cccccc">
-                    var url = 'http://127.0.0.1:8080/file/test.txt'; //要预览文件的访问地址
-                    window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(base64Encode(url)));
+var url = 'http://127.0.0.1:8080/file/test.txt'; //要预览文件的访问地址
+window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(base64Encode(url)));
                 </pre>
             </div>
             <div>
                 新增多图片同时预览功能，接口如下：
                 <pre style="background-color: #2f332a;color: #cccccc">
-                    var fileUrl =url1+"|"+"url2";//多文件使用“|”字符隔开
-                    window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(base64Encode(fileUrl)));
+var fileUrl =url1+"|"+"url2";//多文件使用“|”字符隔开
+window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(base64Encode(fileUrl)));
                 </pre>
             </div>
         </div>
@@ -254,6 +254,33 @@
         })
     }
 
+    function showLoadingDiv() {
+        var height = window.document.documentElement.clientHeight - 1;
+        $(".loading_container").css("height", height).show();
+    }
+
+    function checkUrl(url){
+        //url= 协议://(ftp的登录信息)[IP|域名](:端口号)(/或?请求参数)
+        var strRegex = '^((https|http|ftp)://)'//(https或http或ftp)
+            + '(([\\w_!~*\'()\\.&=+$%-]+: )?[\\w_!~*\'()\\.&=+$%-]+@)?' //ftp的user@  可有可无
+            + '(([0-9]{1,3}\\.){3}[0-9]{1,3}' // IP形式的URL- 3位数字.3位数字.3位数字.3位数字
+            + '|' // 允许IP和DOMAIN（域名）
+            + '(localhost)|'	//匹配localhost
+            + '([\\w_!~*\'()-]+\\.)*' // 域名- 至少一个[英文或数字_!~*\'()-]加上.
+            + '\\w+\\.' // 一级域名 -英文或数字  加上.
+            + '[a-zA-Z]{1,6})' // 顶级域名- 1-6位英文
+            + '(:[0-9]{1,5})?' // 端口- :80 ,1-5位数字
+            + '((/?)|' // url无参数结尾 - 斜杆或这没有
+            + '(/[\\w_!~*\'()\\.;?:@&=+$,%#-]+)+/?)$';//请求参数结尾- 英文或数字和[]内的各种字符
+        var re = new RegExp(strRegex,'i');//i不区分大小写
+        //将url做uri转码后再匹配，解除请求参数中的中文和空字符影响
+        if (re.test(encodeURI(url))) {
+            return (true);
+        } else {
+            return (false);
+        }
+    }
+
     $(function () {
         $('#table').bootstrapTable({
             url: 'listFiles',
@@ -278,15 +305,15 @@
 
         $('#preview_by_url').submit(function() {
             var _url = $("#_url").val();
+            if (!checkUrl(_url)) {
+                alert('请输入正确的url');
+                return false;
+            }
             var urlField = $(this).find('[name=url]');
             var b64Encoded = Base64.encode(_url);
             urlField.val(b64Encoded);
         });
 
-        function showLoadingDiv() {
-            var height = window.document.documentElement.clientHeight - 1;
-            $(".loading_container").css("height", height).show();
-        }
         $("#btnSubmit").click(function () {
             showLoadingDiv();
             $("#fileUpload").ajaxSubmit({
