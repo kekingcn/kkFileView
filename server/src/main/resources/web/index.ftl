@@ -43,7 +43,7 @@ window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(base64
             <div>
                 新增多图片同时预览功能，接口如下：
                 <pre style="background-color: #2f332a;color: #cccccc">
-var fileUrl =url1+"|"+"url2";//多文件使用“|”字符隔开
+var fileUrl =url1+'|'+url2;//多url使用'|'字符隔开
 window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(base64Encode(fileUrl)));
                 </pre>
             </div>
