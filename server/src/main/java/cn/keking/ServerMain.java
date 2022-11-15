@@ -1,6 +1,5 @@
 package cn.keking;
 
-import cn.keking.config.AppBanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +22,6 @@ public class ServerMain {
         stopWatch.start();
         ConfigurableApplicationContext context = new SpringApplicationBuilder(ServerMain.class)
                 .logStartupInfo(false)
-                .banner(new AppBanner())
                 .run(args);
         stopWatch.stop();
         Integer port = context.getBean(ServerProperties.class).getPort();

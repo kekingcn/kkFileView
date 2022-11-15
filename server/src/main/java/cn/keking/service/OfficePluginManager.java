@@ -120,7 +120,7 @@ public class OfficePluginManager {
                     baos.write(b);
                 }
                 String s = baos.toString();
-                if (!"0".equals(s)) {
+                if (!s.startsWith("0")) {
                     String[] cmd = {"sh", "-c", "ps -ef | grep soffice.bin | grep -v grep | awk '{print \"kill -9 \"$2}' | sh"};
                     Runtime.getRuntime().exec(cmd);
                     flag = true;
