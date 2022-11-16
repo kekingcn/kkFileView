@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="css/viewer.min.css"/>
     <link rel="stylesheet" href="css/loading.css"/>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css"/>
     <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css"/>
+    <link rel="stylesheet" href="css/theme.css"/>
     <link rel="stylesheet" href="gitalk/gitalk.css"/>
     <script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
     <script type="text/javascript" src="js/jquery.form.min.js"></script>
@@ -20,7 +22,84 @@
 </head>
 
 <body>
-<div class="panel-group container" id="accordion">
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">kkFileView</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="./index">首页</a></li>
+            <li><a href="./record">版本记录</a></li>
+            <li><a href="./comment">相关交流</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container theme-showcase" role="main">
+      <#--  接入说明  -->
+      <div class="page-header">
+        <h1>接入说明</h1>
+      </div>
+      <div class="well">
+        <div style="font-size: 16px;">
+            如果你的项目需要接入文件预览项目，达到对docx、excel、ppt、jpg等文件的预览效果，那么通过在你的项目中加入下面的代码就可以成功实现：
+            <p style="background-color: #2f332a;color: #cccccc;font-size: 14px;padding:10px;margin-top:10px;">
+                var url = 'http://127.0.0.1:8080/file/test.txt'; //要预览文件的访问地址 <br>
+                window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(base64Encode(url)));
+            </p>
+        </div>
+        <div style="font-size: 16px;">
+            新增多图片同时预览功能，接口如下：
+            <p style="background-color: #2f332a;color: #cccccc;font-size: 14px;padding:10px;margin-top:10px;">
+                var fileUrl =url1+'|'+url2;//多url使用'|'字符隔开 <br>
+                window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(base64Encode(fileUrl)));
+            </p>
+        </div>
+      </div>
+      <#--  输入下载地址预览文件  -->
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">输入下载地址预览文件</h3>
+        </div>
+        <div class="panel-body">
+            <label>文件下载地址：<input type="text" id="_url" style="min-width:50em"/></label>
+            <form action="${baseUrl}onlinePreview" target="_blank" id="preview_by_url" style="display: inline-block">
+                <input type="hidden" name="url"/>
+                <input type="submit" value="预览">
+            </form>
+        </div>
+      </div>
+    <#--  预览测试  -->
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">预览测试</h3>
+        </div>
+        <div class="panel-body">
+            <#if fileUploadDisable == false>
+                <div style="padding: 10px">
+                    <form enctype="multipart/form-data" id="fileUpload">
+                        <input type="file" name="file"/>
+                        <input type="button" id="btnSubmit" value=" 上 传 "/>
+                    </form>
+                </div>
+            </#if>
+            <div>
+                <table id="table" data-pagination="true"></table>
+            </div>
+        </div>
+    </div>
+</div>
+<#--  <div class="panel-group container" id="accordion">
     <h1>文件预览项目接入和测试界面</h1>
 
     <div class="panel panel-default">
@@ -212,9 +291,9 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(bas
         </div>
 
     </div>
-</div>
+</div>  -->
 
-<div class="loading_container">
+<#--  <div class="loading_container">
     <div class="spinner">
         <div class="spinner-container container1">
             <div class="circle1"></div>
@@ -235,7 +314,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(bas
             <div class="circle4"></div>
         </div>
     </div>
-</div>
+</div>  -->
 <script>
     function deleteFile(fileName) {
         $.ajax({

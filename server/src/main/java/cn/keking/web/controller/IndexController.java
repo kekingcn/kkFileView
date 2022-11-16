@@ -16,6 +16,16 @@ public class IndexController {
         return "index";
     }
 
+    @GetMapping( "/record")
+    public String go2Record(){
+        return "record";
+    }
+
+    @GetMapping( "/comment")
+    public String go2Comment(){
+        return "comment";
+    }
+
     @GetMapping( "/")
     public String root() {
         return "redirect:/index";
