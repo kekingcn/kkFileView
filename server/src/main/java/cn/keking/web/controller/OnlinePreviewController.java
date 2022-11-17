@@ -11,7 +11,6 @@ import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
 import jodd.io.NetUtil;
 import org.apache.commons.codec.binary.Base64;
-import org.artofsolving.jodconverter.util.PlatformUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -31,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
+import static cn.keking.utils.WebUtils.FILE_SCHEME;
 
 /**
  * @author yudian-it
@@ -39,8 +39,6 @@ import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
 public class OnlinePreviewController {
 
     public static final String BASE64_DECODE_ERROR_MSG = "Base64解码失败，请检查你的 %s 是否采用 Base64 + urlEncode 双重编码了！";
-    public static final String FILE_SCHEME = "file:";
-    public static final String FILE_SCHEME_FULL = "file:///";
     private final Logger logger = LoggerFactory.getLogger(OnlinePreviewController.class);
 
     private final FilePreviewFactory previewFactory;
@@ -63,11 +61,6 @@ public class OnlinePreviewController {
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
-        }
-        if (PlatformUtils.isWindows()) {
-            if (fileUrl.startsWith(FILE_SCHEME) && !fileUrl.startsWith(FILE_SCHEME + "/")) {
-                fileUrl = FILE_SCHEME_FULL + fileUrl.substring(FILE_SCHEME.length());
-            }
         }
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
         model.addAttribute("file", fileAttribute);

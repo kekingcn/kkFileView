@@ -56,6 +56,9 @@ public class TrustDirFilter implements Filter {
 
     private boolean allowPreview(String urlPath) {
         try {
+            if (PlatformUtils.isWindows()) {
+                urlPath = WebUtils.enrichFileSchemeUrl(urlPath);
+            }
             URL url = WebUtils.normalizedURL(urlPath);
             if ("file".equals(url.getProtocol().toLowerCase(Locale.ROOT))) {
                 String filePath = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.name());
