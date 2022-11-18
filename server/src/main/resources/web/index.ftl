@@ -31,7 +31,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="https://kkfileview.keking.cn">KKFileView</a>
+          <a class="navbar-brand" href="https://kkfileview.keking.cn" target='_blank'>KKFileView</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -70,10 +70,12 @@
             <h3 class="panel-title">输入下载地址预览文件</h3>
         </div>
         <div class="panel-body">
-            <label>文件下载地址：<input type="text" id="_url" style="min-width:50em"/></label>
-            <form action="${baseUrl}onlinePreview" target="_blank" id="preview_by_url" style="display: inline-block">
-                <input type="hidden" name="url"/>
-                <input type="submit" value="预览">
+            <form>
+                <div class="form-group">
+                    <label>文件下载地址</label>
+                    <input type="url" class="form-control" id="_url" placeholder="请输入下载地址">
+                </div>
+                <button id="previewByUrl" type="button" class="btn btn-success">预览</button>
             </form>
         </div>
       </div>
@@ -86,8 +88,14 @@
             <#if fileUploadDisable == false>
                 <div style="padding: 10px">
                     <form enctype="multipart/form-data" id="fileUpload">
-                        <input type="file" name="file"/>
-                        <input type="button" id="btnSubmit" value=" 上 传 "/>
+                        <div class="form-group">
+                            <label>选择文件</label>
+                            <button type="button" class="btn btn-default" id="fileSelectBtn">
+                                <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 选择文件
+                            </button>
+                            <input type="file" name="file" style="display: none" id="fileSelect" onchange="onFileSelected()"/>
+                         </div>
+                         <button id="btnSubmit" type="button" class="btn btn-success">上 传</button>
                     </form>
                 </div>
             </#if>
@@ -143,6 +151,10 @@
         $(".loading_container").css("height", height).show();
     }
 
+    function onFileSelected(val){
+        console.log("onFileSelected......",val)
+    }
+
     function checkUrl(url){
         //url= 协议://(ftp的登录信息)[IP|域名](:端口号)(/或?请求参数)
         var strRegex = '^((https|http|ftp)://)'//(https或http或ftp)
@@ -178,8 +190,8 @@
         }).on('pre-body.bs.table', function (e, data) {
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
-                item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "'>预览</a>" +
-                    "<a class='btn btn-default' href='javascript:void(0);' onclick='deleteFile(\"" + item.fileName + "\")'>删除</a>";
+                item.action = "<a class='btn btn-success' target='_blank' href='${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "'>预览</a>" +
+                    "<a class='btn btn-danger' style='margin-left:10px;' href='javascript:void(0);' onclick='deleteFile(\"" + item.fileName + "\")'>删除</a>";
             });
 
             return data;
@@ -187,15 +199,21 @@
             return data;
         });
 
-        $('#preview_by_url').submit(function() {
+        $('#previewByUrl').on('click',function() {
             var _url = $("#_url").val();
             if (!checkUrl(_url)) {
                 alert('请输入正确的url');
                 return false;
             }
-            var urlField = $(this).find('[name=url]');
+
             var b64Encoded = Base64.encode(_url);
-            urlField.val(b64Encoded);
+
+            window.open('${baseUrl}onlinePreview?url='+encodeURIComponent(b64Encoded));
+        });
+
+        $('#fileSelectBtn').on('click',function() {
+            console.log("fileSelectBtn。。。。。。")
+            $('#fileSelect').click();
         });
 
         $("#btnSubmit").click(function () {
