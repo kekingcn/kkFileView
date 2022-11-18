@@ -61,6 +61,7 @@
         <plugins>
             <!--   要将源码放上去，需要加入这个插件    -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1</version>
                 <configuration>
@@ -121,21 +122,8 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.7</version>
             </plugin>
         </plugins>
     </reporting>
-    <!-- distribute目录 -->
-    <distributionManagement>
-        <repository>
-            <id>repo</id>
-            <name>User Project Releases</name>
-            <url>http://192.168.1.204:8081/nexus/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>repo</id>
-            <name>User Project SNAPSHOTS</name>
-            <url>http://192.168.1.204:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
