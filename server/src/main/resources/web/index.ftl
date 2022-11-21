@@ -89,7 +89,7 @@
                 <div style="padding: 10px">
                     <form enctype="multipart/form-data" id="fileUpload">
                         <div class="form-group">
-                            <label>选择文件</label>
+                            <p id="fileName"></p>
                             <button type="button" class="btn btn-default" id="fileSelectBtn">
                                 <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 选择文件
                             </button>
@@ -151,8 +151,9 @@
         $(".loading_container").css("height", height).show();
     }
 
-    function onFileSelected(val){
-        console.log("onFileSelected......",val)
+    function onFileSelected(){
+        var file = $("#fileSelect").val();
+        $("#fileName").text(file);
     }
 
     function checkUrl(url){
@@ -212,7 +213,6 @@
         });
 
         $('#fileSelectBtn').on('click',function() {
-            console.log("fileSelectBtn。。。。。。")
             $('#fileSelect').click();
         });
 
