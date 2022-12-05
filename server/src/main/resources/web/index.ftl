@@ -17,6 +17,11 @@
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="bootstrap-table/bootstrap-table.min.js"></script>
     <script type="text/javascript" src="js/base64.min.js"></script>
+    <style>
+        .alert{
+            width: 50%;
+        }
+    </style>
 </head>
 
 <body>
@@ -75,6 +80,12 @@
                     <label>文件下载地址</label>
                     <input type="url" class="form-control" id="_url" placeholder="请输入下载地址">
                 </div>
+                <div class="alert alert-danger alert-dismissable hide" role="alert" id="previewCheckAlert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">          
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <strong>请输入正确的url</strong>
+                </div>
                 <button id="previewByUrl" type="button" class="btn btn-success">预览</button>
             </form>
         </div>
@@ -90,10 +101,16 @@
                     <form enctype="multipart/form-data" id="fileUpload">
                         <div class="form-group">
                             <p id="fileName"></p>
-                            <button type="button" class="btn btn-default" id="fileSelectBtn">
+                            <button type="button" class="btn btn-default" id="fileSelectBtn" style="margin-bottom:8px">
                                 <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 选择文件
                             </button>
                             <input type="file" name="file" style="display: none" id="fileSelect" onchange="onFileSelected()"/>
+                            <div class="alert alert-danger alert-dismissable hide" role="alert" id="postFileAlert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">          
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>请选择需要上传的文件！</strong>
+                            </div>
                          </div>
                          <button id="btnSubmit" type="button" class="btn btn-success">上 传</button>
                     </form>
@@ -203,7 +220,10 @@
         $('#previewByUrl').on('click',function() {
             var _url = $("#_url").val();
             if (!checkUrl(_url)) {
-                alert('请输入正确的url');
+                $("#previewCheckAlert").addClass("show");
+                window.setTimeout(function(){
+                    $("#previewCheckAlert").removeClass("show");
+                },3000);//显示的时间
                 return false;
             }
 
@@ -217,6 +237,14 @@
         });
 
         $("#btnSubmit").click(function () {
+            var _fileName = $("#fileName").text()
+            if(!_fileName){
+                $("#postFileAlert").addClass("show");
+                window.setTimeout(function(){
+                    $("#postFileAlert").removeClass("show");
+                },3000);//显示的时间
+                return;
+            }
             showLoadingDiv();
             $("#fileUpload").ajaxSubmit({
                 success: function (data) {
@@ -226,10 +254,12 @@
                     } else {
                         $('#table').bootstrapTable('refresh', {});
                     }
+                    $("#fileName").text("");
                     $(".loading_container").hide();
                 },
                 error: function () {
                     alert('上传失败，请联系管理员');
+                    $("#fileName").text("");
                     $(".loading_container").hide();
                 },
                 url: 'fileUpload', /*设置post提交到的页面*/
