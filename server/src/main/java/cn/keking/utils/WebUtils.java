@@ -13,6 +13,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -20,6 +21,8 @@ import java.util.Map;
  * create : 2020-12-27 1:30 上午
  **/
 public class WebUtils {
+    public static final String FILE_SCHEME = "file:";
+    public static final String FILE_SCHEME_FULL = "file:///";
 
     /**
      * 获取标准的URL
@@ -220,5 +223,20 @@ public class WebUtils {
         } catch (MalformedURLException ignored) {
         }
         return null;
+    }
+
+    /**
+     * 将文件链接中的 file: 替换为 file:///<br/>
+     * 因为在 Windows 系统中，io.mola.galimatias.URL.parse() 方法在解析 file: 时会出错<br/>
+     * <a href="https://github.com/kekingcn/kkFileView/pull/374">详细问题描述</a>
+     *
+     * @param fileUrl 文件 url
+     * @return 处理后的 url
+     */
+    public static String enrichFileSchemeUrl(String fileUrl) {
+        if (fileUrl.toLowerCase(Locale.ROOT).startsWith(FILE_SCHEME) && !fileUrl.toLowerCase(Locale.ROOT).startsWith(FILE_SCHEME + "/")) {
+            return FILE_SCHEME_FULL + fileUrl.substring(FILE_SCHEME.length());
+        }
+        return fileUrl;
     }
 }

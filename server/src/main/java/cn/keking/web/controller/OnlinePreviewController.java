@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
+import static cn.keking.utils.WebUtils.FILE_SCHEME;
 
 /**
  * @author yudian-it
@@ -109,8 +110,8 @@ public class OnlinePreviewController {
             logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath),ex);
             return;
         }
-        if (urlPath.toLowerCase().startsWith("file:") || urlPath.toLowerCase().startsWith("file%3")
-            || !urlPath.toLowerCase().startsWith("http")) {
+        if (urlPath.toLowerCase().startsWith(FILE_SCHEME) || urlPath.toLowerCase().startsWith("file%3")
+                || !urlPath.toLowerCase().startsWith("http")) {
             logger.info("读取跨域文件异常，可能存在非法访问，urlPath：{}", urlPath);
             return;
         }

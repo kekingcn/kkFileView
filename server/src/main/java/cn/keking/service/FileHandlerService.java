@@ -14,6 +14,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.artofsolving.jodconverter.util.PlatformUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -276,6 +277,9 @@ public class FileHandlerService {
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
+        if (PlatformUtils.isWindows()) {
+            url = WebUtils.enrichFileSchemeUrl(url);
+        }
         url = WebUtils.encodeUrlFileName(url);
         attribute.setUrl(url);
         if (req != null) {
