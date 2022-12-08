@@ -2,7 +2,10 @@ FROM ubuntu:20.04
 MAINTAINER chenjh "842761733@qq.com"
 # 内置一些常用的中文字体，避免普遍性乱码
 COPY fonts/* /usr/share/fonts/chinese/
-RUN sed -i 's/http:\/\/archive.ubuntu.com/https:\/\/mirrors.aliyun.com/g' /etc/apt/sources.list &&\
+RUN apt-get clean && apt-get update &&\
+	sed -i 's/http:\/\/archive.ubuntu.com/https:\/\/mirrors.aliyun.com/g' /etc/apt/sources.list &&\
+	sed -i 's/# deb/deb/g' /etc/apt/sources.list &&\
+	apt-get install -y --reinstall ca-certificates &&\
 	apt-get clean && apt-get update &&\
 	apt-get install -y locales language-pack-zh-hans &&\
 	localedef -i zh_CN -c -f UTF-8 -A /usr/share/locale/locale.alias zh_CN.UTF-8 && locale-gen zh_CN.UTF-8 &&\

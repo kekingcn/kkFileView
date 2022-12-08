@@ -36,12 +36,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="https://kkfileview.keking.cn" target='_blank'>KKFileView</a>
+          <a class="navbar-brand" href="https://kkfileview.keking.cn" target='_blank'>kkFileView</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="./index">首页</a></li>
-            <li><a href="./record">版本记录</a></li>
+            <li><a href="./record">版本发布记录</a></li>
             <li><a href="./comment">相关交流</a></li>
           </ul>
         </div>
