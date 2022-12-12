@@ -14,6 +14,7 @@ package org.artofsolving.jodconverter.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -86,7 +87,7 @@ public class Convert {
         DocumentFormatRegistry registry;
         if (commandLine.hasOption(OPTION_REGISTRY.getOpt())) {
             File registryFile = new File(commandLine.getOptionValue(OPTION_REGISTRY.getOpt()));
-            registry = new JsonDocumentFormatRegistry(FileUtils.readFileToString(registryFile));
+            registry = new JsonDocumentFormatRegistry(FileUtils.readFileToString(registryFile, Charset.defaultCharset()));
         } else {
             registry = new DefaultDocumentFormatRegistry();
         }
@@ -122,5 +123,5 @@ public class Convert {
             officeManager.stop();
         }
     }
-    
+
 }

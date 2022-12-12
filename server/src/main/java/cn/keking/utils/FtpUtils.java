@@ -1,17 +1,18 @@
 package cn.keking.utils;
 
 import cn.keking.config.ConfigConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * @auther: chenjh
@@ -46,7 +47,7 @@ public class FtpUtils {
         String remoteFilePath = url.getPath();
         LOGGER.debug("FTP connection url:{}, username:{}, password:{}, controlEncoding:{}, localFilePath:{}", ftpUrl, username, password, controlEncoding, localFilePath);
         FTPClient ftpClient = connect(host, port, username, password, controlEncoding);
-        OutputStream outputStream = new FileOutputStream(localFilePath);
+        OutputStream outputStream = Files.newOutputStream(Paths.get(localFilePath));
         ftpClient.enterLocalPassiveMode();
         boolean downloadResult = ftpClient.retrieveFile(new String(remoteFilePath.getBytes(controlEncoding), StandardCharsets.ISO_8859_1), outputStream);
         LOGGER.debug("FTP download result {}", downloadResult);

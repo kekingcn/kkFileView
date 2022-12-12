@@ -16,6 +16,7 @@ import static org.artofsolving.jodconverter.process.ProcessManager.PID_NOT_FOUND
 import static org.artofsolving.jodconverter.process.ProcessManager.PID_UNKNOWN;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -134,11 +135,11 @@ class OfficeProcess {
             logger.fine("no %OFFICE_HOME%/basis-link found; assuming it's OOo 2.x and we don't need to append URE and Basic paths");
             return;
         }
-        String basisLinkText = FileUtils.readFileToString(basisLink).trim();
+        String basisLinkText = FileUtils.readFileToString(basisLink, Charset.defaultCharset()).trim();
         File basisHome = new File(officeHome, basisLinkText);
         File basisProgram = new File(basisHome, "program");
         File ureLink = new File(basisHome, "ure-link");
-        String ureLinkText = FileUtils.readFileToString(ureLink).trim();
+        String ureLinkText = FileUtils.readFileToString(ureLink, Charset.defaultCharset()).trim();
         File ureHome = new File(basisHome, ureLinkText);
         File ureBin = new File(ureHome, "bin");
         Map<String,String> environment = processBuilder.environment();
@@ -163,9 +164,9 @@ class OfficeProcess {
     }
 
     private class ExitCodeRetryable extends Retryable {
-        
+
         private int exitCode;
-        
+
         protected void attempt() throws TemporaryException, Exception {
             try {
                 exitCode = process.exitValue();
@@ -173,7 +174,7 @@ class OfficeProcess {
                 throw new TemporaryException(illegalThreadStateException);
             }
         }
-        
+
         public int getExitCode() {
             return exitCode;
         }

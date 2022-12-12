@@ -14,6 +14,7 @@ package org.artofsolving.jodconverter.document;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ import org.json.JSONObject;
 public class JsonDocumentFormatRegistry extends SimpleDocumentFormatRegistry {
 
     public JsonDocumentFormatRegistry(InputStream input) throws JSONException, IOException {
-        readJsonArray(IOUtils.toString(input));
+        readJsonArray(IOUtils.toString(input, Charset.defaultCharset()));
     }
 
     public JsonDocumentFormatRegistry(String source) throws JSONException {

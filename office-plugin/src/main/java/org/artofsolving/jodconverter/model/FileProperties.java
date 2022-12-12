@@ -15,7 +15,7 @@ public class FileProperties {
     }
 
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
         if (filePassword != null) {
             map.put("Password", filePassword);
         }

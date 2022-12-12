@@ -177,6 +177,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, String> getMediaConvertCache() {
         Map<String, String> result = new HashMap<>();
         try{
@@ -199,6 +200,7 @@ public class CacheServiceRocksDBImpl implements CacheService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public String getMediaConvertCache(String key) {
         String result = "";
         try{

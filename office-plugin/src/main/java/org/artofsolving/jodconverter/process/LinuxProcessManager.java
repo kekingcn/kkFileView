@@ -13,6 +13,7 @@
 package org.artofsolving.jodconverter.process;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,11 +26,10 @@ import org.apache.commons.io.IOUtils;
  * <p>
  * Should Work on Solaris too, except that the command line string
  * returned by <tt>ps</tt> there is limited to 80 characters and this affects
- * {@link #findPid(String)}.
  */
 public class LinuxProcessManager implements ProcessManager {
 
-    private static final Pattern PS_OUTPUT_LINE = Pattern.compile("^\\s*(\\d+)\\s+(.*)$"); 
+    private static final Pattern PS_OUTPUT_LINE = Pattern.compile("^\\s*(\\d+)\\s+(.*)$");
 
     private String[] runAsArgs;
 
@@ -74,9 +74,7 @@ public class LinuxProcessManager implements ProcessManager {
     		command = args;
     	}
         Process process = new ProcessBuilder(command).start();
-        @SuppressWarnings("unchecked")
-        List<String> lines = IOUtils.readLines(process.getInputStream());
-        return lines;
+        return IOUtils.readLines(process.getInputStream(), Charset.defaultCharset());
     }
 
 }
