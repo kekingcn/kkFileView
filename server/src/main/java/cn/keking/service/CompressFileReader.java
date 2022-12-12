@@ -13,12 +13,12 @@ import com.github.junrar.rarfile.FileHeader;
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.*;
@@ -42,6 +42,94 @@ public class CompressFileReader {
 
     public CompressFileReader(FileHandlerService fileHandlerService) {
         this.fileHandlerService = fileHandlerService;
+    }
+
+    public static byte[] getUTF8BytesFromGBKString(String gbkStr) {
+        int n = gbkStr.length();
+        byte[] utfBytes = new byte[3 * n];
+        int k = 0;
+        for (int i = 0; i < n; i++) {
+            int m = gbkStr.charAt(i);
+            if (m < 128 && m >= 0) {
+                utfBytes[k++] = (byte) m;
+                continue;
+            }
+            utfBytes[k++] = (byte) (0xe0 | (m >> 12));
+            utfBytes[k++] = (byte) (0x80 | ((m >> 6) & 0x3f));
+            utfBytes[k++] = (byte) (0x80 | (m & 0x3f));
+        }
+        if (k < utfBytes.length) {
+            byte[] tmp = new byte[k];
+            System.arraycopy(utfBytes, 0, tmp, 0, k);
+            return tmp;
+        }
+        return utfBytes;
+    }
+
+    public String getUtf8String(String str) {
+        if (str != null && str.length() > 0) {
+            String needEncodeCode = "ISO-8859-1";
+            String neeEncodeCode = "ISO-8859-2";
+            String gbkEncodeCode = "GBK";
+            try {
+                if (Charset.forName(needEncodeCode).newEncoder().canEncode(str)) {
+                    str = new String(str.getBytes(needEncodeCode), StandardCharsets.UTF_8);
+                }
+                if (Charset.forName(neeEncodeCode).newEncoder().canEncode(str)) {
+                    str = new String(str.getBytes(neeEncodeCode), StandardCharsets.UTF_8);
+                }
+                if (Charset.forName(gbkEncodeCode).newEncoder().canEncode(str)) {
+                    str = new String(getUTF8BytesFromGBKString(str), StandardCharsets.UTF_8);
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return str;
+    }
+    /**
+     * 判断是否是中日韩文字
+     */
+    private static boolean isChinese(char c) {
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+        if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+                || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION
+                || ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+                || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS) {
+            return true;
+        }
+        return false;
+    }
+    public static boolean judge(char c){
+        if((c >='0' && c<='9')||(c >='a' && c<='z' ||  c >='A' && c<='Z')){
+            return true;
+        }
+        return false;
+    }
+    public static boolean isMessyCode(String strName) {
+        //去除字符串中的空格 制表符 换行 回车
+        Pattern p = Pattern.compile("\\s*|\t*|\r*|\n*");
+        Matcher m = p.matcher(strName);
+        String after = m.replaceAll("");
+        //去除字符串中的标点符号
+        String temp = after.replaceAll("\\p{P}", "");
+        //处理之后转换成字符数组
+        char[] ch = temp.trim().toCharArray();
+        for (int i = 0; i < ch.length; i++) {
+            char c = ch[i];
+            //判断是否是数字或者英文字符
+            if (!judge(c)) {
+                //判断是否是中日韩文
+                if (!isChinese(c)) {
+                    //如果不是数字或者英文字符也不是中日韩文则表示是乱码返回true
+                    return true;
+                }
+            }
+        }
+        //表示不是乱码 返回false
+        return false;
     }
 
     public String unRar(String filePath, String fileKey) {
@@ -91,13 +179,16 @@ public class CompressFileReader {
             String extractPath = paths.substring(0, paths.lastIndexOf(folderName));
             inArchive.extract(null, false, new ExtractCallback(inArchive, extractPath, folderName + "_"));
             ISimpleInArchive simpleInArchive = inArchive.getSimpleInterface();
-            itemPath =
-                    Arrays.stream(simpleInArchive.getArchiveItems())
-                            .map(
-                                    o -> {
+            itemPath = Arrays.stream(simpleInArchive.getArchiveItems()).map(o -> {
                                         try {
-                                            return new FileHeaderRar(o.getPath(), o.isFolder());
+                                            String path = getUtf8String(o.getPath());
+                                            if (isMessyCode(path)){
+                                                path = new String(o.getPath().getBytes(StandardCharsets.ISO_8859_1), "GBK");
+                                            }
+                                            return new FileHeaderRar(path, o.isFolder());
                                         } catch (SevenZipException e) {
+                                            e.printStackTrace();
+                                        } catch (UnsupportedEncodingException e) {
                                             e.printStackTrace();
                                         }
                                         return null;
@@ -126,7 +217,6 @@ public class CompressFileReader {
         }
         return itemPath;
     }
-
 
     private void addNodes(Map<String, FileNode> appender, String parentName, FileNode node) {
         if (appender.containsKey(parentName)) {
@@ -278,51 +368,6 @@ public class CompressFileReader {
         }
     }
 
-    class ZipExtractorWorker implements Runnable {
-
-        private final List<Map<String, ZipArchiveEntry>> entriesToBeExtracted;
-        private final ZipFile zipFile;
-        private final String filePath;
-
-        public ZipExtractorWorker(List<Map<String, ZipArchiveEntry>> entriesToBeExtracted, ZipFile zipFile, String filePath) {
-            this.entriesToBeExtracted = entriesToBeExtracted;
-            this.zipFile = zipFile;
-            this.filePath = filePath;
-        }
-
-        @Override
-        public void run() {
-            for (Map<String, ZipArchiveEntry> entryMap : entriesToBeExtracted) {
-                String childName = entryMap.keySet().iterator().next();
-                ZipArchiveEntry entry = entryMap.values().iterator().next();
-                try {
-                    extractZipFile(childName, zipFile.getInputStream(entry));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                zipFile.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            KkFileUtils.deleteFileByPath(filePath);
-        }
-
-        private void extractZipFile(String childName, InputStream zipFile) {
-            String outPath = fileDir + childName;
-            try (OutputStream ot = new FileOutputStream(outPath)) {
-                byte[] inByte = new byte[1024];
-                int len;
-                while ((-1 != (len = zipFile.read(inByte)))) {
-                    ot.write(inByte, 0, len);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     class RarExtractorWorker implements Runnable {
         private final List<Map<String, FileHeader>> headersToBeExtracted;
 
@@ -441,6 +486,5 @@ public class CompressFileReader {
         @Override
         public void setOperationResult(ExtractOperationResult extractOperationResult) {
         }
-
     }
 }
