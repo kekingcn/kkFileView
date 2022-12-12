@@ -7,7 +7,7 @@
     <link href="pptx/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="pptx/idocv/idocv_common.min.css" rel="stylesheet">
     <link href="pptx/jquery.contextMenu.css" rel="stylesheet">
-
+    <#include "*/commonHeader.ftl">
     <#--  手机端预览兼容  -->
     <script type="text/javascript">
         var windowWidth = document.documentElement.clientWidth;
@@ -15,6 +15,10 @@
         if ((windowWidth < 768 || (/micromessenger/.test(navigator.userAgent.toLowerCase()))) && (!searchStr || searchStr.indexOf('type=') < 0)) {
             var redirectUrl = window.location.pathname + '?type=mobile' + (!!searchStr ? ('&' + searchStr) : '');
             window.location.replace(redirectUrl);
+        }
+        /*初始化水印*/
+        window.onload = function () {
+            initWaterMark();
         }
     </script>
 
