@@ -402,7 +402,7 @@ class BytesEncodingDetect extends Encoding {
         int row, column;
         rawtextlen = rawtext.length;
         for (i = 0; i < rawtextlen; i++) {
-            if (rawtext[i] == '~') {
+            if (rawtext[i] == '~' && i < rawtextlen - 1) {
                 if (rawtext[i + 1] == '{') {
                     hzstart++;
                     i += 2;

@@ -12,6 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.util.HtmlUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created by kl on 2018/1/17.
@@ -28,16 +31,14 @@ public class SimTextFilePreviewImpl implements FilePreview {
     private static final String FILE_DIR = ConfigConstants.getFileDir();
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-
         String fileName = fileAttribute.getName();
-        String baseUrll = FILE_DIR + fileName;
-        //  String suffix = fileAttribute.getSuffix();
+        String filePath = FILE_DIR + fileName;
         ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
         if (response.isFailure()) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
         }
         try {
-            String   fileData = HtmlUtils.htmlEscape(textData(baseUrll));
+            String fileData = HtmlUtils.htmlEscape(textData(filePath));
             model.addAttribute("textData", Base64.encodeBase64String(fileData.getBytes()));
         } catch (IOException e) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
@@ -45,14 +46,16 @@ public class SimTextFilePreviewImpl implements FilePreview {
         return TXT_FILE_PREVIEW_PAGE;
     }
 
-    private String textData(String baseUrll) throws IOException {
-        File file = new File(baseUrll);
-        if(!file.exists() || file.length() == 0) {
+    private String textData(String filePath) throws IOException {
+        File file = new File(filePath);
+        if (!file.exists() || file.length() == 0) {
             return "";
-        }else {
-            String charset = EncodingDetects.getJavaEncode(baseUrll);
-            System.out.println(charset);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(baseUrll), charset));
+        } else {
+            String charset = EncodingDetects.getJavaEncode(filePath);
+            if ("ASCII".equals(charset)) {
+                charset = StandardCharsets.US_ASCII.name();
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), charset));
             StringBuilder result = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
