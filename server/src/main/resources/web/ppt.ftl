@@ -16,20 +16,7 @@
             var redirectUrl = window.location.pathname + '?type=mobile' + (!!searchStr ? ('&' + searchStr) : '');
             window.location.replace(redirectUrl);
         }
-        /*初始化水印*/
-        window.onload = function () {
-            initWaterMark();
-        }
     </script>
-
-    <style type="text/css">
-        .thumbnail {
-            /*
-            max-width: 200px;
-            */
-            cursor: pointer;
-        }
-    </style>
 
     <!--[if lt IE 9]>
     <script src="/static/bootstrap/js/html5shiv.js"></script>
@@ -68,13 +55,6 @@
     <div class="row-fluid">
         <div class="span2 hidden-phone"
              style="position: fixed; top: 60px; left: 20px; bottom: 20px; padding-right: 10px; border-right: 3px solid #c8c8c8; max-height: 100%; overflow: auto; text-align: center;">
-            <!--Sidebar content-->
-            <!--
-            <div class="thumbnail">
-              <img src="">
-            </div>
-            1/20<br />
-            -->
         </div>
         <div class="span9 offset2">
             <div class="slide-img-container">
@@ -103,7 +83,8 @@
 <script src="pptx/jquery-3.5.1.min.js"></script>
 <script src="pptx/jquery.contextMenu.js?v=11.2.5_20210128"></script>
 <script src="pptx/idocv/idocv_common.min.js"></script>
-
+<script src="pptx/jquery.mobile-events.min.js"></script>
+<script src="pptx/ppt.js"></script>
 <script>
     var resultData = {
         "code": 1,
@@ -155,9 +136,10 @@
     if (!!reqUrlMd5 && !!authMapStr) {
         authMap = JSON.parse(authMapStr);
     }
+
+    window.onload = function () {
+        initWaterMark();
+    }
 </script>
-<!-- 客户自定义JS -->
-<script src="pptx/jquery.mobile-events.min.js"></script>
-<script src="pptx/ppt.js"></script>
 </body>
 </html>

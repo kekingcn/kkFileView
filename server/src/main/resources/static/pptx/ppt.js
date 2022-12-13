@@ -9,7 +9,6 @@ var slideThumbUrls = new Array();
 var curSlide = 1;
 var totalSize = 1;	// PPT当前获取到的总页数
 var slideCount = 1;	// PPT文件总页数
-var size = (!!$.url().param('size') ? $.url().param('size') : 0);
 
 $(document).ready(function () {
     var data = resultData
