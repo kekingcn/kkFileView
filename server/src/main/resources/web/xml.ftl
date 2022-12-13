@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
     <title>xml文本预览</title>
     <#include  "*/commonHeader.ftl">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
+    <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="css/xmlTreeViewer.css"/>
     <script src="js/xmlTreeViewer.js" type="text/javascript"></script>
 </head>
