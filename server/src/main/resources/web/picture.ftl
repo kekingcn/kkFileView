@@ -24,7 +24,7 @@
         <#else>
             <#assign img="${baseUrl}${img}">
         </#if>
-        <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
+        <li><img id="${img}"  url="${img}" src="${img}" style="display: none"></li>
     </#list>
 </ul>
 
