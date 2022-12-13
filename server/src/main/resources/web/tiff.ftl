@@ -58,17 +58,6 @@
         loadOne();
     }
 
-    function doPrint() {
-        bdhtml=window.document.body.innerHTML;
-        sprnstr="<!--startprint-->";
-        eprnstr="<!--endprint-->";
-        prnhtml=bdhtml.substr(bdhtml.indexOf(sprnstr)+17);
-        prnhtml=prnhtml.substring(0,prnhtml.indexOf(eprnstr));
-        window.document.body.innerHTML=prnhtml;
-        initWaterMark();
-        window.print();
-    }
-
     String.prototype.startsWithh = function(str) {
         var reg = new RegExp("^" + str);
         return reg.test(this);
@@ -82,7 +71,7 @@
     var url = '${finalUrl}';
     var baseUrl = '${baseUrl}'.endsWithh('/') ? '${baseUrl}' : '${baseUrl}' + '/';
     if (!url.startsWithh(baseUrl)) {
-        url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(url);
+        url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url));
     }
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url);

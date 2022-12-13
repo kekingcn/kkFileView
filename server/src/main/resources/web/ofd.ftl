@@ -15,7 +15,7 @@
     var url = '${currentUrl}';
     var baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';
     if (!url.startsWith(baseUrl)) {
-        url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(url);
+        url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url));
     }
     document.getElementsByTagName('iframe')[0].src = "${baseUrl}ofd/index.html?file="+ encodeURIComponent(url)+"";
     document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight - 10;
