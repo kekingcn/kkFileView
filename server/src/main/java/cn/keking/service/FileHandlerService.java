@@ -149,7 +149,7 @@ public class FileHandlerService {
                 sb.append(line);
             }
             // 添加sheet控制头
-            sb.append("<script src=\"js/jquery-3.0.0.min.js\" type=\"text/javascript\"></script>");
+            sb.append("<script src=\"js/jquery-3.6.1.min.js\" type=\"text/javascript\"></script>");
             sb.append("<script src=\"js/excel.header.js\" type=\"text/javascript\"></script>");
             sb.append("<link rel=\"stylesheet\" href=\"bootstrap/css/bootstrap.min.css\">");
         } catch (IOException e) {

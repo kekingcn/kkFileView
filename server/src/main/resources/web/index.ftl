@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css"/>
     <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css"/>
     <link rel="stylesheet" href="css/theme.css"/>
-    <script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
     <script type="text/javascript" src="js/jquery.form.min.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="bootstrap-table/bootstrap-table.min.js"></script>
@@ -81,7 +81,7 @@
                     <input type="url" class="form-control" id="_url" placeholder="请输入下载地址">
                 </div>
                 <div class="alert alert-danger alert-dismissable hide" role="alert" id="previewCheckAlert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">          
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <strong>请输入正确的url</strong>
@@ -106,7 +106,7 @@
                             </button>
                             <input type="file" name="file" style="display: none" id="fileSelect" onchange="onFileSelected()"/>
                             <div class="alert alert-danger alert-dismissable hide" role="alert" id="postFileAlert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">          
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                                 <strong>请选择需要上传的文件！</strong>

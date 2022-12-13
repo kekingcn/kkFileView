@@ -1,6 +1,6 @@
 <#setting classic_compatible=true>
 <link rel="icon" href="./favicon.ico" type="image/x-icon">
-<script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
+<script src="js/jquery-3.6.1.min.js" type="text/javascript"></script>
 <script src="js/jquery.form.min.js" type="text/javascript"></script>
 <script src="js/bootbox.min.js" type="text/javascript"></script>
 <script src="js/watermark.js" type="text/javascript"></script>
