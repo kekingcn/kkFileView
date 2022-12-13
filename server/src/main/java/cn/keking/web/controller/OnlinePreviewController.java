@@ -9,7 +9,6 @@ import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.utils.WebUtils;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
-import jodd.io.NetUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +22,10 @@ import org.springframework.web.util.HtmlUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,6 +71,10 @@ public class OnlinePreviewController {
     @GetMapping( "/picturesPreview")
     public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
         String fileUrls;
+        if (urls == null || urls.length() == 0){
+            logger.info("URL异常：{}", urls);
+            return otherFilePreview.notSupportedFile(model, "NULL地址不允许预览：");
+        }
         try {
             fileUrls = WebUtils.decodeUrl(urls);
             // 防止XSS攻击
@@ -109,18 +113,56 @@ public class OnlinePreviewController {
             logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath),ex);
             return;
         }
-        if (urlPath.toLowerCase().startsWith("file:") || urlPath.toLowerCase().startsWith("file%3")
-            || !urlPath.toLowerCase().startsWith("http")) {
+        HttpURLConnection urlcon;
+        InputStream inputStream = null;
+        if (urlPath.toLowerCase().startsWith("file:") || urlPath.toLowerCase().startsWith("file%3")) {
             logger.info("读取跨域文件异常，可能存在非法访问，urlPath：{}", urlPath);
             return;
         }
         logger.info("下载跨域pdf文件url：{}", urlPath);
-        try {
-            URL url = WebUtils.normalizedURL(urlPath);
-            byte[] bytes = NetUtil.downloadBytes(url.toString());
-            IOUtils.write(bytes, response.getOutputStream());
-        } catch (IOException | GalimatiasParseException e) {
-            logger.error("下载跨域pdf文件异常，url：{}", urlPath, e);
+        if (!urlPath.toLowerCase().startsWith("ftp:")){
+            try {
+                URL url = WebUtils.normalizedURL(urlPath);
+                urlcon=(HttpURLConnection)url.openConnection();
+                urlcon.setConnectTimeout(30000);
+                urlcon.setReadTimeout(30000);
+                urlcon.setInstanceFollowRedirects(false);
+                if (urlcon.getResponseCode() == 302 || urlcon.getResponseCode() == 301) {
+                    urlcon.disconnect();
+                    url =new URL(urlcon.getHeaderField("Location"));
+                    urlcon=(HttpURLConnection)url.openConnection();
+                }
+                if (urlcon.getResponseCode() == 404 || urlcon.getResponseCode() == 403 || urlcon.getResponseCode() == 500 ) {
+                    logger.error("读取跨域文件异常，url：{}", urlPath);
+                    return ;
+                } else {
+                    if(urlPath.contains( ".svg")) {
+                        response.setContentType("image/svg+xml");
+                    }
+                    inputStream=(url).openStream();
+                    IOUtils.copy(inputStream, response.getOutputStream());
+                    urlcon.disconnect();
+                }
+            } catch (IOException | GalimatiasParseException e) {
+                logger.error("读取跨域文件异常，url：{}", urlPath);
+                return ;
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+            }
+        } else {
+            try {
+                URL url = WebUtils.normalizedURL(urlPath);
+                if(urlPath.contains(".svg")) {
+                    response.setContentType("image/svg+xml");
+                }
+                inputStream = (url).openStream();
+                IOUtils.copy(inputStream, response.getOutputStream());
+            } catch (IOException | GalimatiasParseException e) {
+                logger.error("读取跨域文件异常，url：{}", urlPath);
+                return ;
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+            }
         }
     }
 
@@ -136,5 +178,4 @@ public class OnlinePreviewController {
         cacheService.addQueueTask(url);
         return "success";
     }
-
 }
