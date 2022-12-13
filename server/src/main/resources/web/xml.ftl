@@ -46,8 +46,24 @@
     /**
      * 加载xml数据
      */
+    function htmlEscape(str){
+        var s = "";
+        if(str.length == 0) return "";
+        s = str.replace(/&amp;/g,"&");
+        s = str.replace(/&amp;amp;/g,"&");
+        s = s.replace(/&lt;/g,"<");
+        s = s.replace(/&gt;/g,">");
+        s = s.replace(/&nbsp;/g," ");
+        s = s.replace(/&#39;/g,"\'");
+        s = s.replace(/&quot;/g,"\"");
+        s = s.replace(/<script.*?>.*?<\/script>/ig, '');
+        s = s.replace(/<script/gi, "&lt;script ");
+        s = s.replace(/<iframe/gi, "&lt;iframe ");
+        return s;
+    }
     function loadXmlData() {
         var textData = Base64.decode($("#textData").val())
+        textData = htmlEscape(textData);
         window.textPreData = "<xmp style='background-color: #FFFFFF;overflow-y: scroll;border:none'>" + textData + "</xmp>";
         var xmlNode = xmlTreeViewer.parseXML(textData);
         window.retNode = xmlTreeViewer.getXMLViewerNode(xmlNode.xml);
