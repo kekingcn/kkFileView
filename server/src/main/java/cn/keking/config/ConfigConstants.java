@@ -275,7 +275,7 @@ public class ConfigConstants {
     }
 
     @Value("${pdf.openFile.disable:true}")
-    public static void setPdfOpenFileDisable(String pdfOpenFileDisable) {
+    public void setPdfOpenFileDisable(String pdfOpenFileDisable) {
         setPdfOpenFileDisableValue(pdfOpenFileDisable);
     }
     public static void setPdfOpenFileDisableValue(String pdfOpenFileDisable) {
@@ -286,7 +286,7 @@ public class ConfigConstants {
         return pdfPrintDisable;
     }
     @Value("${pdf.print.disable:true}")
-    public  void setPdfPrintDisable(String pdfPrintDisable) {
+    public void setPdfPrintDisable(String pdfPrintDisable) {
         setPdfPrintDisableValue(pdfPrintDisable);
     }
     public static void setPdfPrintDisableValue(String pdfPrintDisable) {
@@ -332,7 +332,7 @@ public class ConfigConstants {
     }
 
     @Value("${file.upload.disable:false}")
-    public static void setFileUploadDisable(Boolean fileUploadDisable) {
+    public void setFileUploadDisable(Boolean fileUploadDisable) {
         setFileUploadDisableValue(fileUploadDisable);
     }
 
