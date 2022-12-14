@@ -8,6 +8,8 @@ import cn.keking.service.FileHandlerService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.util.HtmlUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
+        url= HtmlUtils.htmlEscape(url);
         List<String> imgUrls = new ArrayList<>();
         imgUrls.add(url);
         String fileKey = fileAttribute.getFileKey();
