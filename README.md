@@ -110,6 +110,19 @@ pdf预览模式预览效果如下
 
 ### 历史更新记录
 
+> 2022年12月14日，v4.1.0 版本发布 ：
+
+1. 全新首页视觉 @wsd7747 
+2. tif图片预览兼容多页tif的pdf转换、jpg转换，以及jpg在线多页预览功能 @zhangzhen1979
+3. 优化docker构建方案，使用分层构建方式 @yl-yue
+4. 实现基于userToken缓存加密文件 @yl-yue
+5. 实现加密word、ppt、excel文件预览 @yl-yue
+6. Linux & Docker镜像升级LibreOffice 7.3
+7. 更新OFD预览组件、更新tif预览组件、更新PPT水印支持
+8. 大量其他升级优化 & 已知问题修复
+
+感谢 @yl-yue @wsd7747 @zhangzhen1979 @tomhusky @shenghuadun @kischn.sun 的代码贡献
+
 > 2021年7月6日，v4.0.0 版本发布 ：
 
 1. 底层集成OpenOffice替换为LibreOffice，Office文件兼容性增强，预览效果提升

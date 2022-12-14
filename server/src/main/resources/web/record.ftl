@@ -46,18 +46,20 @@
         </div>
         <div class="panel panel-success">
             <div class="panel-heading">
-                <h3 class="panel-title">v4.1.0 版本, 发布时间：TBD</h3>
+                <h3 class="panel-title">2022年12月14日，v4.1.0 版本</h3>
             </div>
             <div class="panel-body">
                 <div>
-                    ** 本次版本主要功能均由社区开发贡献，感谢 @yl-yue @wsd7747 @zhangzhen1979 @tomhusky @shenghuadun @kischn.sun 的代码贡献 ** <br>
                     1. 全新首页视觉 @wsd7747 <br>
                     2. tif图片预览兼容多页tif的pdf转换、jpg转换，以及jpg在线多页预览功能 @zhangzhen1979<br>
                     3. 优化docker构建方案，使用分层构建方式 @yl-yue<br>
                     4. 实现基于userToken缓存加密文件 @yl-yue<br>
                     5. 实现加密word、ppt、excel文件预览 @yl-yue<br>
                     6. Linux & Docker镜像升级LibreOffice 7.3<br>
-                    7. 其他升级优化 & 已知问题修复
+                    7. 更新OFD预览组件、更新tif预览组件、更新PPT水印支持<br>
+                    7. 大量其他升级优化 & 已知问题修复<br>
+                    <br>
+                    感谢 @yl-yue @wsd7747 @zhangzhen1979 @tomhusky @shenghuadun @kischn.sun 的代码贡献
                 </div>
             </div>
         </div>

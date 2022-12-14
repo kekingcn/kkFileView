@@ -51,9 +51,10 @@ else
 
   ## 启动kkFileView
   echo "Starting kkFileView..."
-  nohup java -Dfile.encoding=UTF-8 -Dspring.config.location=../config/application.properties -jar kkFileView-4.1.0-SNAPSHOT.jar > ../log/kkFileView.log 2>&1 &
+  nohup java -Dfile.encoding=UTF-8 -Dspring.config.location=../config/application.properties -jar kkFileView-4.1.0.jar > ../log/kkFileView.log 2>&1 &
   echo "Please execute ./showlog.sh to check log for more information"
-  echo "You can get help in our official homesite: https://kkFileView.keking.cn"
+  echo "You can get help in our official home site: https://kkFileView.keking.cn"
+  echo "If you need further help, please join our kk opensource community: https://t.zsxq.com/09ZHSXbsQ"
   echo "If this project is helpful to you, please star it on https://gitee.com/kekingcn/file-online-preview/stargazers"
   PROCESS=$(ps -ef | grep kkFileView | awk 'NR==1{print $2}')
   # 启动成功后将进程号写入pid文件
