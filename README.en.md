@@ -35,8 +35,7 @@ URL：[https://file.keking.cn](https://file.keking.cn)
 And please Google or Baidu first before asking a question, so that we can solve it efficiently. 
 Cherish life away from ineffective communication.
 
-![输入图片说明](https://gitee.com/uploads/images/2017/1219/173717_934cb068_492218.png "屏幕截图.png")
-QQ group：613025121
+![](./doc/知识星球.png)
 
 ### Pictures for some samples
 #### 1. Text Preview  
