@@ -3,7 +3,6 @@ package cn.keking.web.controller;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.KkFileUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StreamUtils;
@@ -15,11 +14,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,7 +43,7 @@ public class FileController {
     private final String demoPath = demoDir + File.separator;
 
     @PostMapping("/fileUpload")
-    public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file) throws JsonProcessingException {
+    public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file) {
         if (ConfigConstants.getFileUploadDisable()) {
             return ReturnResponse.failure("文件传接口已禁用");
         }
@@ -71,7 +73,7 @@ public class FileController {
             logger.error("创建文件夹【{}】失败，请检查目录权限！", fileDir + demoPath);
         }
         logger.info("上传文件：{}", fileDir + demoPath + fileName);
-        try (InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(fileDir + demoPath + fileName)) {
+        try (InputStream in = file.getInputStream(); OutputStream out = Files.newOutputStream(Paths.get(fileDir + demoPath + fileName))) {
             StreamUtils.copy(in, out);
             return ReturnResponse.success(null);
         } catch (IOException e) {
@@ -81,7 +83,15 @@ public class FileController {
     }
 
     @GetMapping("/deleteFile")
-    public ReturnResponse<Object> deleteFile(String fileName) throws JsonProcessingException {
+    public ReturnResponse<Object> deleteFile(String fileName) {
+        if (fileName == null || fileName.length() == 0) {
+            return ReturnResponse.failure("文件名为空，删除失败！");
+        }
+        try {
+            fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         if (fileName.contains("/")) {
             fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
         }
@@ -99,7 +109,7 @@ public class FileController {
     }
 
     @GetMapping("/listFiles")
-    public List<Map<String, String>> getFiles() throws JsonProcessingException {
+    public List<Map<String, String>> getFiles() {
         List<Map<String, String>> list = new ArrayList<>();
         File file = new File(fileDir + demoPath);
         if (file.exists()) {

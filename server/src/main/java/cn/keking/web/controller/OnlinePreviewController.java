@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -54,6 +53,10 @@ public class OnlinePreviewController {
 
     @GetMapping( "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
+        if (url == null || url.length() == 0){
+            logger.info("URL异常：{}", url);
+            return otherFilePreview.notSupportedFile(model, "NULL地址不允许预览");
+        }
         String fileUrl;
         try {
             fileUrl = WebUtils.decodeUrl(url);
@@ -69,12 +72,12 @@ public class OnlinePreviewController {
     }
 
     @GetMapping( "/picturesPreview")
-    public String picturesPreview(String urls, Model model, HttpServletRequest req) throws UnsupportedEncodingException {
-        String fileUrls;
+    public String picturesPreview(String urls, Model model, HttpServletRequest req) {
         if (urls == null || urls.length() == 0){
             logger.info("URL异常：{}", urls);
-            return otherFilePreview.notSupportedFile(model, "NULL地址不允许预览：");
+            return otherFilePreview.notSupportedFile(model, "NULL地址不允许预览");
         }
+        String fileUrls;
         try {
             fileUrls = WebUtils.decodeUrl(urls);
             // 防止XSS攻击
@@ -106,7 +109,14 @@ public class OnlinePreviewController {
      * @param response response
      */
     @GetMapping("/getCorsFile")
-    public void getCorsFile(String urlPath, HttpServletResponse response) {
+    public void getCorsFile(String urlPath, HttpServletResponse response) throws IOException {
+        if (urlPath == null || urlPath.length() == 0){
+            logger.info("URL异常：{}", urlPath);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setHeader("Content-Type", "text/html; charset=UTF-8");
+            response.getWriter().println("NULL地址不允许预览");
+            return;
+        }
         try {
             urlPath = WebUtils.decodeUrl(urlPath);
         } catch (Exception ex) {
