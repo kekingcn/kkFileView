@@ -57,7 +57,7 @@
                     5. 实现加密word、ppt、excel文件预览 @yl-yue<br>
                     6. Linux & Docker镜像升级LibreOffice 7.3<br>
                     7. 更新OFD预览组件、更新tif预览组件、更新PPT水印支持<br>
-                    7. 大量其他升级优化 & 已知问题修复<br>
+                    8. 大量其他升级优化 & 已知问题修复<br>
                     <br>
                     感谢 @yl-yue @wsd7747 @zhangzhen1979 @tomhusky @shenghuadun @kischn.sun 的代码贡献
                 </div>
