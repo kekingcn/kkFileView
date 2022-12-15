@@ -38,9 +38,7 @@
         该(${fileType})文件，系统暂不支持在线预览，具体原因如下：
         <p style="color: red;">${msg}</p>
     </span>
+    <p>有任何疑问，请加入kk开源社区知识星球咨询：<a href="https://t.zsxq.com/09ZHSXbsQ">https://t.zsxq.com/09ZHSXbsQ</a><br></p>
 </div>
-<script>
-    console.log(`有任何疑问，请加：<a href="https://jq.qq.com/?_wv=1027&k=5c0UAtu">官方QQ群：613025121</a> 咨询`);
-</script>
 </body>
 </html>
