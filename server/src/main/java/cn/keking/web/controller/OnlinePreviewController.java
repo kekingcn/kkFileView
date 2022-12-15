@@ -94,6 +94,7 @@ public class OnlinePreviewController {
         String currentUrl = req.getParameter("currentUrl");
         if (StringUtils.hasText(currentUrl)) {
             String decodedCurrentUrl = new String(Base64.decodeBase64(currentUrl));
+                   decodedCurrentUrl = HtmlUtils.htmlEscape(decodedCurrentUrl);   // 防止XSS攻击
             model.addAttribute("currentUrl", decodedCurrentUrl);
         } else {
             model.addAttribute("currentUrl", imgUrls.get(0));
