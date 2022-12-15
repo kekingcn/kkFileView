@@ -3,7 +3,7 @@ package cn.keking.web.filter;
 import cn.keking.config.ConfigConstants;
 import cn.keking.utils.WebUtils;
 import io.mola.galimatias.GalimatiasParseException;
-import org.artofsolving.jodconverter.util.PlatformUtils;
+import org.jodconverter.core.util.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -63,7 +63,7 @@ public class TrustDirFilter implements Filter {
             URL url = WebUtils.normalizedURL(urlPath);
             if ("file".equals(url.getProtocol().toLowerCase(Locale.ROOT))) {
                 String filePath = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.name());
-                if (PlatformUtils.isWindows()) {
+                if (OSUtils.IS_OS_WINDOWS) {
                     filePath = filePath.replaceAll("/", "\\\\");
                 }
                 return filePath.startsWith(ConfigConstants.getFileDir()) || filePath.startsWith(ConfigConstants.getLocalPreviewDir());

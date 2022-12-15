@@ -1,7 +1,6 @@
 package cn.keking.config;
 
-import org.artofsolving.jodconverter.office.OfficeUtils;
-import org.artofsolving.jodconverter.util.ConfigUtils;
+import cn.keking.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -59,7 +58,7 @@ public class ConfigRefreshComponent {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
                     properties.load(bufferedReader);
-                    OfficeUtils.restorePropertiesFromEnvFormat(properties);
+                    ConfigUtils.restorePropertiesFromEnvFormat(properties);
                     cacheEnabled = Boolean.parseBoolean(properties.getProperty("cache.enabled", ConfigConstants.DEFAULT_CACHE_ENABLED));
                     text = properties.getProperty("simText", ConfigConstants.DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", ConfigConstants.DEFAULT_MEDIA_TYPE);

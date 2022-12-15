@@ -1,7 +1,7 @@
 package cn.keking.service.cache.impl;
 
 import cn.keking.service.cache.CacheService;
-import org.artofsolving.jodconverter.util.ConfigUtils;
+import cn.keking.utils.ConfigUtils;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.slf4j.Logger;

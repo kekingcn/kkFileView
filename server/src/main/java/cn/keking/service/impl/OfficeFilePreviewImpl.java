@@ -9,7 +9,7 @@ import cn.keking.service.OfficeToPdfService;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.OfficeUtils;
 import cn.keking.web.filter.BaseUrlFilter;
-import org.artofsolving.jodconverter.office.OfficeException;
+import org.jodconverter.core.office.OfficeException;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -83,7 +83,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             isPwdProtectedOffice = OfficeUtils.isPwdProtected(filePath);
         }
 
-        if (isCached == false) {
+        if (!isCached) {
             // 没有缓存执行转换逻辑
             if (isPwdProtectedOffice && !StringUtils.hasLength(filePassword)) {
                 // 加密文件需要密码
@@ -92,9 +92,9 @@ public class OfficeFilePreviewImpl implements FilePreview {
             } else {
                 if (StringUtils.hasText(outFilePath)) {
                     try {
-                        officeToPdfService.openOfficeToPDF(filePath, outFilePath, fileAttribute);
+                        officeToPdfService.openOfficeToPDF(filePath, outFilePath);
                     } catch (OfficeException e) {
-                        if (isPwdProtectedOffice && OfficeUtils.isCompatible(filePath, filePassword) == false) {
+                        if (isPwdProtectedOffice && !OfficeUtils.isCompatible(filePath, filePassword)) {
                             // 加密文件密码错误，提示重新输入
                             model.addAttribute("needFilePassword", true);
                             model.addAttribute("filePasswordError", true);

@@ -1,6 +1,6 @@
 package cn.keking.config;
 
-import org.artofsolving.jodconverter.util.ConfigUtils;
+import cn.keking.utils.ConfigUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
