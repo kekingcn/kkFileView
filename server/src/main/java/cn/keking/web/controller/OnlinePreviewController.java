@@ -6,6 +6,7 @@ import cn.keking.service.FilePreview;
 import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
+import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
@@ -17,7 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,10 +53,6 @@ public class OnlinePreviewController {
 
     @GetMapping( "/onlinePreview")
     public String onlinePreview(String url, Model model, HttpServletRequest req) {
-        if (url == null || url.length() == 0){
-            logger.info("URL异常：{}", url);
-            return otherFilePreview.notSupportedFile(model, "NULL地址不允许预览");
-        }
         String fileUrl;
         try {
             fileUrl = WebUtils.decodeUrl(url);
@@ -73,15 +69,11 @@ public class OnlinePreviewController {
 
     @GetMapping( "/picturesPreview")
     public String picturesPreview(String urls, Model model, HttpServletRequest req) {
-        if (urls == null || urls.length() == 0){
-            logger.info("URL异常：{}", urls);
-            return otherFilePreview.notSupportedFile(model, "NULL地址不允许预览");
-        }
         String fileUrls;
         try {
             fileUrls = WebUtils.decodeUrl(urls);
             // 防止XSS攻击
-            fileUrls = HtmlUtils.htmlEscape(fileUrls);
+            fileUrls = KkFileUtils.htmlEscape(fileUrls);
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "urls");
             return otherFilePreview.notSupportedFile(model, errorMsg);
@@ -94,7 +86,7 @@ public class OnlinePreviewController {
         String currentUrl = req.getParameter("currentUrl");
         if (StringUtils.hasText(currentUrl)) {
             String decodedCurrentUrl = new String(Base64.decodeBase64(currentUrl));
-                   decodedCurrentUrl = HtmlUtils.htmlEscape(decodedCurrentUrl);   // 防止XSS攻击
+                   decodedCurrentUrl = KkFileUtils.htmlEscape(decodedCurrentUrl);   // 防止XSS攻击
             model.addAttribute("currentUrl", decodedCurrentUrl);
         } else {
             model.addAttribute("currentUrl", imgUrls.get(0));
@@ -111,13 +103,6 @@ public class OnlinePreviewController {
      */
     @GetMapping("/getCorsFile")
     public void getCorsFile(String urlPath, HttpServletResponse response) throws IOException {
-        if (urlPath == null || urlPath.length() == 0){
-            logger.info("URL异常：{}", urlPath);
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setHeader("Content-Type", "text/html; charset=UTF-8");
-            response.getWriter().println("NULL地址不允许预览");
-            return;
-        }
         try {
             urlPath = WebUtils.decodeUrl(urlPath);
         } catch (Exception ex) {

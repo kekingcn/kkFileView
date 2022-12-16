@@ -3,6 +3,8 @@ package cn.keking.utils;
 import cpdetector.CharsetPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -113,6 +115,13 @@ public class KkFileUtils {
             LOGGER.warn("文件编码获取失败，采用默认的编码格式：UTF-8", e);
             return DEFAULT_FILE_ENCODING;
         }
+    }
+
+    public static String htmlEscape(String input) {
+        if(StringUtils.hasText(input)){
+            return HtmlUtils.htmlEscape(input);
+        }
+        return input;
     }
 
     /**
