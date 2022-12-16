@@ -2,6 +2,7 @@ package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
+import cn.keking.utils.KkFileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -42,8 +43,8 @@ public class OtherFilePreviewImpl implements FilePreview {
      * @return 页面
      */
     public String notSupportedFile(Model model, String fileType, String errMsg) {
-        model.addAttribute("fileType", fileType);
-        model.addAttribute("msg", errMsg);
+        model.addAttribute("fileType",  KkFileUtils.htmlEscape(fileType));
+        model.addAttribute("msg", KkFileUtils.htmlEscape(errMsg));
         return NOT_SUPPORTED_FILE_PAGE;
     }
 

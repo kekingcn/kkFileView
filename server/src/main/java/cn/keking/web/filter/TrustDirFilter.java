@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.*;
 import java.io.IOException;
@@ -55,6 +56,9 @@ public class TrustDirFilter implements Filter {
     }
 
     private boolean allowPreview(String urlPath) {
+        if(!StringUtils.hasText(urlPath)){
+            return false ;
+        }
         try {
             URL url = WebUtils.normalizedURL(urlPath);
             if ("file".equals(url.getProtocol().toLowerCase(Locale.ROOT))) {

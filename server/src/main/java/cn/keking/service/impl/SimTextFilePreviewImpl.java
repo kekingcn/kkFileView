@@ -3,6 +3,7 @@ package cn.keking.service.impl;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.EncodingDetects;
@@ -23,9 +24,11 @@ import java.nio.file.Paths;
 @Service
 public class SimTextFilePreviewImpl implements FilePreview {
 
+    private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
 
-    public SimTextFilePreviewImpl(OtherFilePreviewImpl otherFilePreview) {
+    public SimTextFilePreviewImpl(FileHandlerService fileHandlerService,OtherFilePreviewImpl otherFilePreview) {
+        this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
     }
     private static final String FILE_DIR = ConfigConstants.getFileDir();
@@ -33,16 +36,30 @@ public class SimTextFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
         String filePath = FILE_DIR + fileName;
-        ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
-        if (response.isFailure()) {
-            return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+        if (!fileHandlerService.listConvertedFiles().containsKey(fileName) || !ConfigConstants.isCacheEnabled()) {
+            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
+            if (response.isFailure()) {
+                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+            }
+            filePath = response.getContent();
+            if (ConfigConstants.isCacheEnabled()) {
+                fileHandlerService.addConvertedFile(fileName, filePath);  //加入缓存
+            }
+            try {
+                String  fileData = HtmlUtils.htmlEscape(textData(filePath));
+                model.addAttribute("textData", Base64.encodeBase64String(fileData.getBytes()));
+            } catch (IOException e) {
+                return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
+            }
+            return TXT_FILE_PREVIEW_PAGE;
         }
+        String  fileData = null;
         try {
-            String fileData = HtmlUtils.htmlEscape(textData(filePath));
-            model.addAttribute("textData", Base64.encodeBase64String(fileData.getBytes()));
+            fileData = HtmlUtils.htmlEscape(textData(filePath));
         } catch (IOException e) {
-            return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
+            e.printStackTrace();
         }
+        model.addAttribute("textData", Base64.encodeBase64String(fileData.getBytes()));
         return TXT_FILE_PREVIEW_PAGE;
     }
 

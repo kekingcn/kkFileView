@@ -2,12 +2,14 @@ package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FileHandlerService;
+import cn.keking.utils.KkFileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class PictureFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
+        url= KkFileUtils.htmlEscape(url);
         List<String> imgUrls = new ArrayList<>();
         imgUrls.add(url);
         String fileKey = fileAttribute.getFileKey();

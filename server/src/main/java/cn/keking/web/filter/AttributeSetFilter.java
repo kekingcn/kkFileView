@@ -2,6 +2,7 @@ package cn.keking.web.filter;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.config.WatermarkConfigConstants;
+import cn.keking.utils.KkFileUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +47,7 @@ public class AttributeSetFilter implements Filter {
      * @param request request
      */
     private void setWatermarkAttribute(ServletRequest request) {
-        String watermarkTxt = request.getParameter("watermarkTxt");
+        String watermarkTxt= KkFileUtils.htmlEscape(request.getParameter("watermarkTxt"));
         request.setAttribute("watermarkTxt", watermarkTxt != null ? watermarkTxt : WatermarkConfigConstants.getWatermarkTxt());
         String watermarkXSpace = request.getParameter("watermarkXSpace");
         request.setAttribute("watermarkXSpace", watermarkXSpace != null ? watermarkXSpace : WatermarkConfigConstants.getWatermarkXSpace());

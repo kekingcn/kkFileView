@@ -17,6 +17,7 @@ public interface FilePreview {
     String PICTURE_FILE_PREVIEW_PAGE = "picture";
     String TIFF_FILE_PREVIEW_PAGE = "tiff";
     String OFD_FILE_PREVIEW_PAGE = "ofd";
+    String SVG_FILE_PREVIEW_PAGE = "svg";
     String OFFICE_PICTURE_FILE_PREVIEW_PAGE = "officePicture";
     String TXT_FILE_PREVIEW_PAGE = "txt";
     String CODE_FILE_PREVIEW_PAGE = "code";
