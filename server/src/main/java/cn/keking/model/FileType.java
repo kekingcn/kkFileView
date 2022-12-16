@@ -24,14 +24,15 @@ public enum FileType {
     FLV("flvFilePreviewImpl"),
     CAD("cadFilePreviewImpl"),
     TIFF("tiffFilePreviewImpl"),
-    OFD("ofdFilePreviewImpl");
-
+    OFD("ofdFilePreviewImpl"),
+    SVG("svgFilePreviewImpl");
 
     private static final String[] OFFICE_TYPES = {"docx", "wps", "doc", "docm", "xls", "xlsx", "csv" ,"xlsm", "ppt", "pptx", "vsd", "rtf", "odt", "wmf", "emf", "dps", "et", "ods", "ots", "tsv", "odp", "otp", "sxi", "ott", "vsdx", "fodt", "fods", "xltx","tga","psd"};
     private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "jfif", "webp"};
     private static final String[] ARCHIVE_TYPES = {"rar", "zip", "jar", "7-zip", "tar", "gzip", "7z"};
     private static final String[] TIFF_TYPES = {"tif", "tiff"};
     private static final String[] OFD_TYPES = {"ofd"};
+    private static final String[] SVG_TYPES = {"svg"};
     private static final String[] CAD_TYPES = {"dwg", "dxf"};
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
     private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "yaml", "yml", "json", "h", "cpp", "cs", "aspx", "jsp"};
@@ -69,6 +70,9 @@ public enum FileType {
         }
         for (String cad : CAD_TYPES) {
             FILE_TYPE_MAPPER.put(cad, FileType.CAD);
+        }
+        for (String svg : SVG_TYPES) {
+            FILE_TYPE_MAPPER.put(svg, FileType.SVG);
         }
         FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
         FILE_TYPE_MAPPER.put("xml", FileType.XML);
