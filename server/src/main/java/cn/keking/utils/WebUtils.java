@@ -221,7 +221,7 @@ public class WebUtils {
         try {
             return new String(Base64Utils.decodeFromString(source.replaceAll(" ", "+").replaceAll("\n", "")), charsets);
         } catch (Exception e) {
-            System.out.println("接入方法错误,或者为使用BASE64");
+            System.out.println("接入方法错误,或者未使用BASE64");
             //  e.printStackTrace();
             return null;
         }
