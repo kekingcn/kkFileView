@@ -14,6 +14,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author : kl
@@ -175,6 +177,20 @@ public class WebUtils {
     }
 
     /**
+     *  判断地址是否正确
+     * 高 2022/12/17
+     */
+    public static boolean hefaurl (String url) {
+        String regStr = "^((https|http|ftp|rtsp|mms|file)://)";//[.?*]表示匹配的就是本身
+        Pattern pattern = Pattern.compile(regStr);
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /**
      * 将 Base64 字符串解码，再解码URL参数, 默认使用 UTF-8
      * @param source 原始 Base64 字符串
      * @return decoded string
@@ -183,6 +199,9 @@ public class WebUtils {
      */
     public static String decodeUrl(String source) {
         String url = decodeBase64String(source, StandardCharsets.UTF_8);
+        if (! StringUtils.isNotBlank(url)){
+            return null;
+        }
         try {
             url = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
@@ -203,9 +222,12 @@ public class WebUtils {
          * 有些 Base64 实现可能每 76 个字符插入换行符，也一并去掉
          * https://github.com/kekingcn/kkFileView/pull/340
          */
-        return new String(Base64Utils.decodeFromString(
-                source.replaceAll(" ", "+").replaceAll("\n", "")
-        ), charsets);
+        try {
+            return new String(Base64Utils.decodeFromString(source.replaceAll(" ", "+").replaceAll("\n", "")), charsets);
+        } catch (Exception e) {
+          //  e.printStackTrace();
+            return null;
+        }
     }
 
     /**

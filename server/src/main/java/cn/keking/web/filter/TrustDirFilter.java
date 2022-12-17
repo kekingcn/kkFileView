@@ -16,6 +16,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author : kl (http://kailing.pub)
@@ -54,9 +56,8 @@ public class TrustDirFilter implements Filter {
     public void destroy() {
 
     }
-
     private boolean allowPreview(String urlPath) {
-        if(!StringUtils.hasText(urlPath)){
+        if(!StringUtils.hasText(urlPath) || !WebUtils.hefaurl(urlPath)){   //判断URL是否合法
             return false ;
         }
         try {
