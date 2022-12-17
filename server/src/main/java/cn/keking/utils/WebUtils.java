@@ -184,11 +184,7 @@ public class WebUtils {
         String regStr = "^((https|http|ftp|rtsp|mms|file)://)";//[.?*]表示匹配的就是本身
         Pattern pattern = Pattern.compile(regStr);
         Matcher matcher = pattern.matcher(url);
-        if (matcher.find()) {
-            return true;
-        } else {
-            return false;
-        }
+        return matcher.find();
     }
     /**
      * 将 Base64 字符串解码，再解码URL参数, 默认使用 UTF-8
@@ -225,7 +221,8 @@ public class WebUtils {
         try {
             return new String(Base64Utils.decodeFromString(source.replaceAll(" ", "+").replaceAll("\n", "")), charsets);
         } catch (Exception e) {
-          //  e.printStackTrace();
+            System.out.println("接入方法错误,或者为使用BASE64");
+            //  e.printStackTrace();
             return null;
         }
     }
