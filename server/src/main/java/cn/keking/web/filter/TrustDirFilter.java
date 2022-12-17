@@ -54,9 +54,8 @@ public class TrustDirFilter implements Filter {
     public void destroy() {
 
     }
-
     private boolean allowPreview(String urlPath) {
-        if(!StringUtils.hasText(urlPath)){
+        if(!StringUtils.hasText(urlPath) || !WebUtils.hefaurl(urlPath)){   //判断URL是否合法
             return false ;
         }
         try {

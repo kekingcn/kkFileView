@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html> 
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>Online 3D Viewer</title>
+    <link rel="stylesheet" type="text/css" href="./website/pickr.monolith.min.css">
+    <script type="text/javascript" src="website/pickr.es5.min.js"></script>
+   <meta property="og:type" content="website">
+    <meta property="og:title" content="Online 3D Viewer">
+<link rel="stylesheet" type="text/css" href="website/o3dv.website.min.css">
+<script type="text/javascript" src="website/o3dv.website.min.js"></script>
+<script type="text/javascript">
+OV.StartWebsite ('libs');
+</script>
+<body>
+    <input type="file" id="open_file" style="display:none;" multiple></input>
+    <div class="header" id="header">
+        <div class="title">
+     
+            <div class="title_right" id="header_buttons"></div>
+            <div class="main_file_name only_full_width" id="main_file_name"></div>
+        </div>
+        <div class="toolbar" id="toolbar"></div>
+    </div>
+    <div class="main" id="main">
+        <div class="main_navigator ov_panel_set_container only_full_width" id="main_navigator"></div>
+        <div class="main_splitter only_full_width" id="main_navigator_splitter"></div>
+        <div class="main_viewer" id="main_viewer"></div>
+        <div class="main_splitter only_full_width" id="main_sidebar_splitter"></div>
+        <div class="main_sidebar ov_panel_set_right_container only_full_width" id="main_sidebar"></div>
+    </div>
+    <div class="intro ov_thin_scrollbar" id="intro">
+    </div>
+</body>
+</html>
