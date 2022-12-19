@@ -44,7 +44,7 @@ public class LocalOfficeUtils {
             final String programFiles64 = System.getenv("ProgramFiles");
             final String programFiles32 = System.getenv("ProgramFiles(x86)");
             return findOfficeHome(EXECUTABLE_WINDOWS,
-                    userDir + File.separator + "windows-office",
+                    userDir + File.separator + "libreoffice",
                     programFiles32 + File.separator + "LibreOffice",
                     programFiles64 + File.separator + "LibreOffice 7",
                     programFiles32 + File.separator + "LibreOffice 7",
