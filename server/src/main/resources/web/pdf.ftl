@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
     <title>PDF预览</title>
     <#include "*/commonHeader.ftl">
+    <script src="js/base64.min.js" type="text/javascript"></script>
 </head>
 
 <body>

@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8"/>
     <title>多媒体文件预览</title>
+    <#include "*/commonHeader.ftl">
     <link rel="stylesheet" href="plyr/plyr.css"/>
     <script type="text/javascript" src="plyr/plyr.js"></script>
-    <#include "*/commonHeader.ftl">
     <style>
         body {
             background-color: #404040;

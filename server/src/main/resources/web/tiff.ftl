@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <title>Tiff 图片预览</title>
+    <#include "*/commonHeader.ftl">
     <link rel="stylesheet" href="css/viewer.min.css">
     <script src="js/UTIF.js"></script>
-    <#include "*/commonHeader.ftl">
+    <script src="js/base64.min.js" type="text/javascript"></script>
     <#if currentUrl?contains("http://") || currentUrl?contains("https://") || currentUrl?contains("file://")|| currentUrl?contains("ftp://")>
         <#assign finalUrl="${currentUrl}">
     <#else>

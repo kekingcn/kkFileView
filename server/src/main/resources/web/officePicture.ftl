@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>PDF图片预览</title>
-    <script src="js/lazyload.js"></script>
     <#include "*/commonHeader.ftl">
+    <script src="js/lazyload.js"></script>
     <style>
         body {
             background-color: #404040;

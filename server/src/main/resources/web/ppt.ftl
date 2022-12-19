@@ -4,10 +4,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <#include "*/commonHeader.ftl">
     <link href="pptx/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="pptx/idocv/idocv_common.min.css" rel="stylesheet">
     <link href="pptx/jquery.contextMenu.css" rel="stylesheet">
-    <#include "*/commonHeader.ftl">
     <#--  手机端预览兼容  -->
     <script type="text/javascript">
         var windowWidth = document.documentElement.clientWidth;

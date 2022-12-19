@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>多媒体文件预览</title>
-    <script src="js/flv.min.js" type="text/javascript"></script>
     <#include "*/commonHeader.ftl">
+    <script src="js/flv.min.js" type="text/javascript"></script>
 </head>
 <style>
     body {

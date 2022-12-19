@@ -4,8 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
-    <link href="css/zTreeStyle.css" rel="stylesheet" type="text/css">
     <#include "*/commonHeader.ftl">
+    <script src="js/jquery-3.6.1.min.js" type="text/javascript"></script>
+    <link href="css/zTreeStyle.css" rel="stylesheet" type="text/css">
+    <script src="js/base64.min.js" type="text/javascript"></script>
     <style type="text/css">
         body {
             background-color: #404040;
