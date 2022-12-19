@@ -1,17 +1,18 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>${file.name}文件预览</title>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-<#include "*/commonHeader.ftl">
-<script src="js/svg-pan-zoom.js"></script>
-<script src="js/base64.min.js"></script>
-<#if currentUrl?contains("http://") || currentUrl?contains("https://") || currentUrl?contains("ftp://")>
-    <#assign finalUrl="${currentUrl}">
-<#else>
-    <#assign finalUrl="${baseUrl}${currentUrl}">
-</#if>
+    <title>${file.name}文件预览</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <#include "*/commonHeader.ftl">
+    <script src="js/jquery-3.6.1.min.js" type="text/javascript"></script>
+    <script src="js/svg-pan-zoom.js"></script>
+    <script src="js/base64.min.js"></script>
+    <#if currentUrl?contains("http://") || currentUrl?contains("https://") || currentUrl?contains("ftp://")>
+        <#assign finalUrl="${currentUrl}">
+    <#else>
+        <#assign finalUrl="${baseUrl}${currentUrl}">
+    </#if>
 </head>
 <body>
 <div id="container">
