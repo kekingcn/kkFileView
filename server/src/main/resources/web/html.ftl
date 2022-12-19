@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
     <title>文件预览</title>
     <#include "*/commonHeader.ftl">
+    <#include "*/needFilePasswordHeader.ftl">
 </head>
 <body>
 <iframe src="${pdfUrl}" width="100%" frameborder="0"></iframe>

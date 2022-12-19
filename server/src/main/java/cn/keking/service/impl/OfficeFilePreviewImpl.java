@@ -92,7 +92,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
             } else {
                 if (StringUtils.hasText(outFilePath)) {
                     try {
-                        officeToPdfService.openOfficeToPDF(filePath, outFilePath);
+                        officeToPdfService.openOfficeToPDF(filePath, outFilePath, fileAttribute);
                     } catch (OfficeException e) {
                         if (isPwdProtectedOffice && !OfficeUtils.isCompatible(filePath, filePassword)) {
                             // 加密文件密码错误，提示重新输入
