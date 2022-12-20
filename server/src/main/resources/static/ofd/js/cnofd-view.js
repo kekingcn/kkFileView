@@ -362,6 +362,9 @@ function print() {
     if (list.length > 0) {
         if (!isIE()) {
             var mywindow = window.open("打印窗口", "_blank"); 
+             mywindow.document.write('<!DOCTYPE html><html><head>'
+                                   +'<style media="print">.page-break { page-break-inside: avoid; page-break-after: always; }</style>'
+                                   +'</head><body></body</html>');
             var documentBody = mywindow.document.body; 
             var _iterator2 = _createForOfIteratorHelper(list),
             _step2;
