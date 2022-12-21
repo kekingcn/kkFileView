@@ -151,7 +151,7 @@ public class FileHandlerService {
             // 添加sheet控制头
             sb.append("<script src=\"js/jquery-3.6.1.min.js\" type=\"text/javascript\"></script>");
             sb.append("<script src=\"js/excel.header.js\" type=\"text/javascript\"></script>");
-            sb.append("<link rel=\"stylesheet\" href=\"bootstrap/css/bootstrap.min.css\">");
+            sb.append("<link rel=\"stylesheet\" href=\"bootstrap/css/xlsx.css\">");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -273,10 +273,10 @@ public class FileHandlerService {
         if (url.contains("?fileKey=")) {
             attribute.setSkipDownLoad(true);
         }
+        url = WebUtils.encodeUrlFileName(url);
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
-        url = WebUtils.encodeUrlFileName(url);
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");

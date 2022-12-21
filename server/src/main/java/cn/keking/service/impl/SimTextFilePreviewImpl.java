@@ -72,15 +72,14 @@ public class SimTextFilePreviewImpl implements FilePreview {
             if ("ASCII".equals(charset)) {
                 charset = StandardCharsets.US_ASCII.name();
             }
-            BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), charset));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), charset));
             StringBuilder result = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
                 result.append(line).append("\r\n");
             }
+            br.close();
             return result.toString();
         }
     }
-
-
 }
