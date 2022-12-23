@@ -44,7 +44,6 @@ public class DownloadUtils {
             response.setMsg("下载失败:文件名不合法!" + urlStr);
             return response;
         }
-        System.out.println(realPath);
         try {
             URL url = WebUtils.normalizedURL(urlStr);
             if (!fileAttribute.getSkipDownLoad()) {
@@ -106,7 +105,6 @@ public class DownloadUtils {
         if (realFile.exists()) {
             fileAttribute.setSkipDownLoad(true);
         }
-
         return realPath;
     }
 
