@@ -116,13 +116,14 @@ public class KkFileUtils {
             return DEFAULT_FILE_ENCODING;
         }
     }
-
     public static String htmlEscape(String input) {
         if(StringUtils.hasText(input)){
+            input = input.replaceAll("\\{", "%7B").replaceAll("}", "%7D");
             return HtmlUtils.htmlEscape(input);
         }
         return input;
     }
+
 
     /**
      * 通过文件名获取文件后缀

@@ -9,11 +9,15 @@
     <script src="js/base64.min.js" type="text/javascript"></script>
 </head>
 <body>
-
+<#if currentUrl?contains("http://") || currentUrl?contains("https://")>
+    <#assign finalUrl="${currentUrl}">
+<#else>
+    <#assign finalUrl="${baseUrl}${currentUrl}">
+</#if>
 <iframe src="" width="100%" frameborder="0"></iframe>
 </body>
 <script type="text/javascript">
-    var url = '${currentUrl}';
+    var url = '${finalUrl}';
     var baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';
     if (!url.startsWith(baseUrl)) {
         url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url));
