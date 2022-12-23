@@ -184,6 +184,13 @@ public class WebUtils {
         Matcher matcher = pattern.matcher(url);
         return matcher.find();
     }
+    public static boolean kuayu(String host, String wjl) {  //查询域名是否相同
+        if (wjl.contains(host)) {
+            return true;
+        }else {
+            return false;
+        }
+    }
     /**
      * 将 Base64 字符串解码，再解码URL参数, 默认使用 UTF-8
      * @param source 原始 Base64 字符串

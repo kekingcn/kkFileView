@@ -273,6 +273,11 @@ public class FileHandlerService {
         if (url.contains("?fileKey=")) {
             attribute.setSkipDownLoad(true);
         }
+        String  urlStrr = url.toLowerCase();  //转换为小写对比
+        boolean wjl = WebUtils.kuayu("&fullfilename=", urlStrr);  //判断是否启用文件流
+        if(wjl){
+            url =  url.substring(0,url.lastIndexOf("&"));  //删除添加的文件流内容
+        }
         url = WebUtils.encodeUrlFileName(url);
         attribute.setType(type);
         attribute.setName(fileName);
