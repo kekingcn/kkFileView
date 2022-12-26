@@ -45,7 +45,18 @@ public class KkFileUtils {
         }
         return false;
     }
-
+    /**
+     * 检查是否是数字
+     * @param str 文件名
+     * @return 合规结果,true:不合规，false:合规
+     */
+    public static boolean isInteger(String str) {
+        if(StringUtils.hasText(str)){
+            boolean strResult = str.matches("-?[0-9]+.?[0-9]*");
+            return strResult ;
+        }
+        return false;
+    }
     /**
      * 判断url是否是http资源
      *
@@ -118,7 +129,7 @@ public class KkFileUtils {
     }
     public static String htmlEscape(String input) {
         if(StringUtils.hasText(input)){
-            input = input.replaceAll("\\{", "%7B").replaceAll("}", "%7D");
+            //input = input.replaceAll("\\{", "%7B").replaceAll("}", "%7D").replaceAll("\\\\", "%5C");
             return HtmlUtils.htmlEscape(input);
         }
         return input;
