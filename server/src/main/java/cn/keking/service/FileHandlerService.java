@@ -279,6 +279,7 @@ public class FileHandlerService {
             url =  url.substring(0,url.lastIndexOf("&"));  //删除添加的文件流内容
         }
         url = WebUtils.encodeUrlFileName(url);
+        fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
