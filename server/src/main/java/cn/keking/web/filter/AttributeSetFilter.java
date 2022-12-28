@@ -46,26 +46,45 @@ public class AttributeSetFilter implements Filter {
      * 设置水印属性
      * @param request request
      */
+
     private void setWatermarkAttribute(ServletRequest request) {
         String watermarkTxt= KkFileUtils.htmlEscape(request.getParameter("watermarkTxt"));
         request.setAttribute("watermarkTxt", watermarkTxt != null ? watermarkTxt : WatermarkConfigConstants.getWatermarkTxt());
-        String watermarkXSpace = request.getParameter("watermarkXSpace");
+        String watermarkXSpace =  KkFileUtils.htmlEscape(request.getParameter("watermarkXSpace"));
+        if (!KkFileUtils.isInteger(watermarkXSpace)){
+            watermarkXSpace =null;
+        }
         request.setAttribute("watermarkXSpace", watermarkXSpace != null ? watermarkXSpace : WatermarkConfigConstants.getWatermarkXSpace());
-        String watermarkYSpace = request.getParameter("watermarkYSpace");
+        String watermarkYSpace =  KkFileUtils.htmlEscape(request.getParameter("watermarkYSpace"));
+       if (!KkFileUtils.isInteger(watermarkYSpace)){
+           watermarkYSpace =null;
+       }
         request.setAttribute("watermarkYSpace", watermarkYSpace != null ? watermarkYSpace : WatermarkConfigConstants.getWatermarkYSpace());
-        String watermarkFont = request.getParameter("watermarkFont");
+        String watermarkFont =  KkFileUtils.htmlEscape(request.getParameter("watermarkFont"));
         request.setAttribute("watermarkFont", watermarkFont != null ? watermarkFont : WatermarkConfigConstants.getWatermarkFont());
-        String watermarkFontsize = request.getParameter("watermarkFontsize");
+        String watermarkFontsize =  KkFileUtils.htmlEscape(request.getParameter("watermarkFontsize"));
         request.setAttribute("watermarkFontsize", watermarkFontsize != null ? watermarkFontsize : WatermarkConfigConstants.getWatermarkFontsize());
-        String watermarkColor = request.getParameter("watermarkColor");
+        String watermarkColor =  KkFileUtils.htmlEscape(request.getParameter("watermarkColor"));
         request.setAttribute("watermarkColor", watermarkColor != null ? watermarkColor : WatermarkConfigConstants.getWatermarkColor());
-        String watermarkAlpha = request.getParameter("watermarkAlpha");
+        String watermarkAlpha =  KkFileUtils.htmlEscape(request.getParameter("watermarkAlpha"));
+        if (!KkFileUtils.isInteger(watermarkAlpha)){
+            watermarkAlpha =null;
+        }
         request.setAttribute("watermarkAlpha", watermarkAlpha != null ? watermarkAlpha : WatermarkConfigConstants.getWatermarkAlpha());
-        String watermarkWidth = request.getParameter("watermarkWidth");
+        String watermarkWidth = KkFileUtils.htmlEscape(request.getParameter("watermarkWidth"));
+        if (!KkFileUtils.isInteger(watermarkWidth)){
+            watermarkWidth =null;
+        }
         request.setAttribute("watermarkWidth", watermarkWidth != null ? watermarkWidth : WatermarkConfigConstants.getWatermarkWidth());
-        String watermarkHeight = request.getParameter("watermarkHeight");
+        String watermarkHeight = KkFileUtils.htmlEscape(request.getParameter("watermarkHeight"));
+        if (!KkFileUtils.isInteger(watermarkHeight)){
+            watermarkHeight =null;
+        }
         request.setAttribute("watermarkHeight", watermarkHeight != null ? watermarkHeight : WatermarkConfigConstants.getWatermarkHeight());
-        String watermarkAngle = request.getParameter("watermarkAngle");
+        String watermarkAngle = KkFileUtils.htmlEscape(request.getParameter("watermarkAngle"));
+        if (!KkFileUtils.isInteger(watermarkAngle)){
+            watermarkAngle =null;
+        }
         request.setAttribute("watermarkAngle", watermarkAngle != null ? watermarkAngle : WatermarkConfigConstants.getWatermarkAngle());
     }
 

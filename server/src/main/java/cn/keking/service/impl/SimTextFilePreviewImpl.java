@@ -7,6 +7,7 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.EncodingDetects;
+import cn.keking.utils.KkFileUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -14,8 +15,6 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Created by kl on 2018/1/17.
@@ -46,7 +45,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
                 fileHandlerService.addConvertedFile(fileName, filePath);  //加入缓存
             }
             try {
-                String  fileData = HtmlUtils.htmlEscape(textData(filePath));
+                String  fileData = HtmlUtils.htmlEscape(textData(filePath,fileName));
                 model.addAttribute("textData", Base64.encodeBase64String(fileData.getBytes()));
             } catch (IOException e) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, e.getLocalizedMessage());
@@ -55,7 +54,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
         }
         String  fileData = null;
         try {
-            fileData = HtmlUtils.htmlEscape(textData(filePath));
+            fileData = HtmlUtils.htmlEscape(textData(filePath,fileName));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,8 +62,11 @@ public class SimTextFilePreviewImpl implements FilePreview {
         return TXT_FILE_PREVIEW_PAGE;
     }
 
-    private String textData(String filePath) throws IOException {
+    private String textData(String filePath,String fileName) throws IOException {
         File file = new File(filePath);
+        if (KkFileUtils.isIllegalFileName(fileName)) {
+            return null;
+        }
         if (!file.exists() || file.length() == 0) {
             return "";
         } else {
@@ -72,15 +74,14 @@ public class SimTextFilePreviewImpl implements FilePreview {
             if ("ASCII".equals(charset)) {
                 charset = StandardCharsets.US_ASCII.name();
             }
-            BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), charset));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), charset));
             StringBuilder result = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
                 result.append(line).append("\r\n");
             }
+            br.close();
             return result.toString();
         }
     }
-
-
 }

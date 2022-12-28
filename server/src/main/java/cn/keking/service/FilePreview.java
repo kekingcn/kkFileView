@@ -18,6 +18,10 @@ public interface FilePreview {
     String TIFF_FILE_PREVIEW_PAGE = "tiff";
     String OFD_FILE_PREVIEW_PAGE = "ofd";
     String SVG_FILE_PREVIEW_PAGE = "svg";
+    String Online3D_FILE_PAGE = "online3D";
+    String EpubFilePreviewImpl = "epub";
+    String XMIND_FILE_PREVIEW_PAGE = "xmind";
+    String EML_FILE_PREVIEW_PAGE = "eml";
     String OFFICE_PICTURE_FILE_PREVIEW_PAGE = "officePicture";
     String TXT_FILE_PREVIEW_PAGE = "txt";
     String CODE_FILE_PREVIEW_PAGE = "code";

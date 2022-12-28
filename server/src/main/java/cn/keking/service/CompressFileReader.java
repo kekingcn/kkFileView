@@ -112,7 +112,7 @@ public class CompressFileReader {
         //去除字符串中的空格 制表符 换行 回车
         Pattern p = Pattern.compile("\\s*|\t*|\r*|\n*");
         Matcher m = p.matcher(strName);
-        String after = m.replaceAll("");
+        String after = m.replaceAll("").replaceAll("\\+", "").replaceAll("#", "").replaceAll("&", "");
         //去除字符串中的标点符号
         String temp = after.replaceAll("\\p{P}", "");
         //处理之后转换成字符数组

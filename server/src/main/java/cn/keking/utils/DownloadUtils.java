@@ -3,10 +3,13 @@ package cn.keking.utils;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.FileHandlerService;
 import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.*;
 import java.net.*;
@@ -35,6 +38,12 @@ public class DownloadUtils {
         String urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         String realPath = DownloadUtils.getRelFilePath(fileName, fileAttribute);
+        if(!StringUtils.hasText(realPath)){
+            response.setCode(1);
+            response.setContent(null);
+            response.setMsg("下载失败:文件名不合法!" + urlStr);
+            return response;
+        }
         try {
             URL url = WebUtils.normalizedURL(urlStr);
             if (!fileAttribute.getSkipDownLoad()) {
@@ -82,18 +91,20 @@ public class DownloadUtils {
         } else { // 文件后缀不一致时，以type为准(针对simText【将类txt文件转为txt】)
             fileName = fileName.replace(fileName.substring(fileName.lastIndexOf(".") + 1), type);
         }
+        // 判断是否非法地址
+        if (KkFileUtils.isIllegalFileName(fileName)) {
+            return null;
+        }
         String realPath = fileDir + fileName;
         File dirFile = new File(fileDir);
         if (!dirFile.exists() && !dirFile.mkdirs()) {
             logger.error("创建目录【{}】失败,可能是权限不够，请检查", fileDir);
         }
-
         // 文件已在本地存在，跳过文件下载
         File realFile = new File(realPath);
         if (realFile.exists()) {
             fileAttribute.setSkipDownLoad(true);
         }
-
         return realPath;
     }
 

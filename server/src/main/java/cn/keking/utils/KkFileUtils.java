@@ -1,13 +1,11 @@
 package cn.keking.utils;
 
-import cpdetector.CharsetPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +43,18 @@ public class KkFileUtils {
         }
         return false;
     }
-
+    /**
+     * 检查是否是数字
+     * @param str 文件名
+     * @return 合规结果,true:不合规，false:合规
+     */
+    public static boolean isInteger(String str) {
+        if(StringUtils.hasText(str)){
+            boolean strResult = str.matches("-?[0-9]+.?[0-9]*");
+            return strResult ;
+        }
+        return false;
+    }
     /**
      * 判断url是否是http资源
      *
@@ -89,40 +98,15 @@ public class KkFileUtils {
         }
     }
 
-    /**
-     * 检测文件编码格式
-     *
-     * @param filePath 绝对路径
-     * @return 编码格式
-     */
-    public static String getFileEncode(String filePath) {
-        return getFileEncode(new File(filePath));
-    }
-
-    /**
-     * 检测文件编码格式
-     *
-     * @param file 检测的文件
-     * @return 编码格式
-     */
-    public static String getFileEncode(File file) {
-        CharsetPrinter cp = new CharsetPrinter();
-        try {
-            String encoding = cp.guessEncoding(file);
-            LOGGER.info("检测到文件【{}】编码: {}", file.getAbsolutePath(), encoding);
-            return encoding;
-        } catch (IOException e) {
-            LOGGER.warn("文件编码获取失败，采用默认的编码格式：UTF-8", e);
-            return DEFAULT_FILE_ENCODING;
-        }
-    }
 
     public static String htmlEscape(String input) {
         if(StringUtils.hasText(input)){
+            //input = input.replaceAll("\\{", "%7B").replaceAll("}", "%7D").replaceAll("\\\\", "%5C");
             return HtmlUtils.htmlEscape(input);
         }
         return input;
     }
+
 
     /**
      * 通过文件名获取文件后缀

@@ -237,6 +237,15 @@ ofd 类型文件支持版本，本次版本重要功能均由社区开发贡献�
 1. 新增spring boot profile，支持多环境配置 
 1. 引入pdf.js预览doc等文件，支持doc标题生成pdf预览菜单，支持手机端预览
 
+
+### 关于引用
+ofd    引用于 [ofdview ](https://gitee.com/cnofd/ofdview ) 开源协议 Apache-2.0
+CAD    引用于 aspose-cad 测试版本 商用请自行购买
+xmind  引用于 [ xmind-embed-viewer](https://github.com/xmindltd/xmind-embed-viewer) 开源协议 MIT 
+epub   引用于 [ epub.js](https://github.com/futurepress/epub.js) 开源协议 BSD许可证
+压缩包 引用于 [sevenzipjbinding](https://github.com/borisbrodski/sevenzipjbinding )开源协议LGPL
+3D     引用于 [Online3DViewer](https://github.com/kovacsv/Online3DViewer )开源协议MIT
+
 ### 使用登记
 如果这个项目解决了你的实际问题，可在 https://gitee.com/kekingcn/file-online-preview/issues/IGSBV
 登记下，如果节省了你的三方预览服务费用，也愿意支持下的话，可点击下方【捐助】请作者喝杯咖啡，也是非常感谢

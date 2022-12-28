@@ -31,8 +31,7 @@ public class CompressFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName=fileAttribute.getName();
-        String suffix=fileAttribute.getSuffix();
-        String fileTree = null;
+        String fileTree;
         // 判断文件名是否存在(redis缓存读取)
         if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
