@@ -131,6 +131,11 @@ public class WebUtils {
             } catch (UnsupportedEncodingException e) {
                 return null;
             }
+            String  urlStrr = url.toLowerCase();  //转换为小写对比
+            boolean wjl =kuayu("&fullfilename=", urlStrr);  //判断是否启用文件流
+            if(wjl){
+                url =  url.substring(0,url.lastIndexOf("&"));  //删除添加的文件流内容
+            }
             String noQueryUrl = url.substring(0, url.indexOf("?"));
             String parameterStr = url.substring(url.indexOf("?"));
             parameterStr = parameterStr.replaceFirst(fullFileName, encodedFileName);

@@ -5,6 +5,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 <#include "*/commonHeader.ftl">
+<script src="js/base64.min.js" type="text/javascript"></script>
 <#if currentUrl?contains("http://") || currentUrl?contains("https://")>
     <#assign finalUrl="${currentUrl}">
     <#elseif currentUrl?contains("ftp://") >
