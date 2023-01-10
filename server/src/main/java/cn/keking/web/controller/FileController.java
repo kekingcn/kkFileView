@@ -31,7 +31,7 @@ import java.util.Objects;
 
 /**
  * @author yudian-it
- * @date 2017/12/1
+ *  2017/12/1
  */
 @RestController
 public class FileController {
@@ -63,6 +63,15 @@ public class FileController {
         int pos = (Math.max(winSep, unixSep));
         if (pos != -1) {
             fileName = fileName.substring(pos + 1);
+        }
+        String fileType= "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            fileType= fileName.substring(i+1);
+            fileType= fileType.toLowerCase();
+        }
+        if (fileType.length() == 0 || fileType.equals("dll") || fileType.equals("exe") || fileType.equals("msi") ){
+            return ReturnResponse.failure(fileName+"不允许上传的文件");
         }
         // 判断是否存在同名文件
         if (existsFile(fileName)) {
