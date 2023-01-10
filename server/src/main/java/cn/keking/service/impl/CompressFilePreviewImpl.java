@@ -42,7 +42,7 @@ public class CompressFilePreviewImpl implements FilePreview {
             fileTree = compressFileReader.unRar(filePath, fileName);
             if (ConfigConstants.isCacheEnabled()) {
                 // 加入缓存
-                fileHandlerService.addConvertedFile(fileName, fileHandlerService.getRelativePath(fileTree));
+                fileHandlerService.addConvertedFile(fileName, fileTree);
             }
 
         } else {
