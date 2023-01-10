@@ -19,7 +19,7 @@ public class SecurityFilterProxy extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if((","+NOT_ALLOW_METHODS+",").indexOf(","+request.getMethod().toLowerCase()+",") > -1) {
+        if((","+NOT_ALLOW_METHODS+",").indexOf(","+request.getMethod().toUpperCase()+",") > -1) {
             response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             response.setHeader("Content-Type", "text/html; charset=iso-8859-1");
             response.getWriter().println("Method Not Allowed");

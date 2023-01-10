@@ -42,6 +42,7 @@ public class CompressFilePreviewImpl implements FilePreview {
             fileTree = compressFileReader.unRar(filePath, fileName);
         } else {
             fileTree = fileHandlerService.getConvertedFile(fileName);
+            fileHandlerService.addConvertedFile(fileName, fileTree);
         }
         if (fileTree != null && !"null".equals(fileTree)) {
             model.addAttribute("fileTree", fileTree);
