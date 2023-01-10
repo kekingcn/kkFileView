@@ -51,7 +51,7 @@ public class DownloadUtils {
             return response;
         }
         if(realPath.equals("cunzhai")){
-            response.setContent(realPath);
+            response.setContent(fileDir + fileName);
             response.setMsg(fileName);
             return response;
         }

@@ -40,9 +40,13 @@ public class CompressFilePreviewImpl implements FilePreview {
             }
             String filePath = response.getContent();
             fileTree = compressFileReader.unRar(filePath, fileName);
+            if (ConfigConstants.isCacheEnabled()) {
+                // 加入缓存
+                fileHandlerService.addConvertedFile(fileName, fileHandlerService.getRelativePath(fileTree));
+            }
+
         } else {
             fileTree = fileHandlerService.getConvertedFile(fileName);
-            fileHandlerService.addConvertedFile(fileName, fileTree);
         }
         if (fileTree != null && !"null".equals(fileTree)) {
             model.addAttribute("fileTree", fileTree);
