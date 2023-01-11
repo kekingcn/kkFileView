@@ -50,6 +50,11 @@ public class DownloadUtils {
             response.setMsg("下载失败:文件名不合法!" + urlStr);
             return response;
         }
+        if(realPath.equals("cunzhai")){
+            response.setContent(fileDir + fileName);
+            response.setMsg(fileName);
+            return response;
+        }
         try {
             URL url = WebUtils.normalizedURL(urlStr);
             if (!fileAttribute.getSkipDownLoad()) {
@@ -110,6 +115,7 @@ public class DownloadUtils {
         File realFile = new File(realPath);
         if (realFile.exists()) {
             fileAttribute.setSkipDownLoad(true);
+            return "cunzhai";
         }
         return realPath;
     }

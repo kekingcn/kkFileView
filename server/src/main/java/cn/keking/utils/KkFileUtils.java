@@ -102,7 +102,7 @@ public class KkFileUtils {
     public static String htmlEscape(String input) {
         if(StringUtils.hasText(input)){
             //input = input.replaceAll("\\{", "%7B").replaceAll("}", "%7D").replaceAll("\\\\", "%5C");
-            return HtmlUtils.htmlEscape(input);
+            return HtmlUtils.htmlEscape(input, "UTF-8");
         }
         return input;
     }

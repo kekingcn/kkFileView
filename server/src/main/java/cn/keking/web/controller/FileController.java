@@ -31,7 +31,7 @@ import java.util.Objects;
 
 /**
  * @author yudian-it
- * @date 2017/12/1
+ *  2017/12/1
  */
 @RestController
 public class FileController {
@@ -64,6 +64,15 @@ public class FileController {
         if (pos != -1) {
             fileName = fileName.substring(pos + 1);
         }
+        String fileType= "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            fileType= fileName.substring(i+1);
+            fileType= fileType.toLowerCase();
+        }
+        if (fileType.length() == 0 || fileType.equals("dll") || fileType.equals("exe") || fileType.equals("msi") ){
+            return ReturnResponse.failure(fileName+"不允许上传的文件");
+        }
         // 判断是否存在同名文件
         if (existsFile(fileName)) {
             return ReturnResponse.failure("存在同名文件，请先删除原有文件再次上传");
@@ -75,6 +84,8 @@ public class FileController {
         logger.info("上传文件：{}", fileDir + demoPath + fileName);
         try (InputStream in = file.getInputStream(); OutputStream out = Files.newOutputStream(Paths.get(fileDir + demoPath + fileName))) {
             StreamUtils.copy(in, out);
+            in.close();
+            out.close();
             return ReturnResponse.success(null);
         } catch (IOException e) {
             logger.error("文件上传失败", e);

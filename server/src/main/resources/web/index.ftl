@@ -238,6 +238,13 @@
 
         $("#btnSubmit").click(function () {
             var _fileName = $("#fileName").text()
+            var index= _fileName.lastIndexOf(".");
+            //获取后缀
+            var ext = _fileName.substr(index+1);
+             if (!ext || ext == "dll"|| ext == "exe"|| ext == "msi" ){
+             window.alert(ext+"不支持上传")
+            return ;
+        }
             if(!_fileName){
                 $("#postFileAlert").addClass("show");
                 window.setTimeout(function(){

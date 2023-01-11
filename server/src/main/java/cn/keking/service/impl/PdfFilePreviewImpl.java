@@ -10,6 +10,7 @@ import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -73,6 +74,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                         fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                     }
                 } else {
+                    pdfName =   URLEncoder.encode(pdfName).replaceAll("\\+", "%20");
                     model.addAttribute("pdfUrl", pdfName);
                 }
             } else {

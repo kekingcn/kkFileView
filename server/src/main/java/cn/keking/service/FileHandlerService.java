@@ -191,6 +191,9 @@ public class FileHandlerService {
         }
         try {
             File pdfFile = new File(pdfFilePath);
+            if (!pdfFile.exists()) {
+                return null;
+            }
             PDDocument doc = PDDocument.load(pdfFile);
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
@@ -272,11 +275,6 @@ public class FileHandlerService {
         }
         if (url.contains("?fileKey=")) {
             attribute.setSkipDownLoad(true);
-        }
-        String  urlStrr = url.toLowerCase();  //转换为小写对比
-        boolean wjl = WebUtils.kuayu("&fullfilename=", urlStrr);  //判断是否启用文件流
-        if(wjl){
-            url =  url.substring(0,url.lastIndexOf("&"));  //删除添加的文件流内容
         }
         url = WebUtils.encodeUrlFileName(url);
         fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
