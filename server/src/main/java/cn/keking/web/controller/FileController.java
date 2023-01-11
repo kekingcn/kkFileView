@@ -84,6 +84,8 @@ public class FileController {
         logger.info("上传文件：{}", fileDir + demoPath + fileName);
         try (InputStream in = file.getInputStream(); OutputStream out = Files.newOutputStream(Paths.get(fileDir + demoPath + fileName))) {
             StreamUtils.copy(in, out);
+            in.close();
+            out.close();
             return ReturnResponse.success(null);
         } catch (IOException e) {
             logger.error("文件上传失败", e);

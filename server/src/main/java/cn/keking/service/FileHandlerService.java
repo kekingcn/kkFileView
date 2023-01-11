@@ -191,6 +191,9 @@ public class FileHandlerService {
         }
         try {
             File pdfFile = new File(pdfFilePath);
+            if (!pdfFile.exists()) {
+                return null;
+            }
             PDDocument doc = PDDocument.load(pdfFile);
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
