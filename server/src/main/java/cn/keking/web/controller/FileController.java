@@ -3,6 +3,7 @@ package cn.keking.web.controller;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.KkFileUtils;
+import cn.keking.utils.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StreamUtils;
@@ -17,17 +18,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author yudian-it
@@ -41,7 +35,7 @@ public class FileController {
     private final String fileDir = ConfigConstants.getFileDir();
     private final String demoDir = "demo";
     private final String demoPath = demoDir + File.separator;
-
+    public static final String BASE64_DECODE_ERROR_MSG = "Base64解码失败，请检查你的 %s 是否采用 Base64 + urlEncode 双重编码了！";
     @PostMapping("/fileUpload")
     public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file) {
         if (ConfigConstants.getFileUploadDisable()) {
@@ -99,10 +93,10 @@ public class FileController {
             return ReturnResponse.failure("文件名为空，删除失败！");
         }
         try {
-         fileName = fileName.replaceAll("%(?![0-9a-fA-F]{2})", "%25").replaceAll("\\+", "%2B");
-         fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            fileName = WebUtils.decodeUrl(fileName);
+        } catch (Exception ex) {
+            String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
+            return ReturnResponse.failure(errorMsg+"删除失败！");
         }
         if (fileName.contains("/")) {
             fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
