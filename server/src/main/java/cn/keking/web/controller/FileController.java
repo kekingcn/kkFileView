@@ -99,7 +99,8 @@ public class FileController {
             return ReturnResponse.failure("文件名为空，删除失败！");
         }
         try {
-            fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.name());
+         fileName = fileName.replaceAll("%(?![0-9a-fA-F]{2})", "%25").replaceAll("\\+", "%2B");
+         fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

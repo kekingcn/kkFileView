@@ -208,10 +208,10 @@
         }).on('pre-body.bs.table', function (e, data) {
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
+           var  fileName= item.fileName.replace(/'/g,"%27");  
                 item.action = "<a class='btn btn-success' target='_blank' href='${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "'>预览</a>" +
-                    "<a class='btn btn-danger' style='margin-left:10px;' href='javascript:void(0);' onclick='deleteFile(\"" + item.fileName + "\")'>删除</a>";
+                "<a class='btn btn-danger' style='margin-left:10px;' href='javascript:void(0);' onclick='deleteFile(\"" + fileName + "\")'>删除</a>";
             });
-
             return data;
         }).on('post-body.bs.table', function (e, data) {
             return data;
