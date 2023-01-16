@@ -236,8 +236,8 @@ public class FileHandlerService {
         com.aspose.cad.Image cadImage = Image.load(inputFilePath, opts);
         CadRasterizationOptions cadRasterizationOptions = new CadRasterizationOptions();
         cadRasterizationOptions.setBackgroundColor(Color.getWhite());
-        cadRasterizationOptions.setPageWidth(cadImage.getWidth());
-        cadRasterizationOptions.setPageHeight(cadImage.getHeight());
+        cadRasterizationOptions.setPageWidth(1400);
+        cadRasterizationOptions.setPageHeight(650);
         cadRasterizationOptions.setAutomaticLayoutsScaling(true);
         cadRasterizationOptions.setNoScaling (false);
         cadRasterizationOptions.setDrawType(1);
