@@ -6,7 +6,10 @@ import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
+import com.aspose.cad.CodePages;
 import com.aspose.cad.Color;
+import com.aspose.cad.Image;
+import com.aspose.cad.LoadOptions;
 import com.aspose.cad.fileformats.cad.CadDrawTypeMode;
 import com.aspose.cad.imageoptions.CadRasterizationOptions;
 import com.aspose.cad.imageoptions.PdfOptions;
@@ -227,29 +230,34 @@ public class FileHandlerService {
      * @return 转换是否成功
      */
     public boolean cadToPdf(String inputFilePath, String outputFilePath)  {
-        com.aspose.cad.Image cadImage = com.aspose.cad.Image.load(inputFilePath);
+        File outputFile = new File(outputFilePath);
+        LoadOptions opts = new LoadOptions();
+        opts.setSpecifiedEncoding(CodePages.SimpChinese);
+        com.aspose.cad.Image cadImage = Image.load(inputFilePath, opts);
         CadRasterizationOptions cadRasterizationOptions = new CadRasterizationOptions();
-        cadRasterizationOptions.setLayouts(new String[]{"Model"});
-        cadRasterizationOptions.setNoScaling(true);
         cadRasterizationOptions.setBackgroundColor(Color.getWhite());
-        cadRasterizationOptions.setPageWidth(cadImage.getWidth());
-        cadRasterizationOptions.setPageHeight(cadImage.getHeight());
-        cadRasterizationOptions.setPdfProductLocation("center");
+        cadRasterizationOptions.setPageWidth(1400);
+        cadRasterizationOptions.setPageHeight(650);
         cadRasterizationOptions.setAutomaticLayoutsScaling(true);
-        cadRasterizationOptions.setDrawType(CadDrawTypeMode.UseObjectColor);
+        cadRasterizationOptions.setNoScaling (false);
+        cadRasterizationOptions.setDrawType(1);
         PdfOptions pdfOptions = new PdfOptions();
         pdfOptions.setVectorRasterizationOptions(cadRasterizationOptions);
-        File outputFile = new File(outputFilePath);
         OutputStream stream;
         try {
             stream = new FileOutputStream(outputFile);
             cadImage.save(stream, pdfOptions);
+            stream.close();
             cadImage.close();
             return true;
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             logger.error("PDFFileNotFoundException，inputFilePath：{}", inputFilePath, e);
-            return false;
+        }finally{
+            if(cadImage != null){   //关闭
+                cadImage.close();
+            }
         }
+        return false;
     }
 
     /**
@@ -277,7 +285,7 @@ public class FileHandlerService {
             attribute.setSkipDownLoad(true);
         }
         url = WebUtils.encodeUrlFileName(url);
-        fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
+       fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
