@@ -1,0 +1,60 @@
+name: Image Publish
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          # AdoptOpenJDK got moved to Eclipse Temurin and won't be updated anymore.
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Build image
+        run: |
+          mkdir application && cd application && \
+          java -Djarmode=layertools -jar ../server/target/*.jar extract && \
+          cp -r ../fonts . && \
+          cp ../Dockerfile . && \
+          DOCKER_BUILDKIT=1 docker build -t $(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') -f Dockerfile . 
+      - name: Push image to Github
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          IMAGE_ID=ghcr.io/$REPOSITORY
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          docker tag $REPOSITORY:latest $IMAGE_ID:$VERSION
+          docker tag $REPOSITORY:latest $IMAGE_ID:latest
+          docker push $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:latest
+      - name: Push image to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          
+          REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          IMAGE_ID=docker.io/$REPOSITORY
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          docker tag $REPOSITORY:latest $IMAGE_ID:$VERSION
+          docker tag $REPOSITORY:latest $IMAGE_ID:latest
+          docker push $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:latest
