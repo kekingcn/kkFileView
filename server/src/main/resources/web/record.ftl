@@ -27,7 +27,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="https://kkfileview.keking.cn" target='_blank'>kkFileView</a>
+          <a class="navbar-brand" href="https://kkview.cn" target='_blank'>kkFileView</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -167,7 +167,7 @@
                     12. 修复url中包含特殊字符可能会引起的预览异常<br>
                     13. 修复转换文件队列addTask异常<br>
                     14. 修复其他已经问题<br>
-                    15. 官网建设：<a href="https://kkfileview.keking.cn">https://kkfileview.keking.cn</a><br>
+                    15. 官网建设：<a href="https://kkview.cn">https://kkview.cn</a><br>
                     16. 官方Docker镜像仓库建设：<a href="https://hub.docker.com/r/keking/kkfileview">https://hub.docker.com/r/keking/kkfileview</a>
                 </div>
             </div>
