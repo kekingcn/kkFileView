@@ -39,11 +39,6 @@ URL：[https://kkview.cn](https://kkview.cn/)
 
 URL：[https://kkview.cn/preview/index](https://kkview.cn/preview/index)
 
-### Documentation
-1. Full wiki document：https://gitee.com/kekingcn/file-online-preview/wikis/pages
-1. 中文文档：https://gitee.com/kekingcn/file-online-preview/blob/master/README.md
-1. English document：https://gitee.com/kekingcn/file-online-preview/blob/master/README.en.md
-
 ### Quick Start
 > Technology stack
 - Spring boot： [spring boot Development Reference Guide](http://www.kailing.pub/PdfReader/web/viewer.html?file=springboot)
@@ -54,10 +49,9 @@ URL：[https://kkview.cn/preview/index](https://kkview.cn/preview/index)
 - Redis(Optional, Unnecessary by default)
 - OpenOffice or LibreOffice(Integrated on Windows, will be installed automatically on Linux, need to be manually installed on Mac OS)
 
-1. First step：`git pull https://github.com/kekingcn/file-online-preview.git`
+1. First step：`git pull https://github.com/kekingcn/kkFileView.git`
 
-2. Third step：Run the main method of FilePreviewApplication.java.After starting,visit `http://localhost:8012/`.
-If everything is ok,you will see the picture below.
+2. second step：Run the main method of `/server/src/main/java/cn/keking/ServerMain.java`. After starting,visit `http://localhost:8012/`.
 
 ### Changelog
 > December 14, 2022, version 4.1.0 released:
