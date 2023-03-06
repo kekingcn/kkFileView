@@ -299,7 +299,7 @@
                             height: windowWidth,
                             width: windowHeight
                         } : a
-                          , l = new o.IframeController(i,"/xmind/index.html")
+                          , l = new o.IframeController(i,"xmind/index.html")
                           , u = new r.IframeEventChannelController(l,"");
                         this.iframeController = l,
                         this.iframeEventChannelController = u,
