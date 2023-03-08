@@ -34,7 +34,7 @@
 ### 在线体验
 > 请善待公共服务，会不定时停用
 
-地址：[https://file.kkview.cn](https://file.kkview.cn)
+地址：[https://kkview.cn/preview/index](https://kkview.cn/preview/index)
 
 ### 项目文档（Project documentation）
 1. 详细wiki文档：https://gitee.com/kekingcn/file-online-preview/wikis/pages
