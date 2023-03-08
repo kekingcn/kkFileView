@@ -4,6 +4,7 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
+import cn.keking.service.cache.NotResourceCache;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
 import com.aspose.cad.CodePages;
@@ -198,6 +199,7 @@ public class FileHandlerService {
                 return null;
             }
             PDDocument doc = PDDocument.load(pdfFile);
+            doc.setResourceCache(new NotResourceCache());
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
 
