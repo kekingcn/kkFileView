@@ -2,26 +2,26 @@ package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FilePreview;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
 /**
- * svg 图片文件处理
  * @author kl (http://kailing.pub)
- * @since 2021/2/8
+ * @since 2023/3/9
  */
-@Service
-public class SvgFilePreviewImpl implements FilePreview {
+@Component
+public class BpmnFilePreviewImpl implements FilePreview {
 
     private final CommonPreviewImpl commonPreview;
 
-    public SvgFilePreviewImpl(CommonPreviewImpl commonPreview) {
+    public BpmnFilePreviewImpl(CommonPreviewImpl commonPreview) {
         this.commonPreview = commonPreview;
     }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         commonPreview.filePreviewHandle(url,model,fileAttribute);
-        return SVG_FILE_PREVIEW_PAGE;
+        model.addAttribute("fileName", fileAttribute.getName());
+        return FilePreview.BPMN_FILE_PREVIEW_PAGE;
     }
 }

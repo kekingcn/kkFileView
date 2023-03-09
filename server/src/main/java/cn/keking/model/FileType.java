@@ -29,7 +29,8 @@ public enum FileType {
     Online3D("online3DFilePreviewImpl"),
     XMIND("xmindFilePreviewImpl"),
     SVG("svgFilePreviewImpl"),
-    Epub("epubFilePreviewImpl");
+    Epub("epubFilePreviewImpl"),
+    BPMN("bpmnFilePreviewImpl");
 
     private static final String[] OFFICE_TYPES = {"docx", "wps", "doc", "docm", "xls", "xlsx", "csv" ,"xlsm", "ppt", "pptx", "vsd", "rtf", "odt", "wmf", "emf", "dps", "et", "ods", "ots", "tsv", "odp", "otp", "sxi", "ott", "vsdx", "fodt", "fods", "xltx","tga","psd","dotm","ett","xlt","xltm","wpt","dot","xlam","xla"};
     private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "jfif", "webp"};
@@ -98,6 +99,7 @@ public enum FileType {
         FILE_TYPE_MAPPER.put("xml", FileType.XML);
         FILE_TYPE_MAPPER.put("pdf", FileType.PDF);
         FILE_TYPE_MAPPER.put("flv", FileType.FLV);
+        FILE_TYPE_MAPPER.put("bpmn", FileType.BPMN);
     }
 
     private static FileType to(String fileType) {

@@ -8,6 +8,7 @@
 6. 支持 psd 等 Photoshop 软件模型文件
 7. 支持 pdf ,ofd, rtf 等文档
 8. 支持 xmind 软件模型文件
+9. 支持 bpmn 工作流文件
 9. 支持 eml 邮件文件
 10. 支持 epub 图书文档
 10. 支持 obj, 3ds, stl, ply, gltf, glb, off, 3dm, fbx, dae, wrl, 3mf, ifc, brep, step, iges, fcstd, bim 等 3D 模型文件

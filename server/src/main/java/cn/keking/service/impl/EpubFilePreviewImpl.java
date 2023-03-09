@@ -13,15 +13,15 @@ import org.springframework.ui.Model;
 @Service
 public class EpubFilePreviewImpl implements FilePreview {
 
-    private final PictureFilePreviewImpl pictureFilePreview;
+    private final CommonPreviewImpl commonPreview;
 
-    public EpubFilePreviewImpl(PictureFilePreviewImpl pictureFilePreview) {
-        this.pictureFilePreview = pictureFilePreview;
+    public EpubFilePreviewImpl(CommonPreviewImpl commonPreview) {
+        this.commonPreview = commonPreview;
     }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        pictureFilePreview.filePreviewHandle(url,model,fileAttribute);
+        commonPreview.filePreviewHandle(url,model,fileAttribute);
         return EpubFilePreviewImpl;
     }
 }

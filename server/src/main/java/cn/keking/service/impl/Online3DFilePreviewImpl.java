@@ -12,15 +12,15 @@ import org.springframework.ui.Model;
 @Service
 public class Online3DFilePreviewImpl implements FilePreview {
 
-    private final PictureFilePreviewImpl pictureFilePreview;
+    private final CommonPreviewImpl commonPreview;
 
-    public Online3DFilePreviewImpl(PictureFilePreviewImpl pictureFilePreview) {
-        this.pictureFilePreview = pictureFilePreview;
+    public Online3DFilePreviewImpl(CommonPreviewImpl commonPreview) {
+        this.commonPreview = commonPreview;
     }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        pictureFilePreview.filePreviewHandle(url,model,fileAttribute);
+        commonPreview.filePreviewHandle(url,model,fileAttribute);
         return Online3D_FILE_PAGE;
     }
 }
