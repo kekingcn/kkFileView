@@ -12,6 +12,7 @@ Document online preview project solution, built using the popular Spring Boot fr
 6. Supports Photoshop software model files such as `psd`.
 7. Supports document formats like `pdf`, `ofd`, and `rtf`.
 8. Supports software model files like `xmind`. 
+9. Support for `bpmn` workflow files.
 9. Support for `eml` mail files
 10. Support for `epub` book documents
 10. Supports 3D model files like `obj`, `3ds`, `stl`, `ply`, `gltf`, `glb`, `off`, `3dm`, `fbx`, `dae`, `wrl`, `3mf`, `ifc`, `brep`, `step`, `iges`, `fcstd`, `bim`, etc.

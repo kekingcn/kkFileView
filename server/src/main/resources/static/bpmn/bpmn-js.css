@@ -1,0 +1,144 @@
+.bjs-container {
+    --bjs-font-family: Arial, sans-serif;
+
+    --color-grey-225-10-15: hsl(225, 10%, 15%);
+    --color-grey-225-10-35: hsl(225, 10%, 35%);
+    --color-grey-225-10-55: hsl(225, 10%, 55%);
+    --color-grey-225-10-75: hsl(225, 10%, 75%);
+    --color-grey-225-10-80: hsl(225, 10%, 80%);
+    --color-grey-225-10-85: hsl(225, 10%, 85%);
+    --color-grey-225-10-90: hsl(225, 10%, 90%);
+    --color-grey-225-10-95: hsl(225, 10%, 95%);
+    --color-grey-225-10-97: hsl(225, 10%, 97%);
+
+    --color-blue-205-100-45: hsl(205, 100%, 45%);
+    --color-blue-205-100-45-opacity-30: hsla(205, 100%, 45%, 30%);
+    --color-blue-205-100-50: hsl(205, 100%, 50%);
+    --color-blue-205-100-95: hsl(205, 100%, 95%);
+
+    --color-green-150-86-44: hsl(150, 86%, 44%);
+
+    --color-red-360-100-40: hsl(360, 100%, 40%);
+    --color-red-360-100-45: hsl(360, 100%, 45%);
+    --color-red-360-100-92: hsl(360, 100%, 92%);
+    --color-red-360-100-97: hsl(360, 100%, 97%);
+
+    --color-white: hsl(0, 0%, 100%);
+    --color-black: hsl(0, 0%, 0%);
+    --color-black-opacity-05: hsla(0, 0%, 0%, 5%);
+    --color-black-opacity-10: hsla(0, 0%, 0%, 10%);
+
+    --breadcrumbs-font-family: var(--bjs-font-family);
+    --breadcrumbs-item-color: var(--color-blue-205-100-50);
+    --breadcrumbs-arrow-color: var(--color-black);
+    --drilldown-fill-color: var(--color-white);
+    --drilldown-background-color: var(--color-blue-205-100-50);
+}
+
+.bjs-breadcrumbs {
+    position: absolute;
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    top: 30px;
+    left: 30px;
+    padding: 0px;
+    margin: 0px;
+    font-family: var(--breadcrumbs-font-family);
+    font-size: 16px;
+    line-height: normal;
+}
+
+.bjs-breadcrumbs-shown .bjs-breadcrumbs {
+    display: flex;
+}
+
+.djs-palette-shown .bjs-breadcrumbs {
+    left: 90px;
+}
+
+.djs-palette-shown.djs-palette-two-column .bjs-breadcrumbs {
+    left: 140px;
+}
+
+.bjs-breadcrumbs li {
+    display: inline-flex;
+    padding-bottom: 5px;
+}
+
+.bjs-breadcrumbs li a {
+    cursor: pointer;
+    color: var(--breadcrumbs-item-color);
+}
+
+.bjs-breadcrumbs li:last-of-type a {
+    color: inherit;
+    cursor: default;
+}
+
+.bjs-breadcrumbs li:not(:first-child)::before {
+    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /><path d="M0 0h24v24H0z" fill="none" /></svg>');
+    padding: 0 8px;
+    color: var(--breadcrumbs-arrow-color);
+    height: 1em;
+}
+
+.bjs-breadcrumbs .bjs-crumb {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bjs-drilldown {
+    width: 20px;
+    height: 20px;
+
+    padding: 0px;
+    margin-left: -20px;
+
+    cursor: pointer;
+    border: none;
+    border-radius: 2px;
+    outline: none;
+
+    fill: var(--drilldown-fill-color);
+    background-color: var(--drilldown-background-color);
+}
+
+.bjs-drilldown-empty {
+    display: none;
+}
+
+.selected .bjs-drilldown-empty {
+    display: inherit;
+}
+
+[data-popup="align-elements"] .djs-popup-results {
+    display: flex;
+}
+
+[data-popup="align-elements"] .djs-popup-body [data-group] + [data-group] {
+    border-left: 1px solid var(--popup-border-color);
+}
+
+[data-popup="align-elements"] [data-group="align"] {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+[data-popup="align-elements"] .djs-popup-body .entry {
+    padding: 6px 8px;
+}
+
+[data-popup="align-elements"] .djs-popup-body .entry:not(:first-child) {
+    margin-top: 0;
+}
+
+[data-popup="align-elements"] .djs-popup-entry-icon {
+    display: block;
+    margin: 0;
+    height: 20px;
+    width: 20px;
+}
