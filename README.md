@@ -4,7 +4,7 @@
 
 Document online preview project solution, built using the popular Spring Boot framework for easy setup and deployment. This versatile open source project provides basic support for a wide range of document formats, including:
 
-1. Supports Office documents such as `doc`, `docx`, `xls`, `xlsx`, `xlsm`, `ppt`, `pptx`, `csv`, `tsv`, , `dotm`, `xlt`, `xltm`, `dot`, `xlam`, `xla,` etc.
+1. Supports Office documents such as `doc`, `docx`, `xls`, `xlsx`, `xlsm`, `ppt`, `pptx`, `csv`, `tsv`, , `dotm`, `xlt`, `xltm`, `dot`, `xlam`, `dotx`, `xla,` etc.
 2. Supports domestic WPS Office documents such as `wps`, `dps`, `et` , `ett`, ` wpt`.
 3. Supports OpenOffice, LibreOffice office documents such as `odt`, `ods`, `ots`, `odp`, `otp`, `six`, `ott`, `fodt` and `fods`.
 4. Supports Visio flowchart files such as `vsd`, `vsdx`.
