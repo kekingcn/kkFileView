@@ -13,21 +13,23 @@ public class IndexController {
 
     @GetMapping( "/index")
     public String go2Index(){
-        return "index";
+        return "/main/index";
     }
 
     @GetMapping( "/record")
     public String go2Record(){
-        return "record";
+        return "/main/record";
     }
 
-    @GetMapping( "/comment")
-    public String go2Comment(){
-        return "comment";
+    @GetMapping( "/integrated")
+    public String go2Integrated(){
+        return "/main/integrated";
     }
 
     @GetMapping( "/")
     public String root() {
-        return "redirect:/index";
+        return "redirect:/main/index";
     }
+
+
 }
