@@ -41,8 +41,6 @@ import java.util.Map;
 public class FileHandlerService {
 
     private final Logger logger = LoggerFactory.getLogger(FileHandlerService.class);
-
-    private static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
     private final String fileDir = ConfigConstants.getFileDir();
     private final CacheService cacheService;
 
@@ -142,9 +140,10 @@ public class FileHandlerService {
      * @param outFilePath 文件绝对路径
      */
     public void doActionConvertedFile(String outFilePath) {
+         String charset = EncodingDetects.getJavaEncode(outFilePath);
         StringBuilder sb = new StringBuilder();
         try (InputStream inputStream = new FileInputStream(outFilePath);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_CONVERTER_CHARSET))) {
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset))) {
             String line;
             while (null != (line = reader.readLine())) {
                 if (line.contains("charset=gb2312")) {
