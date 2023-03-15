@@ -5,13 +5,13 @@ import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.cache.NotResourceCache;
+import cn.keking.utils.EncodingDetects;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
 import com.aspose.cad.CodePages;
 import com.aspose.cad.Color;
 import com.aspose.cad.Image;
 import com.aspose.cad.LoadOptions;
-import com.aspose.cad.fileformats.cad.CadDrawTypeMode;
 import com.aspose.cad.imageoptions.CadRasterizationOptions;
 import com.aspose.cad.imageoptions.PdfOptions;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -140,7 +140,7 @@ public class FileHandlerService {
      * @param outFilePath 文件绝对路径
      */
     public void doActionConvertedFile(String outFilePath) {
-         String charset = EncodingDetects.getJavaEncode(outFilePath);
+        String charset = EncodingDetects.getJavaEncode(outFilePath);
         StringBuilder sb = new StringBuilder();
         try (InputStream inputStream = new FileInputStream(outFilePath);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset))) {
@@ -286,7 +286,7 @@ public class FileHandlerService {
             attribute.setSkipDownLoad(true);
         }
         url = WebUtils.encodeUrlFileName(url);
-       fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
+        fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
