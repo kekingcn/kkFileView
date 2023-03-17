@@ -84,28 +84,35 @@
     <#--  输入下载地址预览文件  -->
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">输入下载地址预览文件</h3>
+            <h3 class="panel-title">输入下载地址预览</h3>
         </div>
         <div class="panel-body">
             <form>
-                <div class="form-group">
-                    <label>文件下载地址</label>
-                    <input type="url" class="form-control" id="_url" placeholder="请输入下载地址">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="form-group">
+                            <input type="url" class="form-control" id="_url" placeholder="请输入预览文件 url">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="previewByUrl" type="button" class="btn btn-success">预览</button>
+                    </div>
                 </div>
+
                 <div class="alert alert-danger alert-dismissable hide" role="alert" id="previewCheckAlert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <strong>请输入正确的url</strong>
                 </div>
-                <button id="previewByUrl" type="button" class="btn btn-success">预览</button>
+
             </form>
         </div>
     </div>
     <#--  预览测试  -->
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">预览测试</h3>
+            <h3 class="panel-title">上传本地文件预览</h3>
         </div>
         <div class="panel-body">
             <#if fileUploadDisable == false>
@@ -113,9 +120,19 @@
                     <form enctype="multipart/form-data" id="fileUpload">
                         <div class="form-group">
                             <p id="fileName"></p>
-                            <button type="button" class="btn btn-default" id="fileSelectBtn" style="margin-bottom:8px">
-                                <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 选择文件
-                            </button>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-default" id="fileSelectBtn" style="margin-bottom:8px">
+                                        <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 选择文件
+                                    </button>
+                                </div>
+                                <div class="col-md-1">
+                                    <button id="btnSubmit" type="button" class="btn btn-success">上 传</button>
+                                </div>
+                                <div class="col-md-9">
+                                </div>
+                            </div>
+
                             <input type="file" name="file" style="display: none" id="fileSelect"
                                    onchange="onFileSelected()"/>
                             <div class="alert alert-danger alert-dismissable hide" role="alert" id="postFileAlert">
@@ -125,7 +142,7 @@
                                 <strong>请选择需要上传的文件！</strong>
                             </div>
                         </div>
-                        <button id="btnSubmit" type="button" class="btn btn-success">上 传</button>
+
                     </form>
                 </div>
             </#if>
