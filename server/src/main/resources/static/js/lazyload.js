@@ -6,9 +6,8 @@ function isInSight(el) {
     return bound.top <= clientHeight + 100;
 }
 
-var index = 0;
-
 function checkImgs() {
+    var index = 0;
     var imgs = document.querySelectorAll('.my-photo');
     for (var i = index; i < imgs.length; i++) {
         if (isInSight(imgs[i])) {
