@@ -42,7 +42,9 @@ public class TrustHostFilter implements Filter {
             response.getWriter().write(html);
             response.getWriter().close();
         }
-        chain.doFilter(request, response);
+        else {
+            chain.doFilter(request, response);
+        }
     }
 
     @Override
