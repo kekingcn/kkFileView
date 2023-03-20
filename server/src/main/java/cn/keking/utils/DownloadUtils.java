@@ -75,7 +75,7 @@ public class DownloadUtils {
             response.setMsg(fileName);
             return response;
         } catch (IOException | GalimatiasParseException e) {
-            logger.error("文件下载失败，url：{}", urlStr, e);
+            logger.error("文件下载失败，url：{}", urlStr);
             response.setCode(1);
             response.setContent(null);
             if (e instanceof FileNotFoundException) {

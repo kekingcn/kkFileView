@@ -43,6 +43,7 @@ public class WebConfig implements WebMvcConfigurer {
         Set<String> filterUri = new HashSet<>();
         filterUri.add("/onlinePreview");
         filterUri.add("/picturesPreview");
+        filterUri.add("/getCorsFile");
         TrustHostFilter filter = new TrustHostFilter();
         FilterRegistrationBean<TrustHostFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(filter);
