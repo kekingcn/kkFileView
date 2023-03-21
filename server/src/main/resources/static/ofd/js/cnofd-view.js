@@ -53,6 +53,7 @@ window.onresize = function() {
     } ();
 };
 
+// 手机端，隐藏缩放比例选择框，打开文件和打印按钮
 if (this.isMobile()) {
     if (document.getElementById("zoomSelect")) document.getElementById("zoomSelect").style.display = "none";
     if (document.getElementById("openFile")) document.getElementById("openFile").style.display = "none";
@@ -61,11 +62,12 @@ if (this.isMobile()) {
     if (document.getElementById("separator2")) document.getElementById("separator2").style.display = "none";
 }
 
+// 判断手机端还是PC端
 function isMobile() {
     var flag = navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
     return flag;
 }
-
+// 判断是否IE浏览器
 function isIE() {
 	var navigator = window.navigator.userAgent;
 	if (navigator.indexOf("MSIE") > 0 || navigator.indexOf("Trident") > 0) {
@@ -96,8 +98,32 @@ data: function data() {
     };
 }
 
+this.pageZoomScale = "1.0";
+cnofd["setScaleValue"](this.pageZoomScale);
+var scale = this.getQueryVariable("scale");
+if (scale && (scale == "width" || Number(scale))) {
+    this.pageZoomScale = scale;
+    cnofd["setScaleValue"](scale);
+}
+
 var file = this.getQueryVariable("file");
 if (file) this.loadOfdFile(file);
+
+if (scale && (scale == "width" || Number(scale))) {
+    var selectZoom = document.getElementById("zoomValue");
+
+    selectZoom.selectedIndex = -1;
+    if (this.pageZoomScale == "width") {
+        selectZoom.selectedIndex = 0;
+    } else {
+        for (var i = 1; i < selectZoom.length; i++) {
+            if (Math.abs(this.pageZoomScale - selectZoom.options[i].value) < 0.01) {
+                selectZoom.selectedIndex = i;
+                break;
+            }
+        }
+    }
+}
 
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
@@ -125,8 +151,7 @@ function loadOfdFile(ofdFile) {
             that.ofdBase64 = base64String;
         }
     });
-    ofdFile = ofdFile = decodeURIComponent(ofdFile);
-    this.getOfdDocument(ofdFile, this.screenWidth);
+    this.getOfdDocument(ofdFile, this.screenWidth, this.pageZoomScale);
 
     setPageInfo();
 }
@@ -170,10 +195,12 @@ function fileChanged() {
         return;
     }
 
-    Object(cnofd["setScaleValue"])(1.0);
+    // 新打开OFD文件时，还原成页面实际尺寸显示
+    //Object(cnofd["setScaleValue"])(1.0);
+    Object(cnofd["setScaleValue"])(this.pageZoomScale);
     var selectZoom = document.getElementById("zoomValue");
     if (selectZoom)
-        selectZoom.value = "1.0";
+        selectZoom.value = this.pageZoomScale;
         
     var that = this;
     var reader = new FileReader();
@@ -183,10 +210,11 @@ function fileChanged() {
         that.ofdBase64 = e.target.result.split(",")[1];
     };
 
-    this.getOfdDocument(this.file, this.screenWidth);
+    this.getOfdDocument(this.file, this.screenWidth, this.pageZoomScale);
+    //$("#file")[0].value = null;
 }
 
-function getOfdDocument(file, screenWidth) {
+function getOfdDocument(file, screenWidth, pageZoomScale) {
     var that = this;
 
     $("#loading").show();
@@ -199,14 +227,18 @@ function getOfdDocument(file, screenWidth) {
             that.ofdDoc = res;
             that.pageIndex = 1;
             that.pageCount = res.pageCount;
-            var divs = Object(cnofd["ofdRender"])(res, screenWidth);
-            that.displayOfdDiv(divs);
+            if (pageZoomScale == "width") {
+                var divs = Object(cnofd["ofdRender"])(res, screenWidth);
+                that.displayOfdDiv(divs);
+            } else {
+                var divs = Object(cnofd["ofdRenderByScale"])(res, screenWidth, pageZoomScale);
+                that.displayOfdDiv(divs);                
+            }
             $("#loading").hide();
         },
         fail: function fail(error) {
             $("#loading").hide();
-
-            that.$alert("OFD打开失败", error, {
+            alert("OFD打开失败", error, {
                 confirmButtonText: "确定",
                 callback: function callback(action) {
                     this.$message({
@@ -242,7 +274,7 @@ function displayOfdDiv(divs) {
 
 function zoomIn() {
     var selectZoom = document.getElementById("zoomValue");
-    if (selectZoom.selectedIndex > 0) {
+    if (selectZoom.selectedIndex > 1) {
         selectZoom.selectedIndex = selectZoom.selectedIndex - 1;
         
         Object(cnofd["setScaleValue"])(selectZoom.options[selectZoom.selectedIndex].value);
@@ -259,6 +291,7 @@ function zoomOut() {
     var selectZoom = document.getElementById("zoomValue");
     if (selectZoom.selectedIndex < selectZoom.length-1) {
         selectZoom.selectedIndex = selectZoom.selectedIndex + 1;
+        if (selectZoom.selectedIndex == 0) selectZoom.selectedIndex = 1;
         
         Object(cnofd["setScaleValue"])(selectZoom.options[selectZoom.selectedIndex].value);
         var divs = Object(cnofd["ofdRenderByScale"])(this.ofdDoc);
@@ -272,13 +305,23 @@ function zoomOut() {
 
 function zoomChange() {
     var selectZoom = document.getElementById("zoomValue");
-    Object(cnofd["setScaleValue"])(selectZoom.options[selectZoom.selectedIndex].value);
-    var divs = Object(cnofd["ofdRenderByScale"])(this.ofdDoc);
-    if (divs) {
-      this.displayOfdDiv(divs);
+    if (selectZoom.options[selectZoom.selectedIndex].value == "width") {
+        Object(cnofd["setScaleValue"])(selectZoom.options[selectZoom.selectedIndex].value);
+        var divs = Object(cnofd["ofdRender"])(this.ofdDoc, this.screenWidth);
+        if (divs) {
+          this.displayOfdDiv(divs);
+        } else {
+          this.getOfdDocument(this.file, this.screenWidth);
+        } 
     } else {
-      this.getOfdDocument(this.file, this.screenWidth);
-    }  
+        Object(cnofd["setScaleValue"])(selectZoom.options[selectZoom.selectedIndex].value);
+        var divs = Object(cnofd["ofdRenderByScale"])(this.ofdDoc);
+        if (divs) {
+          this.displayOfdDiv(divs);
+        } else {
+          this.getOfdDocument(this.file, this.screenWidth);
+        } 
+    }
 }
 
 function scrool() {
@@ -362,7 +405,7 @@ function print() {
     if (list.length > 0) {
         if (!isIE()) {
             var mywindow = window.open("打印窗口", "_blank"); 
-             mywindow.document.write('<!DOCTYPE html><html><head>'
+            mywindow.document.write('<!DOCTYPE html><html><head>'
                                    +'<style media="print">.page-break { page-break-inside: avoid; page-break-after: always; }</style>'
                                    +'</head><body></body</html>');
             var documentBody = mywindow.document.body; 
@@ -399,7 +442,9 @@ function print() {
     }
 }
 
+// IE浏览器，在iframe里调用打印 
 function printIE(printhtml) {
+    //新建一个iframe 
     var iframe = document.createElement("iframe"); 
     iframe.id = "printf"; 
     iframe.style.width = "0"; 
@@ -407,6 +452,7 @@ function printIE(printhtml) {
     iframe.style.height = "0"; 
     iframe.style.border = "none";
      
+    //将iframe插入到printBody里 
     document.body.appendChild(iframe); 
     
     setTimeout(function () { 
