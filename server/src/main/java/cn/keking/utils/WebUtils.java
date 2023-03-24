@@ -157,6 +157,9 @@ public class WebUtils {
         String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         int fileNameStartIndex = noQueryUrl.lastIndexOf('/') + 1;
         int fileNameEndIndex = noQueryUrl.lastIndexOf('.');
+        if (fileNameEndIndex < fileNameStartIndex) {
+            return url;
+        }
         try {
             encodedFileName = URLEncoder.encode(noQueryUrl.substring(fileNameStartIndex, fileNameEndIndex), "UTF-8");
         } catch (UnsupportedEncodingException e) {
