@@ -119,7 +119,9 @@ public class FileController {
         List<Map<String, String>> list = new ArrayList<>();
         File file = new File(fileDir + demoPath);
         if (file.exists()) {
-            Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(file1 -> {
+            File[] files = Objects.requireNonNull(file.listFiles());
+            Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
+            Arrays.stream(files).forEach(file1 -> {
                 Map<String, String> fileName = new HashMap<>();
                 fileName.put("fileName", demoDir + "/" + file1.getName());
                 list.add(fileName);
