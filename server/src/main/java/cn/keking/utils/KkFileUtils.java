@@ -6,7 +6,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -169,6 +173,59 @@ public class KkFileUtils {
 
         if (!dirFile.delete() || !flag) {
             LOGGER.info("删除目录失败！");
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * 清空目录
+     *
+     * @param dir 要清空的目录路径
+     * @param millis 要删除多久前的文件夹/文件，0全删，单位ms
+     * @return 目录清空成功返回true，否则返回false
+     */
+    public static boolean cleanDirectory(String dir, long millis) {
+        // 如果dir不以文件分隔符结尾，自动添加文件分隔符
+        if (!dir.endsWith(File.separator)) {
+            dir = dir + File.separator;
+        }
+        File dirFile = new File(dir);
+        // 如果dir对应的文件不存在，或者不是一个目录，则退出
+        if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
+            LOGGER.info("清空目录失败：" + dir + "不存在！");
+            return false;
+        }
+        boolean flag = true;
+        // 清空文件夹中的文件包括子目录
+        File[] files = dirFile.listFiles();
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            try {
+                BasicFileAttributes attrs = Files.readAttributes(Paths.get(files[i].getAbsolutePath()),
+                        BasicFileAttributes.class);
+                if (millis > 0 && System.currentTimeMillis() - attrs.creationTime().toMillis() < millis) {
+                    continue;
+                }
+            } catch (IOException e) {
+                LOGGER.error("读取创建时间失败");
+            }
+            // 删除子文件
+            if (files[i].isFile()) {
+                flag = KkFileUtils.deleteFileByName(files[i].getAbsolutePath());
+                if (!flag) {
+                    break;
+                }
+            } else if (files[i].isDirectory()) {
+                // 删除子目录
+                flag = KkFileUtils.deleteDirectory(files[i].getAbsolutePath());
+                if (!flag) {
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            LOGGER.info("清空目录失败！");
             return false;
         }
         return true;

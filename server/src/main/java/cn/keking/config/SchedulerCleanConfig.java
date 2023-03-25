@@ -4,6 +4,7 @@ import cn.keking.service.cache.CacheService;
 import cn.keking.utils.KkFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,12 +27,19 @@ public class SchedulerCleanConfig {
 
     private final String fileDir = ConfigConstants.getFileDir();
 
+    private int hour;
+
+    @Value("${cache.clean.hour:0}")
+    public void setHour(String hour) {
+        this.hour = Integer.parseInt(hour);
+    }
+
     //默认每晚3点执行一次
     @Scheduled(cron = "${cache.clean.cron:0 0 3 * * ?}")
     public void clean() {
         logger.info("Cache clean start");
         cacheService.cleanCache();
-        KkFileUtils.deleteDirectory(fileDir);
+        KkFileUtils.cleanDirectory(fileDir, hour * 3600000L);
         logger.info("Cache clean end");
     }
 }
