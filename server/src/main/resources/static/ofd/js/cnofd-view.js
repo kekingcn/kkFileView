@@ -107,6 +107,7 @@ if (scale && (scale == "width" || Number(scale))) {
 }
 
 var file = this.getQueryVariable("file");
+    file = decodeURIComponent(file);  
 if (file) this.loadOfdFile(file);
 
 if (scale && (scale == "width" || Number(scale))) {
