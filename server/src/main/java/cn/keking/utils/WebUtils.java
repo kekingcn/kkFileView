@@ -3,6 +3,8 @@ package cn.keking.utils;
 import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Base64Utils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.ServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -101,6 +103,30 @@ public class WebUtils {
         // 所以先从？处将url截断，然后运用url.lastIndexOf("/")获取文件名
         String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         return noQueryUrl.substring(noQueryUrl.lastIndexOf("/") + 1);
+    }
+
+    /**
+     * 从url中剥离出文件名
+     * @param file 文件
+     * @return 文件名
+     */
+    public static String getFileNameFromMultipartFile(MultipartFile file) {
+        String fileName = file.getOriginalFilename();
+        //判断是否为IE浏览器的文件名，IE浏览器下文件名会带有盘符信
+        // escaping dangerous characters to prevent XSS
+        assert fileName != null;
+        fileName = HtmlUtils.htmlEscape(fileName, KkFileUtils.DEFAULT_FILE_ENCODING);
+
+        // Check for Unix-style path
+        int unixSep = fileName.lastIndexOf('/');
+        // Check for Windows-style path
+        int winSep = fileName.lastIndexOf('\\');
+        // Cut off at latest possible point
+        int pos = (Math.max(winSep, unixSep));
+        if (pos != -1) {
+            fileName = fileName.substring(pos + 1);
+        }
+        return fileName;
     }
 
 
