@@ -44,7 +44,7 @@ URL：[https://file.kkview.cn](https://file.kkview.cn)
 ### Contact Us
 > We will answer your questions carefully and solve any problems you encounter while using the project. We also kindly ask that you at least Google or Baidu before asking questions in order to save time and avoid ineffective communication. Let's cherish our lives and stay away from ineffective communication.
 
-![](./doc/github星球.png)
+<img src="./doc/github星球.png/" width="50%">
 
 ### Quick Start
 > Technology stack
