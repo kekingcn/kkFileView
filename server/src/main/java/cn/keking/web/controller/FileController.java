@@ -4,6 +4,7 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
+import cn.keking.service.CompressFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
@@ -160,6 +161,24 @@ public class FileController {
             return ReturnResponse.failure("非法文件名，删除失败！");
         }
         return ReturnResponse.success(fileName);
+    }
+
+    @GetMapping("/directory")
+    public Object directory(String urls) {
+        if (ObjectUtils.isEmpty(urls)) {
+            return ReturnResponse.failure("地址不合法！");
+        }
+        String fileUrl;
+        try {
+            fileUrl = WebUtils.decodeUrl(urls);
+            if (fileUrl.toLowerCase().startsWith("file:") || fileUrl.toLowerCase().startsWith("file%3")) {
+                return ReturnResponse.failure("地址不合法！");
+            }
+        } catch (Exception ex) {
+            String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
+            return errorMsg;
+        }
+        return CompressFileReader.getTree(fileUrl);
     }
 
     private boolean existsFile(String fileName) {
