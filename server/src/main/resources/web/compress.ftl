@@ -1,108 +1,71 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
-    <#include "*/commonHeader.ftl">
-    <script src="js/jquery-3.6.1.min.js" type="text/javascript"></script>
-    <link href="css/zTreeStyle.css" rel="stylesheet" type="text/css">
-    <script src="js/base64.min.js" type="text/javascript"></script>
-    <style type="text/css">
+    <meta charset="utf-8"/>
+    <title>压缩包预览</title>
+   <script src="js/jquery-3.6.1.min.js"></script>
+     <#include "*/commonHeader.ftl">
+   <script src="js/base64.min.js" type="text/javascript"></script>
+   <link href="css/zTreeStyle.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery.ztree.core.js"></script>
+        <style type="text/css">
         body {
             background-color: #404040;
         }
-        h1, h2, h3, h4, h5, h6 {color: #2f332a;font-weight: bold;font-family: Helvetica, Arial, sans-serif;padding-bottom: 5px;}
         h1 {font-size: 24px;line-height: 34px;text-align: center;}
-        h2 {font-size: 14px;line-height: 24px;padding-top: 5px;}
-        h6 {font-weight: normal;font-size: 12px;letter-spacing: 1px;line-height: 24px;text-align: center;}
         a {color:#3C6E31;text-decoration: underline;}
         a:hover {background-color:#3C6E31;color:white;}
         code {color: #2f332a;}
-        div.zTreeDemoBackground {width:600px;text-align:center;margin: 0 auto;background-color: #ffffff;}
+       div.zTreeDemoBackground {
+           max-width: 880px;
+           text-align:center;
+            margin:0 auto;
+            border-radius:3px;
+            box-shadow:rgba(0,0,0,0.15) 0 0 8px;
+            background:#FBFBFB;
+            border:1px solid #ddd;
+            margin:1px auto;
+            padding:5px;
+       }
+       
     </style>
 </head>
 <body>
-
 <div class="zTreeDemoBackground left">
+<h1>kkFileView</h1>
     <ul id="treeDemo" class="ztree"></ul>
 </div>
-<script type="text/javascript" src="js/jquery.ztree.core.js"></script>
-
-<script type="text/javascript">
-    const data = JSON.parse('${fileTree}');
-    var baseUrl = "${baseUrl}";
-    var setting = {
-        view: {
-            fontCss : {"color":"blue"},
-            showLine: true
-        },
+<script>
+    var settings = {
         data: {
-            key: {
-                children: 'childList',
-                name: 'originName'
+            simpleData: {
+                enable: true,  //true 、 false 分别表示 使用 、 不使用 简单数据模式
+                idKey: "id",   //节点数据中保存唯一标识的属性名称
+                pIdKey: "pid", //节点数据中保存其父节点唯一标识的属性名称
+                rootPId: ""
             }
         },
-        callback:{
-            beforeClick:function (treeId, treeNode, clickFlag) {
-                console.log("节点参数：treeId-" + treeId + "treeNode-"
-                        + JSON.stringify(treeNode) + "clickFlag-" + clickFlag);
-            },
-            onClick:function (event, treeId, treeNode) {
-                if (!treeNode.directory) {
-                    /**实现窗口最大化**/
-                    var fulls = "left=0,screenX=0,top=0,screenY=0,scrollbars=1";    //定义弹出窗口的参数
-                    if (window.screen) {
-                        var ah = screen.availHeight - 30;
-                        var aw = (screen.availWidth - 10) / 2;
-                        fulls += ",height=" + ah;
-                        fulls += ",innerHeight=" + ah;
-                        fulls += ",width=" + aw;
-                        fulls += ",innerWidth=" + aw;
-                        fulls += ",resizable"
-                    } else {
-                        fulls += ",resizable"; // 对于不支持screen属性的浏览器，可以手工进行最大化。 manually
-                    }
-                    var previewUrl = baseUrl + treeNode.fileName +"?fileKey="+ treeNode.fileKey;
-                    window.open("onlinePreview?url=" + encodeURIComponent(Base64.encode(previewUrl)), "_blank",fulls);
-                }
-            }
+        callback: {
+            onClick: chooseNode,
         }
     };
-    var height = 0;
-    $(document).ready(function(){
-        var treeObj = $.fn.zTree.init($("#treeDemo"), setting, data);
-        treeObj.expandAll(true);
-        height = getZtreeDomHeight();
-        $(".zTreeDemoBackground").css("height", height);
+
+    function chooseNode(event, treeId, treeNode) {
+        var path = '${baseUrl}' + treeNode.id +"?fileKey="+'${fileName}';
+        location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
+    }
+
+    $(document).ready(function () {
+    var url = '${fileTree}';
+        $.ajax({
+            type: "get",
+            url: "${baseUrl}directory?urls="+encodeURIComponent(Base64.encode(url)),
+            success: function (res) {
+                zTreeObj = $.fn.zTree.init($("#treeDemo"), settings, res); //初始化树
+                zTreeObj.expandAll(true);   //true 节点全部展开、false节点收缩
+            }
+        });
     });
-
-    /*初始化水印*/
-    window.onload = function() {
-      initWaterMark();
-    }
-
-    /**
-     *  计算ztreedom的高度
-     */
-    function getZtreeDomHeight() {
-        return $("#treeDemo").height() > window.document.documentElement.clientHeight - 1
-                ? $("#treeDemo").height() : window.document.documentElement.clientHeight - 1;
-    }
-    /**
-     * 页面变化调整高度
-     */
-    window.onresize = function(){
-        height = getZtreeDomHeight();
-        $(".zTreeDemoBackground").css("height", height);
-    }
-    /**
-     * 滚动时调整高度
-     */
-    window.onscroll = function(){
-        height = getZtreeDomHeight();
-        $(".zTreeDemoBackground").css("height", height);
-    }
 </script>
 </body>
 </html>
