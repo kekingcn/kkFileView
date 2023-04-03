@@ -80,7 +80,7 @@
 </div>
 
 <!-- JavaSript ================================================== -->
-<script src="pptx/jquery-3.5.1.min.js"></script>
+<script src="js/jquery-3.6.1.min.js"></script>
 <script src="pptx/jquery.contextMenu.js?v=11.2.5_20210128"></script>
 <script src="pptx/idocv/idocv_common.min.js"></script>
 <script src="pptx/jquery.mobile-events.min.js"></script>
