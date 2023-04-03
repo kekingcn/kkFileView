@@ -9,6 +9,7 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.service.CompressFileReader;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -21,7 +22,6 @@ public class CompressFilePreviewImpl implements FilePreview {
     private final FileHandlerService fileHandlerService;
     private final CompressFileReader compressFileReader;
     private final OtherFilePreviewImpl otherFilePreview;
-
     public CompressFilePreviewImpl(FileHandlerService fileHandlerService, CompressFileReader compressFileReader, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.compressFileReader = compressFileReader;
@@ -31,6 +31,7 @@ public class CompressFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName=fileAttribute.getName();
+        String filePassword = fileAttribute.getFilePassword();
         String fileTree;
         // 判断文件名是否存在(redis缓存读取)
         if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
@@ -39,8 +40,15 @@ public class CompressFilePreviewImpl implements FilePreview {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
             String filePath = response.getContent();
-            fileTree = compressFileReader.unRar(filePath, fileName);
-            if (fileTree != null && !"null".equals(fileTree)) {
+            fileTree = compressFileReader.unRar(filePath, filePassword,fileName);
+            if ("Password".equals(fileTree)) {
+                model.addAttribute("needFilePassword", true);
+                return EXEL_FILE_PREVIEW_PAGE;
+            }
+            if ("error".equals(fileTree) ) {
+                return otherFilePreview.notSupportedFile(model, fileAttribute, "解压失败：密码错误或者其他错误....");
+            }
+            if (!ObjectUtils.isEmpty(fileTree)) {
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
                     fileHandlerService.addConvertedFile(fileName, fileTree);
@@ -49,7 +57,8 @@ public class CompressFilePreviewImpl implements FilePreview {
         } else {
             fileTree = fileHandlerService.getConvertedFile(fileName);
         }
-        if (fileTree != null && !"null".equals(fileTree)) {
+        if (!ObjectUtils.isEmpty(fileTree)) {
+            model.addAttribute("fileName", fileName);
             model.addAttribute("fileTree", fileTree);
             return COMPRESS_FILE_PREVIEW_PAGE;
         } else {
