@@ -83,6 +83,15 @@ public class TiffFilePreviewImpl implements FilePreview {
                 }
 
             } else {
+                File fileTiff = new File(strLocalTif);
+                // 如果本地不存在这个tif文件，则下载
+                if (!fileTiff.exists()) {
+                    ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
+                    if (response.isFailure()) {
+                        return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
+                    }
+                    strLocalTif = response.getContent();
+                }
                 // 以JPG模式预览的过程
                 String strJpgFilePathName = fileDir + jpgName;
                 // 将tif转换为jpg，返回转换后的文件路径、文件名的list
