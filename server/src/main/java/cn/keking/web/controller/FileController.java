@@ -3,8 +3,8 @@ package cn.keking.web.controller;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.KkFileUtils;
+import cn.keking.utils.RarUtils;
 import cn.keking.utils.WebUtils;
-import cn.keking.service.CompressFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
@@ -21,12 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author yudian-it
@@ -145,7 +140,7 @@ public class FileController {
      */
     private ReturnResponse<Object> deleteFileCheck(String fileName) {
         if (ObjectUtils.isEmpty(fileName)) {
-            return ReturnResponse.failure("文件名为空，删除失败！");
+            return ReturnResponse.failure("文件名为空！");
         }
         try {
             fileName = WebUtils.decodeUrl(fileName);
@@ -165,20 +160,18 @@ public class FileController {
 
     @GetMapping("/directory")
     public Object directory(String urls) {
-        if (ObjectUtils.isEmpty(urls)) {
-            return ReturnResponse.failure("地址不合法！");
+        ReturnResponse<Object> checkResult = this.deleteFileCheck(urls);
+        if (checkResult.isFailure()) {
+            return checkResult;
         }
         String fileUrl;
         try {
             fileUrl = WebUtils.decodeUrl(urls);
-            if (fileUrl.toLowerCase().startsWith("file:") || fileUrl.toLowerCase().startsWith("file%3")) {
-                return ReturnResponse.failure("地址不合法！");
-            }
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return errorMsg;
         }
-        return CompressFileReader.getTree(fileUrl);
+        return RarUtils.getTree(fileUrl);
     }
 
     private boolean existsFile(String fileName) {
