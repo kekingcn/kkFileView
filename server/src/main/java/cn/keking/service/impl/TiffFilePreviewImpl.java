@@ -7,7 +7,6 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.ConvertPicUtil;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.utils.WebUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -32,12 +31,7 @@ public class TiffFilePreviewImpl implements FilePreview {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
     }
-    private static final String INITIALIZE_MEMORY_SIZE = "initializeMemorySize";
-    //默认初始化 50MB 内存
-    private static final long INITIALIZE_MEMORY_SIZE_VALUE_DEFAULT = 1024L * 1024 * 50;
     private final String fileDir = ConfigConstants.getFileDir();
-
-
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
@@ -48,12 +42,7 @@ public class TiffFilePreviewImpl implements FilePreview {
             tifPreviewType = tifOnLinePreviewType;
         }
         if ("tif".equalsIgnoreCase(tifPreviewType)) {
-            String fileSize = WebUtils.getUrlParameterReg(url, INITIALIZE_MEMORY_SIZE);
-            if (StringUtils.hasText(fileSize)) {
-                model.addAttribute(INITIALIZE_MEMORY_SIZE, fileSize);
-            } else {
-                model.addAttribute(INITIALIZE_MEMORY_SIZE, Long.toString(INITIALIZE_MEMORY_SIZE_VALUE_DEFAULT));
-            }
+            model.addAttribute("currentUrl", url);
             return TIFF_FILE_PREVIEW_PAGE;
         } else if ("jpg".equalsIgnoreCase(tifPreviewType) || "pdf".equalsIgnoreCase(tifPreviewType)) {
             String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
