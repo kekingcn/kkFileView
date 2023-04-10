@@ -165,7 +165,10 @@ public class FileController {
             fileUrl = WebUtils.decodeUrl(urls);
         } catch (Exception ex) {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
-            return errorMsg;
+            return ReturnResponse.failure(errorMsg);
+        }
+        if (KkFileUtils.isIllegalFileName(fileUrl)) {
+            return ReturnResponse.failure("不允许访问的路径:");
         }
         return RarUtils.getTree(fileUrl);
     }
