@@ -3,6 +3,7 @@ package cn.keking.web.controller;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.KkFileUtils;
+import cn.keking.utils.RarUtils;
 import cn.keking.utils.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author yudian-it
@@ -160,6 +156,21 @@ public class FileController {
             return ReturnResponse.failure("非法文件名，删除失败！");
         }
         return ReturnResponse.success(fileName);
+    }
+
+    @GetMapping("/directory")
+    public Object directory(String urls) {
+        String fileUrl;
+        try {
+            fileUrl = WebUtils.decodeUrl(urls);
+        } catch (Exception ex) {
+            String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
+            return ReturnResponse.failure(errorMsg);
+        }
+        if (KkFileUtils.isIllegalFileName(fileUrl)) {
+            return ReturnResponse.failure("不允许访问的路径:");
+        }
+        return RarUtils.getTree(fileUrl);
     }
 
     private boolean existsFile(String fileName) {

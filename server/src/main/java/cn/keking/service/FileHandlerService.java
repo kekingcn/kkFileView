@@ -27,6 +27,8 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -273,6 +275,14 @@ public class FileHandlerService {
         FileType type;
         String fileName;
         String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
+        String urlStrr = null;
+        URL urll;
+        try {
+            urll = new URL(url);
+            urlStrr = URLDecoder.decode(urll.getPath(), "UTF-8");
+        } catch (Exception e) {
+
+        }
         if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
             type = FileType.typeFromFileName(fullFileName);
@@ -283,8 +293,10 @@ public class FileHandlerService {
             suffix = WebUtils.suffixFromUrl(url);
         }
         if (url.contains("?fileKey=")) {
+            fileName=urlStrr;
             attribute.setSkipDownLoad(true);
         }
+        // System.out.println(fileName);
         url = WebUtils.encodeUrlFileName(url);
         fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
         attribute.setType(type);

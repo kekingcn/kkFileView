@@ -3,16 +3,17 @@ package cn.keking.utils;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.FileHandlerService;
 import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.HtmlUtils;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.UUID;
 
 import static cn.keking.utils.KkFileUtils.isFtpUrl;
@@ -36,13 +37,24 @@ public class DownloadUtils {
      */
     public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
         // 忽略ssl证书
+        String urlStr = null;
+        String urlStrr = null;
+        URL urll;
         try {
             SslUtils.ignoreSsl();
+            urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
+            urll = new URL(urlStr);
+            urlStrr = URLDecoder.decode(urll.getPath(), "UTF-8");
         } catch (Exception e) {
             logger.error("忽略SSL证书异常:", e);
         }
-        String urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
+        assert urlStr != null;
+        if (urlStr.contains("?fileKey=")) {
+            response.setContent(fileDir + urlStrr);
+            response.setMsg(fileName);
+            return response;
+        }
         String realPath = DownloadUtils.getRelFilePath(fileName, fileAttribute);
         if(!StringUtils.hasText(realPath)){
             response.setCode(1);
