@@ -42,6 +42,10 @@ public class ConfigConstants {
     private static String pdfBookmarkDisable;
     private static Boolean fileUploadDisable;
     private static String tifPreviewType;
+    private static String BeiAn;
+    private static String[] prohibit= {};
+    private static String size;
+    private static String password;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -62,6 +66,10 @@ public class ConfigConstants {
     public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
     public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
     public static final String DEFAULT_TIF_PREVIEW_TYPE = "tif";
+    public static final String DEFAULT_BeiAn_DISABLE = "无";
+    public static final String DEFAULT_size_DISABLE = "500MB";
+    public static final String DEFAULT_prohibit_DISABLE = "exe,dll";
+    public static final String DEFAULT_password_DISABLE = "123456";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -353,4 +361,49 @@ public class ConfigConstants {
     public static void setTifPreviewTypeValue(String tifPreviewType) {
         ConfigConstants.tifPreviewType = tifPreviewType;
     }
+
+    public static String getBeiAn() {
+        return BeiAn;
+    }
+    @Value("${BeiAn:无}")
+    public void setBeiAn(String BeiAn) {
+        setBeiAnValue(BeiAn);
+    }
+    public static void setBeiAnValue(String BeiAn) {
+        ConfigConstants.BeiAn = BeiAn;
+    }
+    public static String[] getprohibit() {
+        return prohibit;
+    }
+    @Value("${prohibit:exe,dll}")
+    public void setprohibit(String prohibit) {
+        String[] prohibittArr = prohibit.split(",");
+        setprohibitValue(prohibittArr);
+    }
+
+    public static void setprohibitValue(String[] prohibit) {
+        ConfigConstants.prohibit = prohibit;
+    }
+    public static String maxsize() {
+        return size;
+    }
+    @Value("${spring.servlet.multipart.max-file-size:500MB}")
+    public void setsize(String size) {
+        setsizeValue(size);
+    }
+    public static void setsizeValue(String size) {
+        ConfigConstants.size = size;
+    }
+
+    public static String getpassword() {
+        return password;
+    }
+    @Value("${sc.password:123456}")
+    public void setpassword(String password) {
+        setpasswordValue(password);
+    }
+    public static void setpasswordValue(String password) {
+        ConfigConstants.password = password;
+    }
+
 }
