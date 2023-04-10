@@ -140,7 +140,7 @@ public class FileController {
      */
     private ReturnResponse<Object> deleteFileCheck(String fileName) {
         if (ObjectUtils.isEmpty(fileName)) {
-            return ReturnResponse.failure("文件名为空！");
+            return ReturnResponse.failure("文件名为空，删除失败！");
         }
         try {
             fileName = WebUtils.decodeUrl(fileName);
@@ -160,10 +160,6 @@ public class FileController {
 
     @GetMapping("/directory")
     public Object directory(String urls) {
-        ReturnResponse<Object> checkResult = this.deleteFileCheck(urls);
-        if (checkResult.isFailure()) {
-            return checkResult;
-        }
         String fileUrl;
         try {
             fileUrl = WebUtils.decodeUrl(urls);
