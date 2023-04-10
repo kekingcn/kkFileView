@@ -60,10 +60,14 @@ public class FileController {
     }
 
     @GetMapping("/deleteFile")
-    public ReturnResponse<Object> deleteFile(String fileName) {
+    public ReturnResponse<Object> deleteFile(String fileName,String password) {
         ReturnResponse<Object> checkResult = this.deleteFileCheck(fileName);
         if (checkResult.isFailure()) {
             return checkResult;
+        }
+        if(!ConfigConstants.getpassword().equalsIgnoreCase(password)){
+            logger.error("删除文件【{}】失败，密码错误！",fileName);
+            return ReturnResponse.failure("删除文件失败，密码错误！");
         }
         fileName = checkResult.getContent().toString();
         File file = new File(fileDir + demoPath + fileName);
@@ -103,8 +107,10 @@ public class FileController {
             return ReturnResponse.failure("文件传接口已禁用");
         }
         String fileName = WebUtils.getFileNameFromMultipartFile(file);
-
-        if (!isAllowedUpload(fileName)) {
+        if(fileName.lastIndexOf(".")==-1){
+            return ReturnResponse.failure("不允许上传的类型");
+        }
+        if (!KkFileUtils.isAllowedUpload(fileName)) {
             return ReturnResponse.failure("不允许上传的文件类型: " + fileName);
         }
         if (KkFileUtils.isIllegalFileName(fileName)) {
@@ -117,20 +123,6 @@ public class FileController {
         return ReturnResponse.success(fileName);
     }
 
-    /**
-     * 判断文件是否允许上传
-     *
-     * @param file 文件扩展名
-     * @return 是否允许上传
-     */
-    private boolean isAllowedUpload(String file) {
-        String fileType = KkFileUtils.suffixFromFileName(file);
-        for (String type : not_allowed) {
-            if (type.equals(fileType))
-                return false;
-        }
-        return !ObjectUtils.isEmpty(fileType);
-    }
 
     /**
      * 删除文件前校验
