@@ -49,6 +49,12 @@ public class DownloadUtils {
             logger.error("忽略SSL证书异常:", e);
         }
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
+        if (!KkFileUtils.isAllowedUpload(fileName)) {
+            response.setCode(1);
+            response.setContent(null);
+            response.setMsg("下载失败:不支持的类型!" + urlStr);
+            return response;
+        }
         assert urlStr != null;
         if (urlStr.contains("?fileKey=")) {
             response.setContent(fileDir + urlStrr);
