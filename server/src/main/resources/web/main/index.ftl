@@ -164,20 +164,19 @@
             $.ajax({
                 url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
                 success: function (data) {
+                // console.log(data);
                     // 删除完成，刷新table
-                    if ("删除文件失败，密码错误！" === data) {
-                        alert(data);
+                    if ("删除文件失败，密码错误！" === data.msg) {
+                        alert(data.msg);
                     } else {
                         $('#table').bootstrapTable('refresh', {});
                     }
                 },
                 error: function (data) {
-                    console.log(data);
                     return false;
                 }
             })
         }else{
-            //alert("取消");
             return false;
         }
 
@@ -257,9 +256,6 @@
 
         $("#btnSubmit").click(function () {
             var filepath = $("#size").val();
-            var arr = filepath.split('\\'); //通过\分隔字符串，成字符串数组
-            var fileName = arr[arr.length-1]; //取最后一个，就是文件全名,含后缀
-
             if(!checkFileSize(filepath)){
                 return false;
             }
