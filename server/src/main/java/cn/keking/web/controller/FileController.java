@@ -36,7 +36,6 @@ public class FileController {
     private final String demoDir = "demo";
     private final String demoPath = demoDir + File.separator;
     public static final String BASE64_DECODE_ERROR_MSG = "Base64解码失败，请检查你的 %s 是否采用 Base64 + urlEncode 双重编码了！";
-    private static final String[] not_allowed = { "dll", "exe", "msi" }; // 不允许上传的文件扩展名
 
     @PostMapping("/fileUpload")
     public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file) {
@@ -65,11 +64,11 @@ public class FileController {
         if (checkResult.isFailure()) {
             return checkResult;
         }
+         fileName = checkResult.getContent().toString();
         if(!ConfigConstants.getpassword().equalsIgnoreCase(password)){
             logger.error("删除文件【{}】失败，密码错误！",fileName);
             return ReturnResponse.failure("删除文件失败，密码错误！");
         }
-        fileName = checkResult.getContent().toString();
         File file = new File(fileDir + demoPath + fileName);
         logger.info("删除文件：{}", file.getAbsolutePath());
         if (file.exists() && !file.delete()) {
