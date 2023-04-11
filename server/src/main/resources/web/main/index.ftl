@@ -291,7 +291,7 @@
         // console.log(daxiao)
         var maxsize = daxiao * 1024 * 1024;
         var errMsg = "上传的文件不能超过${size}喔！！！";
-        var tipMsg = "您的浏览器暂不支持上传，确保上传文件不要超过2M，建议使用IE、FireFox、Chrome浏览器";
+        var tipMsg = "您的浏览器暂不支持上传，确保上传文件不要超过${size}，建议使用IE、FireFox、Chrome浏览器";
         try {
             var filesize = 0;
             var ua = window.navigator.userAgent;
