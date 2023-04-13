@@ -48,6 +48,47 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
+            <h3 class="panel-title">2023年04月13日，v4.2.0 版本</h3>
+        </div>
+        <div class="panel-body">
+            <div>
+                1. 新增 SVG 格式文件预览支持<br>
+                2. 新增加密的 Office 文件预览支持<br>
+                3. 新增加密的 zip、rar 等压缩包文件预览支持<br>
+                4. 新增 xmind 软件模型文件预览支持<br>
+                5. 新增 bpmn 工作流模型文件预览支持<br>
+                6. 新增 eml 邮件文件预览支持<br>
+                7. 新增 epub 电子书文件预览支持<br>
+                8. 新增 dotm,ett,xlt,xltm,wpt,dot,xlam,xla,dotx 等格式的办公文档预览支持<br>
+                9. 新增 obj, 3ds, stl, ply, gltf, glb, off, 3dm, fbx, dae, wrl, 3mf, ifc, brep, step, iges, fcstd, bim 等 3D 模型文件预览支持<br>
+                10. 新增可配置限制高风险文件上传的功能，比如 exe 文件<br>
+                11. 新增可配置站点的备案信息<br>
+                12. 新增演示站点删除文件需要密码的功能<br>
+                13. 文本文档预览加入缓存<br>
+                14. 美化 404、500 报错页<br>
+                15. 优化发票等 ofd 文件预览的印证渲染兼容性<br>
+                16. 移除 office-plugin 模块, 使用新版 jodconverter组件<br>
+                17. 优化 Excel 文件的预览效果<br>
+                18. 优化 CAD 文件的预览效果<br>
+                19. 更新 xstream 、junrar、pdfbox 等依赖的版本<br>
+                20. 更新 TIF 文件转换 PDF 的插件，添加转换缓存<br>
+                21. 优化演示页 UI 部署<br>
+                22. 压缩包文件预览支持目录<br>
+                23. 修复部分接口 XSS 问题<br>
+                24. 修复控制台打印的演示地址不跟着 content-path 配置走的问题<br>
+                25. 修复 ofd 文件预览跨域问题<br>
+                26. 修复内部自签证书 https 协议 url 文件无法下载的问题<br>
+                27. 修复特殊符号的文件无法删除的问题<br>
+                28. 修复 PDF 转图片,内存无法回收导致的 OOM<br>
+                29. 修复 xlsx7.4 以上版本文件预览乱码的问题<br>
+                30. 修复 TrustHostFilter 未拦截跨域接口的问题，这是一个安全问题，有使用到 TrustHost 功能的务必升级<br>
+                31. 修复压缩包文件预览在 Linux 系统下文件名乱码的问题<br>
+                32. 修复 ofd 文件预览页码只能显示 10 页的问题<br>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-success">
+        <div class="panel-heading">
             <h3 class="panel-title">2022年12月14日，v4.1.0 版本</h3>
         </div>
         <div class="panel-body">
