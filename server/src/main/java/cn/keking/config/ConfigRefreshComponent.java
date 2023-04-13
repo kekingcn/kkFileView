@@ -53,7 +53,11 @@ public class ConfigRefreshComponent {
                 String pdfBookmarkDisable;
                 boolean fileUploadDisable;
                 String tifPreviewType;
-
+                String prohibit;
+                String[] prohibitArray;
+                String BeiAn;
+                String size;
+                String password;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -78,6 +82,11 @@ public class ConfigRefreshComponent {
                     pdfBookmarkDisable = properties.getProperty("pdf.bookmark.disable", ConfigConstants.DEFAULT_PDF_BOOKMARK_DISABLE);
                     fileUploadDisable = Boolean.parseBoolean(properties.getProperty("file.upload.disable", ConfigConstants.DEFAULT_FILE_UPLOAD_DISABLE));
                     tifPreviewType = properties.getProperty("tif.preview.type", ConfigConstants.DEFAULT_TIF_PREVIEW_TYPE);
+                    size = properties.getProperty("spring.servlet.multipart.max-file-size", ConfigConstants.DEFAULT_size_DISABLE);
+                    BeiAn = properties.getProperty("BeiAn", ConfigConstants.DEFAULT_BeiAn_DISABLE);
+                    prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_prohibit_DISABLE);
+                    password = properties.getProperty("sc.password", ConfigConstants.DEFAULT_password_DISABLE);
+                    prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
                     ConfigConstants.setSimTextValue(textArray);
@@ -96,6 +105,10 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setPdfBookmarkDisableValue(pdfBookmarkDisable);
                     ConfigConstants.setFileUploadDisableValue(fileUploadDisable);
                     ConfigConstants.setTifPreviewTypeValue(tifPreviewType);
+                    ConfigConstants.setBeiAnValue(BeiAn);
+                    ConfigConstants.setsizeValue(size);
+                    ConfigConstants.setprohibitValue(prohibitArray);
+                    ConfigConstants.setpasswordValue(password);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();

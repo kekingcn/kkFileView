@@ -36,7 +36,6 @@ public class FileController {
     private final String demoDir = "demo";
     private final String demoPath = demoDir + File.separator;
     public static final String BASE64_DECODE_ERROR_MSG = "Base64解码失败，请检查你的 %s 是否采用 Base64 + urlEncode 双重编码了！";
-    private static final String[] not_allowed = { "dll", "exe", "msi" }; // 不允许上传的文件扩展名
 
     @PostMapping("/fileUpload")
     public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file) {
@@ -60,12 +59,16 @@ public class FileController {
     }
 
     @GetMapping("/deleteFile")
-    public ReturnResponse<Object> deleteFile(String fileName) {
+    public ReturnResponse<Object> deleteFile(String fileName,String password) {
         ReturnResponse<Object> checkResult = this.deleteFileCheck(fileName);
         if (checkResult.isFailure()) {
             return checkResult;
         }
-        fileName = checkResult.getContent().toString();
+         fileName = checkResult.getContent().toString();
+        if(!ConfigConstants.getpassword().equalsIgnoreCase(password)){
+            logger.error("删除文件【{}】失败，密码错误！",fileName);
+            return ReturnResponse.failure("删除文件失败，密码错误！");
+        }
         File file = new File(fileDir + demoPath + fileName);
         logger.info("删除文件：{}", file.getAbsolutePath());
         if (file.exists() && !file.delete()) {
@@ -103,8 +106,10 @@ public class FileController {
             return ReturnResponse.failure("文件传接口已禁用");
         }
         String fileName = WebUtils.getFileNameFromMultipartFile(file);
-
-        if (!isAllowedUpload(fileName)) {
+        if(fileName.lastIndexOf(".")==-1){
+            return ReturnResponse.failure("不允许上传的类型");
+        }
+        if (!KkFileUtils.isAllowedUpload(fileName)) {
             return ReturnResponse.failure("不允许上传的文件类型: " + fileName);
         }
         if (KkFileUtils.isIllegalFileName(fileName)) {
@@ -117,20 +122,6 @@ public class FileController {
         return ReturnResponse.success(fileName);
     }
 
-    /**
-     * 判断文件是否允许上传
-     *
-     * @param file 文件扩展名
-     * @return 是否允许上传
-     */
-    private boolean isAllowedUpload(String file) {
-        String fileType = KkFileUtils.suffixFromFileName(file);
-        for (String type : not_allowed) {
-            if (type.equals(fileType))
-                return false;
-        }
-        return !ObjectUtils.isEmpty(fileType);
-    }
 
     /**
      * 删除文件前校验

@@ -116,33 +116,10 @@
         </div>
         <div class="panel-body">
             <#if fileUploadDisable == false>
-                <div style="padding: 10px">
+                <div style="padding: 10px" >
                     <form enctype="multipart/form-data" id="fileUpload">
-                        <div class="form-group">
-                            <p id="fileName"></p>
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <button type="button" class="btn btn-default" id="fileSelectBtn" style="margin-bottom:8px">
-                                        <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 选择文件
-                                    </button>
-                                </div>
-                                <div class="col-md-1">
-                                    <button id="btnSubmit" type="button" class="btn btn-success">上 传</button>
-                                </div>
-                                <div class="col-md-9">
-                                </div>
-                            </div>
-
-                            <input type="file" name="file" style="display: none" id="fileSelect"
-                                   onchange="onFileSelected()"/>
-                            <div class="alert alert-danger alert-dismissable hide" role="alert" id="postFileAlert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>请选择需要上传的文件！</strong>
-                            </div>
-                        </div>
-
+                        <input type="file" id="size" name="file"/>
+                        <input type="button" id="btnSubmit" value=" 上 传 "/>
                     </form>
                 </div>
             </#if>
@@ -175,22 +152,34 @@
         </div>
     </div>
 </div>
+<div style="display: grid; place-items: center;">
+    <div>
+        <a target="_blank"  href="https://beian.miit.gov.cn/" >${BeiAn}</a>
+    </div>
+</div>
 <script>
-    function deleteFile(fileName) {
-        $.ajax({
-            url: '${baseUrl}deleteFile?fileName=' + fileName,
-            success: function (data) {
-                // 删除完成，刷新table
-                if (1 === data.code) {
-                    alert(data.msg);
-                } else {
-                    $('#table').bootstrapTable('refresh', {});
+    function deleteFile(fileName,password) {
+        if(window.confirm('你确定要删除文件吗？')){
+            password = prompt("请输入默认密码:123456");
+            $.ajax({
+                url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
+                success: function (data) {
+                // console.log(data);
+                    // 删除完成，刷新table
+                    if ("删除文件失败，密码错误！" === data.msg) {
+                        alert(data.msg);
+                    } else {
+                        $('#table').bootstrapTable('refresh', {});
+                    }
+                },
+                error: function (data) {
+                    return false;
                 }
-            },
-            error: function (data) {
-                console.log(data);
-            }
-        })
+            })
+        }else{
+            return false;
+        }
+
     }
 
     function showLoadingDiv() {
@@ -238,7 +227,8 @@
         }).on('pre-body.bs.table', function (e, data) {
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
-                item.action = "<a class='btn btn-success' target='_blank' href='${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "'>预览</a>";
+                item.action = "<a class='btn btn-success' target='_blank' href='${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "'>预览</a>" +
+                "<a class='btn btn-danger' style='margin-left:10px;' href='javascript:void(0);' onclick='deleteFile(\"" +  encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "\")'>删除</a>";
             });
             return data;
         }).on('post-body.bs.table', function (e, data) {
@@ -265,20 +255,9 @@
         });
 
         $("#btnSubmit").click(function () {
-            var _fileName = $("#fileName").text()
-            var index = _fileName.lastIndexOf(".");
-            //获取后缀
-            var ext = _fileName.substr(index + 1);
-            if (!ext || ext == "dll" || ext == "exe" || ext == "msi") {
-                window.alert(ext + "不支持上传")
-                return;
-            }
-            if (!_fileName) {
-                $("#postFileAlert").addClass("show");
-                window.setTimeout(function () {
-                    $("#postFileAlert").removeClass("show");
-                }, 3000);//显示的时间
-                return;
+            var filepath = $("#size").val();
+            if(!checkFileSize(filepath)){
+                return false;
             }
             showLoadingDiv();
             $("#fileUpload").ajaxSubmit({
@@ -294,7 +273,6 @@
                 },
                 error: function () {
                     alert('上传失败，请联系管理员');
-                    $("#fileName").text("");
                     $(".loading_container").hide();
                 },
                 url: 'fileUpload', /*设置post提交到的页面*/
@@ -303,6 +281,37 @@
             });
         });
     });
+    function checkFileSize(filepath) {
+        var daxiao= "${size}";
+        daxiao= daxiao.replace("MB","");
+        // console.log(daxiao)
+        var maxsize = daxiao * 1024 * 1024;
+        var errMsg = "上传的文件不能超过${size}喔！！！";
+        var tipMsg = "您的浏览器暂不支持上传，确保上传文件不要超过${size}，建议使用IE、FireFox、Chrome浏览器";
+        try {
+            var filesize = 0;
+            var ua = window.navigator.userAgent;
+            if (ua.indexOf("MSIE") >= 1) {
+                //IE
+                var img = new Image();
+                img.src = filepath;
+                filesize = img.fileSize;
+            } else {
+                filesize = $("#size")[0].files[0].size; //byte
+            }
+            if (filesize > 0 && filesize > maxsize) {
+                alert(errMsg);
+                return false;
+            } else if (filesize == -1) {
+                alert(tipMsg);
+                return false;
+            }
+        } catch (e) {
+            alert("上传失败，请重试");
+            return false;
+        }
+        return true;
+    }
 </script>
 </body>
 </html>
