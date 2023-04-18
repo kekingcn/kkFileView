@@ -49,7 +49,8 @@ public class DownloadUtils {
             logger.error("忽略SSL证书异常:", e);
         }
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
-        if (!KkFileUtils.isAllowedUpload(fileName)) {
+        String realPath = getRelFilePath(fileName, fileAttribute);
+        if (!KkFileUtils.isAllowedUpload(realPath)) {
             response.setCode(1);
             response.setContent(null);
             response.setMsg("下载失败:不支持的类型!" + urlStr);
@@ -61,7 +62,6 @@ public class DownloadUtils {
             response.setMsg(fileName);
             return response;
         }
-        String realPath = DownloadUtils.getRelFilePath(fileName, fileAttribute);
         if(!StringUtils.hasText(realPath)){
             response.setCode(1);
             response.setContent(null);
