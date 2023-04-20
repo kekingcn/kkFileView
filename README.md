@@ -13,17 +13,18 @@ Document online preview project solution, built using the popular Spring Boot fr
 7. Supports document formats like `pdf`, `ofd`, and `rtf`.
 8. Supports software model files like `xmind`. 
 9. Support for `bpmn` workflow files.
-9. Support for `eml` mail files
-10. Support for `epub` book documents
-10. Supports 3D model files like `obj`, `3ds`, `stl`, `ply`, `gltf`, `glb`, `off`, `3dm`, `fbx`, `dae`, `wrl`, `3mf`, `ifc`, `brep`, `step`, `iges`, `fcstd`, `bim`, etc.
-11. Supports CAD model files such as `dwg`, `dxf`.
-12. Supports all plain text files such as `txt`, `xml` (rendering), `md` (rendering), `java`, `php`, `py`, `js`, `css`, etc.
-13. Supports compressed packages such as `zip`, `rar`, `jar`, `tar`, `gzip`, `7z`, etc.
-14. Supports image previewing (flip, zoom, mirror) of `jpg`, `jpeg`, `png`, `gif`, `bmp`, `ico`, `jfif`, `webp`, etc.
-15. Supports image information model files such as `tif` and `tiff`.
-16. Supports image format files such as `tga`.
-17. Supports vector image format files such as `svg`.
-18. Supports many audio and video format files such as `avi`, `mov`, `wmv`, `mkv`, `3gp`, and `rm`.
+10. Support for `eml` mail files
+11. Support for `epub` book documents
+12. Supports 3D model files like `obj`, `3ds`, `stl`, `ply`, `gltf`, `glb`, `off`, `3dm`, `fbx`, `dae`, `wrl`, `3mf`, `ifc`, `brep`, `step`, `iges`, `fcstd`, `bim`, etc.
+13. Supports CAD model files such as `dwg`, `dxf`.
+14. Supports all plain text files such as `txt`, `xml` (rendering), `md` (rendering), `java`, `php`, `py`, `js`, `css`, etc.
+15. Supports compressed packages such as `zip`, `rar`, `jar`, `tar`, `gzip`, `7z`, etc.
+16. Supports image previewing (flip, zoom, mirror) of `jpg`, `jpeg`, `png`, `gif`, `bmp`, `ico`, `jfif`, `webp`, etc.
+17. Supports image information model files such as `tif` and `tiff`.
+18. Supports image format files such as `tga`.
+19. Supports vector image format files such as `svg`.
+20. Supports `mp3`,`wav`,`mp4`,`flv` .
+21. Supports many audio and video format files such as `avi`, `mov`, `wmv`, `mkv`, `3gp`, and `rm`.
 
 ### Features
 - Build with the popular frame spring boot
