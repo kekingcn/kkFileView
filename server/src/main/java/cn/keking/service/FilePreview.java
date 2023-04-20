@@ -30,6 +30,7 @@ public interface FilePreview {
     String MARKDOWN_FILE_PREVIEW_PAGE = "markdown";
     String BPMN_FILE_PREVIEW_PAGE = "bpmn";
     String DCM_FILE_PREVIEW_PAGE = "dcm";
+    String DRAWUI_FILE_PREVIEW_PAGE = "drawio";
     String NOT_SUPPORTED_FILE_PAGE = "fileNotSupported";
 
     String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);

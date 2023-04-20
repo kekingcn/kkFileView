@@ -54,6 +54,7 @@
         <div class="panel-body">
             <div>
                 1.新增 dcm 等医疗数位影像预览<br>
+                2.新增 drawio 绘图预览<br>
             </div>
         </div>
     <div class="panel panel-success">

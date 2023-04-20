@@ -22,6 +22,7 @@
 20. 支持 mp3,wav,mp4,flv 等音视频格式文件
 21. 支持 avi,mov,rm,webm,ts,rm,mkv,mpeg,ogg,mpg,rmvb,wmv,3gp,ts,swf 等视频格式转码预览
 22. 支持 dcm 等医疗数位影像预览
+23. 支持 drawio 绘图预览
 
 > 基于当前良好的架构模式，支持的文件类型在进一步丰富中
 ### 项目特性

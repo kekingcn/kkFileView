@@ -31,7 +31,8 @@ public enum FileType {
     SVG("svgFilePreviewImpl"),
     Epub("epubFilePreviewImpl"),
     BPMN("bpmnFilePreviewImpl"),
-    DCM("dcmFilePreviewImpl");
+    DCM("dcmFilePreviewImpl"),
+    DRAWUI("drawioFilePreviewImpl");
 
     private static final String[] OFFICE_TYPES = {"docx", "wps", "doc", "docm", "xls", "xlsx", "csv" ,"xlsm", "ppt", "pptx", "vsd", "rtf", "odt", "wmf", "emf", "dps", "et", "ods", "ots", "tsv", "odp", "otp", "sxi", "ott", "vsdx", "fodt", "fods", "xltx","tga","psd","dotm","ett","xlt","xltm","wpt","dot","xlam","dotx","xla"};
     private static final String[] PICTURE_TYPES = {"jpg", "jpeg", "png", "gif", "bmp", "ico", "jfif", "webp"};
@@ -41,6 +42,7 @@ public enum FileType {
     private static final String[] XMIND_TYPES = {"xmind"};
     private static final String[] Epub_TYPES = {"epub"};
     private static final String[] DCM_TYPES = {"dcm"};
+    private static final String[] DRAWUI_TYPES = {"drawio"};
     private static final String[] TIFF_TYPES = {"tif", "tiff"};
     private static final String[] OFD_TYPES = {"ofd"};
     private static final String[] SVG_TYPES = {"svg"};
@@ -99,6 +101,9 @@ public enum FileType {
         }
         for (String dcm : DCM_TYPES) {
             FILE_TYPE_MAPPER.put(dcm, FileType.DCM);
+        }
+        for (String drawio : DRAWUI_TYPES) {
+            FILE_TYPE_MAPPER.put(drawio, FileType.DRAWUI);
         }
         FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
         FILE_TYPE_MAPPER.put("xml", FileType.XML);
