@@ -80,6 +80,7 @@
             <li>支持 mp3,wav,mp4,flv 等音视频格式文件</li>
             <li>支持 avi,mov,rm,webm,ts,rm,mkv,mpeg,ogg,mpg,rmvb,wmv,3gp,ts,swf 等视频格式转码预览</li>
             <li>支持 dcm 等医疗数位影像预览</li>
+            <li>支持 drawio 绘图预览</li>
         </ol>
     </div>
     <#--  输入下载地址预览文件  -->
