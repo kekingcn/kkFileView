@@ -9,18 +9,18 @@
 7. 支持 pdf ,ofd, rtf 等文档
 8. 支持 xmind 软件模型文件
 9. 支持 bpmn 工作流文件
-9. 支持 eml 邮件文件
-10. 支持 epub 图书文档
-10. 支持 obj, 3ds, stl, ply, gltf, glb, off, 3dm, fbx, dae, wrl, 3mf, ifc, brep, step, iges, fcstd, bim 等 3D 模型文件
-11. 支持 dwg, dxf 等 CAD 模型文件
-12. 支持 txt, xml(渲染), md(渲染), java, php, py, js, css 等所有纯文本
-13. 支持 zip, rar, jar, tar, gzip, 7z 等压缩包
-14. 支持 jpg, jpeg, png, gif, bmp, ico, jfif, webp 等图片预览（翻转，缩放，镜像）
-15. 支持 tif, tiff 图信息模型文件
-16. 支持 tga 图像格式文件
-17. 支持 svg 矢量图像格式文件
-18. 支持 mp3,wav,mp4,flv 等音视频格式文件
-19. 支持 avi,mov,rm,webm,ts,rm,mkv,mpeg,ogg,mpg,rmvb,wmv,3gp,ts,swf 等视频格式转码预览
+10. 支持 eml 邮件文件
+11. 支持 epub 图书文档
+12. 支持 obj, 3ds, stl, ply, gltf, glb, off, 3dm, fbx, dae, wrl, 3mf, ifc, brep, step, iges, fcstd, bim 等 3D 模型文件
+13. 支持 dwg, dxf 等 CAD 模型文件
+14. 支持 txt, xml(渲染), md(渲染), java, php, py, js, css 等所有纯文本
+15. 支持 zip, rar, jar, tar, gzip, 7z 等压缩包
+16. 支持 jpg, jpeg, png, gif, bmp, ico, jfif, webp 等图片预览（翻转，缩放，镜像）
+17. 支持 tif, tiff 图信息模型文件
+18. 支持 tga 图像格式文件
+19. 支持 svg 矢量图像格式文件
+20. 支持 mp3,wav,mp4,flv 等音视频格式文件
+21. 支持 avi,mov,rm,webm,ts,rm,mkv,mpeg,ogg,mpg,rmvb,wmv,3gp,ts,swf 等视频格式转码预览
 
 > 基于当前良好的架构模式，支持的文件类型在进一步丰富中
 ### 项目特性
