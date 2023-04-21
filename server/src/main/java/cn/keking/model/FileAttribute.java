@@ -17,7 +17,7 @@ public class FileAttribute {
     private String userToken;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
     private String tifPreviewType;
-    private Boolean skipDownLoad = false;
+    private Boolean skipDownLoad = true;
 
     public FileAttribute() {
     }
