@@ -6,6 +6,7 @@ import cn.keking.model.ReturnResponse;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
+import cn.keking.utils.KkFileUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -52,6 +53,9 @@ public class CadFilePreviewImpl implements FilePreview {
                 boolean convertResult = fileHandlerService.cadToPdf(filePath, outFilePath);
                 if (!convertResult) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, "cad文件转换异常，请联系管理员");
+                }
+                if( ConfigConstants.getdeletesourcefile()){  //是否保留CAD源文件
+                    KkFileUtils.deleteFileByPath(filePath);
                 }
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存

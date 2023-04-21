@@ -58,6 +58,7 @@ public class ConfigRefreshComponent {
                 String BeiAn;
                 String size;
                 String password;
+                Boolean deletesourcefile;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -86,6 +87,7 @@ public class ConfigRefreshComponent {
                     BeiAn = properties.getProperty("BeiAn", ConfigConstants.DEFAULT_BeiAn_DISABLE);
                     prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_prohibit_DISABLE);
                     password = properties.getProperty("sc.password", ConfigConstants.DEFAULT_password_DISABLE);
+                    deletesourcefile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_Delete_Source_File_PREVIEW_TYPE));
                     prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
@@ -109,6 +111,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setsizeValue(size);
                     ConfigConstants.setprohibitValue(prohibitArray);
                     ConfigConstants.setpasswordValue(password);
+                    ConfigConstants.setdeletesourcefileValue(deletesourcefile);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();

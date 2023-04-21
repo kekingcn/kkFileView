@@ -7,6 +7,7 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.ConvertPicUtil;
 import cn.keking.utils.DownloadUtils;
+import cn.keking.utils.KkFileUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -57,20 +58,24 @@ public class TiffFilePreviewImpl implements FilePreview {
                             return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                         }
                         String filePath = response.getContent();
-                        if (ConfigConstants.isCacheEnabled()) {
-                            // 加入缓存
-                            fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
-                        }
                         if(ConvertPicUtil.convertJpg2Pdf(filePath, outFilePath)){
+                            if(ConfigConstants.getdeletesourcefile()){  //是否保留TIFF源文件
+                                KkFileUtils.deleteFileByPath(filePath);
+                            }
+                            if (ConfigConstants.isCacheEnabled()) {
+                                // 加入缓存
+                                fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
+                            }
                             model.addAttribute("pdfUrl", pdfName);
                             return PDF_FILE_PREVIEW_PAGE;
+                        }else {
+                            return NOT_SUPPORTED_FILE_PAGE;
                         }
                     }
                  else {
                     model.addAttribute("pdfUrl", pdfName);
                     return PDF_FILE_PREVIEW_PAGE;
                 }
-
             } else {
                 File fileTiff = new File(strLocalTif);
                 // 如果本地不存在这个tif文件，则下载
