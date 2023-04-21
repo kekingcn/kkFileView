@@ -7,6 +7,7 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.service.OfficeToPdfService;
 import cn.keking.utils.DownloadUtils;
+import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.OfficeUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.jodconverter.core.office.OfficeException;
@@ -108,6 +109,9 @@ public class OfficeFilePreviewImpl implements FilePreview {
                     if (isHtml) {
                         // 对转换后的文件进行操作(改变编码方式)
                         fileHandlerService.doActionConvertedFile(outFilePath);
+                    }
+                    if(ConfigConstants.getdeletesourcefile()){  //是否保留OFFICE源文件
+                        KkFileUtils.deleteFileByPath(filePath);
                     }
                     if (isUseCached) {
                         // 加入缓存

@@ -7,6 +7,7 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.CompressFileReader;
+import cn.keking.utils.KkFileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,9 @@ public class CompressFilePreviewImpl implements FilePreview {
                 }
             }
             if (!ObjectUtils.isEmpty(fileTree)) {
+                if( ConfigConstants.getdeletesourcefile()){  //是否保留压缩包源文件
+                    KkFileUtils.deleteFileByPath(filePath);
+                }
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
                     fileHandlerService.addConvertedFile(fileName, fileTree);

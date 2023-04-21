@@ -46,6 +46,7 @@ public class ConfigConstants {
     private static String[] prohibit= {};
     private static String size;
     private static String password;
+    private static Boolean deletesourcefile;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -70,6 +71,7 @@ public class ConfigConstants {
     public static final String DEFAULT_size_DISABLE = "500MB";
     public static final String DEFAULT_prohibit_DISABLE = "exe,dll";
     public static final String DEFAULT_password_DISABLE = "123456";
+    public static final String DEFAULT_Delete_Source_File_PREVIEW_TYPE = "false";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -404,6 +406,19 @@ public class ConfigConstants {
     }
     public static void setpasswordValue(String password) {
         ConfigConstants.password = password;
+    }
+
+    public static Boolean getdeletesourcefile() {
+        return deletesourcefile;
+    }
+
+    @Value("${delete.source.file:false}")
+    public void setdeletesourcefile(Boolean deletesourcefile) {
+        setdeletesourcefileValue(deletesourcefile);
+    }
+
+    public static void setdeletesourcefileValue(Boolean deletesourcefile) {
+        ConfigConstants.deletesourcefile = deletesourcefile;
     }
 
 }
