@@ -71,7 +71,7 @@ public class ConfigConstants {
     public static final String DEFAULT_size_DISABLE = "500MB";
     public static final String DEFAULT_prohibit_DISABLE = "exe,dll";
     public static final String DEFAULT_password_DISABLE = "123456";
-    public static final String DEFAULT_Delete_Source_File_PREVIEW_TYPE = "false";
+    public static final String DEFAULT_Delete_Source_File_PREVIEW_TYPE = "true";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -412,7 +412,7 @@ public class ConfigConstants {
         return deletesourcefile;
     }
 
-    @Value("${delete.source.file:false}")
+    @Value("${delete.source.file:true}")
     public void setdeletesourcefile(Boolean deletesourcefile) {
         setdeletesourcefileValue(deletesourcefile);
     }
