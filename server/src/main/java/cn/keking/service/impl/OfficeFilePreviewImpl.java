@@ -47,12 +47,13 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String suffix = fileAttribute.getSuffix();
         String fileName = fileAttribute.getName();
         String filePassword = fileAttribute.getFilePassword();
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         String userToken = fileAttribute.getUserToken();
          boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
         String cacheFileName = userToken == null ? pdfName : userToken + "_" + pdfName;
         String outFilePath = FILE_DIR + cacheFileName;
-        if ( !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+        if (forceUpdatedCache|| !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
         // 下载远程文件到本地，如果文件在本地已存在不会重复下载
         ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
         if (response.isFailure()) {
@@ -70,7 +71,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         if (ConfigConstants.isCacheEnabled()) {
             // 全局开启缓存
             isUseCached = true;
-            if (fileHandlerService.listConvertedFiles().containsKey(cacheFileName)) {
+            if (!forceUpdatedCache && fileHandlerService.listConvertedFiles().containsKey(cacheFileName)) {
                 // 存在缓存
                 isCached = true;
             }
@@ -132,7 +133,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
     static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String baseUrl, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {
         String suffix = fileAttribute.getSuffix();
         boolean isPPT = suffix.equalsIgnoreCase("ppt") || suffix.equalsIgnoreCase("pptx");
-        List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
+        List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl, fileAttribute);
         if (imageUrls == null || imageUrls.size() < 1) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
         }

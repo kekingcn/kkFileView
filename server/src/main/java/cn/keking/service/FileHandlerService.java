@@ -176,11 +176,15 @@ public class FileHandlerService {
      * @param baseUrl 基础访问地址
      * @return 图片访问集合
      */
-    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl) {
+    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl, FileAttribute fileAttribute) {
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = this.getConvertedPdfImage(pdfFilePath);
+        Integer imageCount = null;
         String imageFileSuffix = ".jpg";
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
+        if (!forceUpdatedCache){
+            imageCount = this.getConvertedPdfImage(pdfFilePath);
+        }
         String urlPrefix;
         try {
             urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
@@ -305,12 +309,16 @@ public class FileHandlerService {
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
+            String forceUpdatedCache = req.getParameter("forceUpdatedCache");
             String fileKey = WebUtils.getUrlParameterReg(url,"fileKey");
             if (StringUtils.hasText(officePreviewType)) {
                 attribute.setOfficePreviewType(officePreviewType);
             }
             if (StringUtils.hasText(fileKey)) {
                 attribute.setFileKey(fileKey);
+            }
+            if ( "true".equalsIgnoreCase(forceUpdatedCache)) {
+                attribute.setforceUpdatedCache(true);
             }
 
             String tifPreviewType = req.getParameter("tifPreviewType");
