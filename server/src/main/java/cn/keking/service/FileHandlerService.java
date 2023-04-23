@@ -178,12 +178,12 @@ public class FileHandlerService {
      */
     public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl, FileAttribute fileAttribute) {
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = this.getConvertedPdfImage(pdfFilePath);
+        Integer imageCount = null;
         String imageFileSuffix = ".jpg";
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
-        if (forceUpdatedCache){
-            imageCount = null;
+        if (!forceUpdatedCache){
+            imageCount = this.getConvertedPdfImage(pdfFilePath);
         }
         String urlPrefix;
         try {
