@@ -49,8 +49,8 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String filePassword = fileAttribute.getFilePassword();
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         String userToken = fileAttribute.getUserToken();
-         boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
-        String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + (isHtml ? "html" : "pdf");
+        boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
+        String pdfName = fileName.substring(0, fileName.lastIndexOf(".") ) + suffix +"." +(isHtml ? "html" : "pdf"); //生成文件添加类型后缀 防止同名文件
         String cacheFileName = userToken == null ? pdfName : userToken + "_" + pdfName;
         String outFilePath = FILE_DIR + cacheFileName;
         if (forceUpdatedCache|| !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
