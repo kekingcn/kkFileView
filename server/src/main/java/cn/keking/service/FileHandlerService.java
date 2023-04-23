@@ -14,7 +14,6 @@ import com.aspose.cad.Image;
 import com.aspose.cad.LoadOptions;
 import com.aspose.cad.imageoptions.CadRasterizationOptions;
 import com.aspose.cad.imageoptions.PdfOptions;
-import jodd.util.StringUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -179,12 +178,12 @@ public class FileHandlerService {
      */
     public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl, FileAttribute fileAttribute) {
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = null; ;
+        Integer imageCount = this.getConvertedPdfImage(pdfFilePath);
         String imageFileSuffix = ".jpg";
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
-        if (!forceUpdatedCache){
-            imageCount = this.getConvertedPdfImage(pdfFilePath);
+        if (forceUpdatedCache){
+            imageCount = null;
         }
         String urlPrefix;
         try {
