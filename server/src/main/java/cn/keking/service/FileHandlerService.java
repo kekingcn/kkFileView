@@ -179,14 +179,11 @@ public class FileHandlerService {
      */
     public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl, FileAttribute fileAttribute) {
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount ;
+        Integer imageCount = null; ;
         String imageFileSuffix = ".jpg";
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
-        boolean force_updated_cache=fileAttribute.forceUpdatedCache();
-        String filePassword = fileAttribute.getFilePassword();
-        if (force_updated_cache){
-            imageCount = Integer.valueOf("0");
-        }else {
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
+        if (!forceUpdatedCache){
             imageCount = this.getConvertedPdfImage(pdfFilePath);
         }
         String urlPrefix;
@@ -207,7 +204,7 @@ public class FileHandlerService {
             if (!pdfFile.exists()) {
                 return null;
             }
-            PDDocument doc = PDDocument.load(pdfFile,filePassword);
+            PDDocument doc = PDDocument.load(pdfFile);
             doc.setResourceCache(new NotResourceCache());
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
@@ -321,7 +318,7 @@ public class FileHandlerService {
             if (StringUtils.hasText(fileKey)) {
                 attribute.setFileKey(fileKey);
             }
-            if (StringUtil.isNotBlank(forceUpdatedCache) && "true".equalsIgnoreCase(forceUpdatedCache)) {
+            if ( "true".equalsIgnoreCase(forceUpdatedCache)) {
                 attribute.setforceUpdatedCache(true);
             }
 
