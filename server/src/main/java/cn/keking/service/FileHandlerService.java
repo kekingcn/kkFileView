@@ -313,7 +313,7 @@ public class FileHandlerService {
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
-            String forceUpdatedCache = req.getParameter("force_updated_cache");
+            String forceUpdatedCache = req.getParameter("forceUpdatedCache");
             String fileKey = WebUtils.getUrlParameterReg(url,"fileKey");
             if (StringUtils.hasText(officePreviewType)) {
                 attribute.setOfficePreviewType(officePreviewType);
