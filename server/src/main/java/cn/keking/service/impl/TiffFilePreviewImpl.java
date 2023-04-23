@@ -39,6 +39,7 @@ public class TiffFilePreviewImpl implements FilePreview {
         String baseUrl = BaseUrlFilter.getBaseUrl();
         String tifPreviewType = ConfigConstants.getTifPreviewType();
         String tifOnLinePreviewType = fileAttribute.getTifPreviewType();
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         if (StringUtils.hasText(tifOnLinePreviewType)) {
             tifPreviewType = tifOnLinePreviewType;
         }
@@ -52,7 +53,7 @@ public class TiffFilePreviewImpl implements FilePreview {
             String outFilePath = fileDir + pdfName;
             if ("pdf".equalsIgnoreCase(tifPreviewType)) {
                     //当文件不存在时，就去下载
-                    if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+                    if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                         ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
                         if (response.isFailure()) {
                             return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());

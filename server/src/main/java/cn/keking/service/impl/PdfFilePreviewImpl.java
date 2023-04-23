@@ -34,11 +34,12 @@ public class PdfFilePreviewImpl implements FilePreview {
         String fileName = fileAttribute.getName();
         String officePreviewType = fileAttribute.getOfficePreviewType();
         String baseUrl = BaseUrlFilter.getBaseUrl();
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
         String outFilePath = FILE_DIR + pdfName;
         if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType)) {
             //当文件不存在时，就去下载
-            if (!fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+            if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
                 ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
                 if (response.isFailure()) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
@@ -49,7 +50,7 @@ public class PdfFilePreviewImpl implements FilePreview {
                     fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                 }
             }
-            List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl);
+            List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, baseUrl, fileAttribute);
             if (imageUrls == null || imageUrls.size() < 1) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, "pdf转图片异常，请联系管理员");
             }

@@ -14,6 +14,7 @@ import com.aspose.cad.Image;
 import com.aspose.cad.LoadOptions;
 import com.aspose.cad.imageoptions.CadRasterizationOptions;
 import com.aspose.cad.imageoptions.PdfOptions;
+import jodd.util.StringUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -176,11 +177,18 @@ public class FileHandlerService {
      * @param baseUrl 基础访问地址
      * @return 图片访问集合
      */
-    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl) {
+    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl, FileAttribute fileAttribute) {
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = this.getConvertedPdfImage(pdfFilePath);
+        Integer imageCount ;
         String imageFileSuffix = ".jpg";
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
+        boolean force_updated_cache=fileAttribute.forceUpdatedCache();
+        String filePassword = fileAttribute.getFilePassword();
+        if (force_updated_cache){
+            imageCount = Integer.valueOf("0");
+        }else {
+            imageCount = this.getConvertedPdfImage(pdfFilePath);
+        }
         String urlPrefix;
         try {
             urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
@@ -199,7 +207,7 @@ public class FileHandlerService {
             if (!pdfFile.exists()) {
                 return null;
             }
-            PDDocument doc = PDDocument.load(pdfFile);
+            PDDocument doc = PDDocument.load(pdfFile,filePassword);
             doc.setResourceCache(new NotResourceCache());
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
@@ -305,12 +313,16 @@ public class FileHandlerService {
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
+            String forceUpdatedCache = req.getParameter("force_updated_cache");
             String fileKey = WebUtils.getUrlParameterReg(url,"fileKey");
             if (StringUtils.hasText(officePreviewType)) {
                 attribute.setOfficePreviewType(officePreviewType);
             }
             if (StringUtils.hasText(fileKey)) {
                 attribute.setFileKey(fileKey);
+            }
+            if (StringUtil.isNotBlank(forceUpdatedCache) && "true".equalsIgnoreCase(forceUpdatedCache)) {
+                attribute.setforceUpdatedCache(true);
             }
 
             String tifPreviewType = req.getParameter("tifPreviewType");

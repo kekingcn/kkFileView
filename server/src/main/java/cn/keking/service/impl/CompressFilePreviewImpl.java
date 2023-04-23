@@ -38,9 +38,10 @@ public class CompressFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName=fileAttribute.getName();
         String filePassword = fileAttribute.getFilePassword();
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
-        if (!StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
+        if (forceUpdatedCache || !StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
