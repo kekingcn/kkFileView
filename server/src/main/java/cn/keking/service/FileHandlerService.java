@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 /**
  * @author yudian-it
@@ -44,6 +47,7 @@ public class FileHandlerService {
 
     private final Logger logger = LoggerFactory.getLogger(FileHandlerService.class);
     private final String fileDir = ConfigConstants.getFileDir();
+    private final static String pdf2jpg_image_format = ".jpg";
     private final CacheService cacheService;
 
     @Value("${server.tomcat.uri-encoding:UTF-8}")
@@ -71,7 +75,7 @@ public class FileHandlerService {
      * @param key pdf本地路径
      * @return 已将pdf转换成图片的图片本地相对路径
      */
-    public Integer getConvertedPdfImage(String key) {
+    public Integer getPdf2jpgCache(String key) {
         return cacheService.getPdfImageCache(key);
     }
 
@@ -112,7 +116,7 @@ public class FileHandlerService {
      * @param pdfFilePath pdf文件绝对路径
      * @param num         图片张数
      */
-    public void addConvertedPdfImage(String pdfFilePath, int num) {
+    public void addPdf2jpgCache(String pdfFilePath, int num) {
         cacheService.putPdfImageCache(pdfFilePath, num);
     }
 
@@ -170,34 +174,60 @@ public class FileHandlerService {
     }
 
     /**
-     *  pdf文件转换成jpg图片集
-     * @param pdfFilePath pdf文件路径
-     * @param pdfName pdf文件名称
-     * @param baseUrl 基础访问地址
-     * @return 图片访问集合
+     * 获取本地 pdf 转 image 后的 web 访问地址
+     * @param pdfName pdf文件名
+     * @param index 图片索引
+     * @return 图片访问地址
      */
-    public List<String> pdf2jpg(String pdfFilePath, String pdfName, String baseUrl, FileAttribute fileAttribute) {
-        List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = null;
-        String imageFileSuffix = ".jpg";
+    private String getPdf2jpgUrl(String pdfName, int index) {
+        String baseUrl = ConfigConstants.getBaseUrl();
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
-        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
-        if (!forceUpdatedCache){
-            imageCount = this.getConvertedPdfImage(pdfFilePath);
-        }
         String urlPrefix;
+
         try {
             urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException e) {
             logger.error("UnsupportedEncodingException", e);
             urlPrefix = baseUrl + pdfFolder;
         }
-        if (imageCount != null && imageCount > 0) {
-            for (int i = 0; i < imageCount; i++) {
-                imageUrls.add(urlPrefix + "/" + i + imageFileSuffix);
-            }
+        return urlPrefix + "/" + index + pdf2jpg_image_format;
+    }
+
+    /**
+     * 获取缓存中的 pdf 转换成 jpg 图片集
+     * @param pdfFilePath pdf文件路径
+     * @param pdfName pdf文件名称
+     * @return 图片访问集合
+     */
+    private List<String> loadPdf2jpgCache(String pdfFilePath, String pdfName) {
+        List<String> imageUrls = new ArrayList<>();
+        Integer imageCount = this.getPdf2jpgCache(pdfFilePath);
+        if (Objects.isNull(imageCount)) {
             return imageUrls;
         }
+        IntStream.range(0, imageCount).forEach(i -> {
+            String imageUrl = this.getPdf2jpgUrl(pdfName, i);
+            imageUrls.add(imageUrl);
+        });
+        return imageUrls;
+    }
+
+    /**
+     * pdf文件转换成jpg图片集
+     *
+     * @param pdfFilePath pdf文件路径
+     * @param pdfName     pdf文件名称
+     * @return 图片访问集合
+     */
+    public List<String> pdf2jpg(String pdfFilePath, String pdfName, FileAttribute fileAttribute) {
+        boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
+        if (!forceUpdatedCache) {
+            List<String> cacheResult = this.loadPdf2jpgCache(pdfFilePath, pdfName);
+            if (!CollectionUtils.isEmpty(cacheResult)) {
+                return cacheResult;
+            }
+        }
+        List<String> imageUrls = new ArrayList<>();
         try {
             File pdfFile = new File(pdfFilePath);
             if (!pdfFile.exists()) {
@@ -217,13 +247,14 @@ public class FileHandlerService {
             }
             String imageFilePath;
             for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-                imageFilePath = folder + File.separator + pageIndex + imageFileSuffix;
+                imageFilePath = folder + File.separator + pageIndex + pdf2jpg_image_format;
                 BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, 105, ImageType.RGB);
                 ImageIOUtil.writeImage(image, imageFilePath, 105);
-                imageUrls.add(urlPrefix + "/" + pageIndex + imageFileSuffix);
+                String imageUrl = this.getPdf2jpgUrl(pdfName, pageIndex);
+                imageUrls.add(imageUrl);
             }
             doc.close();
-            this.addConvertedPdfImage(pdfFilePath, pageCount);
+            this.addPdf2jpgCache(pdfFilePath, pageCount);
         } catch (IOException e) {
             logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
         }
@@ -232,11 +263,12 @@ public class FileHandlerService {
 
     /**
      * cad文件转pdf
-     * @param inputFilePath cad文件路径
+     *
+     * @param inputFilePath  cad文件路径
      * @param outputFilePath pdf输出文件路径
      * @return 转换是否成功
      */
-    public boolean cadToPdf(String inputFilePath, String outputFilePath)  {
+    public boolean cadToPdf(String inputFilePath, String outputFilePath) {
         File outputFile = new File(outputFilePath);
         LoadOptions opts = new LoadOptions();
         opts.setSpecifiedEncoding(CodePages.SimpChinese);
@@ -246,7 +278,7 @@ public class FileHandlerService {
         cadRasterizationOptions.setPageWidth(1400);
         cadRasterizationOptions.setPageHeight(650);
         cadRasterizationOptions.setAutomaticLayoutsScaling(true);
-        cadRasterizationOptions.setNoScaling (false);
+        cadRasterizationOptions.setNoScaling(false);
         cadRasterizationOptions.setDrawType(1);
         PdfOptions pdfOptions = new PdfOptions();
         pdfOptions.setVectorRasterizationOptions(cadRasterizationOptions);
@@ -259,8 +291,8 @@ public class FileHandlerService {
             return true;
         } catch (IOException e) {
             logger.error("PDFFileNotFoundException，inputFilePath：{}", inputFilePath, e);
-        }finally{
-            if(cadImage != null){   //关闭
+        } finally {
+            if (cadImage != null) {   //关闭
                 cadImage.close();
             }
         }
@@ -297,12 +329,12 @@ public class FileHandlerService {
             suffix = WebUtils.suffixFromUrl(url);
         }
         if (url.contains("?fileKey=")) {
-            fileName=urlStrr;
+            fileName = urlStrr;
             attribute.setSkipDownLoad(true);
         }
         // System.out.println(fileName);
         url = WebUtils.encodeUrlFileName(url);
-        fileName =  KkFileUtils.htmlEscape(fileName);  //文件名处理
+        fileName = KkFileUtils.htmlEscape(fileName);  //文件名处理
         attribute.setType(type);
         attribute.setName(fileName);
         attribute.setSuffix(suffix);
@@ -310,14 +342,14 @@ public class FileHandlerService {
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
             String forceUpdatedCache = req.getParameter("forceUpdatedCache");
-            String fileKey = WebUtils.getUrlParameterReg(url,"fileKey");
+            String fileKey = WebUtils.getUrlParameterReg(url, "fileKey");
             if (StringUtils.hasText(officePreviewType)) {
                 attribute.setOfficePreviewType(officePreviewType);
             }
             if (StringUtils.hasText(fileKey)) {
                 attribute.setFileKey(fileKey);
             }
-            if ( "true".equalsIgnoreCase(forceUpdatedCache)) {
+            if ("true".equalsIgnoreCase(forceUpdatedCache)) {
                 attribute.setforceUpdatedCache(true);
             }
 
@@ -349,6 +381,7 @@ public class FileHandlerService {
 
     /**
      * 添加转换后的视频文件缓存
+     *
      * @param fileName
      * @param value
      */
