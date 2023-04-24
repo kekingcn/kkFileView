@@ -49,7 +49,7 @@ public class TiffFilePreviewImpl implements FilePreview {
             return TIFF_FILE_PREVIEW_PAGE;
         } else if ("jpg".equalsIgnoreCase(tifPreviewType) || "pdf".equalsIgnoreCase(tifPreviewType)) {
             String pdfName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix +"." + "pdf" ; //生成文件添加类型后缀 防止同名文件
-            String jpgName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "jpg";
+            String jpgName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix +"." + "jpg" ; //生成文件添加类型后缀 防止同名文件
             String strLocalTif = fileDir + fileName;
             String outFilePath = fileDir + pdfName;
             if ("pdf".equalsIgnoreCase(tifPreviewType)) {
