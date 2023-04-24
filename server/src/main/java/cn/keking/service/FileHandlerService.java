@@ -75,7 +75,7 @@ public class FileHandlerService {
      * @param key pdf本地路径
      * @return 已将pdf转换成图片的图片本地相对路径
      */
-    public Integer getConvertedPdfImage(String key) {
+    public Integer getPdf2jpgCache(String key) {
         return cacheService.getPdfImageCache(key);
     }
 
@@ -116,7 +116,7 @@ public class FileHandlerService {
      * @param pdfFilePath pdf文件绝对路径
      * @param num         图片张数
      */
-    public void addConvertedPdfImage(String pdfFilePath, int num) {
+    public void addPdf2jpgCache(String pdfFilePath, int num) {
         cacheService.putPdfImageCache(pdfFilePath, num);
     }
 
@@ -201,7 +201,7 @@ public class FileHandlerService {
      */
     private List<String> loadPdf2jpgCache(String pdfFilePath, String pdfName) {
         List<String> imageUrls = new ArrayList<>();
-        Integer imageCount = this.getConvertedPdfImage(pdfFilePath);
+        Integer imageCount = this.getPdf2jpgCache(pdfFilePath);
         if (Objects.isNull(imageCount)) {
             return imageUrls;
         }
@@ -254,7 +254,7 @@ public class FileHandlerService {
                 imageUrls.add(imageUrl);
             }
             doc.close();
-            this.addConvertedPdfImage(pdfFilePath, pageCount);
+            this.addPdf2jpgCache(pdfFilePath, pageCount);
         } catch (IOException e) {
             logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
         }
