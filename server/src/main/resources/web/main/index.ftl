@@ -70,7 +70,7 @@
             <li>支持 eml 邮件文件</li>
             <li>支持 epub 图书文档</li>
             <li>支持 obj, 3ds, stl, ply, gltf, glb, off, 3dm, fbx, dae, wrl, 3mf, ifc, brep, step, iges, fcstd, bim 等 3D 模型文件</li>
-            <li>支持 dwg, dxf 等 CAD 模型文件</li>
+            <li>支持 dwg, dxf, dwf 等 CAD 模型文件</li>
             <li>支持 txt, xml(渲染), md(渲染), java, php, py, js, css 等所有纯文本</li>
             <li>支持 zip, rar, jar, tar, gzip, 7z 等压缩包</li>
             <li>支持 jpg, jpeg, png, gif, bmp, ico, jfif, webp 等图片预览（翻转，缩放，镜像）</li>
