@@ -56,6 +56,7 @@
                 1.新增 dcm 等医疗数位影像预览<br>
                 2.新增 drawio 绘图预览<br>
                 3.新增开启缓存的情况下重新生成的命令 &forceUpdatedCache=true <br>
+                4.新增 dwf CAD文件预览 <br>
             </div>
         </div>
     <div class="panel panel-success">
