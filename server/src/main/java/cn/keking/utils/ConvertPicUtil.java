@@ -45,46 +45,26 @@ public class ConvertPicUtil {
             return null;
         }
         strInputFile = strInputFile.replaceAll("\\\\", "/");
-        strOutputFile = strOutputFile.replaceAll("\\\\", "/");
         FileSeekableStream fileSeekStream = null;
         try {
             JPEGEncodeParam jpegEncodeParam = new JPEGEncodeParam();
             TIFFEncodeParam tiffEncodeParam = new TIFFEncodeParam();
             tiffEncodeParam.setCompression(TIFFEncodeParam.COMPRESSION_GROUP4);
             tiffEncodeParam.setLittleEndian(false);
-            String jpgname = strInputFile.replace(fileDir.replace("\\","/"), "");
-            int index = jpgname.lastIndexOf(".");
-            String strFilePrefix = jpgname.substring(0, index);
             fileSeekStream = new FileSeekableStream(strInputFile);
             ImageDecoder imageDecoder = ImageCodec.createImageDecoder("TIFF", fileSeekStream, null);
             int intTifCount = imageDecoder.getNumPages();
             logger.info("该tif文件共有【" + intTifCount + "】页");
-            String strJpgPath;
-            String strJpgUrl;
-            if (intTifCount == 1) {
-                // 如果是单页tif文件，则转换的目标文件夹就在指定的位置
-                strJpgPath = strOutputFile.substring(0, strOutputFile.lastIndexOf("/"));
-            } else {
-                // 如果是多页tif文件，则在目标文件夹下，按照文件名再创建子目录，将转换后的文件放入此新建的子目录中
-                strJpgPath = strOutputFile.substring(0, strOutputFile.lastIndexOf("."));
-            }
-
+            String  strJpgPath = fileDir+strOutputFile;
             // 处理目标文件夹，如果不存在则自动创建
             File fileJpgPath = new File(strJpgPath);
             if (!fileJpgPath.exists() && !fileJpgPath.mkdirs()) {
                 logger.error("{} 创建失败", strJpgPath);
             }
-
             // 循环，处理每页tif文件，转换为jpg
             for (int i = 0; i < intTifCount; i++) {
-                String strJpg;
-                if (intTifCount == 1) {
-                    strJpg = strJpgPath + "/" + strFilePrefix + ".jpg";
-                    strJpgUrl = strFilePrefix + ".jpg";
-                } else {
-                    strJpg = strJpgPath + "/" + i + ".jpg";
-                    strJpgUrl = strFilePrefix + "/" + i + ".jpg";
-                }
+                String strJpg= strJpgPath + "/" + i + ".jpg";
+                String strJpgUrl = strOutputFile + "/" + i + ".jpg";
                 File fileJpg = new File(strJpg);
                 // 如果文件不存在，则生成
                 if (!fileJpg.exists()) {
@@ -98,7 +78,7 @@ public class ConvertPicUtil {
                     renderedOp.dispose();
                     logger.info("每页分别保存至： " + fileJpg.getCanonicalPath());
                 } else {
-                  //  logger.info("JPG文件已存在： " + fileJpg.getCanonicalPath());
+                    //  logger.info("JPG文件已存在： " + fileJpg.getCanonicalPath());
                 }
 
                 listImageFiles.add(strJpgUrl);
@@ -154,7 +134,7 @@ public class ConvertPicUtil {
         }
         catch (Exception e)
         {
-           System.out.println("错误:"+ e.getMessage());
+            System.out.println("错误:"+ e.getMessage());
         }
         finally {
             document.close();

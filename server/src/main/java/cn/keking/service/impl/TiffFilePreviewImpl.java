@@ -49,32 +49,32 @@ public class TiffFilePreviewImpl implements FilePreview {
             return TIFF_FILE_PREVIEW_PAGE;
         } else if ("jpg".equalsIgnoreCase(tifPreviewType) || "pdf".equalsIgnoreCase(tifPreviewType)) {
             String pdfName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix +"." + "pdf" ; //生成文件添加类型后缀 防止同名文件
-            String jpgName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix +"." + "jpg" ; //生成文件添加类型后缀 防止同名文件
+            String jpgName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix; //生成文件添加类型后缀 防止同名文件
             String strLocalTif = fileDir + fileName;
             String outFilePath = fileDir + pdfName;
             if ("pdf".equalsIgnoreCase(tifPreviewType)) {
-                    //当文件不存在时，就去下载
-                    if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
-                        ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
-                        if (response.isFailure()) {
-                            return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
-                        }
-                        String filePath = response.getContent();
-                        if(ConvertPicUtil.convertJpg2Pdf(filePath, outFilePath)){
-                            if(ConfigConstants.getdeletesourcefile()){  //是否保留TIFF源文件
-                                KkFileUtils.deleteFileByPath(filePath);
-                            }
-                            if (ConfigConstants.isCacheEnabled()) {
-                                // 加入缓存
-                                fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
-                            }
-                            model.addAttribute("pdfUrl", pdfName);
-                            return PDF_FILE_PREVIEW_PAGE;
-                        }else {
-                            return NOT_SUPPORTED_FILE_PAGE;
-                        }
+                //当文件不存在时，就去下载
+                if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
+                    ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
+                    if (response.isFailure()) {
+                        return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                     }
-                 else {
+                    String filePath = response.getContent();
+                    if(ConvertPicUtil.convertJpg2Pdf(filePath, outFilePath)){
+                        if(ConfigConstants.getdeletesourcefile()){  //是否保留TIFF源文件
+                            KkFileUtils.deleteFileByPath(filePath);
+                        }
+                        if (ConfigConstants.isCacheEnabled()) {
+                            // 加入缓存
+                            fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
+                        }
+                        model.addAttribute("pdfUrl", pdfName);
+                        return PDF_FILE_PREVIEW_PAGE;
+                    }else {
+                        return NOT_SUPPORTED_FILE_PAGE;
+                    }
+                }
+                else {
                     model.addAttribute("pdfUrl", pdfName);
                     return PDF_FILE_PREVIEW_PAGE;
                 }
@@ -88,10 +88,8 @@ public class TiffFilePreviewImpl implements FilePreview {
                     }
                     strLocalTif = response.getContent();
                 }
-                // 以JPG模式预览的过程
-                String strJpgFilePathName = fileDir + jpgName;
                 // 将tif转换为jpg，返回转换后的文件路径、文件名的list
-                List<String> listPic2Jpg = ConvertPicUtil.convertTif2Jpg(strLocalTif, strJpgFilePathName);
+                List<String> listPic2Jpg = ConvertPicUtil.convertTif2Jpg(strLocalTif, jpgName);
                 // 将返回页面的图片url的list对象
                 List<String> listImageUrls = new ArrayList<>();
                 // 循环，拼装url的list对象
