@@ -180,7 +180,7 @@ public class FileHandlerService {
      * @return 图片访问地址
      */
     private String getPdf2jpgUrl(String pdfName, int index) {
-        String baseUrl = ConfigConstants.getBaseUrl();
+        String baseUrl = BaseUrlFilter.getBaseUrl();
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
         String urlPrefix;
 
