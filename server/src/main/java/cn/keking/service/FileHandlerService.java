@@ -329,7 +329,10 @@ public class FileHandlerService {
             suffix = WebUtils.suffixFromUrl(url);
         }
         if (url.contains("?fileKey=")) {
-            fileName = urlStrr;
+            String[] strs = url.split("=");  //处理解压后有反代情况下 文件的路径
+            String  urlStrr = getSubString(url, strs[1]);
+            urlStrr =  urlStrr.substring(0,urlStrr.lastIndexOf("?"));
+            fileName = strs[1] + urlStrr.trim();
             attribute.setSkipDownLoad(true);
         }
         // System.out.println(fileName);
