@@ -8,6 +8,7 @@ import cn.keking.service.cache.NotResourceCache;
 import cn.keking.utils.EncodingDetects;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
+import cn.keking.web.filter.BaseUrlFilter;
 import com.aspose.cad.CodePages;
 import com.aspose.cad.Color;
 import com.aspose.cad.Image;
@@ -28,8 +29,6 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -248,8 +247,8 @@ public class FileHandlerService {
             String imageFilePath;
             for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
                 imageFilePath = folder + File.separator + pageIndex + pdf2jpg_image_format;
-                BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, 105, ImageType.RGB);
-                ImageIOUtil.writeImage(image, imageFilePath, 105);
+                BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, ConfigConstants.getpdf2JpgDpi(), ImageType.RGB);
+                ImageIOUtil.writeImage(image, imageFilePath, ConfigConstants.getpdf2JpgDpi());
                 String imageUrl = this.getPdf2jpgUrl(pdfName, pageIndex);
                 imageUrls.add(imageUrl);
             }
@@ -298,6 +297,16 @@ public class FileHandlerService {
         }
         return false;
     }
+    /**
+     *
+     * @param str 原字符串（待截取原串）
+     * @param posStr 指定字符串
+     * @return 截取截取指定字符串之后的数据
+     */
+    public static String getSubString(String str, String posStr){
+        return str.substring(str.indexOf(posStr) + posStr.length());
+    }
+
 
     /**
      * 获取文件属性
@@ -311,14 +320,6 @@ public class FileHandlerService {
         FileType type;
         String fileName;
         String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
-        String urlStrr = null;
-        URL urll;
-        try {
-            urll = new URL(url);
-            urlStrr = URLDecoder.decode(urll.getPath(), "UTF-8");
-        } catch (Exception e) {
-
-        }
         if (StringUtils.hasText(fullFileName)) {
             fileName = fullFileName;
             type = FileType.typeFromFileName(fullFileName);
