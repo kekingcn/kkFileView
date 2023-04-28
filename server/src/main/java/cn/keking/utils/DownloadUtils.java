@@ -38,13 +38,9 @@ public class DownloadUtils {
     public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
         // 忽略ssl证书
         String urlStr = null;
-        String urlStrr = null;
-        URL urll;
         try {
             SslUtils.ignoreSsl();
             urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
-            urll = new URL(urlStr);
-            urlStrr = URLDecoder.decode(urll.getPath(), "UTF-8");
         } catch (Exception e) {
             logger.error("忽略SSL证书异常:", e);
         }
@@ -58,7 +54,7 @@ public class DownloadUtils {
         }
         assert urlStr != null;
         if (urlStr.contains("?fileKey=")) {
-            response.setContent(fileDir + urlStrr);
+            response.setContent(fileDir + fileName);
             response.setMsg(fileName);
             return response;
         }
