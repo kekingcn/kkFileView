@@ -72,7 +72,7 @@ public class ConfigConstants {
     public static final String DEFAULT_SIZE = "500MB";
     public static final String DEFAULT_PROHIBIT = "exe,dll";
     public static final String DEFAULT_PASSWORD = "123456";
-    public static final String DEFAULT_PDF2_JPG_DPI_DISABLE = "105";
+    public static final String DEFAULT_PDF2_JPG_DPI = "105";
     public static final String DEFAULT_DELETE_SOURCE_FILE = "true";
 
     public static Boolean isCacheEnabled() {

@@ -88,7 +88,7 @@ public class ConfigRefreshComponent {
                     beiAn = properties.getProperty("beiAn", ConfigConstants.DEFAULT_BEIAN);
                     prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_PROHIBIT);
                     password = properties.getProperty("sc.password", ConfigConstants.DEFAULT_PASSWORD);
-                    pdf2JpgDpi = Integer.parseInt(properties.getProperty("pdf2jpg.dpi", ConfigConstants.DEFAULT_PDF2_JPG_DPI_DISABLE));
+                    pdf2JpgDpi = Integer.parseInt(properties.getProperty("pdf2jpg.dpi", ConfigConstants.DEFAULT_PDF2_JPG_DPI));
                     deleteSourceFile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_DELETE_SOURCE_FILE));
                     prohibitArray = prohibit.split(",");
 
