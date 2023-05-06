@@ -17,13 +17,17 @@ import javax.media.jai.RenderedOp;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConvertPicUtil {
+
+    private static final int FIT_WIDTH = 500;
+    private static final int FIT_HEIGHT = 900;
 
     private final static Logger logger = LoggerFactory.getLogger(ConvertPicUtil.class);
     private final static String fileDir = ConfigConstants.getFileDir();
@@ -77,10 +81,7 @@ public class ConvertPicUtil {
                     RenderedOp renderedOp = JAI.create("filestore", pb);
                     renderedOp.dispose();
                     logger.info("每页分别保存至： " + fileJpg.getCanonicalPath());
-                } else {
-                    //  logger.info("JPG文件已存在： " + fileJpg.getCanonicalPath());
                 }
-
                 listImageFiles.add(strJpgUrl);
             }
 
@@ -105,14 +106,12 @@ public class ConvertPicUtil {
      * @param strJpgFile 输入的jpg的路径和文件名
      * @param strPdfFile 输出的pdf的路径和文件名
      */
-    private static final int FIT_WIDTH = 500;
-    private static final int FIT_HEIGHT = 900;
     public static boolean convertJpg2Pdf(String strJpgFile, String strPdfFile) {
-        Document document= null;
+        Document document = null;
         RandomAccessFileOrArray rafa = null;
         try {
             document = new Document();
-            PdfWriter.getInstance(document,  new FileOutputStream(strPdfFile));
+            PdfWriter.getInstance(document, Files.newOutputStream(Paths.get(strPdfFile)));
             document.open();
             rafa = new RandomAccessFileOrArray(new FileChannelRandomAccessSource(new RandomAccessFile(strJpgFile, "r").getChannel()));
             int pages = TiffImage.getNumberOfPages(rafa);
@@ -131,15 +130,16 @@ public class ConvertPicUtil {
             document.close();
             rafa.close();
             return true;
-        }
-        catch (Exception e)
-        {
-            System.out.println("错误:"+ e.getMessage());
-        }
-        finally {
-            document.close();
+        } catch (Exception e) {
+            logger.error("图片转PDF异常，图片文件路径：" + strJpgFile, e);
+        } finally {
             try {
-                rafa.close();
+                if (document != null && document.isOpen()) {
+                    document.close();
+                }
+                if (rafa != null) {
+                    rafa.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

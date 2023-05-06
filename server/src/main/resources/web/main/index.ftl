@@ -156,7 +156,7 @@
 </div>
 <div style="display: grid; place-items: center;">
     <div>
-        <a target="_blank"  href="https://beian.miit.gov.cn/" >${BeiAn}</a>
+        <a target="_blank"  href="https://beian.miit.gov.cn/">${beiAn}</a>
     </div>
 </div>
 <script>

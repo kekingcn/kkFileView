@@ -61,7 +61,8 @@ public class CompressFilePreviewImpl implements FilePreview {
                 }
             }
             if (!ObjectUtils.isEmpty(fileTree)) {
-                if( ConfigConstants.getdeletesourcefile()){  //是否保留压缩包源文件
+                //是否保留压缩包源文件
+                if (ConfigConstants.getDeleteSourceFile()) {
                     KkFileUtils.deleteFileByPath(filePath);
                 }
                 if (ConfigConstants.isCacheEnabled()) {

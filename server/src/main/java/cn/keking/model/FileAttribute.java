@@ -120,7 +120,7 @@ public class FileAttribute {
     public Boolean forceUpdatedCache() {
         return forceUpdatedCache;
     }
-    public  void setforceUpdatedCache(Boolean forceUpdatedCache) {
+    public void setForceUpdatedCache(Boolean forceUpdatedCache) {
         this.forceUpdatedCache = forceUpdatedCache;
     }
 

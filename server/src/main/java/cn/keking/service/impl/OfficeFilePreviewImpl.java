@@ -114,7 +114,8 @@ public class OfficeFilePreviewImpl implements FilePreview {
                         // 对转换后的文件进行操作(改变编码方式)
                         fileHandlerService.doActionConvertedFile(outFilePath);
                     }
-                    if(ConfigConstants.getdeletesourcefile()){  //是否保留OFFICE源文件
+                    //是否保留OFFICE源文件
+                    if (ConfigConstants.getDeleteSourceFile()) {
                         KkFileUtils.deleteFileByPath(filePath);
                     }
                     if (isUseCached) {

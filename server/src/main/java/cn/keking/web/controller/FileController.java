@@ -65,7 +65,7 @@ public class FileController {
             return checkResult;
         }
          fileName = checkResult.getContent().toString();
-        if(!ConfigConstants.getpassword().equalsIgnoreCase(password)){
+        if(!ConfigConstants.getPassword().equalsIgnoreCase(password)) {
             logger.error("删除文件【{}】失败，密码错误！",fileName);
             return ReturnResponse.failure("删除文件失败，密码错误！");
         }

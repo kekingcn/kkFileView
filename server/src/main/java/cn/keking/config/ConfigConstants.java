@@ -42,12 +42,12 @@ public class ConfigConstants {
     private static String pdfBookmarkDisable;
     private static Boolean fileUploadDisable;
     private static String tifPreviewType;
-    private static String BeiAn;
-    private static String[] prohibit= {};
+    private static String beiAn;
+    private static String[] prohibit = {};
     private static String size;
     private static String password;
     private static int pdf2JpgDpi;
-    private static Boolean deletesourcefile;
+    private static Boolean deleteSourceFile;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -68,12 +68,12 @@ public class ConfigConstants {
     public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
     public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
     public static final String DEFAULT_TIF_PREVIEW_TYPE = "tif";
-    public static final String DEFAULT_BeiAn_DISABLE = "无";
-    public static final String DEFAULT_size_DISABLE = "500MB";
-    public static final String DEFAULT_prohibit_DISABLE = "exe,dll";
-    public static final String DEFAULT_password_DISABLE = "123456";
+    public static final String DEFAULT_BEIAN = "无";
+    public static final String DEFAULT_SIZE = "500MB";
+    public static final String DEFAULT_PROHIBIT = "exe,dll";
+    public static final String DEFAULT_PASSWORD = "123456";
     public static final String DEFAULT_PDF2_JPG_DPI_DISABLE = "105";
-    public static final String DEFAULT_Delete_Source_File_PREVIEW_TYPE = "true";
+    public static final String DEFAULT_DELETE_SOURCE_FILE = "true";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -367,73 +367,73 @@ public class ConfigConstants {
     }
 
     public static String getBeiAn() {
-        return BeiAn;
+        return beiAn;
     }
-    @Value("${BeiAn:无}")
-    public void setBeiAn(String BeiAn) {
-        setBeiAnValue(BeiAn);
+    @Value("${beiAn:无}")
+    public void setBeiAn(String beiAn) {
+        setBeiAnValue(beiAn);
     }
-    public static void setBeiAnValue(String BeiAn) {
-        ConfigConstants.BeiAn = BeiAn;
+    public static void setBeiAnValue(String beiAn) {
+        ConfigConstants.beiAn = beiAn;
     }
-    public static String[] getprohibit() {
+    public static String[] getProhibit() {
         return prohibit;
     }
     @Value("${prohibit:exe,dll}")
-    public void setprohibit(String prohibit) {
-        String[] prohibittArr = prohibit.split(",");
-        setprohibitValue(prohibittArr);
+    public void setProhibit(String prohibit) {
+        String[] prohibitArr = prohibit.split(",");
+        setProhibitValue(prohibitArr);
     }
 
-    public static void setprohibitValue(String[] prohibit) {
+    public static void setProhibitValue(String[] prohibit) {
         ConfigConstants.prohibit = prohibit;
     }
-    public static String maxsize() {
+    public static String maxSize() {
         return size;
     }
     @Value("${spring.servlet.multipart.max-file-size:500MB}")
-    public void setsize(String size) {
-        setsizeValue(size);
+    public void setSize(String size) {
+        setSizeValue(size);
     }
-    public static void setsizeValue(String size) {
+    public static void setSizeValue(String size) {
         ConfigConstants.size = size;
     }
 
-    public static String getpassword() {
+    public static String getPassword() {
         return password;
     }
     @Value("${sc.password:123456}")
-    public void setpassword(String password) {
-        setpasswordValue(password);
+    public void setPassword(String password) {
+        setPasswordValue(password);
     }
-    public static void setpasswordValue(String password) {
+    public static void setPasswordValue(String password) {
         ConfigConstants.password = password;
     }
 
 
-    public static int getpdf2JpgDpi() {
+    public static int getPdf2JpgDpi() {
         return pdf2JpgDpi;
     }
     @Value("${pdf.picture.size:105}")
     public void pdf2JpgDpi(int pdf2JpgDpi) {
-        setpdf2JpgDpiValue(pdf2JpgDpi);
+        setPdf2JpgDpiValue(pdf2JpgDpi);
     }
-    public static void setpdf2JpgDpiValue(int pdf2JpgDpi) {
+    public static void setPdf2JpgDpiValue(int pdf2JpgDpi) {
         ConfigConstants.pdf2JpgDpi = pdf2JpgDpi;
     }
 
 
-    public static Boolean getdeletesourcefile() {
-        return deletesourcefile;
+    public static Boolean getDeleteSourceFile() {
+        return deleteSourceFile;
     }
 
     @Value("${delete.source.file:true}")
-    public void setdeletesourcefile(Boolean deletesourcefile) {
-        setdeletesourcefileValue(deletesourcefile);
+    public void setDeleteSourceFile(Boolean deleteSourceFile) {
+        setDeleteSourceFileValue(deleteSourceFile);
     }
 
-    public static void setdeletesourcefileValue(Boolean deletesourcefile) {
-        ConfigConstants.deletesourcefile = deletesourcefile;
+    public static void setDeleteSourceFileValue(Boolean deleteSourceFile) {
+        ConfigConstants.deleteSourceFile = deleteSourceFile;
     }
 
 }

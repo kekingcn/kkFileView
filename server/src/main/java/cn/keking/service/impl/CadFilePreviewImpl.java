@@ -56,7 +56,8 @@ public class CadFilePreviewImpl implements FilePreview {
                 if (!convertResult) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, "cad文件转换异常，请联系管理员");
                 }
-                if( ConfigConstants.getdeletesourcefile()){  //是否保留CAD源文件
+                //是否保留CAD源文件
+                if( ConfigConstants.getDeleteSourceFile()) {
                     KkFileUtils.deleteFileByPath(filePath);
                 }
                 if (ConfigConstants.isCacheEnabled()) {

@@ -1,6 +1,5 @@
 package cn.keking.service;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileType;
 import cn.keking.utils.RarUtils;
 import cn.keking.web.filter.BaseUrlFilter;
@@ -68,7 +67,6 @@ public class CompressFileReader {
                     if (result == ExtractOperationResult.OK) {
                         FileType type = FileType.typeFromUrl(str[0]);
                         if (type.equals(FileType.PICTURE)) {
-                          //  System.out.println( baseUrl +folderName + "_" + str[0]);
                             imgUrls.add(baseUrl +folderName + "_/" + str[0].replace("\\", "/"));
                         }
                         fileHandlerService.putImgCache(fileName, imgUrls);

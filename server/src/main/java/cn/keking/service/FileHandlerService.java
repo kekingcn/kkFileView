@@ -250,8 +250,8 @@ public class FileHandlerService {
             String imageFilePath;
             for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
                 imageFilePath = folder + File.separator + pageIndex + pdf2jpg_image_format;
-                BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, ConfigConstants.getpdf2JpgDpi(), ImageType.RGB);
-                ImageIOUtil.writeImage(image, imageFilePath, ConfigConstants.getpdf2JpgDpi());
+                BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, ConfigConstants.getPdf2JpgDpi(), ImageType.RGB);
+                ImageIOUtil.writeImage(image, imageFilePath, ConfigConstants.getPdf2JpgDpi());
                 String imageUrl = this.getPdf2jpgUrl(pdfName, pageIndex);
                 imageUrls.add(imageUrl);
             }
@@ -269,8 +269,7 @@ public class FileHandlerService {
             }
 
         } catch (IOException e) {
-            System.out.println("发生错误:"+e);
-            // logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
+            logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
             throw new Exception(e);
         }finally {
             if (doc != null) {   //关闭
@@ -356,7 +355,6 @@ public class FileHandlerService {
             fileName = strs[1] + urlStrr.trim();
             attribute.setSkipDownLoad(true);
         }
-        // System.out.println(fileName);
         url = WebUtils.encodeUrlFileName(url);
         fileName = KkFileUtils.htmlEscape(fileName);  //文件名处理
         attribute.setType(type);
@@ -374,7 +372,7 @@ public class FileHandlerService {
                 attribute.setFileKey(fileKey);
             }
             if ("true".equalsIgnoreCase(forceUpdatedCache)) {
-                attribute.setforceUpdatedCache(true);
+                attribute.setForceUpdatedCache(true);
             }
 
             String tifPreviewType = req.getParameter("tifPreviewType");

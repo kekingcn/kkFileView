@@ -186,7 +186,7 @@ public class KkFileUtils {
      */
     public static boolean isAllowedUpload(String file) {
         String fileType = suffixFromFileName(file);
-            for (String type : ConfigConstants.getprohibit()) {
+            for (String type : ConfigConstants.getProhibit()) {
             if (type.equals(fileType))
                 return false;
         }

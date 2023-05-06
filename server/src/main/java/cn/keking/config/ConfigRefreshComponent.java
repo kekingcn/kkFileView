@@ -55,11 +55,11 @@ public class ConfigRefreshComponent {
                 String tifPreviewType;
                 String prohibit;
                 String[] prohibitArray;
-                String BeiAn;
+                String beiAn;
                 String size;
                 String password;
                 int pdf2JpgDpi;
-                Boolean deletesourcefile;
+                boolean deleteSourceFile;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -84,12 +84,12 @@ public class ConfigRefreshComponent {
                     pdfBookmarkDisable = properties.getProperty("pdf.bookmark.disable", ConfigConstants.DEFAULT_PDF_BOOKMARK_DISABLE);
                     fileUploadDisable = Boolean.parseBoolean(properties.getProperty("file.upload.disable", ConfigConstants.DEFAULT_FILE_UPLOAD_DISABLE));
                     tifPreviewType = properties.getProperty("tif.preview.type", ConfigConstants.DEFAULT_TIF_PREVIEW_TYPE);
-                    size = properties.getProperty("spring.servlet.multipart.max-file-size", ConfigConstants.DEFAULT_size_DISABLE);
-                    BeiAn = properties.getProperty("BeiAn", ConfigConstants.DEFAULT_BeiAn_DISABLE);
-                    prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_prohibit_DISABLE);
-                    password = properties.getProperty("sc.password", ConfigConstants.DEFAULT_password_DISABLE);
+                    size = properties.getProperty("spring.servlet.multipart.max-file-size", ConfigConstants.DEFAULT_SIZE);
+                    beiAn = properties.getProperty("beiAn", ConfigConstants.DEFAULT_BEIAN);
+                    prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_PROHIBIT);
+                    password = properties.getProperty("sc.password", ConfigConstants.DEFAULT_PASSWORD);
                     pdf2JpgDpi = Integer.parseInt(properties.getProperty("pdf2jpg.dpi", ConfigConstants.DEFAULT_PDF2_JPG_DPI_DISABLE));
-                    deletesourcefile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_Delete_Source_File_PREVIEW_TYPE));
+                    deleteSourceFile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_DELETE_SOURCE_FILE));
                     prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
@@ -109,12 +109,12 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setPdfBookmarkDisableValue(pdfBookmarkDisable);
                     ConfigConstants.setFileUploadDisableValue(fileUploadDisable);
                     ConfigConstants.setTifPreviewTypeValue(tifPreviewType);
-                    ConfigConstants.setBeiAnValue(BeiAn);
-                    ConfigConstants.setsizeValue(size);
-                    ConfigConstants.setprohibitValue(prohibitArray);
-                    ConfigConstants.setpasswordValue(password);
-                    ConfigConstants.setpdf2JpgDpiValue(pdf2JpgDpi);
-                    ConfigConstants.setdeletesourcefileValue(deletesourcefile);
+                    ConfigConstants.setBeiAnValue(beiAn);
+                    ConfigConstants.setSizeValue(size);
+                    ConfigConstants.setProhibitValue(prohibitArray);
+                    ConfigConstants.setPasswordValue(password);
+                    ConfigConstants.setPdf2JpgDpiValue(pdf2JpgDpi);
+                    ConfigConstants.setDeleteSourceFileValue(deleteSourceFile);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();

@@ -43,7 +43,6 @@ public class EncodingDetects {
     }
 
     public static void readFile(String file, String code) {
-
         BufferedReader fr;
         try {
             String myCode = code!=null&&!"".equals(code) ? code : "UTF8";

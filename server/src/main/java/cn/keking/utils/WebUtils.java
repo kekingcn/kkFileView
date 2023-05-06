@@ -2,6 +2,8 @@ package cn.keking.utils;
 
 import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
@@ -23,6 +25,8 @@ import java.util.regex.Pattern;
  * create : 2020-12-27 1:30 上午
  **/
 public class WebUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebUtils.class);
 
     /**
      * 获取标准的URL
@@ -209,7 +213,7 @@ public class WebUtils {
      *  判断地址是否正确
      * 高 2022/12/17
      */
-    public static boolean hefaurl (String url) {
+    public static boolean isValidUrl(String url) {
         String regStr = "^((https|http|ftp|rtsp|mms|file)://)";//[.?*]表示匹配的就是本身
         Pattern pattern = Pattern.compile(regStr);
         Matcher matcher = pattern.matcher(url);
@@ -253,8 +257,7 @@ public class WebUtils {
         try {
             return new String(Base64Utils.decodeFromString(source.replaceAll(" ", "+").replaceAll("\n", "")), charsets);
         } catch (Exception e) {
-            System.out.println("接入方法错误,或者未使用BASE64");
-            //  e.printStackTrace();
+            LOGGER.error("url解码异常，可能是接入方法错误或者未使用BASE64", e);
             return null;
         }
     }

@@ -40,8 +40,8 @@ public class AttributeSetFilter implements Filter {
         request.setAttribute("fileKey", httpRequest.getParameter("fileKey"));
         request.setAttribute("switchDisabled", ConfigConstants.getOfficePreviewSwitchDisabled());
         request.setAttribute("fileUploadDisable", ConfigConstants.getFileUploadDisable());
-        request.setAttribute("BeiAn", ConfigConstants.getBeiAn());
-        request.setAttribute("size", ConfigConstants.maxsize());
+        request.setAttribute("beiAn", ConfigConstants.getBeiAn());
+        request.setAttribute("size", ConfigConstants.maxSize());
     }
 
     /**

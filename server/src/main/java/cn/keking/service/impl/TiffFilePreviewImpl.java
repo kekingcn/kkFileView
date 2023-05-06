@@ -60,8 +60,9 @@ public class TiffFilePreviewImpl implements FilePreview {
                         return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                     }
                     String filePath = response.getContent();
-                    if(ConvertPicUtil.convertJpg2Pdf(filePath, outFilePath)){
-                        if(ConfigConstants.getdeletesourcefile()){  //是否保留TIFF源文件
+                    if (ConvertPicUtil.convertJpg2Pdf(filePath, outFilePath)) {
+                        //是否保留TIFF源文件
+                        if (ConfigConstants.getDeleteSourceFile()) {
                             KkFileUtils.deleteFileByPath(filePath);
                         }
                         if (ConfigConstants.isCacheEnabled()) {
@@ -70,11 +71,10 @@ public class TiffFilePreviewImpl implements FilePreview {
                         }
                         model.addAttribute("pdfUrl", pdfName);
                         return PDF_FILE_PREVIEW_PAGE;
-                    }else {
+                    } else {
                         return NOT_SUPPORTED_FILE_PAGE;
                     }
-                }
-                else {
+                } else {
                     model.addAttribute("pdfUrl", pdfName);
                     return PDF_FILE_PREVIEW_PAGE;
                 }
