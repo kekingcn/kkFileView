@@ -15,6 +15,8 @@ import com.aspose.cad.Image;
 import com.aspose.cad.LoadOptions;
 import com.aspose.cad.imageoptions.CadRasterizationOptions;
 import com.aspose.cad.imageoptions.PdfOptions;
+import com.itextpdf.text.exceptions.BadPasswordException;
+import com.itextpdf.text.pdf.PdfReader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -218,8 +220,11 @@ public class FileHandlerService {
      * @param pdfName     pdf文件名称
      * @return 图片访问集合
      */
-    public List<String> pdf2jpg(String pdfFilePath, String pdfName, FileAttribute fileAttribute) {
+    public List<String> pdf2jpg(String pdfFilePath, String pdfName, FileAttribute fileAttribute) throws Exception {
         boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
+        String filePassword = fileAttribute.getFilePassword();
+        PDDocument doc = null;
+        PdfReader pdfReader = null;
         if (!forceUpdatedCache) {
             List<String> cacheResult = this.loadPdf2jpgCache(pdfFilePath, pdfName);
             if (!CollectionUtils.isEmpty(cacheResult)) {
@@ -232,14 +237,12 @@ public class FileHandlerService {
             if (!pdfFile.exists()) {
                 return null;
             }
-            PDDocument doc = PDDocument.load(pdfFile);
+            doc = PDDocument.load(pdfFile,filePassword);
             doc.setResourceCache(new NotResourceCache());
             int pageCount = doc.getNumberOfPages();
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
-
             int index = pdfFilePath.lastIndexOf(".");
             String folder = pdfFilePath.substring(0, index);
-
             File path = new File(folder);
             if (!path.exists() && !path.mkdirs()) {
                 logger.error("创建转换文件【{}】目录失败，请检查目录权限！", folder);
@@ -252,10 +255,27 @@ public class FileHandlerService {
                 String imageUrl = this.getPdf2jpgUrl(pdfName, pageIndex);
                 imageUrls.add(imageUrl);
             }
-            doc.close();
-            this.addPdf2jpgCache(pdfFilePath, pageCount);
+            try {
+                pdfReader =  new PdfReader(pdfFilePath);   //判断pdf文件是否加密 缓存不加密文件
+                this.addPdf2jpgCache(pdfFilePath, pageCount);
+            } catch (BadPasswordException e) {
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                if (pdfReader != null) {   //关闭
+                    pdfReader.close();
+                }
+            }
+
         } catch (IOException e) {
-            logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
+            System.out.println("发生错误:"+e);
+            // logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
+            throw new Exception(e);
+        }finally {
+            if (doc != null) {   //关闭
+                doc.close();
+            }
         }
         return imageUrls;
     }

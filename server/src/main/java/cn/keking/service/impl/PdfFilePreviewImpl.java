@@ -7,9 +7,12 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
 import cn.keking.web.filter.BaseUrlFilter;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.poi.EncryptedDocumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class PdfFilePreviewImpl implements FilePreview {
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
     private static final String FILE_DIR = ConfigConstants.getFileDir();
+    private static final String PDF_PASSWORD_MSG = "password";
 
     public PdfFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
@@ -50,7 +54,21 @@ public class PdfFilePreviewImpl implements FilePreview {
                     fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                 }
             }
-            List<String> imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, fileAttribute);
+            List<String> imageUrls;
+            try {
+                imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, fileAttribute);
+            } catch (Exception e) {
+                Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
+                for (Throwable throwable : throwableArray) {
+                    if (throwable instanceof IOException || throwable instanceof EncryptedDocumentException) {
+                        if (e.getMessage().toLowerCase().contains(PDF_PASSWORD_MSG)) {
+                            model.addAttribute("needFilePassword", true);
+                            return EXEL_FILE_PREVIEW_PAGE;
+                        }
+                    }
+                }
+                return otherFilePreview.notSupportedFile(model, fileAttribute, "pdf转图片异常，请联系管理员");
+            }
             if (imageUrls == null || imageUrls.size() < 1) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, "pdf转图片异常，请联系管理员");
             }
