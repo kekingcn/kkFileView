@@ -47,11 +47,11 @@ import java.util.stream.IntStream;
 @Component
 public class FileHandlerService {
 
+    private static final String PDF2JPG_IMAGE_FORMAT = ".jpg";
+    private static final String PDF_PASSWORD_MSG = "password";
     private final Logger logger = LoggerFactory.getLogger(FileHandlerService.class);
     private final String fileDir = ConfigConstants.getFileDir();
-    private final static String pdf2jpg_image_format = ".jpg";
     private final CacheService cacheService;
-    private static final String pdf_password_msg = "password";
 
     @Value("${server.tomcat.uri-encoding:UTF-8}")
     private String uriEncoding;
@@ -193,7 +193,7 @@ public class FileHandlerService {
             logger.error("UnsupportedEncodingException", e);
             urlPrefix = baseUrl + pdfFolder;
         }
-        return urlPrefix + "/" + index + pdf2jpg_image_format;
+        return urlPrefix + "/" + index + PDF2JPG_IMAGE_FORMAT;
     }
 
     /**
@@ -252,7 +252,7 @@ public class FileHandlerService {
             }
             String imageFilePath;
             for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-                imageFilePath = folder + File.separator + pageIndex + pdf2jpg_image_format;
+                imageFilePath = folder + File.separator + pageIndex + PDF2JPG_IMAGE_FORMAT;
                 BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, ConfigConstants.getPdf2JpgDpi(), ImageType.RGB);
                 ImageIOUtil.writeImage(image, imageFilePath, ConfigConstants.getPdf2JpgDpi());
                 String imageUrl = this.getPdf2jpgUrl(pdfName, pageIndex);
@@ -264,24 +264,25 @@ public class FileHandlerService {
                 Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
                 for (Throwable throwable : throwableArray) {
                     if (throwable instanceof IOException || throwable instanceof EncryptedDocumentException) {
-                        if (e.getMessage().toLowerCase().contains(pdf_password_msg)) {
-                            pdfPassword = pdf_password_msg;
+                        if (e.getMessage().toLowerCase().contains(PDF_PASSWORD_MSG)) {
+                            pdfPassword = PDF_PASSWORD_MSG;
                         }
                     }
                 }
                 logger.error("Convert pdf exception, pdfFilePath：{}", pdfFilePath, e);
-            }finally {
+            } finally {
                 if (pdfReader != null) {   //关闭
                     pdfReader.close();
                 }
             }
-            if(!pdfPassword.equals(pdf_password_msg)){  //判断是否加密文件 加密文件不缓存
+            //判断是否加密文件 加密文件不缓存
+            if (PDF_PASSWORD_MSG.equals(pdfPassword)) {
                 this.addPdf2jpgCache(pdfFilePath, pageCount);
             }
         } catch (IOException e) {
             logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
             throw new Exception(e);
-        }finally {
+        } finally {
             if (doc != null) {   //关闭
                 doc.close();
             }
