@@ -276,7 +276,7 @@ public class FileHandlerService {
                 }
             }
             //判断是否加密文件 加密文件不缓存
-            if (PDF_PASSWORD_MSG.equals(pdfPassword)) {
+            if (!PDF_PASSWORD_MSG.equals(pdfPassword)) {
                 this.addPdf2jpgCache(pdfFilePath, pageCount);
             }
         } catch (IOException e) {
