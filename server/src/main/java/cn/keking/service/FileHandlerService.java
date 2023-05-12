@@ -15,12 +15,13 @@ import com.aspose.cad.Image;
 import com.aspose.cad.LoadOptions;
 import com.aspose.cad.imageoptions.CadRasterizationOptions;
 import com.aspose.cad.imageoptions.PdfOptions;
-import com.itextpdf.text.exceptions.BadPasswordException;
 import com.itextpdf.text.pdf.PdfReader;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.apache.poi.EncryptedDocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,7 @@ public class FileHandlerService {
     private final String fileDir = ConfigConstants.getFileDir();
     private final static String pdf2jpg_image_format = ".jpg";
     private final CacheService cacheService;
+    private static final String pdf_password_msg = "password";
 
     @Value("${server.tomcat.uri-encoding:UTF-8}")
     private String uriEncoding;
@@ -223,6 +225,7 @@ public class FileHandlerService {
     public List<String> pdf2jpg(String pdfFilePath, String pdfName, FileAttribute fileAttribute) throws Exception {
         boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
         String filePassword = fileAttribute.getFilePassword();
+        String pdfPassword = null;
         PDDocument doc = null;
         PdfReader pdfReader = null;
         if (!forceUpdatedCache) {
@@ -256,18 +259,25 @@ public class FileHandlerService {
                 imageUrls.add(imageUrl);
             }
             try {
-                pdfReader =  new PdfReader(pdfFilePath);   //判断pdf文件是否加密 缓存不加密文件
-                this.addPdf2jpgCache(pdfFilePath, pageCount);
-            } catch (BadPasswordException e) {
-
-            } catch (Exception e) {
-                e.printStackTrace();
+                pdfReader =  new PdfReader(pdfFilePath);   //读取PDF文件
+            } catch (Exception e) {  //获取异常方法 判断是否有加密字符串
+                Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
+                for (Throwable throwable : throwableArray) {
+                    if (throwable instanceof IOException || throwable instanceof EncryptedDocumentException) {
+                        if (e.getMessage().toLowerCase().contains(pdf_password_msg)) {
+                            pdfPassword = pdf_password_msg;
+                        }
+                    }
+                }
+                logger.error("Convert pdf exception, pdfFilePath：{}", pdfFilePath, e);
             }finally {
                 if (pdfReader != null) {   //关闭
                     pdfReader.close();
                 }
             }
-
+            if(!pdfPassword.equals(pdf_password_msg)){  //判断是否加密文件 加密文件不缓存
+                this.addPdf2jpgCache(pdfFilePath, pageCount);
+            }
         } catch (IOException e) {
             logger.error("Convert pdf to jpg exception, pdfFilePath：{}", pdfFilePath, e);
             throw new Exception(e);
