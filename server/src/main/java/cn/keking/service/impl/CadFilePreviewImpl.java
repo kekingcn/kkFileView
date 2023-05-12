@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 
 /**
@@ -51,10 +53,15 @@ public class CadFilePreviewImpl implements FilePreview {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
             filePath = response.getContent();
+            String imageUrls = null;
             if (StringUtils.hasText(outFilePath)) {
-                boolean convertResult = fileHandlerService.cadToPdf(filePath, outFilePath);
-                if (!convertResult) {
-                    return otherFilePreview.notSupportedFile(model, fileAttribute, "cad文件转换异常，请联系管理员");
+                try {
+                    imageUrls =  fileHandlerService.cadToPdf(filePath, outFilePath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (imageUrls == null ) {
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
                 }
                 //是否保留CAD源文件
                 if( ConfigConstants.getDeleteSourceFile()) {

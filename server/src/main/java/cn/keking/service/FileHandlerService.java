@@ -296,7 +296,7 @@ public class FileHandlerService {
      * @param outputFilePath pdf输出文件路径
      * @return 转换是否成功
      */
-    public boolean cadToPdf(String inputFilePath, String outputFilePath) {
+    public String cadToPdf(String inputFilePath, String outputFilePath)  throws Exception  {
         File outputFile = new File(outputFilePath);
         LoadOptions opts = new LoadOptions();
         opts.setSpecifiedEncoding(CodePages.SimpChinese);
@@ -310,21 +310,22 @@ public class FileHandlerService {
         cadRasterizationOptions.setDrawType(1);
         PdfOptions pdfOptions = new PdfOptions();
         pdfOptions.setVectorRasterizationOptions(cadRasterizationOptions);
-        OutputStream stream;
+        OutputStream stream = null;
         try {
             stream = new FileOutputStream(outputFile);
             cadImage.save(stream, pdfOptions);
-            stream.close();
-            cadImage.close();
-            return true;
         } catch (IOException e) {
             logger.error("PDFFileNotFoundException，inputFilePath：{}", inputFilePath, e);
+            return "null";
         } finally {
+            if (stream != null) {   //关闭
+                stream.close();
+            }
             if (cadImage != null) {   //关闭
                 cadImage.close();
             }
         }
-        return false;
+        return "true";
     }
     /**
      *
