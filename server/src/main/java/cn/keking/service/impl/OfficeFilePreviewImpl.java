@@ -57,6 +57,14 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String pdfName = fileName.substring(0, fileName.lastIndexOf(".") ) + suffix +"." +(isHtml ? "html" : "pdf"); //生成文件添加类型后缀 防止同名文件
         String cacheFileName = userToken == null ? pdfName : userToken + "_" + pdfName;
         String outFilePath = FILE_DIR + cacheFileName;
+        if(!officePreviewType.equalsIgnoreCase("html")){
+            if(officePreviewType.equalsIgnoreCase("web")|| ConfigConstants.getofficeTypeWeb() .equalsIgnoreCase("web") ){
+                if(suffix.equalsIgnoreCase("xlsx")){
+                    model.addAttribute("pdfUrl", url);
+                    return XLSX_FILE_PREVIEW_PAGE;
+                }
+            }
+        }
         if (forceUpdatedCache|| !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
         // 下载远程文件到本地，如果文件在本地已存在不会重复下载
         ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
