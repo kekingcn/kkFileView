@@ -171,33 +171,15 @@ function fileChanged() {
     var ext = this.file.name.replace(/.+\./, "");
 
     if (["ofd"].indexOf(ext) === -1) {
-        this.$alert("error", "仅支持ofd文件类型", {
-            confirmButtonText: "确定",
-            callback: function callback(action) {
-                this.$message({
-                    type: "info",
-                    message: "action: ".concat(action)
-                });
-            }
-        });
+		 window.alert("error，仅支持ofd文件类型");
         return;
     }
 
-    if (this.file.size > 10 * 1024 * 1024) {
-        this.$alert("error", "文件大小超过10MB", {
-            confirmButtonText: "确定",
-            callback: function callback(action) {
-                this.$message({
-                    type: "info",
-                    message: "action: ".concat(action)
-                });
-            }
-        });
+    if (this.file.size > 20 * 1024 * 1024) {
+        window.alert("error，文件大小超过20MB");
         return;
     }
 
-    // 新打开OFD文件时，还原成页面实际尺寸显示
-    //Object(cnofd["setScaleValue"])(1.0);
     Object(cnofd["setScaleValue"])(this.pageZoomScale);
     var selectZoom = document.getElementById("zoomValue");
     if (selectZoom)
@@ -212,7 +194,6 @@ function fileChanged() {
     };
 
     this.getOfdDocument(this.file, this.screenWidth, this.pageZoomScale);
-    //$("#file")[0].value = null;
 }
 
 function getOfdDocument(file, screenWidth, pageZoomScale) {
@@ -239,15 +220,7 @@ function getOfdDocument(file, screenWidth, pageZoomScale) {
         },
         fail: function fail(error) {
             $("#loading").hide();
-            alert("OFD打开失败", error, {
-                confirmButtonText: "确定",
-                callback: function callback(action) {
-                    this.$message({
-                        type: "info",
-                        message: "action: ".concat(action)
-                    });
-                }
-            });
+			console.log('OFD打开失败');
         }
     });
 }
@@ -443,9 +416,7 @@ function print() {
     }
 }
 
-// IE浏览器，在iframe里调用打印 
 function printIE(printhtml) {
-    //新建一个iframe 
     var iframe = document.createElement("iframe"); 
     iframe.id = "printf"; 
     iframe.style.width = "0"; 
@@ -453,7 +424,6 @@ function printIE(printhtml) {
     iframe.style.height = "0"; 
     iframe.style.border = "none";
      
-    //将iframe插入到printBody里 
     document.body.appendChild(iframe); 
     
     setTimeout(function () { 

@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="css/cnofd.css">
   <script src="js/jquery-3.6.0.min.js"></script>
   <script src="js/jszip-utils-0.1.0.min.js"></script>
-   <script src="js/Typr.js"></script>
+    <script src="js/Typr.js"></script>
   <script src="js/Typr.U.js"></script>
   <script src="js/cnofd.umd.min.js"></script>
 </head>
@@ -45,7 +45,7 @@
           </div>
           <div id="zoomSelect" class="select-icon" title="缩放比例">
             <select id="zoomValue">
-              <option value="width">适合页宽</option>
+			  <option value="width">适合页宽</option>
               <option value="4.0">400%</option>
               <option value="3.0">300%</option>
               <option value="2.0">200%</option>
@@ -112,6 +112,12 @@
               </path>
             </svg>
           </div>
+		  <div id="line" onclick="line('1')" title="线条" class="btn-icon">
+            黑屏点我
+          </div>
+		   <div id="line" onclick="line('0')" title="线条" class="btn-icon">
+            恢复
+          </div>
         </div>
       </header>
       <main class="el-main" id="main" style="height: auto; background: rgb(242, 242, 242); padding: 0px;">
@@ -129,5 +135,15 @@
   <script src="js/cnofd-view.js"></script>
 
 </body>
-
+<script>
+   function line(line) {
+      var url = window.location.href;
+   if(line ==1){
+    url = url + "&line=1";
+   }else{
+    url = url + "&line=0";
+   }
+   window.location.href = url;
+    }
+</script>
 </html>
