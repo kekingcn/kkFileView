@@ -59,6 +59,7 @@ public class ConfigRefreshComponent {
                 String size;
                 String password;
                 int pdf2JpgDpi;
+                String officeTypeWeb;
                 boolean deleteSourceFile;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
@@ -89,6 +90,7 @@ public class ConfigRefreshComponent {
                     prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_PROHIBIT);
                     password = properties.getProperty("sc.password", ConfigConstants.DEFAULT_PASSWORD);
                     pdf2JpgDpi = Integer.parseInt(properties.getProperty("pdf2jpg.dpi", ConfigConstants.DEFAULT_PDF2_JPG_DPI));
+                    officeTypeWeb = properties.getProperty("office.type.web", ConfigConstants.DEFAULT_OFFICE_TyPEWEB_DISABLE);
                     deleteSourceFile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_DELETE_SOURCE_FILE));
                     prohibitArray = prohibit.split(",");
 
@@ -114,6 +116,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setProhibitValue(prohibitArray);
                     ConfigConstants.setPasswordValue(password);
                     ConfigConstants.setPdf2JpgDpiValue(pdf2JpgDpi);
+                    ConfigConstants.setofficeTypeWebValue(officeTypeWeb);
                     ConfigConstants.setDeleteSourceFileValue(deleteSourceFile);
                     setWatermarkConfig(properties);
                     bufferedReader.close();

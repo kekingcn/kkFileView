@@ -32,6 +32,7 @@ public interface FilePreview {
     String DCM_FILE_PREVIEW_PAGE = "dcm";
     String DRAWUI_FILE_PREVIEW_PAGE = "drawio";
     String NOT_SUPPORTED_FILE_PAGE = "fileNotSupported";
+    String XLSX_FILE_PREVIEW_PAGE = "officeweb";
 
     String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);
 }

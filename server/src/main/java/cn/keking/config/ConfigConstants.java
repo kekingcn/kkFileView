@@ -47,6 +47,7 @@ public class ConfigConstants {
     private static String size;
     private static String password;
     private static int pdf2JpgDpi;
+    private static String officeTypeWeb;
     private static Boolean deleteSourceFile;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
@@ -73,6 +74,7 @@ public class ConfigConstants {
     public static final String DEFAULT_PROHIBIT = "exe,dll";
     public static final String DEFAULT_PASSWORD = "123456";
     public static final String DEFAULT_PDF2_JPG_DPI = "105";
+    public static final String DEFAULT_OFFICE_TyPEWEB_DISABLE = "web";
     public static final String DEFAULT_DELETE_SOURCE_FILE = "true";
 
     public static Boolean isCacheEnabled() {
@@ -414,12 +416,23 @@ public class ConfigConstants {
     public static int getPdf2JpgDpi() {
         return pdf2JpgDpi;
     }
-    @Value("${pdf.picture.size:105}")
+    @Value("${pdf2jpg.dpi:105}")
     public void pdf2JpgDpi(int pdf2JpgDpi) {
         setPdf2JpgDpiValue(pdf2JpgDpi);
     }
     public static void setPdf2JpgDpiValue(int pdf2JpgDpi) {
         ConfigConstants.pdf2JpgDpi = pdf2JpgDpi;
+    }
+
+    public static String getofficeTypeWeb() {
+        return officeTypeWeb;
+    }
+    @Value("${office.type.web:web}")
+    public void setofficeTypeWeb(String officeTypeWeb) {
+        setofficeTypeWebValue(officeTypeWeb);
+    }
+    public static void setofficeTypeWebValue(String officeTypeWeb) {
+        ConfigConstants.officeTypeWeb = officeTypeWeb;
     }
 
 
