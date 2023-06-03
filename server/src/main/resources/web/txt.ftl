@@ -14,44 +14,18 @@
 <input hidden id="textData" value="${textData}"/>
 <#if "${file.suffix?html}" == "txt" || "${file.suffix?html}" == "log"  || "${file.suffix?html}" == "TXT"  || "${file.suffix?html}" == "LOG">
   <style type="text/css">
-DIV.black {
- line-height:25px;
-PADDING-RIGHT: 1px; PADDING-LEFT: 1px; FONT-SIZE: 100%;
-  MARGIN: 1px; COLOR: #fff;
- BACKGROUND-COLOR: #000; TEXT-ALIGN: left ;
-}
-DIV.black A {
-BORDER-RIGHT: #909090 1px solid; PADDING-RIGHT: 5px;
-BACKGROUND-POSITION: 50% bottom; BORDER-TOP: #909090 1px solid;
- PADDING-LEFT: 5px; BACKGROUND-IMAGE: url(); PADDING-BOTTOM: 2px;
- BORDER-LEFT: #909090 1px solid; COLOR: #fff; MARGIN-RIGHT: 3px;
- PADDING-TOP: 2px; BORDER-BOTTOM: #909090 1px solid; TEXT-DECORATION: none
-}
-DIV.black A:hover {
-BORDER-RIGHT: #f0f0f0 1px solid; BORDER-TOP: #f0f0f0 1px solid;
- BACKGROUND-IMAGE: BORDER-LEFT: #f0f0f0 1px solid;
- COLOR: #ffffff; BORDER-BOTTOM: #f0f0f0 1px solid; BACKGROUND-COLOR: #404040
-}
-DIV.black A:active {
-BORDER-RIGHT: #f0f0f0 1px solid; BORDER-TOP: #f0f0f0 1px solid;
-BACKGROUND-IMAGE: BORDER-LEFT: #f0f0f0 1px solid;
-COLOR: #ffffff; BORDER-BOTTOM: #f0f0f0 1px solid; BACKGROUND-COLOR: #404040
-}
-.divContent
- {
-color:#fff;
-font-size：30px；
+DIV.black{line-height:25px;PADDING-RIGHT:1px;PADDING-LEFT:1px;FONT-SIZE:100%;MARGIN:1px;COLOR:#fff;BACKGROUND-COLOR:#000;TEXT-ALIGN:left}
+DIV.black A{BORDER-RIGHT:#909090 1px solid;PADDING-RIGHT:5px;BACKGROUND-POSITION:50% bottom;BORDER-TOP:#909090 1px solid;PADDING-LEFT:5px;BACKGROUND-IMAGE:url();PADDING-BOTTOM:2px;BORDER-LEFT:#909090 1px solid;COLOR:#fff;MARGIN-RIGHT:3px;PADDING-TOP:2px;BORDER-BOTTOM:#909090 1px solid;TEXT-DECORATION:none}
+DIV.black A:hover{BORDER-RIGHT:#f0f0f0 1px solid;BORDER-TOP:#f0f0f0 1px solid;BACKGROUND-IMAGE:BORDER-LEFT:#f0f0f0 1px solid;COLOR:#ffffff;BORDER-BOTTOM:#f0f0f0 1px solid;BACKGROUND-COLOR:#404040}
+DIV.black A:active{BORDER-RIGHT:#f0f0f0 1px solid;BORDER-TOP:#f0f0f0 1px solid;BACKGROUND-IMAGE:BORDER-LEFT:#f0f0f0 1px solid;COLOR:#ffffff;BORDER-BOTTOM:#f0f0f0 1px solid;BACKGROUND-COLOR:#404040}
+.divContent{color:#fff;font-size：30px；
 line-height：30px；
- font-family：“SimHei”；
- text-indent:2em;
- padding-bottom:10px;
- white-space: pre-wrap; /*css-3*/
-	white-space: -moz-pre-wrap; /*Mozilla,since1999*/
-	white-space: -pre-wrap; /*Opera4-6*/
-	white-space: -o-pre-wrap; /*Opera7*/
-	word-wrap: break-word; /*InternetExplorer5.5+*/
-  background-color: #000;
-        }
+font-family：“SimHei”；
+text-indent:2em;padding-bottom:10px;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space:-o-pre-wrap;word-wrap:break-word;background-color:#000}
+input{
+color:#ffffff;
+background-color:#000000
+}
     </style>
 
 
