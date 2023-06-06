@@ -4,8 +4,6 @@ import cn.keking.model.FileAttribute;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 /**
  * Created by kl on 2018/1/17.
  * Content :
@@ -20,7 +18,6 @@ public class FilePreviewFactory {
     }
 
     public FilePreview get(FileAttribute fileAttribute) {
-        Map<String, FilePreview> filePreviewMap = context.getBeansOfType(FilePreview.class);
-        return filePreviewMap.get(fileAttribute.getType().getInstanceName());
+        return context.getBean(fileAttribute.getType().getInstanceName(), FilePreview.class);
     }
 }
