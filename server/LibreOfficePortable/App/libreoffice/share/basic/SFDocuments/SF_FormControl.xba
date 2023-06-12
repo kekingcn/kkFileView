@@ -1,0 +1,1888 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_FormControl" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_FormControl
+&apos;&apos;&apos;	================
+&apos;&apos;&apos;		Manage the controls belonging to a form or subform stored in a document
+&apos;&apos;&apos;		Each instance of the current class represents a single control within a form, a subform or a tablecontrol
+&apos;&apos;&apos;		A prerequisite is that all controls within the same form, subform or tablecontrol must have
+&apos;&apos;&apos;		a unique name. This is also true for the individual radio buttons belonging to the same group.
+&apos;&apos;&apos;		A common group name must identify such a single group.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The focus is clearly set on getting and setting the values displayed by the controls of the form,
+&apos;&apos;&apos;		not on their formatting. The latter is easily accessible via the XControlModel and XControlView
+&apos;&apos;&apos;		UNO objects.
+&apos;&apos;&apos;		Essentially a single property &quot;Value&quot; maps many alternative UNO properties depending each on
+&apos;&apos;&apos;		the control type.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocations:
+&apos;&apos;&apos;			Dim myForm As Object, myControl As Object
+&apos;&apos;&apos;				Set myForm = ... (read the comments in the SF_Form module)
+&apos;&apos;&apos;				Set myControl = myForm.Controls(&quot;myTextBox&quot;)
+&apos;&apos;&apos;				myControl.Value = &quot;Current time = &quot; &amp; Now()
+&apos;&apos;&apos;
+&apos;&apos;&apos;			REM the control is the subject of an event
+&apos;&apos;&apos;			Sub OnEvent(ByRef poEvent As Object)
+&apos;&apos;&apos;			Dim myControl As Object
+&apos;&apos;&apos;				Set myControl = CreateScriptService(&quot;SFDocuments.FormEvent&quot;, poEvent)
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_formcontrol.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const FORMCONTROLTYPEERROR		=	&quot;FORMCONTROLTYPEERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]				As Object
+Private [_Parent]			As Object
+Private ObjectType			As String		&apos; Must be FORMCONTROL
+Private ServiceName 		As String
+
+&apos;	Control naming and context
+Private _Name				As String
+Private _IndexOfNames		As Long			&apos; Index in ElementNames array. Used to access SF_Form._ControlCache
+Private _FormName			As String		&apos; Parent form name
+Private _ParentForm			As Object		&apos; Parent form or subform instance
+Private _ParentIsTable		As Boolean		&apos; True when parent is a table control
+
+&apos;	Control UNO references
+Private _ControlModel		As Object		&apos; com.sun.star.awt.XControlModel
+Private _ControlView		As Object		&apos; com.sun.star.awt.XControl - stardiv.Toolkit.UnoDialogControl
+
+&apos;	Control attributes
+Private	_ImplementationName	As String
+Private _ControlType		As String		&apos; One of the CTLxxx constants
+Private _ClassId			As Integer		&apos; Numerical type of control
+
+&apos;	Cache storage for table controls
+Private _ControlNames		As Variant		&apos; Array of control names
+Private _ControlCache		As Variant		&apos; Array of control objects sorted like ElementNames of XControlModel
+
+REM ============================================================ MODULE CONSTANTS
+
+&apos;													ClassId
+Private Const CTLBUTTON			= &quot;Button&quot;			&apos;	2
+Private Const CTLCHECKBOX		= &quot;CheckBox&quot;		&apos;	5		
+Private Const CTLCOMBOBOX		= &quot;ComboBox&quot;		&apos;	7
+Private Const CTLCURRENCYFIELD	= &quot;CurrencyField&quot;	&apos;	18
+Private Const CTLDATEFIELD		= &quot;DateField&quot;		&apos;	15
+Private Const CTLFILECONTROL	= &quot;FileControl&quot;		&apos;	12
+Private Const CTLFIXEDTEXT		= &quot;FixedText&quot;		&apos;	10
+Private Const CTLFORMATTEDFIELD	= &quot;FormattedField&quot;	&apos;	Idem TextField
+Private Const CTLGROUPBOX		= &quot;GroupBox&quot;		&apos;	8
+Private Const CTLHIDDENCONTROL	= &quot;HiddenControl&quot;	&apos;	13
+Private Const CTLIMAGEBUTTON	= &quot;ImageButton&quot;		&apos;	4
+Private Const CTLIMAGECONTROL	= &quot;ImageControl&quot;	&apos;	14
+Private Const CTLLISTBOX		= &quot;ListBox&quot;			&apos;	6
+Private Const CTLNAVIGATIONBAR	= &quot;NavigationBar&quot;	&apos;	22
+Private Const CTLNUMERICFIELD	= &quot;NumericField&quot;	&apos;	17
+Private Const CTLPATTERNFIELD	= &quot;PatternField&quot;	&apos;	19
+Private Const CTLRADIOBUTTON	= &quot;RadioButton&quot;		&apos;	3
+Private Const CTLSCROLLBAR		= &quot;ScrollBar&quot;		&apos;	20
+Private Const CTLSPINBUTTON		= &quot;SpinButton&quot;		&apos;	21
+Private Const CTLTABLECONTROL	= &quot;TableControl&quot;	&apos;	11
+Private Const CTLTEXTFIELD		= &quot;TextField&quot;		&apos;	9
+Private Const CTLTIMEFIELD		= &quot;TimeField&quot;		&apos;	16
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;FORMCONTROL&quot;
+	ServiceName = &quot;SFDocuments.FormControl&quot;
+	_Name = &quot;&quot;
+	_IndexOfNames = -1
+	_FormName = &quot;&quot;
+	_ParentIsTable = False
+	Set _ParentForm = Nothing
+	Set _ControlModel = Nothing
+	Set _ControlView = Nothing
+	_ImplementationName = &quot;&quot;
+	_ControlType = &quot;&quot;
+	_ClassId = 0
+	_ControlNames = Array()
+	_ControlCache = Array()
+End Sub		&apos;	SFDocuments.SF_FormControl Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDocuments.SF_FormControl Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	If Not IsNull([_Parent]) And _IndexOfNames &gt;= 0 Then [_Parent]._ControlCache(_IndexOfNames) = Empty
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDocuments.SF_FormControl Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get Action() As Variant
+&apos;&apos;&apos;	The Action property specifies the action triggered when the button is clicked
+&apos;&apos;&apos;	Accepted values:	none, submitForm, resetForm, refreshForm, moveToFirst, moveToLast,
+&apos;&apos;&apos;						moveToNext, moveToPrev, saveRecord, moveToNew, deleteRecord, undoRecord
+	Action = _PropertyGet(&quot;Action&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.Action (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Action(Optional ByVal pvAction As Variant)
+&apos;&apos;&apos;	Set the updatable property Action
+	_PropertySet(&quot;Action&quot;, pvAction)
+End Property	&apos;	SFDocuments.SF_FormControl.Action (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Caption() As Variant
+&apos;&apos;&apos;	The Caption property refers to the text associated with the control
+	Caption = _PropertyGet(&quot;Caption&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.Caption (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Caption(Optional ByVal pvCaption As Variant)
+&apos;&apos;&apos;	Set the updatable property Caption
+	_PropertySet(&quot;Caption&quot;, pvCaption)
+End Property	&apos;	SFDocuments.SF_FormControl.Caption (let)
+
+REM -----------------------------------------------------------------------------
+Property Get ControlSource() As Variant
+&apos;&apos;&apos;	The ControlSource property specifies the rowset field mapped onto the actual control
+	ControlSource = _PropertyGet(&quot;ControlSource&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.ControlSource (get)
+
+REM -----------------------------------------------------------------------------
+Property Get ControlType() As String
+&apos;&apos;&apos;	Return the type of the actual control: &quot;CheckBox&quot;, &quot;TextField&quot;, &quot;DateField&quot;, ...
+	ControlType = _PropertyGet(&quot;ControlType&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.ControlType
+
+REM -----------------------------------------------------------------------------
+Property Get Default() As Variant
+&apos;&apos;&apos;	The Default property specifies whether a command button is the default (OK) button.
+	Default = _PropertyGet(&quot;Default&quot;, False)
+End Property	&apos;	SFDocuments.SF_FormControl.Default (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Default(Optional ByVal pvDefault As Variant)
+&apos;&apos;&apos;	Set the updatable property Default
+	_PropertySet(&quot;Default&quot;, pvDefault)
+End Property	&apos;	SFDocuments.SF_FormControl.Default (let)
+
+REM -----------------------------------------------------------------------------
+Property Get DefaultValue() As Variant
+&apos;&apos;&apos;	The DefaultValue property specifies how the control is initialized in a new record
+	DefaultValue = _PropertyGet(&quot;DefaultValue&quot;, Null)
+End Property	&apos;	SFDocuments.SF_FormControl.DefaultValue (get)
+
+REM -----------------------------------------------------------------------------
+Property Let DefaultValue(Optional ByVal pvDefaultValue As Variant)
+&apos;&apos;&apos;	Set the updatable property DefaultValue
+	_PropertySet(&quot;DefaultValue&quot;, pvDefaultValue)
+End Property	&apos;	SFDocuments.SF_FormControl.DefaultValue (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Enabled() As Variant
+&apos;&apos;&apos;	The Enabled property specifies if the control is accessible with the cursor.
+	Enabled = _PropertyGet(&quot;Enabled&quot;, False)
+End Property	&apos;	SFDocuments.SF_FormControl.Enabled (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Enabled(Optional ByVal pvEnabled As Variant)
+&apos;&apos;&apos;	Set the updatable property Enabled
+	_PropertySet(&quot;Enabled&quot;, pvEnabled)
+End Property	&apos;	SFDocuments.SF_FormControl.Enabled (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Format() As Variant
+&apos;&apos;&apos;	The Format property specifies the format in which to display dates and times.
+	Format = _PropertyGet(&quot;Format&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.Format (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Format(Optional ByVal pvFormat As Variant)
+&apos;&apos;&apos;	Set the updatable property Format
+&apos;&apos;&apos;	NB: Format is read-only for formatted field controls
+	_PropertySet(&quot;Format&quot;, pvFormat)
+End Property	&apos;	SFDocuments.SF_FormControl.Format (let)
+
+REM -----------------------------------------------------------------------------
+Property Get ListCount() As Long
+&apos;&apos;&apos;	The ListCount property specifies the number of rows in a list box or a combo box
+	ListCount = _PropertyGet(&quot;ListCount&quot;, 0)
+End Property	&apos;	SFDocuments.SF_FormControl.ListCount (get)
+
+REM -----------------------------------------------------------------------------
+Property Get ListIndex() As Variant
+&apos;&apos;&apos;	The ListIndex property specifies which item is selected in a list box or combo box.
+&apos;&apos;&apos;	In case of multiple selection, the index of the first one is returned or only one is set
+	ListIndex = _PropertyGet(&quot;ListIndex&quot;, -1)
+End Property	&apos;	SFDocuments.SF_FormControl.ListIndex (get)
+
+REM -----------------------------------------------------------------------------
+Property Let ListIndex(Optional ByVal pvListIndex As Variant)
+&apos;&apos;&apos;	Set the updatable property ListIndex
+	_PropertySet(&quot;ListIndex&quot;, pvListIndex)
+End Property	&apos;	SFDocuments.SF_FormControl.ListIndex (let)
+
+REM -----------------------------------------------------------------------------
+Property Get ListSource() As Variant
+&apos;&apos;&apos;	The ListSource property specifies the data contained in a combobox or a listbox
+&apos;&apos;&apos;	as a zero-based array of string values
+	ListSource = _PropertyGet(&quot;ListSource&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.ListSource (get)
+
+REM -----------------------------------------------------------------------------
+Property Let ListSource(Optional ByVal pvListSource As Variant)
+&apos;&apos;&apos;	Set the updatable property ListSource
+	_PropertySet(&quot;ListSource&quot;, pvListSource)
+End Property	&apos;	SFDocuments.SF_FormControl.ListSource (let)
+
+REM -----------------------------------------------------------------------------
+Property Get ListSourceType() As Variant
+&apos;&apos;&apos;	The ListSourceType property specifies the kind of data source used to fill the list data of a listbox or a combobox
+	ListSourceType = _PropertyGet(&quot;ListSourceType&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.ListSourceType (get)
+
+REM -----------------------------------------------------------------------------
+Property Let ListSourceType(Optional ByVal pvListSourceType As Variant)
+&apos;&apos;&apos;	Set the updatable property ListSourceType
+	_PropertySet(&quot;ListSourceType&quot;, pvListSourceType)
+End Property	&apos;	SFDocuments.SF_FormControl.ListSourceType (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Locked() As Variant
+&apos;&apos;&apos;	The Locked property specifies if a control is read-only
+	Locked = _PropertyGet(&quot;Locked&quot;, False)
+End Property	&apos;	SFDocuments.SF_FormControl.Locked (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Locked(Optional ByVal pvLocked As Variant)
+&apos;&apos;&apos;	Set the updatable property Locked
+	_PropertySet(&quot;Locked&quot;, pvLocked)
+End Property	&apos;	SFDocuments.SF_FormControl.Locked (let)
+
+REM -----------------------------------------------------------------------------
+Property Get MultiSelect() As Variant
+&apos;&apos;&apos;	The MultiSelect property specifies whether a user can make multiple selections in a listbox
+	MultiSelect = _PropertyGet(&quot;MultiSelect&quot;, False)
+End Property	&apos;	SFDocuments.SF_FormControl.MultiSelect (get)
+
+REM -----------------------------------------------------------------------------
+Property Let MultiSelect(Optional ByVal pvMultiSelect As Variant)
+&apos;&apos;&apos;	Set the updatable property MultiSelect
+	_PropertySet(&quot;MultiSelect&quot;, pvMultiSelect)
+End Property	&apos;	SFDocuments.SF_FormControl.MultiSelect (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Name() As String
+&apos;&apos;&apos;	Return the name of the actual control
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.Name
+
+REM -----------------------------------------------------------------------------
+Property Get OnActionPerformed() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnActionPerformed event
+	OnActionPerformed = _PropertyGet(&quot;OnActionPerformed&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnActionPerformed (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnActionPerformed(Optional ByVal pvOnActionPerformed As Variant)
+&apos;&apos;&apos;	Set the updatable property OnActionPerformed
+	_PropertySet(&quot;OnActionPerformed&quot;, pvOnActionPerformed)
+End Property	&apos;	SFDocuments.SF_FormControl.OnActionPerformed (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnAdjustmentValueChanged() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnAdjustmentValueChanged event
+	OnAdjustmentValueChanged = _PropertyGet(&quot;OnAdjustmentValueChanged&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnAdjustmentValueChanged (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnAdjustmentValueChanged(Optional ByVal pvOnAdjustmentValueChanged As Variant)
+&apos;&apos;&apos;	Set the updatable property OnAdjustmentValueChanged
+	_PropertySet(&quot;OnAdjustmentValueChanged&quot;, pvOnAdjustmentValueChanged)
+End Property	&apos;	SFDocuments.SF_FormControl.OnAdjustmentValueChanged (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnApproveAction() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnApproveAction event
+	OnApproveAction = _PropertyGet(&quot;OnApproveAction&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnApproveAction (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnApproveAction(Optional ByVal pvOnApproveAction As Variant)
+&apos;&apos;&apos;	Set the updatable property OnApproveAction
+	_PropertySet(&quot;OnApproveAction&quot;, pvOnApproveAction)
+End Property	&apos;	SFDocuments.SF_FormControl.OnApproveAction (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnApproveReset() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnApproveReset event
+	OnApproveReset = _PropertyGet(&quot;OnApproveReset&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnApproveReset (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnApproveReset(Optional ByVal pvOnApproveReset As Variant)
+&apos;&apos;&apos;	Set the updatable property OnApproveReset
+	_PropertySet(&quot;OnApproveReset&quot;, pvOnApproveReset)
+End Property	&apos;	SFDocuments.SF_FormControl.OnApproveReset (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnApproveUpdate() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnApproveUpdate event
+	OnApproveUpdate = _PropertyGet(&quot;OnApproveUpdate&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnApproveUpdate (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnApproveUpdate(Optional ByVal pvOnApproveUpdate As Variant)
+&apos;&apos;&apos;	Set the updatable property OnApproveUpdate
+	_PropertySet(&quot;OnApproveUpdate&quot;, pvOnApproveUpdate)
+End Property	&apos;	SFDocuments.SF_FormControl.OnApproveUpdate (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnChanged() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnChanged event
+	OnChanged = _PropertyGet(&quot;OnChanged&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnChanged (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnChanged(Optional ByVal pvOnChanged As Variant)
+&apos;&apos;&apos;	Set the updatable property OnChanged
+	_PropertySet(&quot;OnChanged&quot;, pvOnChanged)
+End Property	&apos;	SFDocuments.SF_FormControl.OnChanged (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnErrorOccurred() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnErrorOccurred event
+	OnErrorOccurred = _PropertyGet(&quot;OnErrorOccurred&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnErrorOccurred (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnErrorOccurred(Optional ByVal pvOnErrorOccurred As Variant)
+&apos;&apos;&apos;	Set the updatable property OnErrorOccurred
+	_PropertySet(&quot;OnErrorOccurred&quot;, pvOnErrorOccurred)
+End Property	&apos;	SFDocuments.SF_FormControl.OnErrorOccurred (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnFocusGained() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnFocusGained event
+	OnFocusGained = _PropertyGet(&quot;OnFocusGained&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnFocusGained (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnFocusGained(Optional ByVal pvOnFocusGained As Variant)
+&apos;&apos;&apos;	Set the updatable property OnFocusGained
+	_PropertySet(&quot;OnFocusGained&quot;, pvOnFocusGained)
+End Property	&apos;	SFDocuments.SF_FormControl.OnFocusGained (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnFocusLost() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnFocusLost event
+	OnFocusLost = _PropertyGet(&quot;OnFocusLost&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnFocusLost (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnFocusLost(Optional ByVal pvOnFocusLost As Variant)
+&apos;&apos;&apos;	Set the updatable property OnFocusLost
+	_PropertySet(&quot;OnFocusLost&quot;, pvOnFocusLost)
+End Property	&apos;	SFDocuments.SF_FormControl.OnFocusLost (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnItemStateChanged() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnItemStateChanged event
+	OnItemStateChanged = _PropertyGet(&quot;OnItemStateChanged&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnItemStateChanged (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnItemStateChanged(Optional ByVal pvOnItemStateChanged As Variant)
+&apos;&apos;&apos;	Set the updatable property OnItemStateChanged
+	_PropertySet(&quot;OnItemStateChanged&quot;, pvOnItemStateChanged)
+End Property	&apos;	SFDocuments.SF_FormControl.OnItemStateChanged (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnKeyPressed() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnKeyPressed event
+	OnKeyPressed = _PropertyGet(&quot;OnKeyPressed&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnKeyPressed (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnKeyPressed(Optional ByVal pvOnKeyPressed As Variant)
+&apos;&apos;&apos;	Set the updatable property OnKeyPressed
+	_PropertySet(&quot;OnKeyPressed&quot;, pvOnKeyPressed)
+End Property	&apos;	SFDocuments.SF_FormControl.OnKeyPressed (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnKeyReleased() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnKeyReleased event
+	OnKeyReleased = _PropertyGet(&quot;OnKeyReleased&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnKeyReleased (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnKeyReleased(Optional ByVal pvOnKeyReleased As Variant)
+&apos;&apos;&apos;	Set the updatable property OnKeyReleased
+	_PropertySet(&quot;OnKeyReleased&quot;, pvOnKeyReleased)
+End Property	&apos;	SFDocuments.SF_FormControl.OnKeyReleased (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseDragged() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseDragged event
+	OnMouseDragged = _PropertyGet(&quot;OnMouseDragged&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseDragged (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnMouseDragged(Optional ByVal pvOnMouseDragged As Variant)
+&apos;&apos;&apos;	Set the updatable property OnMouseDragged
+	_PropertySet(&quot;OnMouseDragged&quot;, pvOnMouseDragged)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseDragged (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseEntered() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseEntered event
+	OnMouseEntered = _PropertyGet(&quot;OnMouseEntered&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseEntered (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnMouseEntered(Optional ByVal pvOnMouseEntered As Variant)
+&apos;&apos;&apos;	Set the updatable property OnMouseEntered
+	_PropertySet(&quot;OnMouseEntered&quot;, pvOnMouseEntered)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseEntered (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseExited() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseExited event
+	OnMouseExited = _PropertyGet(&quot;OnMouseExited&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseExited (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnMouseExited(Optional ByVal pvOnMouseExited As Variant)
+&apos;&apos;&apos;	Set the updatable property OnMouseExited
+	_PropertySet(&quot;OnMouseExited&quot;, pvOnMouseExited)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseExited (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseMoved() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseMoved event
+	OnMouseMoved = _PropertyGet(&quot;OnMouseMoved&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseMoved (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnMouseMoved(Optional ByVal pvOnMouseMoved As Variant)
+&apos;&apos;&apos;	Set the updatable property OnMouseMoved
+	_PropertySet(&quot;OnMouseMoved&quot;, pvOnMouseMoved)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseMoved (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMousePressed() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMousePressed event
+	OnMousePressed = _PropertyGet(&quot;OnMousePressed&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMousePressed (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnMousePressed(Optional ByVal pvOnMousePressed As Variant)
+&apos;&apos;&apos;	Set the updatable property OnMousePressed
+	_PropertySet(&quot;OnMousePressed&quot;, pvOnMousePressed)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMousePressed (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseReleased() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseReleased event
+	OnMouseReleased = _PropertyGet(&quot;OnMouseReleased&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseReleased (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnMouseReleased(Optional ByVal pvOnMouseReleased As Variant)
+&apos;&apos;&apos;	Set the updatable property OnMouseReleased
+	_PropertySet(&quot;OnMouseReleased&quot;, pvOnMouseReleased)
+End Property	&apos;	SFDocuments.SF_FormControl.OnMouseReleased (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnResetted() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnResetted event
+	OnResetted = _PropertyGet(&quot;OnResetted&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnResetted (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnResetted(Optional ByVal pvOnResetted As Variant)
+&apos;&apos;&apos;	Set the updatable property OnResetted
+	_PropertySet(&quot;OnResetted&quot;, pvOnResetted)
+End Property	&apos;	SFDocuments.SF_FormControl.OnResetted (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnTextChanged() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnTextChanged event
+	OnTextChanged = _PropertyGet(&quot;OnTextChanged&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnTextChanged (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnTextChanged(Optional ByVal pvOnTextChanged As Variant)
+&apos;&apos;&apos;	Set the updatable property OnTextChanged
+	_PropertySet(&quot;OnTextChanged&quot;, pvOnTextChanged)
+End Property	&apos;	SFDocuments.SF_FormControl.OnTextChanged (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnUpdated() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnUpdated event
+	OnUpdated = _PropertyGet(&quot;OnUpdated&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.OnUpdated (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnUpdated(Optional ByVal pvOnUpdated As Variant)
+&apos;&apos;&apos;	Set the updatable property OnUpdated
+	_PropertySet(&quot;OnUpdated&quot;, pvOnUpdated)
+End Property	&apos;	SFDocuments.SF_FormControl.OnUpdated (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Parent() As Object
+&apos;&apos;&apos;	Return the Parent form or [table]control object of the actual control
+	Parent = _PropertyGet(&quot;Parent&quot;, Nothing)
+End Property	&apos;	SFDocuments.SF_FormControl.Parent
+
+REM -----------------------------------------------------------------------------
+Property Get Picture() As Variant
+&apos;&apos;&apos;	The Picture property specifies a bitmap or other type of graphic to be displayed on the specified control
+	Picture = _PropertyGet(&quot;Picture&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.Picture (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Picture(Optional ByVal pvPicture As Variant)
+&apos;&apos;&apos;	Set the updatable property Picture
+	_PropertySet(&quot;Picture&quot;, pvPicture)
+End Property	&apos;	SFDocuments.SF_FormControl.Picture (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Required() As Variant
+&apos;&apos;&apos;	A control is said Required when it must not contain a null value
+	Required = _PropertyGet(&quot;Required&quot;, False)
+End Property	&apos;	SFDocuments.SF_FormControl.Required (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Required(Optional ByVal pvRequired As Variant)
+&apos;&apos;&apos;	Set the updatable property Required
+	_PropertySet(&quot;Required&quot;, pvRequired)
+End Property	&apos;	SFDocuments.SF_FormControl.Required (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Text() As Variant
+&apos;&apos;&apos;	The Text property specifies the actual content of the control like it is displayed on the screen
+	Text = _PropertyGet(&quot;Text&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.Text (get)
+
+REM -----------------------------------------------------------------------------
+Property Get TipText() As Variant
+&apos;&apos;&apos;	The TipText property specifies the text that appears in a screentip when you hold the mouse pointer over a control
+	TipText = _PropertyGet(&quot;TipText&quot;, &quot;&quot;)
+End Property	&apos;	SFDocuments.SF_FormControl.TipText (get)
+
+REM -----------------------------------------------------------------------------
+Property Let TipText(Optional ByVal pvTipText As Variant)
+&apos;&apos;&apos;	Set the updatable property TipText
+	_PropertySet(&quot;TipText&quot;, pvTipText)
+End Property	&apos;	SFDocuments.SF_FormControl.TipText (let)
+
+REM -----------------------------------------------------------------------------
+Property Get TripleState() As Variant
+&apos;&apos;&apos;	The TripleState property specifies how a check box will display Null values
+&apos;&apos;&apos;	When True, the control will cycle through states for Yes, No, and Null values. The control appears dimmed (grayed) when its Value property is set to Null.
+&apos;&apos;&apos;	When False, the control will cycle through states for Yes and No values. Null values display as if they were No values.
+	TripleState = _PropertyGet(&quot;TripleState&quot;, False)
+End Property	&apos;	SFDocuments.SF_FormControl.TripleState (get)
+
+REM -----------------------------------------------------------------------------
+Property Let TripleState(Optional ByVal pvTripleState As Variant)
+&apos;&apos;&apos;	Set the updatable property TripleState
+	_PropertySet(&quot;TripleState&quot;, pvTripleState)
+End Property	&apos;	SFDocuments.SF_FormControl.TripleState (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Value() As Variant
+&apos;&apos;&apos;	The Value property specifies the data contained in the control
+	Value = _PropertyGet(&quot;Value&quot;, Empty)
+End Property	&apos;	SFDocuments.SF_FormControl.Value (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Value(Optional ByVal pvValue As Variant)
+&apos;&apos;&apos;	Set the updatable property Value
+	_PropertySet(&quot;Value&quot;, pvValue)
+End Property	&apos;	SFDocuments.SF_FormControl.Value (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Visible() As Variant
+&apos;&apos;&apos;	The Visible property specifies if the control is accessible with the cursor.
+	Visible = _PropertyGet(&quot;Visible&quot;, True)
+End Property	&apos;	SFDocuments.SF_FormControl.Visible (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Visible(Optional ByVal pvVisible As Variant)
+&apos;&apos;&apos;	Set the updatable property Visible
+	_PropertySet(&quot;Visible&quot;, pvVisible)
+End Property	&apos;	SFDocuments.SF_FormControl.Visible (let)
+
+REM -----------------------------------------------------------------------------
+Property Get XControlModel() As Object
+&apos;&apos;&apos;	The XControlModel property returns the model UNO object of the control
+	XControlModel = _PropertyGet(&quot;XControlModel&quot;, Nothing)
+End Property	&apos;	SFDocuments.SF_FormControl.XControlModel (get)
+
+REM -----------------------------------------------------------------------------
+Property Get XControlView() As Object
+&apos;&apos;&apos;	The XControlView property returns the view UNO object of the control
+	XControlView = _PropertyGet(&quot;XControlView&quot;, Nothing)
+End Property	&apos;	SFDocuments.SF_FormControl.XControlView (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Controls(Optional ByVal ControlName As Variant) As Variant
+&apos;&apos;&apos;	Return either
+&apos;&apos;&apos;		- the list of the controls contained in the actual table control
+&apos;&apos;&apos;		- a Form Control object based on its name
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		ControlName: a valid control name as a case-sensitive string. If absent the list is returned
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-base array of strings if ControlName is absent
+&apos;&apos;&apos;		An instance of the SF_FormControl class if ControlName exists
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ControlName is invalid
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			Dim myGrid As Object, myList As Variant, myControl As Object
+&apos;&apos;&apos;				Set myGrid = myForm.Controls(&quot;myTableControl&quot;)
+&apos;&apos;&apos;				myList = myGrid.Controls()
+&apos;&apos;&apos;				Set myControl = myGrid.Controls(&quot;myCheckBox&quot;)
+
+Dim oControl As Object				&apos;	The new control class instance
+Dim lIndexOfNames As Long			&apos;	Index in ElementNames array. Used to access _ControlCache
+Dim vControl As Variant				&apos;	Alias of _ControlCache entry
+Dim oView As Object					&apos;	com.sun.star.awt.XControl - stardiv.Toolkit.UnoDialogControl
+Dim i As Long
+Const cstThisSub = &quot;SFDocuments.FormControl.Controls&quot;
+Const cstSubArgs = &quot;[ControlName]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set Controls = Nothing
+
+Check:
+	If IsMissing(ControlName) Or IsEmpty(ControlName) Then ControlName = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If _ControlType &lt;&gt; CTLTABLECONTROL Then GoTo Catch
+		If Not [_Parent]._IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(ControlName, &quot;ControlName&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Collect all control names if not yet done
+	If UBound(_ControlNames) &lt; 0 Then
+		_ControlNames = _ControlModel.getElementNames()
+		If UBound(_ControlNames) &gt;= 0 Then
+			ReDim _ControlCache(0 To UBound(_ControlNames))
+		End If
+	End If
+
+	&apos;	Return the list of controls or a FormControl instance
+	If Len(ControlName) = 0 Then
+		Controls = _ControlNames
+
+	Else
+
+		If Not _ControlModel.hasByName(ControlName) Then GoTo CatchNotFound
+		lIndexOfNames = ScriptForge.SF_Array.IndexOf(_ControlNames, ControlName, CaseSensitive := True)
+		&apos;	Reuse cache when relevant
+		vControl = _ControlCache(lIndexOfNames)
+
+		If IsEmpty(vControl) Then
+			&apos;	Not in cache =&gt; Create the new form control class instance
+			Set oControl = New SF_FormControl
+			With oControl
+				._Name = ControlName
+				Set .[Me] = oControl
+				Set .[_Parent] = [Me]
+				._ParentIsTable = True
+				._IndexOfNames = lIndexOfNames
+				._FormName = _FormName
+				Set ._ParentForm = _ParentForm
+				&apos;	Get model and view of the current control
+				Set ._ControlModel = _ControlModel.getByName(ControlName)
+				._ImplementationName = ._ControlModel.ColumnServiceName	&apos;	getImplementationName aborts for subcontrols !?
+				&apos;	Bypass to find the control view: cannot be done from the top component
+				If Not IsNull(_ControlView) Then		&apos;	Anticipate absence of ControlView in table controls when edit mode
+					For i = 0 to _ControlView.getCount() - 1
+						Set oView = _ControlView.GetByIndex(i)
+						If Not IsNull(oView) Then
+							If oView.getModel.Name = ControlName Then
+								Set ._ControlView = oView
+								Exit For
+							End If
+						End If
+					Next i
+				End If
+				._Initialize()
+			End With
+		Else
+			Set oControl = vControl
+		End If
+
+		Set Controls = oControl
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchNotFound:
+	ScriptForge.SF_Utils._Validate(ControlName, &quot;ControlName&quot;, V_STRING, _ControlModel.getElementNames())
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_FormControl.Controls
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;		If the property does not exist, returns Null
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		see the exceptions of the individual properties
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		myControl.GetProperty(&quot;MyProperty&quot;)
+
+Dim vDefault As Variant			&apos;	Default value when property not applicable on control type
+Const cstThisSub = &quot;SFDocuments.FormControl.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	&apos;	FormControl properties are far from applicable to all control types
+	&apos;	Getting a property must never abort to not interfere with the Basic IDE watch function
+	&apos;	Hence a default value must be provided
+	Select Case UCase(PropertyName)
+		Case UCase(&quot;Default&quot;)		:	vDefault = False
+		Case UCase(&quot;DefaultValue&quot;)	:	vDefault = Null
+		Case UCase(&quot;Enabled&quot;)		:	vDefault = False
+		Case UCase(&quot;ListCount&quot;)		:	vDefault = 0
+		Case UCase(&quot;ListIndex&quot;)		:	vDefault = -1
+		Case UCase(&quot;Locked&quot;)		:	vDefault = False
+		Case UCase(&quot;MultiSelect&quot;)	:	vDefault = False
+		Case UCase(&quot;Parent&quot;)		:	vDefault = Nothing
+		Case UCase(&quot;Required&quot;)		:	vDefault = False
+		Case UCase(&quot;TripleState&quot;)	:	vDefault = False
+		Case UCase(&quot;Value&quot;)			:	vDefault = Empty
+		Case UCase(&quot;Visible&quot;)		:	vDefault = True
+		Case UCase(&quot;XControlModel&quot;)	:	vDefault = Nothing
+		Case UCase(&quot;XControlView&quot;)	:	vDefault = Nothing
+		Case Else					:	vDefault = &quot;&quot;
+	End Select
+
+	GetProperty = _PropertyGet(PropertyName, vDefault)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_FormControl.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the FormControl service as an array
+
+	Methods = Array( _
+					&quot;AddSubNode&quot; _
+					, &quot;AddSubTree&quot; _
+					, &quot;CreateRoot&quot; _
+					, &quot;FindNode&quot; _
+					, &quot;SetFocus&quot; _
+					, &quot;WriteLine&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_FormControl.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the FormControl class as an array
+
+	Properties = Array( _
+					&quot;Action&quot; _
+					, &quot;Cancel&quot; _
+					, &quot;Caption&quot; _
+					, &quot;ControlSource&quot; _
+					, &quot;ControlType&quot; _
+					, &quot;Default&quot; _
+					, &quot;DefaultValue&quot; _
+					, &quot;Enabled&quot; _
+					, &quot;Format&quot; _
+					, &quot;ListCount&quot; _
+					, &quot;ListIndex&quot; _
+					, &quot;ListSource&quot; _
+					, &quot;ListSourceType&quot; _
+					, &quot;Locked&quot; _
+					, &quot;MultiSelect&quot; _
+					, &quot;Name&quot; _
+					, &quot;OnActionPerformed&quot; _
+					, &quot;OnAdjustmentValueChanged&quot; _
+					, &quot;OnApproveAction&quot; _
+					, &quot;OnApproveReset&quot; _
+					, &quot;OnApproveUpdate&quot; _
+					, &quot;OnChanged&quot; _
+					, &quot;OnErrorOccurred&quot; _
+					, &quot;OnFocusGained&quot; _
+					, &quot;OnFocusLost&quot; _
+					, &quot;OnItemStateChanged&quot; _
+					, &quot;OnKeyPressed&quot; _
+					, &quot;OnKeyReleased&quot; _
+					, &quot;OnMouseDragged&quot; _
+					, &quot;OnMouseEntered&quot; _
+					, &quot;OnMouseExited&quot; _
+					, &quot;OnMouseMoved&quot; _
+					, &quot;OnMousePressed&quot; _
+					, &quot;OnMouseReleased&quot; _
+					, &quot;OnResetted&quot; _
+					, &quot;OnTextChanged&quot; _
+					, &quot;OnUpdated&quot; _
+					, &quot;Parent&quot; _
+					, &quot;Picture&quot; _
+					, &quot;Required&quot; _
+					, &quot;Text&quot; _
+					, &quot;TipText&quot; _
+					, &quot;TripleState&quot; _
+					, &quot;Value&quot; _
+					, &quot;Visible&quot; _
+					, &quot;XControlModel&quot; _
+					, &quot;XControlView&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_FormControl.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function SetFocus() As Boolean
+&apos;&apos;&apos;	Set the focus on the current Control instance
+&apos;&apos;&apos;	Probably called from after an event occurrence
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if focusing is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim oDoc As Object, oForm As Object, oControl As Object
+&apos;&apos;&apos;			Set oDoc = CreateScriptService(&quot;SFDocuments.Document&quot;, ThisComponent)
+&apos;&apos;&apos;			Set oForm = oDoc.Forms(0)
+&apos;&apos;&apos;			Set oControl = oForm.Controls(&quot;thisControl&quot;)
+&apos;&apos;&apos;			oControl.SetFocus()
+
+Dim bSetFocus As Boolean		&apos;	Return value
+Dim iColPosition As Integer		&apos;	Position of control in table
+Dim oTableModel As Object		&apos;	XControlModel of parent table
+Dim oControl As Object			&apos;	com.sun.star.awt.XControlModel
+Dim i As Integer, j As Integer
+Const cstThisSub = &quot;SFDocuments.FormControl.SetFocus&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSetFocus = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _ParentForm._IsStillAlive() Then GoTo Finally
+	End If
+
+Try:
+	If Not IsNull(_ControlView) Then
+		If _ParentIsTable Then	&apos;	setFocus() method does not work on controlviews in table control ?!?
+			&apos;	Find the column position of the current instance in the parent table control
+			iColPosition = -1
+			Set oTableModel = [_Parent]._ControlModel
+			j = -1
+			For i = 0 To oTableModel.Count - 1
+				Set oControl = oTableModel.getByIndex(i)
+				If Not oControl.Hidden Then j = j + 1		&apos;	Skip hidden columns
+				If oControl.Name = _Name Then
+					iColPosition = j
+					Exit For
+				End If
+			Next i
+			If iColPosition &gt;= 0 Then
+				[_Parent]._ControlView.setFocus()								&apos;Set first focus on table control itself
+				[_Parent]._ControlView.setCurrentColumnPosition(iColPosition)	&apos;Deprecated but no alternative found
+			End If
+		Else
+			_ControlView.setFocus()
+		End If
+		bSetFocus = True
+	End If
+	bSetFocus = True
+
+Finally:
+	SetFocus = bSetFocus
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFControls.SF_FormControl.SetFocus
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.FormControl.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	SetProperty = _PropertySet(PropertyName, Value)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_FormControl.SetProperty
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _FormatsList() As Variant
+&apos;&apos;&apos;	Return the allowed format entries as a zero-based array for Date and Time control types
+
+Dim vFormats() As Variant		&apos;	Return value
+
+	Select Case _ControlType
+		Case CTLDATEFIELD
+			vFormats = Array( _
+				&quot;Standard (short)&quot; _
+				, &quot;Standard (short YY)&quot; _
+				, &quot;Standard (short YYYY)&quot; _
+				, &quot;Standard (long)&quot; _
+				, &quot;DD/MM/YY&quot; _
+				, &quot;MM/DD/YY&quot; _
+				, &quot;YY/MM/DD&quot; _
+				, &quot;DD/MM/YYYY&quot; _
+				, &quot;MM/DD/YYYY&quot; _
+				, &quot;YYYY/MM/DD&quot; _
+				, &quot;YY-MM-DD&quot; _
+				, &quot;YYYY-MM-DD&quot; _
+				)
+		Case CTLTIMEFIELD
+			vFormats = Array( _
+				&quot;24h short&quot; _
+				, &quot;24h long&quot; _
+				, &quot;12h short&quot; _
+				, &quot;12h long&quot; _
+				)
+		Case Else
+			vFormats = Array()
+	End Select
+	
+	_FormatsList = vFormats
+
+End Function	&apos;	SFDocuments.SF_FormControl._FormatsList
+
+REM -----------------------------------------------------------------------------
+Public Function _GetEventName(ByVal psProperty As String) As String
+&apos;&apos;&apos;	Return the LO internal event name derived from the SF property name
+&apos;&apos;&apos;	The SF property name is not case sensitive, while the LO name is case-sensitive
+&apos;	Corrects the typo on ErrorOccur(r?)ed, if necessary
+
+Dim vProperties As Variant			&apos;	Array of class properties
+Dim sProperty As String				&apos;	Correctly cased property name
+
+	vProperties = Properties()
+	sProperty = vProperties(ScriptForge.SF_Array.IndexOf(vProperties, psProperty, SortOrder := &quot;ASC&quot;))
+
+	_GetEventName = LCase(Mid(sProperty, 3, 1)) &amp; Right(sProperty, Len(sProperty) - 3)
+	
+End Function	&apos;	SFDocuments.SF_FormControl._GetEventName
+
+REM -----------------------------------------------------------------------------
+Private Function _GetListener(ByVal psEventName As String) As String
+&apos;&apos;&apos;	Getting/Setting macros triggered by events requires a Listener-EventName pair
+&apos;&apos;&apos;	Return the X...Listener corresponding with the event name in argument
+
+	Select Case UCase(psEventName)
+		Case UCase(&quot;OnActionPerformed&quot;)
+			_GetListener = &quot;XActionListener&quot;
+		Case UCase(&quot;OnAdjustmentValueChanged&quot;)
+			_GetListener = &quot;XAdjustmentListener&quot;
+		Case UCase(&quot;OnApproveAction&quot;)
+			_GetListener = &quot;XApproveActionListener&quot;
+		Case UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnResetted&quot;)
+			_GetListener = &quot;XResetListener&quot;
+		Case UCase(&quot;OnApproveUpdate&quot;), UCase(&quot;OnUpdated&quot;)
+			_GetListener = &quot;XUpdateListener&quot;
+		Case UCase(&quot;OnChanged&quot;)
+			_GetListener = &quot;XChangeListener&quot;
+		Case UCase(&quot;OnErrorOccurred&quot;)
+			_GetListener = &quot;XErrorListener&quot;
+		Case UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;)
+			_GetListener = &quot;XFocusListener&quot;
+		Case UCase(&quot;OnItemStateChanged&quot;)
+			_GetListener = &quot;XItemListener&quot;
+		Case UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;)
+			_GetListener = &quot;XKeyListener&quot;
+		Case UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseMoved&quot;)
+			_GetListener = &quot;XMouseMotionListener&quot;
+		Case UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;)
+			_GetListener = &quot;XMouseListener&quot;
+		Case UCase(&quot;OnTextChanged&quot;)
+			_GetListener = &quot;XTextListener&quot;
+	End Select
+	
+End Function	&apos;	SFDocuments.SF_FormControl._GetListener
+
+REM -----------------------------------------------------------------------------
+Public Sub _Initialize()
+&apos;&apos;&apos;	Complete the object creation process:
+&apos;&apos;&apos;		- Initialization of private members
+&apos;&apos;&apos;		- Collection of specific attributes
+&apos;&apos;&apos;		- Synchronization with parent form instance
+
+Dim vControlTypes As Variant		&apos;	Array of control types ordered by the ClassId property of XControlModel - 2
+Const acHiddenControl = 13			&apos;	Class Id of an hidden control: has no ControlView
+
+	vControlTypes = array(	CTLBUTTON _
+							, CTLRADIOBUTTON _
+							, CTLIMAGEBUTTON _
+							, CTLCHECKBOX _
+							, CTLLISTBOX _
+							, CTLCOMBOBOX _
+							, CTLGROUPBOX _
+							, CTLTEXTFIELD _
+							, CTLFIXEDTEXT _
+							, CTLTABLECONTROL _
+							, CTLFILECONTROL _
+							, CTLHIDDENCONTROL _
+							, CTLIMAGECONTROL _
+							, CTLDATEFIELD _
+							, CTLTIMEFIELD _
+							, CTLNUMERICFIELD _
+							, CTLCURRENCYFIELD _
+							, CTLPATTERNFIELD _
+							, CTLSCROLLBAR _
+							, CTLSPINBUTTON _
+							, CTLNAVIGATIONBAR _
+						)
+
+Try:
+	&apos;	_implementationName is set elsewhere for controls in table control
+	If Len(_ImplementationName) = 0 Then _ImplementationName = ScriptForge.SF_Session.UnoObjectType(_ControlModel)
+	_ClassId = _ControlModel.ClassId
+
+	&apos;	Identify the control type, ignore subforms and pay attention to formatted fields
+	If ScriptForge.SF_Session.HasUnoproperty(_ControlModel, &quot;ClassId&quot;) Then		&apos;	All control types have a ClassId property except subforms
+		_ControlType = vControlTypes(_ClassId - 2)
+		&apos;	Formatted fields belong to the TextField family
+		If _ControlType = CTLTEXTFIELD Then
+			If _ImplementationName = &quot;com.sun.star.comp.forms.OFormattedFieldWrapper&quot; _
+				Or _ImplementationName = &quot;com.sun.star.comp.forms.OFormattedFieldWrapper_ForcedFormatted&quot; _
+				Or _ImplementationName = &quot;com.sun.star.form.component.FormattedField&quot; Then		&apos;	When in table control
+						_ControlType = CTLFORMATTEDFIELD
+			End If
+		End If
+	Else
+		Exit Sub	&apos;	Ignore subforms, should not happen
+	End If
+
+	With [_Parent]
+		&apos;	Set control view if not set yet
+		If IsNull(_ControlView) Then
+			If _ClassId &gt; 0 And _ClassId &lt;&gt; acHiddenControl Then	&apos;	No view on hidden controls
+				If IsNull(._FormDocument) Then		&apos;	Usual document
+					Set _ControlView = ._Component.CurrentController.getControl(_ControlModel)
+				Else								&apos;	Base form document
+					Set _ControlView = ._FormDocument.Component.CurrentController.getControl(_ControlModel)
+				End If
+			End If
+		End If
+	End With
+
+	&apos;	Store  the SF_FormControl object in the parent cache
+	Set _Parent._ControlCache(_IndexOfNames) = [Me]
+
+Finally:
+	Exit Sub
+End Sub			&apos;	SFDocuments.SF_FormControl._Initialize
+
+REM -----------------------------------------------------------------------------
+Private Function _ListboxBound() As Boolean
+&apos;&apos;&apos;	Return True if the actual control, which is a listbox, has a bound column
+&apos;&apos;&apos;	Called before setting the value of a listbox, i.e. the value to be rewritten in the underlying table data
+&apos;&apos;&apos;	The existence of a bound column is derived from the comparison between StringItemList and ValueItemList
+&apos;&apos;&apos;		String ... : the strings displayed in the list box
+&apos;&apos;&apos;		Value ...  : the database values
+&apos;&apos;&apos;		If they are different, then there is a bound column
+
+Dim bListboxBound As Boolean		&apos;	Return value
+Dim vValue() As Variant				&apos;	Alias of the control model ValueItemList
+Dim vString() As Variant			&apos;	Alias of the control model StringItemList
+Dim i As Long
+
+	bListboxBound = False
+
+	With _ControlModel
+		If Not IsNull(.ValueItemList) _
+			And .DataField &lt;&gt; &quot;&quot; _
+			And Not IsNull(.BoundField) _
+			And ScriptForge.SF_Array.Contains(Array( _
+						com.sun.star.form.ListSourceType.TABLE _
+						, com.sun.star.form.ListSourceType.QUERY _
+						, com.sun.star.form.ListSourceType.SQL _
+						, com.sun.star.form.ListSourceType.SQLPASSTHROUGH _
+			), .ListSourceType) Then
+			If IsArray(.ValueItemList) Then
+				vValue = .ValueItemList
+				vString = .StringItemList
+				For i = 0 To UBound(vValue)
+					If VarType(vValue(i)) &lt;&gt; VarType(vString(i)) Then
+						bListboxBound = True
+					ElseIf vValue(i) &lt;&gt; vString(i) Then
+						bListboxBound = True
+					End If
+					If bListboxBound Then Exit For
+				Next i
+			End If
+		End If
+	End With
+	
+	_ListboxBound = bListboxBound
+
+End Function		&apos;	_ListboxBound	V0.9.0
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String _
+								, Optional ByVal pvDefault As Variant _
+								) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvDefault: the value returned when the property is not applicable on the control&apos;s type
+&apos;&apos;&apos;			Getting a non-existing property for a specific control type should
+&apos;&apos;&apos;			not generate an error to not disrupt the Basic IDE debugger
+
+Dim vGet As Variant							&apos;	Return value
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim vSelection As Variant					&apos;	Alias of Model.SelectedItems or Model.Selection
+Dim vList As Variant						&apos;	Alias of Model.StringItemList
+Dim lIndex As Long							&apos;	Index in StringItemList
+Dim sItem As String							&apos;	A single item
+Dim vDate As Variant						&apos;	Date after conversion from com.sun.star.util.Date or com.sun.star.util.Time
+Dim vValues As Variant						&apos;	Array of listbox values
+Dim oControlEvents As Object				&apos;	com.sun.star.container.XNameContainer
+Dim sEventName As String					&apos;	Internal event name
+Const cstUnoUrl = &quot;.uno:FormController/&quot;
+Dim i As Long
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SFDocuments.FormControl.get&quot; &amp; psProperty
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _ParentForm._IsStillAlive() Then GoTo Finally
+
+	If IsMissing(pvDefault) Or IsEmpty(pvDefault) Then pvDefault = Null
+	_PropertyGet = pvDefault
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Action&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON
+					If oSession.HasUNOProperty(_ControlModel, &quot;ButtonType&quot;) Then
+						Select Case _ControlModel.ButtonType
+							Case com.sun.star.form.FormButtonType.PUSH		:	_PropertyGet = &quot;none&quot;
+							Case com.sun.star.form.FormButtonType.SUBMIT	:	_PropertyGet = &quot;submitForm&quot;
+							Case com.sun.star.form.FormButtonType.RESET		:	_PropertyGet = &quot;resetForm&quot;
+							Case com.sun.star.form.FormButtonType.URL
+								&apos;	&quot;.uno:FormController/moveToFirst&quot;
+								If Left(_ControlModel.TargetURL, Len(cstUnoUrl)) = cstUnoUrl Then
+									_PropertyGet = Mid(_ControlModel.TargetURL, Len(cstUnoUrl) + 1)
+								ElseIf Left(_ControlModel.TargetURL, 4) = &quot;http&quot; Then
+									_PropertyGet = &quot;openWebPage&quot;
+								ElseIf Left(_ControlModel.TargetURL, 4) = &quot;file&quot; Then
+									_PropertyGet =&quot;openDocument&quot;
+								End If
+						End Select
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Caption&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON, CTLCHECKBOX, CTLFIXEDTEXT, CTLGROUPBOX, CTLRADIOBUTTON
+					If oSession.HasUNOProperty(_ControlModel, &quot;Label&quot;) Then _PropertyGet = _ControlModel.Label
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ControlSource&quot;)
+			Select Case _ControlType
+				Case CTLCHECKBOX, CTLCOMBOBOX, CTLCURRENCYFIELD, CTLDATEFIELD, CTLFORMATTEDFIELD, CTLIMAGECONTROL, CTLLISTBOX _
+					, CTLNUMERICFIELD, CTLPATTERNFIELD, CTLRADIOBUTTON, CTLTEXTFIELD, CTLTIMEFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;DataField&quot;) Then _PropertyGet = _ControlModel.DataField
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ControlType&quot;)
+			_PropertyGet = _ControlType
+		Case UCase(&quot;Default&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultButton&quot;) Then _PropertyGet = _ControlModel.DefaultButton
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;DefaultValue&quot;)
+			Select Case _ControlType
+				Case CTLCHECKBOX, CTLRADIOBUTTON
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultState&quot;) Then _PropertyGet = _ControlModel.DefaultState
+				Case CTLCOMBOBOX, CTLFILECONTROL, CTLPATTERNFIELD, CTLTEXTFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultText&quot;) Then _PropertyGet = _ControlModel.DefaultText
+				Case CTLCURRENCYFIELD, CTLNUMERICFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultValue&quot;) Then _PropertyGet = _ControlModel.DefaultValue
+				Case CTLDATEFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultDate&quot;) Then
+						If Not IsEmpty(_ControlModel.DefaultDate) Then
+							With _ControlModel.DefaultDate
+								vDate = DateSerial(.Year, .Month, .Day)
+							End With
+							_PropertyGet = vDate
+						End If
+					End If
+				Case CTLFORMATTEDFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;EffectiveDefault&quot;) Then _PropertyGet = _ControlModel.EffectiveDefault
+				Case CTLLISTBOX
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultSelection&quot;) And oSession.HasUNOProperty(_ControlModel, &quot;StringItemList&quot;) Then
+						vList = _ControlModel.DefaultSelection
+						If IsArray(vList) Then
+							If UBound(vList) &gt;= LBound(vList) Then		&apos;	Is array initialized ?
+								lIndex = UBound(_ControlModel.StringItemList)
+								If vList(0) &gt;= 0 And vList(0) &lt;= lIndex Then _PropertyGet = _ControlModel.StringItemList(vList(0))
+												&apos;	Only first default value is considered
+							End If
+						End If
+					End If
+				Case CTLSPINBUTTON
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultSpinValue&quot;) Then _PropertyGet = _ControlModel.DefaultSpinValue
+				Case CTLTIMEFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultTime&quot;) Then
+						If Not IsEmpty(_ControlModel.DefaultTime) Then
+							With _ControlModel.DefaultTime
+								vDate = TimeSerial(.Hours, .Minutes, .Seconds)
+							End With
+							_PropertyGet = vDate
+						End If
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Enabled&quot;)
+			Select Case _ControlType
+				Case CTLHIDDENCONTROL	:	GoTo CatchType
+				Case Else
+					If oSession.HasUnoProperty(_ControlModel, &quot;Enabled&quot;) Then _PropertyGet = _ControlModel.Enabled
+			End Select
+		Case UCase(&quot;Format&quot;)
+			Select Case _ControlType
+				Case CTLDATEFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;DateFormat&quot;) Then _PropertyGet = _FormatsList()(_ControlModel.DateFormat)
+				Case CTLTIMEFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;TimeFormat&quot;) Then _PropertyGet = _FormatsList()(_ControlModel.TimeFormat)
+				Case CTLFORMATTEDFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;FormatsSupplier&quot;) And oSession.HasUNOProperty(_ControlModel, &quot;FormatKey&quot;) Then
+						_PropertyGet = _ControlModel.FormatsSupplier.getNumberFormats.getByKey(_ControlModel.FormatKey).FormatString
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ListCount&quot;)
+			Select Case _ControlType
+				Case CTLCOMBOBOX, CTLLISTBOX
+					If oSession.HasUNOProperty(_ControlModel, &quot;StringItemList&quot;) Then _PropertyGet = UBound(_ControlModel.StringItemList) + 1
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ListIndex&quot;)
+			Select Case _ControlType
+				Case CTLCOMBOBOX
+					_PropertyGet = -1	&apos;	Not found, multiselection
+					If oSession.HasUNOProperty(_ControlModel, &quot;Text&quot;) And oSession.HasUNOProperty(_ControlModel, &quot;StringItemList&quot;) Then
+						_PropertyGet = ScriptForge.SF_Array.IndexOf(_ControlModel.StringItemList, _ControlModel.Text, CaseSensitive := True)
+					End If
+				Case CTLLISTBOX
+					_PropertyGet = -1	&apos;	Not found, multiselection
+					If oSession.HasUNOProperty(_ControlModel, &quot;SelectedItems&quot;) And oSession.HasUNOProperty(_ControlModel, &quot;StringItemList&quot;) Then
+						vSelection = _ControlModel.SelectedItems
+						If UBound(vSelection) &gt;= 0 Then _PropertyGet = vSelection(0)
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ListSource&quot;)
+			Select Case _ControlType
+				Case CTLCOMBOBOX, CTLLISTBOX
+					If oSession.HasUNOProperty(_ControlModel, &quot;ListSource&quot;) Then
+						With com.sun.star.form.ListSourceType
+							Select Case _ControlModel.ListSourceType
+								Case		.VALUELIST _
+										,	.TABLEFIELDS
+									If IsArray(_ControlModel.StringItemList) Then vValues = _ControlModel.StringItemList Else vValues = Array(_ControlModel.StringItemList)
+								Case		.TABLE _
+										,	.QUERY _
+										,	.SQL _
+										,	.SQLPASSTHROUGH
+									If IsArray(_ControlModel.ListSource) Then vValues = _ControlModel.ListSource Else vValues = Array(_ControlModel.ListSource)
+							End Select
+						End With
+						_PropertyGet = Join(vValues, &quot;;&quot;)
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ListSourceType&quot;)
+			Select Case _ControlType
+				Case CTLCOMBOBOX, CTLLISTBOX
+					If oSession.HasUnoProperty(_ControlModel, &quot;ListSourceType&quot;) Then _PropertyGet = _ControlModel.ListSourceType
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Locked&quot;)
+			Select Case _ControlType
+				Case CTLCOMBOBOX, CTLCURRENCYFIELD, CTLDATEFIELD, CTLFILECONTROL, CTLFORMATTEDFIELD, CTLIMAGECONTROL _
+						, CTLLISTBOX, CTLNUMERICFIELD, CTLPATTERNFIELD, CTLTEXTFIELD, CTLTIMEFIELD
+					If oSession.HasUnoProperty(_ControlModel, &quot;ReadOnly&quot;) Then _PropertyGet = _ControlModel.ReadOnly
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;MultiSelect&quot;)
+			Select Case _ControlType
+				Case CTLLISTBOX
+					If oSession.HasUnoProperty(_ControlModel, &quot;MultiSelection&quot;) Then
+						_PropertyGet = _ControlModel.MultiSelection
+					ElseIf oSession.HasUnoProperty(_ControlModel, &quot;MultiSelectionSimpleMode&quot;) Then	&apos;	Not documented: gridcontrols only TBC ??
+						_PropertyGet = _ControlModel.MultiSelectionSimpleMode
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;OnActionPerformed&quot;), UCase(&quot;OnAdjustmentValueChanged&quot;), UCase(&quot;OnApproveAction&quot;), UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnApproveUpdate&quot;) _
+				, UCase(&quot;OnChanged&quot;), UCase(&quot;OnErrorOccurred&quot;), UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;) _
+				, UCase(&quot;OnItemStateChanged&quot;), UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;) _
+				, UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMouseMoved&quot;) _
+				, UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;), UCase(&quot;OnResetted&quot;) _
+				, UCase(&quot;OnTextChanged&quot;), UCase(&quot;OnUpdated&quot;)
+			If IsNull(_ControlModel) Then _PropertyGet = &quot;&quot; Else _PropertyGet = SF_Register._GetEventScriptCode(_ControlModel, psProperty, _Name)
+		Case UCase(&quot;Parent&quot;)
+			Set _PropertyGet = [_Parent]
+		Case UCase(&quot;Picture&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON, CTLIMAGEBUTTON, CTLIMAGECONTROL
+					If oSession.HasUnoProperty(_ControlModel, &quot;ImageURL&quot;) Then _PropertyGet = ScriptForge.SF_FileSystem._ConvertFromUrl(_ControlModel.ImageURL)
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Required&quot;)
+			Select Case _ControlType
+				Case CTLCHECKBOX, CTLCOMBOBOX, CTLCURRENCYFIELD, CTLDATEFIELD, CTLIMAGECONTROL, CTLLISTBOX, CTLNUMERICFIELD _
+						, CTLPATTERNFIELD, CTLRADIOBUTTON, CTLTEXTFIELD, CTLTIMEFIELD
+					If oSession.HasUnoProperty(_ControlModel, &quot;InputRequired&quot;) Then _PropertyGet = _ControlModel.InputRequired
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Text&quot;)
+			Select Case _ControlType
+				Case CTLDATEFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;Date&quot;) _
+							And oSession.HasUNOProperty(_ControlModel, &quot;FormatKey&quot;) _
+							And oSession.HasUNOProperty(_ControlModel, &quot;FormatsSupplier&quot;) Then
+						If Not IsEmpty(_ControlModel.Date) Then
+							With _ControlModel.Date
+								vDate = DateSerial(.Year, .Month, .Day)
+							End With
+							_PropertyGet = Format(vDate, _ControlModel.FormatsSupplier.getNumberFormats.getByKey(_ControlModel.FormatKey).FormatString)
+						End If
+					End If
+				Case CTLTIMEFIELD
+					If oSession.HasUNOProperty(_ControlModel, &quot;Text&quot;) Then
+						If Not IsEmpty(_ControlModel.Time) Then
+							With _ControlModel.Time
+								vDate = TimeSerial(.Hours, .Minutes, .Seconds)
+							End With
+							_PropertyGet = Format(vDate, &quot;HH:MM:SS&quot;)
+						End If
+					End If
+				Case CTLCOMBOBOX, CTLFILECONTROL, CTLFORMATTEDFIELD, CTLPATTERNFIELD, CTLTEXTFIELD
+					If oSession.HasUnoProperty(_ControlModel, &quot;Text&quot;) Then _PropertyGet = _ControlModel.Text
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;TipText&quot;)
+			Select Case _ControlType
+				Case CTLHIDDENCONTROL	:	GoTo CatchType
+				Case Else
+					If oSession.HasUnoProperty(_ControlModel, &quot;HelpText&quot;) Then _PropertyGet = _ControlModel.HelpText
+			End Select
+		Case UCase(&quot;TripleState&quot;)
+			Select Case _ControlType
+				Case CTLCHECKBOX
+					If oSession.HasUnoProperty(_ControlModel, &quot;TriState&quot;) Then _PropertyGet = _ControlModel.TriState
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Value&quot;)	&apos;	Default values are set here by control type, not in the 2nd argument (pvDefault)
+			vGet = pvDefault
+			Select Case _ControlType
+				Case CTLBUTTON			&apos;Boolean, toggle buttons only
+					vGet = False
+					If oSession.HasUnoProperty(_ControlModel, &quot;Toggle&quot;) Then
+						If oSession.HasUnoProperty(_ControlModel, &quot;State&quot;) Then vGet = ( _ControlModel.State = 1 )
+					End If
+				Case CTLCHECKBOX		&apos;0 = Not checked, 1 = Checked, 2 = Don&apos;t know
+					If oSession.HasUnoProperty(_ControlModel, &quot;State&quot;) Then vGet = _ControlModel.State Else vGet = 2
+				Case CTLCOMBOBOX, CTLFILECONTROL, CTLPATTERNFIELD, CTLTEXTFIELD		&apos;String
+					If oSession.HasUnoProperty(_ControlModel, &quot;Text&quot;) Then vGet = _ControlModel.Text Else vGet = &quot;&quot;
+				Case CTLCURRENCYFIELD, CTLNUMERICFIELD		&apos;Numeric
+					If oSession.HasUnoProperty(_ControlModel, &quot;Value&quot;) Then vGet = _ControlModel.Value Else vGet = 0
+				Case CTLDATEFIELD		&apos;Date
+					vGet = CDate(1)
+					If oSession.HasUnoProperty(_ControlModel, &quot;Date&quot;) Then
+						If VarType(_ControlModel.Date) = ScriptForge.V_OBJECT Then	&apos;	com.sun.star.util.Date
+							With _ControlModel.Date
+								vDate = DateSerial(.Year, .Month, .Day)
+							End With
+							vGet = vDate
+						Else	&apos;	.Date = Empty
+						End If
+					End If
+				Case CTLFORMATTEDFIELD	&apos;String or numeric
+					If oSession.HasUnoProperty(_ControlModel, &quot;EffectiveValue&quot;) Then vGet = _ControlModel.EffectiveValue Else vGet = &quot;&quot;
+				Case CTLHIDDENCONTROL	&apos;String
+					If oSession.HasUnoProperty(_ControlModel, &quot;HiddenValue&quot;) Then vGet = _ControlModel.HiddenValue Else vGet = &quot;&quot;
+				Case CTLLISTBOX		&apos;String or array of strings depending on MultiSelection
+					&apos;	StringItemList is the list of the items displayed in the box
+					&apos;	ValueItemList is the list of the values in the underlying database field
+					&apos;	SelectedItems is the list of the indexes in StringItemList of the selected items
+						&apos;	It can go beyond the limits of StringItemList
+						&apos;	It can contain multiple values even if the listbox is not multiselect
+					If oSession.HasUnoProperty(_ControlModel, &quot;StringItemList&quot;) And oSession.HasUnoProperty(_ControlModel, &quot;SelectedItems&quot;) _
+							And oSession.HasUnoProperty(_ControlModel, &quot;MultiSelection&quot;) Then
+						vSelection = _ControlModel.SelectedItems
+						&apos;	The list of allowed values depends on the existence of a bound column
+						If _ListBoxBound() Then vList = _ControlModel.ValueItemList Else vList = _ControlModel.StringItemList
+						If _ControlModel.MultiSelection Then vValues = Array()
+						For i = 0 To UBound(vSelection)
+							lIndex = vSelection(i)
+							If lIndex &gt;= 0 And lIndex &lt;= UBound(vList) Then
+								If Not _ControlModel.MultiSelection Then
+									vValues = vList(lIndex)
+									Exit For
+								End If
+								vValues = ScriptForge.SF_Array.Append(vValues, vList(lIndex))
+							End If
+						Next i
+						vGet = vValues
+					Else
+						vGet = &quot;&quot;
+					End If
+				Case CTLRADIOBUTTON		&apos;Boolean
+					If oSession.HasUnoProperty(_ControlModel, &quot;State&quot;) Then vGet = ( _ControlModel.State = 1 ) Else vGet = False
+				Case CTLSCROLLBAR		&apos;Numeric
+					vGet = 0
+					If oSession.HasUnoProperty(_ControlModel, &quot;ScrollValue&quot;) Then
+						If Not IsEmpty(_ControlModel.ScrollValue) Then vGet = _ControlModel.ScrollValue
+					End If
+				Case CTLSPINBUTTON
+					If oSession.HasUnoProperty(_ControlModel, &quot;SpinValue&quot;) Then vGet = _ControlModel.SpinValue Else vGet = 0
+				Case CTLTIMEFIELD
+					vGet = CDate(0)
+					If oSession.HasUnoProperty(_ControlModel, &quot;Time&quot;) Then
+						If VarType(_ControlModel.Time) = ScriptForge.V_OBJECT Then	&apos;	com.sun.star.Util.Time
+							With _ControlModel.Time
+								vDate = TimeSerial(.Hours, .Minutes, .Seconds)
+							End With
+							vGet = vDate
+						Else	&apos;	.Time = Empty
+						End If
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+			_PropertyGet = vGet
+		Case UCase(&quot;Visible&quot;)
+			If oSession.HasUnoMethod(_ControlView, &quot;isVisible&quot;) Then _PropertyGet = CBool(_ControlView.isVisible())
+		Case UCase(&quot;XControlModel&quot;)
+			Set _PropertyGet = _ControlModel
+		Case UCase(&quot;XControlView&quot;)
+			Set _PropertyGet = _ControlView
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchType:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_FormControl._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertySet(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+
+Dim bSet As Boolean							&apos;	Return value
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim sFormName As String						&apos;	Full form identification for error messages
+Dim vSet As Variant							&apos;	Value to set in UNO model or view property
+Dim vActions As Variant						&apos;	Action property: list of available actions
+Dim sAction As String						&apos;	A single action
+Dim vFormats As Variant						&apos;	Format property: output of _FormatsList()
+Dim iFormat As Integer						&apos;	Format property: index in vFormats
+Dim vSelection As Variant					&apos;	Alias of Model.SelectedItems
+Dim vList As Variant						&apos;	Alias of Model.StringItemList
+Dim lIndex As Long							&apos;	Index in StringItemList
+Dim sItem As String							&apos;	A single item
+Dim oDatabase As Object						&apos;	The database object related to the parent form of the control instance
+Dim i As Long
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFDocuments.FormControl.set&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _ParentForm._IsStillAlive() Then GoTo Finally
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	bSet = True
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Action&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON
+					vActions = Array(&quot;none&quot;, &quot;submitForm&quot;, &quot;resetForm&quot;, &quot;refreshForm&quot;, &quot;moveToFirst&quot;, &quot;moveToLast&quot;, &quot;moveToNext&quot;, &quot;moveToPrev&quot; _
+										, &quot;saveRecord&quot;, &quot;moveToNew&quot;, &quot;deleteRecord&quot;, &quot;undoRecord&quot;)
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Action&quot;, ScriptForge.V_STRING, vActions) Then GoTo Finally
+					If oSession.HasUNOProperty(_ControlModel, &quot;ButtonType&quot;) Then
+						sAction = vActions(ScriptForge.SF_Array.IndexOf(vActions, pvValue, CaseSensitive := False))
+						_ControlModel.TargetURL = &quot;&quot;
+						Select Case sAction
+							Case &quot;none&quot;			:	vSet = com.sun.star.form.FormButtonType.PUSH
+							Case &quot;submitForm&quot;	:	vSet = com.sun.star.form.FormButtonType.SUBMIT
+							Case &quot;resetForm&quot;	:	vSet = com.sun.star.form.FormButtonType.RESET
+							Case Else
+								vSet = com.sun.star.form.FormButtonType.URL
+								_ControlModel.TargetURL = &quot;.uno:FormController/&quot; &amp; sAction
+						End Select
+						_ControlModel.ButtonType = vSet
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Caption&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON, CTLCHECKBOX, CTLFIXEDTEXT, CTLGROUPBOX, CTLRADIOBUTTON
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Caption&quot;, V_STRING) Then GoTo Finally
+					If oSession.HasUNOProperty(_ControlModel, &quot;Label&quot;) Then _ControlModel.Label = pvValue
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Default&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Default&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+					If oSession.HasUNOProperty(_ControlModel, &quot;DefaultButton&quot;) Then _ControlModel.DefaultButton = pvValue
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Enabled&quot;)
+			Select Case _ControlType
+				Case CTLHIDDENCONTROL	:	GoTo CatchType
+				Case Else
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Enabled&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;Enabled&quot;) Then _ControlModel.Enabled = pvValue
+			End Select
+		Case UCase(&quot;Format&quot;)
+			Select Case _ControlType
+				Case CTLDATEFIELD, CTLTIMEFIELD
+					vFormats = _FormatsList()
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Format&quot;, V_STRING, vFormats) Then GoTo Finally
+					iFormat = ScriptForge.SF_Array.IndexOf(vFormats, pvValue, CaseSensitive := False)
+					If oSession.HasUNOProperty(_ControlModel, &quot;DateFormat&quot;) Then
+						_ControlModel.DateFormat = iFormat
+					ElseIf oSession.HasUNOProperty(_ControlModel, &quot;TimeFormat&quot;) Then
+						_ControlModel.TimeFormat = iFormat
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ListIndex&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;ListIndex&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+			Select Case _ControlType
+				Case CTLCOMBOBOX
+					If oSession.HasUNOProperty(_ControlModel, &quot;Text&quot;) And oSession.HasUNOProperty(_ControlModel, &quot;StringItemList&quot;) Then
+						If pvValue &gt;= 0 And pvValue &lt;= UBound(_ControlModel.StringItemList) Then _ControlModel.Text = _ControlModel.StringItemList(CInt(pvValue))
+					End If
+				Case CTLLISTBOX
+					If oSession.HasUNOProperty(_ControlModel, &quot;SelectedItems&quot;) Then _ControlModel.SelectedItems = Array(CInt(pvValue))
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ListSource&quot;)
+			Select Case _ControlType
+				Case CTLCOMBOBOX, CTLLISTBOX
+					If oSession.HasUNOProperty(_ControlModel, &quot;ListSource&quot;) Then
+						If Not ScriptForge.SF_Utils._Validate(pvValue, psProperty, V_STRING) Then Goto Finally
+						With com.sun.star.form.ListSourceType
+							Select Case _ControlModel.ListSourceType
+								Case		.QUERY _
+										,	.TABLE _
+										,	.TABLEFIELDS
+									Set oDatabase = _ParentForm.GetDatabase()
+									If _ControlModel.ListSourceType = .QUERY Then vList = oDatabase.Queries Else vList = oDatabase.Tables
+									If Not ScriptForge.SF_Utils._Validate(pvValue, psProperty, V_STRING, vList) Then Goto Finally
+									If _ControlType = CTLCOMBOBOX Then _ControlModel.ListSource = pvValue Else _ControlModel.ListSource = Array(pvValue)
+									_ControlModel.refresh()
+								Case .SQL
+									Set oDatabase = _ParentForm.GetDatabase()
+									If _ControlType = CTLCOMBOBOX Then _ControlModel.ListSource = oDatabase._ReplaceSquareBrackets(pvValue) Else _ControlModel.ListSource = Array(oDatabase._ReplaceSquareBrackets(pvValue))
+									_ControlModel.refresh()
+								Case .VALUELIST			&apos;	ListBox only !
+									_ControlModel.ListSource = Split(pvValue, &quot;;&quot;)
+									_ControlModel.StringItemList = _ControlModel.ListSource
+								Case .SQLPASSTHROUGH
+									If _ControlType = CTLCOMBOBOX Then _ControlModel.ListSource = pvValue Else _ControlModel.ListSource = Array(pvValue)
+									_ControlModel.refresh()
+							End Select
+						End With
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;ListSourceType&quot;)
+			With com.sun.star.form.ListSourceType
+				Select Case _ControlType
+					Case CTLCOMBOBOX
+						If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;ListSourceType&quot;, ScriptForge.V_NUMERIC, Array( _
+								.TABLE _
+							,	.QUERY _
+							,	.SQL _
+							,	.SQLPASSTHROUGH _
+							,	.TABLEFIELDS _
+						)) Then GoTo Finally
+					Case CTLLISTBOX
+						If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;ListSourceType&quot;, ScriptForge.V_NUMERIC, Array( _
+								.VALUELIST _
+							,	.TABLE _
+							,	.QUERY _
+							,	.SQL _
+							,	.SQLPASSTHROUGH _
+							,	.TABLEFIELDS _
+						)) Then GoTo Finally
+					Case Else	:	GoTo CatchType
+				End Select
+			End With
+			If oSession.HasUnoProperty(_ControlModel, &quot;ListSourceType&quot;) Then _ControlModel.ListSourceType = pvValue
+		Case UCase(&quot;Locked&quot;)
+			Select Case _ControlType
+				Case CTLCOMBOBOX, CTLCURRENCYFIELD, CTLDATEFIELD, CTLFILECONTROL, CTLFORMATTEDFIELD, CTLIMAGECONTROL _
+						, CTLLISTBOX, CTLNUMERICFIELD, CTLPATTERNFIELD, CTLTEXTFIELD, CTLTIMEFIELD
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Locked&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;ReadOnly&quot;) Then _ControlModel.ReadOnly = pvValue
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;MultiSelect&quot;)
+			Select Case _ControlType
+				Case CTLLISTBOX
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;MultiSelect&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;MultiSelection&quot;) Then _ControlModel.MultiSelection = pvValue
+					If oSession.HasUnoProperty(_ControlModel, &quot;MultiSelectionSimpleMode&quot;) Then _ControlModel.MultiSelectionSimpleMode = pvValue
+					If oSession.HasUnoProperty(_ControlModel, &quot;SelectedItems&quot;) Then
+						&apos;	Cancel selections when MultiSelect becomes False
+						If Not pvValue And UBound(_ControlModel.SelectedItems) &gt; 0 Then
+							lIndex = _ControlModel.SelectedItems(0)
+							_ControlModel.SelectedItems = Array(lIndex)
+						End If
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;OnActionPerformed&quot;), UCase(&quot;OnAdjustmentValueChanged&quot;), UCase(&quot;OnApproveAction&quot;), UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnApproveUpdate&quot;) _
+				, UCase(&quot;OnChanged&quot;), UCase(&quot;OnErrorOccurred&quot;), UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;) _
+				, UCase(&quot;OnItemStateChanged&quot;), UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;) _
+				, UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMouseMoved&quot;) _
+				, UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;), UCase(&quot;OnResetted&quot;) _
+				, UCase(&quot;OnTextChanged&quot;), UCase(&quot;OnUpdated&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, psProperty, V_STRING) Then Goto Finally
+			If Not IsNull(_ControlModel) Then
+				bSet = SF_Register._RegisterEventScript(_ControlModel _
+							, psProperty _
+							, _GetListener(psProperty) _
+							, pvValue _
+							, _Name _
+							)
+			End If
+		Case UCase(&quot;Picture&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON, CTLIMAGEBUTTON, CTLIMAGECONTROL
+					If Not ScriptForge.SF_Utils._ValidateFile(pvValue, &quot;Picture&quot;) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;ImageURL&quot;) Then _ControlModel.ImageURL = ScriptForge.SF_FileSystem._ConvertToUrl(pvValue)
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;TipText&quot;)
+			Select Case _ControlType
+				Case CTLHIDDENCONTROL	:	GoTo CatchType
+				Case Else
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;TipText&quot;, V_STRING) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;HelpText&quot;) Then _ControlModel.HelpText = pvValue
+			End Select
+		Case UCase(&quot;TripleState&quot;)
+			Select Case _ControlType
+				Case CTLCHECKBOX
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;TripleState&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;TriState&quot;) Then _ControlModel.TriState = pvValue
+				Case Else	:	GoTo CatchType
+			End Select
+		Case UCase(&quot;Value&quot;)
+			Select Case _ControlType
+				Case CTLBUTTON		&apos;Boolean, toggle buttons only
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;Toggle&quot;) And oSession.HasUnoProperty(_ControlModel, &quot;State&quot;) Then
+						_ControlModel.State = Iif(pvValue, 1, 0)
+					End If
+				Case CTLCHECKBOX	&apos;0 = Not checked, 1 = Checked, 2 = Don&apos;t know
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, Array(ScriptForge.V_BOOLEAN, ScriptForge.V_NUMERIC), Array(0, 1, 2, True, False)) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;State&quot;) Then
+						If VarType(pvValue) = ScriptForge.V_BOOLEAN Then pvValue = Iif(pvValue, 1, 0)
+						_ControlModel.State = pvValue
+					End If
+				Case CTLCOMBOBOX
+					If oSession.HasUnoProperty(_ControlModel, &quot;Text&quot;) And oSession.HasUnoProperty(_ControlModel, &quot;StringItemList&quot;) Then
+						If pvValue &lt;&gt; &quot;&quot; Then
+							If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, V_STRING, _ControlModel.StringItemList) Then Goto Finally
+						End If
+						_ControlModel.Text = pvValue
+					End If
+				Case CTLCURRENCYFIELD, CTLNUMERICFIELD		&apos;Numeric
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;Value&quot;) Then _ControlModel.Value = pvValue
+				Case CTLDATEFIELD		&apos;Date
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, V_DATE) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;Date&quot;) Then
+						Set vSet = New com.sun.star.util.Date
+						vSet.Year = Year(pvValue)
+						vSet.Month = Month(pvValue)
+						vSet.Day = Day(pvValue)
+						_ControlModel.Date = vSet
+					End If
+				Case CTLFILECONTROL
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, V_STRING) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;Text&quot;) Then _ControlModel.Text = ScriptForge.SF_FileSystem._ConvertToUrl(pvValue)
+				Case CTLFORMATTEDFIELD	&apos;String or numeric
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, Array(V_STRING, ScriptForge.V_NUMERIC)) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;EffectiveValue&quot;) Then _ControlModel.EffectiveValue = pvValue
+				Case CTLHIDDENCONTROL	&apos;String
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, V_STRING) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;HiddenValue&quot;) Then _ControlModel.HiddenValue = pvValue
+				Case CTLLISTBOX		&apos;String or number - Only a single value may be set
+					&apos;	StringItemList is the list of the items displayed in the box
+					&apos;	ValueItemList is the list of the values in the underlying database field
+					&apos;	SelectedItems is the list of the indexes in StringItemList of the selected items
+					If oSession.HasUnoProperty(_ControlModel, &quot;StringItemList&quot;) And oSession.HasUnoProperty(_ControlModel, &quot;SelectedItems&quot;) Then
+						&apos;	Setting the value on a listbox is allowed only if single value and value in the list
+						If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, Array(V_STRING, ScriptForge.V_NUMERIC)) Then GoTo Finally
+						&apos;	The list of allowed values depends on the existence of a bound column
+						If _ListboxBound() Then vList = _ControlModel.ValueItemList Else vList = _ControlModel.StringItemList
+						If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, , vList) Then GoTo Finally
+						_ControlModel.SelectedItems = Array(ScriptForge.SF_Array.IndexOf(vList, pvValue, CaseSensitive := True))
+					End If
+				Case CTLPATTERNFIELD, CTLTEXTFIELD		&apos;String
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, V_STRING) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;Text&quot;) Then _ControlModel.Text = pvValue
+				Case CTLRADIOBUTTON		&apos;Boolean
+					&apos;	A group of radio buttons is presumed sharing the same GroupName
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;State&quot;) Then _ControlModel.State = Iif(pvValue, 1, 0)
+				Case CTLSCROLLBAR		&apos;Numeric
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;ScrollValueMin&quot;) Then
+						If pvValue &lt; _ControlModel.ScrollValueMin Then pvValue = _ControlModel.ScrollValueMin
+					End If
+					If oSession.HasUnoProperty(_ControlModel, &quot;ScrollValueMax&quot;) Then
+						If pvValue &gt; _ControlModel.ScrollValueMax Then pvValue = _ControlModel.ScrollValueMax
+					End If
+					If oSession.HasUnoProperty(_ControlModel, &quot;ScrollValue&quot;) Then _ControlModel.ScrollValue = pvValue
+				Case CTLSPINBUTTON		&apos;Numeric
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;SpinValueMin&quot;) Then
+						If pvValue &lt; _ControlModel.SpinValueMin Then pvValue = _ControlModel.SpinValueMin
+					End If
+					If oSession.HasUnoProperty(_ControlModel, &quot;SpinValueMax&quot;) Then
+						If pvValue &gt; _ControlModel.SpinValueMax Then pvValue = _ControlModel.SpinValueMax
+					End If
+					If oSession.HasUnoProperty(_ControlModel, &quot;SpinValue&quot;) Then _ControlModel.SpinValue = pvValue
+				Case CTLTIMEFIELD
+					If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Value&quot;, V_DATE) Then GoTo Finally
+					If oSession.HasUnoProperty(_ControlModel, &quot;Time&quot;) Then
+						Set vSet = New com.sun.star.util.Time
+						vSet.Hours = Hour(pvValue)
+						vSet.Minutes = Minute(pvValue)
+						vSet.Seconds = Second(pvValue)
+						_ControlModel.Time = vSet
+					End If
+				Case Else	:	GoTo CatchType
+			End Select
+			&apos;	FINAL COMMITMENT
+			If oSession.HasUNOMethod(_ControlModel, &quot;commit&quot;) Then _ControlModel.commit()	&apos;	f.i. checkboxes have no commit method ??
+		Case UCase(&quot;Visible&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Visible&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If oSession.HasUnoMethod(_ControlView, &quot;setVisible&quot;) Then
+				If pvValue Then _ControlModel.EnableVisible = True
+				_ControlView.setVisible(pvValue)
+			End If
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	_PropertySet = bSet
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bSet = False
+	GoTo Finally
+CatchType:
+	If Len(_ParentForm._FormDocumentName) &gt; 0 Then sFormName = _ParentForm._FormDocumentName &amp; &quot;.&quot; Else sFormName = &quot;&quot;
+	ScriptForge.SF_Exception.RaiseFatal(FORMCONTROLTYPEERROR, _Name, sFormName &amp; _FormName, _ControlType, psProperty)
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_FormControl._PropertySet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the Model instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[FORMCONTROL]: Name, Type (formname)
+	_Repr = &quot;[FORMCONTROL]: &quot; &amp; _Name &amp; &quot;, &quot; &amp; _ControlType &amp; &quot; (&quot; &amp; _FormName &amp; &quot;)&quot;
+
+End Function	&apos;	SFDocuments.SF_FormControl._Repr
+
+REM ============================================ END OF SFDOCUMENTS.SF_FORMCONTROL
+</script:module>

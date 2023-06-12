@@ -1,0 +1,21 @@
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.frame.XModel;
+
+import com.sun.star.text.XTextDocument;
+
+oDoc = UnoRuntime.queryInterface(XModel.class,XSCRIPTCONTEXT.getInvocationContext());
+if ( oDoc == null )
+  oDoc = XSCRIPTCONTEXT.getDocument();
+
+xTextDoc = (XTextDocument) UnoRuntime.queryInterface(XTextDocument.class,oDoc);
+xTextDoc.getText().setString("Hello from Beanshell!");
+
+return 0;

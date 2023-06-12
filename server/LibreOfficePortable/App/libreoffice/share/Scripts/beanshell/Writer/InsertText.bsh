@@ -1,0 +1,28 @@
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.frame.XModel;
+
+import com.sun.star.text.XTextDocument;
+import com.sun.star.text.XText;
+import com.sun.star.text.XTextRange;
+
+oDoc = UnoRuntime.queryInterface(XModel.class,XSCRIPTCONTEXT.getInvocationContext());
+if ( oDoc == null )
+    oDoc = XSCRIPTCONTEXT.getDocument();
+
+String sText = "This text is inserted before the existing text\n" +
+               "Here comes a second line\n";
+
+xTextDoc = (XTextDocument) UnoRuntime.queryInterface(XTextDocument.class,oDoc);
+xText = xTextDoc.getText();
+xTextRange = xText.getEnd();
+xTextRange.setString(sText);
+
+return 0;

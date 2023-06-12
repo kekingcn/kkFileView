@@ -1,0 +1,801 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_PopupMenu" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFWidgets library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_PopupMenu
+&apos;&apos;&apos;	============
+&apos;&apos;&apos;		Display a popup menu anywhere and any time
+&apos;&apos;&apos;
+&apos;&apos;&apos;		A popup menu is usually triggered by a mouse action (typically a right-click) on a dialog, a form
+&apos;&apos;&apos;		or one of their controls. In this case the menu will be displayed below the clicked area.
+&apos;&apos;&apos;		When triggered by other events, including in the normal flow of a user script, the script should
+&apos;&apos;&apos;		provide the coordinates of the topleft edge of the menu versus the actual component.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The menu is described from top to bottom. Each menu item receives a numeric and a string identifier.
+&apos;&apos;&apos;		The Execute() method returns the item selected by the user.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Menu items are either:
+&apos;&apos;&apos;			- usual items
+&apos;&apos;&apos;			- checkboxes
+&apos;&apos;&apos;			- radio buttons
+&apos;&apos;&apos;			- a menu separator
+&apos;&apos;&apos;		Menu items can be decorated with icons and tooltips.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Definitions:
+&apos;&apos;&apos;			SubmenuCharacter: the character or the character string that identifies how menus are cascading
+&apos;&apos;&apos;				Default = &quot;&gt;&quot;
+&apos;&apos;&apos;				Can be set when invoking the PopupMenu service
+&apos;&apos;&apos;			ShortcutCharacter: the underline access key character
+&apos;&apos;&apos;				Default = &quot;~&quot;
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation:
+&apos;&apos;&apos;			Sub OpenMenu(Optional poMouseEvent As Object)
+&apos;&apos;&apos;			Dim myMenu As Object
+&apos;&apos;&apos;				Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, poMouseEvent, , , &quot;&gt;&gt;&quot;)	&apos;	Usual case
+&apos;&apos;&apos;			&apos; or
+&apos;&apos;&apos;				Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, , X, Y, &quot; | &quot;)	&apos;	Use X and Y coordinates to place the menu
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Menus and submenus
+&apos;&apos;&apos;			To create a popup menu with submenus, use the character defined in the
+&apos;&apos;&apos;			SubmenuCharacter property while creating the menu entry to define where it will be
+&apos;&apos;&apos;			placed. For instance, consider the following menu/submenu hierarchy.
+&apos;&apos;&apos;				Item A
+&apos;&apos;&apos;				Item B &gt; Item B.1
+&apos;&apos;&apos;						 Item B.2
+&apos;&apos;&apos;				------ (line separator)
+&apos;&apos;&apos;				Item C &gt; Item C.1 &gt; Item C.1.1
+&apos;&apos;&apos;									Item C.1.2
+&apos;&apos;&apos;				Item C &gt; Item C.2 &gt; Item C.2.1
+&apos;&apos;&apos;									Item C.2.2
+&apos;&apos;&apos;			Next code will create the menu/submenu hierarchy
+&apos;&apos;&apos;				With myMenu
+&apos;&apos;&apos;					.AddItem(&quot;Item A&quot;)
+&apos;&apos;&apos;					.AddItem(&quot;Item B&gt;Item B.1&quot;)
+&apos;&apos;&apos;					.AddItem(&quot;Item B&gt;Item B.2&quot;)
+&apos;&apos;&apos;					.AddItem(&quot;---&quot;)
+&apos;&apos;&apos;					.AddItem(&quot;Item C&gt;Item C.1&gt;Item C.1.1&quot;)
+&apos;&apos;&apos;					.AddItem(&quot;Item C&gt;Item C.1&gt;Item C.1.2&quot;)
+&apos;&apos;&apos;					.AddItem(&quot;Item C&gt;Item C.2&gt;Item C.2.1&quot;)
+&apos;&apos;&apos;					.AddItem(&quot;Item C&gt;Item C.2&gt;Item C.2.2&quot;)
+&apos;&apos;&apos;				End With
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Example 1: simulate a subset of the View menu in the menubar of the Basic IDE
+&apos;&apos;&apos;			Sub OpenMenu(Optional poMouseEvent As Object)
+&apos;&apos;&apos;			Dim myMenu As Object, vChoice As Variant
+&apos;&apos;&apos;				Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, poMouseEvent)
+&apos;&apos;&apos;				With myMenu
+&apos;&apos;&apos;					.AddCheckBox(&quot;View&gt;Toolbars&gt;Dialog&quot;)
+&apos;&apos;&apos;					.AddCheckBox(&quot;View&gt;Toolbars&gt;Find&quot;, Status := True)
+&apos;&apos;&apos;					.AddCheckBox(&quot;View&gt;Status Bar&quot;, Status := True)
+&apos;&apos;&apos;					.AddItem(&quot;View&gt;Full Screen&quot;, Name := &quot;FULLSCREEN&quot;)
+&apos;&apos;&apos;					vChoice = .Execute(False)	&apos;	When 1st checkbox is clicked, return &quot;Dialog&quot;
+&apos;&apos;&apos;												&apos;	When last item is clicked, return &quot;FULLSCREEN&quot;
+&apos;&apos;&apos;					.Dispose()
+&apos;&apos;&apos;				End With
+&apos;&apos;&apos;			
+&apos;&apos;&apos;		Example 2: jump to another sheet of a Calc document
+&apos;&apos;&apos;			&apos;	Link next Sub to the &quot;Mouse button released&quot; event of a form control of a Calc sheet
+&apos;&apos;&apos;			Sub JumpToSheet(Optional poEvent As Object)
+&apos;&apos;&apos;			Dim myMenu As Object, sChoice As String, myDoc As Object, vSheets As Variant, sSheet As String
+&apos;&apos;&apos;				Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, poEvent)
+&apos;&apos;&apos;				Set myDoc = CreateScriptService(&quot;Calc&quot;, ThisComponent)
+&apos;&apos;&apos;				vSheets = myDoc.Sheets
+&apos;&apos;&apos;				For Each sSheet In vSheets
+&apos;&apos;&apos;					myMenu.AddItem(sSheet)
+&apos;&apos;&apos;				Next sSheet
+&apos;&apos;&apos;				sChoice = myMenu.Execute(False)		&apos;	Return sheet name, not sheet index
+&apos;&apos;&apos;				If sChoice &lt;&gt; &quot;&quot; Then myDoc.Activate(sChoice)
+&apos;&apos;&apos;				myDoc.Dispose()
+&apos;&apos;&apos;				myMenu.Dispose()
+&apos;&apos;&apos;			End Sub
+&apos;&apos;&apos;
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_popupmenu.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]				As Object
+Private ObjectType			As String		&apos; Must be POPUPMENU
+Private ServiceName 		As String
+
+
+&apos;	Menu descriptors
+Private MenuTree			As Variant		&apos; Dictionary treename - XPopupMenu pair
+Private MenuIdentification	As Variant		&apos; Dictionary item ID - item name
+Private SubmenuChar			As String		&apos; Delimiter in menu trees
+Private MenuRoot			As Object		&apos; stardiv.vcl.PopupMenu or com.sun.star.awt.XPopupMenu
+Private LastItem			As Integer		&apos; Every item has its entry number. This is the last one
+Private Rectangle			As Object		&apos; com.sun.star.awt.Rectangle
+Private PeerWindow			As Object		&apos; com.sun.star.awt.XWindowPeer
+Private MenubarMenu			As Boolean		&apos; When True, the actual popup menu depends on a menubar item
+
+REM ============================================================ MODULE CONSTANTS
+
+Private Const _UnderlineAccessKeyChar	= &quot;~&quot;
+Private Const _DefaultSubmenuChar		= &quot;&gt;&quot;
+Private Const _SeparatorChar			= &quot;---&quot;
+Private Const _IconsDirectory			= &quot;private:graphicrepository/&quot;	&apos;	Refers to &lt;install folder&gt;/share/config/images_*.zip.
+Private Const cstUnoPrefix				= &quot;.uno:&quot;
+Private Const cstNormal					= &quot;N&quot;
+Private Const cstCheck					= &quot;C&quot;
+Private Const cstRadio					= &quot;R&quot;
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	ObjectType = &quot;POPUPMENU&quot;
+	ServiceName = &quot;SFWidgets.PopupMenu&quot;
+	Set MenuTree = Nothing
+	Set MenuIdentification = Nothing
+	SubmenuChar = _DefaultSubmenuChar
+	Set MenuRoot = Nothing
+	LastItem = 0
+	Set Rectangle = Nothing
+	Set PeerWindow = Nothing
+	MenubarMenu = False
+End Sub		&apos;	SFWidgets.SF_PopupMenu Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFWidgets.SF_PopupMenu Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	If Not IsNull(MenuTree) Then Set MenuTree = MenuTree.Dispose()
+	If Not IsNull(MenuIdentification) Then Set MenuIdentification = MenuIdentification.Dispose()
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFWidgets.SF_PopupMenu Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get ShortcutCharacter() As Variant
+&apos;&apos;&apos;	The ShortcutCharacter property specifies character preceding the underline access key
+	ShortcutCharacter = _PropertyGet(&quot;ShortcutCharacter&quot;)
+End Property	&apos;	SFWidgets.SF_PopupMenu.ShortcutCharacter (get)
+
+REM -----------------------------------------------------------------------------
+Property Get SubmenuCharacter() As Variant
+&apos;&apos;&apos;	The SubmenuCharacter property specifies the character string indicating
+&apos;&apos;&apos;	a sub-menu in a popup menu item
+	SubmenuCharacter = _PropertyGet(&quot;SubmenuCharacter&quot;)
+End Property	&apos;	SFWidgets.SF_PopupMenu.SubmenuCharacter (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function AddCheckBox(Optional ByVal MenuItem As Variant _
+								, Optional ByVal Name As Variant _
+								, Optional ByVal Status As Variant _
+								, Optional ByVal Icon As Variant _
+								, Optional ByVal Tooltip As Variant _
+								) As Integer
+&apos;&apos;&apos;	Insert in the popup menu a new entry
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuItem: The text to be displayed in the menu entry.
+&apos;&apos;&apos;			It determines also the hierarchy of the popup menu
+&apos;&apos;&apos;			It is made up of all the components (separated by the &quot;SubmenuCharacter&quot;) of the menu branch
+&apos;&apos;&apos;				Example:	A&gt;B&gt;C		means &quot;C&quot; is a new entry in submenu &quot;A =&gt; B =&gt;&quot;
+&apos;&apos;&apos;			If the last component is equal to the &quot;SeparatorCharacter&quot;, a line separator is inserted
+&apos;&apos;&apos;		Name: The name to be returned by the Execute() method if this item is clicked
+&apos;&apos;&apos;			Default = the last component of MenuItem
+&apos;&apos;&apos;		Status: when True the item is selected. Default = False
+&apos;&apos;&apos;		Icon: The path name of the icon to be displayed, without leading path separator
+&apos;&apos;&apos;			The icons are stored in one of the &lt;install folder&gt;/share/config/images_*.zip files
+&apos;&apos;&apos;				The exact file depends on the user options about the current icon set
+&apos;&apos;&apos;			Use the (normal) slash &quot;/&quot; as path separator
+&apos;&apos;&apos;			Example: &quot;cmd/sc_cut.png&quot;
+&apos;&apos;&apos;		Tooltip: The help text to be displayed as a tooltip
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The numeric identification of the newly inserted item
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Dim myMenu As Object, iId As Integer
+&apos;&apos;&apos;			Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, poEvent)
+&apos;&apos;&apos;			iId = myMenu.AddCheckBox(&quot;Menu top&gt;Checkbox item&quot;, Status := True)
+
+Dim iId As Integer				&apos;	Return value
+
+Const cstThisSub = &quot;SFWidgets.PopupMenu.AddCheckBox&quot;
+Const cstSubArgs = &quot;MenuItem, [Name=&quot;&quot;&quot;&quot;], [Status=False], [Icon=&quot;&quot;&quot;&quot;], [Tooltip=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	iId = 0
+
+Check:
+	If IsMissing(Name) Or IsEmpty(Name) Then Name = &quot;&quot;
+	If IsMissing(Status) Or IsEmpty(Status) Then Status = False
+	If IsMissing(Icon) Or IsEmpty(Icon) Then Icon = &quot;&quot;
+	If IsMissing(Tooltip) Or IsEmpty(Tooltip) Then Tooltip = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(MenuItem, &quot;MenuItem&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Name, &quot;Name&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Status, &quot;Status&quot;, ScriptForge.V_BOOLEAN) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Icon, &quot;Icon&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Tooltip, &quot;Tooltip&quot;, V_STRING) Then GoTo Catch
+	End If
+
+Try:
+	iId = _AddItem(MenuItem, Name, cstCheck, Status, Icon, Tooltip)
+
+Finally:
+	AddCheckBox = iId
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu.AddCheckBox
+
+REM -----------------------------------------------------------------------------
+Public Function AddItem(Optional ByVal MenuItem As Variant _
+								, Optional ByVal Name As Variant _
+								, Optional ByVal Icon As Variant _
+								, Optional ByVal Tooltip As Variant _
+								) As Integer
+&apos;&apos;&apos;	Insert in the popup menu a new entry
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuItem: The text to be displayed in the menu entry.
+&apos;&apos;&apos;			It determines also the hierarchy of the popup menu
+&apos;&apos;&apos;			It is made up of all the components (separated by the &quot;SubmenuCharacter&quot;) of the menu branch
+&apos;&apos;&apos;				Example:	A&gt;B&gt;C		means &quot;C&quot; is a new entry in submenu &quot;A =&gt; B =&gt;&quot;
+&apos;&apos;&apos;			If the last component is equal to &quot;---&quot;, a line separator is inserted and all other arguments are ignored
+&apos;&apos;&apos;		Name: The name to be returned by the Execute() method if this item is clicked
+&apos;&apos;&apos;			Default = the last component of MenuItem
+&apos;&apos;&apos;		Icon: The path name of the icon to be displayed, without leading path separator
+&apos;&apos;&apos;			The icons are stored in one of the &lt;install folder&gt;/share/config/images_*.zip files
+&apos;&apos;&apos;				The exact file depends on the user options about the current icon set
+&apos;&apos;&apos;			Use the (normal) slash &quot;/&quot; as path separator
+&apos;&apos;&apos;			Example: &quot;cmd/sc_cut.png&quot;
+&apos;&apos;&apos;		Tooltip: The help text to be displayed as a tooltip
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The numeric identification of the newly inserted item
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Dim myMenu As Object, iId As Integer
+&apos;&apos;&apos;			Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, poEvent)
+&apos;&apos;&apos;			iId = myMenu.AddItem(&quot;Menu top&gt;Normal item&quot;, Icon := &quot;cmd.sc_cut.png&quot;)
+
+Dim iId As Integer				&apos;	Return value
+
+Const cstThisSub = &quot;SFWidgets.PopupMenu.AddItem&quot;
+Const cstSubArgs = &quot;MenuItem, [Name=&quot;&quot;&quot;&quot;], [Icon=&quot;&quot;&quot;&quot;], [Tooltip=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	iId = 0
+
+Check:
+	If IsMissing(Name) Or IsEmpty(Name) Then Name = &quot;&quot;
+	If IsMissing(Icon) Or IsEmpty(Icon) Then Icon = &quot;&quot;
+	If IsMissing(Tooltip) Or IsEmpty(Tooltip) Then Tooltip = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(MenuItem, &quot;MenuItem&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Name, &quot;Name&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Icon, &quot;Icon&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Tooltip, &quot;Tooltip&quot;, V_STRING) Then GoTo Catch
+	End If
+
+Try:
+	iId = _AddItem(MenuItem, Name, cstNormal, False, Icon, Tooltip)
+
+Finally:
+	AddItem = iId
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu.AddItem
+
+REM -----------------------------------------------------------------------------
+Public Function AddRadioButton(Optional ByVal MenuItem As Variant _
+								, Optional ByVal Name As Variant _
+								, Optional ByVal Status As Variant _
+								, Optional ByVal Icon As Variant _
+								, Optional ByVal Tooltip As Variant _
+								) As Integer
+&apos;&apos;&apos;	Insert in the popup menu a new entry as a radio button
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuItem: The text to be displayed in the menu entry.
+&apos;&apos;&apos;			It determines also the hieAddCheckBoxrarchy of the popup menu
+&apos;&apos;&apos;			It is made up of all the components (separated by the &quot;SubmenuCharacter&quot;) of the menu branch
+&apos;&apos;&apos;				Example:	A&gt;B&gt;C		means &quot;C&quot; is a new entry in submenu &quot;A =&gt; B =&gt;&quot;
+&apos;&apos;&apos;			If the last component is equal to the &quot;SeparatorCharacter&quot;, a line separator is inserted
+&apos;&apos;&apos;		Name: The name to be returned by the Execute() method if this item is clicked
+&apos;&apos;&apos;			Default = the last component of MenuItem
+&apos;&apos;&apos;		Status: when True the item is selected. Default = False
+&apos;&apos;&apos;		Icon: The path name of the icon to be displayed, without leading path separator
+&apos;&apos;&apos;			The icons are stored in one of the &lt;install folder&gt;/share/config/images_*.zip files
+&apos;&apos;&apos;				The exact file depends on the user options about the current icon set
+&apos;&apos;&apos;			Use the (normal) slash &quot;/&quot; as path separator
+&apos;&apos;&apos;			Example: &quot;cmd/sc_cut.png&quot;
+&apos;&apos;&apos;		Tooltip: The help text to be displayed as a tooltip
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The numeric identification of the newly inserted item
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Dim myMenu As Object, iId As Integer
+&apos;&apos;&apos;			Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, poEvent)
+&apos;&apos;&apos;			iId = myMenu.AddRadioButton(&quot;Menu top&gt;Radio item&quot;, Status := True)
+
+Dim iId As Integer				&apos;	Return value
+
+Const cstThisSub = &quot;SFWidgets.PopupMenu.AddRadioButton&quot;
+Const cstSubArgs = &quot;MenuItem, [Name=&quot;&quot;&quot;&quot;], [Status=False], [Icon=&quot;&quot;&quot;&quot;], [Tooltip=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	iId = 0
+
+Check:
+	If IsMissing(Name) Or IsEmpty(Name) Then Name = &quot;&quot;
+	If IsMissing(Status) Or IsEmpty(Status) Then Status = False
+	If IsMissing(Icon) Or IsEmpty(Icon) Then Icon = &quot;&quot;
+	If IsMissing(Tooltip) Or IsEmpty(Tooltip) Then Tooltip = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(MenuItem, &quot;MenuItem&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Name, &quot;Name&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Status, &quot;Status&quot;, ScriptForge.V_BOOLEAN) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Icon, &quot;Icon&quot;, V_STRING) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Tooltip, &quot;Tooltip&quot;, V_STRING) Then GoTo Catch
+	End If
+
+Try:
+	iId = _AddItem(MenuItem, Name, cstRadio, Status, Icon, Tooltip)
+
+Finally:
+	AddRadioButton = iId
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu.AddRadioButton
+
+REM -----------------------------------------------------------------------------
+Public Function Execute(Optional ByVal ReturnId As Variant) As Variant
+&apos;&apos;&apos;	Display the popup menu and return the menu item clicked by the user
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		ReturnId: When True (default), return the unique ID of the clicked item, otherwise return its name
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The numeric identification of clicked item or its name
+&apos;&apos;&apos;		The returned value is 0 or &quot;&quot; (depending on ReturnId) when the menu is cancelled
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Sub OpenMenu(Optional poMouseEvent As Object)
+&apos;&apos;&apos;		Dim myMenu As Object, vChoice As Variant
+&apos;&apos;&apos;		Set myMenu = CreateScriptService(&quot;SFWidgets.PopupMenu&quot;, poMouseEvent)
+&apos;&apos;&apos;		With myMenu
+&apos;&apos;&apos;			.AddCheckBox(&quot;View&gt;Toolbars&gt;Dialog&quot;)
+&apos;&apos;&apos;			.AddCheckBox(&quot;View&gt;Toolbars&gt;Find&quot;, STatus := True)
+&apos;&apos;&apos;			.AddCheckBox(&quot;View&gt;Status Bar&quot;, STatus := True)
+&apos;&apos;&apos;			.AddItem(&quot;View&gt;Full Screen&quot;, Name := &quot;FULLSCREEN&quot;)
+&apos;&apos;&apos;			vChoice = .Execute(False)	&apos;	When 1st checkbox is clicked, return &quot;Dialog&quot;
+&apos;&apos;&apos;										&apos;	When last item is clicked, return &quot;FULLSCREEN&quot;
+&apos;&apos;&apos;		End With
+
+Dim vMenuItem As Variant				&apos;	Return value
+
+Const cstThisSub = &quot;SFWidgets.PopupMenu.Execute&quot;
+Const cstSubArgs = &quot;[ReturnId=True]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vMenuItem = 0
+
+Check:
+	If IsMissing(ReturnId) Or IsEmpty(ReturnId) Then ReturnId = True
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(ReturnId, &quot;ReturnId&quot;, ScriptForge.V_BOOLEAN) Then GoTo Catch
+	End If
+	If Not ReturnId Then vMenuItem = &quot;&quot;
+
+Try:
+	vMenuItem = MenuRoot.Execute(PeerWindow, Rectangle, com.sun.star.awt.PopupMenuDirection.EXECUTE_DEFAULT)
+	If Not ReturnId Then vMenuItem = MenuIdentification.Item(CStr(vMenuItem))
+
+Finally:
+	Execute = vMenuItem
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu.Execute
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;		If the property does not exist, returns Null
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		see the exceptions of the individual properties
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		myModel.GetProperty(&quot;MyProperty&quot;)
+
+Const cstThisSub = &quot;SFWidgets.PopupMenu.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Model service as an array
+
+	Methods = Array( _
+					&quot;AddCheckBox&quot; _
+					, &quot;AddItem&quot; _
+					, &quot;AddRadioButton&quot; _
+					, &quot;Execute&quot; _
+					)
+
+End Function	&apos;	SFWidgets.SF_PopupMenu.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Timer a.AddItem(&quot;B&gt;B1&quot;)class as an array
+
+	Properties = Array( _
+					&quot;ShortcutCharacter&quot; _
+					, &quot;SubmenuCharacter&quot; _
+					)
+
+End Function	&apos;	SFWidgets.SF_PopupMenu.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFWidgets.PopupMenu.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	SetProperty = _PropertySet(PropertyName, Value)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu.SetProperty
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Function _AddItem(ByVal MenuItem As String _
+								, ByVal Name As String _
+								, ByVal ItemType As String _
+								, ByVal Status As Boolean _
+								, ByVal Icon As String _
+								, ByVal Tooltip As String _
+								, Optional ByVal Command As String _
+								) As Integer
+&apos;&apos;&apos;	Insert in the popup menu a new entry
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuItem: The text to be displayed in the menu entry.
+&apos;&apos;&apos;			It determines also the hierarchy of the popup menu
+&apos;&apos;&apos;			It is made up of all the components (separated by the &quot;SubmenuCharacter&quot;) of the menu branch
+&apos;&apos;&apos;				Example:	A&gt;B&gt;C		means &quot;C&quot; is a new entry in submenu &quot;A =&gt; B =&gt;&quot;
+&apos;&apos;&apos;			If the last component is equal to the &quot;SeparatorCharacter&quot;, a line separator is inserted
+&apos;&apos;&apos;		Name: The name to be returned by the Execute() method if this item is clicked
+&apos;&apos;&apos;			Default = the last component of MenuItem
+&apos;&apos;&apos;		ItemType: &quot;N&quot;(ormal, &quot;C&quot;(heck) or &quot;R&quot;(adio)
+&apos;&apos;&apos;		Status: when True the item is selected
+&apos;&apos;&apos;		Icon: The path name of the icon to be displayed, without leading path separator
+&apos;&apos;&apos;			The icons are stored in one of the &lt;install folder&gt;/share/config/images_*.zip files
+&apos;&apos;&apos;				The exact file depends on the user options about the current icon set
+&apos;&apos;&apos;			Use the (normal) slash &quot;/&quot; as path separator
+&apos;&apos;&apos;			Example: &quot;cmd/sc_cut.png&quot;
+&apos;&apos;&apos;		Tooltip: The help text to be displayed as a tooltip
+&apos;&apos;&apos;		Command: only for menubar menus
+&apos;&apos;&apos;			Either a uo command like &quot;.uno:About&quot;
+&apos;&apos;&apos;			or a script to be run: script URI ::: string argument to be passed to the script
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The numeric identification of the newly inserted item
+
+Dim iId As Integer				&apos;	Return value
+Dim vSplit As Variant			&apos;	Split menu item
+Dim sMenu As String				&apos;	Submenu where to attach the new item, as a string
+Dim oMenu As Object				&apos;	Submenu where to attach the new item, as an object
+Dim sName As String				&apos;	The text displayed in the menu box
+Dim oImage As Object			&apos;	com.sun.star.graphic.XGraphic
+Dim sCommand As String			&apos;	Alias of Command completed with arguments
+Const cstCommandSep = &quot;,&quot;
+
+	On Local Error GoTo Catch
+	iId = 0
+	If IsMissing(Command) Then Command = &quot;&quot;
+
+Try:
+	&apos;	Run through the upper menu tree
+	vSplit = _SplitMenuItem(MenuItem)
+
+	&apos;	Create and determine the menu to which to attach the new item
+	sMenu = vSplit(0)
+	Set oMenu = _GetPopupMenu(sMenu)	&apos;	Run through the upper menu tree and retain the last branch
+
+	&apos;	Insert the new item
+	LastItem = LastItem + 1
+	sName = vSplit(1)
+	
+	With oMenu
+		If sName = _SeparatorChar Then
+			.insertSeparator(-1)
+		Else
+			Select Case ItemType
+				Case cstNormal
+					.insertItem(LastItem, sName, 0, -1)
+				Case cstCheck
+					.insertItem(LastItem, sName, com.sun.star.awt.MenuItemStyle.CHECKABLE + com.sun.star.awt.MenuItemStyle.AUTOCHECK, -1)
+					.checkItem(LastItem, Status)
+				Case cstRadio
+					.insertItem(LastItem, sName, com.sun.star.awt.MenuItemStyle.RADIOCHECK + com.sun.star.awt.MenuItemStyle.AUTOCHECK, -1)
+					.checkItem(LastItem, Status)
+			End Select
+
+			&apos;	Store the ID - Name relation
+			If Len(Name) = 0 Then Name = Replace(sName, _UnderlineAccessKeyChar, &quot;&quot;)
+			MenuIdentification.Add(CStr(LastItem), Name)
+
+			&apos;	Add the icon when relevant
+			If Len(Icon) &gt; 0 Then
+				Set oImage = _GetImageFromUrl(_IconsDirectory &amp; Icon)
+				If Not IsNull(oImage) Then .setItemImage(LastItem, oImage, False)
+			End If
+
+			&apos;	Add the tooltip when relevant
+			If Len(Tooltip) &gt; 0 Then .setTipHelpText(LastItem, Tooltip)
+
+			&apos;	Add the command: UNO command or script to run - menubar menus only
+			If Len(Command) &gt; 0 Then
+				If Left(Command, Len(cstUnoPrefix)) = cstUnoPrefix Then
+					sCommand = Command
+				Else
+					sCommand = Command &amp; cstCommandSep &amp; Name &amp; cstCommandSep &amp; CStr(LastItem)
+				End If
+				.setCommand(LastItem, sCommand)
+			End If
+		End If
+	End With
+
+	iId = LastItem
+
+Finally:
+	_AddItem = iId
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu._AddItem
+
+REM -----------------------------------------------------------------------------
+Private Function _GetImageFromURL(ByVal psUrl as String) As Object
+&apos;&apos;&apos;	Returns a com.sun.star.graphic.XGraphic instance based on the given URL
+&apos;&apos;&apos;	The returned object is intended to be inserted as an icon in the popup menu
+&apos;&apos;&apos;	Derived from &quot;Useful Macro Information For OpenOffice&quot; By Andrew Pitonyak
+
+Dim vMediaProperties As Variant		&apos;	Array of com.sun.star.beans.PropertyValue
+Dim oGraphicProvider As Object		&apos;	com.sun.star.graphic.GraphicProvider
+Dim oImage As Object				&apos;	Return value
+
+	On Local Error GoTo Catch		&apos;	Ignore errors
+	Set oImage = Nothing
+
+Try:
+	&apos;	Create graphic provider instance to load images from files.
+	Set oGraphicProvider = CreateUnoService(&quot;com.sun.star.graphic.GraphicProvider&quot;)
+
+	&apos;	Set the URL property so graphic provider is able to load the image
+	Set vMediaProperties = Array(ScriptForge.SF_Utils._MakePropertyValue(&quot;URL&quot;, psURL))
+
+	&apos;	Retrieve the com.sun.star.graphic.XGraphic instance
+	Set oImage = oGraphicProvider.queryGraphic(vMediaProperties)
+
+Finally:
+	Set _GetImageFromUrl = oImage
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu._GetImageFromUrl
+
+REM -----------------------------------------------------------------------------
+Private Function _GetPopupMenu(ByVal psSubmenu As String) As Object
+&apos;&apos;&apos;	Get the com.sun.star.awt.XPopupMenu object corresponding with the string in argument
+&apos;&apos;&apos;	If the menu exists, it is found in the MenuTree dictionary
+&apos;&apos;&apos;	If it does not exist, it is created recursively.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psSubmenu: a string like &quot;A&gt;B&quot;
+&apos;&apos;&apos;	Returns
+&apos;&apos;&apos;		A com.sun.star.awt.XpopupMenu object
+&apos;&apos;&apos;	Example
+&apos;&apos;&apos;		If psSubmenu = &quot;A&gt;B&gt;C&gt;D&quot;, and only the root menu exists,
+&apos;&apos;&apos;			- &quot;A&quot;, &quot;A&gt;B&quot;, &quot;A&gt;B&gt;C&quot;, &quot;A&gt;B&gt;C&gt;D&quot; should be created
+&apos;&apos;&apos;			- the popup menu corresponding with &quot;A&gt;B&gt;C&gt;D&quot; should be returned
+
+Dim oPopup As Object				&apos;	Return value
+Dim vSplit As Variant				&apos;	An array as returned by _SplitMenuItem()
+Dim sMenu As String					&apos;	The left part of psSubmenu
+Dim oMenu As Object					&apos;	com.sun.star.awt.XpopupMenu
+Dim oLastMenu As Object				&apos;	com.sun.star.awt.XpopupMenu
+Dim i As Long
+
+	Set oPopup = Nothing
+	Set oLastMenu = MenuRoot
+Try:
+	If Len(psSubmenu) = 0 Then					&apos;	Menu starts at the root
+		Set oPopup = MenuRoot
+	ElseIf MenuTree.Exists(psSubmenu) Then		&apos;	Shortcut: if the submenu exists, get it directly
+		Set oPopup = MenuTree.Item(psSubmenu)
+	Else										&apos;	Build the tree
+		vSplit = Split(psSubmenu, SubmenuChar)
+		&apos;	Search the successive submenus in the MenuTree dictionary, If not found, create a new entry
+		For i = 0 To UBound(vSplit)
+			sMenu = Join(ScriptForge.SF_Array.Slice(vSplit, 0, i), SubmenuChar)
+			If MenuTree.Exists(sMenu) Then
+				Set oLastMenu = MenuTree.Item(sMenu)
+			Else
+				&apos;	Insert the new menu tree item
+				LastItem = LastItem + 1
+				oLastMenu.insertItem(LastItem, vSplit(i), 0, -1)
+				Set oMenu = CreateUnoService(&quot;stardiv.vcl.PopupMenu&quot;)
+				If MenubarMenu Then SFWidgets.SF_MenuListener.SetMenuListener(oMenu)
+				MenuTree.Add(sMenu, oMenu)
+				oLastMenu.setPopupMenu(LastItem, oMenu)
+				Set oLastMenu = oMenu
+			End If
+		Next i
+		Set oPopup = oLastMenu
+	End If
+
+Finally:
+	Set _GetPopupMenu = oPopup
+	Exit Function
+End Function	&apos;	SFWidgets.SF_PopupMenu._GetPopupMenu
+
+REM -----------------------------------------------------------------------------
+Public Sub _Initialize(ByRef poPeer As Object _
+						, plXPos As Long _
+						, plYPos As Long _
+						, psSubmenuChar As String _
+						)
+&apos;&apos;&apos;	Complete the object creation process:
+&apos;&apos;&apos;		- Initialize the dictionaries
+&apos;&apos;&apos;		- initialize the root popup menu
+&apos;&apos;&apos;		- initialize the display area
+&apos;&apos;&apos;		- store the arguments for later use
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		poPeer: a peer window
+&apos;&apos;&apos;		plXPos, plYPos: the coordinates
+
+Try:
+	&apos;	Initialize the dictionaries
+	With ScriptForge.SF_Services
+		Set MenuTree = .CreateScriptService(&quot;Dictionary&quot;)
+		Set MenuIdentification = .CreateScriptService(&quot;Dictionary&quot;)
+	End With
+
+	&apos;	Initialize the root of the menu tree
+	Set MenuRoot = CreateUnoService(&quot;stardiv.vcl.PopupMenu&quot;)
+
+	&apos;	Setup the display area
+	Set Rectangle = New com.sun.star.awt.Rectangle
+	Rectangle.X = plXPos
+	Rectangle.Y = plYPos
+
+	&apos;	Keep the targeted window
+	Set PeerWindow = poPeer
+
+	&apos;	Store the submenu character
+	If Len(psSubmenuChar) &gt; 0 Then SubmenuChar = psSubmenuChar
+
+Finally:
+	Exit Sub
+End Sub			&apos;	SFWidgets.SF_PopupMenu._Initialize
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim vGet As Variant							&apos;	Return value
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SFWidgets.PopupMenu.get&quot; &amp; psProperty
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	_PropertyGet = Null
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;ShortcutCharacter&quot;)
+			_PropertyGet = _UnderlineAccessKeyChar
+		Case UCase(&quot;SubmenuCharacter&quot;)
+			_PropertyGet = SubmenuChar
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_PopupMenu._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the SF_PopupMenu instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[PopupMenu]: Name, Type (dialogname)
+	_Repr = &quot;[PopupMenu]: &quot; &amp; SF_String.Represent(MenuTree.Keys()) &amp; &quot;, &quot; &amp; SF_String.Represent(MenuIdentification.Items())
+
+End Function	&apos;	SFWidgets.SF_PopupMenu._Repr
+
+REM -----------------------------------------------------------------------------
+Private Function _SplitMenuItem(ByVal psMenuItem As String ) As Variant
+&apos;&apos;&apos;	Split a menu item given as a string and delimited by the submenu character
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psMenuItem: a string like &quot;A&gt;B&gt;C&quot;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		An array:	[0] = &quot;A&gt;B&quot;
+&apos;&apos;&apos;					[1] = &quot;C&quot;
+
+Dim vReturn(0 To 1)	As String			&apos;	Return value
+Dim vMenus()		As Variant			&apos;	Array of menus
+
+Try:
+	vMenus = Split(psMenuItem, SubmenuChar)
+	vReturn(1) = vMenus(UBound(vMenus))
+	vReturn(0) = Left(psMenuItem, Len(psMenuItem) - Iif(UBound(vMenus) &gt; 0, Len(SubmenuChar), 0) - Len(vReturn(1)))
+
+Finally:
+	_SplitMenuItem = vReturn
+End Function	&apos;	SFWidgets.SF_PopupMenu._SplitMenuItem
+
+REM ============================================ END OF SFWIDGETS.SF_POPUPMENU
+</script:module>

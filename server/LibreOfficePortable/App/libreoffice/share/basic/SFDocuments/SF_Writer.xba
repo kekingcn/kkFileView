@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Writer" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Writer
+&apos;&apos;&apos;	=========
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SFDocuments library gathers a number of methods and properties making easy
+&apos;&apos;&apos;		managing and manipulating LibreOffice documents
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Some methods are generic for all types of documents: they are combined in the SF_Document module.
+&apos;&apos;&apos;		Specific properties and methods are implemented in the concerned subclass(es) SF_Calc, SF_Writer, SF_Base, ...
+&apos;&apos;&apos;
+&apos;&apos;&apos;		To workaround the absence of class inheritance in LibreOffice Basic, some redundancy is necessary
+&apos;&apos;&apos;		Each subclass MUST implement also the generic methods and properties, even if they only call
+&apos;&apos;&apos;		the parent methods and properties.
+&apos;&apos;&apos;		They should also duplicate some generic private members as a subset of their own set of members
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SF_Writer module is focused on :
+&apos;&apos;&apos;			TBD
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The current module is closely related to the &quot;UI&quot; service of the ScriptForge library
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation examples:
+&apos;&apos;&apos;		1) From the UI service
+&apos;&apos;&apos;			Dim ui As Object, oDoc As Object
+&apos;&apos;&apos;			Set ui = CreateScriptService(&quot;UI&quot;)
+&apos;&apos;&apos;			Set oDoc = ui.CreateDocument(&quot;Writer&quot;, ...)
+&apos;&apos;&apos;				&apos; or Set oDoc = ui.OpenDocument(&quot;C:\Me\MyFile.odt&quot;)
+&apos;&apos;&apos;		2) Directly if the document is already opened
+&apos;&apos;&apos;			Dim oDoc As Object
+&apos;&apos;&apos;			Set oDoc = CreateScriptService(&quot;SFDocuments.Writer&quot;, &quot;Untitled 1&quot;)	&apos;	Default = ActiveWindow
+&apos;&apos;&apos;				&apos; or Set oDoc = CreateScriptService(&quot;SFDocuments.Writer&quot;, &quot;Untitled 1&quot;)	&apos;	Untitled 1 is presumed a Writer document
+&apos;&apos;&apos;			&apos; The substring &quot;SFDocuments.&quot; in the service name is optional
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Definitions: 
+&apos;&apos;&apos;			TBD
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/SF_Writer.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const WRITERFORMNOTFOUNDERROR	=	&quot;WRITERFORMNOTFOUNDERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]					As Object
+Private [_Parent]				As Object
+Private [_Super]				As Object		&apos;	Document superclass, which the current instance is a subclass of
+Private ObjectType				As String		&apos;	Must be WRITER
+Private ServiceName				As String
+
+&apos;	Window component
+Private _Component				As Object		&apos;	com.sun.star.lang.XComponent
+
+REM ============================================================ MODULE CONSTANTS
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	Set [_Super] = Nothing
+	ObjectType = &quot;WRITER&quot;
+	ServiceName = &quot;SFDocuments.Writer&quot;
+	Set _Component = Nothing
+End Sub		&apos;	SFDocuments.SF_Writer Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDocuments.SF_Writer Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	If Not IsNull([_Super]) Then Set [_Super] = [_Super].Dispose()
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDocuments.SF_Writer Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Forms(Optional ByVal Form As Variant) As Variant
+&apos;&apos;&apos;	Return either
+&apos;&apos;&apos;		- the list of the Forms contained in the form document
+&apos;&apos;&apos;		- a SFDocuments.Form object based on its name or its index
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Form: a form stored in the document given by its name or its index
+&apos;&apos;&apos;			When absent, the list of available forms is returned
+&apos;&apos;&apos;			To get the first (unique ?) form stored in the form document, set Form = 0
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		WRITERFORMNOTFOUNDERROR		Form not found
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-based array of strings if Form is absent
+&apos;&apos;&apos;		An instance of the SF_Form class if Form exists
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			Dim myForm As Object, myList As Variant
+&apos;&apos;&apos;				myList = oDoc.Forms()
+&apos;&apos;&apos;				Set myForm = oDoc.Forms(&quot;myForm&quot;)
+
+Dim oForm As Object					&apos;	The new Form class instance
+Dim oMainForm As Object				&apos;	com.sun.star.comp.sdb.Content
+Dim oXForm As Object				&apos;	com.sun.star.form.XForm
+Dim vFormNames As Variant			&apos;	Array of form names
+Dim oForms As Object				&apos;	Forms collection
+Const cstDrawPage = 0				&apos;	Only 1 drawpage in a Writer document
+
+Const cstThisSub = &quot;SFDocuments.Writer.Forms&quot;
+Const cstSubArgs = &quot;[Form=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(Form) Or IsEmpty(Form) Then Form = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Form, &quot;Form&quot;, Array(V_STRING, ScriptForge.V_NUMERIC)) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Start from the document component and go down to forms
+	Set oForms = _Component.DrawPages(cstDrawPage).Forms
+	vFormNames = oForms.getElementNames()
+
+	If Len(Form) = 0 Then	&apos;	Return the list of valid form names
+		Forms = vFormNames
+	Else
+		If VarType(Form) = V_STRING Then	&apos;	Find the form by name
+			If Not ScriptForge.SF_Array.Contains(vFormNames, Form, CaseSensitive := True) Then GoTo CatchNotFound
+			Set oXForm = oForms.getByName(Form)
+		Else								&apos;	Find the form by index
+			If Form &lt; 0 Or Form &gt;= oForms.Count Then GoTo CatchNotFound
+			Set oXForm = oForms.getByIndex(Form)
+		End If
+		&apos;	Create the new Form class instance
+		Set oForm = SF_Register._NewForm(oXForm)
+		With oForm
+			Set .[_Parent] = [Me]
+			._FormType = ISDOCFORM
+			Set ._Component = _Component
+			._Initialize()
+		End With
+		Set Forms = oForm
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchNotFound:
+	ScriptForge.SF_Exception.RaiseFatal(WRITERFORMNOTFOUNDERROR, Form, _FileIdent())
+End Function	&apos;	SFDocuments.SF_Writer.Forms
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ObjectName As Variant _
+								) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		ObjectName: a sheet or range name
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Writer.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If IsMissing(ObjectName) Or IsEmpty(ObjectName) Then ObjectName = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(ObjectName, &quot;ObjectName&quot;, V_STRING) Then GoTo Catch
+	End If
+
+Try:
+	&apos;	Superclass or subclass property ?
+	If ScriptForge.SF_Array.Contains([_Super].Properties(), PropertyName) Then
+		GetProperty = [_Super].GetProperty(PropertyName)
+	ElseIf Len(ObjectName) = 0 Then
+		GetProperty = _PropertyGet(PropertyName)
+	Else
+		GetProperty = _PropertyGet(PropertyName, ObjectName)
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Writer.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Writer service as an array
+
+	Methods = Array( _
+					&quot;Forms&quot; _
+					, &quot;PrintOut&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Writer.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function PrintOut(Optional ByVal Pages As Variant _
+							, Optional ByVal Copies As Variant _
+							, Optional ByVal PrintBackground As Variant _
+							, Optional ByVal PrintBlankPages As Variant _
+							, Optional ByVal PrintEvenPages As Variant _
+							, Optional ByVal PrintOddPages As Variant _
+							, Optional ByVal PrintImages As Variant _
+							) As Boolean
+&apos;&apos;&apos; Send the content of the document to the printer.
+&apos;&apos;&apos;	The printer might be defined previously by default, by the user or by the SetPrinter() method
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Pages: the pages to print as a string, like in the user interface. Example: &quot;1-4;10;15-18&quot;. Default = all pages
+&apos;&apos;&apos;		Copies: the number of copies
+&apos;&apos;&apos;		PrintBackground: print the background image when True (default)
+&apos;&apos;&apos;		PrintBlankPages: when False (default), omit empty pages
+&apos;&apos;&apos;		PrintEvenPages: print the left pages when True (default)
+&apos;&apos;&apos;		PrintOddPages: print the right pages when True (default)
+&apos;&apos;&apos;		PrintImages: print the graphic objects when True (default)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.PrintOut(&quot;1-4;10;15-18&quot;, Copies := 2, PrintImages := False)
+
+Dim bPrint As Boolean				&apos;	Return value
+Dim vPrintOptions As Variant		&apos;	com.sun.star.text.DocumentSettings
+
+Const cstThisSub = &quot;SFDocuments.Writer.PrintOut&quot;
+Const cstSubArgs = &quot;[Pages=&quot;&quot;&quot;&quot;], [Copies=1], [PrintBackground=True], [PrintBlankPages=False], [PrintEvenPages=True]&quot; _
+						&amp; &quot;, [PrintOddPages=True], [PrintImages=True]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bPrint = False
+
+Check:
+	If IsMissing(Pages) Or IsEmpty(Pages) Then Pages = &quot;&quot;
+	If IsMissing(Copies) Or IsEmpty(Copies) Then Copies = 1
+	If IsMissing(PrintBackground) Or IsEmpty(PrintBackground) Then PrintBackground = True
+	If IsMissing(PrintBlankPages) Or IsEmpty(PrintBlankPages) Then PrintBlankPages = False
+	If IsMissing(PrintEvenPages) Or IsEmpty(PrintEvenPages) Then PrintEvenPages = True
+	If IsMissing(PrintOddPages) Or IsEmpty(PrintOddPages) Then PrintOddPages = True
+	If IsMissing(PrintImages) Or IsEmpty(PrintImages) Then PrintImages = True
+	
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Pages, &quot;Pages&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Copies, &quot;Copies&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(PrintBackground, &quot;PrintBackground&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(PrintBlankPages, &quot;PrintBlankPages&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(PrintEvenPages, &quot;PrintEvenPages&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(PrintOddPages, &quot;PrintOddPages&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(PrintImages, &quot;PrintImages&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	vPrintOptions = _Component.createInstance(&quot;com.sun.star.text.DocumentSettings&quot;)
+	With vPrintOptions
+		.PrintPageBackground = PrintBackground
+		.PrintEmptyPages = PrintBlankPages
+		.PrintLeftPages = PrintEvenPages
+		.PrintRightPages = PrintOddPages
+		.PrintGraphics = PrintImages
+		.PrintDrawings = PrintImages
+	End With
+
+	bPrint = [_Super].PrintOut(Pages, Copies, _Component)
+
+Finally:
+	PrintOut = bPrint
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Writer.PrintOut
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Writer class as an array
+
+	Properties = Array( _
+					&quot;CustomProperties&quot; _
+					, &quot;Description&quot; _
+					, &quot;DocumentProperties&quot; _
+					, &quot;DocumentType&quot; _
+					, &quot;ExportFilters&quot; _
+					, &quot;ImportFilters&quot; _
+					, &quot;IsBase&quot; _
+					, &quot;IsCalc&quot; _
+					, &quot;IsDraw&quot; _
+					, &quot;IsImpress&quot; _
+					, &quot;IsMath&quot; _
+					, &quot;IsWriter&quot; _
+					, &quot;Keywords&quot; _
+					, &quot;Readonly&quot; _
+					, &quot;Subject&quot; _
+					, &quot;Title&quot; _
+					, &quot;XComponent&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Writer.Properties
+
+REM -----------------------------------------------------------------------------
+Private Function SetProperty(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if successful
+
+Dim bSet As Boolean							&apos;	Return value
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFDocuments.Writer.set&quot; &amp; psProperty
+	If IsMissing(pvValue) Then pvValue = Empty
+	&apos;ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Validation done in Property Lets
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	bSet = True
+	Select Case UCase(psProperty)
+		Case UCase(&quot;CustomProperties&quot;)
+			CustomProperties = pvValue
+		Case UCase(&quot;Description&quot;)
+			Description = pvValue
+		Case UCase(&quot;Keywords&quot;)
+			Keywords = pvValue
+		Case UCase(&quot;Subject&quot;)
+			Subject = pvValue
+		Case UCase(&quot;Title&quot;)
+			Title = pvValue
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	SetProperty = bSet
+	&apos;ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Writer.SetProperty
+
+REM ======================================================= SUPERCLASS PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get CustomProperties() As Variant
+	CustomProperties = [_Super].GetProperty(&quot;CustomProperties&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.CustomProperties
+
+REM -----------------------------------------------------------------------------
+Property Let CustomProperties(Optional ByVal pvCustomProperties As Variant)
+	[_Super].CustomProperties = pvCustomProperties
+End Property	&apos;	SFDocuments.SF_Writer.CustomProperties
+
+REM -----------------------------------------------------------------------------
+Property Get Description() As Variant
+	Description = [_Super].GetProperty(&quot;Description&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.Description
+
+REM -----------------------------------------------------------------------------
+Property Let Description(Optional ByVal pvDescription As Variant)
+	[_Super].Description = pvDescription
+End Property	&apos;	SFDocuments.SF_Writer.Description
+
+REM -----------------------------------------------------------------------------
+Property Get DocumentProperties() As Variant
+	DocumentProperties = [_Super].GetProperty(&quot;DocumentProperties&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.DocumentProperties
+
+REM -----------------------------------------------------------------------------
+Property Get DocumentType() As String
+	DocumentType = [_Super].GetProperty(&quot;DocumentType&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.DocumentType
+
+REM -----------------------------------------------------------------------------
+Property Get ExportFilters() As Variant
+	ExportFilters = [_Super].GetProperty(&quot;ExportFilters&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.ExportFilters
+
+REM -----------------------------------------------------------------------------
+Property Get ImportFilters() As Variant
+	ImportFilters = [_Super].GetProperty(&quot;ImportFilters&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.ImportFilters
+
+REM -----------------------------------------------------------------------------
+Property Get IsBase() As Boolean
+	IsBase = [_Super].GetProperty(&quot;IsBase&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.IsBase
+
+REM -----------------------------------------------------------------------------
+Property Get IsCalc() As Boolean
+	IsCalc = [_Super].GetProperty(&quot;IsCalc&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.IsCalc
+
+REM -----------------------------------------------------------------------------
+Property Get IsDraw() As Boolean
+	IsDraw = [_Super].GetProperty(&quot;IsDraw&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.IsDraw
+
+REM -----------------------------------------------------------------------------
+Property Get IsImpress() As Boolean
+	IsImpress = [_Super].GetProperty(&quot;IsImpress&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.IsImpress
+
+REM -----------------------------------------------------------------------------
+Property Get IsMath() As Boolean
+	IsMath = [_Super].GetProperty(&quot;IsMath&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.IsMath
+
+REM -----------------------------------------------------------------------------
+Property Get IsWriter() As Boolean
+	IsWriter = [_Super].GetProperty(&quot;IsWriter&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.IsWriter
+
+REM -----------------------------------------------------------------------------
+Property Get Keywords() As Variant
+	Keywords = [_Super].GetProperty(&quot;Keywords&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.Keywords
+
+REM -----------------------------------------------------------------------------
+Property Let Keywords(Optional ByVal pvKeywords As Variant)
+	[_Super].Keywords = pvKeywords
+End Property	&apos;	SFDocuments.SF_Writer.Keywords
+
+REM -----------------------------------------------------------------------------
+Property Get Readonly() As Variant
+	Readonly = [_Super].GetProperty(&quot;Readonly&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.Readonly
+
+REM -----------------------------------------------------------------------------
+Property Get Subject() As Variant
+	Subject = [_Super].GetProperty(&quot;Subject&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.Subject
+
+REM -----------------------------------------------------------------------------
+Property Let Subject(Optional ByVal pvSubject As Variant)
+	[_Super].Subject = pvSubject
+End Property	&apos;	SFDocuments.SF_Writer.Subject
+
+REM -----------------------------------------------------------------------------
+Property Get Title() As Variant
+	Title = [_Super].GetProperty(&quot;Title&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.Title
+
+REM -----------------------------------------------------------------------------
+Property Let Title(Optional ByVal pvTitle As Variant)
+	[_Super].Title = pvTitle
+End Property	&apos;	SFDocuments.SF_Writer.Title
+
+REM -----------------------------------------------------------------------------
+Property Get XComponent() As Variant
+	XComponent = [_Super].GetProperty(&quot;XComponent&quot;)
+End Property	&apos;	SFDocuments.SF_Writer.XComponent
+
+REM ========================================================== SUPERCLASS METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Activate() As Boolean
+	Activate = [_Super].Activate()
+End Function    &apos;   SFDocuments.SF_Writer.Activate
+
+REM -----------------------------------------------------------------------------
+Public Function CloseDocument(Optional ByVal SaveAsk As Variant) As Boolean
+	CloseDocument = [_Super].CloseDocument(SaveAsk)
+End Function   &apos;   SFDocuments.SF_Writer.CloseDocument
+
+REM -----------------------------------------------------------------------------
+Public Function CreateMenu(Optional ByVal MenuHeader As Variant _
+								, Optional ByVal Before As Variant _
+								, Optional ByVal SubmenuChar As Variant _
+								) As Object
+	Set CreateMenu = [_Super].CreateMenu(MenuHeader, Before, SubmenuChar)
+End Function	&apos;	SFDocuments.SF_Writer.CreateMenu
+
+REM -----------------------------------------------------------------------------
+Public Function ExportAsPDF(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Pages As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal Watermark As Variant _
+							) As Boolean
+	ExportAsPDF = [_Super].ExportAsPDF(FileName, Overwrite, Pages, Password, Watermark)
+End Function   &apos;   SFDocuments.SF_Writer.ExportAsPDF
+
+REM -----------------------------------------------------------------------------
+Public Function RemoveMenu(Optional ByVal MenuHeader As Variant) As Boolean
+	RemoveMenu = [_Super].RemoveMenu(MenuHeader)
+End Function	&apos;	SFDocuments.SF_Writer.RemoveMenu
+
+REM -----------------------------------------------------------------------------
+Public Sub RunCommand(Optional ByVal Command As Variant _
+									, ParamArray Args As Variant _
+									)
+	[_Super].RunCommand(Command, Args)
+End Sub		  &apos;   SFDocuments.SF_Writer.RunCommand
+
+REM -----------------------------------------------------------------------------
+Public Function Save() As Boolean
+	Save = [_Super].Save()
+End Function   &apos;   SFDocuments.SF_Writer.Save
+
+REM -----------------------------------------------------------------------------
+Public Function SaveAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+	SaveAs = [_Super].SaveAs(FileName, Overwrite, Password, FilterName, FilterOptions)
+End Function   &apos;   SFDocuments.SF_Writer.SaveAs
+
+REM -----------------------------------------------------------------------------
+Public Function SaveCopyAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+	SaveCopyAs = [_Super].SaveCopyAs(FileName, Overwrite, Password, FilterName, FilterOptions)
+End Function   &apos;   SFDocuments.SF_Writer.SaveCopyAs
+
+REM -----------------------------------------------------------------------------
+Public Function SetPrinter(Optional ByVal Printer As Variant _
+							, Optional ByVal Orientation As Variant _
+							, Optional ByVal PaperFormat As Variant _
+							) As Boolean
+	SetPrinter = [_Super].SetPrinter(Printer, Orientation, PaperFormat)
+End Function	&apos;   SFDocuments.SF_Writer.SetPrinter
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _FileIdent() As String
+&apos;&apos;&apos;	Returns a file identification from the information that is currently available
+&apos;&apos;&apos;	Useful e.g. for display in error messages
+
+	_FileIdent = [_Super]._FileIdent()
+
+End Function	&apos;	SFDocuments.SF_Writer._FileIdent
+
+REM -----------------------------------------------------------------------------
+Private Function _IsStillAlive(Optional ByVal pbForUpdate As Boolean _
+									, Optional ByVal pbError As Boolean _
+									) As Boolean
+&apos;&apos;&apos;	Returns True if the document has not been closed manually or incidentally since the last use
+&apos;&apos;&apos;	If dead the actual instance is disposed. The execution is cancelled when pbError = True (default)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbForUpdate: if True (default = False), check additionally if document is open for editing
+&apos;&apos;&apos;		pbError: if True (default), raise a fatal error
+
+Dim bAlive As Boolean			&apos;	Return value
+
+	If IsMissing(pbForUpdate) Then pbForUpdate = False
+	If IsMissing(pbError) Then pbError = True
+
+Try:
+	bAlive = [_Super]._IsStillAlive(pbForUpdate, pbError)
+
+Finally:
+	_IsStillAlive = bAlive
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Writer._IsStillAlive
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String _
+								, Optional ByVal pvArg As Variant _
+								) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	_PropertyGet = False
+
+	cstThisSub = &quot;SFDocuments.Writer.get&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+	Select Case psProperty
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Writer._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the SF_Writer instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[DOCUMENT]: Type/File&quot;
+
+	_Repr = &quot;[Writer]: &quot; &amp; [_Super]._FileIdent()
+
+End Function	&apos;	SFDocuments.SF_Writer._Repr
+
+REM ============================================ END OF SFDOCUMENTS.SF_WRITER
+</script:module>

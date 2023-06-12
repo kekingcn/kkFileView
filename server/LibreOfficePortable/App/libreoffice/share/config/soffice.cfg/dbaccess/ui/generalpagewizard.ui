@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface domain="dba">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">document-open</property>
+  </object>
+  <!-- n-columns=1 n-rows=12 -->
+  <object class="GtkGrid" id="PageGeneral">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border-width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="row-spacing">6</property>
+    <child>
+      <object class="GtkLabel" id="headerText">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="label" translatable="yes" context="generalpagewizard|headerText">Welcome to the %PRODUCTNAME Database Wizard</property>
+        <property name="single-line-mode">True</property>
+        <property name="xalign">0</property>
+        <attributes>
+          <attribute name="weight" value="bold"/>
+        </attributes>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="helpText">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="label" translatable="yes" context="generalpagewizard|helpText">Use the Database Wizard to create a new database, open an existing database file, or connect to a database stored on a server.</property>
+        <property name="wrap">True</property>
+        <property name="width-chars">72</property>
+        <property name="max-width-chars">72</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="sourceTypeHeader">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="label" translatable="yes" context="generalpagewizard|sourceTypeHeader">What do you want to do?</property>
+        <property name="wrap">True</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkRadioButton" id="createDatabase">
+        <property name="label" translatable="yes" context="generalpagewizard|createDatabase">Create a n_ew database</property>
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="has-focus">True</property>
+        <property name="receives-default">False</property>
+        <property name="margin-start">12</property>
+        <property name="use-underline">True</property>
+        <property name="active">True</property>
+        <property name="draw-indicator">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="createDatabase-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="generalpagewizard|extended_tip|createDatabase">Select to create a new database.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="embeddeddbBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-start">24</property>
+        <property name="spacing">12</property>
+        <child>
+          <object class="GtkLabel" id="embeddeddbLabel">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes" context="generalpagewizard|embeddeddbLabel">_Embedded database:</property>
+            <property name="use-underline">True</property>
+            <property name="mnemonic-widget">embeddeddbList</property>
+            <property name="xalign">0</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="embeddeddbList">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">5</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkRadioButton" id="openExistingDatabase">
+        <property name="label" translatable="yes" context="generalpagewizard|openExistingDatabase">Open an existing database _file</property>
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">False</property>
+        <property name="margin-start">12</property>
+        <property name="use-underline">True</property>
+        <property name="draw-indicator">True</property>
+        <property name="group">createDatabase</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="openExistingDatabase-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="generalpagewizard|extended_tip|openExistingDatabase">Select to open a database file from a list of recently used files or from a file selection dialog.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">6</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="docListBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-start">24</property>
+        <property name="spacing">12</property>
+        <child>
+          <object class="GtkLabel" id="docListLabel">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes" context="generalpagewizard|docListLabel">_Recently used:</property>
+            <property name="use-underline">True</property>
+            <property name="mnemonic-widget">documentList</property>
+            <property name="xalign">0</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="documentList">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="hexpand">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="docListBox-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="generalpagewizard|extended_tip|docListBox">Select a database file to open from the list of recently used files. Click Finish to open the file immediately and to exit the wizard.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">7</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkButton" id="openDatabase">
+        <property name="label" translatable="yes" context="generalpagewizard|openDatabase">Open</property>
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <property name="halign">start</property>
+        <property name="margin-start">24</property>
+        <property name="image">image1</property>
+        <property name="use-underline">True</property>
+        <property name="always-show-image">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="openDatabase-atkobject">
+            <property name="AtkObject::accessible-name" translatable="yes" context="generalpagewizard|extended_tip|openDatabase">Opens a file selection dialog where you can select a database file. Click Open or OK in the file selection dialog to open the file immediately and to exit the wizard.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">8</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkRadioButton" id="connectDatabase">
+        <property name="label" translatable="yes" context="generalpagewizard|connectDatabase">Connect to an e_xisting database</property>
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">False</property>
+        <property name="margin-start">12</property>
+        <property name="use-underline">True</property>
+        <property name="draw-indicator">True</property>
+        <property name="group">createDatabase</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="connectDatabase-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="generalpagewizard|extended_tip|connectDatabase">Select to create a database document for an existing database connection.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">9</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkComboBoxText" id="datasourceType">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="halign">start</property>
+        <property name="margin-start">24</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="datasourceType-atkobject">
+            <property name="AtkObject::accessible-description" translatable="yes" context="generalpagewizard|extended_tip|datasourceType">Select the database type for the existing database connection.</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">10</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="specialMessage">
+        <property name="can-focus">False</property>
+        <property name="xalign">0</property>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">11</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="noembeddeddbLabel">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="label" translatable="yes" context="generalpagewizard|noembeddeddbLabel">It is not possible to create a new database, because neither HSQLDB, nor Firebird is
+available in this setup.</property>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">4</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="PageGeneral-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="generalpagewizard|extended_tip|PageGeneral">The Database Wizard creates a database file that contains information about a database.</property>
+      </object>
+    </child>
+  </object>
+</interface>

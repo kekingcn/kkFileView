@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+* This file is part of the LibreOffice project.
+*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<!--
+    entry attributes:
+    os - "all", "7", "8", "8_1", "10"
+    vendor - "all", "intel", "amd", "nvidia", "microsoft"
+    compare - "less", "less_equal", "greater", "greater_equal", "equal", "not_equal", "between_exclusive", "between_inclusive", "between_inclusive_start"
+    version
+    minVersion
+    maxVersion
+-->
+
+<root>
+    <allowlist>
+    </allowlist>
+    <denylist>
+        <!-- tdf#125516: crash on preview of slide transitions, or in slideshow, when OpenGL rendering enabled Windows 10, with Intel DCH packaged driver -->
+        <entry os="10" vendor="intel" compare="between_inclusive_start" minVersion="26.20.100.6861" maxVersion="26.20.100.7584"><!-- tdf#125516 -->
+            <device id="all"/>
+        </entry>
+    </denylist>
+</root>

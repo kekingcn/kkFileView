@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface domain="sc">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkFrame" id="SortKeyFrame">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="border-width">6</property>
+    <property name="label-xalign">0</property>
+    <property name="shadow-type">none</property>
+    <child>
+      <!-- n-columns=3 n-rows=2 -->
+      <object class="GtkGrid" id="grid1">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-start">12</property>
+        <property name="margin-top">6</property>
+        <property name="row-spacing">6</property>
+        <property name="column-spacing">12</property>
+        <child>
+          <object class="GtkComboBoxText" id="sortlb">
+            <property name="width-request">600</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="valign">center</property>
+            <property name="hexpand">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="sortlb-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="sortkey|extended_tip|sortlb">Select the column that you want to use as the primary sort key.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">0</property>
+            <property name="height">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="up">
+            <property name="label" translatable="yes" context="sortkey|up">_Ascending</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="use-underline">True</property>
+            <property name="active">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="up-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="sortkey|extended_tip|up">Sorts the selection from the lowest value to the highest value. The sorting rules are given by the locale. You can define the sort rules on Data - Sort - Options.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="down">
+            <property name="label" translatable="yes" context="sortkey|down">_Descending</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <property name="group">up</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="down-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="sortkey|extended_tip|down">Sorts the selection from the highest value to the lowest value. You can define the sort rules on Data - Sort - Options.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lbColRow">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label">Column/Row:</property>
+            <property name="xalign">1</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
+            <property name="height">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child type="label">
+      <object class="GtkLabel" id="sortft">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="label" translatable="yes" context="sortkey|sortft">Sort Key </property>
+        <attributes>
+          <attribute name="weight" value="bold"/>
+        </attributes>
+      </object>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="SortKeyFrame-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="sortkey|extended_tip|SortKeyFrame">Select the column that you want to use as the primary sort key.</property>
+      </object>
+    </child>
+  </object>
+</interface>

@@ -1,0 +1,30 @@
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.frame.XModel;
+import com.sun.star.sheet.XSpreadsheetDocument;
+import com.sun.star.sheet.XSpreadsheet;
+import com.sun.star.sheet.XSpreadsheets;
+import com.sun.star.view.XSelectionSupplier;
+import com.sun.star.container.XIndexAccess;
+import com.sun.star.table.XCellRange;
+
+oDoc = UnoRuntime.queryInterface(XModel.class,XSCRIPTCONTEXT.getInvocationContext());
+if ( oDoc == null )
+    oDoc = XSCRIPTCONTEXT.getDocument();
+
+XSpreadsheetDocument xDoc = (XSpreadsheetDocument) UnoRuntime.queryInterface(XSpreadsheetDocument.class,oDoc);
+XSpreadsheets xSheets = xDoc.getSheets();
+XIndexAccess xSheetsIA = UnoRuntime.queryInterface(XIndexAccess.class, xSheets);
+XSpreadsheet xSheet = UnoRuntime.queryInterface(com.sun.star.sheet.XSpreadsheet.class, xSheetsIA.getByIndex(0));
+XCellRange xResultRange = xSheet.getCellRangeByName("B20");
+XSelectionSupplier xSel = UnoRuntime.queryInterface(XSelectionSupplier.class, oDoc.getCurrentController());
+xSel.select(xResultRange);
+
+return 0;

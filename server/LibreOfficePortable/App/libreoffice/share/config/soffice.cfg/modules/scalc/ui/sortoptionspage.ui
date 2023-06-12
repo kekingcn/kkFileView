@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface domain="sc">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkBox" id="SortOptionsPage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="border-width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <object class="GtkFrame" id="frame2">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="label-xalign">0</property>
+        <property name="shadow-type">none</property>
+        <child>
+          <!-- n-columns=2 n-rows=11 -->
+          <object class="GtkGrid" id="grid2">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-start">12</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">12</property>
+            <property name="row-spacing">6</property>
+            <property name="column-spacing">12</property>
+            <child>
+              <object class="GtkCheckButton" id="case">
+                <property name="label" translatable="yes" context="sortoptionspage|case">Case _sensitive</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="case-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|case">Sorts first by uppercase letters and then by lowercase letters. For Asian languages, special handling applies.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="formats">
+                <property name="label" translatable="yes" context="sortoptionspage|formats">Include formats</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="formats-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|formats">Preserves the current cell formatting.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="naturalsort">
+                <property name="label" translatable="yes" context="sortoptionspage|naturalsort">Enable natural sort</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="naturalsort-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|naturalsort">Natural sort is a sort algorithm that sorts string-prefixed numbers based on the value of the numerical element in each sorted number, instead of the traditional way of sorting them as ordinary strings.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="includenotes">
+                <property name="label" translatable="yes" context="sortoptionspage|includenotes">Include boundary column(s) containing only comments</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="includeimages">
+                <property name="label" translatable="yes" context="sortoptionspage|includeimages">Include boundary column(s) containing only images</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="copyresult">
+                <property name="label" translatable="yes" context="sortoptionspage|copyresult">Copy sort results to:</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+                <accessibility>
+                  <relation type="label-for" target="outarealb"/>
+                </accessibility>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="copyresult-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|copyresult">Copies the sorted list to the cell range that you specify.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="outarealb">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">12</property>
+                <accessibility>
+                  <relation type="labelled-by" target="copyresult"/>
+                  <relation type="label-for" target="outareaed"/>
+                </accessibility>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="outarealb-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes" context="sortoptionspage|outarealb-atkobject">Copy sort results to:</property>
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|outarealb">Select a named cell range where you want to display the sorted list, or enter a cell range in the input box.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="outareaed">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="activates-default">True</property>
+                <property name="truncate-multiline">True</property>
+                <accessibility>
+                  <relation type="labelled-by" target="outarealb"/>
+                </accessibility>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="outareaed-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes" context="sortoptionspage|outareaed-atkobject">Copy sort results to:</property>
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|outareaed">Enter the cell range where you want to display the sorted list, or select a named range from the list.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="sortuser">
+                <property name="label" translatable="yes" context="sortoptionspage|sortuser">Custom sort order</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+                <accessibility>
+                  <relation type="label-for" target="sortuserlb"/>
+                </accessibility>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="sortuser-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|sortuser">Click here and then select the custom sort order that you want.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="sortuserlb">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">12</property>
+                <accessibility>
+                  <relation type="labelled-by" target="sortuser"/>
+                </accessibility>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="sortuserlb-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes" context="sortoptionspage|sortuserlb-atkobject">Custom sort order</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">8</property>
+                <property name="width">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label6">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes" context="sortoptionspage|label6">Language</property>
+                <property name="use-underline">True</property>
+                <property name="mnemonic-widget">language</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="algorithmft">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes" context="sortoptionspage|algorithmft">Options</property>
+                <property name="use-underline">True</property>
+                <property name="mnemonic-widget">algorithmlb</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="algorithmlb">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="algorithmlb-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|algorithmlb">Select a sorting option for the language.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="language">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="has-entry">True</property>
+                <child internal-child="entry">
+                  <object class="GtkEntry">
+                    <property name="can-focus">True</property>
+                    <property name="truncate-multiline">True</property>
+                  </object>
+                </child>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="language-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|language">Select the language for the sorting rules.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes" context="sortoptionspage|label2">Sort Options</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="SortOptionsPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="sortoptionspage|extended_tip|SortOptionsPage">Sets additional sorting options.</property>
+      </object>
+    </child>
+  </object>
+</interface>

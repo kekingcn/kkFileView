@@ -1,0 +1,39 @@
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.frame.XModel;
+import com.sun.star.sheet.XSpreadsheetDocument;
+import com.sun.star.sheet.XSpreadsheet;
+import com.sun.star.sheet.XSpreadsheets;
+import com.sun.star.container.XIndexAccess;
+import com.sun.star.sheet.XCellAddressable;
+import com.sun.star.sheet.XCellRangeAddressable;
+import com.sun.star.table.CellAddress;
+import com.sun.star.table.CellRangeAddress;
+import com.sun.star.sheet.XCellRangeMovement;
+
+oDoc = UnoRuntime.queryInterface(XModel.class,XSCRIPTCONTEXT.getInvocationContext());
+if ( oDoc == null )
+    oDoc = XSCRIPTCONTEXT.getDocument();
+
+XSpreadsheetDocument xDoc = (XSpreadsheetDocument) UnoRuntime.queryInterface(XSpreadsheetDocument.class,oDoc);
+XSpreadsheets xSheets = xDoc.getSheets();
+XIndexAccess xSheetsIA = UnoRuntime.queryInterface(XIndexAccess.class, xSheets);
+XSpreadsheet xSheet = UnoRuntime.queryInterface(com.sun.star.sheet.XSpreadsheet.class, xSheetsIA.getByIndex(0));
+
+XCellRangeAddressable xAddr1 = UnoRuntime.queryInterface(XCellRangeAddressable.class, xSheet.getCellRangeByName("A1:A10") );
+CellRangeAddress source = xAddr1.getRangeAddress();
+
+XCellAddressable xAddr2 = UnoRuntime.queryInterface(XCellAddressable.class, xSheet.getCellRangeByName("B1").getCellByPosition( 0, 0 ) );
+CellAddress target = xAddr2.getCellAddress();
+
+XCellRangeMovement xCRM = UnoRuntime.queryInterface(XCellRangeMovement.class, xSheet);
+xCRM.copyRange(target, source);
+
+return 0;

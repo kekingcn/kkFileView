@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Register" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFWidgets library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Register
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		The ScriptForge framework includes
+&apos;&apos;&apos;			the master ScriptForge library
+&apos;&apos;&apos;			a number of &quot;associated&quot; libraries SF*
+&apos;&apos;&apos;			any user/contributor extension wanting to fit into the framework 
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The main methods in this module allow the current library to cling to ScriptForge
+&apos;&apos;&apos;			- RegisterScriptServices
+&apos;&apos;&apos;				Register the list of services implemented by the current library
+&apos;&apos;&apos;			- _NewMenu
+&apos;&apos;&apos;				Create a new menu service instance.
+&apos;&apos;&apos;				Called from SFDocuments services with CreateMenu()
+&apos;&apos;&apos;			- _NewPopupMenu
+&apos;&apos;&apos;				Create a new popup menu service instance.
+&apos;&apos;&apos;				Called from CreateScriptService()
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+REM ================================================================= DEFINITIONS
+
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Sub RegisterScriptServices() As Variant
+&apos;&apos;&apos;	Register into ScriptForge the list of the services implemented by the current library
+&apos;&apos;&apos;	Each library pertaining to the framework must implement its own version of this method
+&apos;&apos;&apos;
+&apos;&apos;&apos;	It consists in successive calls to the RegisterService() and RegisterEventManager() methods
+&apos;&apos;&apos;	with 2 arguments:
+&apos;&apos;&apos;		ServiceName: the name of the service as a case-insensitive string
+&apos;&apos;&apos;		ServiceReference: the reference as an object
+&apos;&apos;&apos;			If the reference refers to a module, then return the module as an object:
+&apos;&apos;&apos;				GlobalScope.Library.Module
+&apos;&apos;&apos;			If the reference is a class instance, then return a string referring to the method
+&apos;&apos;&apos;			containing the New statement creating the instance
+&apos;&apos;&apos;				&quot;libraryname.modulename.function&quot;
+
+	With GlobalScope.ScriptForge.SF_Services
+		.RegisterService(&quot;Menu&quot;,				&quot;SFWidgets.SF_Register._NewMenu&quot;)			&apos;	Reference to the function initializing the service
+		.RegisterService(&quot;PopupMenu&quot;,			&quot;SFWidgets.SF_Register._NewPopupMenu&quot;)		&apos;	id.
+	End With
+
+End Sub			&apos;	SFWidgets.SF_Register.RegisterScriptServices
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Function _NewMenu(Optional ByVal pvArgs As Variant) As Object
+&apos;&apos;&apos;	Create a new instance of the SF_Menu class
+&apos;&apos;&apos;	[called internally from SFDocuments.Document.CreateMenu() ONLY]
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Component: the com.sun.star.lang.XComponent where to find the menubar to plug the new menu in
+&apos;&apos;&apos;		Header: the name/header of the menu
+&apos;&apos;&apos;		Before: the place where to put the new menu on the menubar (string or number &gt;= 1)
+&apos;&apos;&apos;			When not found =&gt; last position
+&apos;&apos;&apos;		SubmenuChar: the delimiter used in menu trees. Default = &quot;&gt;&quot;
+&apos;&apos;&apos;	Returns: the instance or Nothing
+
+Dim oMenu As Object					&apos;	Return value
+Dim oComponent As Object			&apos;	The document or formdocument&apos;s component - com.sun.star.lang.XComponent
+Dim sHeader As String				&apos;	Menu header
+Dim sBefore As String				&apos;	Position of menu	as a string
+Dim iBefore As Integer				&apos;						as a number
+Dim sSubmenuChar As String			&apos;	Delimiter in menu trees
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set oMenu = Nothing
+
+Check:
+	&apos;	Types and number of arguments are not checked because internal call only
+	Set oComponent = pvArgs(0)
+	sHeader = pvArgs(1)
+	Select Case VarType(pvArgs(2))
+		Case V_STRING		:		sBefore = pvArgs(2)
+									iBefore = 0
+		Case Else			:		sBefore = &quot;&quot;
+									iBefore = pvArgs(2)
+	End Select
+	sSubmenuChar = pvArgs(3)
+
+Try:
+	If Not IsNull(oComponent) Then
+		Set oMenu = New SF_Menu
+		With oMenu
+			Set .[Me] = oMenu
+			._Initialize(oComponent, sHeader, sBefore, iBefore, sSubmenuChar)
+		End With
+	End If
+
+Finally:
+	Set _NewMenu = oMenu
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_Register._NewMenu
+
+REM -----------------------------------------------------------------------------
+Public Function _NewPopupMenu(Optional ByVal pvArgs As Variant) As Object
+&apos;&apos;&apos;	Create a new instance of the SF_PopupMenu class
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Event: a mouse event
+&apos;&apos;&apos;			If the event has no source or is not a mouse event, the menu is displayed above the actual window
+&apos;&apos;&apos;		X, Y: forced coordinates
+&apos;&apos;&apos;		SubmenuChar: Delimiter used in menu trees
+&apos;&apos;&apos;	Returns: the instance or Nothing
+
+Dim oMenu As Object					&apos;	Return value
+Dim Event As Variant				&apos;	Mouse event		
+Dim X As Long						&apos;	Mouse click coordinates
+Dim Y As Long
+Dim SubmenuChar As String			&apos;	Delimiter in menu trees
+Dim vUno As Variant					&apos;	UNO type split into an array
+Dim sEventType As String			&apos;	Event type, must be &quot;MouseEvent&quot;
+Dim oControl As Object				&apos;	The dialog or form control view which triggered the event
+Dim oWindow As Object				&apos;	ui.Window type
+Dim oSession As Object				:	Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;ScriptForge.Session&quot;)
+Dim oUi As Object					:	Set oUi = ScriptForge.SF_Services.CreateScriptService(&quot;ScriptForge.UI&quot;)
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	&apos;	Check and get arguments, their number may vary
+	If IsMissing(pvArgs) Or IsEmpty(pvArgs) Then pvArgs = Array()
+	If Not IsArray(pvArgs) Then pvArgs = Array(pvArgs)
+	If UBound(pvArgs) &gt;= 0 Then Event = pvArgs(0) Else Event = Nothing
+	If IsEmpty(Event) Then Event = Nothing
+	If UBound(pvArgs) &gt;= 1 Then X = pvArgs(1) Else X = 0
+	If UBound(pvArgs) &gt;= 2 Then Y = pvArgs(2) Else Y = 0
+	If UBound(pvArgs) &gt;= 3 Then SubmenuChar = pvArgs(3) Else SubmenuChar = &quot;&quot;
+	If Not ScriptForge.SF_Utils._Validate(Event, &quot;Event&quot;, ScriptForge.V_OBJECT) Then GoTo Finally
+	If Not ScriptForge.SF_Utils._Validate(X, &quot;X&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	If Not ScriptForge.SF_Utils._Validate(Y, &quot;Y&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	If Not ScriptForge.SF_Utils._Validate(SubmenuChar, &quot;SubmenuChar&quot;, V_STRING) Then GoTo Finally
+	Set oMenu = Nothing
+
+Try:
+	&apos;	Find and identify the control that triggered the popup menu
+	Set oControl = Nothing
+	If Not IsNull(Event) Then
+		&apos;	Determine the X, Y coordinates
+		vUno = Split(oSession.UnoObjectType(Event), &quot;.&quot;)
+		sEventType = vUno(UBound(vUno))
+		If UCase(sEventType) = &quot;MOUSEEVENT&quot; Then
+			X = Event.X
+			Y = Event.Y
+			&apos;	Determine the window peer target
+			If oSession.HasUnoProperty(Event, &quot;Source&quot;) Then Set oControl = Event.Source.Peer
+		End If
+	End If
+	&apos;	If not a mouse event, if no control, find what can be decent alternatives: (a menu header in) the actual window
+	If IsNull(oControl) Then
+		Set oWindow = oUi._IdentifyWindow(StarDesktop.getCurrentComponent())	&apos;	A menu has been clicked necessarily in the current window
+		With oWindow
+			If Not IsNull(.Frame) Then Set oControl = .Frame.getContainerWindow()
+		End With
+	End If
+
+	If Not IsNull(oControl) Then
+		Set oMenu = New SF_PopupMenu
+		With oMenu
+			Set .[Me] = oMenu
+			._Initialize(oControl, X, Y, SubmenuChar)
+		End With
+	Else
+		Set oMenu = Nothing
+	End If
+
+Finally:
+	Set _NewPopupMenu = oMenu
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFWidgets.SF_Register._NewPopupMenu
+
+REM ============================================== END OF SFWidgets.SF_REGISTER
+</script:module>

@@ -1,0 +1,894 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Datasheet" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDatabases library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Datasheet
+&apos;&apos;&apos;	============
+&apos;&apos;&apos;		A datasheet is the visual representation of tabular data produced by a database.
+&apos;&apos;&apos;		In the user interface of LibreOffice it is the result of the opening of
+&apos;&apos;&apos;		a table or a query. In this case the concerned Base document must be open.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		In the context of ScriptForge, a datasheet may be opened automatically by script code :
+&apos;&apos;&apos;			- either by reproducing the behaviour of the user interface
+&apos;&apos;&apos;			- or at any moment. In this case the Base document may or may not be opened.
+&apos;&apos;&apos;			  Additionally, any SELECT SQL statement may trigger the datasheet display.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The proposed API allows for either datasheets (opened manually of by code) in particular
+&apos;&apos;&apos;		to know which cell is selected and its content.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation:
+&apos;&apos;&apos;			1) From an open Base document
+&apos;&apos;&apos;				Set ui = CreateScriptService(&quot;UI&quot;)
+&apos;&apos;&apos;				Set oBase = ui.getDocument(&quot;/home/user/Documents/myDb.odb&quot;)
+&apos;&apos;&apos;				Set oSheet1 = oBase.OpenTable(&quot;Customers&quot;)	&apos;	or OpenQuery(...)
+&apos;&apos;&apos;				Set oSheet2 = oBase.Datasheets(&quot;Products&quot;)	&apos;	when the datasheet has been opened manually
+&apos;&apos;&apos;			2) Independently from a Base document
+&apos;&apos;&apos;				Set oDatabase = CreateScriptService(&quot;Database&quot;, &quot;/home/user/Documents/myDb.odb&quot;)
+&apos;&apos;&apos;				Set oSheet = oDatabase.OpenTable(&quot;Customers&quot;)
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_datasheet.html?DbPAR=BASIC
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const DOCUMENTDEADERROR		=	&quot;DOCUMENTDEADERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]				As Object
+Private [_Parent]			As Object		&apos; Base instance when opened from a Base document by code
+											&apos; or Database instance when opened without Base document
+Private ObjectType			As String		&apos; Must be DATASHEET
+Private ServiceName			As String
+
+Private _Component			As Object		&apos; com.sun.star.lang.XComponent - org.openoffice.comp.dbu.ODatasourceBrowser
+Private _Frame				As Object		&apos; com.sun.star.frame.XFrame
+Private _ParentBase			As Object		&apos; The parent SF_Base instance (may be void)
+Private _ParentDatabase		As Object		&apos; The parent SF_Database instance (must not be void)
+Private _SheetType			As String		&apos; TABLE, QUERY or SQL
+Private _ParentType			As String		&apos; BASE or DATABASE
+Private _BaseFileName		As String		&apos; URL format of parent Base file
+Private _Command			As String		&apos; Table name, query name or SQL statement
+Private _DirectSql			As Boolean		&apos; When True, SQL processed by RDBMS
+Private _TabControllerModel	As Object		&apos; com.sun.star.awt.XTabControllerModel - com.sun.star.comp.forms.ODatabaseForm
+Private _ControlModel		As Object		&apos; com.sun.star.awt.XControlModel - com.sun.star.form.OGridControlModel
+Private _ControlView		As Object		&apos; com.sun.star.awt.XControl - org.openoffice.comp.dbu.ODatasourceBrowser
+Private _ColumnHeaders		As Variant		&apos; List of column headers as an array of strings
+
+REM ============================================================ MODULE CONSTANTS
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;DATASHEET&quot;
+	ServiceName = &quot;SFDatabases.Datasheet&quot;
+	Set _Component = Nothing
+	Set _Frame = Nothing
+	Set _ParentBase = Nothing
+	Set _ParentDatabase = Nothing
+	_SheetType = &quot;&quot;
+	_ParentType = &quot;&quot;
+	_BaseFileName = &quot;&quot;
+	_Command = &quot;&quot;
+	_DirectSql = False
+	Set _TabControllerModel = Nothing
+	Set _ControlModel = Nothing
+	Set _ControlView = Nothing
+	_ColumnHeaders = Array()
+End Sub		&apos;	SFDatabases.SF_Datasheet Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDatabases.SF_Datasheet Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDatabases.SF_Datasheet Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get ColumnHeaders() As Variant
+&apos;&apos;&apos;	Returns the list of column headers of the datasheet as an array of strings
+	ColumnHeaders = _PropertyGet(&quot;ColumnHeaders&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.ColumnHeaders
+
+REM -----------------------------------------------------------------------------
+Property Get CurrentColumn() As String
+&apos;&apos;&apos;	Returns the currently selected column by its name
+	CurrentColumn = _PropertyGet(&quot;CurrentColumn&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.CurrentColumn
+
+REM -----------------------------------------------------------------------------
+Property Get CurrentRow() As Long
+&apos;&apos;&apos;	Returns the currently selected row by its number &gt;= 1
+	CurrentRow = _PropertyGet(&quot;CurrentRow&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.CurrentRow
+
+REM -----------------------------------------------------------------------------
+Property Get DatabaseFileName() As String
+&apos;&apos;&apos;	Returns the file name of the Base file in FSO.FileNaming format
+	DatabaseFileName = _PropertyGet(&quot;DatabaseFileName&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.DatabaseFileName
+
+REM -----------------------------------------------------------------------------
+Property Get Filter() As Variant
+&apos;&apos;&apos;	The Filter is a SQL WHERE clause without the WHERE keyword
+	Filter = _PropertyGet(&quot;Filter&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.Filter (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Filter(Optional ByVal pvFilter As Variant)
+&apos;&apos;&apos;	Set the updatable property Filter
+&apos;&apos;&apos;	Table and field names may be surrounded by square brackets
+&apos;&apos;&apos;	When the argument is the zero-length string, the actual filter is removed
+	_PropertySet(&quot;Filter&quot;, pvFilter)
+End Property	&apos;	SFDatabases.SF_Datasheet.Filter (let)
+
+REM -----------------------------------------------------------------------------
+Property Get LastRow() As Long
+&apos;&apos;&apos;	Returns the total number of rows
+&apos;&apos;&apos;	The process may imply to move the cursor to the last available row.
+&apos;&apos;&apos;	Afterwards the cursor is reset to the current row.
+	LastRow = _PropertyGet(&quot;LastRow&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.LastRow
+
+REM -----------------------------------------------------------------------------
+Property Get OrderBy() As Variant
+&apos;&apos;&apos;	The Order is a SQL ORDER BY clause without the ORDER BY keywords
+	OrderBy = _PropertyGet(&quot;OrderBy&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OrderBy (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OrderBy(Optional ByVal pvOrderBy As Variant)
+&apos;&apos;&apos;	Set the updatable property OrderBy
+&apos;&apos;&apos;	Table and field names may be surrounded by square brackets
+&apos;&apos;&apos;	When the argument is the zero-length string, the actual sort is removed
+	_PropertySet(&quot;OrderBy&quot;, pvOrderBy)
+End Property	&apos;	SFDocuments.SF_Form.OrderBy (let)
+
+REM -----------------------------------------------------------------------------
+Property Get ParentDatabase() As Object
+&apos;&apos;&apos;	Returns the database instance to which the datasheet belongs
+	Set ParentDatabase = _PropertyGet(&quot;ParentDatabase&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.ParentDatabase
+
+REM -----------------------------------------------------------------------------
+Property Get Source() As String
+&apos;&apos;&apos;	Returns the source of the data: table name, query name or sql statement
+	Source = _PropertyGet(&quot;Source&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.Source
+
+REM -----------------------------------------------------------------------------
+Property Get SourceType() As String
+&apos;&apos;&apos;	Returns thetype of source of the data: TABLE, QUERY or SQL
+	SourceType = _PropertyGet(&quot;SourceType&quot;)
+End Property	&apos;	SFDatabases.SF_Datasheet.SourceType
+
+REM -----------------------------------------------------------------------------
+Property Get XComponent() As Object
+&apos;&apos;&apos;	Returns the com.sun.star.lang.XComponent UNO object representing the datasheet
+	XComponent = _PropertyGet(&quot;XComponent&quot;)
+End Property	&apos;	SFDocuments.SF_Document.XComponent
+
+REM -----------------------------------------------------------------------------
+Property Get XControlModel() As Object
+&apos;&apos;&apos;	Returns the com.sun.star.lang.XControl UNO object representing the datasheet
+	XControlModel = _PropertyGet(&quot;XControlModel&quot;)
+End Property	&apos;	SFDocuments.SF_Document.XControlModel
+
+REM -----------------------------------------------------------------------------
+Property Get XTabControllerModel() As Object
+&apos;&apos;&apos;	Returns the com.sun.star.lang.XTabControllerModel UNO object representing the datasheet
+	XTabControllerModel = _PropertyGet(&quot;XTabControllerModel&quot;)
+End Property	&apos;	SFDocuments.SF_Document.XTabControllerModel
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Sub Activate()
+&apos;&apos;&apos; Make the actual datasheet active
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oSheet.Activate()
+
+Dim oContainer As Object			&apos;	com.sun.star.awt.XWindow
+Const cstThisSub = &quot;SFDatabases.Datasheet.Activate&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+Try:
+	Set oContainer = _Component.Frame.ContainerWindow
+	With oContainer
+		If .isVisible() = False Then .setVisible(True)
+		.IsMinimized = False
+		.setFocus()
+		.toFront()				&apos;	Force window change in Linux
+		Wait 1					&apos;	Bypass desynchro issue in Linux
+	End With
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub			&apos;   SFDatabases.SF_Datasheet.Activate
+
+REM -----------------------------------------------------------------------------
+Public Function CloseDatasheet() As Boolean
+&apos;&apos;&apos; Close the actual datasheet
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oSheet.CloseDatasheet()
+
+Dim bClose As Boolean		&apos;	Return value
+Const cstThisSub = &quot;SFDatabases.Datasheet.CloseDatasheet&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bClose = False
+
+Check:
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+Try:
+	_TabControllerModel.close()
+	_Frame.close(True)
+	_Frame.dispose()
+	Dispose()
+	bClose = True
+
+Finally:
+	CloseDatasheet = bClose
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;   SFDatabases.SF_Datasheet.CloseDatasheet
+
+REM -----------------------------------------------------------------------------
+Public Function CreateMenu(Optional ByVal MenuHeader As Variant _
+								, Optional ByVal Before As Variant _
+								, Optional ByVal SubmenuChar As Variant _
+								) As Object
+&apos;&apos;&apos; Create a new menu entry in the datasheet&apos;s menubar
+&apos;&apos;&apos;	The menu is not intended to be saved neither in the LibreOffice global environment, nor elsewhere
+&apos;&apos;&apos;	The method returns a SFWidgets.Menu instance. Its methods let define the menu further.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuHeader: the name/header of the menu
+&apos;&apos;&apos;		Before: the place where to put the new menu on the menubar (string or number &gt;= 1)
+&apos;&apos;&apos;			When not found =&gt; last position
+&apos;&apos;&apos;		SubmenuChar: the delimiter used in menu trees. Default = &quot;&gt;&quot;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A SFWidgets.Menu instance or Nothing
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Dim oMenu As Object
+&apos;&apos;&apos;		Set oMenu = oDoc.CreateMenu(&quot;My menu&quot;, Before := &quot;Styles&quot;)
+&apos;&apos;&apos;		With oMenu
+&apos;&apos;&apos;			.AddItem(&quot;Item 1&quot;, Command := &quot;.uno:About&quot;)
+&apos;&apos;&apos;			&apos;...
+&apos;&apos;&apos;			.Dispose()	&apos;	When definition is complete, the menu instance may be disposed
+&apos;&apos;&apos;		End With
+&apos;&apos;&apos;			&apos; ...
+
+Dim oMenu As Object			&apos;	return value
+Const cstThisSub = &quot;SFDatabases.Datasheet.CreateMenu&quot;
+Const cstSubArgs = &quot;MenuHeader, [Before=&quot;&quot;&quot;&quot;], [SubmenuChar=&quot;&quot;&gt;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set oMenu = Nothing
+
+Check:
+	If IsMissing(Before) Or IsEmpty(Before) Then Before = &quot;&quot;
+	If IsMissing(SubmenuChar) Or IsEmpty(SubmenuChar) Then SubmenuChar = &quot;&quot;
+
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(MenuHeader, &quot;MenuHeader&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Before, &quot;Before&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(SubmenuChar, &quot;SubmenuChar&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	Set oMenu = ScriptForge.SF_Services.CreateScriptService(&quot;SFWidgets.Menu&quot;, _Component, MenuHeader, Before, SubmenuChar)
+
+Finally:
+	Set CreateMenu = oMenu
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDatabases.SF_Document.CreateMenu
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the propRATTCerty
+&apos;&apos;&apos;		If the property does not exist, returns Null
+
+Const cstThisSub = &quot;SFDatabases.Datasheet.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Datasheet.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function GetText(Optional ByVal Column As Variant) As String
+&apos;&apos;&apos; Get the text in the given column of the current row.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Column: the name of the column as a string or its position (&gt;= 1). Default = the current column
+&apos;&apos;&apos;				If the argument exceeds the number of columns, the last column is selected.
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The text in the cell as a string as how it is displayed
+&apos;&apos;&apos;		Note that the position of the cursor is left unchanged.
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oSheet.GetText(&quot;ShipCity&quot;))	&apos;	Extract the text on the current row from the column &quot;ShipCity&quot;
+
+Dim sText As String				&apos;	Return Text
+Dim lCol As Long					&apos;	Numeric index of Column in lists of columns
+Dim lMaxCol As Long				&apos;	Index of last column
+Const cstThisSub = &quot;SFDatabases.Datasheet.GetText&quot;
+Const cstSubArgs = &quot;[Column=0]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sText = &quot;&quot;
+
+Check:
+	If IsMissing(Column) Or IsEmpty(Column) Then Column = 0
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If VarType(Column) &lt;&gt; V_STRING Then
+			If Not ScriptForge.SF_Utils._Validate(Column, &quot;Column&quot;, ScriptForge.V_NUMERIC) Then GoTo Catch
+		Else
+			If Not ScriptForge.SF_Utils._Validate(Column, &quot;Column&quot;, V_STRING, _ColumnHeaders) Then GoTo Catch
+		End If
+	End If
+
+Try:
+	&apos;	Position the column - The index to be passed starts at 0
+	With _ControlView
+		If VarType(Column) = V_STRING Then
+			lCol = ScriptForge.SF_Array.IndexOf(_ColumnHeaders, Column, CaseSensitive := False)
+		Else
+			lCol = -1
+			If Column &gt;= 1 Then
+				lMaxCol = .Count - 1
+				If Column &gt; lMaxCol + 1 Then lCol = lMaxCol Else lCol = Column - 1
+			End If
+		End If
+
+		If lCol &gt;= 0 Then sText = .getByIndex(lCol).Text
+	End With
+
+Finally:
+	GetText = sText
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;   SFDatabases.SF_Datasheet.GetText
+
+REM -----------------------------------------------------------------------------
+Public Function GetValue(Optional ByVal Column As Variant) As Variant
+&apos;&apos;&apos; Get the value in the given column of the current row.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Column: the name of the column as a string or its position (&gt;= 1). Default = the current column
+&apos;&apos;&apos;				If the argument exceeds the number of columns, the last column is selected.
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The value in the cell as a valid Basic type
+&apos;&apos;&apos;		Typical types are: STRING, INTEGER, LONG, FLOAT, DOUBLE, DATE, NULL
+&apos;&apos;&apos;		Binary types are returned as a LONG giving their length, not their content
+&apos;&apos;&apos;		An EMPTY return value means that the value could not be retrieved.
+&apos;&apos;&apos;		Note that the position of the cursor is left unchanged.
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oSheet.GetValue(&quot;ShipCity&quot;))	&apos;	Extract the value on the current row from the column &quot;ShipCity&quot;
+
+Dim vValue As Variant				&apos;	Return value
+Dim lCol As Long					&apos;	Numeric index of Column in lists of columns
+Dim lMaxCol As Long				&apos;	Index of last column
+Const cstThisSub = &quot;SFDatabases.Datasheet.GetValue&quot;
+Const cstSubArgs = &quot;[Column=0]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	vValue = Empty
+
+Check:
+	If IsMissing(Column) Or IsEmpty(Column) Then Column = 0
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If VarType(Column) &lt;&gt; V_STRING Then
+			If Not ScriptForge.SF_Utils._Validate(Column, &quot;Column&quot;, ScriptForge.V_NUMERIC) Then GoTo Catch
+		Else
+			If Not ScriptForge.SF_Utils._Validate(Column, &quot;Column&quot;, V_STRING, _ColumnHeaders) Then GoTo Catch
+		End If
+	End If
+
+Try:
+	&apos;	Position the column - The index to be passed starts at 1
+	If VarType(Column) = V_STRING Then
+		lCol = ScriptForge.SF_Array.IndexOf(_ColumnHeaders, Column, CaseSensitive := False) + 1
+	Else
+		lCol = 0
+		If Column &gt;= 1 Then
+			lMaxCol = _ControlView.Count
+			If Column &gt; lMaxCol Then lCol = lMaxCol Else lCol = Column
+		End If
+	End If
+
+	&apos;	The _TabControllerModel acts exactly as a result set, from which the generic _GetColumnValue can extract the searched value
+	If lCol &gt;= 1 Then vValue = _ParentDatabase._GetColumnValue(_TabControllerModel, lCol)
+
+Finally:
+	GetValue = vValue
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;   SFDatabases.SF_Datasheet.GetValue
+
+REM -----------------------------------------------------------------------------
+Public Function GoToCell(Optional ByVal Row As Variant _
+							, Optional ByVal Column As Variant _
+							) As Boolean
+&apos;&apos;&apos; Set the cursor on the given row and the given column.
+&apos;&apos;&apos;	If the requested row exceeds the number of available rows, the cursor is set on the last row.
+&apos;&apos;&apos;	If the requested column exceeds the number of available columns, the selected column is the last one.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Row: the row number (&gt;= 1) as a numeric value. Default= no change
+&apos;&apos;&apos;		Column: the name of the column as a string or its position (&gt;= 1). Default = the current column
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oSheet.GoToCell(1000000, &quot;ShipCity&quot;))	&apos;	Set the cursor on he last row, column &quot;ShipCity&quot;
+
+Dim bGoTo As Boolean				&apos;	Return value
+Dim lCol As Long					&apos;	Numeric index of Column in list of columns
+Dim lMaxCol As Long				&apos;	Index of last column
+Const cstThisSub = &quot;SFDatabases.Datasheet.GoToCell&quot;
+Const cstSubArgs = &quot;[Row=0], [Column=0]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bGoTo = False
+
+Check:
+	If IsMissing(Row) Or IsEmpty(Row) Then Row = 0
+	If IsMissing(Column) Or IsEmpty(Column) Then Column = 0
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Row, &quot;Row&quot;, ScriptForge.V_NUMERIC) Then GoTo Catch
+		If VarType(Column) &lt;&gt; V_STRING Then
+			If Not ScriptForge.SF_Utils._Validate(Column, &quot;Column&quot;, ScriptForge.V_NUMERIC) Then GoTo Catch
+		Else
+			If Not ScriptForge.SF_Utils._Validate(Column, &quot;Column&quot;, V_STRING, _ColumnHeaders) Then GoTo Catch
+		End If
+	End If
+
+Try:
+	&apos;	Position the row
+	With _TabControllerModel
+		If Row &lt;= 0 Then Row = .Row Else .absolute(Row)
+		&apos;	Does Row exceed the total number of rows ?
+		If .IsRowCountFinal And Row &gt; .RowCount Then .absolute(.RowCount)
+	End With
+
+	&apos;	Position the column
+	With _ControlView
+		If VarType(Column) = V_STRING Then
+			lCol = ScriptForge.SF_Array.IndexOf(_ColumnHeaders, Column, CaseSensitive := False)
+		Else
+			lCol = -1
+			If Column &gt;= 1 Then
+				lMaxCol = .Count - 1
+				If Column &gt; lMaxCol + 1 Then lCol = lMaxCol Else lCol = Column - 1
+			End If
+		End If
+		If lCol &gt;= 0 Then .setCurrentColumnPosition(lCol)
+	End With
+
+	bGoTo = True
+
+Finally:
+	GoToCell = bGoTo
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;   SFDatabases.SF_Datasheet.GoToCell
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Model service as an array
+
+	Methods = Array( _
+					&quot;Activate&quot; _
+					, &quot;CloseDatasheet&quot; _
+					, &quot;CreateMenu&quot; _
+					, &quot;GetText&quot; _
+					, &quot;GetValue&quot; _
+					, &quot;GoToCell&quot; _
+					, &quot;RemoveMenu&quot; _
+					)
+
+End Function	&apos;	SFDatabases.SF_Datasheet.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Model class as an array
+
+	Properties = Array( _
+					&quot;ColumnHeaders&quot; _
+					, &quot;CurrentColumn&quot; _
+					, &quot;CurrentRow&quot; _
+					, &quot;DatabaseFileName&quot; _
+					, &quot;Filter&quot; _
+					, &quot;LastRow&quot; _
+					, &quot;OrderBy&quot; _
+					, &quot;ParentDatabase&quot; _
+					, &quot;Source&quot; _
+					, &quot;SourceType&quot; _
+					, &quot;XComponent&quot; _
+					, &quot;XControlModel&quot; _
+					, &quot;XTabControllerModel&quot; _
+					)
+
+End Function	&apos;	SFDatabases.SF_Datasheet.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function RemoveMenu(Optional ByVal MenuHeader As Variant) As Boolean
+&apos;&apos;&apos; Remove a menu entry in the document&apos;s menubar
+&apos;&apos;&apos;	The removal is not intended to be saved neither in the LibreOffice global environment, nor in the document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuHeader: the name/header of the menu, without tilde &quot;~&quot;, as a case-sensitive string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.RemoveMenu(&quot;File&quot;)
+&apos;&apos;&apos;			&apos; ...
+
+Dim bRemove As Boolean			&apos;	Return value
+Dim oLayout As Object			&apos;	com.sun.star.comp.framework.LayoutManager
+Dim oMenuBar As Object			&apos;	com.sun.star.awt.XMenuBar or stardiv.Toolkit.VCLXMenuBar
+Dim sName As String				&apos;	Menu name
+Dim iMenuId As Integer			&apos;	Menu identifier
+Dim iMenuPosition As Integer	&apos;	Menu position &gt;= 0
+Dim i As Integer
+Const cstTilde = &quot;~&quot;
+
+Const cstThisSub = &quot;SFDatabases.Datasheet.RemoveMenu&quot;
+Const cstSubArgs = &quot;MenuHeader&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bRemove = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(MenuHeader, &quot;MenuHeader&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	Set oLayout = _Component.Frame.LayoutManager
+	Set oMenuBar = oLayout.getElement(&quot;private:resource/menubar/menubar&quot;).XMenuBar
+
+	&apos;	Search the menu identifier to remove by its name, Mark its position
+	With oMenuBar
+		iMenuPosition = -1
+		For i = 0 To .ItemCount - 1
+			iMenuId = .getItemId(i)
+			sName = Replace(.getItemText(iMenuId), cstTilde, &quot;&quot;)
+			If MenuHeader= sName Then
+				iMenuPosition = i
+				Exit For
+			End If
+		Next i
+		&apos;	Remove the found menu item
+		If iMenuPosition &gt;= 0 Then
+			.removeItem(iMenuPosition, 1)
+			bRemove = True
+		End If
+	End With
+
+Finally:
+	RemoveMenu = bRemove
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDatabases.SF_Datasheet.RemoveMenu
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDatabases.Datasheet.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	SetProperty = _PropertySet(PropertyName, Value)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Datasheet.SetProperty
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Sub _Initialize()
+&apos;&apos;&apos;	Called immediately after instance creation to complete the initial values
+&apos;&apos;&apos;	An eventual error must be trapped in the calling routine to cancel the instance creation
+
+Dim iType As Integer			&apos;	One of the com.sun.star.sdb.CommandType constants
+Dim oColumn As Object			&apos;	A single column
+Dim oColumnDescriptor As Object	&apos;	A single column descriptor
+Dim FSO As Object				:	Set FSO = ScriptForge.SF_FileSystem
+Dim i As Long
+
+Try:
+	If IsNull([_Parent]) Then _ParentType = &quot;&quot; Else _ParentType = [_Parent].ObjectType
+
+	With _Component
+		&apos;	The existence of _Component.Selection must be checked upfront
+		_Command = ScriptForge.SF_Utils._GetPropertyValue(.Selection, &quot;Command&quot;)
+
+		iType = ScriptForge.SF_Utils._GetPropertyValue(.Selection, &quot;CommandType&quot;)
+		Select Case iType
+			Case com.sun.star.sdb.CommandType.TABLE		:	_SheetType = &quot;TABLE&quot;
+			Case com.sun.star.sdb.CommandType.QUERY		:	_SheetType = &quot;QUERY&quot;
+			Case com.sun.star.sdb.CommandType.COMMAND	:	_SheetType = &quot;SQL&quot;
+		End Select
+
+		_BaseFileName = ScriptForge.SF_Utils._GetPropertyValue(.Selection, &quot;DataSourceName&quot;)
+		_DirectSql = Not ScriptForge.SF_Utils._GetPropertyValue(.Selection, &quot;EscapeProcessing&quot;)
+
+		&apos;	Useful UNO objects
+		Set _Frame = .Frame
+		Set _ControlView = .CurrentControl
+		Set _TabControllerModel = .com_sun_star_awt_XTabController_getModel()
+		Set _ControlModel = _ControlView.getModel()
+	End With
+
+		&apos;	Retrieve the parent database instance
+	With _TabControllerModel
+		Select Case _ParentType
+			Case &quot;BASE&quot;
+				Set _ParentDatabase = [_Parent].GetDatabase(.User, .Password)
+				Set _ParentBase = [_Parent]
+			Case &quot;DATABASE&quot;
+				Set _ParentDatabase = [_Parent]
+				Set _ParentBase = Nothing
+			Case &quot;&quot;				&apos;	Derive the DATABASE instance from what can be found in the Component
+				Set _ParentDatabase = ScriptForge.SF_Services.CreateScriptService(&quot;SFDatabases.Database&quot; _
+						, FSO._ConvertFromUrl(_BaseFileName), , , .User, .Password)
+				_ParentType = &quot;DATABASE&quot;
+				Set _ParentBase = Nothing
+		End Select
+		&apos;	Load column headers
+		_ColumnHeaders = .getColumns().getElementNames()
+	End With
+
+Finally:
+	Exit Sub
+End Sub			&apos;	SFDatabases.SF_Datasheet._Initialize
+
+REM -----------------------------------------------------------------------------
+Private Function _IsStillAlive(Optional ByVal pbError As Boolean) As Boolean
+&apos;&apos;&apos;	Returns True if the datasheet has not been closed manually or incidentally since the last use
+&apos;&apos;&apos;	If dead the actual instance is disposed. The execution is cancelled when pbError = True (default)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbError: if True (default), raise a fatal error
+
+Dim bAlive As Boolean			&apos;	Return value
+Dim sName As String				&apos;	Used in error message
+
+	On Local Error GoTo Catch		&apos;	Anticipate DisposedException errors or alike
+	If IsMissing(pbError) Then pbError = True
+
+Try:
+	&apos;	Check existence of datasheet
+	bAlive = Not IsNull(_Component.ComponentWindow)
+
+Finally:
+	If pbError And Not bAlive Then
+		sName = _Command
+		Dispose()
+		If pbError Then ScriptForge.SF_Exception.RaiseFatal(DOCUMENTDEADERROR, sName)
+	End If
+	_IsStillAlive = bAlive
+	Exit Function
+Catch:
+	bAlive = False
+	On Error GoTo 0
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Datasheet._IsStillAlive
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim lRow As Long				&apos;	Actual row number
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SFDatabases.Datasheet.get&quot; &amp; psProperty
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive(False) Then GoTo Finally
+
+	Select Case psProperty
+		Case &quot;ColumnHeaders&quot;
+			_PropertyGet = _ColumnHeaders
+		Case &quot;CurrentColumn&quot;
+			_PropertyGet = _ColumnHeaders(_ControlView.getCurrentColumnPosition())
+		Case &quot;CurrentRow&quot;
+			_PropertyGet = _TabControllerModel.Row
+		Case &quot;DatabaseFileName&quot;
+			_PropertyGet = ScriptForge.SF_FileSystem._ConvertFromUrl(_BaseFileName)
+		Case &quot;Filter&quot;
+			_PropertyGet = _TabControllerModel.Filter
+		Case &quot;LastRow&quot;
+			With _TabControllerModel
+				If .IsRowCountFinal Then
+					_PropertyGet = .RowCount
+				Else
+					lRow = .Row
+					If lRow &gt; 0 Then
+						.last()
+						_PropertyGet = .RowCount
+						.absolute(lRow)
+					Else
+						_PropertyGet = 0
+					End If
+				End If
+			End With
+		Case &quot;OrderBy&quot;
+			_PropertyGet = _TabControllerModel.Order
+		Case &quot;ParentDatabase&quot;
+			Set _PropertyGet = _ParentDatabase
+		Case &quot;Source&quot;
+			_PropertyGet = _Command
+		Case &quot;SourceType&quot;
+			_PropertyGet = _SheetType
+		Case &quot;XComponent&quot;
+			Set _PropertyGet = _Component
+		Case &quot;XControlModel&quot;
+			Set _PropertyGet = _ControlModel
+		Case &quot;XTabControllerModel&quot;
+			Set _PropertyGet = _TabControllerModel
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Datasheet._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertySet(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if successful
+
+Dim bSet As Boolean							&apos;	Return value
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFDatabases.Datasheet.set&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+	bSet = True
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Filter&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Filter&quot;, V_STRING) Then GoTo Finally
+			With _TabControllerModel
+				If Len(pvValue) &gt; 0 Then .Filter = _ParentDatabase._ReplaceSquareBrackets(pvValue) Else .Filter = &quot;&quot;
+				.ApplyFilter = ( Len(pvValue) &gt; 0 )
+				.reload()
+			End With
+		Case UCase(&quot;OrderBy&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;OrderBy&quot;, V_STRING) Then GoTo Finally
+			With _TabControllerModel
+				If Len(pvValue) &gt; 0 Then .Order = _ParentDatabase._ReplaceSquareBrackets(pvValue) Else .Order = &quot;&quot;
+				.reload()
+			End With
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	_PropertySet = bSet
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDatabases.SF_Datasheet._PropertySet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the Datasheet instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[DATASHEET]: tablename,base file url&quot;
+
+	_Repr = &quot;[DATASHEET]: &quot; &amp; _Command &amp; &quot;,&quot; &amp; _BaseFileName
+
+End Function	&apos;	SFDatabases.SF_Datasheet._Repr
+
+REM ============================================ END OF SFDATABASES.SF_DATASHEET
+</script:module>

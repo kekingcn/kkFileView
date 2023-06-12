@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface domain="cui">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustmentColNumber">
+    <property name="lower">1</property>
+    <!-- MSO has an upper limit of 16 in UI -->
+    <property name="upper">16</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentColSpacing">
+    <property name="lower">0</property>
+    <property name="upper">2147483647</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkBox" id="TextColumnsPage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="border-width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <!-- n-columns=2 n-rows=2 -->
+      <object class="GtkGrid" id="grid1">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-start">12</property>
+        <property name="margin-top">6</property>
+        <property name="row-spacing">6</property>
+        <property name="column-spacing">12</property>
+        <child>
+          <object class="GtkLabel" id="labelColNumber">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes" context="textcolumnstabpage|labelColNumber">_Number of columns:</property>
+            <property name="use-underline">True</property>
+            <property name="mnemonic-widget">FLD_COL_NUMBER</property>
+            <property name="xalign">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="labelColSpacing">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes" context="textcolumnstabpage|labelColSpacing">_Spacing:</property>
+            <property name="use-underline">True</property>
+            <property name="mnemonic-widget">MTR_FLD_COL_SPACING</property>
+            <property name="xalign">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSpinButton" id="FLD_COL_NUMBER">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="activates-default">True</property>
+            <property name="truncate-multiline">True</property>
+            <property name="adjustment">adjustmentColNumber</property>
+            <property name="value">1</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="FLD_COL_NUMBER-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="textcolumnstabpage|extended_tip|FLD_COL_NUMBER">Enter the number of columns to use for the text.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSpinButton" id="MTR_FLD_COL_SPACING">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="activates-default">True</property>
+            <property name="truncate-multiline">True</property>
+            <property name="adjustment">adjustmentColSpacing</property>
+            <property name="digits">2</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="MTR_FLD_COL_SPACING-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="textcolumnstabpage|extended_tip|MTR_FLD_COL_SPACING">Enter the amount of space to leave between the columns.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="TextColumnsPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="textcolumnstabpage|extended_tip|TextColumnsPage">Sets the columns’ layout properties for text in the selected drawing or text object.</property>
+      </object>
+    </child>
+  </object>
+</interface>

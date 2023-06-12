@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<baf:BusinessAuthorization xmlns:baf="urn:tscp:names:baf:1.1" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0">
+    <!-- Translators: this string can be localized -->
+    <baf:PolicyAuthorityName>Exemplo de autoridade de políticas TSCP de segurança</baf:PolicyAuthorityName>
+    <!-- Translators: this string can be localized -->
+    <baf:PolicyName>Exemplo de política de segurança da informação</baf:PolicyName>
+    <baf:AdministrativeData>
+        <baf:ProgramID>urn:example:tscp:1</baf:ProgramID>
+    </baf:AdministrativeData>
+    <baf:Included>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:non-business" Name="Público" loextAbbreviatedName="PUB">
+            <baf:LabelingRules/>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>0</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:general-business" Name="Corporativo" loextAbbreviatedName="CORP">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Classificação: Corporativo</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>1</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:confidential" Name="Confidencial" loextAbbreviatedName="CONF">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Classificação: Confidencial</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Conteúdo confidencial. Vedada a distribuição externa sem aprovação da empresa.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>CONFIDENCIAL</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>2</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <!-- Translators: the Name attribute in this string can be localized -->
+        <baf:BusinessAuthorizationCategory Identifier="urn:example:tscp:1:internal-only" Name="Restrito" loextAbbreviatedName="RES">
+            <baf:LabelingRules>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Header</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Classificação: Restrito</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Footer</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>Conteúdo restrito. Vedada a distribuição externa.</baf:Value>
+                </baf:VisualMarkingPart>
+                <baf:VisualMarkingPart>
+                    <baf:Identifier>Document: Watermark</baf:Identifier>
+                    <!-- Translators: this string can be localized -->
+                    <baf:Value>RESTRITO</baf:Value>
+                </baf:VisualMarkingPart>
+            </baf:LabelingRules>
+            <baf:ImpactLevel>
+                <baf:Scale>UK-Cabinet</baf:Scale>
+                <baf:ConfidentalityValue>3</baf:ConfidentalityValue>
+            </baf:ImpactLevel>
+        </baf:BusinessAuthorizationCategory>
+        <loext:Marking Name="Exemplo de marcação" />
+        <loext:IntellectualPropertyPart Name="Exemplo de 1ª parte de propriedade intelectual" />
+        <loext:IntellectualPropertyPart Name="Examplo de 2ª parte de propriedade intelectual" />
+        <loext:IntellectualPropertyPartNumber Name="1" />
+        <loext:IntellectualPropertyPartNumber Name="2" />
+    </baf:Included>
+</baf:BusinessAuthorization>
+<!-- vim:set shiftwidth=4 softtabstop=4 expandtab:
+-->

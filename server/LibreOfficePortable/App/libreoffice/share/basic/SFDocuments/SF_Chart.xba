@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Chart" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Chart
+&apos;&apos;&apos;	========
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SF_Chart module is focused on the description of chart documents
+&apos;&apos;&apos;		stored in Calc sheets.
+&apos;&apos;&apos;		With this service, many chart types and chart characteristics available
+&apos;&apos;&apos;		in the user interface can be read or modified.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Definitions
+&apos;&apos;&apos;			Charts have 2 distinct names:
+&apos;&apos;&apos;				-	an internal name, given by the LibreOffice application
+&apos;&apos;&apos;				-	an optional user-defined name
+&apos;&apos;&apos;			In the scope of the ScriptForge libraries, the chart name is the name given by the user.
+&apos;&apos;&apos;			Only when there is no user name, the internal name may be used instead.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation from the &quot;Calc&quot; service
+&apos;&apos;&apos;			Either make a new chart
+&apos;&apos;&apos;				calc.CreateChart(ChartName, SheetName, &quot;SheetX.A1:C8&quot;)
+&apos;&apos;&apos;			or select an existing one
+&apos;&apos;&apos;				calc.Charts(SheetName, ChartName)
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_chart.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const CHARTEXPORTERROR		=	&quot;CHARTEXPORTERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]					As Object
+Private [_Parent]				As Object		&apos;	Parent Calc document
+Private ObjectType				As String		&apos;	Must be CHART
+Private ServiceName				As String
+
+&apos;	Chart description
+Private _SheetName				As String		&apos;	Name of the Calc sheet containing the chart
+Private _DrawIndex				As Long			&apos;	Index of the chart in the sheet&apos;s draw page
+Private _ChartName				As String		&apos;	User name
+Private _PersistentName			As String		&apos;	Internal name
+Private _Shape					As Object		&apos;	com.sun.star.drawing.XShape
+Private _Chart					As Object		&apos;	com.sun.star.table.XTableChart
+Private _ChartObject			As Object		&apos;	com.sun.star.lang.XComponent - ScChartObj
+Private _Diagram				As Object		&apos;	com.sun.star.chart.XDiagram
+
+REM ============================================================ MODULE CONSTANTS
+
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;CHART&quot;
+	ServiceName = &quot;SFDocuments.Chart&quot;
+	_SheetName = &quot;&quot;
+	_DrawIndex = -1
+	_ChartName = &quot;&quot;
+	_PersistentName = &quot;&quot;
+	Set _Shape = Nothing
+	Set _Chart = Nothing
+	Set _ChartObject = Nothing
+	Set _Diagram = Nothing
+End Sub		&apos;	SFDocuments.SF_Chart Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDocuments.SF_Chart Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDocuments.SF_Chart Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get ChartType() As Variant
+&apos;&apos;&apos;	The ChartType property specifies the type of chart as a string among next values:
+&apos;&apos;&apos;	Pie, Bar, Donut, Column, Area, Line, XY, Bubble, Net
+	ChartType = _PropertyGet(&quot;ChartType&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.ChartType (get)
+
+REM -----------------------------------------------------------------------------
+Property Let ChartType(Optional ByVal pvChartType As Variant)
+&apos;&apos;&apos;	Set the updatable property ChartType
+	_PropertySet(&quot;ChartType&quot;, pvChartType)
+End Property	&apos;	SFDocuments.SF_Chart.ChartType (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Deep() As Variant
+&apos;&apos;&apos;	If True, determines that in a three-dimensional bar chart the bars of each series are arranged behind each other in the z-direction.
+&apos;&apos;&apos;	If False the arrangement of bars is like in two-dimensional bar charts.
+&apos;&apos;&apos;	Bar and Column chart types only
+	Deep = _PropertyGet(&quot;Deep&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Deep (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Deep(Optional ByVal pvDeep As Variant)
+&apos;&apos;&apos;	Set the updatable property Deep
+	_PropertySet(&quot;Deep&quot;, pvDeep)
+End Property	&apos;	SFDocuments.SF_Chart.Deep (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Dim3D() As Variant
+&apos;&apos;&apos;	The Dim3D property specifies if the chart is displayed with 3D elements
+&apos;&apos;&apos;	String or Boolean
+&apos;&apos;&apos;	When String, must be 1 of next values: Bar, Cylinder, Cone or Pyramid
+&apos;&apos;&apos;	When Boolean True, Bar is assumed; when False, no 3D to be applied
+	Dim3D = _PropertyGet(&quot;Dim3D&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Dim3D (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Dim3D(Optional ByVal pvDim3D As Variant)
+&apos;&apos;&apos;	Set the updatable property Dim3D
+	_PropertySet(&quot;Dim3D&quot;, pvDim3D)
+End Property	&apos;	SFDocuments.SF_Chart.Dim3D (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Exploded() As Variant
+&apos;&apos;&apos;	the offset by which pie segments in a PieDiagram (pie or donut) are dragged outside from the center.
+&apos;&apos;&apos;	This value is given in percent of the radius.
+	Exploded = _PropertyGet(&quot;Exploded&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Exploded (get)_ChartObject
+
+REM -----------------------------------------------------------------------------
+Property Let Exploded(Optional ByVal pvExploded As Variant)
+&apos;&apos;&apos;	Set the updatable property Exploded
+	_PropertySet(&quot;Exploded&quot;, pvExploded)
+End Property	&apos;	SFDocuments.SF_Chart.Exploded (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Filled() As Variant
+&apos;&apos;&apos;	When True, the Net diagram is said of FilledNet type
+&apos;&apos;&apos;	Net chart type only
+	Filled = _PropertyGet(&quot;Filled&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Filled (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Filled(Optional ByVal pvFilled As Variant)
+&apos;&apos;&apos;	Set the updatable property Filled
+	_PropertySet(&quot;Filled&quot;, pvFilled)
+End Property	&apos;	SFDocuments.SF_Chart.Filled (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Legend() As Variant
+&apos;&apos;&apos;	Specifies if the chart has a legend
+	Legend = _PropertyGet(&quot;Legend&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Legend (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Legend(Optional ByVal pvLegend As Variant)
+&apos;&apos;&apos;	Set the updatable property Legend
+	_PropertySet(&quot;Legend&quot;, pvLegend)
+End Property	&apos;	SFDocuments.SF_Chart.Legend (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Percent() As Variant
+&apos;&apos;&apos;	When True, the series of the diagram are stacked and each category sums up to 100%.
+&apos;&apos;&apos;	Area, Bar, Bubble, Column and Net chart types only_ChartObject
+	Percent = _PropertyGet(&quot;Percent&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Percent (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Percent(Optional ByVal pvPercent As Variant)
+&apos;&apos;&apos;	Set the updatable property Percent
+	_PropertySet(&quot;Percent&quot;, pvPercent)
+End Property	&apos;	SFDocuments.SF_Chart.Percent (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Stacked() As Variant
+&apos;&apos;&apos;	When True, the series of the diagram are stacked.
+&apos;&apos;&apos;	Area, Bar, Bubble, Column and Net chart types only
+	Stacked = _PropertyGet(&quot;Stacked&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Stacked (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Stacked(Optional ByVal pvStacked As Variant)
+&apos;&apos;&apos;	Set the updatable property Stacked
+	_PropertySet(&quot;Stacked&quot;, pvStacked)
+End Property	&apos;	SFDocuments.SF_Chart.Stacked (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Title() As Variant
+&apos;&apos;&apos;	Specifies the main title of the chart
+	Title = _PropertyGet(&quot;Title&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.Title (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Title(Optional ByVal pvTitle As Variant)
+&apos;&apos;&apos;	Set the updatable property Title
+	_PropertySet(&quot;Title&quot;, pvTitle)
+End Property	&apos;	SFDocuments.SF_Chart.Title (let)
+
+REM -----------------------------------------------------------------------------
+Property Get XTitle() As Variant
+&apos;&apos;&apos;	Specifies the main XTitle of the chart
+	XTitle = _PropertyGet(&quot;XTitle&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.XTitle (get)
+
+REM -----------------------------------------------------------------------------
+Property Let XTitle(Optional ByVal pvXTitle As Variant)
+&apos;&apos;&apos;	Set the updatable property XTitle
+	_PropertySet(&quot;XTitle&quot;, pvXTitle)
+End Property	&apos;	SFDocuments.SF_Chart.XTitle (let)
+
+REM -----------------------------------------------------------------------------
+Property Get YTitle() As Variant
+&apos;&apos;&apos;	Specifies the main YTitle of the chart
+	YTitle = _PropertyGet(&quot;YTitle&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.YTitle (get)
+
+REM -----------------------------------------------------------------------------
+Property Let YTitle(Optional ByVal pvYTitle As Variant)
+&apos;&apos;&apos;	Set the updatable property YTitle
+	_PropertySet(&quot;YTitle&quot;, pvYTitle)
+End Property	&apos;	SFDocuments.SF_Chart.YTitle (let)
+
+REM -----------------------------------------------------------------------------
+Property Get XChartObj() As Variant
+&apos;&apos;&apos;	com.sun.star.lang.XComponent - ScChartObj
+	ChartType = _PropertyGet(&quot;XChartObj&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.XChartObj (get)
+
+REM -----------------------------------------------------------------------------
+Property Get XDiagram() As Variant
+&apos;&apos;&apos;	com.sun.star.chart.XDiagram
+	ChartType = _PropertyGet(&quot;XDiagram&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.XDiagram (get)
+
+REM -----------------------------------------------------------------------------
+Property Get XShape() As Variant
+&apos;&apos;&apos;	com.sun.star.drawing.XShape
+	ChartType = _PropertyGet(&quot;XShape&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.XShape (get)
+
+REM -----------------------------------------------------------------------------
+Property Get XTableChart() As Variant
+&apos;&apos;&apos;	com.sun.star.table.XTableChart
+	ChartType = _PropertyGet(&quot;XTableChart&quot;)
+End Property	&apos;	SFDocuments.SF_Chart.XTableChart (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function ExportToFile(Optional ByVal FileName As Variant _
+							, Optional ByVal ImageType As Variant _
+							, Optional ByVal Overwrite As Variant _
+							) As Boolean
+&apos;&apos;&apos; Store the chart as an image to the given file location
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FileName: Identifies the file where to save. It must follow the SF_FileSystem.FileNaming notation
+&apos;&apos;&apos;		ImageType: the name of the targeted image type
+&apos;&apos;&apos;			Allowed values: gif, jpeg, png (default), svg and tiff
+&apos;&apos;&apos;		Overwrite: True if the destination file may be overwritten (default = False)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False if the document could not be saved
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		CHARTEXPORTERROR		The destination has its readonly attribute set or overwriting rejected
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oChart.ExportToFile(&quot;C:\Me\Chart2.gif&quot;, ImageType := &quot;gif&quot;, Overwrite := True)
+
+Dim bSaved As Boolean				&apos;	return value
+Dim oSfa As Object					&apos;	com.sun.star.ucb.SimpleFileAccess
+Dim sFile As String					&apos;	Alias of FileName
+Dim vStoreArguments As Variant		&apos;	Array of com.sun.star.beans.PropertyValue
+Dim FSO As Object					&apos;	SF_FileSystem
+Dim oExport As Object				&apos;	com.sun.star.drawing.GraphicExportFilter
+Dim vImageTypes As Variant			&apos;	Array of permitted image types
+Dim vMimeTypes As Variant			&apos;	Array of corresponding mime types in the same order as vImageTypes
+
+Const cstImageTypes =	&quot;gif,jpeg,png,svg,tiff&quot;
+Const cstMimeTypes =	&quot;image/gif,image/jpeg,image/png,image/svg+xml,image/tiff&quot;
+
+Const cstThisSub = &quot;SFDocuments.Chart.ExportToFile&quot;
+Const cstSubArgs = &quot;FileName, [ImageType=&quot;&quot;png&quot;&quot;|&quot;&quot;gif&quot;&quot;|&quot;&quot;jpeg&quot;&quot;|&quot;&quot;svg&quot;&quot;|&quot;&quot;tiff&quot;&quot;], [Overwrite=False]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo CatchError
+	bSaved = False
+
+Check:
+	If IsMissing(ImageType) Or IsEmpty(ImageType) Then ImageType = &quot;png&quot;
+	If IsMissing(Overwrite) Or IsEmpty(Overwrite) Then Overwrite = False
+
+	vImageTypes = Split(cstImageTypes, &quot;,&quot;)
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not [_Parent]._IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._ValidateFile(FileName, &quot;FileName&quot;) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(ImageType, &quot;ImageType&quot;, V_STRING, vImageTypes) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Overwrite, &quot;Overwrite&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+
+	&apos;	Check destination file overwriting
+	Set FSO = CreateScriptService(&quot;FileSystem&quot;)
+	sFile = FSO._ConvertToUrl(FileName)
+	If FSO.FileExists(FileName) Then
+		If Overwrite = False Then GoTo CatchError
+		Set oSfa = ScriptForge.SF_Utils._GetUNOService(&quot;FileAccess&quot;)
+		If oSfa.isReadonly(sFile) Then GoTo CatchError
+	End If
+
+Try:
+	&apos;	Setup arguments
+	vMimeTypes = Split(cstMimeTypes, &quot;,&quot;)
+	vStoreArguments = Array( _
+								ScriptForge.SF_Utils._MakePropertyValue(&quot;URL&quot;, sFile) _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;MediaType&quot; _
+									, vMimeTypes(ScriptForge.SF_Array.IndexOf(vImageTypes, ImageType, CaseSensitive := False))) _
+							)
+	&apos;	Export with the com.sun.star.drawing.GraphicExportFilter UNO service
+	Set oExport = ScriptForge.SF_Utils._GetUNOService(&quot;GraphicExportFilter&quot;)
+	With oExport
+		.setSourceDocument(_Shape)
+		.filter(vStoreArguments)
+	End With
+	bSaved = True
+
+Finally:
+	ExportToFile = bSaved
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchError:
+	ScriptForge.SF_Exception.RaiseFatal(CHARTEXPORTERROR, &quot;FileName&quot;, FileName, &quot;Overwrite&quot;, Overwrite)
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Chart.ExportToFile
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;		If the property does not exist, returns Null
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Chart.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Chart.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Chart service as an array
+
+	Methods = Array( _
+					&quot;ExportToFile&quot; _
+					, &quot;Resize&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Chart.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Chart class as an array
+
+	Properties = Array( _
+					&quot;ChartType&quot; _
+					, &quot;Deep&quot; _
+					, &quot;Dim3D&quot; _
+					, &quot;Exploded&quot; _
+					, &quot;Filled&quot; _
+					, &quot;Legend&quot; _
+					, &quot;Percent&quot; _
+					, &quot;Stacked&quot; _
+					, &quot;Title&quot; _
+					, &quot;XChartObj&quot; _
+					, &quot;XDiagram&quot; _
+					, &quot;XShape&quot; _
+					, &quot;XTableChart&quot; _
+					, &quot;XTitle&quot; _
+					, &quot;YTitle&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Chart.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function Resize(Optional ByVal XPos As Variant _
+								, Optional ByVal YPos As Variant _
+								, Optional ByVal Width As Variant _
+								, Optional ByVal Height As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Move the topleft corner of a chart to new coordinates and/or modify its dimensions
+&apos;&apos;&apos;	All distances are expressed in 1/100th mm
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		XPos : the vertical distance from the topleft corner
+&apos;&apos;&apos;		YPos : the horizontal distance from the topleft corner
+&apos;&apos;&apos;		Width : the horizontal width of the shape containing the chart
+&apos;&apos;&apos;		Height : the vertical height of the shape containing the chart
+&apos;&apos;&apos;		Negative or missing arguments are left unchanged
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oChart.Resize(1000, 2000, Height := 6000)	&apos;	Width is not changed
+
+Dim bResize As Boolean				&apos;	Return value
+Dim oPosition As Object				&apos;	com.sun.star.awt.Point
+Dim oSize As Object					&apos;	com.sun.star.awt.Size
+Const cstThisSub = &quot;SFDocuments.Chart.Resize&quot;
+Const cstSubArgs = &quot;[XPos], [YPos], [Width], [Height]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bResize = False
+
+Check:
+	If IsMissing(XPos) Or IsEmpty(XPos) Then XPos = -1
+	If IsMissing(YPos) Or IsEmpty(YPos) Then YPos = -1
+	If IsMissing(Height) Or IsEmpty(Height) Then Height = -1
+	If IsMissing(Width) Or IsEmpty(Width) Then Width = -1
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not [_Parent]._IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(XPos, &quot;XPos&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(YPos, &quot;YPos&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Width, &quot;Width&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Height, &quot;Height&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+
+Try:
+	With _Shape
+		&apos;	Get the current values
+		Set oPosition = .Position
+		Set oSize = .Size
+		&apos;	Modify relevant elements
+		If XPos &gt;= 0 Then oPosition.X = CLng(XPos)
+		If YPos &gt;= 0 Then oPosition.Y = CLng(YPos)
+		If Width &gt; 0 Then oSize.Width = CLng(Width)
+		If Height &gt; 0 Then oSize.Height = CLng(Height)
+		&apos;	Rewrite
+		.setPosition(oPosition)
+		.setSize(oSize)
+	End With
+	bResize = True
+
+Finally:
+	Resize = bResize
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SF_Documents.SF_Chart.Resize
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Chart.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	SetProperty = _PropertySet(PropertyName, Value)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Chart.SetProperty
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim vData As Variant						&apos;	Data points array of values
+
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SFDocuments.Chart.get&quot; &amp; psProperty
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not [_Parent]._IsStillAlive() Then GoTo Finally
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	Select Case UCase(psProperty)
+		Case UCase(&quot;ChartType&quot;)
+			With _Diagram
+				Select Case .DiagramType
+					Case &quot;com.sun.star.chart.BarDiagram&quot;
+						If .Vertical Then _PropertyGet = &quot;Bar&quot; Else _PropertyGet = &quot;Column&quot;
+					Case &quot;com.sun.star.chart.PieDiagram&quot;
+						_PropertyGet = &quot;Pie&quot;
+					Case &quot;com.sun.star.chart.DonutDiagram&quot;
+						_PropertyGet = &quot;Donut&quot;
+					Case &quot;com.sun.star.chart.AreaDiagram&quot;
+						_PropertyGet = &quot;Area&quot;
+					Case &quot;com.sun.star.chart.LineDiagram&quot;
+						_PropertyGet = &quot;Line&quot;
+					Case &quot;com.sun.star.chart.XYDiagram&quot;
+						_PropertyGet = &quot;XY&quot;
+					Case &quot;com.sun.star.chart.BubbleDiagram&quot;
+						_PropertyGet = &quot;Bubble&quot;
+					Case &quot;com.sun.star.chart.NetDiagram&quot;, &quot;com.sun.star.chart.FilledNetDiagram&quot;
+						_PropertyGet = &quot;Net&quot;
+					Case Else
+						_PropertyGet = &quot;&quot;
+				End Select
+			End With
+		Case UCase(&quot;Deep&quot;)
+			If oSession.HasUnoProperty(_Diagram, &quot;Deep&quot;) Then _PropertyGet = _Diagram.Deep Else _PropertyGet = False
+		Case UCase(&quot;Dim3D&quot;)
+			If oSession.HasUnoProperty(_Diagram, &quot;Dim3D&quot;) Then
+				If _Diagram.Dim3D Then
+					If oSession.HasUnoProperty(_Diagram, &quot;SolidType&quot;) Then
+						Select Case _Diagram.SolidType
+							Case com.sun.star.chart.ChartSolidType.RECTANGULAR_SOLID	:	_PropertyGet = &quot;Bar&quot;
+							Case com.sun.star.chart.ChartSolidType.CYLINDER				:	_PropertyGet = &quot;Cylinder&quot;
+							Case com.sun.star.chart.ChartSolidType.CONE					:	_PropertyGet = &quot;Cone&quot;
+							Case com.sun.star.chart.ChartSolidType.PYRAMID				:	_PropertyGet = &quot;Pyramid&quot;
+						End Select
+					Else
+						_PropertyGet = _Diagram.Dim3D
+					End If
+				Else
+					_PropertyGet = False
+				End If
+			Else
+				_PropertyGet = False
+			End If
+		Case UCase(&quot;Exploded&quot;)
+			If oSession.HasUnoProperty(_ChartObject, &quot;Data&quot;) Then
+				&apos;	All data points are presumed exploded with the same coefficient. Determine the (0, 0)th
+				With _ChartObject
+					vData = .Data.Data
+					_PropertyGet = 0
+					If IsArray(vData) Then
+						If UBound(vData) &gt;= 0 Then
+							If IsArray(vData(0)) Then
+								If UBound(vData(0)) &gt;= 0 Then _PropertyGet = _Diagram.getDataPointProperties(0, 0).SegmentOffset
+							End If
+						End If
+					End If
+				End With
+			End If
+		Case UCase(&quot;Filled&quot;)
+			_PropertyGet = ( _Diagram.DiagramType = &quot;com.sun.star.chart.FilledNetDiagram&quot; )
+		Case UCase(&quot;Legend&quot;)
+			If oSession.HasUnoProperty(_ChartObject, &quot;HasLegend&quot;) Then _PropertyGet = _ChartObject.HasLegend Else _PropertyGet = False
+		Case UCase(&quot;Percent&quot;)
+			If oSession.HasUnoProperty(_Diagram, &quot;Percent&quot;) Then _PropertyGet = _Diagram.Percent Else _PropertyGet = False
+		Case UCase(&quot;Stacked&quot;)
+			If oSession.HasUnoProperty(_Diagram, &quot;Stacked&quot;) Then _PropertyGet = _Diagram.Stacked Else _PropertyGet = False
+		Case UCase(&quot;Title&quot;)
+			If oSession.HasUnoProperty(_ChartObject, &quot;HasMainTitle&quot;) Then
+				If _ChartObject.HasMainTitle Then _PropertyGet = _ChartObject.Title.String Else _PropertyGet = &quot;&quot;
+			End If
+		Case UCase(&quot;XTitle&quot;)
+			If oSession.HasUnoProperty(_Diagram, &quot;HasXAxisTitle&quot;) Then
+				If _Diagram.HasXAxisTitle Then _PropertyGet = _Diagram.XAxisTitle.String Else _PropertyGet = &quot;&quot;
+			End If
+		Case UCase(&quot;YTitle&quot;)
+			If oSession.HasUnoProperty(_Diagram, &quot;HasYAxisTitle&quot;) Then
+				If _Diagram.HasYAxisTitle Then _PropertyGet = _Diagram.YAxisTitle.String Else _PropertyGet = &quot;&quot;
+			End If
+		Case UCase(&quot;XChartObj&quot;)
+			Set _PropertyGet = _ChartObject
+		Case UCase(&quot;XDiagram&quot;)
+			Set _PropertyGet = _Diagram
+		Case UCase(&quot;XShape&quot;)
+			Set _PropertyGet = _Shape
+		Case UCase(&quot;XTableChart&quot;)
+			Set _PropertyGet = _Chart
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Chart._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertySet(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+
+Dim bSet As Boolean							&apos;	Return value
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim sChartType As String					&apos;	Diagram type
+Dim bDim3D As Boolean						&apos;	Alias of Dim3D property of diagram
+Dim bVertical As Boolean					&apos;	When True, chart type is a bar, not a column
+Dim vData As Variant						&apos;	Data points array of values
+Dim i As Long, j As Long
+Const cstChart = &quot;com.sun.star.chart.&quot;
+
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFDocuments.Chart.set&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not [_Parent]._IsStillAlive() Then GoTo Catch
+
+	bSet = True
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	Select Case UCase(psProperty)
+		Case UCase(&quot;ChartType&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;ChartType&quot;, V_STRING _
+					, Array(&quot;Bar&quot;, &quot;Column&quot;, &quot;Pie&quot;, &quot;Donut&quot;, &quot;Area&quot;, &quot;Line&quot;, &quot;XY&quot;, &quot;Bubble&quot;, &quot;Net&quot;) _
+					) Then GoTo Finally
+			With _Diagram
+				&apos;	Specify the targeted chart type
+				Select Case UCase(pvValue)
+					Case &quot;BAR&quot;, &quot;COLUMN&quot;	:	sChartType = cstChart &amp; &quot;BarDiagram&quot;
+					Case &quot;PIE&quot;				:	sChartType = cstChart &amp; &quot;PieDiagram&quot;
+					Case &quot;DONUT&quot;			:	sChartType = cstChart &amp; &quot;DonutDiagram&quot;
+					Case &quot;AREA&quot;				:	sChartType = cstChart &amp; &quot;AreaDiagram&quot;
+					Case &quot;LINE&quot;				:	sChartType = cstChart &amp; &quot;LineDiagram&quot;
+					Case &quot;XY&quot;				:	sChartType = cstChart &amp; &quot;XYDiagram&quot;
+					Case &quot;BUBBLE&quot;			:	sChartType = cstChart &amp; &quot;BubbleDiagram&quot;
+					Case &quot;NET&quot;				:	sChartType = cstChart &amp; &quot;NetDiagram&quot;
+				End Select
+				&apos;	If there is no change, do nothing
+				If sChartType &lt;&gt; .DiagramType Then
+					&apos;	Some combinations old type =&gt; new type require the cancellation of 3D graphs
+					bDim3D = .Dim3D
+					.Dim3D = False
+					_ChartObject.createInstance(sChartType)
+					Set _Diagram = _ChartObject.Diagram
+					.Dim3D = bDim3D
+				End If
+				If UCase(pvValue) = &quot;BAR&quot; Or UCase(pvValue) = &quot;COLUMN&quot; Then .Vertical = ( UCase(pvValue) = &quot;BAR&quot; )
+			End With
+		Case UCase(&quot;Deep&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Deep&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If oSession.HasUnoProperty(_Diagram, &quot;Deep&quot;) Then _Diagram.Deep = pvValue
+		Case UCase(&quot;Dim3D&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Dim3D&quot;, Array(ScriptForge.V_Boolean, V_STRING) _
+					, Array(False, True, &quot;Bar&quot;, &quot;Cylinder&quot;, &quot;Cone&quot;, &quot;Pyramid&quot;) _
+					) Then GoTo Finally
+			With _Diagram
+				If oSession.HasUnoProperty(_Diagram, &quot;Dim3D&quot;) Then
+					If _Diagram.DiagramType = &quot;com.sun.star.chart.BubbleDiagram&quot; Then
+						.Dim3D = False		&apos;	Force False value to avoid empty graph
+					ElseIf VarType(pvValue) = V_STRING Then
+						bVertical = .Vertical
+						.Dim3D = True
+						.Vertical = bVertical
+						If oSession.HasUnoProperty(_Diagram, &quot;SolidType&quot;) Then
+							If .DiagramType = cstChart &amp; &quot;BarDiagram&quot; Then
+								Select Case UCase(pvValue)
+									Case &quot;BAR&quot;		:	.SolidType = com.sun.star.chart.ChartSolidType.RECTANGULAR_SOLID
+									Case &quot;CYLINDER&quot;	:	.SolidType = com.sun.star.chart.ChartSolidType.CYLINDER
+									Case &quot;CONE&quot;		:	.SolidType = com.sun.star.chart.ChartSolidType.CONE
+									Case &quot;PYRAMID&quot;	:	.SolidType = com.sun.star.chart.ChartSolidType.PYRAMID
+								End Select					
+							Else
+								.SolidType = 0
+							End If
+						End If
+					Else	&apos;	Boolean
+						If oSession.HasUnoProperty(_Diagram, &quot;SolidType&quot;) Then .SolidType = 0
+						.Dim3D = pvValue
+					End If
+				End If
+			End With
+		Case UCase(&quot;Exploded&quot;)
+			If oSession.HasUnoProperty(_ChartObject, &quot;Data&quot;) And _Diagram.DiagramType &lt;&gt; &quot;com.sun.star.chart.BubbleDiagram&quot; Then
+				&apos;	All data points are presumed exploded with the same coefficient
+				If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Exploded&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+				With _ChartObject
+					vData = .Data.Data
+					If IsArray(vData) Then
+						For i = 0 To UBound(vData)
+							If IsArray(vData(i)) Then
+								For j = 0 To UBound(vData(i))
+									_Diagram.getDataPointProperties(i, j).SegmentOffset = CLng(pvValue)
+								Next j
+							End If
+						Next i
+					End If
+				End With
+			End If
+		Case UCase(&quot;Filled&quot;)
+			&apos;	Flipflop between NetDiagram and FilledNetDiagram
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Filled&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			With _Diagram
+				&apos;	Specify the targeted chart type
+				sChartType = cstChart &amp; Iif(pvValue, &quot;Filled&quot;, &quot;&quot;) &amp; &quot;NetDiagram&quot;
+				&apos;	If there is no change, do nothing
+				If sChartType &lt;&gt; .DiagramType then
+					&apos;	Do not apply if the chart type not = &quot;Net&quot;
+					If (pvValue And .DiagramType = cstChart &amp; &quot;NetDiagram&quot;) _
+							Or (Not pvValue And .DiagramType = cstChart &amp; &quot;FilledNetDiagram&quot;) Then
+						&apos;	Some combinations old type =&gt; new type require the cancellation of 3D graphs
+						bDim3D = .Dim3D
+						.Dim3D = False
+						_ChartObject.createInstance(sChartType)
+						Set _Diagram = _ChartObject.Diagram
+						.Dim3D = bDim3D
+					End If
+				End If
+			End With
+		Case UCase(&quot;Legend&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Legend&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If oSession.HasUnoProperty(_ChartObject, &quot;HasLegend&quot;) Then _ChartObject.HasLegend = pvValue
+		Case UCase(&quot;Percent&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Percent&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If oSession.HasUnoProperty(_Diagram, &quot;Percent&quot;) Then
+				_Diagram.Stacked = pvValue
+				_Diagram.Percent = pvValue
+			End If
+		Case UCase(&quot;Stacked&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Stacked&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If oSession.HasUnoProperty(_Diagram, &quot;Stacked&quot;) Then
+				_Diagram.Stacked = pvValue
+				If Not pvValue Then _Diagram.Percent = False
+			End If
+		Case UCase(&quot;Title&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Title&quot;, V_STRING) Then GoTo Finally
+			If oSession.HasUnoProperty(_ChartObject, &quot;HasMainTitle&quot;) Then
+				_ChartObject.HasMainTitle = ( Len(pvValue) &gt; 0 )
+				If Len(pvValue) &gt; 0 Then _ChartObject.Title.String = pvValue
+			End If
+		Case UCase(&quot;XTitle&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;XTitle&quot;, V_STRING) Then GoTo Finally
+			If oSession.HasUnoProperty(_Diagram, &quot;HasXAxisTitle&quot;) Then
+				_Diagram.HasXAxisTitle = ( Len(pvValue) &gt; 0 )
+				If Len(pvValue) &gt; 0 Then _Diagram.XAxisTitle.String = pvValue
+			End If
+		Case UCase(&quot;YTitle&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;YTitle&quot;, V_STRING) Then GoTo Finally
+			If oSession.HasUnoProperty(_Diagram, &quot;HasYAxisTitle&quot;) Then
+				_Diagram.HasYAxisTitle = ( Len(pvValue) &gt; 0 )
+				If Len(pvValue) &gt; 0 Then _Diagram.YAxisTitle.String = pvValue
+			End If
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	_PropertySet = bSet
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bSet = False
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_FormControl._PropertySet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the Chart instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[Chart]: Name - Type
+
+	_Repr = &quot;[Chart]: &quot; &amp; ChartName &amp; &quot; - &quot; &amp; ChartType
+
+End Function	&apos;	SFDocuments.SF_Chart._Repr
+
+REM ============================================ END OF SFDOCUMENTS.SF_CHART
+</script:module>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_DocumentListener" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_DocumentListener
+&apos;&apos;&apos;	===================
+&apos;&apos;&apos;		The current module is dedicated to the management of document events + listeners, triggered by user actions,
+&apos;&apos;&apos;		which cannot be defined with the Basic IDE
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Concerned listeners:
+&apos;&apos;&apos;			com.sun.star.sheet.XRangeSelectionListener
+&apos;&apos;&apos;				allowing a user to select a cell range at any moment
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The described events/listeners are processed by UNO listeners
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================= DEFINITIONS
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private _SelectedRange			As String			&apos;	The selected range is returned by a &quot;done&quot; event
+Private _RangeSelectionFinished	As Boolean			&apos;	Flag indicating that the interaction with the user has stopped
+
+REM ================================================================== EXCEPTIONS
+
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function RunRangeSelector(ByRef poComponent As Object _
+										, ByRef pvPropertyValues As Variant _
+										) As String
+&apos;&apos;&apos;	Called from the SF_Calc.OpenRangeSelector() method
+&apos;&apos;&apos;	Opens a non-modal dialog with a text box,
+&apos;&apos;&apos;	let the user make a selection in the current or another sheet and
+&apos;&apos;&apos;	returns the selected area as a string.
+
+Dim oController As Object						&apos;	com.sun.star.frame.Controller
+Dim oListener As Object							&apos;	com.sun.star.sheet.XRangeSelectionListener
+Dim lCountLoops As Long							&apos;	Sleep cycles counter
+
+Const cstListenerPrefix = &quot;_SFRGSEL_&quot;			&apos;	Prefix used for naming events Subs
+Const cstSleep = 50								&apos;	Sleep steps in ms while waiting for the end of the interaction
+Const cstMaxSleep = (60 * 5 * 1000) / cstSleep	&apos;	Never sleep more than 5 minutes. Afterwards, processing continues
+
+	On Local Error GoTo Catch		&apos;	Avoid stopping event scripts
+
+Try:
+	&apos;	Create the listener
+	Set oController = poComponent.CurrentController
+	Set oListener = CreateUnoListener(cstListenerPrefix, &quot;com.sun.star.sheet.XRangeSelectionListener&quot;)
+	oController.addRangeSelectionListener(oListener)
+
+	&apos;	Open the selector
+	_SelectedRange = &quot;&quot;
+	_RangeSelectionFinished = False
+	oController.startRangeSelection(pvPropertyValues)
+
+	&apos;	Dummy thread synchronization
+	lCountLoops = 0
+	Do While Not _RangeSelectionFinished And lCountLoops &lt; cstMaxSleep
+		Wait(cstSleep)
+		lCountLoops = lCountLoops + 1
+	Loop
+
+Finally:
+	If Not IsNull(oListener) Then oController.removeRangeSelectionListener(oListener)
+	RunRangeSelector = _SelectedRange
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_DocumentListener.RunRangeSelector
+
+REM ============================================================= PRIVATE METHODS
+
+REM -----------------------------------------------------------------------------
+Sub _SFRGSEL_done(Optional poEvent As Object)		&apos;	com.sun.star.sheet.RangeSelectionEvent
+
+	On Local Error GoTo Catch		&apos;	Avoid stopping event scripts
+
+Try:
+	_SelectedRange = poEvent.RangeDescriptor
+	_RangeSelectionFinished = True
+
+Finally:
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub
+
+REM -----------------------------------------------------------------------------
+Sub _SFRGSEL_aborted(Optional poEvent As Object)	&apos;	com.sun.star.sheet.RangeSelectionEvent
+
+	On Local Error GoTo Catch		&apos;	Avoid stopping event scripts
+
+Try:
+	_RangeSelectionFinished = True
+
+Finally:
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub
+
+REM ============================================ END OF SFDIALOGS.SF_DIALOGLISTENER
+</script:module>

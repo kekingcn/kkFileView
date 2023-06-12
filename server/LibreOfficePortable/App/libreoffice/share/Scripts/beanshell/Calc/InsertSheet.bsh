@@ -1,0 +1,25 @@
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.frame.XModel;
+import com.sun.star.sheet.XSpreadsheetDocument;
+import com.sun.star.sheet.XSpreadsheets;
+import com.sun.star.lang.XMultiServiceFactory;
+
+oDoc = UnoRuntime.queryInterface(XModel.class,XSCRIPTCONTEXT.getInvocationContext());
+if ( oDoc == null )
+    oDoc = XSCRIPTCONTEXT.getDocument();
+
+XSpreadsheetDocument xDoc = (XSpreadsheetDocument) UnoRuntime.queryInterface(XSpreadsheetDocument.class,oDoc);
+XSpreadsheets xSheets = xDoc.getSheets();
+
+xSheets.insertNewByName("First new sheet", (short)0);
+xSheets.insertNewByName("Second new sheet", (short)1);
+
+return 0;

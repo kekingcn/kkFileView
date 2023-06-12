@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Register" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFUnitTests library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Register
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		The ScriptForge framework includes
+&apos;&apos;&apos;			the master ScriptForge library
+&apos;&apos;&apos;			a number of &quot;associated&quot; libraries SF*
+&apos;&apos;&apos;			any user/contributor extension wanting to fit into the framework 
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The main methods in this module allow the current library to cling to ScriptForge
+&apos;&apos;&apos;			- RegisterScriptServices
+&apos;&apos;&apos;				Register the list of services implemented by the current library
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const UNITTESTLIBRARYERROR		=	&quot;UNITTESTLIBRARYERROR&quot;
+
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Sub RegisterScriptServices() As Variant
+&apos;&apos;&apos;	Register into ScriptForge the list of the services implemented by the current library
+&apos;&apos;&apos;	Each library pertaining to the framework must implement its own version of this method
+&apos;&apos;&apos;
+&apos;&apos;&apos;	It consists in successive calls to the RegisterService() and RegisterEventManager() methods
+&apos;&apos;&apos;	with 2 arguments:
+&apos;&apos;&apos;		ServiceName: the name of the service as a case-insensitive string
+&apos;&apos;&apos;		ServiceReference: the reference as an object
+&apos;&apos;&apos;			If the reference refers to a module, then return the module as an object:
+&apos;&apos;&apos;				GlobalScope.Library.Module
+&apos;&apos;&apos;			If the reference is a class instance, then return a string referring to the method
+&apos;&apos;&apos;			containing the New statement creating the instance
+&apos;&apos;&apos;				&quot;libraryname.modulename.function&quot;
+
+	With GlobalScope.ScriptForge.SF_Services
+		.RegisterService(&quot;UnitTest&quot;,	&quot;SFUnitTests.SF_Register._NewUnitTest&quot;)		&apos;	Reference to the function initializing the service
+	End With
+
+End Sub			&apos;	SFUnitTests.SF_Register.RegisterScriptServices
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Function _NewUnitTest(Optional ByVal pvArgs As Variant) As Object
+&apos;&apos;&apos;	Create a new instance of the SF_UnitTest class
+&apos;	Args:
+&apos;&apos;&apos;		Location: if empty, the location of the library is presumed to be in GlobalScope.BasicLibraries
+&apos;&apos;&apos;			Alternatives are:
+&apos;&apos;&apos;				- the name of a document: see SF_UI.WindowName
+&apos;&apos;&apos;				- an explicit SFDocuments.Document instance
+&apos;&apos;&apos;				- the component containing the library, typically ThisComponent
+&apos;&apos;&apos;		LibraryName: the name of the library containing the test code
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The instance or Nothing
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		UNITTESTLIBRARYNOTFOUND		The library could not be found
+
+Dim oUnitTest As Object					&apos;	Return value
+Dim vLocation As Variant				&apos;	Alias of pvArgs(0)
+Dim vLibraryName As Variant				&apos;	alias of pvArgs(1)
+Dim vLocations As Variant				&apos;	&quot;user&quot;, &quot;share&quot; or document
+Dim sLocation As String					&apos;	A single location
+Dim sTargetLocation As String			&apos;	&quot;user&quot; or the document name
+Dim vLanguages As Variant				&apos;	&quot;Basic&quot;, &quot;Python&quot;, ... programming languages
+Dim sLanguage As String					&apos;	A single programming language
+Dim vLibraries As Variant				&apos;	Library names
+Dim sLibrary As String					&apos;	A single library
+Dim vModules As Variant					&apos;	Module names
+Dim sModule As String					&apos;	A single module
+Dim vModuleNames As Variant				&apos;	Module names
+Dim oRoot As Object						&apos;	com.sun.star.script.browse.BrowseNodeFactory
+Dim iLibrary As Integer					&apos;	The index of the target location in vLibraries
+
+Dim FSO As Object						&apos;	SF_FileSystem
+Dim i As Integer, j As Integer, k As Integer, l As Integer
+
+Const cstService = &quot;SFUnitTests.UnitTest&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(pvArgs) Or IsEmpty(pvArgs) Then pvArgs = Array()
+	If UBound(pvArgs) &gt;= 0 Then vLocation = pvArgs(0) Else vLocation = &quot;&quot;
+	If IsEmpty(vLocation) Then vLocation = &quot;&quot;
+	If UBound(pvArgs) &gt;= 1 Then vLibraryName = pvArgs(1) Else vLibraryName = &quot;&quot;
+	If IsEmpty(vLibraryName) Then vLibraryName = &quot;&quot;
+	If Not ScriptForge.SF_Utils._Validate(vLocation, &quot;Location&quot;, Array(V_STRING, ScriptForge.V_OBJECT)) Then GoTo Finally
+	If Not ScriptForge.SF_Utils._Validate(vLibraryName, &quot;LibraryName&quot;, V_STRING) Then GoTo Finally
+
+	Set oUnitTest = Nothing
+	Set FSO = CreateScriptService(&quot;ScriptForge.FileSystem&quot;)
+
+	&apos;	Determine the library container hosting the test code
+
+	&apos;	Browsing starts from root element
+	Set oRoot = SF_Utils._GetUNOService(&quot;BrowseNodeFactory&quot;).createView(com.sun.star.script.browse.BrowseNodeFactoryViewTypes.MACROORGANIZER)
+
+	If Len(vLibraryName) &gt; 0 Then
+
+		&apos;	Determine the target location, as a string. The location is either:
+		&apos;		- the last component of a document&apos;s file name
+		&apos;		- &quot;user&quot; = My Macros &amp; Dialogs
+		If VarType(vLocation) = ScriptForge.V_OBJECT Then
+			sTargetLocation = FSO.GetName(vLocation.URL)
+		ElseIf Len(vLocation) = 0 Then
+			sTargetLocation = &quot;user&quot;		&apos;	Testing code is presumed NOT in &quot;share&quot;
+		Else
+			sTargetLocation = FSO.GetName(vLocation)
+		End If
+
+		&apos;	Exploration is done via tree nodes
+		iLibrary = -1
+		If Not IsNull(oRoot) Then
+			If oRoot.hasChildNodes() Then
+				vLocations = oRoot.getChildNodes()
+				For i = 0 To UBound(vLocations)
+					sLocation = vLocations(i).getName()
+					If sLocation = sTargetLocation Then
+						If vLocations(i).hasChildNodes() Then
+							vLanguages = vLocations(i).getChildNodes()
+							For j = 0 To UBound(vLanguages)
+								sLanguage = vLanguages(j).getName()
+								&apos;	Consider Basic libraries only
+								If sLanguage = &quot;Basic&quot; Then
+									If vLanguages(j).hasChildNodes() Then
+										vLibraries = vLanguages(j).getChildNodes()
+										For k = 0 To UBound(vLibraries)
+											sLibrary = vLibraries(k).getName()
+											&apos;	Consider the targeted library only
+											If sLibrary = vLibraryName Then
+												iLibrary = k
+												If vLibraries(k).hasChildNodes() Then
+													vModules = vLibraries(k).getChildNodes()
+													vModuleNames = Array()
+													For l = 0 To UBound(vModules)
+														sModule = vModules(l).getName()
+														vModuleNames = ScriptForge.SF_Array.Append(vModuleNames, sModule)
+													Next l
+												End If
+												Exit For
+											End If
+										Next k
+									End If
+								End If
+								If iLibrary &gt;= 0 Then Exit For
+							Next j
+						End If
+					End If
+					If iLibrary &gt;= 0 Then Exit For
+				Next i
+			End If
+		End If
+		If iLibrary &lt; 0 Then GoTo CatchLibrary
+
+	End If
+
+Try:
+	&apos;	Create the unittest Basic object and initialize its attributes
+	Set oUnitTest = New SF_UnitTest
+	With oUnitTest
+		Set .[Me] = oUnitTest
+		If Len(vLibraryName) &gt; 0 Then
+			.LibrariesContainer = sTargetLocation
+			.Scope = Iif(sTargetLocation = &quot;user&quot;, &quot;application&quot;, &quot;document&quot;)
+			.Libraries = vLibraries
+			.LibraryName = sLibrary
+			.LibraryIndex = iLibrary
+			.Modules = vModules
+			.ModuleNames = vModuleNames
+			._ExecutionMode = .FULLMODE
+			._WhenAssertionFails = .FAILSTOPSUITE
+			&apos;	Launch the test timer
+			.TestTimer = CreateScriptService(&quot;ScriptForge.Timer&quot;, True)
+		Else
+			._ExecutionMode = .SIMPLEMODE
+			._WhenAssertionFails = .FAILIMMEDIATESTOP
+		End If
+	End With
+
+Finally:
+	Set _NewUnitTest = oUnitTest
+	Exit Function
+Catch:
+	GoTo Finally
+CatchLibrary:
+	ScriptForge.SF_Exception.RaiseFatal(UNITTESTLIBRARYERROR, vLibraryName)
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_Register._NewUnitTest
+
+REM ============================================== END OF SFUNITTESTS.SF_REGISTER
+</script:module>

@@ -1,0 +1,1098 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Base" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Base
+&apos;&apos;&apos;	=======
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SFDocuments library gathers a number of methods and properties making easy
+&apos;&apos;&apos;		the management and several manipulations of LibreOffice documents
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Some methods are generic for all types of documents: they are combined in the SF_Document module.
+&apos;&apos;&apos;		Specific properties and methods are implemented in the concerned subclass(es) SF_Calc, SF_Writer, ...
+&apos;&apos;&apos;
+&apos;&apos;&apos;		To workaround the absence of class inheritance in LibreOffice Basic, some redundancy is necessary
+&apos;&apos;&apos;		Each subclass MUST implement also the generic methods and properties, even if they only call
+&apos;&apos;&apos;		the parent methods and properties.
+&apos;&apos;&apos;		They should also duplicate some generic private members as a subset of their own set of members
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SF_Base module is provided mainly to block parent properties that are NOT applicable to Base documents
+&apos;&apos;&apos;		In addition, it provides methods to identify form documents and access their internal forms
+&apos;&apos;&apos;			(read more elsewhere (the &quot;SFDocuments.Form&quot; service) about this subject)
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The current module is closely related to the &quot;UI&quot; service of the ScriptForge library
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation examples:
+&apos;&apos;&apos;		1) From the UI service
+&apos;&apos;&apos;			Dim ui As Object, oDoc As Object
+&apos;&apos;&apos;			Set ui = CreateScriptService(&quot;UI&quot;)
+&apos;&apos;&apos;			Set oDoc = ui.CreateBaseDocument(&quot;C:\Me\MyFile.odb&quot;, ...)
+&apos;&apos;&apos;				&apos; or Set oDoc = ui.OpenDocument(&quot;C:\Me\MyFile.odb&quot;)
+&apos;&apos;&apos;		2) Directly if the document is already opened
+&apos;&apos;&apos;			Dim oDoc As Object
+&apos;&apos;&apos;			Set oDoc = CreateScriptService(&quot;SFDocuments.Base&quot;, &quot;MyFile.odb&quot;)
+&apos;&apos;&apos;			&apos; The substring &quot;SFDocuments.&quot; in the service name is optional
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_base.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const DBCONNECTERROR			=	&quot;DBCONNECTERROR&quot;
+Private Const FORMDEADERROR				=	&quot;FORMDEADERROR&quot;
+Private Const BASEFORMNOTFOUNDERROR		=	&quot;BASEFORMNOTFOUNDERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]					As Object
+Private [_Parent]				As Object
+Private [_Super]				As Object		&apos;	Document superclass, which the current instance is a subclass of
+Private ObjectType				As String		&apos;	Must be BASE
+Private ServiceName				As String
+
+&apos;	UNO references
+Private _Component				As Object		&apos;	com.sun.star.comp.dba.ODatabaseDocument
+Private _DataSource				As Object		&apos;	com.sun.star.comp.dba.ODatabaseSource
+Private _Database				As Object		&apos;	SFDatabases.Database service instance
+Private _FormDocuments			As Object
+
+REM ============================================================ MODULE CONSTANTS
+
+Const ISBASEFORM = 3				&apos;	Form is stored in a Base document
+Const cstToken = &quot;//&quot;				&apos;	Form names accept special characters but not slashes
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	Set [_Super] = Nothing
+	ObjectType = &quot;BASE&quot;
+	ServiceName = &quot;SFDocuments.Base&quot;
+	Set _Component = Nothing
+	Set _DataSource = Nothing
+	Set _Database = Nothing
+	Set _FormDocuments = Nothing
+End Sub		&apos;	SFDocuments.SF_Base Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDocuments.SF_Base Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	If Not IsNull([_Super]) Then Set [_Super] = [_Super].Dispose()
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDocuments.SF_Base Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function CloseDocument(Optional ByVal SaveAsk As Variant) As Boolean
+&apos;&apos;&apos;	The closure of a Base document requires the closures of
+&apos;&apos;&apos;		1) the connection =&gt; done in the CloseDatabase() method
+&apos;&apos;&apos;		2) the data source
+&apos;&apos;&apos;		3) the document itself =&gt; done in the superclass
+
+Const cstThisSub = &quot;SFDocuments.Base.CloseDocument&quot;
+Const cstSubArgs = &quot;[SaveAsk=True]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(SaveAsk) Or IsEmpty(SaveAsk) Then SaveAsk = True
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(SaveAsk, &quot;SaveAsk&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	If Not IsNull(_Database) Then _Database.CloseDatabase()
+	If Not IsNull(_DataSource) Then _DataSource.dispose()
+	CloseDocument = [_Super].CloseDocument(SaveAsk)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Base.CloseDocument
+
+REM -----------------------------------------------------------------------------
+Public Function CloseFormDocument(Optional ByVal FormDocument As Variant) As Boolean
+&apos;&apos;&apos;	Close the given form document
+&apos;&apos;&apos;	Nothing happens if the form document is not open
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FormDocument: a valid document form name as a case-sensitive string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if closure is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			oDoc.CloseFormDocument(&quot;Folder1/myFormDocument&quot;)
+
+Dim bClose As Boolean				&apos;	Return value
+Dim oMainForm As Object				&apos;	com.sun.star.comp.sdb.Content
+Dim vFormNames As Variant			&apos;	Array of all document form names present in the document
+
+Const cstThisSub = &quot;SFDocuments.Base.CloseFormDocument&quot;
+Const cstSubArgs = &quot;FormDocument&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bClose = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		&apos;	Build list of available FormDocuments recursively with _CollectFormDocuments
+		If IsNull(_FormDocuments) Then Set _FormDocuments = _Component.getFormDocuments()
+		vFormNames = Split(_CollectFormDocuments(_FormDocuments), cstToken)
+		If Not ScriptForge.SF_Utils._Validate(FormDocument, &quot;FormDocument&quot;, V_STRING, vFormNames) Then GoTo Finally
+	End If
+	If Not IsLoaded(FormDocument) Then GoTo Finally
+
+Try:
+	Set oMainForm = _FormDocuments.getByHierarchicalName(FormDocument)
+	bClose = oMainForm.close()
+
+Finally:
+	CloseFormDocument = bClose
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.CloseFormDocument
+
+REM -----------------------------------------------------------------------------
+Public Function FormDocuments() As Variant
+&apos;&apos;&apos;	Return the list of the FormDocuments contained in the Base document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-base array of strings
+&apos;&apos;&apos;		Each entry is the full path name of a form document. The path separator is the slash (&quot;/&quot;)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			Dim myForm As Object, myList As Variant
+&apos;&apos;&apos;				myList = oDoc.FormDocuments()
+
+Dim vFormNames As Variant			&apos;	Array of all form names present in the document
+Const cstThisSub = &quot;SFDocuments.Base.FormDocuments&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Build list of available FormDocuments recursively with _CollectFormDocuments
+	If IsNull(_FormDocuments) Then Set _FormDocuments = _Component.getFormDocuments()
+	vFormNames = Split(_CollectFormDocuments(_FormDocuments), cstToken)
+		
+Finally:
+	FormDocuments = vFormNames
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.FormDocuments
+
+REM -----------------------------------------------------------------------------
+Public Function Forms(Optional ByVal FormDocument As Variant _
+							, Optional ByVal Form As Variant _
+							) As Variant
+&apos;&apos;&apos;	Return either
+&apos;&apos;&apos;		- the list of the Forms contained in the form document
+&apos;&apos;&apos;		- a SFDocuments.Form object based on its name or its index
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FormDocument: a valid document form name as a case-sensitive string
+&apos;&apos;&apos;		Form: a form stored in the Base document given by its name or its index
+&apos;&apos;&apos;			When absent, the list of available forms is returned
+&apos;&apos;&apos;			To get the first (unique ?) form stored in the form document, set Form = 0
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-based array of strings if Form is absent
+&apos;&apos;&apos;		An instance of the SF_Form class if Form exists
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		FORMDEADERROR			The form is not open
+&apos;&apos;&apos;		BASEFORMNOTFOUNDERROR	FormDocument OK but Form not found
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			Dim myForm As Object, myList As Variant
+&apos;&apos;&apos;				myList = oDoc.Forms(&quot;Folder1/myFormDocument&quot;)
+&apos;&apos;&apos;				Set myForm = oDoc.Forms(&quot;Folder1/myFormDocument&quot;, 0)
+
+Dim oForm As Object					&apos;	The new Form class instance
+Dim oFormDocument As Object			&apos;	com.sun.star.comp.sdb.Content
+Dim oXForm As Object				&apos;	com.sun.star.form.XForm
+Dim vFormDocuments As Variant		&apos;	Array of form documents
+Dim vFormNames As Variant			&apos;	Array of form names
+Dim oForms As Object				&apos;	Forms collection
+Const cstDrawPage = 0				&apos;	Only 1 drawpage in a Base document
+
+Const cstThisSub = &quot;SFDocuments.Base.Forms&quot;
+Const cstSubArgs = &quot;FormDocument, [Form=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(Form) Or IsEmpty(Form) Then Form = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		&apos;	Build list of available FormDocuments recursively with _CollectFormDocuments
+		If IsNull(_FormDocuments) Then Set _FormDocuments = _Component.getFormDocuments()
+		vFormDocuments = Split(_CollectFormDocuments(_FormDocuments), cstToken)
+		If Not ScriptForge.SF_Utils._Validate(FormDocument, &quot;FormDocument&quot;, V_STRING, vFormDocuments) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Form, &quot;Form&quot;, Array(V_STRING, ScriptForge.V_NUMERIC)) Then GoTo Finally
+	End If
+	If Not IsLoaded(FormDocument) Then GoTo CatchClosed
+
+Try:
+	&apos;	Start from the form document and go down to forms
+	Set oFormDocument = _FormDocuments.getByHierarchicalName(FormDocument)
+	Set oForms = oFormDocument.Component.DrawPages(cstDrawPage).Forms
+	vFormNames = oForms.getElementNames()
+
+	If Len(Form) = 0 Then	&apos;	Return the list of valid form names
+		Forms = vFormNames
+	Else
+		If VarType(Form) = V_STRING Then	&apos;	Find the form by name
+			If Not ScriptForge.SF_Utils._Validate(Form, &quot;Form&quot;, V_STRING, vFormNames) Then GoTo Finally
+			Set oXForm = oForms.getByName(Form)
+		Else								&apos;	Find the form by index
+			If Form &lt; 0 Or Form &gt;= oForms.Count Then GoTo CatchNotFound
+			Set oXForm = oForms.getByIndex(Form)
+		End If
+		&apos;	Create the new Form class instance
+		Set oForm = New SF_Form
+		With oForm
+			._Name = oXForm.Name
+			Set .[Me] = oForm
+			Set .[_Parent] = [Me]
+			Set ._Component = _Component
+			._FormDocumentName = FormDocument
+			Set ._FormDocument = oFormDocument
+			._FormType = ISBASEFORM
+			Set ._Form = oXForm
+			._Initialize()
+		End With
+		Set Forms = oForm
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchClosed:
+	ScriptForge.SF_Exception.RaiseFatal(FORMDEADERROR, FormDocument, _FileIdent())
+CatchNotFound:
+	ScriptForge.SF_Exception.RaiseFatal(BASEFORMNOTFOUNDERROR, Form, FormDocument, _FileIdent())
+End Function	&apos;	SFDocuments.SF_Base.Forms
+
+REM -----------------------------------------------------------------------------
+Public Function GetDatabase(Optional ByVal User As Variant _
+								, Optional ByVal Password As Variant _
+								) As Object
+&apos;&apos;&apos;	Returns a Database instance (service = SFDatabases.Database) giving access
+&apos;&apos;&apos;	to the execution of SQL commands on the database defined and/or stored in
+&apos;&apos;&apos;	the actual Base document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		User, Password: the login parameters as strings. Defaults = &quot;&quot;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A SFDatabases.Database instance or Nothing
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim myDb As Object
+&apos;&apos;&apos;			Set myDb = oDoc.GetDatabase()
+
+Const cstThisSub = &quot;SFDocuments.Base.GetDatabase&quot;
+Const cstSubArgs = &quot;[User=&quot;&quot;&quot;&quot;], [Password=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set GetDatabase = Nothing
+
+Check:
+	If IsMissing(User) Or IsEmpty(User) Then User = &quot;&quot;
+	If IsMissing(Password) Or IsEmpty(Password) Then Password = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(User, &quot;User&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Password, &quot;Password&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If IsNull(_Database) Then		&apos;	1st connection from the current document instance
+		If IsNull(_DataSource) Then GoTo CatchConnect
+		Set _Database = ScriptForge.SF_Services.CreateScriptService(&quot;SFDatabases.DatabaseFromDocument&quot; _
+							, _DataSource, User, Password)
+		If IsNull(_Database) Then GoTo CatchConnect
+		_Database._Location = [_Super]._WindowFileName
+	EndIf
+
+Finally:
+	Set GetDatabase = _Database
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchConnect:
+	ScriptForge.SF_Exception.RaiseFatal(DBCONNECTERROR, &quot;User&quot;, User, &quot;Password&quot;, Password, [_Super]._FileIdent())
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.GetDatabase
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Base.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	&apos;	Superclass or subclass property ?
+	If ScriptForge.SF_Array.Contains([_Super].Properties(), PropertyName) Then
+		GetProperty = [_Super].GetProperty(PropertyName)
+	Else
+		GetProperty = _PropertyGet(PropertyName)
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function IsLoaded(Optional ByVal FormDocument As Variant) As Boolean
+&apos;&apos;&apos;	Return True if the given FormDocument is open for the user
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FormDocument: a valid document form name as a case-sensitive string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the form document is currently open, otherwise False
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		Form name is invalid
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox oDoc.IsLoaded(&quot;Folder1/myFormDocument&quot;)
+
+Dim bLoaded As Boolean				&apos;	Return value
+Dim vFormNames As Variant			&apos;	Array of all document form names present in the document
+Dim oMainForm As Object				&apos;	com.sun.star.comp.sdb.Content
+Const cstThisSub = &quot;SFDocuments.Base.IsLoaded&quot;
+Const cstSubArgs = &quot;FormDocument&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bLoaded = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		&apos;	Build list of available FormDocuments recursively with _CollectFormDocuments
+		If IsNull(_FormDocuments) Then Set _FormDocuments = _Component.getFormDocuments()
+		vFormNames = Split(_CollectFormDocuments(_FormDocuments), cstToken)
+		If Not ScriptForge.SF_Utils._Validate(FormDocument, &quot;FormDocument&quot;, V_STRING, vFormNames) Then GoTo Finally
+	End If
+
+Try:
+	Set oMainForm = _FormDocuments.getByHierarchicalName(FormDocument)
+	&apos;	A document form that has never been opened has no component
+	&apos;	If ever opened and closed afterwards, it keeps the Component but loses its Controller
+	bLoaded = Not IsNull(oMainForm.Component)
+	If bLoaded Then bLoaded = Not IsNull(oMainForm.Component.CurrentController)
+
+Finally:
+	IsLoaded = bLoaded
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.IsLoaded
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Base class as an array
+
+	Methods = Array( _
+					&quot;CloseFormDocument&quot; _
+					, &quot;FormDocuments&quot; _
+					, &quot;Forms&quot; _
+					, &quot;GetDatabase&quot; _
+					, &quot;IsLoaded&quot; _
+					, &quot;OpenFormDocument&quot; _
+					, &quot;PrintOut&quot; _
+					, &quot;SetPrinter&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Base.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function OpenFormDocument(Optional ByVal FormDocument As Variant _
+									, Optional ByVal DesignMode As Variant _
+									) As Boolean
+&apos;&apos;&apos;	Open the FormDocument given by its hierarchical name either in normal or in design mode
+&apos;&apos;&apos;	If the form document is already open, the form document is made active without changing its mode
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FormDocument: a valid form document name as a case-sensitive string
+&apos;&apos;&apos;		DesignMode: when True the form document is opened in design mode (Default = False)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the form document could be opened, otherwise False
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		Form name is invalid
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		oDoc.OpenFormDocument(&quot;Folder1/myFormDocument&quot;)
+
+Dim bOpen As Boolean				&apos;	Return value
+Dim vFormNames As Variant			&apos;	Array of all document form names present in the document
+Dim oContainer As Object			&apos;	com.sun.star.awt.XWindow
+Dim oNewForm As Object				&apos;	Output of loadComponent()
+Const cstThisSub = &quot;SFDocuments.Base.OpenFormDocument&quot;
+Const cstSubArgs = &quot;FormDocument, [DesignMode=False]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bOpen = False
+
+Check:
+	If IsMissing(DesignMode) Or IsEmpty(DesignMode) Then DesignMode = False
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		&apos;	Build list of available FormDocuments recursively with _CollectFormDocuments
+		If IsNull(_FormDocuments) Then Set _FormDocuments = _Component.getFormDocuments()
+		vFormNames = Split(_CollectFormDocuments(_FormDocuments), cstToken)
+		If Not ScriptForge.SF_Utils._Validate(FormDocument, &quot;FormDocument&quot;, V_STRING, vFormNames) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(DesignMode, &quot;DesignMode&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	With _Component.CurrentController
+		If Not .IsConnected Then .connect()
+		&apos;	loadComponent activates the form when already loaded
+		Set oNewForm = .loadComponent(com.sun.star.sdb.application.DatabaseObject.FORM, FormDocument, DesignMode)
+		&apos;	When user opened manually the form in design mode and closed it, the next execution in normal mode needs to be confirmed as below
+		With oNewForm.CurrentController
+			If .isFormDesignMode() &lt;&gt; DesignMode Then .setFormDesignMode(DesignMode)
+		End With
+	End With
+	bOpen = True
+
+Finally:
+	OpenFormDocument = bOpen
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.OpenFormDocument
+
+REM -----------------------------------------------------------------------------
+Public Function OpenQuery(Optional ByVal QueryName As Variant _
+									, Optional ByVal DesignMode As Variant _
+									) As Object
+&apos;&apos;&apos;	Open the query given by its name either in normal or in design mode
+&apos;&apos;&apos;	If the query is already open, the query datasheet is made active without changing its mode
+&apos;&apos;&apos;	If still open, the datasheet will be closed together with the actual Base document.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		QueryName: a valid Query name as a case-sensitive string
+&apos;&apos;&apos;		DesignMode: when True the query is opened in design mode (Default = False)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A Datasheet class instance if the query could be opened and DesignMode = False, otherwise False
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		Query name is invalid
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		oDoc.OpenQuery(&quot;myQuery&quot;, DesignMode := False)
+
+Dim oOpen As Object					&apos;	Return value
+Dim vQueries As Variant				&apos;	Array of query names
+Dim oNewQuery As Object				&apos;	Output of loadComponent()
+Const cstThisSub = &quot;SFDocuments.Base.OpenQuery&quot;
+Const cstSubArgs = &quot;QueryName, [DesignMode=False]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set oOpen = Nothing
+
+Check:
+	If IsMissing(DesignMode) Or IsEmpty(DesignMode) Then DesignMode = False
+	vQueries = GetDatabase().Queries	&apos;	Includes _IsStillAlive()
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(QueryName, &quot;QueryName&quot;, V_STRING, vQueries) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(DesignMode, &quot;DesignMode&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	With _Component.CurrentController
+		&apos;	The connection may have been done previously by a user command. If not, do it now.
+		If Not .IsConnected Then .connect()
+		&apos;	loadComponent activates the query component when already loaded
+		Set oNewQuery = .loadComponent(com.sun.star.sdb.application.DatabaseObject.QUERY, QueryName, DesignMode)
+	End With
+	&apos;	When design mode, the method returns Nothing
+	If Not DesignMode Then Set oOpen = ScriptForge.SF_Services.CreateScriptService(&quot;SFDatabases.Datasheet&quot;, oNewQuery, [Me])
+
+Finally:
+	Set OpenQuery = oOpen
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.OpenQuery
+
+REM -----------------------------------------------------------------------------
+Public Function OpenTable(Optional ByVal TableName As Variant _
+									, Optional ByVal DesignMode As Variant _
+									) As Object
+&apos;&apos;&apos;	Open the table given by its name either in normal or in design mode
+&apos;&apos;&apos;	If the table is already open, the table datasheet is made active without changing its mode
+&apos;&apos;&apos;	If still open, the datasheet will be closed together with the actual Base document.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		TableName: a valid table name as a case-sensitive string
+&apos;&apos;&apos;		DesignMode: when True the table is opened in design mode (Default = False)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A Datasheet class instance if the table could be opened or was already open, and DesignMode = False.
+&apos;&apos;&apos;		Otherwise Nothing
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		Table name is invalid
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		oDoc.OpenTable(&quot;myTable&quot;, DesignMode := False)
+
+Dim oOpen As Object					&apos;	Return value
+Dim vTables As Variant				&apos;	Array of table names
+Dim oNewTable As Object				&apos;	Output of loadComponent()
+Const cstThisSub = &quot;SFDocuments.Base.OpenTable&quot;
+Const cstSubArgs = &quot;TableName, [DesignMode=False]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set oOpen = Nothing
+
+Check:
+	If IsMissing(DesignMode) Or IsEmpty(DesignMode) Then DesignMode = False
+	vTables = GetDatabase().Tables
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(TableName, &quot;TableName&quot;, V_STRING, vTables) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(DesignMode, &quot;DesignMode&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	With _Component.CurrentController
+		&apos;	The connection may have been done previously by a user command. If not, do it now.
+		If Not .IsConnected Then .connect()
+		&apos;	loadComponent activates the table component when already loaded
+		Set oNewTable = .loadComponent(com.sun.star.sdb.application.DatabaseObject.TABLE, TableName, DesignMode)
+	End With
+	&apos;	When design mode, the method returns Nothing
+	If Not DesignMode Then Set oOpen = ScriptForge.SF_Services.CreateScriptService(&quot;SFDatabases.Datasheet&quot;, oNewTable, [Me])
+
+Finally:
+	Set OpenTable = oOpen
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.OpenTable
+
+REM -----------------------------------------------------------------------------
+Public Function PrintOut(Optional ByVal FormDocument As Variant _
+							, Optional ByVal Pages As Variant _
+							, Optional ByVal Copies As Variant _
+							) As Boolean
+&apos;&apos;&apos; Send the content of the given form document to the printer.
+&apos;&apos;&apos;	The printer might be defined previously by default, by the user or by the SetPrinter() method
+&apos;&apos;&apos;	The given form document must be open. It is activated by the method.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FormDocument: a valid document form name as a case-sensitive string
+&apos;&apos;&apos;		Pages: the pages to print as a string, like in the user interface. Example: &quot;1-4;10;15-18&quot;. Default = all pages
+&apos;&apos;&apos;		Copies: the number of copies
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		FORMDEADERROR			The form is not open
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.PrintOut(&quot;myForm&quot;, &quot;1-4;10;15-18&quot;, Copies := 2)
+
+Dim bPrint As Boolean				&apos;	Return value
+Dim vFormNames As Variant			&apos;	Array of all document form names present in the document
+Dim oFormDocument As Object			&apos;	com.sun.star.comp.sdb.Content
+
+Const cstThisSub = &quot;SFDocuments.Base.PrintOut&quot;
+Const cstSubArgs = &quot;FormDocument, [Pages=&quot;&quot;&quot;&quot;], [Copies=1]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bPrint = False
+
+Check:
+	If IsMissing(Pages) Or IsEmpty(Pages) Then Pages = &quot;&quot;
+	If IsMissing(Copies) Or IsEmpty(Copies) Then Copies = 1
+	
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		&apos;	Build list of available FormDocuments recursively with _CollectFormDocuments
+		If IsNull(_FormDocuments) Then Set _FormDocuments = _Component.getFormDocuments()
+		vFormNames = Split(_CollectFormDocuments(_FormDocuments), cstToken)
+		If Not ScriptForge.SF_Utils._Validate(FormDocument, &quot;FormDocument&quot;, V_STRING, vFormNames) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Pages, &quot;Pages&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Copies, &quot;Copies&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+	If Not IsLoaded(FormDocument) Then GoTo CatchClosed
+
+Try:
+	Set oFormDocument = _FormDocuments.getByHierarchicalName(FormDocument)
+	bPrint = [_Super].PrintOut(Pages, Copies, oFormDocument.Component)
+
+Finally:
+	PrintOut = bPrint
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchClosed:
+	ScriptForge.SF_Exception.RaiseFatal(FORMDEADERROR, FormDocument, _FileIdent())
+End Function   &apos;   SFDocuments.SF_Base.PrintOut
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Base class as an array
+
+	Properties = Array( _
+					&quot;DocumentType&quot; _
+					, &quot;IsBase&quot; _
+					, &quot;IsCalc&quot; _
+					, &quot;IsDraw &quot; _
+					, &quot;IsImpress&quot; _
+					, &quot;IsMath&quot; _
+					, &quot;IsWriter&quot; _
+					, &quot;XComponent&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Base.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function SetPrinter(Optional ByVal FormDocument As Variant _
+							, Optional ByVal Printer As Variant _
+							, Optional ByVal Orientation As Variant _
+							, Optional ByVal PaperFormat As Variant _
+							) As Boolean
+&apos;&apos;&apos; Define the printer options for a form document. The form document must be open.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FormDocument: a valid document form name as a case-sensitive string
+&apos;&apos;&apos;		Printer: the name of the printer queue where to print to
+&apos;&apos;&apos;			When absent or space, the default printer is set
+&apos;&apos;&apos;		Orientation: either &quot;PORTRAIT&quot; or &quot;LANDSCAPE&quot;. Left unchanged when absent
+&apos;&apos;&apos;		PaperFormat: one of next values
+&apos;&apos;&apos;			&quot;A3&quot;, &quot;A4&quot;, &quot;A5&quot;, &quot;B4&quot;, &quot;B5&quot;, &quot;LETTER&quot;, &quot;LEGAL&quot;, &quot;TABLOID&quot;
+&apos;&apos;&apos;			Left unchanged when absent
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.SetPrinter(&quot;myForm&quot;, Orientation := &quot;PORTRAIT&quot;)
+
+Dim bPrinter As Boolean				&apos;	Return value
+Dim vFormDocuments As Variant		&apos;	Array of form documents
+Dim oFormDocument As Object			&apos;	com.sun.star.comp.sdb.Content
+
+Const cstThisSub = &quot;SFDocuments.Base.SetPrinter&quot;
+Const cstSubArgs = &quot;FormDocument, [Printer=&quot;&quot;&quot;&quot;], [Orientation=&quot;&quot;PORTRAIT&quot;&quot;|&quot;&quot;LANDSCAPE&quot;&quot;]&quot; _
+						&amp; &quot;, [PaperFormat=&quot;&quot;A3&quot;&quot;|&quot;&quot;A4&quot;&quot;|&quot;&quot;A5&quot;&quot;|&quot;&quot;B4&quot;&quot;|&quot;&quot;B5&quot;&quot;|&quot;&quot;LETTER&quot;&quot;|&quot;&quot;LEGAL&quot;&quot;|&quot;&quot;TABLOID&quot;&quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bPrinter = False
+
+Check:
+	If IsMissing(Printer) Or IsEmpty(Printer) Then Printer = &quot;&quot;
+	If IsMissing(Orientation) Or IsEmpty(Orientation) Then Orientation = &quot;&quot;
+	If IsMissing(PaperFormat) Or IsEmpty(PaperFormat) Then PaperFormat = &quot;&quot;
+	
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		&apos;	Build list of available FormDocuments recursively with _CollectFormDocuments
+		If IsNull(_FormDocuments) Then Set _FormDocuments = _Component.getFormDocuments()
+		vFormDocuments = Split(_CollectFormDocuments(_FormDocuments), cstToken)
+		If Not ScriptForge.SF_Utils._Validate(FormDocument, &quot;FormDocument&quot;, V_STRING, vFormDocuments) Then GoTo Finally
+	End If
+	If Not IsLoaded(FormDocument) Then GoTo CatchClosed
+
+Try:
+	Set oFormDocument = _FormDocuments.getByHierarchicalName(FormDocument)
+	bPrinter = [_Super].SetPrinter(Printer, Orientation, PaperFormat, oFormDocument.Component)
+
+Finally:
+	SetPrinter = bPrinter
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchClosed:
+	ScriptForge.SF_Exception.RaiseFatal(FORMDEADERROR, FormDocument, _FileIdent())
+End Function   &apos;   SFDocuments.SF_Base.SetPrinter
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Base.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	Select Case UCase(PropertyName)
+		Case Else
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Base.SetProperty
+
+REM ======================================================= SUPERCLASS PROPERTIES
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get CustomProperties() As Variant
+&apos;	CustomProperties = [_Super].GetProperty(&quot;CustomProperties&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.CustomProperties
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let CustomProperties(Optional ByVal pvCustomProperties As Variant)
+&apos;	[_Super].CustomProperties = pvCustomProperties
+&apos;End Property	&apos;	SFDocuments.SF_Base.CustomProperties
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Description() As Variant
+&apos;	Description = [_Super].GetProperty(&quot;Description&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Description
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Description(Optional ByVal pvDescription As Variant)
+&apos;	[_Super].Description = pvDescription
+&apos;End Property	&apos;	SFDocuments.SF_Base.Description
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get DocumentProperties() As Variant
+&apos;	DocumentProperties = [_Super].GetProperty(&quot;DocumentProperties&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.DocumentProperties
+
+REM -----------------------------------------------------------------------------
+Property Get DocumentType() As String
+	DocumentType = [_Super].GetProperty(&quot;DocumentType&quot;)
+End Property	&apos;	SFDocuments.SF_Base.DocumentType
+
+REM -----------------------------------------------------------------------------
+Property Get IsBase() As Boolean
+	IsBase = [_Super].GetProperty(&quot;IsBase&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsBase
+
+REM -----------------------------------------------------------------------------
+Property Get IsCalc() As Boolean
+	IsCalc = [_Super].GetProperty(&quot;IsCalc&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsCalc
+
+REM -----------------------------------------------------------------------------
+Property Get IsDraw() As Boolean
+	IsDraw = [_Super].GetProperty(&quot;IsDraw&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsDraw
+
+REM -----------------------------------------------------------------------------
+Property Get IsImpress() As Boolean
+	IsImpress = [_Super].GetProperty(&quot;IsImpress&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsImpress
+
+REM -----------------------------------------------------------------------------
+Property Get IsMath() As Boolean
+	IsMath = [_Super].GetProperty(&quot;IsMath&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsMath
+
+REM -----------------------------------------------------------------------------
+Property Get IsWriter() As Boolean
+	IsWriter = [_Super].GetProperty(&quot;IsWriter&quot;)
+End Property	&apos;	SFDocuments.SF_Base.IsWriter
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Keywords() As Variant
+&apos;	Keywords = [_Super].GetProperty(&quot;Keywords&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Keywords
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Keywords(Optional ByVal pvKeywords As Variant)
+&apos;	[_Super].Keywords = pvKeywords
+&apos;End Property	&apos;	SFDocuments.SF_Base.Keywords
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Readonly() As Variant
+&apos;	Readonly = [_Super].GetProperty(&quot;Readonly&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Readonly
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Subject() As Variant
+&apos;	Subject = [_Super].GetProperty(&quot;Subject&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Subject
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Subject(Optional ByVal pvSubject As Variant)
+&apos;	[_Super].Subject = pvSubject
+&apos;End Property	&apos;	SFDocuments.SF_Base.Subject
+
+REM -----------------------------------------------------------------------------
+&apos;Property Get Title() As Variant
+&apos;	Title = [_Super].GetProperty(&quot;Title&quot;)
+&apos;End Property	&apos;	SFDocuments.SF_Base.Title
+
+REM -----------------------------------------------------------------------------
+&apos;Property Let Title(Optional ByVal pvTitle As Variant)
+&apos;	[_Super].Title = pvTitle
+&apos;End Property	&apos;	SFDocuments.SF_Base.Title
+
+REM -----------------------------------------------------------------------------
+Property Get XComponent() As Variant
+	XComponent = [_Super].GetProperty(&quot;XComponent&quot;)
+End Property	&apos;	SFDocuments.SF_Base.XComponent
+
+REM ========================================================== SUPERCLASS METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Activate() As Boolean
+	Activate = [_Super].Activate()
+End Function    &apos;   SFDocuments.SF_Base.Activate
+
+REM -----------------------------------------------------------------------------
+Public Function CreateMenu(Optional ByVal MenuHeader As Variant _
+								, Optional ByVal Before As Variant _
+								, Optional ByVal SubmenuChar As Variant _
+								) As Object
+	Set CreateMenu = [_Super].CreateMenu(MenuHeader, Before, SubmenuChar)
+End Function	&apos;	SFDocuments.SF_Base.CreateMenu
+
+REM -----------------------------------------------------------------------------
+Public Function RemoveMenu(Optional ByVal MenuHeader As Variant) As Boolean
+	RemoveMenu = [_Super].RemoveMenu(MenuHeader)
+End Function	&apos;	SFDocuments.SF_Base.RemoveMenu
+
+REM -----------------------------------------------------------------------------
+Public Sub RunCommand(Optional ByVal Command As Variant _
+									, ParamArray Args As Variant _
+									)
+	[_Super].RunCommand(Command, Args)
+End Sub		  &apos;   SFDocuments.SF_Base.RunCommand
+
+REM -----------------------------------------------------------------------------
+Public Function Save() As Boolean
+	Save = [_Super].Save()
+End Function   &apos;   SFDocuments.SF_Base.Save
+
+REM -----------------------------------------------------------------------------
+Public Function SaveAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+	SaveAs = [_Super].SaveAs(FileName, Overwrite, Password, FilterName, FilterOptions)
+End Function   &apos;   SFDocuments.SF_Base.SaveAs
+
+REM -----------------------------------------------------------------------------
+Public Function SaveCopyAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+	SaveCopyAs = [_Super].SaveCopyAs(FileName, Overwrite, Password, FilterName, FilterOptions)
+End Function   &apos;   SFDocuments.SF_Base.SaveCopyAs
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _CollectFormDocuments(ByRef poContainer As Object) As String
+&apos;&apos;&apos;	Returns a token-separated string of all hierarchical formdocument names
+&apos;&apos;&apos;	depending on the formdocuments container in argument
+&apos;&apos;&apos;	The function traverses recursively the whole tree below the container
+&apos;&apos;&apos;	The initial call starts from the container _Component.getFormDocuments
+&apos;&apos;&apos;	The list contains closed and open forms
+
+Dim sCollectNames As String			&apos;	Return value
+Dim oSubItem As Object				&apos;	com.sun.star.container.XNameAccess (folder) or com.sun.star.ucb.XContent (form)
+Dim i As Long
+Const cstFormType = &quot;application/vnd.oasis.opendocument.text&quot;
+									&apos;	Identifies forms. Folders have a zero-length content type
+
+	On Local Error GoTo Finally
+
+Try:
+	sCollectNames = &quot;&quot;
+	With poContainer
+		For i = 0 To .Count - 1
+			Set oSubItem = .getByIndex(i)
+			If oSubItem.ContentType = cstFormType Then		&apos;	Add the form to the list
+				sCollectNames = sCollectNames &amp; cstToken &amp; oSubItem.HierarchicalName
+			Else
+				sCollectNames = sCollectNames &amp; cstToken &amp; _CollectFormDocuments(oSubItem)
+			End If
+		Next i
+	End With
+
+Finally:
+	_CollectFormDocuments = Mid(sCollectNames, Len(cstToken) + 1)	&apos;	Skip the initial token
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Base._CollectFormDocuments
+
+REM -----------------------------------------------------------------------------
+Private Function _FileIdent() As String
+&apos;&apos;&apos;	Returns a file identification from the information that is currently available
+&apos;&apos;&apos;	Useful e.g. for display in error messages
+
+	_FileIdent = [_Super]._FileIdent()
+
+End Function	&apos;	SFDocuments.SF_Base._FileIdent
+
+REM -----------------------------------------------------------------------------
+Private Function _FindByPersistentName(ByRef poContainer As Object _
+										, psPersistent As String _
+										) As Object
+&apos;&apos;&apos;	The FormDocuments property of a Base component has strangely
+&apos;&apos;&apos;	a getByHierarchical() method but no access to the same com.sun.star.comp.sdb.Content
+&apos;&apos;&apos;	object via its persistent/ODF name
+&apos;&apos;&apos;	This method returns the object having the given persistent name
+&apos;&apos;&apos;	The function traverses recursively the whole tree below the container until found
+&apos;&apos;&apos;	The initial call starts from the container _Component.getFormDocuments
+&apos;&apos;&apos;	The list contains closed and open forms
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		poContainer: the actual top of the free, initially _FormDocuments
+&apos;&apos;&apos;		psPersistent: a name like &quot;Obj...&quot;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A com.sun.star.comp.sdb.Content object (object found, the process stops)
+&apos;&apos;&apos;		or Nothing (object not found, the process continues)
+
+Dim oMainForm As Object				&apos;	Return value
+Dim oSubItem As Object				&apos;	com.sun.star.container.XNameAccess (folder) or com.sun.star.ucb.XContent (form)
+Dim i As Long
+Const cstFormType = &quot;application/vnd.oasis.opendocument.text&quot;
+									&apos;	Identifies forms. Folders have a zero-length content type
+
+	On Local Error GoTo Finally
+
+Try:
+	Set oMainForm = Nothing
+	With poContainer
+		For i = 0 To .Count - 1
+			Set oSubItem = .getByIndex(i)
+			If oSubItem.ContentType = cstFormType Then		&apos;	Examine its persistent name
+				If oSubItem.PersistentName = psPersistent Then
+					Set oMainForm = oSubItem
+					Exit For
+				End If
+			Else
+				Set oMainForm = _FindByPersistentName(oSubItem, psPersistent)
+			End If
+		Next i
+	End With
+
+Finally:
+	Set _FindByPersistentName = oMainForm
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Base.FindByPersistentName
+
+REM -----------------------------------------------------------------------------
+Private Function _IsStillAlive(Optional ByVal pbForUpdate As Boolean _
+									, Optional ByVal pbError As Boolean _
+									) As Boolean
+&apos;&apos;&apos;	Returns True if the document has not been closed manually or incidentally since the last use
+&apos;&apos;&apos;	If dead the actual instance is disposed. The execution is cancelled when pbError = True (default)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbForUpdate: if True (default = False), check additionally if document is open for editing
+&apos;&apos;&apos;		pbError: if True (default), raise a fatal error
+
+Dim bAlive As Boolean			&apos;	Return value
+
+	If IsMissing(pbForUpdate) Then pbForUpdate = False
+	If IsMissing(pbError) Then pbError = True
+
+Try:
+	bAlive = [_Super]._IsStillAlive(pbForUpdate, pbError)
+
+Finally:
+	_IsStillAlive = bAlive
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Base._IsStillAlive
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String _
+								, Optional ByVal pvArg As Variant _
+								) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim oProperties As Object			&apos;	Document or Custom properties
+Dim vLastCell As Variant			&apos;	Coordinates of last used cell in a sheet
+Dim oSelect As Object				&apos;	Current selection
+Dim vRanges As Variant				&apos;	List of selected ranges
+Dim i As Long
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	_PropertyGet = False
+
+	cstThisSub = &quot;SFDocuments.SF_Base.get&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+	Select Case psProperty
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Base._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the SF_Base instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[Base]: Type/File&quot;
+
+	_Repr = &quot;[Base]: &quot; &amp; [_Super]._FileIdent()
+
+End Function	&apos;	SFDocuments.SF_Base._Repr
+
+REM ============================================ END OF SFDOCUMENTS.SF_BASE
+</script:module>

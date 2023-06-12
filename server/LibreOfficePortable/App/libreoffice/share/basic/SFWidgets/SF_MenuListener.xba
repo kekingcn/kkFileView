@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_MenuListener" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFWidgets library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_MenuListener
+&apos;&apos;&apos;	===============
+&apos;&apos;&apos;		The current module is dedicated to the management of menu events + listeners, triggered by user actions,
+&apos;&apos;&apos;		which cannot be defined with the Basic IDE
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Concerned listeners:
+&apos;&apos;&apos;			com.sun.star.awt.XMenuListener
+&apos;&apos;&apos;				allowing a user to select a menu command in user menus preset in the menubar
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The described events/listeners are processed by UNO listeners
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Dim MenuListener				As Object		&apos; com.sun.star.awt.XMenuListener
+
+REM =========================================================== PRIVATE CONSTANTS
+
+Private Const _MenuListenerPrefix		= &quot;_SFMENU_&quot;
+Private Const _MenuListener				= &quot;com.sun.star.awt.XMenuListener&quot;
+Private Const cstUnoPrefix				= &quot;.uno:&quot;
+Private Const cstScriptArg				= &quot;:::&quot;
+
+REM ================================================================== EXCEPTIONS
+
+REM ============================================================== PUBLIC METHODS
+
+REM -----------------------------------------------------------------------------
+Public Sub SetMenuListener(poSubmenu As Object)
+&apos;&apos;&apos;	Arm a menu listener on a submenu
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		poSubmenu: the targeted submenu
+
+Try:
+	If IsNull(MenuListener) Then Set MenuListener = CreateUnoListener(_MenuListenerPrefix, _MenuListener)
+	poSubmenu.addMenuListener(MenuListener)
+
+Finally:
+	Exit Sub
+End Sub			&apos;	SFWidgets.SF_MenuListener.SetMenuListener		
+
+REM ============================================================= PRIVATE METHODS
+
+REM -----------------------------------------------------------------------------
+Sub _SFMENU_itemSelected(Optional poEvent As Object)		&apos;	com.sun.star.awt.MenuEvent
+&apos;&apos;&apos;	Execute the command or the script associated with the actually selected item
+&apos;&apos;&apos;	When a script, next argument is provided:
+&apos;&apos;&apos;		a comma-separated string with 4 components
+&apos;&apos;&apos;			- the menu header
+&apos;&apos;&apos;			- the name of the selected menu entry (without tilde &quot;~&quot;)
+&apos;&apos;&apos;			- the numeric identifier of the selected menu entry
+&apos;&apos;&apos;			- the new status of the selected menu entry (&quot;0&quot; or &quot;1&quot;). Always &quot;0&quot; for usual items.
+
+Dim iMenuId As Integer
+Dim oMenu As Object					&apos;	stardiv.Toolkit.VCLXPopupMenu
+Dim sCommand As String				&apos;	Command associated with menu entry
+Dim bType As Boolean				&apos;	True when status is meaningful: item is radio button or checkbox
+Dim bStatus As Boolean				&apos;	Status of the menu item, always False for normal items
+Dim oFrame As Object				&apos;	com.sun.star.comp.framework.Frame
+Dim oDispatcher As Object			&apos;	com.sun.star.frame.DispatchHelper
+Dim vScript As Variant				&apos;	Split command in script/argument
+Dim oSession As Object				:	Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;ScriptForge.Session&quot;)
+Dim oArgs() As new com.sun.star.beans.PropertyValue
+
+	On Local Error GoTo Catch		&apos;	Avoid stopping event scripts
+
+Try:
+	iMenuId = poEvent.MenuId
+	oMenu = poEvent.Source
+
+	With oMenu
+		&apos;	Collect command (script or menu command) and status radiobuttons and checkboxes
+		sCommand = .getCommand(iMenuId)
+		bStatus = .isItemChecked(iMenuId)
+	End With
+	
+	If Len(sCommand) &gt; 0 Then
+		Set oFrame = StarDesktop.ActiveFrame	&apos;	A menu has been clicked necessarily in the current window
+		If Left(sCommand, Len(cstUnoPrefix)) = cstUnoPrefix Then
+			&apos;	Execute uno command
+			Set oDispatcher = ScriptForge.SF_Utils._GetUNOService(&quot;DispatchHelper&quot;)
+			oDispatcher.executeDispatch(oFrame, sCommand, &quot;&quot;, 0, oArgs())
+			oFrame.activate()
+		Else
+			&apos;	Execute script
+			vScript = Split(sCommand, cstScriptArg)
+			oSession._ExecuteScript(vScript(0), vScript(1) &amp; &quot;,&quot; &amp; Iif(bStatus, &quot;1&quot;, &quot;0&quot;))	&apos;	Return value is ignored
+		End If
+	End If
+
+Finally:
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub			&apos;	SFWidgets.SF_MenuListener._SFMENU_itemSelected
+
+REM -----------------------------------------------------------------------------
+Sub _SFMENU_itemHighlighted(Optional poEvent As Object)		&apos;	com.sun.star.awt.MenuEvent
+	Exit Sub
+End Sub			&apos;	SFWidgets.SF_MenuListener._SFMENU_itemHighlighted
+
+Sub _SFMENU_itemActivated(Optional poEvent As Object)		&apos;	com.sun.star.awt.MenuEvent
+	Exit Sub
+End Sub			&apos;	SFWidgets.SF_MenuListener._SFMENU_itemActivated
+
+Sub _SFMENU_itemDeactivated(Optional poEvent As Object)		&apos;	com.sun.star.awt.MenuEvent
+	Exit Sub
+End Sub			&apos;	SFWidgets.SF_MenuListener._SFMENU_itemDeactivated
+
+Sub _SFMENU_disposing(Optional poEvent As Object)			&apos;	com.sun.star.awt.MenuEvent
+	Exit Sub
+End Sub			&apos;	SFWidgets.SF_MenuListener._SFMENU_disposing
+
+REM ============================================ END OF SFDIALOGS.SF_DIALOGLISTENER
+</script:module>

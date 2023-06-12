@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface domain="dba">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">1000000</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkBox" id="SpecialSettingsPage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border-width">6</property>
+    <child>
+      <!-- n-columns=1 n-rows=17 -->
+      <object class="GtkGrid" id="grid1">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="row-spacing">6</property>
+        <child>
+          <object class="GtkCheckButton" id="usesql92">
+            <property name="label" translatable="yes" context="specialsettingspage|usesql92">Use SQL92 naming constraints</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="usesql92-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|usesql92">Only allows characters that conform to the SQL92 naming convention in a name in a data source. All other characters are rejected. Each name must begin with a lowercase letter, an uppercase letter, or an underscore ( _ ). The remaining characters can be ASCII letters, numbers, and underscores.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="append">
+            <property name="label" translatable="yes" context="specialsettingspage|append">Append the table alias name on SELECT statements</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="append-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettings|extended_tip|append">Appends the alias to the table name in SELECT statements.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="useas">
+            <property name="label" translatable="yes" context="specialsettingspage|useas">Use keyword AS before table alias names</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="useas-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|useas">Some databases use the keyword "AS" between a name and its alias, while other databases use a whitespace. Enable this option to insert AS before the alias.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="useoj">
+            <property name="label" translatable="yes" context="specialsettingspage|useoj">Use Outer Join syntax '{oj }'</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="useoj-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingsoage|extended_tip|useoj">Use escape sequences for outer joins. The syntax for this escape sequence is {oj outer-join}</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="ignoreprivs">
+            <property name="label" translatable="yes" context="specialsettingspage|ignoreprivs">Ignore the privileges from the database driver</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="ignoreprivs-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|ignoreprivs">Ignores access privileges that are provided by the database driver.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="replaceparams">
+            <property name="label" translatable="yes" context="specialsettingspage|replaceparams">Replace named parameters with '?'</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="replaceparams-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|replaceparams">Replaces named parameters in a data source with a question mark (?).</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="displayver">
+            <property name="label" translatable="yes" context="specialsettingspage|displayver">Display version columns (when available)</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="displayver-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|displayver">Displays the internal version number of the record in the database table.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="usecatalogname">
+            <property name="label" translatable="yes" context="specialsettingspage|usecatalogname">Use catalog name in SELECT statements</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="usecatalogname-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|usecatalogname">Uses the current data source of the catalog. This option is useful when the ODBC data source is a database server. Do not select this option if the ODBC data source is a dBASE driver.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="useschemaname">
+            <property name="label" translatable="yes" context="specialsettingspage|useschemaname">Use schema name in SELECT statements</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="useschemaname-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|useschemaname">Allows you to use the schema name in SELECT statements.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="createindex">
+            <property name="label" translatable="yes" context="specialsettingspage|createindex">Create index with ASC or DESC statement</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="createindex-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|createindex">Creates an index with ASC or DESC statements.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">9</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="eol">
+            <property name="label" translatable="yes" context="specialsettingspage|eol">End text lines with CR+LF</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="eol-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|eol">Select to use the CR + LF code pair to end every text line (preferred for DOS and Windows operating systems).</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="ignorecurrency">
+            <property name="label" translatable="yes" context="specialsettingspage|ignorecurrency">Ignore currency field information</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="ignorecurrency-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|ignorecurrency">Only for Oracle JDBC connections. When enabled it specifies that no column is treated as a currency field. The field type returned from the database driver is discarded.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">11</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="inputchecks">
+            <property name="label" translatable="yes" context="specialsettingspage|inputchecks">Form data input checks for required fields</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="inputchecks-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|inputchecks">When you enter a new record or update an existing record in a form, and you leave a field empty which is bound to a database column which requires input, then you will see a message complaining about the empty field.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">12</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="useodbcliterals">
+            <property name="label" translatable="yes" context="specialsettingspage|useodbcliterals">Use ODBC conformant date/time literals</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="useodbcliterals-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|useodbcliterals">Use date/time literals that conform to ODBC standard.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">13</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="primarykeys">
+            <property name="label" translatable="yes" context="specialsettingspage|primarykeys">Supports primary keys</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="primarykeys-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|primarykeys">Enable to overrule Base's heuristics used to detect whether the database supports primary keys.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">14</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="resulttype">
+            <property name="label" translatable="yes" context="specialsettingspage|resulttype">Respect the result set type from the database driver</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="resulttype-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|resulttype">Use the database driver different scroll capabilities of a result set.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">15</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=2 n-rows=2 -->
+          <object class="GtkGrid" id="grid2">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="row-spacing">6</property>
+            <property name="column-spacing">12</property>
+            <child>
+              <object class="GtkLabel" id="comparisonft">
+                <property name="can-focus">False</property>
+                <property name="no-show-all">True</property>
+                <property name="label" translatable="yes" context="specialsettingspage|comparisonft">Comparison of Boolean values:</property>
+                <property name="use-underline">True</property>
+                <property name="mnemonic-widget">comparison</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="comparison">
+                <property name="can-focus">False</property>
+                <property name="no-show-all">True</property>
+                <items>
+                  <item translatable="yes" context="specialsettingspage|comparison">Default</item>
+                  <item translatable="yes" context="specialsettingspage|comparison">SQL</item>
+                  <item translatable="yes" context="specialsettingspage|comparison">Mixed</item>
+                  <item translatable="yes" context="specialsettingspage|comparison">MS Access</item>
+                </items>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="comparison-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|comparison">Select the type of Boolean comparison that you want to use.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="rowsft">
+                <property name="can-focus">False</property>
+                <property name="no-show-all">True</property>
+                <property name="label" translatable="yes" context="specialsettingspage|rowsft">Rows to scan column types:</property>
+                <property name="use-underline">True</property>
+                <property name="mnemonic-widget">rows</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="rows">
+                <property name="can-focus">True</property>
+                <property name="no-show-all">True</property>
+                <property name="activates-default">True</property>
+                <property name="truncate-multiline">True</property>
+                <property name="adjustment">adjustment1</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="rows-atkobject">
+                    <property name="AtkObject::accessible-description" translatable="yes" context="specialsettingspage|extended_tip|rows">Select the number of rows to let the driver detect the data type.</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">16</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+  </object>
+</interface>

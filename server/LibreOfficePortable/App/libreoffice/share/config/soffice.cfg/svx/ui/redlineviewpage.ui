@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface domain="svx">
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkTreeStore" id="liststore1">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name text2 -->
+      <column type="gchararray"/>
+      <!-- column-name text3 -->
+      <column type="gchararray"/>
+      <!-- column-name text4 -->
+      <column type="gchararray"/>
+      <!-- column-name text5 -->
+      <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name textcolor -->
+      <column type="GdkRGBA"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="liststore2">
+    <columns>
+      <!-- column-name image -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name text2 -->
+      <column type="gchararray"/>
+      <!-- column-name text3 -->
+      <column type="gchararray"/>
+      <!-- column-name text4 -->
+      <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name textcolor -->
+      <column type="GdkRGBA"/>
+    </columns>
+  </object>
+  <object class="GtkBox" id="RedlineViewPage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="border-width">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="can-focus">True</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="shadow-type">in</property>
+        <child>
+          <object class="GtkTreeView" id="writerchanges">
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="model">liststore2</property>
+            <property name="search-column">0</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection" id="Macro Library List-selection2"/>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn00">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|action">Action</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererPixbuf" id="cellrenderertext45"/>
+                  <attributes>
+                    <attribute name="pixbuf">0</attribute>
+                  </attributes>
+                </child>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext25"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn20">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|author">Author</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer29"/>
+                  <attributes>
+                    <attribute name="text">2</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn30">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|date">Date</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer39"/>
+                  <attributes>
+                    <attribute name="text">3</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn40">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|comment">Comment</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer49"/>
+                  <attributes>
+                    <attribute name="text">4</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child internal-child="accessible">
+          <object class="AtkObject">
+            <property name="AtkObject::accessible-name" translatable="yes" context="redlineviewpage|writerchanges-atkobject">Changes</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="can-focus">True</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="shadow-type">in</property>
+        <child>
+          <object class="GtkTreeView" id="calcchanges">
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="model">liststore1</property>
+            <property name="search-column">0</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection" id="Macro Library List-selection1"/>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn0">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|action">Action</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer0"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|position">Position</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer1"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|author">Author</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer2"/>
+                  <attributes>
+                    <attribute name="text">2</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|date">Date</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer3"/>
+                  <attributes>
+                    <attribute name="text">3</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                <property name="resizable">True</property>
+                <property name="spacing">6</property>
+                <property name="title" translatable="yes" context="redlineviewpage|comment">Comment</property>
+                <property name="clickable">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderer4"/>
+                  <attributes>
+                    <attribute name="text">4</attribute>
+                    <attribute name="foreground-rgba">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child internal-child="accessible">
+          <object class="AtkObject">
+            <property name="AtkObject::accessible-name" translatable="yes" context="redlineviewpage|calcchanges-atkobject">Changes</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkButtonBox" id="button_box_1">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="spacing">3</property>
+        <property name="homogeneous">True</property>
+        <property name="layout-style">start</property>
+        <child>
+          <object class="GtkButton" id="accept">
+            <property name="label" translatable="yes" context="acceptrejectchangesdialog|accept">_Accept</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="use-underline">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="accept-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="acceptrejectchangesdialog|extended_tip|accept">Accepts the selected change and removes the highlighting from the change in the document.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="reject">
+            <property name="label" translatable="yes" context="acceptrejectchangesdialog|reject">_Reject</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="use-underline">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="reject-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="acceptrejectchangesdialog|extended_tip|reject">Rejects the selected change and removes the highlighting from the change in the document.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="acceptall">
+            <property name="label" translatable="yes" context="acceptrejectchangesdialog|acceptall">A_ccept All</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="use-underline">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="acceptall-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="acceptrejectchangesdialog|extended_tip|acceptall">Accepts all of the changes and removes the highlighting from the document.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="rejectall">
+            <property name="label" translatable="yes" context="acceptrejectchangesdialog|rejectall">R_eject All</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="use-underline">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="rejectall-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="acceptrejectchangesdialog|extended_tip|rejectall">Rejects all of the changes and removes the highlighting from the document.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="undo">
+            <property name="label" translatable="yes" context="acceptrejectchangesdialog|undo">_Undo</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="no-show-all">True</property>
+            <property name="use-underline">True</property>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="undo-atkobject">
+                <property name="AtkObject::accessible-description" translatable="yes" context="acceptrejectchangesdialog|extended_tip|undo">Reverse the last Accept or Reject command.</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="RedlineViewPage-atkobject">
+        <property name="AtkObject::accessible-description" translatable="yes" context="redlineviewpage|extended_tip|RedlineViewPage">Accept or reject individual changes.</property>
+      </object>
+    </child>
+  </object>
+</interface>

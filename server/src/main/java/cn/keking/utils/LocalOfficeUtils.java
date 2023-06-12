@@ -44,7 +44,7 @@ public class LocalOfficeUtils {
             final String programFiles64 = System.getenv("ProgramFiles");
             final String programFiles32 = System.getenv("ProgramFiles(x86)");
             return findOfficeHome(EXECUTABLE_WINDOWS,
-                    userDir + File.separator + "libreoffice",
+                    userDir + File.separator + "LibreOfficePortable" + File.separator  + "App" + File.separator + "libreoffice",
                     programFiles32 + File.separator + "LibreOffice",
                     programFiles64 + File.separator + "LibreOffice 7",
                     programFiles32 + File.separator + "LibreOffice 7",
@@ -85,6 +85,7 @@ public class LocalOfficeUtils {
                     "/opt/libreoffice7.3",
                     "/opt/libreoffice7.4",
                     "/opt/libreoffice7.5",
+                    "/opt/libreoffice7.6",
                     "/usr/lib64/libreoffice",
                     "/usr/lib/libreoffice",
                     "/usr/local/lib64/libreoffice",

@@ -1,0 +1,1818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_UnitTest" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_UnitTest
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		Class providing a framework to execute and check sets of unit tests.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The UnitTest unit testing framework was originally inspired by unittest.py in Python
+&apos;&apos;&apos;		and has a similar flavor as major unit testing frameworks in other languages.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		It supports test automation, sharing of setup and shutdown code for tests,
+&apos;&apos;&apos;		aggregation of tests into collections.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Both the
+&apos;&apos;&apos;			- code describing the unit tests
+&apos;&apos;&apos;			- code to be tested
+&apos;&apos;&apos;		must be written exclusively in Basic (the code might call functions written in other languages).
+&apos;&apos;&apos;		Even if either code may be contained in the same module, a much better practice is to
+&apos;&apos;&apos;		store them in separate libraries.
+&apos;&apos;&apos;		Typically:
+&apos;&apos;&apos;			- in a same document when the code to be tested is contained in that document
+&apos;&apos;&apos;			- either in a &quot;test&quot; document or in a &quot;My Macros&quot; library when the code
+&apos;&apos;&apos;			  to be tested is a shared library (My Macros or LibreOffice Macros).
+&apos;&apos;&apos;		The code to be tested may be released as an extension. It does not need to make
+&apos;&apos;&apos;		use of ScriptForge services in any way.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The test reporting device is the Console. Read about the console in the ScriptForge.Exception service.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Definitions:
+&apos;&apos;&apos;			- Test Case
+&apos;&apos;&apos;				A test case is the individual unit of testing.
+&apos;&apos;&apos;				It checks for a specific response to a particular set of inputs.
+&apos;&apos;&apos;				A test case in the UnitTest service is represented by a Basic Sub.
+&apos;&apos;&apos;				The name of the Sub starts conventionally with &quot;Test_&quot;.
+&apos;&apos;&apos;				The test fails if one of the included AssertXXX methods returns False
+&apos;&apos;&apos;			- Test Suite
+&apos;&apos;&apos;				A test suite is a collection of test cases that should be executed together.
+&apos;&apos;&apos;				A test suite is represented by a Basic module.
+&apos;&apos;&apos;				A suite may include the tasks needed to prepare one or more tests, and any associated cleanup actions.
+&apos;&apos;&apos;				This may involve, for example, creating temporary files or directories, opening a document, loading libraries.
+&apos;&apos;&apos;				Conventionally those tasks are part pf the SetUp&apos;) and TearDown() methods.
+&apos;&apos;&apos;			- Unit test
+&apos;&apos;&apos;				A full unit test is a set of test suites (each suite in a separate Basic module),
+&apos;&apos;&apos;				each of them being a set of test cases (each case is located in a separate Basic Sub).
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Two modes:
+&apos;&apos;&apos;			Beside the normal mode (&quot;full mode&quot;), using test suites and test cases, a second mode exists, called &quot;simple mode&quot;
+&apos;&apos;&apos;			limited to the use exclusively of the Assert...() methods.
+&apos;&apos;&apos;			Their boolean returned value may support the execution of limited unit tests.				
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation examples:
+&apos;&apos;&apos;			In full mode, the service creation is external to test cases
+&apos;&apos;&apos;				Dim myUnitTest As Variant
+&apos;&apos;&apos;				myUnitTest = CreateScriptService(&quot;UnitTest&quot;, ThisComponent, &quot;Tests&quot;)
+&apos;&apos;&apos;								&apos;	Test code is in the library &quot;Tests&quot; located in the current document
+&apos;&apos;&apos;			In simple mode, the service creation is internal to every test case
+&apos;&apos;&apos;				Dim myUnitTest As Variant
+&apos;&apos;&apos;				myUnitTest = CreateScriptService(&quot;UnitTest&quot;)
+&apos;&apos;&apos;				With myUnitTest
+&apos;&apos;&apos;					If Not .AssertTrue(...) Then ...			&apos;	Only calls to the Assert...() methods are allowed
+&apos;&apos;&apos;					&apos;	...
+&apos;&apos;&apos;					.Dispose()
+&apos;&apos;&apos;				End With
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Minimalist full mode example
+&apos;&apos;&apos;			Code to be tested (stored in library &quot;Standard&quot; of document &quot;MyDoc.ods&quot;) :
+&apos;&apos;&apos;				Function ArraySize(arr As Variant) As Long
+&apos;&apos;&apos;					If IsArray(arr) Then ArraySize = UBound(arr) - LBound(arr) + 1 Else ArraySize = -1
+&apos;&apos;&apos;				End Function
+&apos;&apos;&apos;			Test code (stored in module &quot;AllTests&quot; of library &quot;Tests&quot; of document &quot;MyDoc.ods&quot;) :
+&apos;&apos;&apos;				Sub Main()		&apos;	Sub to trigger manually, f.i. from the Tools + Run Macro tabbed bar
+&apos;&apos;&apos;					GlobalScope.BasicLibraries.loadLibrary(&quot;ScriptForge&quot;)
+&apos;&apos;&apos;					Dim test	:	test = CreateScriptService(&quot;UnitTest&quot;, ThisComponent, &quot;Tests&quot;)
+&apos;&apos;&apos;					test.RunTest(&quot;AllTests&quot;)	&apos;	AllTests is a module name ; test cases are named &quot;Test_*&quot; (default)
+&apos;&apos;&apos;					test.Dispose()
+&apos;&apos;&apos;				End Sub
+&apos;&apos;&apos;				REM ------------------------------------------------------------------------------
+&apos;&apos;&apos;				Sub Setup(test)					&apos;	The unittest service is passed as argument
+&apos;&apos;&apos;					&apos;	Optional Sub to initialize processing of the actual test suite
+&apos;&apos;&apos;					Dim exc		:	exc = CreateScriptService(&quot;Exception&quot;)
+&apos;&apos;&apos;					exc.Console(Modal := False)	&apos;	Watch test progress in the console
+&apos;&apos;&apos;				End Sub
+&apos;&apos;&apos;				REM ------------------------------------------------------------------------------
+&apos;&apos;&apos;				Sub Test_ArraySize(test)
+&apos;&apos;&apos;					On Local Error GoTo CatchErr
+&apos;&apos;&apos;					test.AssertEqual(ArraySize(10), -1, &quot;When not array&quot;)
+&apos;&apos;&apos;					test.AssertEqual(ArraySize(Array(1, 2, 3)), 3, &quot;When simple array&quot;)
+&apos;&apos;&apos;					test.AssertEqual(ArraySize(DimArray(3)), 4, &quot;When array with empty items&quot;)
+&apos;&apos;&apos;					Exit Sub
+&apos;&apos;&apos;				CatchErr:
+&apos;&apos;&apos;					test.ReportError(&quot;ArraySize() is corrupt&quot;)
+&apos;&apos;&apos;				End Sub
+&apos;&apos;&apos;				REM ------------------------------------------------------------------------------
+&apos;&apos;&apos;				Sub TearDown(test)
+&apos;&apos;&apos;					&apos;	Optional Sub to finalize processing of the actual test suite
+&apos;&apos;&apos;				End Sub
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Error handling
+&apos;&apos;&apos;			To support the debugging of the tested code, the UnitTest service, in cases of
+&apos;&apos;&apos;				- assertion failure
+&apos;&apos;&apos;				- Basic run-time error in the tested code
+&apos;&apos;&apos;				- Basic run-time error in the testing code (the unit tests)
+&apos;&apos;&apos;			will comment the error location and description in a message box and in the console log,
+&apos;&apos;&apos;			providing every test case (in either mode) implements an error handler containing at least:
+&apos;&apos;&apos;				Sub Test_Case1(test As Variant)
+&apos;&apos;&apos;					On Local Error GoTo Catch
+&apos;&apos;&apos;					&apos; ... (AssertXXX(), Fail(), ...)
+&apos;&apos;&apos;					Exit Sub
+&apos;&apos;&apos;				Catch:
+&apos;&apos;&apos;					test.ReportError()
+&apos;&apos;&apos;				End Sub
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_unittest.html?DbPAR=BASIC
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const UNITTESTMETHODERROR		=	&quot;UNITTESTMETHODERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]				As Object
+Private [_Parent]			As Object
+Private ObjectType			As String		&apos; Must be &quot;UNITTEST&quot;
+Private ServiceName			As String
+
+&apos;	Testing code
+Private LibrariesContainer	As String		&apos; Document or user Basic library containing the test library
+Private Scope				As String		&apos; Scope when running a Basic script with Session.ExecuteBasicScript()
+Private Libraries			As Variant		&apos; Set of libraries
+Private LibraryName			As String		&apos; Name of the library containing the test code
+Private LibraryIndex		As Integer		&apos; Index in Libraries
+Private Modules				As Variant		&apos; Set of modules
+Private ModuleNames			As Variant		&apos; Set of module names
+Private MethodNames			As Variant		&apos; Set of methods in a given module
+
+&apos;	Internals
+Private _Verbose			As Boolean		&apos; When True, every assertion is reported,failing or not
+Private _LongMessage		As Boolean		&apos; When False, only the message provided by the tester is considered
+											&apos; When True (default), that message is appended to the standard message
+Private _WhenAssertionFails	As Integer		&apos; Determines what to do when a test fails
+
+&apos;	Test status
+Private _Status				As Integer		&apos; 0 = standby
+											&apos; 1 = test suite started
+											&apos; 2 = setup started
+											&apos; 3 = test case started
+											&apos; 4 = teardown started
+Private _ExecutionMode		As Integer		&apos; 1 = Test started with RunTest()
+											&apos; 2 = Test started with CreateScriptService()	Only Assert() methods allowed
+Private _Module				As String		&apos; Exact name of module currently running
+Private _TestCase			As String		&apos; Exact name of test case currently running
+Private _ReturnCode			As Integer		&apos; 0 = Normal end
+											&apos; 1 = Assertion failed
+											&apos; 2 = Skip request (in Setup() only)
+											&apos;-1 = abnormal end
+Private _FailedAssert		As String		&apos; Assert function that returned a failure
+
+&apos;	Timers
+Private TestTimer			As Object		&apos; Started by CreateScriptService()
+Private SuiteTimer			As Object		&apos; Started by RunTest()
+Private CaseTimer			As Object		&apos; Started by new case
+
+&apos;	Services
+Private Exception			As Object		&apos; SF_Exception
+Private Session				As Object		&apos; SF_Session
+
+REM ============================================================ MODULE CONSTANTS
+
+&apos;	When assertion fails constants: error is reported + ...
+Global Const FAILIGNORE			= 0			&apos; Ignore the failure
+Global Const FAILSTOPSUITE		= 1			&apos; Module TearDown is executed, then next suite may be started (default in full mode)
+Global Const FAILIMMEDIATESTOP	= 2			&apos; Stop immediately (default in simple mode)
+
+&apos;	Unit tests status (internal use only =&gt; not Global)
+Const STATUSSTANDBY				= 0			&apos; No test active
+Const STATUSSUITESTARTED		= 1			&apos; RunTest() started
+Const STATUSSETUP				= 2			&apos; A Setup() method is running
+Const STATUSTESTCASE			= 3			&apos; A test case is running
+Const STATUSTEARDOWN			= 4			&apos; A TearDown() method is running
+
+&apos;	Return codes
+Global Const RCNORMALEND		= 0			&apos; Normal end of test or test not started
+Global Const RCASSERTIONFAILED	= 1			&apos; An assertion within a test case returned False
+Global Const RCSKIPTEST			= 2			&apos; A SkipTest() was issued by a Setup() method
+Global Const RCABORTTEST		= 3			&apos; Abnormal end of test
+
+&apos;	Execution modes
+Global Const FULLMODE			= 1			&apos; 1 = Test started with RunTest()
+Global Const SIMPLEMODE			= 2			&apos; 2 = Test started with CreateScriptService()	Only Assert() methods allowed
+
+Const INVALIDPROCEDURECALL		= &quot;5&quot;		&apos; Artificial error raised when an assertion fails
+
+REM ===================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;UNITTEST&quot;
+	ServiceName = &quot;SFUnitTests.UnitTest&quot;
+	LibrariesContainer = &quot;&quot;
+	Scope = &quot;&quot;
+	Libraries = Array()
+	LibraryName = &quot;&quot;
+	LibraryIndex = -1
+	_Verbose = False
+	_LongMessage = True
+	_WhenAssertionFails = -1
+	_Status = STATUSSTANDBY
+	_ExecutionMode = SIMPLEMODE
+	_Module = &quot;&quot;
+	_TestCase = &quot;&quot;
+	_ReturnCode = RCNORMALEND
+	_FailedAssert = &quot;&quot;
+	Set TestTimer = Nothing
+	Set SuiteTimer = Nothing
+	Set CaseTimer = Nothing
+	Set Exception = ScriptForge.SF_Exception	&apos;	Do not use CreateScriptService to allow New SF_UnitTest from other libraries
+	Set Session = ScriptForge.SF_Session
+End Sub		&apos;	SFUnitTests.SF_UnitTest Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	If Not IsNull(CaseTimer) Then CaseTimer = CaseTimer.Dispose()
+	If Not IsNull(SuiteTimer) Then SuiteTimer = SuiteTimer.Dispose()
+	If Not IsNull(TestTimer) Then TestTimer = TestTimer.Dispose()
+	Call Class_Initialize()
+End Sub		&apos;	SFUnitTests.SF_UnitTest Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFUnitTests.SF_UnitTest Explicit destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get LongMessage() As Variant
+&apos;&apos;&apos;	When False, only the message provided by the tester is considered
+&apos;&apos;&apos;	When True (default), that message is appended to the standard message
+	LongMessage = _PropertyGet(&quot;LongMessage&quot;)
+End Property	&apos;	SFUnitTests.SF_UnitTest.LongMessage (get)
+
+REM -----------------------------------------------------------------------------
+Property Let LongMessage(Optional ByVal pvLongMessage As Variant)
+&apos;&apos;&apos;	Set the updatable property LongMessage
+	_PropertySet(&quot;LongMessage&quot;, pvLongMessage)
+End Property	&apos;	SFUnitTests.SF_UnitTest.LongMessage (let)
+
+REM -----------------------------------------------------------------------------
+Property Get ReturnCode() As Integer
+&apos;&apos;&apos;	RCNORMALEND			= 0				&apos; Normal end of test or test not started
+&apos;&apos;&apos;	RCASSERTIONFAILED	= 1				&apos; An assertion within a test case returned False
+&apos;&apos;&apos;	RCSKIPTEST			= 2				&apos; A SkipTest() was issued by a Setup() method
+&apos;&apos;&apos;	RCABORTTEST			= 3				&apos; Abnormal end of test
+	ReturnCode = _PropertyGet(&quot;ReturnCode&quot;)
+End Property	&apos;	SFUnitTests.SF_UnitTest.ReturnCode (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Verbose() As Variant
+&apos;&apos;&apos;	The Verbose property indicates if all assertions (True AND False) are reported
+	Verbose = _PropertyGet(&quot;Verbose&quot;)
+End Property	&apos;	SFUnitTests.SF_UnitTest.Verbose (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Verbose(Optional ByVal pvVerbose As Variant)
+&apos;&apos;&apos;	Set the updatable property Verbose
+	_PropertySet(&quot;Verbose&quot;, pvVerbose)
+End Property	&apos;	SFUnitTests.SF_UnitTest.Verbose (let)
+
+REM -----------------------------------------------------------------------------
+Property Get WhenAssertionFails() As Variant
+&apos;&apos;&apos;	What when an AssertXXX() method returns False
+&apos;&apos;&apos;		FAILIGNORE			= 0				&apos; Ignore the failure
+&apos;&apos;&apos;		FAILSTOPSUITE		= 1				&apos; Module TearDown is executed, then next suite may be started (default in FULL mode)
+&apos;&apos;&apos;		FAILIMMEDIATESTOP	= 2				&apos; Stop immediately (default in SIMPLE mode)
+&apos;&apos;&apos;	In simple mode, only FAILIGNORE and FAILIMMEDIATESTOP are allowed.
+&apos;&apos;&apos;	In both modes, when WhenAssertionFails has not the value FAILIGNORE,
+&apos;&apos;&apos;	each test case MUST have a run-time error handler calling the ReportError() method.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Sub Test_sometest(Optional test)
+&apos;&apos;&apos;			On Local Error GoTo CatchError
+&apos;&apos;&apos;			&apos;	...	one or more assert verbs
+&apos;&apos;&apos;			Exit Sub
+&apos;&apos;&apos;		CatchError:
+&apos;&apos;&apos;			test.ReportError()
+&apos;&apos;&apos;		End Sub
+	WhenAssertionFails = _PropertyGet(&quot;WhenAssertionFails&quot;)
+End Property	&apos;	SFUnitTests.SF_UnitTest.WhenAssertionFails (get)
+
+REM -----------------------------------------------------------------------------
+Property Let WhenAssertionFails(Optional ByVal pvWhenAssertionFails As Variant)
+&apos;&apos;&apos;	Set the updatable property WhenAssertionFails
+	_PropertySet(&quot;WhenAssertionFails&quot;, pvWhenAssertionFails)
+End Property	&apos;	SFUnitTests.SF_UnitTest.WhenAssertionFails (let)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function AssertAlmostEqual(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Tolerance As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A and B are numerical values and are found close to each other.
+&apos;&apos;&apos;	It is typically used to compare very large or very small numbers.
+&apos;&apos;&apos;	Equality is confirmed when
+&apos;&apos;&apos;		- A and B can be converted to doubles
+&apos;&apos;&apos;		- The absolute difference between a and b, relative to the larger absolute value of a or b,
+&apos;&apos;&apos;		  is lower or equal to the tolerance. The default tolerance is 1E-09,
+&apos;&apos;&apos;			Examples:	1E+12 and 1E+12 + 100 are almost equal
+&apos;&apos;&apos;						1E-20 and 2E-20 are not almost equal
+&apos;&apos;&apos;						100 and 95 are almost equal when Tolerance = 0.05
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstTolerance = 1E-09
+Const cstThisSub = &quot;UnitTest.AssertAlmostEqual&quot;
+Const cstSubArgs = &quot;A, B, [Tolerance=1E-09], [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Tolerance) Then Tolerance = cstTolerance
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(Tolerance, &quot;Tolerance&quot;, ScriptForge.V_NUMERIC) Then GoTo Catch
+
+Try:
+	bAssert = _Assert(&quot;AssertAlmostEqual&quot;, True, A, B, Message, Tolerance)
+
+Finally:
+	AssertAlmostEqual = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertAlmostEqual
+
+REM -----------------------------------------------------------------------------
+Public Function AssertEqual(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A and B are found equal.
+&apos;&apos;&apos;	Equality is confirmed when
+&apos;&apos;&apos;		If A and B are scalars:
+&apos;&apos;&apos;			They should have the same VarType or both be numeric
+&apos;&apos;&apos;			Booleans and numeric values are compared with the = operator
+&apos;&apos;&apos;			Strings are compared with the StrComp() builtin function. The comparison is case-sensitive
+&apos;&apos;&apos;			Dates and times are compared up to the second
+&apos;&apos;&apos;			Null, Empty and Nothing are not equal, but AssertEqual(Nothing, Nothing) returns True
+&apos;&apos;&apos;			UNO objects are compared with the EqualUnoObjects() method
+&apos;&apos;&apos;			Basic objects are NEVER equal
+&apos;&apos;&apos;		If A and B are arrays:
+&apos;&apos;&apos;			They should have the same number of dimensions (maximum 2)
+&apos;&apos;&apos;			The lower and upper bounds must be identical for each dimension
+&apos;&apos;&apos;			Two empty arrays are equal
+&apos;&apos;&apos;			Their items must be equal one by one
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertEqual&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertEqual&quot;, True, A, B, Message)
+
+Finally:
+	AssertEqual = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertEqual
+
+REM -----------------------------------------------------------------------------
+Public Function AssertFalse(Optional ByRef A As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is a Boolean and its value is False
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertFalse&quot;
+Const cstSubArgs = &quot;A, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertFalse&quot;, True, A, Empty, Message)
+
+Finally:
+	AssertFalse = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertFalse
+
+REM -----------------------------------------------------------------------------
+Public Function AssertGreater(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is greater than B.
+&apos;&apos;&apos;	To compare A and B:
+&apos;&apos;&apos;		They should have the same VarType or both be numeric
+&apos;&apos;&apos;		Eligible datatypes are String, Date or numeric.
+&apos;&apos;&apos;		String comparisons are case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertGreater&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertGreater&quot;, True, A, B, Message)
+
+Finally:
+	AssertGreater = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertGreater
+
+REM -----------------------------------------------------------------------------
+Public Function AssertGreaterEqual(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is greater than or equal to B.
+&apos;&apos;&apos;	To compare A and B:
+&apos;&apos;&apos;		They should have the same VarType or both be numeric
+&apos;&apos;&apos;		Eligible datatypes are String, Date or numeric.
+&apos;&apos;&apos;		String comparisons are case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertGreaterEqual&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertGreaterEqual&quot;, True, A, B, Message)
+
+Finally:
+	AssertGreaterEqual = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertGreaterEqual
+
+REM -----------------------------------------------------------------------------
+Public Function AssertIn(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A, a string, is found within B
+&apos;&apos;&apos;	B may be a 1D array, a ScriptForge dictionary or a string.
+&apos;&apos;&apos;	When B is an array, A may be a date or a numeric value.
+&apos;&apos;&apos;	String comparisons are case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertIn&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertIn&quot;, True, A, B, Message)
+
+Finally:
+	AssertIn = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertIn
+
+REM -----------------------------------------------------------------------------
+Public Function AssertIsInstance(Optional ByRef A As Variant _
+								, Optional ByRef ObjectType As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is an object instance of the class ObjectType or a variable of type ObjectType.
+&apos;&apos;&apos;	A may be:
+&apos;&apos;&apos;		- a ScriptForge object
+&apos;&apos;&apos;			ObjectType is a string like &quot;DICTIONARY&quot;, &quot;calc&quot;, &quot;Dialog&quot;, &quot;exception&quot;, etc.
+&apos;&apos;&apos;		- a UNO object
+&apos;&apos;&apos;			ObjectType is a string identical with values returned by the SF_Session.UnoObjectType()
+&apos;&apos;&apos;		- any variable, providing it is neither an object nor an array
+&apos;&apos;&apos;			ObjectType is a string identifying a value returned by the TypeName() builtin function
+&apos;&apos;&apos;		- an array
+&apos;&apos;&apos;			ObjectType is expected to be &quot;array&quot;
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertIsInstance&quot;
+Const cstSubArgs = &quot;A, ObjectType, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(ObjectType) Then ObjectType = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(ObjectType, &quot;ObjectType&quot;, V_STRING) Then GoTo Catch
+
+
+Try:
+	bAssert = _Assert(&quot;AssertIsInstance&quot;, True, A, Empty, Message, ObjectType)
+
+Finally:
+	AssertIsInstance = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertIsInstance
+
+REM -----------------------------------------------------------------------------
+Public Function AssertIsNothing(Optional ByRef A As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is an object that has the Nothing value
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertIsNothing&quot;
+Const cstSubArgs = &quot;A, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertIsNothing&quot;, True, A, Empty, Message)
+
+Finally:
+	AssertIsNothing = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertIsNothing
+
+REM -----------------------------------------------------------------------------
+Public Function AssertIsNull(Optional ByRef A As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A has the Null value
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertIsNull&quot;
+Const cstSubArgs = &quot;A, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertIsNull&quot;, True, A, Empty, Message)
+
+Finally:
+	AssertIsNull = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertIsNull
+
+REM -----------------------------------------------------------------------------
+Public Function AssertLess(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is less than B.
+&apos;&apos;&apos;	To compare A and B:
+&apos;&apos;&apos;		They should have the same VarType or both be numeric
+&apos;&apos;&apos;		Eligible datatypes are String, Date or numeric.
+&apos;&apos;&apos;		String comparisons are case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertLess&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertLess&quot;, False, A, B, Message)
+
+Finally:
+	AssertLess = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertLess
+
+REM -----------------------------------------------------------------------------
+Public Function AssertLessEqual(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is less than or equal to B.
+&apos;&apos;&apos;	To compare A and B:
+&apos;&apos;&apos;		They should have the same VarType or both be numeric
+&apos;&apos;&apos;		Eligible datatypes are String, Date or numeric.
+&apos;&apos;&apos;		String comparisons are case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertLessEqual&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertLessEqual&quot;, False, A, B, Message)
+
+Finally:
+	AssertLessEqual = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertLessEqual
+
+REM -----------------------------------------------------------------------------
+Public Function AssertLike(Optional ByRef A As Variant _
+								, Optional ByRef Pattern As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True if string A matches a given pattern containing wildcards
+&apos;&apos;&apos;	Admitted wildcard are:	the &quot;?&quot; represents any single character
+&apos;&apos;&apos;							the &quot;*&quot; represents zero, one, or multiple characters
+&apos;&apos;&apos;	The comparison is case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertLike&quot;
+Const cstSubArgs = &quot;A, Pattern, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Pattern) Then Pattern = &quot;&quot;
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(Pattern, &quot;Pattern&quot;, V_STRING) Then GoTo Catch
+
+Try:
+	bAssert = _Assert(&quot;AssertLike&quot;, True, A, Empty, Message, Pattern)
+
+Finally:
+	AssertLike = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertLike
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotAlmostEqual(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Tolerance As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A and B are numerical values and are not found close to each other.
+&apos;&apos;&apos;	Read about almost equality in the comments linked to the AssertEqual() method.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstTolerance = 1E-09
+Const cstThisSub = &quot;UnitTest.AssertNotAlmostEqual&quot;
+Const cstSubArgs = &quot;A, B, [Tolerance=1E-09], [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Tolerance) Then Tolerance = cstTolerance
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(Tolerance, &quot;Tolerance&quot;, ScriptForge.V_NUMERIC) Then GoTo Catch
+
+Try:
+	bAssert = _Assert(&quot;AssertNotAlmostEqual&quot;, False, A, B, Message, Tolerance)
+
+Finally:
+	AssertNotAlmostEqual = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotAlmostEqual
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotEqual(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A and B are found unequal.
+&apos;&apos;&apos;	Read about equality in the comments linked to the AssertEqual() method.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertNotEqual&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertNotEqual&quot;, False, A, B, Message)
+
+Finally:
+	AssertNotEqual = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotEqual
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotIn(Optional ByRef A As Variant _
+								, Optional ByRef B As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A, a string, is not found within B
+&apos;&apos;&apos;	B may be a 1D array, a ScriptForge dictionary or a string.
+&apos;&apos;&apos;	When B is an array, A may be a date or a numeric value.
+&apos;&apos;&apos;	String comparisons are case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertNotIn&quot;
+Const cstSubArgs = &quot;A, B, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(B) Then B = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertNotIn&quot;, False, A, B, Message)
+
+Finally:
+	AssertNotIn = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotIn
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotInstance(Optional ByRef A As Variant _
+								, Optional ByRef ObjectType As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is an object instance of the class ObjectType or a variable of type ObjectType.
+&apos;&apos;&apos;	More details to be read under the AssertInstance() function.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertNotInstance&quot;
+Const cstSubArgs = &quot;A, ObjectType, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(ObjectType) Then ObjectType = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(ObjectType, &quot;ObjectType&quot;, V_STRING) Then GoTo Catch
+
+Try:
+	bAssert = _Assert(&quot;AssertNotInstance&quot;, False, A, Empty, Message, ObjectType)
+
+Finally:
+	AssertNotInstance = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotInstance
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotLike(Optional ByRef A As Variant _
+								, Optional ByRef Pattern As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True if A is not a string or does not match a given pattern containing wildcards
+&apos;&apos;&apos;	Admitted wildcard are:	the &quot;?&quot; represents any single character
+&apos;&apos;&apos;							the &quot;*&quot; represents zero, one, or multiple characters
+&apos;&apos;&apos;	The comparison is case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertNotLike&quot;
+Const cstSubArgs = &quot;A, Pattern, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Pattern) Then Pattern = &quot;&quot;
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(Pattern, &quot;Pattern&quot;, V_STRING) Then GoTo Catch
+
+Try:
+	bAssert = _Assert(&quot;AssertNotLike&quot;, False, A, Empty, Message, Pattern)
+
+Finally:
+	AssertNotLike = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotLike
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotNothing(Optional ByRef A As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True except when A is an object that has the Nothing value
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertNotNothing&quot;
+Const cstSubArgs = &quot;A, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertNotNothing&quot;, False, A, Empty, Message)
+
+Finally:
+	AssertNotNothing = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotNothing
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotNull(Optional ByRef A As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True except when A has the Null value
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertNotNull&quot;
+Const cstSubArgs = &quot;A, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertNotNull&quot;, False, A, Empty, Message)
+
+Finally:
+	AssertNotNull = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotNull
+
+REM -----------------------------------------------------------------------------
+Public Function AssertNotRegex(Optional ByRef A As Variant _
+								, Optional ByRef Regex As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is not a string or does not match the given regular expression.
+&apos;&apos;&apos;	The comparison is case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertNotRegex&quot;
+Const cstSubArgs = &quot;A, Regex, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Regex) Then Regex = &quot;&quot;
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(Regex, &quot;Regex&quot;, V_STRING) Then GoTo Catch
+
+Try:
+	bAssert = _Assert(&quot;AssertNotRegex&quot;, False, A, Empty, Message, Regex)
+
+Finally:
+	AssertNotRegex = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertNotRegex
+
+REM -----------------------------------------------------------------------------
+Public Function AssertRegex(Optional ByRef A As Variant _
+								, Optional ByRef Regex As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when string A matches the given regular expression.
+&apos;&apos;&apos;	The comparison is case-sensitive.
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertRegex&quot;
+Const cstSubArgs = &quot;A, Regex, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Regex) Then Regex = &quot;&quot;
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(Regex, &quot;Regex&quot;, V_STRING) Then GoTo Catch
+
+Try:
+	bAssert = _Assert(&quot;AssertRegex&quot;, True, A, Empty, Message, Regex)
+
+Finally:
+	AssertRegex = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	bAssert = False
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertRegex
+
+REM -----------------------------------------------------------------------------
+Public Function AssertTrue(Optional ByRef A As Variant _
+								, Optional ByVal Message As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Returns True when A is a Boolean and its value is True
+
+Dim bAssert As Boolean			&apos;	Return value
+Const cstThisSub = &quot;UnitTest.AssertTrue&quot;
+Const cstSubArgs = &quot;A, [Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(A) Then A = Empty
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;AssertTrue&quot;, True, A, Empty, Message)
+
+Finally:
+	AssertTrue = bAssert
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest.AssertTrue
+
+REM -----------------------------------------------------------------------------
+Public Sub Fail(Optional ByVal Message As Variant)
+&apos;&apos;&apos;	Forces a test failure
+
+Dim bAssert As Boolean			&apos;	Fictive return value
+Const cstThisSub = &quot;UnitTest.Fail&quot;
+Const cstSubArgs = &quot;[Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	bAssert = _Assert(&quot;Fail&quot;, False, Empty, Empty, Message)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+End Sub	&apos;	SFUnitTests.SF_UnitTest.Fail
+
+REM -----------------------------------------------------------------------------
+Public Sub Log(Optional ByVal Message As Variant)
+&apos;&apos;&apos;	Records the given message in the test report (console)
+
+Dim bAssert As Boolean			&apos;	Fictive return value
+Dim bVerbose As Boolean			:	bVerbose = _Verbose
+Const cstThisSub = &quot;UnitTest.Log&quot;
+Const cstSubArgs = &quot;[Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+
+Try:
+	&apos;	Force the display of the message in the console
+	_Verbose = True
+	bAssert = _Assert(&quot;Log&quot;, True, Empty, Empty, Message)
+	_Verbose = bVerbose
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+End Sub	&apos;	SFUnitTests.SF_UnitTest.Log
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		myUnitTest.GetProperty(&quot;Duration&quot;)
+
+Const cstThisSub = &quot;UnitTest.GetProperty&quot;
+Const cstSubArgs = &quot;PropertyName&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list or methods of the UnitTest class as an array
+
+	Methods = Array( _
+					&quot;AssertAlmostEqual&quot; _
+					, &quot;AssertEqual&quot; _
+					, &quot;AssertFalse&quot; _
+					, &quot;AssertGreater&quot; _
+					, &quot;AssertGreaterEqual&quot; _
+					, &quot;AssertIn&quot; _
+					, &quot;AssertIsInstance&quot; _
+					, &quot;AssertIsNothing&quot; _
+					, &quot;AssertLike&quot; _
+					, &quot;AssertNotRegex&quot; _
+					, &quot;AssertIsNull&quot; _
+					, &quot;AssertLess&quot; _
+					, &quot;AssertLessEqual&quot; _
+					, &quot;AssertNotAlmostEqual&quot; _
+					, &quot;AssertNotEqual&quot; _
+					, &quot;AssertNotIn&quot; _
+					, &quot;AssertNotInstance&quot; _
+					, &quot;AssertNotLike&quot; _
+					, &quot;AssertNotNothing&quot; _
+					, &quot;AssertNotNull&quot; _
+					, &quot;AssertRegex&quot; _
+					, &quot;AssertTrue&quot; _
+					, &quot;Fail&quot; _
+					, &quot;Log&quot; _
+					, &quot;RunTest&quot; _
+					, &quot;SkipTest&quot; _
+					)
+
+End Function	&apos;	SFUnitTests.SF_UnitTest.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the UnitTest class as an array
+
+	Properties = Array( _
+					&quot;LongMessage&quot; _
+					, &quot;ReturnCode&quot; _
+					, &quot;Verbose&quot; _
+					, &quot;WhenAssertionFails&quot; _
+					)
+
+End Function	&apos;	SFUnitTests.SF_UnitTest.Properties
+
+REM -----------------------------------------------------------------------------
+Public Sub ReportError(Optional ByVal Message As Variant)
+&apos;&apos;&apos;	DIsplay a message box with the current property values of the &quot;Exception&quot; service.
+&apos;&apos;&apos;	Depending on the WhenAssertionFails property, a Raise() or RaiseWarning()
+&apos;&apos;&apos;	is issued. The Raise() method stops completely the Basic running process.
+&apos;&apos;&apos;	The ReportError() method is presumed present in a user script in an error
+&apos;&apos;&apos;	handling part of the actual testcase.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Message: a string to replace or to complete the standard message description
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		See the Test_ArraySize() sub in the module&apos;s heading example
+
+Dim sLine As String				&apos;	Line number where the error occurred
+Dim sError As String			&apos;	Exception description
+Dim sErrorCode As String		&apos;	Exception number
+Const cstThisSub = &quot;UnitTest.ReportError&quot;
+Const cstSubArgs = &quot;[Message=&quot;&quot;&quot;&quot;]&quot;
+
+Check:
+	If IsMissing(Message) Or IsEmpty(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If VarType(Message) &lt;&gt; V_STRING Then Message = &quot;&quot;
+
+Try:
+	sLine = &quot;ln &quot; &amp; CStr(Exception.Source)
+	If _ExecutionMode = FULLMODE Then sLine = _Module &amp; &quot;.&quot; &amp; _TestCase &amp; &quot; &quot; &amp; sLine
+	If Len(Message) &gt; 0 Then
+		sError = Message
+	Else
+		If Exception.Number = INVALIDPROCEDURECALL Then
+			sError = &quot;Test case failure&quot;
+			sErrorCode = &quot;ASSERTIONFAILED&quot;
+		Else
+			sError = Exception.Description
+			sErrorCode = CStr(Exception.Number)
+		End If
+	End If
+
+	Select Case _WhenAssertionFails
+		Case FAILIGNORE
+		Case FAILSTOPSUITE
+			Exception.RaiseWarning(sErrorCode, sLine, sError)
+		Case FAILIMMEDIATESTOP
+			Exception.Raise(sErrorCode, sLine, sError)
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+End Sub			&apos;	SFUnitTests.SF_UnitTest.ReportError
+REM -----------------------------------------------------------------------------
+Public Function RunTest(Optional ByVal TestSuite As Variant _
+							, Optional ByVal TestCasePattern As Variant _
+							, Optional ByVal Message As Variant _
+							) As Integer
+&apos;&apos;&apos;	Execute a test suite pointed out by a module name.
+&apos;&apos;&apos;	Each test case will be run independently from each other.
+&apos;&apos;&apos;	The names of the test cases to be run may be selected with a string pattern.
+&apos;&apos;&apos;	The test is &quot;orchestrated&quot; by this method:
+&apos;&apos;&apos;		1. Execute the optional Setup() method present in the module
+&apos;&apos;&apos;		2. Execute once each test case, in any order
+&apos;&apos;&apos;		3, Execute the optional TearDown() method present in the module
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		TestSuite: the name of the module containing the set of test cases to run
+&apos;&apos;&apos;		TestCasePattern: the pattern that the test cases must match. The comparison is not case-sensitive.
+&apos;&apos;&apos;			Non-matching functions and subs are ignored.
+&apos;&apos;&apos;			Admitted wildcard are:	the &quot;?&quot; represents any single character
+&apos;&apos;&apos;									the &quot;*&quot; represents zero, one, or multiple characters
+&apos;&apos;&apos;			The default pattern is &quot;Test_*&quot;
+&apos;&apos;&apos;		Message: the message to be displayed in the console when the test starts.
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		One of the return codes of the execution (RCxxx constants)
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		GlobalScope.BasicLibraries.loadLibrary(&quot;ScriptForge&quot;)
+&apos;&apos;&apos;		Dim test	:	test = CreateScriptService(&quot;UnitTest&quot;, ThisComponent, &quot;Tests&quot;)
+&apos;&apos;&apos;		test.RunTest(&quot;AllTests&quot;)	&apos;	AllTests is a module name ; test cases are named &quot;Test_*&quot; (default)
+
+Dim iRun As Integer					&apos;	Return value
+Dim sRunMessage As String			&apos;	Reporting
+Dim iModule	As Integer				&apos;	Index of module currently running
+Dim vMethods As Variant				&apos;	Set of methods
+Dim sMethod As String				&apos;	A single method
+Dim iMethod As Integer				&apos;	Index in MethodNames
+Dim m As Integer
+
+Const cstThisSub = &quot;UnitTest.RunTest&quot;
+Const cstSubArgs = &quot;TestSuite, [TestCasePattern=&quot;&quot;Test_*&quot;&quot;], [Message=&quot;&quot;&quot;&quot;]&quot;
+
+	iRun = RCNORMALEND
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(TestCasePattern) Or IsEmpty(TestCasePattern) Then TestCasePattern = &quot;Test_*&quot;
+	If IsMissing(Message) Or IsEmpty(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(TestSuite, &quot;TestSuite&quot;, V_STRING, ModuleNames) Then GoTo Catch
+	If Not ScriptForge.SF_Utils._Validate(TestCasePattern, &quot;TestCasePattern&quot;, V_STRING) Then GoTo Catch
+	If Not ScriptForge.SF_Utils._Validate(Message, &quot;Message&quot;, V_STRING) Then GoTo Catch
+
+	&apos;	A RunTest() is forbidden inside a test suite or when simple mode
+	If _Status &lt;&gt; STATUSSTANDBY Or _ExecutionMode &lt;&gt; FULLMODE Then GoTo CatchMethod
+
+	&apos;	Ignore any call when an abnormal end has been encountered
+	If _ReturnCode = RCABORTTEST Then GoTo Catch
+
+Try:
+	iModule = ScriptForge.SF_Array.IndexOf(ModuleNames, TestSuite, CaseSensitive := False, SortOrder := &quot;ASC&quot;)
+	_Module = ModuleNames(iModule)
+
+	&apos;	Start timer
+	If Not IsNull(SuiteTimer) Then SuiteTimer = SuiteTimer.Dispose()
+	Set SuiteTimer = CreateScriptService(&quot;ScriptForge.Timer&quot;, True)
+
+	&apos;	Report the start of a new test suite
+	sRunMessage =  &quot;RUNTEST ENTER testsuite=&apos;&quot; &amp; LibraryName &amp; &quot;.&quot; &amp; _Module &amp; &quot;&apos;, pattern=&apos;&quot; &amp; TestCasePattern &amp; &quot;&apos;&quot;
+	_ReportMessage(sRunMessage, Message)
+	_Status = STATUSSUITESTARTED
+
+	&apos;	Collect all the methods of the module
+	If Modules(iModule).hasChildNodes() Then
+		vMethods = Modules(iModule).getChildNodes()
+		MethodNames = Array()
+		For m = 0 To UBound(vMethods)
+			sMethod = vMethods(m).getName()
+			MethodNames = ScriptForge.SF_Array.Append(MethodNames, sMethod)
+		Next m
+	End If
+
+	&apos;	Execute the Setup() method, if it exists
+	iMethod = ScriptForge.SF_Array.IndexOf(MethodNames, &quot;Setup&quot;, CaseSensitive := False, SortOrder := &quot;ASC&quot;)
+	If iMethod &gt;= 0 Then
+		_TestCase = MethodNames(iMethod)	&apos;	_TestCase is used in ReportError()
+		If Not _ExecuteScript(_TestCase) Then GoTo Catch
+	End If
+
+	&apos;	Execute the test cases that match the pattern
+	For iMethod = 0 To UBound(MethodNames)
+		If _ReturnCode = RCSKIPTEST Or _ReturnCode = RCASSERTIONFAILED Then Exit For
+		sMethod = MethodNames(iMethod)
+		If ScriptForge.SF_String.IsLike(sMethod, TestCasePattern, CaseSensitive := False) Then
+			_TestCase = sMethod
+			&apos;	Start timer
+			If Not IsNull(CaseTimer) Then CaseTimer = CaseTimer.Dispose()
+			Set CaseTimer = CreateScriptService(&quot;ScriptForge.Timer&quot;, True)
+			If Not _ExecuteScript(sMethod) Then GoTo Catch
+			CaseTimer.Terminate()
+			_TestCase = &quot;&quot;
+		End If
+	Next iMethod
+
+	If _ReturnCode &lt;&gt; RCSKIPTEST Then
+		&apos;	Execute the TearDown() method, if it exists
+		iMethod = ScriptForge.SF_Array.IndexOf(MethodNames, &quot;TearDown&quot;, CaseSensitive := False, SortOrder := &quot;ASC&quot;)
+		If iMethod &gt;= 0 Then
+			_TestCase = MethodNames(iMethod)	&apos;	_TestCase is used in ReportError()
+			If Not _ExecuteScript(_TestCase) Then GoTo Catch
+		End If
+	End If
+
+	&apos;	Report the end of the current test suite
+	sRunMessage = &quot;RUNTEST EXIT testsuite=&apos;&quot; &amp; LibraryName &amp; &quot;.&quot; &amp; _Module &amp; &quot;&apos; &quot; &amp; _Duration(&quot;Suite&quot;, True)
+	_ReportMessage(sRunMessage, Message)
+
+	&apos;	Stop timer
+	SuiteTimer.Terminate()
+
+	&apos;	Housekeeping
+	MethodNames = Array()
+	_Module = &quot;&quot;
+	_Status = STATUSSTANDBY
+
+Finally:
+	_ReturnCode = iRun
+	RunTest = iRun
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	iRun = RCABORTTEST
+	GoTo Finally
+CatchMethod:
+	ScriptForge.SF_Exception.RaiseFatal(UNITTESTMETHODERROR, &quot;RunTest&quot;)
+	GoTo Catch
+End Function	&apos;	SFUnitTests.SF_UnitTest.RunTest
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;UnitTest.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	SetProperty = _PropertySet(PropertyName, Value)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest.SetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function SkipTest(Optional ByVal Message As Variant) As Boolean
+&apos;&apos;&apos;	Interrupt the running test suite. The TearDown() method is NOT executed.
+&apos;&apos;&apos;	The SkipTest() method is normally meaningful only in a Setup() method when not all the
+&apos;&apos;&apos;	conditions to run the test are met.
+&apos;&apos;&apos;	It is up to the Setup() script to exit shortly after the SkipTest() call..
+&apos;&apos;&apos;	The method may also be executed in a test case. Next test cases will not be executed.
+&apos;&apos;&apos;	Remember however that the test cases are executed is an arbitrary order.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Message: the message to be displayed in the console
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		GlobalScope.BasicLibraries.loadLibrary(&quot;ScriptForge&quot;)
+&apos;&apos;&apos;		Dim test	:	test = CreateScriptService(&quot;UnitTest&quot;, ThisComponent, &quot;Tests&quot;)
+&apos;&apos;&apos;		test.SkipTest(&quot;AllTests&quot;)	&apos;	AllTests is a module name ; test cases are named &quot;Test_*&quot; (default)
+
+Dim bSkip As Boolean				&apos;	Return value
+Dim sSkipMessage As String			&apos;	Reporting
+
+Const cstThisSub = &quot;UnitTest.SkipTest&quot;
+Const cstSubArgs = &quot;[Message=&quot;&quot;&quot;&quot;]&quot;
+
+	bSkip = False
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(Message) Or IsEmpty(Message) Then Message = &quot;&quot;
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Unconditional !
+	If Not ScriptForge.SF_Utils._Validate(Message, &quot;Message&quot;, V_STRING) Then GoTo Catch
+
+	&apos;	A SkipTest() is forbidden when simple mode
+	If _ExecutionMode &lt;&gt; FULLMODE Then GoTo CatchMethod
+
+	&apos;	Ignore any call when an abnormal end has been encountered
+	If _ReturnCode = RCABORTTEST Then GoTo Catch
+
+Try:
+	If _Status = STATUSSETUP Or _Status = STATUSTESTCASE Then
+		_ReturnCode = RCSKIPTEST
+		bSkip = True
+		&apos;	Exit message
+		sSkipMessage = &quot;    SKIPTEST testsuite=&apos;&quot; &amp; LibraryName &amp; &quot;.&quot; &amp; _Module &amp; &quot;&apos; &quot; &amp; _Duration(&quot;Suite&quot;, True)
+		_ReportMessage(sSkipMessage, Message)
+	End If
+
+Finally:
+	SkipTest = bSkip
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	_ReturnCode = RCABORTTEST
+	GoTo Finally
+CatchMethod:
+	ScriptForge.SF_Exception.RaiseFatal(UNITTESTMETHODERROR, &quot;SkipTest&quot;)
+	GoTo Catch
+End Function	&apos;	SFUnitTests.SF_UnitTest.SkipTest
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _Assert(ByVal psAssert As String _
+							, ByVal pvReturn As Variant _
+							, ByRef A As Variant _
+							, ByRef B As Variant _
+							, Optional ByVal pvMessage As Variant _
+							, Optional ByVal pvArg As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Evaluation of the assertion and management of the success or the failure
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psAssert: the assertion verb as a string
+&apos;&apos;&apos;		pvReturn: may be True, False or Empty
+&apos;&apos;&apos;			When True (resp. False), the assertion must be evaluated as True (resp. False)
+&apos;&apos;&apos;				e.g.	AssertEqual() will call _Assert(&quot;AssertEqual&quot;, True, ...)
+&apos;&apos;&apos;						AssertNotEqual() will call _Assert(&quot;AssertNotEqual&quot;, False, ...)
+&apos;&apos;&apos;			Empty may be used for recursive calls of the function (for comparing arrays, ...)
+&apos;&apos;&apos;		A: always present
+&apos;&apos;&apos;		B: may be empty
+&apos;&apos;&apos;		pvMessage: the message to display on the console
+&apos;&apos;&apos;		pvArg: optional additional argument of the assert function
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when success
+
+Dim bAssert As Boolean			&apos;	Return value
+Dim bEval As Boolean			&apos;	To be compared with pvReturn
+Dim iVarTypeA As Integer		&apos;	Alias of _VarTypeExt(A)
+Dim iVarTypeB As Integer		&apos;	Alias of _VarTypeExt(B)
+Dim oVarTypeObjA As Object		&apos;	SF_Utils.ObjectDescriptor
+Dim oVarTypeObjB As Object		&apos;	SF_Utils.ObjectDescriptor
+Dim oUtils As Object			:	Set oUtils = ScriptForge.SF_Utils
+Dim iDims As Integer			&apos;	Number of dimensions of array
+Dim oAliasB As Object			&apos;	Alias of B to bypass the &quot;Object variable not set&quot; issue
+Dim dblA As Double				&apos;	Alias of A
+Dim dblB As Double				&apos;	Alias of B
+Dim dblTolerance As Double		&apos;	Alias of pvArg
+Dim oString As Object			:	Set oString = ScriptForge.SF_String
+Dim sArgName As String			&apos;	Argument description
+Dim i As Long, j As Long
+
+Check:
+	bAssert = False
+	If IsMissing(pvMessage) Then pvMessage = &quot;&quot;
+	If Not oUtils._Validate(pvMessage, &quot;Message&quot;, V_STRING) Then GoTo Finally
+	If IsMissing(pvArg) Then pvArg = &quot;&quot;
+
+Try:
+	iVarTypeA = oUtils._VarTypeExt(A)
+	iVarTypeB = oUtils._VarTypeExt(B)
+	sArgName = &quot;&quot;
+
+	Select Case UCase(psAssert)
+		Case UCase(&quot;AssertAlmostEqual&quot;), UCase(&quot;AssertNotAlmostEqual&quot;)
+			bEval = ( iVarTypeA = iVarTypeB And iVarTypeA = ScriptForge.V_NUMERIC )
+			If bEval Then
+				dblA = CDbl(A)
+				dblB = CDbl(B)
+				dblTolerance = Abs(CDbl(pvArg))
+				bEval = ( Abs(dblA - dblB) &lt;= (dblTolerance * Iif(Abs(dblA) &gt; Abs(DblB), Abs(dblA), Abs(dblB))) )
+			End If
+		Case UCase(&quot;AssertEqual&quot;), UCase(&quot;AssertNotEqual&quot;)
+			If Not IsArray(A) Then
+				bEval = ( iVarTypeA = iVarTypeB )
+				If bEval Then
+					Select Case iVarTypeA
+						Case V_EMPTY, V_NULL
+						Case V_STRING
+							bEval = ( StrComp(A, B, 1) = 0 )
+						Case ScriptForge.V_NUMERIC, ScriptForge.V_BOOLEAN
+							bEval = ( A = B )
+						Case V_DATE
+							bEval = ( Abs(DateDiff(&quot;s&quot;, A, B)) = 0 )
+						Case ScriptForge.V_OBJECT
+							Set oVarTypeObjA = oUtils._VarTypeObj(A)
+							Set oVarTypeObjB = oUtils._VarTypeObj(B)
+							bEval = ( oVarTypeObjA.iVarType = oVarTypeObjB.iVarType )
+							If bEval Then
+								Select Case oVarTypeObjA.iVarType
+									Case ScriptForge.V_NOTHING
+									Case ScriptForge.V_UNOOBJECT
+										bEval = EqualUnoObjects(A, B)
+									Case ScriptForge.V_SFOBJECT, ScriptForge.V_BASICOBJECT
+										bEval = False
+								End Select
+							End If
+					End Select
+				End If
+			Else	&apos;	Compare arrays
+				bEval = IsArray(B)
+				If bEval Then
+					iDims = ScriptForge.SF_Array.CountDims(A)
+					bEval = ( iDims = ScriptForge.SF_Array.CountDims(B) And iDims &lt;= 2 )
+					If bEval Then
+						Select Case iDims
+							Case -1, 0		&apos;	Scalars (not possible) or empty arrays
+							Case 1			&apos;	1D array
+								bEval = ( LBound(A) = LBound(B) And UBound(A) = UBound(B) )
+								If bEval Then
+									For i = LBound(A) To UBound(A)
+										bEval = _Assert(psAssert, Empty, A(i), B(i))
+										If Not bEval Then Exit For
+									Next i
+								End If
+							Case 2			&apos;	2D array
+								bEval = ( LBound(A, 1) = LBound(B, 1) And UBound(A, 1) = UBound(B, 1) _
+										And LBound(A, 2) = LBound(B, 2) And UBound(A, 2) = UBound(B, 2) )
+								If bEval Then
+									For i = LBound(A, 1) To UBound(A, 1)
+										For j = LBound(A, 2) To UBound(A, 2)
+											bEval = _Assert(psAssert, Empty, A(i, j), B(i, j))
+											If Not bEval Then Exit For
+										Next j
+										If Not bEval Then Exit For
+									Next i
+								End If
+						End Select
+					End If
+				End If
+			End If
+		Case UCase(&quot;AssertFalse&quot;)
+			If iVarTypeA = ScriptForge.V_BOOLEAN Then bEval = Not A Else bEval = False
+		Case UCase(&quot;AssertGreater&quot;), UCase(&quot;AssertLessEqual&quot;)
+			bEval = ( iVarTypeA = iVarTypeB _
+						And (iVarTypeA = ScriptForge.V_NUMERIC Or iVarTypeA = V_STRING Or iVarTypeA = V_DATE) )
+			If bEval Then bEval = ( A &gt; B )
+		Case UCase(&quot;AssertGreaterEqual&quot;), UCase(&quot;AssertLess&quot;)
+			bEval = ( iVarTypeA = iVarTypeB _
+						And (iVarTypeA = ScriptForge.V_NUMERIC Or iVarTypeA = V_STRING Or iVarTypeA = V_DATE) )
+			If bEval Then bEval = ( A &gt;= B )
+		Case UCase(&quot;AssertIn&quot;), UCase(&quot;AssertNotIn&quot;)
+			Set oVarTypeObjB = oUtils._VarTypeObj(B)
+			Select Case True
+				Case iVarTypeA = V_STRING And iVarTypeB = V_STRING
+					bEval = ( Len(A) &gt; 0 And Len(B) &gt; 0 )
+					If bEval Then bEval = ( InStr(1, B, A, 0) &gt; 0 )
+				Case (iVarTypeA = V_DATE Or iVarTypeA = V_STRING Or iVarTypeA = ScriptForge.V_NUMERIC) _
+						And iVarTypeB &gt;= ScriptForge.V_ARRAY
+					bEval = ( ScriptForge.SF_Array.CountDims(B) = 1 )
+					If bEval Then bEval = ScriptForge.SF_Array.Contains(B, A, CaseSensitive := True)
+				Case oVarTypeObjB.iVarType = ScriptForge.V_SFOBJECT And oVarTypeObjB.sObjectType = &quot;DICTIONARY&quot;
+					bEval = ( Len(A) &gt; 0 )
+					If bEval Then
+						Set oAliasB = B
+						bEval = ScriptForge.SF_Array.Contains(oAliasB.Keys(), A, CaseSensitive := True)
+					End If
+				Case Else
+					bEval = False
+			End Select
+		Case UCase(&quot;AssertIsInstance&quot;), UCase(&quot;AssertNotInstance&quot;)
+			Set oVarTypeObjA = oUtils._VarTypeObj(A)
+			sArgName = &quot;ObjectType&quot;
+			With oVarTypeObjA
+				Select Case .iVarType
+					Case ScriptForge.V_UNOOBJECT
+						bEval = ( pvArg = .sObjectType )
+					Case ScriptForge.V_SFOBJECT
+						bEval = ( UCase(pvArg) = UCase(.sObjectType) Or UCase(pvArg) = &quot;SF_&quot; &amp; UCase(.sObjectType) _
+									Or UCase(pvArg) = UCase(.sServiceName) )
+					Case ScriptForge.V_NOTHING, ScriptForge.V_BASICOBJECT
+						bEval = False
+					Case &gt;= ScriptForge.V_ARRAY
+						bEval = ( UCase(pvArg) = &quot;ARRAY&quot; )
+					Case Else
+						bEval = ( UCase(TypeName(A)) = UCase(pvArg) )
+				End Select
+			End With
+		Case UCase(&quot;AssertIsNothing&quot;), UCase(&quot;AssertNotNothing&quot;)
+			bEval = ( iVarTypeA = ScriptForge.V_OBJECT )
+			If bEval Then bEval = ( A Is Nothing )
+		Case UCase(&quot;AssertIsNull&quot;), UCase(&quot;AssertNotNull&quot;)
+			bEval = ( iVarTypeA = V_NULL )
+		Case UCase(&quot;AssertLike&quot;), UCase(&quot;AssertNotLike&quot;)
+			sArgName = &quot;Pattern&quot;
+			bEval = ( iVarTypeA = V_STRING And Len(pvArg) &gt; 0 )
+			If bEval Then bEval = oString.IsLike(A, pvArg, CaseSensitive := True)
+		Case UCase(&quot;AssertRegex&quot;), UCase(&quot;AssertNotRegex&quot;)
+			sArgName = &quot;Regex&quot;
+			bEval = ( iVarTypeA = V_STRING And Len(pvArg) &gt; 0 )
+			If bEval Then bEval = oString.IsRegex(A, pvArg, CaseSensitive := True)
+		Case UCase(&quot;AssertTrue&quot;)
+			If iVarTypeA = ScriptForge.V_BOOLEAN Then bEval = A Else bEval = False
+		Case UCase(&quot;FAIL&quot;), UCase(&quot;Log&quot;)
+			bEval = True
+		Case Else
+	End Select
+
+	&apos;	Check the result of the assertion vs. what it should be
+	If IsEmpty(pvReturn) Then
+		bAssert = bEval		&apos;	Recursive call =&gt; Reporting and failure management are done by calling _Assert() procedure
+	Else	&apos;	pvReturn is Boolean =&gt; Call from user script
+		bAssert = Iif(pvReturn, bEval, Not bEval)
+		&apos;	Report the assertion evaluation
+		If _Verbose Or Not bAssert Then
+			_ReportMessage(&quot;    &quot; &amp; psAssert _
+							&amp; Iif(IsEmpty(A), &quot;&quot;, &quot; = &quot; &amp; bAssert &amp; &quot;, A = &quot; &amp; oUtils._Repr(A)) _
+							&amp; Iif(IsEmpty(B), &quot;&quot;, &quot;, B = &quot; &amp; oUtils._Repr(B)) _
+							&amp; Iif(Len(sArgName) = 0, &quot;&quot;, &quot;, &quot; &amp; sArgName &amp; &quot; = &quot; &amp; pvArg) _
+							, pvMessage)
+		End If
+		&apos;	Manage assertion failure
+		If Not bAssert Then
+			_FailedAssert = psAssert
+			Select Case _WhenAssertionFails
+				Case FAILIGNORE			&apos;	Do nothing
+				Case Else
+					_ReturnCode = RCASSERTIONFAILED
+					&apos;	Cause artificially a run-time error
+					Dim STRINGBADUSE As String
+
+					&apos;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+					&apos;+	To avoid a run-time error on next executable statement,						+
+					&apos;+	insert an error handler in the code of your test case:						+
+					&apos;+	Like in next code:															+
+					&apos;+		On Local Error GoTo Catch												+
+					&apos;+		...																		+
+					&apos;+		Catch:																	+
+					&apos;+			myTest.ReportError()												+
+					&apos;+			Exit Sub															+
+					&apos;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+					STRINGBADUSE = Right(&quot;&quot;, -1)	&apos;	Raises &quot;#5 - Invalid procedure call&quot; error
+
+			End Select
+		End If
+	End If
+
+Finally:
+	_Assert = bAssert
+	Exit Function
+
+End Function	&apos;	SFUnitTests.SF_UnitTest._Assert
+
+REM -----------------------------------------------------------------------------
+Private Function _Duration(ByVal psTimer As String _
+							, Optional ByVal pvBrackets As Variant _
+							) As String
+&apos;&apos;&apos;	Return the Duration property of the given timer
+&apos;&apos;&apos;	or the empty string if the timer is undefined or not started
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psTimer: &quot;Test&quot;, &quot;Suite&quot; or &quot;TestCase&quot;
+&apos;&apos;&apos;		pbBrackets: surround with brackets when True. Default = False
+
+Dim sDuration As String			&apos;	Return value
+Dim oTimer As Object			&apos;	Alias of psTimer
+
+Check:
+	If IsMissing(pvBrackets) Or IsEmpty(pvBrackets) Then pvBrackets = False
+
+Try:
+	Select Case psTimer
+		Case &quot;Test&quot;					:	Set oTimer = TestTimer
+		Case &quot;Suite&quot;				:	Set oTimer = SuiteTimer
+		Case &quot;TestCase&quot;, &quot;Case&quot;		:	Set oTimer = CaseTimer
+	End Select
+	If Not IsNull(oTimer) Then
+		sDuration = CStr(oTimer.Duration) &amp; &quot; &quot;
+		If pvBrackets Then sDuration = &quot;(&quot; &amp; Trim(sDuration) &amp; &quot; sec)&quot;
+	Else
+		sDuration = &quot;&quot;
+	End If
+
+Finally:
+	_Duration = sDuration
+End Function	&apos;	SFUnitTests.SF_UnitTest._Duration
+
+REM -----------------------------------------------------------------------------
+Private Function _ExecuteScript(psMethod As String) As Boolean
+&apos;&apos;&apos;	Run the given method and report start and stop
+&apos;&apos;&apos;	The targeted method is presumed not to return anything (Sub)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psMethod: the scope, the library and the module are predefined in the instance internals
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+
+Dim bExecute As Boolean			&apos;	Return value
+Dim sRun As String				&apos;	SETUP, TEARDOWN or TESTCASE
+
+	On Local Error GoTo Catch
+	bExecute = True
+
+Try:
+	&apos;	Set status before the effective execution
+	sRun = UCase(psMethod)
+	Select Case UCase(psMethod)
+		Case &quot;SETUP&quot;		:	_Status = STATUSSETUP
+		Case &quot;TEARDOWN&quot;		:	_Status = STATUSTEARDOWN
+		Case Else			:	_Status = STATUSTESTCASE
+								sRun = &quot;TESTCASE&quot;
+	End Select
+
+	&apos;	Report and execute
+	_ReportMessage(&quot;  &quot; &amp; sRun &amp; &quot; &quot; &amp; LibraryName &amp; &quot;.&quot; &amp; _Module &amp; &quot;.&quot; &amp; psMethod &amp; &quot;() ENTER&quot;)
+	Session.ExecuteBasicScript(Scope, LibraryName &amp; &quot;.&quot; &amp; _Module &amp; &quot;.&quot; &amp; psMethod, [Me])
+	_ReportMessage(&quot;  &quot; &amp; sRun &amp; &quot; &quot; &amp; LibraryName &amp; &quot;.&quot; &amp; _Module &amp; &quot;.&quot; &amp; psMethod &amp; &quot;() EXIT&quot; _
+			&amp; Iif(_STATUS = STATUSTESTCASE, &quot; &quot; &amp; _Duration(&quot;Case&quot;, True), &quot;&quot;))
+	&apos;	Reset status
+	_Status = STATUSSUITESTARTED
+
+Finally:
+	_ExecuteScript = bExecute
+	Exit Function
+Catch:
+	bExecute = False
+	_ReturnCode = RCABORTTEST
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest._ExecuteScript
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String)
+&apos;&apos;&apos;	Return the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim cstThisSub As String
+Dim cstSubArgs As String
+
+	cstThisSub = &quot;UnitTest.get&quot; &amp; psProperty
+	cstSubArgs = &quot;&quot;
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+	Select Case UCase(psProperty)
+		Case UCase(&quot;LongMessage&quot;)
+			_PropertyGet = _LongMessage
+		Case UCase(&quot;ReturnCode&quot;)
+			_PropertyGet = _ReturnCode
+		Case UCase(&quot;Verbose&quot;)
+			_PropertyGet = _Verbose
+		Case UCase(&quot;WhenAssertionFails&quot;)
+			_PropertyGet = _WhenAssertionFails
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFUnitTests.SF_UnitTest._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertySet(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if successful
+
+Dim bSet As Boolean							&apos;	Return value
+Dim vWhenFailure As Variant					&apos;	WhenAssertionFails allowed values
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFUnitTests.UnitTest.set&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+	bSet = True
+	Select Case UCase(psProperty)
+		Case UCase(&quot;LongMessage&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;LongMessage&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			_LongMessage = pvValue
+		Case UCase(&quot;Verbose&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Verbose&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			_Verbose = pvValue
+		Case UCase(&quot;WhenAssertionFails&quot;)
+			If _ExecutionMode = SIMPLEMODE Then vWhenFailure = Array(0, 3) Else vWhenFailure = Array(0, 1, 2, 3)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;WhenAssertionFails&quot;, ScriptForge.V_NUMERIC, vWhenFailure) Then GoTo Finally
+			_WhenAssertionFails = pvValue
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	_PropertySet = bSet
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFUnitTests.SF_UnitTest._PropertySet
+
+REM -----------------------------------------------------------------------------
+Private Function _ReportMessage(ByVal psSysMessage As String _
+								, Optional ByVal pvMessage As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Report in the console:
+&apos;&apos;&apos;		- either the standard message
+&apos;&apos;&apos;		- either the user message when not blank
+&apos;&apos;&apos;		- or both
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psSysMessage: the standard message as built by the calling routine
+&apos;&apos;&apos;		psMessage: the message provided by the user script
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+
+Dim bReport As Boolean			&apos;	Return value
+Dim sIndent As String			&apos;	Indentation spaces
+
+	bReport = False
+	On Local Error GoTo Catch
+	If IsMissing(pvMessage) Or IsEmpty(pvMessage) Then pvMessage = &quot;&quot;
+
+Try:
+	Select Case True
+		Case Len(pvMessage) = 0
+			Exception.DebugPrint(psSysMessage)
+		Case _LongMessage
+			Exception.DebugPrint(psSysMessage, pvMessage)
+		Case Else
+			Select Case _Status
+				Case STATUSSTANDBY, STATUSSUITESTARTED	:	sIndent = &quot;&quot;
+				Case STATUSSUITESTARTED					:	sIndent = Space(2)
+				Case Else								:	sIndent = Space(4)
+			End Select
+			Exception.DebugPrint(sIndent &amp; pvMessage)
+	End Select
+
+Finally:
+	_ReportMessage = bReport
+	Exit Function
+Catch:
+	bReport = False
+	GoTo Finally							
+End Function	&apos;	SFUnitTests.SF_UnitTest._ReportMessage
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the UnitTest instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[UnitTest]
+
+Const cstUnitTest = &quot;[UnitTest]&quot;
+Const cstMaxLength = 50	&apos;	Maximum length for items
+
+	_Repr = cstUnitTest
+
+End Function	&apos;	SFUnitTests.SF_UnitTest._Repr
+
+REM ============================================== END OF SFUNITTESTS.SF_UNITTEST
+</script:module>

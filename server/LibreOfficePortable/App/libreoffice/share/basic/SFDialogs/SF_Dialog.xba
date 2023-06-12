@@ -1,0 +1,1484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Dialog" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDialogs library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Dialog
+&apos;&apos;&apos;	=========
+&apos;&apos;&apos;		Management of dialogs defined with the Basic IDE
+&apos;&apos;&apos;		Each instance of the current class represents a single dialog box displayed to the user
+&apos;&apos;&apos;
+&apos;&apos;&apos;		A dialog box can be displayed in modal or in non-modal modes
+&apos;&apos;&apos;		In modal mode, the box is displayed and the execution of the macro process is suspended
+&apos;&apos;&apos;		until one of the OK or Cancel buttons is pressed. In the meantime, other user actions
+&apos;&apos;&apos;		executed on the box can trigger specific actions.
+&apos;&apos;&apos;		In non-modal mode, the dialog box is &quot;floating&quot; on the user desktop and the execution
+&apos;&apos;&apos;		of the macro process continues normally
+&apos;&apos;&apos;		A dialog box disappears from memory after its explicit termination.
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation and usage:
+&apos;&apos;&apos;			Dim myDialog As Object, lButton As Long
+&apos;&apos;&apos;				Set myDialog = CreateScriptService(&quot;SFDialogs.Dialog&quot;, Container, Library, DialogName)
+&apos;&apos;&apos;					&apos;	Args:
+&apos;&apos;&apos;					&apos;		Container:	&quot;GlobalScope&quot; for preinstalled libraries
+&apos;&apos;&apos;					&apos;					A window name (see its definition in the ScriptForge.UI service)
+&apos;&apos;&apos;					&apos;					&quot;&quot; (default) = the current document
+&apos;&apos;&apos;					&apos;		Library:	The (case-sensitive) name of a library contained in the container
+&apos;&apos;&apos;					&apos;					Default = &quot;Standard&quot;
+&apos;&apos;&apos;					&apos;		DialogName:	a case-sensitive string designating the dialog where it is about
+&apos;&apos;&apos;				&apos;	... Initialize controls ...
+&apos;&apos;&apos;				lButton = myDialog.Execute()	&apos;	Default mode = Modal
+&apos;&apos;&apos;				If lButton = myDialog.OKBUTTON Then
+&apos;&apos;&apos;					&apos;	... Process controls and do what is needed
+&apos;&apos;&apos;				End If
+&apos;&apos;&apos;				myDialog.Terminate()
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_dialog.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const DIALOGDEADERROR		=	&quot;DIALOGDEADERROR&quot;
+Private Const PAGEMANAGERERROR		=	&quot;PAGEMANAGERERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]				As Object
+Private [_Parent]			As Object
+Private ObjectType			As String		&apos; Must be DIALOG
+Private ServiceName			As String
+
+&apos;	Dialog location
+Private _Container			As String
+Private _Library			As String
+Private _Name				As String
+Private _CacheIndex			As Long			&apos; Index in cache storage
+
+&apos;	Dialog UNO references
+Private _DialogProvider		As Object		&apos; com.sun.star.io.XInputStreamProvider
+Private _DialogControl		As Object		&apos; com.sun.star.awt.XControl - stardiv.Toolkit.UnoDialogControl
+Private _DialogModel		As Object		&apos; com.sun.star.awt.XControlModel - stardiv.Toolkit.UnoControlDialogModel
+
+&apos;	Dialog attributes
+Private _Displayed			As Boolean		&apos; True after Execute()
+Private _Modal				As Boolean		&apos; Set by Execute()
+
+&apos;	Dialog position and dimensions
+Private _Left				As Long
+Private _Top				As Long
+Private _Width				As Long
+Private _Height				As Long
+
+&apos;	Page management
+Type _PageManager
+	ControlName As String					&apos; Case-sensitive name of control involved in page management
+	PageMgtType As Integer					&apos; One of the PILOTCONTROL, TABCONTROL, NEXTCONTROL, BACKCONTROL constants
+	PageNumber As Long						&apos; When &gt; 0, the page to activate for tab controls
+	ListenerType As Integer					&apos; One of the ITEMSTATECHANGED, ACTIONPERFORMED constants
+End Type
+
+Private _PageManagement		As Variant		&apos; Array of _PageManager objects, one entry by involved control
+Private _ItemListener		As Object		&apos; com.sun.star.awt.XItemListener
+Private _ActionListener		As Object		&apos; com.sun.star.awt.XActionListener
+Private _LastPage			As Long			&apos; When &gt; 0, the last page in a tabbed dialog
+
+&apos;	Persistent storage for controls
+Private _ControlCache		As Variant		&apos; Array of control objects sorted like ElementNames of the Dialog model
+
+REM ============================================================ MODULE CONSTANTS
+
+&apos;	Dialog usual buttons
+Private Const OKBUTTON			= 1
+Private Const CANCELBUTTON		= 0
+
+&apos;	Page management
+Private Const PILOTCONTROL		= 1
+Private Const TABCONTROL		= 2
+Private Const BACKCONTROL		= 3
+Private Const NEXTCONTROL		= 4
+Private Const ITEMSTATECHANGED	= 1
+Private Const ACTIONPERFORMED	= 2
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;DIALOG&quot;
+	ServiceName = &quot;SFDialogs.Dialog&quot;
+	_Container = &quot;&quot;
+	_Library = &quot;&quot;
+	_Name = &quot;&quot;
+	_CacheIndex = -1
+	Set _DialogProvider = Nothing
+	Set _DialogControl = Nothing
+	Set _DialogModel = Nothing
+	_Displayed = False
+	_Modal = True
+	_Left = -1
+	_Top = -1
+	_Width = -1
+	_Height = -1
+	_PageManagement = Array()
+	Set _ItemListener = Nothing
+	Set _ActionListener = Nothing
+	_LastPage = 0
+	_ControlCache = Array()
+End Sub		&apos;	SFDialogs.SF_Dialog Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDialogs.SF_Dialog Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	If _CacheIndex &gt;= 0 Then Terminate()
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDialogs.SF_Dialog Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get Caption() As Variant
+&apos;&apos;&apos;	The Caption property refers to the title of the dialog
+	Caption = _PropertyGet(&quot;Caption&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.Caption (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Caption(Optional ByVal pvCaption As Variant)
+&apos;&apos;&apos;	Set the updatable property Caption
+	_PropertySet(&quot;Caption&quot;, pvCaption)
+End Property	&apos;	SFDialogs.SF_Dialog.Caption (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Height() As Variant
+&apos;&apos;&apos;	The Height property refers to the height of the dialog box
+	Height = _PropertyGet(&quot;Height&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.Height (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Height(Optional ByVal pvHeight As Variant)
+&apos;&apos;&apos;	Set the updatable property Height
+	_PropertySet(&quot;Height&quot;, pvHeight)
+End Property	&apos;	SFDialogs.SF_Dialog.Height (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Modal() As Boolean
+&apos;&apos;&apos;	The Modal property specifies if the dialog box has been executed in modal mode
+	Modal = _PropertyGet(&quot;Modal&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.Modal (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Name() As String
+&apos;&apos;&apos;	Return the name of the actual dialog
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.Name
+
+REM -----------------------------------------------------------------------------
+Property Get OnFocusGained() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnFocusGained event
+	OnFocusGained = _PropertyGet(&quot;OnFocusGained&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnFocusGained (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnFocusLost() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnFocusLost event
+	OnFocusLost = _PropertyGet(&quot;OnFocusLost&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnFocusLost (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnKeyPressed() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnKeyPressed event
+	OnKeyPressed = _PropertyGet(&quot;OnKeyPressed&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnKeyPressed (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnKeyReleased() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnKeyReleased event
+	OnKeyReleased = _PropertyGet(&quot;OnKeyReleased&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnKeyReleased (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseDragged() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseDragged event
+	OnMouseDragged = _PropertyGet(&quot;OnMouseDragged&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnMouseDragged (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseEntered() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseEntered event
+	OnMouseEntered = _PropertyGet(&quot;OnMouseEntered&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnMouseEntered (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseExited() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseExited event
+	OnMouseExited = _PropertyGet(&quot;OnMouseExited&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnMouseExited (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseMoved() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseMoved event
+	OnMouseMoved = _PropertyGet(&quot;OnMouseMoved&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnMouseMoved (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMousePressed() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMousePressed event
+	OnMousePressed = _PropertyGet(&quot;OnMousePressed&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnMousePressed (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OnMouseReleased() As Variant
+&apos;&apos;&apos;	Get the script associated with the OnMouseReleased event
+	OnMouseReleased = _PropertyGet(&quot;OnMouseReleased&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.OnMouseReleased (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Page() As Variant
+&apos;&apos;&apos;	A dialog may have several pages that can be traversed by the user step by step.
+&apos;&apos;&apos;	The Page property of the Dialog object defines which page of the dialog is active.
+&apos;&apos;&apos;	The Page property of a control defines the page of the dialog on which the control is visible.
+&apos;&apos;&apos;	For example, if a control has a page value of 1, it is only visible on page 1 of the dialog.
+&apos;&apos;&apos;	If the page value of the dialog is increased from 1 to 2, then all controls with a page value of 1 disappear
+&apos;&apos;&apos;	and all controls with a page value of 2 become visible.
+	Page = _PropertyGet(&quot;Page&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.Page (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Page(Optional ByVal pvPage As Variant)
+&apos;&apos;&apos;	Set the updatable property Page
+	_PropertySet(&quot;Page&quot;, pvPage)
+End Property	&apos;	SFDialogs.SF_Dialog.Page (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Visible() As Variant
+&apos;&apos;&apos;	The Visible property is False before the Execute() statement
+	Visible = _PropertyGet(&quot;Visible&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.Visible (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Visible(Optional ByVal pvVisible As Variant)
+&apos;&apos;&apos;	Set the updatable property Visible
+	_PropertySet(&quot;Visible&quot;, pvVisible)
+End Property	&apos;	SFDialogs.SF_Dialog.Visible (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Width() As Variant
+&apos;&apos;&apos;	The Width property refers to the Width of the dialog box
+	Width = _PropertyGet(&quot;Width&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.Width (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Width(Optional ByVal pvWidth As Variant)
+&apos;&apos;&apos;	Set the updatable property Width
+	_PropertySet(&quot;Width&quot;, pvWidth)
+End Property	&apos;	SFDialogs.SF_Dialog.Width (let)
+
+REM -----------------------------------------------------------------------------
+Property Get XDialogModel() As Object
+&apos;&apos;&apos;	The XDialogModel property returns the model UNO object of the dialog
+	XDialogModel = _PropertyGet(&quot;XDialogModel&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.XDialogModel (get)
+
+REM -----------------------------------------------------------------------------
+Property Get XDialogView() As Object
+&apos;&apos;&apos;	The XDialogView property returns the view UNO object of the dialog
+	XDialogView = _PropertyGet(&quot;XDialogView&quot;)
+End Property	&apos;	SFDialogs.SF_Dialog.XDialogView (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Activate() As Boolean
+&apos;&apos;&apos;	Set the focus on the current dialog instance
+&apos;&apos;&apos;	Probably called from after an event occurrence or to focus on a non-modal dialog
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if focusing is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim oDlg As Object
+&apos;&apos;&apos;			Set oDlg = CreateScriptService(,, &quot;myDialog&quot;)	&apos;	Dialog stored in current document&apos;s standard library
+&apos;&apos;&apos;			oDlg.Activate()
+
+Dim bActivate As Boolean		&apos;	Return value
+Const cstThisSub = &quot;SFDialogs.Dialog.Activate&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bActivate = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+Try:
+	If Not IsNull(_DialogControl) Then
+		_DialogControl.setFocus()
+		bActivate = True
+	End If
+
+Finally:
+	Activate = bActivate
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog.Activate
+
+REM -----------------------------------------------------------------------------
+Public Function Center(Optional ByRef Parent As Variant) As Boolean
+&apos;&apos;&apos;	Center the actual dialog instance in the middle of a parent window
+&apos;&apos;&apos;	Without arguments, the method centers the dialog in the middle of the current window
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Parent: an object, either
+&apos;&apos;&apos;			- a ScriptForge dialog object
+&apos;&apos;&apos;			- a ScriptForge document (Calc, Base, ...) object
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Sub TriggerEvent(oEvent As Object)
+&apos;&apos;&apos;		Dim oDialog1 As Object, oDialog2 As Object, lExec As Long
+&apos;&apos;&apos;		Set oDialog1 = CreateScriptService(&quot;DialogEvent&quot;, oEvent)	&apos;	The dialog having caused the event
+&apos;&apos;&apos;		Set oDialog2 = CreateScriptService(&quot;Dialog&quot;, ...)			&apos;	Open a second dialog
+&apos;&apos;&apos;		oDialog2.Center(oDialog1)
+&apos;&apos;&apos;		lExec = oDialog2.Execute()
+&apos;&apos;&apos;		Select Case lExec
+&apos;&apos;&apos;			...
+&apos;&apos;&apos;		End Sub
+
+Dim bCenter As Boolean				&apos;	Return value
+Dim oUi As Object					&apos;	ScriptForge.SF_UI
+Dim oObjDesc As Object				&apos;	_ObjectDescriptor type
+Dim sObjectType As String			&apos;	Can be uno or sf object type
+Dim oParent As Object				&apos;	UNO alias of parent
+Dim oParentPosSize As Object		&apos;	Parent com.sun.star.awt.Rectangle
+Dim lParentX As Long				&apos;	X position of parent dialog
+Dim lParentY As Long				&apos;	Y position of parent dialog
+Dim oPosSize As Object				&apos;	Dialog com.sun.star.awt.Rectangle
+Const cstThisSub = &quot;SFDialogs.Dialog.Center&quot;
+Const cstSubArgs = &quot;[Parent]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bCenter = False
+
+Check:
+	If IsMissing(Parent) Or IsEmpty(Parent) Then Set Parent = Nothing
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(Parent, &quot;Parent&quot;, ScriptForge.V_OBJECT) Then GoTo Finally
+	End If
+
+	Set oParentPosSize = Nothing
+	lParentX = 0	:	lParentY = 0
+	If IsNull(Parent) Then
+		Set oUi = CreateScriptService(&quot;UI&quot;)
+		Set oParentPosSize = oUi._PosSize()	&apos;	Return the position and dimensions of the active window
+	Else
+		&apos;	Determine the object type
+		Set oObjDesc = ScriptForge.SF_Utils._VarTypeObj(Parent)
+		If oObjDesc.iVarType = ScriptForge.V_SFOBJECT Then		&apos;	ScriptForge object
+			sObjectType = oObjDesc.sObjectType
+			&apos;	Document or dialog ?
+			If Not ScriptForge.SF_Array.Contains(Array(&quot;BASE&quot;, &quot;CALC&quot;, &quot;DIALOG&quot;, &quot;DOCUMENT&quot;, &quot;WRITER&quot;), sObjectType, CaseSensitive := True) Then GoTo Finally
+			If sObjectType = &quot;DIALOG&quot; Then
+				Set oParent = Parent._DialogControl
+				Set oParentPosSize = oParent.getPosSize()
+				lParentX = oParentPosSize.X
+				lParentY = oParentPosSize.Y
+			Else
+				Set oParent = Parent._Component.getCurrentController().Frame.getComponentWindow()
+				Set oParentPosSize = oParent.getPosSize()
+			End If
+		Else
+			GoTo Finally		&apos;	UNO object, do nothing
+		End If
+	End If
+	If IsNull(oParentPosSize) Then GoTo Finally
+
+Try:
+	Set oPosSize = _DialogControl.getPosSize()
+	With oPosSize
+		_DialogControl.setPosSize( _
+					lParentX + CLng((oParentPosSize.Width - .Width) \ 2) _
+					, lParentY + CLng((oParentPosSize.Height - .Height) \ 2) _
+					, .Width _
+					, .Height _
+					, com.sun.star.awt.PosSize.POSSIZE)
+	End With
+	bCenter = True
+
+Finally:
+	Center = bCenter
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SF_Documents.SF_Dialog.Center
+
+REM -----------------------------------------------------------------------------
+Public Function Controls(Optional ByVal ControlName As Variant) As Variant
+&apos;&apos;&apos;	Return either
+&apos;&apos;&apos;		- the list of the controls contained in the dialog
+&apos;&apos;&apos;		- a dialog control object based on its name
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		ControlName: a valid control name as a case-sensitive string. If absent the list is returned
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-base array of strings if ControlName is absent
+&apos;&apos;&apos;		An instance of the SF_DialogControl class if ControlName exists
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ControlName is invalid
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			Dim myDialog As Object, myList As Variant, myControl As Object
+&apos;&apos;&apos;				Set myDialog = CreateScriptService(&quot;SFDialogs.Dialog&quot;, Container, Library, DialogName)
+&apos;&apos;&apos;				myList = myDialog.Controls()
+&apos;&apos;&apos;				Set myControl = myDialog.Controls(&quot;myTextBox&quot;)
+
+Dim oControl As Object				&apos;	The new control class instance
+Dim lIndexOfNames As Long			&apos;	Index in ElementNames array. Used to access _ControlCache
+Dim vControl As Variant				&apos;	Alias of _ControlCache entry
+Const cstThisSub = &quot;SFDialogs.Dialog.Controls&quot;
+Const cstSubArgs = &quot;[ControlName]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(ControlName) Or IsEmpty(ControlName) Then ControlName = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(ControlName, &quot;ControlName&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	If Len(ControlName) = 0 Then
+		Controls = _DialogModel.getElementNames()
+	Else
+		If Not _DialogModel.hasByName(ControlName) Then GoTo CatchNotFound
+		lIndexOfNames = ScriptForge.IndexOf(_DialogModel.getElementNames(), ControlName, CaseSensitive := True)
+		&apos;	Reuse cache when relevant
+		vControl = _ControlCache(lIndexOfNames)
+		If IsEmpty(vControl) Then
+			&apos;	Create the new dialog control class instance
+			Set oControl = New SF_DialogControl
+			With oControl
+				._Name = ControlName
+				Set .[Me] = oControl
+				Set .[_Parent] = [Me]
+				._IndexOfNames = ScriptForge.IndexOf(_DialogModel.getElementNames(), ControlName, CaseSensitive := True)
+				._DialogName = _Name
+				Set ._ControlModel = _DialogModel.getByName(ControlName)
+				Set ._ControlView = _DialogControl.getControl(ControlName)
+				._Initialize()
+			End With
+		Else
+			Set oControl = vControl
+		End If
+		Set Controls = oControl
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchNotFound:
+	ScriptForge.SF_Utils._Validate(ControlName, &quot;ControlName&quot;, V_STRING, _DialogModel.getElementNames())
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog.Controls
+
+REM -----------------------------------------------------------------------------
+Public Sub EndExecute(Optional ByVal ReturnValue As Variant)
+&apos;&apos;&apos;	Ends the display of a modal dialog and gives back the argument
+&apos;&apos;&apos;	as return value for the current Execute() action
+&apos;&apos;&apos;	EndExecute is usually contained in the processing of a macro
+&apos;&apos;&apos;	triggered by a dialog or control event
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		ReturnValue: must be numeric. The value passed to the running Execute() method
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Sub OnEvent(poEvent As Variant)
+&apos;&apos;&apos;		Dim oDlg As Object
+&apos;&apos;&apos;			Set oDlg = CreateScriptService(&quot;SFDialogs.DialogEvent&quot;, poEvent)
+&apos;&apos;&apos;			oDlg.EndExecute(25)
+&apos;&apos;&apos;		End Sub
+
+Dim lExecute As Long			&apos;	Alias of ReturnValue
+Const cstThisSub = &quot;SFDialogs.Dialog.EndExecute&quot;
+Const cstSubArgs = &quot;ReturnValue&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(ReturnValue, &quot;ReturnValue&quot;, V_NUMERIC) Then GoTo Finally
+	End If
+
+Try:
+	lExecute = CLng(ReturnValue)
+	Call _DialogControl.endDialog(lExecute)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub			&apos;	SFDialogs.SF_Dialog.EndExecute
+
+REM -----------------------------------------------------------------------------
+Public Function Execute(Optional ByVal Modal As Variant) As Long
+&apos;&apos;&apos;	Display the dialog and wait for its termination by the user
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Modal: False when non-modal dialog. Default = True
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		0 = Cancel button pressed
+&apos;&apos;&apos;		1 = OK button pressed
+&apos;&apos;&apos;		Otherwise: the dialog stopped with an EndExecute statement executed from a dialog or control event
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim oDlg As Object, lReturn As Long
+&apos;&apos;&apos;			Set oDlg = CreateScriptService(,, &quot;myDialog&quot;)	&apos;	Dialog stored in current document&apos;s standard library
+&apos;&apos;&apos;			lReturn = oDlg.Execute()
+&apos;&apos;&apos;			Select Case lReturn
+
+Dim lExecute As Long			&apos;	Return value
+Const cstThisSub = &quot;SFDialogs.Dialog.Execute&quot;
+Const cstSubArgs = &quot;[Modal=True]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	lExecute = -1
+
+Check:
+	If IsMissing(Modal) Or IsEmpty(Modal) Then Modal = True
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Modal, &quot;Modal&quot;, V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	If Modal Then
+		_Modal = True
+		_Displayed = True
+		lExecute = _DialogControl.execute()
+		Select Case lExecute
+			Case 1		:	lExecute = OKBUTTON
+			Case 0		:	lExecute = CANCELBUTTON
+			Case Else
+		End Select
+		_Displayed = False
+	Else
+		_Modal = False
+		_Displayed = True
+		_DialogModel.DesktopAsParent = True
+		_DialogControl.setVisible(True)
+		lExecute = 0
+	End If
+
+Finally:
+	Execute = lExecute
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	&apos;	When an error is caused by an event error, the location is unknown
+	SF_Exception.Raise(, &quot;?&quot;)
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog.Execute
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDlg.GetProperty(&quot;Caption&quot;)
+
+Const cstThisSub = &quot;SFDialogs.Dialog.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function GetTextsFromL10N(Optional ByRef L10N As Variant) As Boolean
+&apos;&apos;&apos; Replace all fixed text strings of a dialog by their localized version
+&apos;&apos;&apos;	Replaced texts are:
+&apos;&apos;&apos;		- the title of the dialog
+&apos;&apos;&apos;		- the caption associated with next control types: Button, CheckBox, FixedLine, FixedText, GroupBox and RadioButton
+&apos;&apos;&apos;		- the content of list- and comboboxes
+&apos;&apos;&apos;		- the tip- or helptext displayed when the mouse is hovering the control
+&apos;&apos;&apos;	The current method has a twin method ScriptForge.SF_L10N.AddTextsFromDialog
+&apos;&apos;&apos;	The current method is probably run before the Execute() method
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		L10N : a &quot;L10N&quot; service instance created with CreateScriptService(&quot;L10N&quot;)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Dim myPO As Object, oDlg As Object
+&apos;&apos;&apos;		Set oDlg = CreateScriptService(&quot;Dialog&quot;, &quot;GlobalScope&quot;, &quot;XrayTool&quot;, &quot;DlgXray&quot;)
+&apos;&apos;&apos;		Set myPO = CreateScriptService(&quot;L10N&quot;, &quot;C:\myPOFiles\&quot;, &quot;fr-BE&quot;)
+&apos;&apos;&apos;		oDlg.GetTextsFromL10N(myPO)
+
+Dim bGet As Boolean					&apos;	Return value
+Dim vControls As Variant			&apos;	Array of control names
+Dim sControl As String				&apos;	A single control name
+Dim oControl As Object				&apos;	SFDialogs.DialogControl
+Dim sText As String					&apos;	The text found in the dialog
+Dim sTranslation As String			&apos;	The translated text got from the dictionary
+Dim vSource As Variant				&apos;	RowSource property of dialog control as an array
+Dim bChanged As Boolean				&apos;	True when at least 1 item of a RowSource is modified
+Dim i As Long
+
+Const cstThisSub = &quot;SFDialogs.Dialog.GetTextsFromL10N&quot;
+Const cstSubArgs = &quot;L10N&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bGet = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(L10N, &quot;L10N&quot;, V_OBJECT, , , &quot;L10N&quot;) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Get the dialog title
+	sText = Caption
+	If Len(sText) &gt; 0 Then
+		sTranslation = L10N._(sText)
+		If sText &lt;&gt; sTranslation Then Caption = sTranslation
+	End If
+	&apos;	Scan all controls
+	vControls = Controls()
+	For Each sControl In vControls
+		Set oControl = Controls(sControl)
+		With oControl
+			&apos;	Extract fixed texts
+			sText = .Caption
+			If Len(sText) &gt; 0 Then
+				sTranslation = L10N._(sText)
+				If sText &lt;&gt; sTranslation Then .Caption = sTranslation
+			End If
+			vSource = .RowSource	&apos;	List and comboboxes only
+			If IsArray(vSource) Then
+				bChanged = False
+				For i = 0 To UBound(vSource)
+					If Len(vSource(i)) &gt; 0 Then
+						sTranslation = L10N._(vSource(i))
+						If sTranslation &lt;&gt; vSource(i) Then
+							bChanged = True
+							vSource(i) = sTranslation
+						End If
+					End If
+				Next i
+				&apos;	Rewrite if at least 1 item has been modified by the translation process
+				If bChanged Then .RowSource = vSource
+			End If
+			sText = .TipText
+			If Len(sText) &gt; 0 Then
+				sTranslation = L10N._(sText)
+				If sText &lt;&gt; sTranslation Then .TipText = sTranslation
+			End If
+		End With
+	Next sControl
+
+	bGet = True
+
+Finally:
+	GetTextsFromL10N = bGet
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function    &apos;   SFDialogs.SF_Dialog.GetTextsFromL10N
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Model service as an array
+
+	Methods = Array( _
+					&quot;Activate&quot; _
+					, &quot;Center&quot; _
+					, &quot;Controls&quot; _
+					, &quot;EndExecute&quot; _
+					, &quot;Execute&quot; _
+					, &quot;GetTextsFromL10N&quot; _
+					, &quot;Resize&quot; _
+					, &quot;SetPageManager&quot; _
+					, &quot;Terminate&quot; _
+					)
+
+End Function	&apos;	SFDialogs.SF_Dialog.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Dialog class as an array
+
+	Properties = Array( _
+					&quot;Caption&quot; _
+					, &quot;Height&quot; _
+					, &quot;Modal&quot; _
+					, &quot;Name&quot; _
+					, &quot;OnFocusGained&quot; _
+					, &quot;OnFocusLost&quot; _
+					, &quot;OnKeyPressed&quot; _
+					, &quot;OnKeyReleased&quot; _
+					, &quot;OnMouseDragged&quot; _
+					, &quot;OnMouseEntered&quot; _
+					, &quot;OnMouseExited&quot; _
+					, &quot;OnMouseMoved&quot; _
+					, &quot;OnMousePressed&quot; _
+					, &quot;OnMouseReleased&quot; _
+					, &quot;Page&quot; _
+					, &quot;Visible&quot; _
+					, &quot;Width&quot; _
+					, &quot;XDialogModel&quot; _
+					, &quot;XDialogView&quot; _
+					)
+
+End Function	&apos;	SFDialogs.SF_Dialog.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function Resize(Optional ByVal Left As Variant _
+								, Optional ByVal Top As Variant _
+								, Optional ByVal Width As Variant _
+								, Optional ByVal Height As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Move the top-left corner of a dialog to new coordinates and/or modify its dimensions
+&apos;&apos;&apos;	All distances are expressed in 1/100 mm.
+&apos;&apos;&apos;	Without arguments, the method resets the initial dimensions
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Left : the horizontal distance from the top-left corner
+&apos;&apos;&apos;		Top : the vertical distance from the top-left corner
+&apos;&apos;&apos;		Width : the horizontal width of the rectangle containing the Dialog
+&apos;&apos;&apos;		Height : the vertical height of the rectangle containing the Dialog
+&apos;&apos;&apos;		Negative or missing arguments are left unchanged
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDialog.Resize(1000, 2000, Height := 6000)	&apos;	Width is not changed
+
+Dim bResize As Boolean				&apos;	Return value
+Dim oPosSize As Object				&apos;	com.sun.star.awt.Rectangle
+Dim iFlags As Integer				&apos;	com.sun.star.awt.PosSize constants
+Const cstThisSub = &quot;SFDialogs.Dialog.Resize&quot;
+Const cstSubArgs = &quot;[Left], [Top], [Width], [Height]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bResize = False
+
+Check:
+	If IsMissing(Left) Or IsEmpty(Left) Then Left = -1
+	If IsMissing(Top) Or IsEmpty(Top) Then Top = -1
+	If IsMissing(Height) Or IsEmpty(Height) Then Height = -1
+	If IsMissing(Width) Or IsEmpty(Width) Then Width = -1
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(Left, &quot;Left&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Top, &quot;Top&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Width, &quot;Width&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Height, &quot;Height&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+
+Try:
+	With _DialogControl
+		Set oPosSize = .getPosSize()
+		&apos;	Reset factory settings
+		If Left = -1 And Top = -1 And Width = -1 And Height = -1 Then
+			&apos;Left = _Left		&apos;	Initial positions determination is unstable
+			&apos;Top = _Top
+			Width = _Width
+			Height = _Height
+		End If
+		&apos;	Trace the elements to change
+		iFlags = 0
+		With com.sun.star.awt.PosSize
+			If Left &gt;= 0	Then iFlags = iFlags + .X		Else Left = oPosSize.X
+			If Top &gt;= 0	Then iFlags = iFlags + .Y		Else Top = oPosSize.Y
+			If Width &gt; 0	Then iFlags = iFlags + .WIDTH	Else Width = oPosSize.Width
+			If Height &gt; 0	Then iFlags = iFlags + .HEIGHT	Else Height = oPosSize.Height
+		End With
+		&apos;	Rewrite
+		If iFlags &gt; 0 Then .setPosSize(CLng(Left), CLng(Top), CLng(Width), CLng(Height), iFlags)
+	End With
+	bResize = True
+
+Finally:
+	Resize = bResize
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SF_Documents.SF_Dialog.Resize
+
+REM -----------------------------------------------------------------------------
+Public Function SetPageManager(Optional ByVal PilotControls As Variant _
+									, Optional ByVal TabControls As Variant _
+									, Optional ByVal WizardControls As Variant _
+									, Optional ByVal LastPage As variant _
+									) As Boolean
+&apos;&apos;&apos;	Define how the dialog displays pages. The page manager is an alternative to the
+&apos;&apos;&apos;	direct use of the Page property of the dialog and dialogcontrol objects.
+&apos;&apos;&apos;
+&apos;&apos;&apos;	A dialog may have several pages that can be traversed by the user step by step.
+&apos;&apos;&apos;	The Page property of the Dialog object defines which page of the dialog is active.
+&apos;&apos;&apos;	The Page property of a control defines the page of the dialog on which the control is visible.
+&apos;&apos;&apos;	For example, if a control has a page value of 1, it is only visible on page 1 of the dialog.
+&apos;&apos;&apos;	If the page value of the dialog is increased from 1 to 2, then all controls with a page value of 1 disappear
+&apos;&apos;&apos;	and all controls with a page value of 2 become visible.
+&apos;&apos;&apos;
+&apos;&apos;&apos;	The arguments define which controls are involved in the orchestration of the displayed pages.
+&apos;&apos;&apos;	Possible options:
+&apos;&apos;&apos;		- select a value in a list- or combobox
+&apos;&apos;&apos;		- select an item in a group of radio buttons
+&apos;&apos;&apos;		- select a button linked to a page - placed side-by-side the buttons can simulate a tabbed interface
+&apos;&apos;&apos;		- press a NEXT or BACK button like in many wizards
+&apos;&apos;&apos;	Those options may be combined. The control updates will be synchronized.
+&apos;&apos;&apos;	The method will set the actual page number to 1. Afterwards the Page property may be used to display any other page
+&apos;&apos;&apos;	
+&apos;&apos;&apos;	The SetPageManager() method is to be run only once and before the Execute() statement.
+&apos;&apos;&apos;	If invoked several times, subsequent calls will be ignored.
+&apos;&apos;&apos;	The method will define new listeners on the concerned controls, addressing generic routines.
+&apos;&apos;&apos;	The corresponding events will be fired during the dialog execution.
+&apos;&apos;&apos;	Preset events (in the Basic IDE) will be preserved and executed immediately AFTER the page change.
+&apos;&apos;&apos;	The listeners will be removed at dialog termination.
+&apos;&apos;&apos;
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PilotControls: a comma-separated list of listbox, combobox or radiobutton controls
+&apos;&apos;&apos;			For radio buttons, provide the first in the group
+&apos;&apos;&apos;		TabControls: a comma-separated list of button controls in ascending order
+&apos;&apos;&apos;		WizardControls: a comma-separated list of 2 controls, a BACK button and a NEXT button
+&apos;&apos;&apos;		LastPage: the index of the last available page. Recommended when use of WizardControls
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		dialog.SetPageManager(PilotControls := &quot;aListBox,aComboBox&quot;)	&apos;	2 controls may cause page changes
+
+Dim bManager As Boolean				&apos;	Return value
+Dim vControls As Variant			&apos;	Array of involved controls
+Dim oControl As Object				&apos;	A DialogControl object
+Dim i As Long
+Const cstPrefix = &quot;_SFTAB_&quot;		&apos;	Prefix of Subs to trigger when involved controls are clicked
+Const cstComma = &quot;,&quot;
+
+Const cstThisSub = &quot;SFDialogs.Dialog.SetPageManager&quot;
+Const cstSubArgs = &quot;[PilotControls=&quot;&quot;&quot;&quot;], [TabControls=&quot;&quot;&quot;&quot;], [WizardControls=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bManager = False
+
+Check:
+	If IsMissing(PilotControls) Or IsEmpty(PilotControls) Then PilotControls = &quot;&quot;
+	If IsMissing(TabControls) Or IsEmpty(TabControls) Then TabControls = &quot;&quot;
+	If IsMissing(WizardControls) Or IsEmpty(WizardControls) Then WizardControls = &quot;&quot;
+	If IsMissing(LastPage) Or IsEmpty(LastPage) Then LastPage = 0
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PilotControls, &quot;PilotControls&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(TabControls, &quot;TabControls&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(WizardControls, &quot;WizardControls&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(LastPage, &quot;LastPage&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+	&apos;	Ignore the call if already done before
+	If UBound(_PageManagement) &gt;= 0 Then GoTo Finally
+
+Try:
+	&apos;	Common listeners to all involved controls
+	Set _ItemListener = CreateUnoListener(cstPrefix, &quot;com.sun.star.awt.XItemListener&quot;)
+	Set _ActionListener	= CreateUnoListener(cstPrefix, &quot;com.sun.star.awt.XActionListener&quot;)
+
+	&apos;	Register the arguments in the _PageManagement array, control by control
+	&apos;	Pilot controls
+	If Len(PilotControls) &gt; 0 Then
+		vControls = Split(PilotControls, cstComma)
+		For i = 0 To UBound(vControls)
+			If Not _RegisterPageListener(Trim(vControls(i)), &quot;ListBox,ComboBox,RadioButton&quot;, PILOTCONTROL, 0, ITEMSTATECHANGED) Then GoTo Catch
+		Next i
+	End If
+	&apos;	Tab controls
+	If Len(TabControls) &gt; 0 Then
+		vControls = Split(TabControls, cstComma)
+		For i = 0 To UBound(vControls)
+			If Not _RegisterPageListener(Trim(vControls(i)), &quot;Button&quot;, TABCONTROL, i + 1, ACTIONPERFORMED) Then GoTo Catch
+		Next i
+	End If
+	&apos;	Wizard controls
+	If Len(WizardControls) &gt; 0 Then
+		vControls = Split(WizardControls, cstComma)
+		For i = 0 To UBound(vControls)
+			If Not _RegisterPageListener(Trim(vControls(i)), &quot;Button&quot;, Iif(i = 0, BACKCONTROL, NEXTCONTROL), 0, ACTIONPERFORMED) Then GoTo Catch
+		Next i
+	End If
+
+	&apos;	Set the initial page to 1
+	Page = 1
+	_LastPage = LastPage
+
+Finally:
+	SetPageManager = bManager
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	ScriptForge.SF_Exception.RaiseFatal(PAGEMANAGERERROR, &quot;PilotControls&quot;, PilotControls, &quot;TabControls&quot;, TabControls _
+				, &quot;WizardControls&quot;, WizardControls)
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog.SetPageManager
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDialogs.Dialog.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	SetProperty = _PropertySet(PropertyName, Value)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog.SetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Terminate() As Boolean
+&apos;&apos;&apos;	Terminate the dialog service for the current dialog instance
+&apos;&apos;&apos;	After termination any action on the current instance will be ignored
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if termination is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim oDlg As Object, lReturn As Long
+&apos;&apos;&apos;			Set oDlg = CreateScriptService(,, &quot;myDialog&quot;)	&apos;	Dialog stored in current document&apos;s standard library
+&apos;&apos;&apos;			lreturn = oDlg.Execute()
+&apos;&apos;&apos;			Select Case lReturn
+&apos;&apos;&apos;					&apos;	...
+&apos;&apos;&apos;			End Select
+&apos;&apos;&apos;			oDlg.Terminate()
+
+Dim bTerminate As Boolean		&apos;	Return value
+Const cstThisSub = &quot;SFDialogs.Dialog.Terminate&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bTerminate = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+
+Try:
+	_RemovePageListeners()
+	_DialogControl.dispose()
+	Set _DialogControl = Nothing
+	SF_Register._CleanCacheEntry(_CacheIndex)
+	_CacheIndex = -1
+	Dispose()
+	
+	bTerminate = True
+
+Finally:
+	Terminate = bTerminate
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog.Terminate
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _FindRadioSiblings(ByVal psRadioButton As String) As String
+&apos;&apos;&apos;	Given the name of the first radio button of a group, return all the names of the group
+&apos;&apos;&apos;	For dialogs, radio buttons are considered of the same group
+&apos;&apos;&apos;	when their tab indexes are contiguous.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psRadioButton: the exact name of the 1st radio button of the group
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A comma-separated list of the names of the 1st and the next radio buttons
+&apos;&apos;&apos;		belonging to the same group in their tabindex order.
+&apos;&apos;&apos;		The input argument when not a radio button
+
+
+Dim sList As String				&apos;	Return value
+Dim oRadioControl As Object		&apos;	DialogControl instance corresponding with the argument
+Dim oControl As Object			&apos;	DialogControl instance
+Dim vRadioList As Variant		&apos;	Array of all radio buttons having a tab index &gt; tab index of argument
+								&apos;	1st column = name of radio button, 2nd = its tab index
+Dim iRadioTabIndex As Integer	&apos;	Tab index of the argument
+Dim iTabIndex As Integer		&apos;	Any tab index
+Dim vControlNames As Variant	&apos;	Array of control names
+Dim sControlName As String		&apos;	A single item in vControlNames()
+Dim i As Long
+Const cstComma = &quot;,&quot;
+
+Check:
+	On Local Error GoTo Catch
+	sList = psRadioButton
+	vRadioList = Array()
+
+Try:
+	Set oRadioControl = Controls(psRadioButton)
+	If oRadioControl.ControlType &lt;&gt; &quot;RadioButton&quot; Then GoTo Finally
+	iRadioTabIndex = oRadioControl._ControlModel.Tabindex
+	vRadioList = ScriptForge.SF_Array.AppendRow(vRadioList, Array(psRadioButton, iRadioTabIndex))
+
+	&apos;	Scan all controls. Store radio buttons having tab index &gt; 1st radio button
+	vControlNames = Controls()
+	For Each sControlName In vControlNames
+		Set oControl = Controls(sControlName)
+		With oControl
+			If .Name &lt;&gt; psRadioButton Then
+				If .ControlType = &quot;RadioButton&quot; Then
+					iTabIndex = ._ControlModel.Tabindex
+					If iTabIndex &gt; iRadioTabIndex Then
+						vRadioList = ScriptForge.SF_Array.AppendRow(vRadioList, Array(.Name, iTabIndex))
+					End If
+				End If
+			End If
+		End With
+	Next sControlName
+
+	vRadioList = ScriptForge.SF_Array.SortRows(vRadioList, 1)
+	&apos;	Retain contiguous tab indexes
+	For i = 1 To UBound(vRadioList, 1)	&apos;	First row = argument
+		If vRadioList(i, 1) = iRadioTabIndex + i Then sList = sList &amp; cstComma &amp; vRadioList(i, 0)
+	Next i
+
+Finally:
+	_FindRadioSiblings = sList
+	Exit Function
+Catch:
+	sList = psRadioButton
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog._FindRadioSiblings
+
+REM -----------------------------------------------------------------------------
+Public Function _GetEventName(ByVal psProperty As String) As String
+&apos;&apos;&apos;	Return the LO internal event name derived from the SF property name
+&apos;&apos;&apos;	The SF property name is not case sensitive, while the LO name is case-sensitive
+&apos;	Corrects the typo on ErrorOccur(r?)ed, if necessary
+
+Dim vProperties As Variant			&apos;	Array of class properties
+Dim sProperty As String				&apos;	Correctly cased property name
+
+	vProperties = Properties()
+	sProperty = vProperties(ScriptForge.SF_Array.IndexOf(vProperties, psProperty, SortOrder := &quot;ASC&quot;))
+
+	_GetEventName = LCase(Mid(sProperty, 3, 1)) &amp; Right(sProperty, Len(sProperty) - 3)
+	
+End Function	&apos;	SFDialogs.SF_Dialog._GetEventName
+
+REM -----------------------------------------------------------------------------
+Private Function _GetListener(ByVal psEventName As String) As String
+&apos;&apos;&apos;	Getting/Setting macros triggered by events requires a Listener-EventName pair
+&apos;&apos;&apos;	Return the X...Listener corresponding with the event name in argument
+
+	Select Case UCase(psEventName)
+		Case UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;)
+			_GetListener = &quot;XFocusListener&quot;
+		Case UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;)
+			_GetListener = &quot;XKeyListener&quot;
+		Case UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseMoved&quot;)
+			_GetListener = &quot;XMouseMotionListener&quot;
+		Case UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;)
+			_GetListener = &quot;XMouseListener&quot;
+		Case Else
+			_GetListener = &quot;&quot;
+	End Select
+	
+End Function	&apos;	SFDialogs.SF_Dialog._GetListener
+
+REM -----------------------------------------------------------------------------
+Public Sub _Initialize()
+&apos;&apos;&apos;	Complete the object creation process:
+&apos;&apos;&apos;		- Initialization of private members
+&apos;&apos;&apos;		- Creation of the dialog graphical interface
+&apos;&apos;&apos;		- Addition of the new object in the Dialogs buffer
+&apos;&apos;&apos;		- Initialisation of persistent storage for controls
+
+Dim oPosSize As Object		&apos;	com.sun.star.awt.Rectangle
+
+Try:
+	&apos;	Keep reference to model
+	Set _DialogModel = _DialogControl.Model
+
+	&apos;	Store initial position and dimensions
+	Set oPosSize = _DialogControl.getPosSize()
+	With oPosSize
+		_Left = .X
+		_Top = .Y
+		_Width = .Width
+		_Height = .Height
+	End With
+
+	&apos;	Add dialog reference to cache
+	_CacheIndex = SF_Register._AddDialogToCache(_DialogControl, [Me])
+
+	&apos;	Size the persistent storage
+	_ControlCache = Array()
+	ReDim _ControlCache(0 To UBound(_DialogModel.getElementNames()))
+
+Finally:
+	Exit Sub
+End Sub			&apos;	SFDialogs.SF_Dialog._Initialize
+
+REM -----------------------------------------------------------------------------
+Private Function _IsStillAlive(Optional ByVal pbError As Boolean) As Boolean
+&apos;&apos;&apos;	Return True if the dialog service is still active
+&apos;&apos;&apos;	If dead the actual instance is disposed. The execution is cancelled when pbError = True (default)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbError: if True (default), raise a fatal error
+
+Dim bAlive As Boolean		&apos;	Return value
+Dim sDialog As String		&apos;	Alias of DialogName
+
+Check:
+	On Local Error GoTo Catch		&apos;	Anticipate DisposedException errors or alike
+	If IsMissing(pbError) Then pbError = True
+
+Try:
+	bAlive = ( Not IsNull(_DialogProvider) And Not IsNull(_DialogControl) )
+	If Not bAlive Then GoTo Catch
+
+Finally:
+	_IsStillAlive = bAlive
+	Exit Function
+Catch:
+	bAlive = False
+	On Error GoTo 0
+	sDialog = _Name
+	Dispose()
+	If pbError Then ScriptForge.SF_Exception.RaiseFatal(DIALOGDEADERROR, sDialog)
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog._IsStillAlive
+
+REM -----------------------------------------------------------------------------
+Private Sub _JumpToPage(ByVal plPage As Long)
+&apos;&apos;&apos;	Called when the Page property is set to a new value
+&apos;&apos;&apos;	The rules defined in the _pageManagement array are applied here
+
+Dim oPageManager As Object		&apos;	A single entry in _PageManagement of type _PageManager
+Dim oControl As Object			&apos;	DialogControl instance
+Dim lPage As Long				&apos;	A dialog page number
+
+Check:
+	On Local Error GoTo Finally
+&apos;	ControlName As String					&apos; Case-sensitive name of control involved in page management
+&apos;	PageMgtType As Integer					&apos; One of the PILOTCONTROL, TABCONTROL, BACKCONTROL, NEXTCONTROL constants
+&apos;	PageNumber As Long						&apos; When &gt; 0, the page to activate for tab controls
+&apos;	ListenerType As Integer					&apos; One of the ITEMSTATECHANGED, ACTIONPERFORMED constants
+
+	If plPage &lt;= 0 Or (_LastPage &gt; 0 And plPage &gt; _LastPage) Then Exit Sub
+	If UBound(_PageManagement) &lt; 0 Then Exit Sub
+
+Try:
+	&apos;	Controls listed in the array must be synchronized with the page #
+	&apos;		Listboxes and comboboxes must be set to the corresponding value
+	&apos;		The right radio button must be selected
+	&apos;		One corresponding button must be dimmed, other must be enabled
+	&apos;		The Next button must be dimmed when last page otherwise enabled
+	For Each oPageManager In _PageManagement
+		With oPageManager
+		lPage = .PageNumber
+		Set oControl = Controls(.ControlName)
+			With oControl
+				Select Case .ControlType
+					Case &quot;ListBox&quot;, &quot;ComboBox&quot;
+						If plPage &lt;= .ListCount Then .ListIndex = plPage - 1	&apos;	ListIndex is zero-based
+					Case &quot;RadioButton&quot;
+						.Value = ( plPage = lPage )
+					Case &quot;Button&quot;
+						Select Case oPageManager.PageMgtType
+							Case TABCONTROL
+								.Value = ( plPage = lPage )
+							Case BACKCONTROL
+								.Enabled = ( plPage &lt;&gt; 1 )
+							Case NEXTCONTROL
+								.Enabled = ( _LastPage = 0 Or plPage &lt; _LastPage )
+							Case Else
+						End Select
+					Case Else
+				End Select
+			End With
+		End With
+	Next oPageManager
+
+Finally:
+	Exit Sub
+End Sub			&apos;	SFDialogs.SF_Dialog._JumpToPage
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim oDialogEvents As Object					&apos;	com.sun.star.container.XNameContainer
+Dim sEventName As String					&apos;	Internal event name
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SFDialogs.Dialog.get&quot; &amp; psProperty
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Caption&quot;)
+			If oSession.HasUNOProperty(_DialogModel, &quot;Title&quot;) Then _PropertyGet = _DialogModel.Title
+		Case UCase(&quot;Height&quot;)
+			If oSession.HasUNOProperty(_DialogModel, &quot;Height&quot;) Then _PropertyGet = _DialogModel.Height
+		Case UCase(&quot;Modal&quot;)
+			_PropertyGet = _Modal
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;OnFocusGained&quot;), UCase(&quot;OnFocusLost&quot;), UCase(&quot;OnKeyPressed&quot;), UCase(&quot;OnKeyReleased&quot;) _
+				, UCase(&quot;OnMouseDragged&quot;), UCase(&quot;OnMouseEntered&quot;), UCase(&quot;OnMouseExited&quot;), UCase(&quot;OnMouseMoved&quot;) _
+				, UCase(&quot;OnMousePressed&quot;), UCase(&quot;OnMouseReleased&quot;)
+			Set oDialogEvents = _DialogModel.getEvents()
+			sEventName = &quot;com.sun.star.awt.&quot; &amp; _GetListener(psProperty) &amp; &quot;::&quot; &amp; _GetEventName(psProperty)
+			If oDialogEvents.hasByName(sEventName) Then
+				_PropertyGet = oDialogEvents.getByName(sEventName).ScriptCode
+			Else
+				_PropertyGet = &quot;&quot;
+			End If
+		Case UCase(&quot;Page&quot;)
+			If oSession.HasUNOProperty(_DialogModel, &quot;Step&quot;) Then _PropertyGet = _DialogModel.Step
+		Case UCase(&quot;Visible&quot;)
+			If oSession.HasUnoMethod(_DialogControl, &quot;isVisible&quot;) Then _PropertyGet = CBool(_DialogControl.isVisible())
+		Case UCase(&quot;Width&quot;)
+			If oSession.HasUNOProperty(_DialogModel, &quot;Width&quot;) Then _PropertyGet = _DialogModel.Width
+		Case UCase(&quot;XDialogModel&quot;)
+			Set _PropertyGet = _DialogModel
+		Case UCase(&quot;XDialogView&quot;)
+			Set _PropertyGet = _DialogControl
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertySet(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if successful
+
+Dim bSet As Boolean							&apos;	Return value
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFDialogs.Dialog.set&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	bSet = True
+	Select Case UCase(psProperty)
+		Case UCase(&quot;Caption&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Caption&quot;, V_STRING) Then GoTo Finally
+			If oSession.HasUNOProperty(_DialogModel, &quot;Title&quot;) Then _DialogModel.Title = pvValue
+		Case UCase(&quot;Height&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Height&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+			If oSession.HasUNOProperty(_DialogModel, &quot;Height&quot;) Then _DialogModel.Height = pvValue
+		Case UCase(&quot;Page&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Page&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+			If oSession.HasUNOProperty(_DialogModel, &quot;Step&quot;) Then
+				_DialogModel.Step = CLng(pvValue)
+				&apos;	Execute the page manager instructions
+				_JumpToPage(pvValue)
+			End If
+		Case UCase(&quot;Visible&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Visible&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If oSession.HasUnoMethod(_DialogControl, &quot;setVisible&quot;) Then _DialogControl.setVisible(pvValue)
+		Case UCase(&quot;Width&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Width&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+			If oSession.HasUNOProperty(_DialogModel, &quot;Width&quot;) Then _DialogModel.Width = pvValue
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	_PropertySet = bSet
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog._PropertySet
+
+REM -----------------------------------------------------------------------------
+Private Function _RegisterPageListener(ByVal psControlName As String _
+											, ByVal psControlTypes As String _
+											, ByVal piMgtType As Integer _
+											, ByVal plPageNumber As Long _
+											, ByVal piListener As Integer _
+											) As Boolean
+&apos;&apos;&apos;	Insert a new entry in the _PageManagement array when 1st argument is a listbox, a combobox or a button
+&apos;&apos;&apos;	or insert a new entry in the _PageManagement array by radio button in the same group as the 1st argument
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psControlName: name of the involved control
+&apos;&apos;&apos;		psControlTypes: comma-separated list of allowed control types
+&apos;&apos;&apos;		piMgtType: one of the PILOTCONTROL, TABCONTROL, BACKCONTROL, NEXTCONTROL constants
+&apos;&apos;&apos;		plPageNumber: when &gt; 0 the page to jump to when control is clicked
+&apos;&apos;&apos;		piListener: one of the ACTIONPERFORMED, ITEMSTATECHANGED constants
+
+Dim bRegister As Boolean			&apos;	Return value
+Dim oControl As Object				&apos;	A DialogControl object
+Dim oControl2 As Object				&apos;	An alternative DialogControl object for radio buttons
+Dim vControls As Variant			&apos;	Array of involved controls - mostly 1 item, more when radio button
+Dim oPageManager As Object			&apos;	Type _PageManager
+Dim bRadio As Boolean				&apos;	True when argument is a radio button
+Dim sName As String					&apos;	Control name
+Dim i As Long
+
+Check:
+	On Local Error GoTo Catch
+	bRegister = False
+
+Try:
+	Set oControl = Controls(psControlName)
+	With oControl
+	&apos;	Check the type of control otherwise return False
+		If InStr(psControlTypes, .ControlType) = 0 Then GoTo Catch
+		&apos;	Are there siblings ? Siblings are returned as a comma-separated list of names
+		bRadio = ( .ControlType = &quot;RadioButton&quot;)
+		If bRadio Then vControls = Split(_FindRadioSiblings(.Name), &quot;,&quot;) Else vControls = Array(.Name)
+		&apos;	Several loops when radio buttons
+		For i = 0 To UBound(vControls)
+			sName = vControls(i)
+			&apos;	Prepare the next entry in the _PageManagement array
+			Set oPageManager = New _PageManager
+			With oPageManager
+				.ControlName = sName
+				.PageMgtType = piMgtType
+				.PageNumber = Iif(bRadio, i + 1, plPageNumber)
+				.ListenerType = piListener
+			End With
+			_PageManagement = ScriptForge.SF_Array.Append(_PageManagement, oPageManager)
+			&apos;	Activate the listener
+			&apos;	Use alternative control for radio buttons &gt; first
+			If i = 0 Then Set oControl2 = oControl Else Set oControl2 = Controls(sName)
+			With oControl2
+				If piListener = ACTIONPERFORMED Then
+					._ControlView.addActionListener(_ActionListener)
+				ElseIf piListener = ITEMSTATECHANGED Then
+					._ControlView.addItemListener(_ItemListener)
+				End If
+			End With
+		Next i
+	End With
+
+	bRegister = True
+			
+Finally:
+	_RegisterPageListener = bRegister
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDialogs.SF_Dialog._RegisterPageListener
+
+REM -----------------------------------------------------------------------------
+Private Sub _RemovePageListeners()
+&apos;&apos;&apos;	Executed at dialog termination to drop at once all listeners set by the page manager
+
+Dim oPageManager As Object		&apos;	Item of _PageManagement array of _PageManager type
+Dim oControl As Object			&apos;	DialogControl instance
+Dim i As Long
+
+	On Local Error GoTo Finally		&apos;	Never interrupt
+
+Try:
+	&apos;	Scan the _PageManagement array containing the actual settings of the page manager
+	For Each oPageManager In _PageManagement
+		With oPageManager
+			If .ListenerType &gt; 0 Then
+				Set oControl = Controls(.ControlName)
+				If .ListenerType =  ACTIONPERFORMED Then
+					oControl._ControlView.removeActionListener(_ActionListener)
+				ElseIf .ListenerType = ITEMSTATECHANGED Then
+					oControl._ControlView.addItemListener(_ItemListener)
+				End If
+			End If
+		End With
+	Next oPageManager
+
+	Set _ActionListener = Nothing
+	Set _ItemListener = Nothing
+
+Finally:
+	Exit Sub	
+End Sub			&apos;	SFDialogs.SF_Dialog._RemovePageListeners
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the Model instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[DIALOG]: Container.Library.Name&quot;
+
+	_Repr = &quot;[DIALOG]: &quot; &amp; _Container &amp; &quot;.&quot; &amp; _Library &amp; &quot;.&quot; &amp; _Name
+
+End Function	&apos;	SFDialogs.SF_Dialog._Repr
+
+REM ============================================ END OF SFDIALOGS.SF_DIALOG
+</script:module>

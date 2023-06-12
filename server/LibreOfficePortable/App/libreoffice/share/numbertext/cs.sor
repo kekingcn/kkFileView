@@ -1,0 +1,169 @@
+^0 nula
+1 jedna
+2 dva
+^2$ dvě
+3 tři
+4 čtyři
+5 pět
+6 šest
+7 sedm
+8 osm
+9 devět
+10 deset
+11 jedenáct
+14 čtrnáct
+15 patnáct
+19 devatenáct
+1(\d) $1náct
+([234])(\d) $1cet[ $2]
+5(\d) padesát[ $1]
+6(\d) šedesát[ $1]
+9(\d) devadesát[ $1]
+(\d)(\d) $1desát[ $2]
+1(\d\d) sto[ $1]
+2(\d\d) dvě stě[ $1]
+([34])(\d\d) $1 sta[ $2]
+(\d)(\d\d) $1 set[ $2]
+1(\d\d\d) tisíc[ $1]
+([234])(\d\d\d) $1 tisíce[ $2]
+(\d{1,3})(\d\d\d) $1 tisíc[ $2]
+1(\d{6}) milión[ $1]
+([234])(\d{6}) $1 milióny[ $2]
+(\d{1,3})(\d{6}) $1 miliónů[ $2]
+1(\d{9}) miliarda[ $1]
+([234])(\d{9}) $1 miliardy[ $2]
+(\d{1,3})(\d{9}) $1 miliard[ $2]
+1(\d{12}) bilión[ $1]
+([234])(\d{12}) $1 bilióny[ $2]
+(\d{1,3})(\d{12}) $1 biliónů[ $2]
+1(\d{15}) biliarda[ $1]
+([234])(\d{15}) $1 biliardy[ $2]
+(\d{1,3})(\d{15}) $1 biliard[ $2]
+1(\d{18}) trilion[ $1]
+([234])(\d{18}) $1 trilióny[ $2]
+(\d{1,3})(\d{18}) $1 triliónů[ $2]
+1(\d{21}) triliarda[ $1]
+([234])(\d{21}) $1 triliardy[ $2]
+(\d{1,3})(\d{21}) $1 triliard[ $2]
+1(\d{24}) kvadrilión[ $1]
+([234])(\d{24}) $1 kvadrilióny[ $2]
+(\d{1,3})(\d{24}) $1 kvadriliónů[ $2]
+
+# negative number
+
+[-−](\d+) minus |$1
+
+# decimals
+
+([-−]?\d+)[.,] $1| čárka
+([-−]?\d+[.,])([^0]\d) $1| |$2
+([-−]?\d+[.,])(\d)(\d)(\d) $1| |$2 |$3 |$4
+([-−]?\d+[.,]\d*)(\d) $1| |$2
+
+# currency
+
+# unit/subunit singular / plural / plural genitiv
+
+us:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \1
+up:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \2
+ug:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \3
+ss:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \4
+sp:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \5
+sg:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \6
+ugender:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \7
+sgender:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) \8
+
+CHF:(\D+) $(\1: švýcarský frank, švýcarské franky, švýcarských franků, centim, centimy, centimů,masculine,masculine)
+CNY:(\D+) $(\1: jüan, jüany, jüanů, fen, feny, fenů,masculine,masculine)
+CZK:(\D+) $(\1: koruna česká, koruny české, korun českých, haléř, haléře, haléřů,feminine,masculine)
+EUR:(\D+) $(\1: euro, eura, eur, cent, centy, centů,neuter,masculine)
+GBP:(\D+) $(\1: libra šterlinků, libry šterlinků, liber šterlinků, pence, pence, pencí,feminine,feminine)
+JPY:(\D+) $(\1: jen, jeny, jenů, sen, seny, senů,masculine,masculine)
+RUB:(\D+) $(\1: rubl, rubly, rublů, kopějka, kopějky, kopějek,masculine,feminine)
+SKK:(\D+) $(\1: slovenská koruna, slovenské koruny, slovenských korun, haléř, haléře, haléřů,feminine,masculine)
+USD:(\D+) $(\1: americký dolar, americké dolary, amerických dolarů, cent, centy, centů,masculine,masculine)
+
+"([A-Z]{3}) ([-−]?1)([.,]00?)?" $(cardinal-$(\1:ugender) \2)$(\1:us)
+"([A-Z]{3}) ([-−]?[2-4])([.,]00?)?" $(cardinal-$(\1:ugender) \2)$(\1:up)
+"([A-Z]{3}) ([-−]?\d+)([.,]00?)?" $(cardinal-$(\1:ugender) \2)$(\1:ug)
+
+"(CNY [-−]?\d+)[.,]10?" $1 $(cardinal-neuter 1) ťiao
+"(CNY [-−]?\d+)[.,](\d)0?" $1 $(cardinal-neuter \2) ťiao
+"((CNY) [-−]?\d+[.,]\d)1" $1 $(cardinal-masculine 1)$(\2:ss)
+"((CNY) [-−]?\d+[.,]\d)(2|3|4)" $1 $(cardinal-masculine \3)$(\2:sp)
+"((CNY) [-−]?\d+[.,]\d)(\d)" $1 $(cardinal-masculine \3)$(\2:sg)
+
+"(([A-Z]{3}) [-−]?\d+)[.,](00)" $1 $(cardinal-$(\2:sgender) \1)$(\2:sg)
+"(([A-Z]{3}) [-−]?\d+)[.,](01)" $1 $(cardinal-$(\2:sgender) \3)$(\2:ss)
+"(([A-Z]{3}) [-−]?\d+)[.,](02|03|04)" $1 $(cardinal-$(\2:sgender) \3)$(\2:sp)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d\d)" $1 $(cardinal-$(\2:sgender) \3)$(\2:sg)
+"(([A-Z]{3}) [-−]?\d+)[.,](\d)" $1 $(cardinal-$(\2:sgender) \30)$(\2:sg)
+
+== cardinal-neuter ==
+
+1 jedno
+2 dvě
+(.*) $1
+
+== cardinal-feminine ==
+
+1 jedna
+2 dvě
+(.*) $1
+
+== cardinal-masculine ==
+
+1 jeden
+(.*) $1
+
+== ordinal ==
+
+([-−]?\d+)	$(ordinal |$1)
+
+"(.*)dvě stě(.*)"	$(ordinal \1dvoustý\2)
+"(.*)tři sta(.*)"	$(ordinal \1třístý\2)
+"(.*)čtyři sta(.*)"	$(ordinal \1čtyřstý\2)
+"(.*)(pět|šest|sedm|osm) set(.*)"	$(ordinal \1\2istý\3)
+"(.*)devět set(.*)"	$(ordinal \1devítistý\2)
+
+nula	nultý
+(.*)(jedno|jedna|jeden)	$(ordinal \1první)
+(.*)(jedenáct)	$(ordinal \1jedenáctý)
+(.*)(dva|dvě)	$(ordinal \1druhý)
+(.*)(dvě|dva)\b(.*)	$(ordinal \1druhý\3)
+(.*)tři\b(.*)		$(ordinal \1třetí\2)
+(.*)čtyři\b(.*)		$(ordinal \1čtvrtý\2)
+(.*)pět\b(.*)		$(ordinal \1pátý\2)
+"(.*)(šest|sedm|osm|desát|náct|sát)( .+|$)"	$(ordinal \1\2ý\3)
+(.*)devět\b(.*)		$(ordinal \1devátý\2)
+"(.*)(c|s)et\b(.*)"	$(ordinal \1\2átý\3)
+(.*)sto\b(.*)		$(ordinal \1stý\2)
+(.*)tisíce?(.*)		\1tisící\2
+(.*)milión[yů]?(.*)	\1milióntý\2
+(.*)miliard[ay]?(.*)	\1miliardtý\2
+(.*)			\1
+
+== ordinal-masculine ==
+
+(.*) $(ordinal |$1)
+
+== ordinal-feminine ==
+
+([-−]?\d+) $(ordinal-feminine |$(ordinal-masculine \1))
+(.*)ý(.*)		$(ordinal-feminine \1á\2)
+(.*)	\1
+
+== ordinal-neuter ==
+
+([-−]?\d+) $(ordinal-neuter |$(ordinal-masculine \1))
+(.*)ý(.*)		$(ordinal-neuter \1é\2)
+(.*)	\1
+
+== ordinal-number ==
+
+(\d+)	\1.
+
+== help ==
+
+"" |$(1)|, |$(2)|, |$(3)|\n$(help cardinal-neuter)$(help cardinal-feminine)$(help cardinal-masculine)$(help ordinal)$(help ordinal-masculine)$(help ordinal-feminine)$(help ordinal-neuter)$(help ordinal-number)
+(.*) \1: |$(\1 1)|, |$(\1 2)|, |$(\1 3)|\n

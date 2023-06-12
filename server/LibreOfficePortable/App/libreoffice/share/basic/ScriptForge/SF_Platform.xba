@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Platform" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Platform
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		Singleton class implementing the &quot;ScriptForge.Platform&quot; service
+&apos;&apos;&apos;		Implemented as a usual Basic module
+&apos;&apos;&apos;	
+&apos;&apos;&apos;		A collection of properties about the execution environment:
+&apos;&apos;&apos;			- HW platform
+&apos;&apos;&apos;			- Operating System
+&apos;&apos;&apos;			- current user
+&apos;&apos;&apos;			- LibreOffice version
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation example:
+&apos;&apos;&apos;			Dim platform As Variant
+&apos;&apos;&apos;			platform = CreateScriptService(&quot;Platform&quot;)
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_platform.html?DbPAR=BASIC
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+REM ============================================================ MODULE CONSTANTS
+
+REM ===================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Set Dispose = Nothing
+End Function	&apos;	ScriptForge.SF_Array Explicit destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get Architecture() As String
+&apos;&apos;&apos;	Returns the actual bit architecture
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.Architecture	&apos;	64bit
+	Architecture = _PropertyGet(&quot;Architecture&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.Architecture (get)
+
+REM -----------------------------------------------------------------------------
+Property Get ComputerName() As String
+&apos;&apos;&apos;	Returns the computer&apos;s network name
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.ComputerName
+	ComputerName = _PropertyGet(&quot;ComputerName&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.ComputerName (get)
+
+REM -----------------------------------------------------------------------------
+Property Get CPUCount() As Integer
+&apos;&apos;&apos;	Returns the number of Central Processor Units
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.CPUCount	&apos;	4
+	CPUCount = _PropertyGet(&quot;CPUCount&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.CPUCount (get)
+
+REM -----------------------------------------------------------------------------
+Property Get CurrentUser() As String
+&apos;&apos;&apos;	Returns the name of logged in user
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.CurrentUser
+	CurrentUser = _PropertyGet(&quot;CurrentUser&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.CurrentUser (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Extensions() As Variant
+&apos;&apos;&apos;	Returns the list of availableeExtensions as an unsorted array of unique strings
+&apos;&apos;&apos;	To get the list sorted, use SF_Array.Sort()
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		myExtensionsList = platform.Extensions
+	Extensions = _PropertyGet(&quot;Extensions&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.Extensions (get)
+
+REM -----------------------------------------------------------------------------
+Property Get FilterNames() As Variant
+&apos;&apos;&apos;	Returns the list of available document import and export filter names as an unsorted array of unique strings
+&apos;&apos;&apos;	To get the list sorted, use SF_Array.Sort()
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		myFilterNamesList = platform.FilterNames
+	FilterNames = _PropertyGet(&quot;FilterNames&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.FilterNames (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Fonts() As Variant
+&apos;&apos;&apos;	Returns the list of available fonts as an unsorted array of unique strings
+&apos;&apos;&apos;	To get the list sorted, use SF_Array.Sort()
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		myFontsList = platform.Fonts
+	Fonts = _PropertyGet(&quot;Fonts&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.Fonts (get)
+
+REM -----------------------------------------------------------------------------
+Property Get FormatLocale() As String
+&apos;&apos;&apos;	Returns the locale used for number and date formats, combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.FormatLocale
+	FormatLocale = _PropertyGet(&quot;FormatLocale&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.FormatLocale (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Locale() As String
+&apos;&apos;&apos;	Returns the locale of the operating system, combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.Locale
+	Locale = _PropertyGet(&quot;Locale&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.Locale (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Machine() As String
+&apos;&apos;&apos;	Returns the machine type like &apos;i386&apos; or &apos;x86_64&apos;
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.Machine
+	Machine = _PropertyGet(&quot;Machine&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.Machine (get)
+
+REM -----------------------------------------------------------------------------
+Property Get ObjectType As String
+&apos;&apos;&apos;	Only to enable object representation
+	ObjectType = &quot;SF_Platform&quot;
+End Property	&apos;	ScriptForge.SF_Platform.ObjectType
+
+REM -----------------------------------------------------------------------------
+Property Get OfficeLocale() As String
+&apos;&apos;&apos;	Returns the locale of the user interface, combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.OfficeLocale
+	OfficeLocale = _PropertyGet(&quot;OfficeLocale&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.OfficeLocale (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OfficeVersion() As String
+&apos;&apos;&apos;	Returns the office software version in the form &apos;LibreOffice w.x.y.z (The Document Foundation)&apos;
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.OfficeVersion
+	OfficeVersion = _PropertyGet(&quot;OfficeVersion&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.OfficeVersion (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OSName() As String
+&apos;&apos;&apos;	Returns the name of the operating system like &apos;Linux&apos; or &apos;Windows&apos;
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.OSName
+	OSName = _PropertyGet(&quot;OSName&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.OSName (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OSPlatform() As String
+&apos;&apos;&apos;	Returns a single string identifying the underlying platform with as much useful and human-readable information as possible
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.OSPlatform	&apos;	Linux-4.15.0-117-generic-x86_64-with-Ubuntu-18.04-bionic
+	OSPlatform = _PropertyGet(&quot;OSPlatform&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.OSPlatform (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OSRelease() As String
+&apos;&apos;&apos;	Returns the operating system&apos;s release
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.OSRelease	&apos;	4.15.0-117-generic
+	OSRelease = _PropertyGet(&quot;OSRelease&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.OSRelease (get)
+
+REM -----------------------------------------------------------------------------
+Property Get OSVersion() As String
+&apos;&apos;&apos;	Returns the name of the operating system build or version
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.OSVersion	&apos;	#118-Ubuntu SMP Fri Sep 4 20:02:41 UTC 2020
+	OSVersion = _PropertyGet(&quot;OSVersion&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.OSVersion (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Printers() As Variant
+&apos;&apos;&apos;	Returns the list of available printers type as a zero-based array
+&apos;&apos;&apos;	The default printer is put in the 1st position in the list (index = 0)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox join(platform.Printers, &quot;,&quot;)
+	Printers = _PropertyGet(&quot;Printers&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.Printers (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Processor() As String
+&apos;&apos;&apos;	Returns the (real) processor name, e.g. &apos;amdk6&apos;. Might return the same value as Machine
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.Processor
+	Processor = _PropertyGet(&quot;Processor&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.Processor (get)
+
+REM -----------------------------------------------------------------------------
+Property Get PythonVersion() As String
+&apos;&apos;&apos;	Returns the Python version as string &apos;Python major.minor.patchlevel&apos;
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.PythonVersion	&apos;	Python 3.7.7
+	PythonVersion = _PropertyGet(&quot;PythonVersion&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.PythonVersion (get)
+
+REM -----------------------------------------------------------------------------
+Property Get ServiceName As String
+&apos;&apos;&apos;	Internal use
+	ServiceName = &quot;ScriptForge.Platform&quot;
+End Property	&apos;	ScriptForge.SF_Platform.ServiceName
+
+REM -----------------------------------------------------------------------------
+Property Get SystemLocale() As String
+&apos;&apos;&apos;	Returns the locale of the operating system, combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox platform.SystemLocale
+	SystemLocale = _PropertyGet(&quot;SystemLocale&quot;)
+End Property	&apos;	ScriptForge.SF_Platform.SystemLocale (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;		If the property does not exist, returns Null
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;Platform.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Platform.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Model service as an array
+
+	Methods = Array( _
+					)
+
+End Function	&apos;	ScriptForge.SF_Platform.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Platform class as an array
+
+	Properties = Array( _
+					&quot;Architecture&quot; _
+					, &quot;ComputerName&quot; _
+					, &quot;CPUCount&quot; _
+					, &quot;CurrentUser&quot; _
+					, &quot;Extensions&quot; _
+					, &quot;FilterNames&quot; _
+					, &quot;Fonts&quot; _
+					, &quot;FormatLocale&quot; _
+					, &quot;Locale&quot; _
+					, &quot;Machine&quot; _
+					, &quot;OfficeLocale&quot; _
+					, &quot;OfficeVersion&quot; _
+					, &quot;OSName&quot; _
+					, &quot;OSPlatform&quot; _
+					, &quot;OSRelease&quot; _
+					, &quot;OSVersion&quot; _
+					, &quot;Printers&quot; _
+					, &quot;Processor&quot; _
+					, &quot;PythonVersion&quot; _
+					, &quot;SystemLocale&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_Platform.Properties
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Function _GetPrinters() as Variant
+&apos;&apos;&apos;	Returns the list of available printers.
+&apos;&apos;&apos;	The default printer is put in the 1st position (index = 0)
+
+Dim oPrinterServer As Object		&apos;	com.sun.star.awt.PrinterServer
+Dim vPrinters As Variant			&apos;	Array of printer names
+Dim sDefaultPrinter As String		&apos;	The default printer
+Dim lDefault As Long				&apos;	Initial position of the default printer in the list
+
+	On Local Error GoTo Catch	&apos;	Prevent any error
+	vPrinters = Array()
+
+Try:
+	&apos;	Find printers
+	Set oPrinterServer = SF_Utils._GetUNOService(&quot;PrinterServer&quot;)
+	With oPrinterServer
+		vPrinters = .getPrinterNames()
+		sDefaultPrinter = .getDefaultPrinterName()
+	End With
+
+	&apos;	Put the default printer on top of the list
+	If Len(sDefaultPrinter) &gt; 0 Then
+		lDefault = SF_Array.IndexOf(vPrinters, sDefaultPrinter, CaseSensitive := True)
+		If lDefault &gt; 0 Then	&apos;	Invert 2 printers
+			vPrinters(lDefault) = vPrinters(0)
+			vPrinters(0) = sDefaultPrinter
+		End If
+	End If
+
+Finally:
+	_GetPrinters() = vPrinters()
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Platform._GetPrinters
+
+REM -----------------------------------------------------------------------------
+Public Function _GetProductName() as String
+&apos;&apos;&apos;	Returns Office product and version numbers found in configuration registry
+&apos;&apos;&apos;	Derived from the Tools library
+
+Dim oProdNameAccess as Object		&apos;	configmgr.RootAccess
+Dim sProdName as String
+Dim sVersion as String
+Dim sVendor As String
+
+	On Local Error GoTo Catch	&apos;	Prevent any error
+	_GetProductName = &quot;&quot;
+
+Try:
+	Set oProdNameAccess = SF_Utils._GetRegistryKeyContent(&quot;org.openoffice.Setup/Product&quot;)
+
+	sProdName = oProdNameAccess.ooName
+	sVersion = oProdNameAccess.ooSetupVersionAboutBox
+	sVendor = oProdNameAccess.ooVendor
+
+	_GetProductName = sProdName &amp; &quot; &quot; &amp; sVersion &amp; &quot; (&quot; &amp; sVendor &amp; &quot;)&quot;
+
+Finally:
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Platform._GetProductName
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim sOSName As String			&apos;	Operating system
+Dim oLocale As Object			&apos;	com.sun.star.lang.Locale
+Dim oPrinterServer As Object	&apos;	com.sun.star.awt.PrinterServer
+Dim oToolkit As Object			&apos;	com.sun.star.awt.Toolkit
+Dim oDevice As Object			&apos;	com.sun.star.awt.XDevice
+Dim oFilterFactory As Object	&apos;	com.sun.star.document.FilterFactory
+Dim oFontDescriptors As Variant	&apos;	Array of com.sun.star.awt.FontDescriptor
+Dim sFonts As String			&apos;	Comma-separated list of fonts
+Dim sFont As String				&apos;	A single font name
+Dim vExtensionsList As Variant	&apos;	Array of extension descriptors
+Dim sExtensions As String		&apos;	Comma separated list of extensions
+Dim sExtension As String		&apos;	A single extension name
+Dim i As Long
+
+Const cstPyHelper = &quot;$&quot; &amp; &quot;_SF_Platform&quot;
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;Platform.get&quot; &amp; psProperty
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+	Select Case psProperty
+		Case &quot;Architecture&quot;, &quot;ComputerName&quot;, &quot;CPUCount&quot;, &quot;CurrentUser&quot;, &quot;Machine&quot; _
+				, &quot;OSPlatform&quot;, &quot;OSRelease&quot;, &quot;OSVersion&quot;, &quot;Processor&quot;, &quot;PythonVersion&quot;
+			With ScriptForge.SF_Session
+				_PropertyGet = .ExecutePythonScript(.SCRIPTISSHARED, _SF_.PythonHelper &amp; cstPyHelper, psProperty)
+			End With
+		Case &quot;Extensions&quot;
+			Set vExtensionsList = SF_Utils._GetUnoService(&quot;PackageInformationProvider&quot;).ExtensionList
+			sExtensions = &quot;&quot;
+			For i = 0 To UBound(vExtensionsList)
+				sExtensions = sExtensions &amp; &quot;,&quot; &amp; vExtensionsList(i)(0)
+			Next i
+			If Len(sExtensions) &gt; 0 Then _PropertyGet = Split(Mid(sExtensions, 2), &quot;,&quot;) Else _PropertyGet = Array()
+		Case &quot;FilterNames&quot;
+			Set oFilterFactory = SF_Utils._GetUNOService(&quot;FilterFactory&quot;)
+			_PropertyGet = oFilterFactory.getElementNames()
+		Case &quot;Fonts&quot;
+			Set oToolkit = SF_Utils._GetUnoService(&quot;Toolkit&quot;)
+			Set oDevice = oToolkit.createScreenCompatibleDevice(0, 0)
+			oFontDescriptors = oDevice.FontDescriptors()
+			sFonts = &quot;,&quot;
+			&apos;	Select only not yet registered fonts
+			For i = 0 To UBound(oFontDescriptors)
+				sFont = oFontDescriptors(i).Name
+				If InStr(1, sFonts, &quot;,&quot; &amp; sFont &amp; &quot;,&quot;, 0) = 0  Then sFonts = sFonts &amp; sFont &amp; &quot;,&quot;	&apos; Case-sensitive comparison
+			Next i
+			&apos;	Remove leading and trailing commas
+			If Len(sFonts) &gt; 1 Then _PropertyGet = Split(Mid(sFonts, 2, Len(sFonts) - 2), &quot;,&quot;) Else _PropertyGet = Array()
+		Case &quot;FormatLocale&quot;
+			Set oLocale = SF_Utils._GetUNOService(&quot;FormatLocale&quot;)
+			_PropertyGet = oLocale.Language &amp; &quot;-&quot; &amp; oLocale.Country
+		Case &quot;OfficeLocale&quot;
+			Set oLocale = SF_Utils._GetUNOService(&quot;OfficeLocale&quot;)
+			_PropertyGet = oLocale.Language &amp; &quot;-&quot; &amp; oLocale.Country
+		Case &quot;OfficeVersion&quot;
+			_PropertyGet = _GetProductName()
+		Case &quot;OSName&quot;
+			&apos;	Calc INFO function preferred to Python script to avoid ScriptForge initialization risks when Python is not installed
+			sOSName = _SF_.OSName
+			If sOSName = &quot;&quot; Then
+				sOSName = SF_Session.ExecuteCalcFunction(&quot;INFO&quot;, &quot;system&quot;)
+				Select Case sOSName
+					Case &quot;WNT&quot;			:	sOSName = &quot;Windows&quot;
+					Case &quot;MACOSX&quot;		:	sOSName = &quot;macOS&quot;
+					Case &quot;LINUX&quot;		:	sOSName = &quot;Linux&quot;
+					Case &quot;SOLARIS&quot;		:	sOSName = &quot;Solaris&quot;
+					Case Else			:	sOSName = SF_String.Capitalize(sOSName)
+				End Select
+			EndIf
+			_PropertyGet = sOSName
+		Case &quot;Printers&quot;
+			_PropertyGet = _GetPrinters()
+		Case &quot;SystemLocale&quot;, &quot;Locale&quot;
+			Set oLocale = SF_Utils._GetUNOService(&quot;SystemLocale&quot;)
+			_PropertyGet = oLocale.Language &amp; &quot;-&quot; &amp; oLocale.Country
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Platform._PropertyGet
+
+REM ============================================ END OF SCRIPTFORGE.SF_PLATFORM
+</script:module>

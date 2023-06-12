@@ -1,0 +1,1537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Form" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Form
+&apos;&apos;&apos;	=======
+&apos;&apos;&apos;		Management of forms defined in LibreOffice documents. Supported types are Base, Calc and Writer documents.
+&apos;&apos;&apos;		It includes the management of subforms
+&apos;&apos;&apos;		Each instance of the current class represents a single form or a single subform
+&apos;&apos;&apos;
+&apos;&apos;&apos;		A form may optionally be (understand &quot;is often&quot;) linked to a data source manageable with the SFDatabases.Database service
+&apos;&apos;&apos;		The current service offers a rapid access to that service
+&apos;&apos;&apos;		
+&apos;&apos;&apos;		Definitions:
+&apos;&apos;&apos;
+&apos;&apos;&apos;			FormDocument:
+&apos;&apos;&apos;				For usual documents, there is only 1 form document. It is in fact the document itself.
+&apos;&apos;&apos;				A Base document may contain an unlimited number of form documents.
+&apos;&apos;&apos;					In the Base terminology they are called &quot;forms&quot; or &quot;Base forms&quot;. This could create some confusion.
+&apos;&apos;&apos;					They can be organized in folders. Their name is then always the full path of folders + form
+&apos;&apos;&apos;					with the slash (&quot;/&quot;) as path separator
+&apos;&apos;&apos;				A FormDocument is a set of Forms. Form names are visible in the user interface thanks to the form navigator
+&apos;&apos;&apos;					Often there is only 1 Form present in a FormDocument. Having more, however, might improve
+&apos;&apos;&apos;					the user experience significantly
+&apos;&apos;&apos;
+&apos;&apos;&apos;			Form: WHERE IT IS ABOUT IN THE CURRENT &quot;Form&quot; SERVICE
+&apos;&apos;&apos;				Is an abstract set of Controls in an OPEN FormDocument
+&apos;&apos;&apos;				Each form is usually linked to one single dataset (table, query or Select statement),
+&apos;&apos;&apos;				located in any database (provided the user may access it)
+&apos;&apos;&apos;					A usual document may contain several forms. Each of which may have its own data source (database + dataset)
+&apos;&apos;&apos;					A Base form document may contain several forms. Each of which may address its own dataset. The database however is unique
+&apos;&apos;&apos;				A form is defined by its owning FormDocument and its FormName or FormIndex
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocations:
+&apos;&apos;&apos;
+&apos;&apos;&apos;			REM the form is stored in a not-Base document (Calc, Writer)	
+&apos;&apos;&apos;			Dim oDoc As Object, myForm As Object
+&apos;&apos;&apos;				Set oDoc = CreateScriptService(&quot;SFDocuments.Document&quot;, ThisComponent)
+&apos;&apos;&apos;				Set myForm = oDoc.Forms(&quot;Form1&quot;)
+&apos;&apos;&apos;				&apos;	or, alternatively, when there is only 1 form
+&apos;&apos;&apos;				Set myForm = oDoc.Forms(0)	
+&apos;&apos;&apos;
+&apos;&apos;&apos;			REM the form is stored in one of the FormDocuments of a Base document
+&apos;&apos;&apos;			Dim oDoc As Object, myForm As Object, mySubForm As Object
+&apos;&apos;&apos;				Set oDoc = CreateScriptService(&quot;SFDocuments.Document&quot;, ThisDatabaseDocument)
+&apos;&apos;&apos;				oDoc.OpenFormDocument(&quot;thisFormDocument&quot;)
+&apos;&apos;&apos;				Set myForm = oDoc.Forms(&quot;thisFormDocument&quot;, &quot;MainForm&quot;)
+&apos;&apos;&apos;				&apos;	or, alternatively, when there is only 1 form
+&apos;&apos;&apos;				Set myForm = oDoc.Forms(&quot;thisFormDocument&quot;, 0)
+&apos;&apos;&apos;				&apos;	To access a subform: myForm and mySubForm become distinct instances of the current class
+&apos;&apos;&apos;				Set mySubForm = myForm.SubForms(&quot;mySubForm&quot;)
+&apos;&apos;&apos;
+&apos;&apos;&apos;			REM the form is the subject of an event
+&apos;&apos;&apos;			Sub OnEvent(ByRef poEvent As Object)
+&apos;&apos;&apos;			Dim myForm As Object
+&apos;&apos;&apos;				Set myForm = CreateScriptService(&quot;SFDocuments.FormEvent&quot;, poEvent)
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_form.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const FORMDEADERROR			=	&quot;FORMDEADERROR&quot;
+Private Const SUBFORMNOTFOUNDERROR	=	&quot;SUBFORMNOTFOUNDERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]				As Object
+Private [_Parent]			As Object
+Private ObjectType			As String		&apos; Must be Form
+Private ServiceName			As String
+
+&apos;	Form location
+Private _Name				As String		&apos; Internal name of the form
+Private _FormType			As Integer		&apos; One of the ISxxxFORM constants
+Private _SheetName			As String		&apos; Name as the sheet containing the form (Calc only)
+Private _FormDocumentName	As String		&apos; The hierarchical name of the containing form document (Base only)
+Private _FormDocument		As Object		&apos; com.sun.star.comp.sdb.Content - the containing form document
+	&apos;	The form topmost container
+Private _Component			As Object		&apos; com.sun.star.lang.XComponent or com.sun.star.comp.dba.ODatabaseDocument
+
+&apos;	Events management
+Private _CacheIndex			As Long			&apos; Index in central cache storage
+
+&apos;	Form UNO references
+&apos;		The entry to the interactions with the form. Validity checked by the _IsStillAlive() method
+&apos;		Each method or property requiring that the form is opened should first invoke that method
+Private _Form				As Object		&apos; com.sun.star.form.XForm or com.sun.star.comp.forms.ODatabaseForm
+Private _Database			As Object		&apos; Database class instance
+
+&apos;	Form attributes
+
+&apos;	Cache storage for controls
+Private _ControlNames		As Variant		&apos; Array of control names
+Private _ControlCache		As Variant		&apos; Array of control objects sorted like ElementNames of XForm
+
+REM ============================================================ MODULE CONSTANTS
+
+Const ISDOCFORM				=	1			&apos; Form is stored in a Writer document
+Const ISCALCFORM			=	2			&apos; Form is stored in a Calc document
+Const ISBASEFORM			=	3			&apos; Form is stored in a Base document
+Const ISSUBFORM				=	4			&apos; Form is a subform of a form or of another subform
+Const ISUNDEFINED			=	-1			&apos; Undefined form type
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;FORM&quot;
+	ServiceName = &quot;SFDocuments.Form&quot;
+	_Name = &quot;&quot;
+	_SheetName = &quot;&quot;
+	_FormDocumentName = &quot;&quot;
+	Set _FormDocument = Nothing
+	_FormType = ISUNDEFINED
+	_CacheIndex = -1
+	Set _Form = Nothing
+	Set _Database = Nothing
+	_ControlNames = Array()
+	_ControlCache = Array()
+End Sub		&apos;	SFDocuments.SF_Form Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDocuments.SF_Form Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	If Not IsNull(_Database) And (_FormType = ISDOCFORM Or _FormType = ISCALCFORM) Then
+		Set _Database = _Database.Dispose()
+	End If
+	SF_Register._CleanCacheEntry(_CacheIndex)
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDocuments.SF_Form Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get AllowDeletes() As Variant
+&apos;&apos;&apos;	The AllowDeletes property specifies if the form allows to delete records
+	AllowDeletes = _PropertyGet(&quot;AllowDeletes&quot;)
+End Property	&apos;	SFDocuments.SF_Form.AllowDeletes (get)
+
+REM -----------------------------------------------------------------------------
+Property Let AllowDeletes(Optional ByVal pvAllowDeletes As Variant)
+&apos;&apos;&apos;	Set the updatable property AllowDeletes
+	_PropertySet(&quot;AllowDeletes&quot;, pvAllowDeletes)
+End Property	&apos;	SFDocuments.SF_Form.AllowDeletes (let)
+
+REM -----------------------------------------------------------------------------
+Property Get AllowInserts() As Variant
+&apos;&apos;&apos;	The AllowInserts property specifies if the form allows to add records
+	AllowInserts = _PropertyGet(&quot;AllowInserts&quot;)
+End Property	&apos;	SFDocuments.SF_Form.AllowInserts (get)
+
+REM -----------------------------------------------------------------------------
+Property Let AllowInserts(Optional ByVal pvAllowInserts As Variant)
+&apos;&apos;&apos;	Set the updatable property AllowInserts
+	_PropertySet(&quot;AllowInserts&quot;, pvAllowInserts)
+End Property	&apos;	SFDocuments.SF_Form.AllowInserts (let)
+
+REM -----------------------------------------------------------------------------
+Property Get AllowUpdates() As Variant
+&apos;&apos;&apos;	The AllowUpdates property specifies if the form allows to update records
+	AllowUpdates = _PropertyGet(&quot;AllowUpdates&quot;)
+End Property	&apos;	SFDocuments.SF_Form.AllowUpdates (get)
+
+REM -----------------------------------------------------------------------------
+Property Let AllowUpdates(Optional ByVal pvAllowUpdates As Variant)
+&apos;&apos;&apos;	Set the updatable property AllowUpdates
+	_PropertySet(&quot;AllowUpdates&quot;, pvAllowUpdates)
+End Property	&apos;	SFDocuments.SF_Form.AllowUpdates (let)
+
+REM -----------------------------------------------------------------------------
+Property Get BaseForm() As String
+&apos;&apos;&apos;	The BaseForm property specifies the hierarchical name of the Base form containing the actual form
+	BaseForm = _PropertyGet(&quot;BaseForm&quot;)
+End Property	&apos;	SFDocuments.SF_Form.BaseForm (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Bookmark() As Variant
+&apos;&apos;&apos;	The Bookmark property specifies uniquely the current record of the form&apos;s underlying table, query or SQL statement.
+	Bookmark = _PropertyGet(&quot;Bookmark&quot;)
+End Property	&apos;	SFDocuments.SF_Form.Bookmark (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Bookmark(Optional ByVal pvBookmark As Variant)
+&apos;&apos;&apos;	Set the updatable property Bookmark
+	_PropertySet(&quot;Bookmark&quot;, pvBookmark)
+End Property	&apos;	SFDocuments.SF_Form.Bookmark (let)
+
+REM -----------------------------------------------------------------------------
+Property Get CurrentRecord() As Variant
+&apos;&apos;&apos;	The CurrentRecord property identifies the current record in the recordset being viewed on a form
+	CurrentRecord = _PropertyGet(&quot;CurrentRecord&quot;)
+End Property	&apos;	SFDocuments.SF_Form.CurrentRecord (get)
+
+REM -----------------------------------------------------------------------------
+Property Let CurrentRecord(Optional ByVal pvCurrentRecord As Variant)
+&apos;&apos;&apos;	Set the updatable property CurrentRecord
+&apos;&apos;&apos;	If the row number is positive, the cursor moves to the given row number with respect to the beginning of the result set.
+&apos;&apos;&apos;	The first row is row 1, the second is row 2, and so on.
+&apos;&apos;&apos;	If the given row number is negative, the cursor moves to an absolute row position with respect to the end of the result set.
+&apos;&apos;&apos;	For example, setting CurrentRecord = -1 positions the cursor on the last row, -2 indicates the next-to-last row, and so on
+	_PropertySet(&quot;CurrentRecord&quot;, pvCurrentRecord)
+End Property	&apos;	SFDocuments.SF_Form.CurrentRecord (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Filter() As Variant
+&apos;&apos;&apos;	The Filter property specifies a subset of records to be displayed.
+	Filter = _PropertyGet(&quot;Filter&quot;)
+End Property	&apos;	SFDocuments.SF_Form.Filter (get)
+
+REM -----------------------------------------------------------------------------
+Property Let Filter(Optional ByVal pvFilter As Variant)
+&apos;&apos;&apos;	Set the updatable property Filter
+	_PropertySet(&quot;Filter&quot;, pvFilter)
+End Property	&apos;	SFDocuments.SF_Form.Filter (let)
+
+REM -----------------------------------------------------------------------------
+Property Get LinkChildFields() As Variant
+&apos;&apos;&apos;	The LinkChildFields property specifies how records in a subform (child) are linked to records in its parent form
+&apos;&apos;&apos;	It returns an array of strings
+	LinkChildFields = _PropertyGet(&quot;LinkChildFields&quot;)
+End Property	&apos;	SFDocuments.SF_Form.LinkChildFields (get)
+
+REM -----------------------------------------------------------------------------
+Property Get LinkParentFields() As Variant
+&apos;&apos;&apos;	The LinkParentFields property specifies how records in a subform (Child) are linked to records in its parent form
+&apos;&apos;&apos;	It returns an array of strings
+	LinkParentFields = _PropertyGet(&quot;LinkParentFields&quot;)
+End Property	&apos;	SFDocuments.SF_Form.LinkParentFields (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Name() As String
+&apos;&apos;&apos;	Return the name of the actual Form
+	Name = _PropertyGet(&quot;Name&quot;)
+End Property	&apos;	SFDocuments.SF_Form.Name
+
+REM -----------------------------------------------------------------------------
+Property Get OnApproveCursorMove() As Variant
+&apos;&apos;&apos;	The OnApproveCursorMove property specifies the script to trigger when this event occurs
+	OnApproveCursorMove = _PropertyGet(&quot;OnApproveCursorMove&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveCursorMove (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnApproveCursorMove(Optional ByVal pvOnApproveCursorMove As Variant)
+&apos;&apos;&apos;	Set the updatable property OnApproveCursorMove
+	_PropertySet(&quot;OnApproveCursorMove&quot;, pvOnApproveCursorMove)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveCursorMove (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnApproveReset() As Variant
+&apos;&apos;&apos;	The OnApproveReset property specifies the script to trigger when this event occurs
+	OnApproveReset = _PropertyGet(&quot;OnApproveReset&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveReset (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnApproveReset(Optional ByVal pvOnApproveReset As Variant)
+&apos;&apos;&apos;	Set the updatable property OnApproveReset
+	_PropertySet(&quot;OnApproveReset&quot;, pvOnApproveReset)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveReset (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnApproveRowChange() As Variant
+&apos;&apos;&apos;	The OnApproveRowChange property specifies the script to trigger when this event occurs
+	OnApproveRowChange = _PropertyGet(&quot;OnApproveRowChange&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveRowChange (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnApproveRowChange(Optional ByVal pvOnApproveRowChange As Variant)
+&apos;&apos;&apos;	Set the updatable property OnApproveRowChange
+	_PropertySet(&quot;OnApproveRowChange&quot;, pvOnApproveRowChange)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveRowChange (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnApproveSubmit() As Variant
+&apos;&apos;&apos;	The OnApproveSubmit property specifies the script to trigger when this event occurs
+	OnApproveSubmit = _PropertyGet(&quot;OnApproveSubmit&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveSubmit (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnApproveSubmit(Optional ByVal pvOnApproveSubmit As Variant)
+&apos;&apos;&apos;	Set the updatable property OnApproveSubmit
+	_PropertySet(&quot;OnApproveSubmit&quot;, pvOnApproveSubmit)
+End Property	&apos;	SFDocuments.SF_Form.OnApproveSubmit (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnConfirmDelete() As Variant
+&apos;&apos;&apos;	The OnConfirmDelete property specifies the script to trigger when this event occurs
+	OnConfirmDelete = _PropertyGet(&quot;OnConfirmDelete&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnConfirmDelete (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnConfirmDelete(Optional ByVal pvOnConfirmDelete As Variant)
+&apos;&apos;&apos;	Set the updatable property OnConfirmDelete
+	_PropertySet(&quot;OnConfirmDelete&quot;, pvOnConfirmDelete)
+End Property	&apos;	SFDocuments.SF_Form.OnConfirmDelete (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnCursorMoved() As Variant
+&apos;&apos;&apos;	The OnCursorMoved property specifies the script to trigger when this event occurs
+	OnCursorMoved = _PropertyGet(&quot;OnCursorMoved&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnCursorMoved (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnCursorMoved(Optional ByVal pvOnCursorMoved As Variant)
+&apos;&apos;&apos;	Set the updatable property OnCursorMoved
+	_PropertySet(&quot;OnCursorMoved&quot;, pvOnCursorMoved)
+End Property	&apos;	SFDocuments.SF_Form.OnCursorMoved (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnErrorOccurred() As Variant
+&apos;&apos;&apos;	The OnErrorOccurred property specifies the script to trigger when this event occurs
+	OnErrorOccurred = _PropertyGet(&quot;OnErrorOccurred&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnErrorOccurred (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnErrorOccurred(Optional ByVal pvOnErrorOccurred As Variant)
+&apos;&apos;&apos;	Set the updatable property OnErrorOccurred
+	_PropertySet(&quot;OnErrorOccurred&quot;, pvOnErrorOccurred)
+End Property	&apos;	SFDocuments.SF_Form.OnErrorOccurred (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnLoaded() As Variant
+&apos;&apos;&apos;	The OnLoaded property specifies the script to trigger when this event occurs
+	OnLoaded = _PropertyGet(&quot;OnLoaded&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnLoaded (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnLoaded(Optional ByVal pvOnLoaded As Variant)
+&apos;&apos;&apos;	Set the updatable property OnLoaded
+	_PropertySet(&quot;OnLoaded&quot;, pvOnLoaded)
+End Property	&apos;	SFDocuments.SF_Form.OnLoaded (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnReloaded() As Variant
+&apos;&apos;&apos;	The OnReloaded property specifies the script to trigger when this event occurs
+	OnReloaded = _PropertyGet(&quot;OnReloaded&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnReloaded (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnReloaded(Optional ByVal pvOnReloaded As Variant)
+&apos;&apos;&apos;	Set the updatable property OnReloaded
+	_PropertySet(&quot;OnReloaded&quot;, pvOnReloaded)
+End Property	&apos;	SFDocuments.SF_Form.OnReloaded (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnReloading() As Variant
+&apos;&apos;&apos;	The OnReloading property specifies the script to trigger when this event occurs
+	OnReloading = _PropertyGet(&quot;OnReloading&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnReloading (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnReloading(Optional ByVal pvOnReloading As Variant)
+&apos;&apos;&apos;	Set the updatable property OnReloading
+	_PropertySet(&quot;OnReloading&quot;, pvOnReloading)
+End Property	&apos;	SFDocuments.SF_Form.OnReloading (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnResetted() As Variant
+&apos;&apos;&apos;	The OnResetted property specifies the script to trigger when this event occurs
+	OnResetted = _PropertyGet(&quot;OnResetted&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnResetted (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnResetted(Optional ByVal pvOnResetted As Variant)
+&apos;&apos;&apos;	Set the updatable property OnResetted
+	_PropertySet(&quot;OnResetted&quot;, pvOnResetted)
+End Property	&apos;	SFDocuments.SF_Form.OnResetted (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnRowChanged() As Variant
+&apos;&apos;&apos;	The OnRowChanged property specifies the script to trigger when this event occurs
+	OnRowChanged = _PropertyGet(&quot;OnRowChanged&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnRowChanged (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnRowChanged(Optional ByVal pvOnRowChanged As Variant)
+&apos;&apos;&apos;	Set the updatable property OnRowChanged
+	_PropertySet(&quot;OnRowChanged&quot;, pvOnRowChanged)
+End Property	&apos;	SFDocuments.SF_Form.OnRowChanged (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnUnloaded() As Variant
+&apos;&apos;&apos;	The OnUnloaded property specifies the script to trigger when this event occurs
+	OnUnloaded = _PropertyGet(&quot;OnUnloaded&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnUnloaded (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnUnloaded(Optional ByVal pvOnUnloaded As Variant)
+&apos;&apos;&apos;	Set the updatable property OnUnloaded
+	_PropertySet(&quot;OnUnloaded&quot;, pvOnUnloaded)
+End Property	&apos;	SFDocuments.SF_Form.OnUnloaded (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OnUnloading() As Variant
+&apos;&apos;&apos;	The OnUnloading property specifies the script to trigger when this event occurs
+	OnUnloading = _PropertyGet(&quot;OnUnloading&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OnUnloading (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OnUnloading(Optional ByVal pvOnUnloading As Variant)
+&apos;&apos;&apos;	Set the updatable property OnUnloading
+	_PropertySet(&quot;OnUnloading&quot;, pvOnUnloading)
+End Property	&apos;	SFDocuments.SF_Form.OnUnloading (let)
+
+REM -----------------------------------------------------------------------------
+Property Get OrderBy() As Variant
+&apos;&apos;&apos;	The OrderBy property specifies in which order the records should be displayed.
+	OrderBy = _PropertyGet(&quot;OrderBy&quot;)
+End Property	&apos;	SFDocuments.SF_Form.OrderBy (get)
+
+REM -----------------------------------------------------------------------------
+Property Let OrderBy(Optional ByVal pvOrderBy As Variant)
+&apos;&apos;&apos;	Set the updatable property OrderBy
+	_PropertySet(&quot;OrderBy&quot;, pvOrderBy)
+End Property	&apos;	SFDocuments.SF_Form.OrderBy (let)
+
+REM -----------------------------------------------------------------------------
+Property Get Parent() As Object
+&apos;&apos;&apos;	Return the Parent of the actual Form
+	Parent = _PropertyGet(&quot;Parent&quot;)
+End Property	&apos;	SFDocuments.SF_Form.Parent
+
+REM -----------------------------------------------------------------------------
+Property Get RecordSource() As Variant
+&apos;&apos;&apos;	The RecordSource property specifies the source of the data,
+&apos;&apos;&apos;	a table name, a query name or a SQL statement
+	RecordSource = _PropertyGet(&quot;RecordSource&quot;)
+End Property	&apos;	SFDocuments.SF_Form.RecordSource (get)
+
+REM -----------------------------------------------------------------------------
+Property Let RecordSource(Optional ByVal pvRecordSource As Variant)
+&apos;&apos;&apos;	Set the updatable property RecordSource
+	_PropertySet(&quot;RecordSource&quot;, pvRecordSource)
+End Property	&apos;	SFDocuments.SF_Form.RecordSource (let)
+
+REM -----------------------------------------------------------------------------
+Property Get XForm() As Object
+&apos;&apos;&apos;	The XForm property returns the XForm UNO object of the Form
+	XForm = _PropertyGet(&quot;XForm&quot;)
+End Property	&apos;	SFDocuments.SF_Form.XForm (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Activate() As Boolean
+&apos;&apos;&apos;	Set the focus on the current Form instance
+&apos;&apos;&apos;	Probably called from after an event occurrence or to focus on an open Base form document
+&apos;&apos;&apos;	If the parent document is ...
+&apos;&apos;&apos;		Calc		Activate the corresponding sheet
+&apos;&apos;&apos;		Writer		Activate the parent document
+&apos;&apos;&apos;		Base		Activate the parent form document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if focusing is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.Activate()
+
+Dim bActivate As Boolean		&apos;	Return value
+Dim oContainer As Object		&apos;	com.sun.star.awt.XWindow
+Const cstThisSub = &quot;SFDocuments.Form.Activate&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bActivate = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+Try:
+	Select Case _FormType
+		Case ISDOCFORM		:	bActivate = [_Parent].Activate()
+		Case ISCALCFORM		:	bActivate = [_Parent].Activate(_SheetName)
+		Case ISBASEFORM
+			Set oContainer = _FormDocument.Component.CurrentController.Frame.ContainerWindow
+			With oContainer
+				If .isVisible() = False Then .setVisible(True)
+				.IsMinimized = False
+				.setFocus()
+				.toFront()				&apos;	Force window change in Linux
+				Wait 1					&apos;	Bypass desynchro issue in Linux
+			End With
+			bActivate = True
+	End Select
+
+Finally:
+	Activate = bActivate
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.Activate
+
+REM -----------------------------------------------------------------------------
+Public Function CloseFormDocument() As Boolean
+&apos;&apos;&apos;	Close the form document containing the actual form instance
+&apos;&apos;&apos;	The form instance is disposed
+&apos;&apos;&apos;	The method does nothing if the actual form is not located in a Base form document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if closure is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.CloseFormDocument()
+
+Dim bClose As Boolean			&apos;	Return value
+Dim oContainer As Object		&apos;	com.sun.star.awt.XWindow
+Const cstThisSub = &quot;SFDocuments.Form.CloseFormDocument&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bClose = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+Try:
+	Select Case _FormType
+		Case ISDOCFORM, ISCALCFORM, ISSUBFORM
+		Case ISBASEFORM
+			_FormDocument.close()
+			Dispose()
+			bClose = True
+	End Select
+
+Finally:
+	CloseFormDocument = bClose
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.CloseFormDocument
+
+REM -----------------------------------------------------------------------------
+Public Function Controls(Optional ByVal ControlName As Variant) As Variant
+&apos;&apos;&apos;	Return either
+&apos;&apos;&apos;		- the list of the controls contained in the Form
+&apos;&apos;&apos;		- a Form control object based on its name
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		ControlName: a valid control name as a case-sensitive string. If absent the list is returned
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-base array of strings if ControlName is absent
+&apos;&apos;&apos;		An instance of the SF_FormControl class if ControlName exists
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ControlName is invalid
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			Dim myForm As Object, myList As Variant, myControl As Object
+&apos;&apos;&apos;				Set myForm = myDoc.Forms(&quot;myForm&quot;)
+&apos;&apos;&apos;				myList = myForm.Controls()
+&apos;&apos;&apos;				Set myControl = myForm.Controls(&quot;myTextBox&quot;)
+
+Dim oControl As Object				&apos;	The new control class instance
+Dim lIndexOfNames As Long			&apos;	Index in ElementNames array. Used to access _ControlCache
+Dim vControl As Variant				&apos;	Alias of _ControlCache entry
+Dim i As Long
+Const cstThisSub = &quot;SFDocuments.Form.Controls&quot;
+Const cstSubArgs = &quot;[ControlName]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(ControlName) Or IsEmpty(ControlName) Then ControlName = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(ControlName, &quot;ControlName&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Collect all control names if not yet done
+	If UBound(_ControlNames) &lt; 0 Then
+		_ControlNames = _Form.getElementNames()
+		&apos;	Remove all subforms from the list
+		For i = 0 To UBound(_ControlNames)
+			&apos;	Subforms have no ClassId property
+			If Not ScriptForge.SF_Session.HasUnoProperty(_Form.getByName(_ControlNames(i)), &quot;ClassId&quot;) Then _ControlNames(i) = &quot;&quot;
+		Next i
+		_ControlNames = ScriptForge.SF_Array.TrimArray(_ControlNames)
+		&apos;	Size the cache accordingly
+		If UBound(_ControlNames) &gt;= 0 Then
+			ReDim _ControlCache(0 To UBound(_ControlNames))
+		End If
+	End If
+
+	&apos;	Return the list of controls or a FormControl instance
+	If Len(ControlName) = 0 Then
+		Controls = _ControlNames
+
+	Else
+
+		If Not _Form.hasByName(ControlName) Then GoTo CatchNotFound
+		lIndexOfNames = ScriptForge.SF_Array.IndexOf(_ControlNames, ControlName, CaseSensitive := True)
+		&apos;	Reuse cache when relevant
+		vControl = _ControlCache(lIndexOfNames)
+
+		If IsEmpty(vControl) Then
+			&apos;	Create the new form control class instance
+			Set oControl = New SF_FormControl
+			With oControl
+				._Name = ControlName
+				Set .[Me] = oControl
+				Set .[_Parent] = [Me]
+				Set ._ParentForm = [Me]
+				._IndexOfNames = lIndexOfNames
+				._FormName = _Name
+				&apos;	Get model and view of the current control
+				Set ._ControlModel = _Form.getByName(ControlName)
+				._Initialize()
+			End With
+		Else
+			Set oControl = vControl
+		End If
+
+		Set Controls = oControl
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchNotFound:
+	ScriptForge.SF_Utils._Validate(ControlName, &quot;ControlName&quot;, V_STRING, _Form.getElementNames())
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.Controls
+
+REM -----------------------------------------------------------------------------
+Public Function GetDatabase(Optional ByVal User As Variant _
+								, Optional ByVal Password As Variant _
+								) As Object
+&apos;&apos;&apos;	Returns a Database instance (service = SFDatabases.Database) giving access
+&apos;&apos;&apos;	to the execution of SQL commands on the database defined and/or stored in
+&apos;&apos;&apos;	the actual Base document
+&apos;&apos;&apos;	Each main form has its own database connection, except within Base documents where
+&apos;&apos;&apos;	they all share the same connection
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		User, Password: the login parameters as strings. Defaults = &quot;&quot;
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A SFDatabases.Database instance or Nothing
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		Dim myDb As Object
+&apos;&apos;&apos;			Set myDb = oForm.GetDatabase()
+
+Dim FSO As Object				&apos;	Alias for SF_FileSystem
+Dim sDataSource As String		&apos;	Database file name in FileNaming format
+Dim sUser As String				&apos;	Alias for User
+Dim sPassword As String			&apos;	Alias for Password
+Const cstThisSub = &quot;SFDocuments.Form.GetDatabase&quot;
+Const cstSubArgs = &quot;[User=&quot;&quot;&quot;&quot;], [Password=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set GetDatabase = Nothing
+
+Check:
+	If IsMissing(User) Or IsEmpty(User) Then User = &quot;&quot;
+	If IsMissing(Password) Or IsEmpty(Password) Then Password = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not [_Parent]._IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(User, &quot;User&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Password, &quot;Password&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Adjust connection arguments
+	If Len(User) = 0 Then
+		If ScriptForge.SF_Session.HasUnoProperty(_Form, &quot;User&quot;) Then sUser = _Form.User Else sUser = &quot;&quot;
+	Else
+		sUser = User
+	End If
+	If Len(sUser) + Len(Password) = 0 Then
+		If ScriptForge.SF_Session.HasUnoProperty(_Form, &quot;Password&quot;) Then sPassword = _Form.Password Else sPassword = Password
+	End If
+
+	&apos;	Connect to database, avoiding multiple requests
+	If IsNull(_Database) Then		&apos;	1st connection request from the current form instance
+		If _FormType = ISBASEFORM Then
+			&apos;	Fetch the shared connection
+			Set _Database = [_Parent].GetDatabase(User, Password)
+		ElseIf _FormType = ISSUBFORM Then
+			Set _Database = [_Parent].GetDatabase()	&apos;	Recursive call, climb the tree
+		ElseIf Len(_Form.DataSourceName) = 0 Then	&apos;	There is no database linked with the form
+			&apos;	Return Nothing
+		Else
+			&apos;	Check if DataSourceName is a file or a registered name and create database instance accordingly
+			Set FSO = ScriptForge.SF_FileSystem
+			sDataSource = FSO._ConvertFromUrl(_Form.DataSourceName)
+			If FSO.FileExists(sDataSource) Then
+				Set _Database = ScriptForge.SF_Services.CreateScriptService(&quot;SFDatabases.Database&quot; _
+								, sDataSource, , , sUser, sPassword)
+			Else
+				Set _Database = ScriptForge.SF_Services.CreateScriptService(&quot;SFDatabases.Database&quot; _
+								, , _Form.DataSourceName, , sUser, sPassword)
+			End If
+			If IsNull(_Database) Then GoTo CatchConnect
+		End If
+	Else
+	EndIf
+
+Finally:
+	Set GetDatabase = _Database
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchConnect:
+	ScriptForge.SF_Exception.RaiseFatal(DBCONNECTERROR, &quot;User&quot;, User, &quot;Password&quot;, Password, [_Super]._FileIdent())
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.GetDatabase
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDlg.GetProperty(&quot;Caption&quot;)
+
+Const cstThisSub = &quot;SFDocuments.Form.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Form service as an array
+
+	Methods = Array( _
+					&quot;Activate&quot; _
+					, &quot;CloseForm&quot; _
+					, &quot;Controls&quot; _
+					, &quot;GetDatabase&quot; _
+					, &quot;MoveFirst&quot; _
+					, &quot;MoveLast&quot; _
+					, &quot;MoveNew&quot; _
+					, &quot;MoveNext&quot; _
+					, &quot;MovePrevious&quot; _
+					, &quot;Requery&quot; _
+					, &quot;SubForms&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Form.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function MoveFirst() As Boolean
+&apos;&apos;&apos;	The cursor is (re)positioned on the first row
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if cursor move is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.MoveFirst()
+
+Dim bMoveFirst As Boolean		&apos;	Return value
+Const cstThisSub = &quot;SFDocuments.Form.MoveFirst&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bMoveFirst = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+Try:
+	With _Form
+		bMoveFirst = .first()
+	End With
+
+Finally:
+	MoveFirst = bMoveFirst
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.MoveFirst
+
+REM -----------------------------------------------------------------------------
+Public Function MoveLast() As Boolean
+&apos;&apos;&apos;	The cursor is (re)positioned on the last row
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if cursor move is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.MoveLast()
+
+Dim bMoveLast As Boolean		&apos;	Return value
+Const cstThisSub = &quot;SFDocuments.Form.MoveLast&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bMoveLast = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+Try:
+	With _Form
+		bMoveLast = .last()
+	End With
+
+Finally:
+	MoveLast = bMoveLast
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.MoveLast
+
+REM -----------------------------------------------------------------------------
+Public Function MoveNew() As Boolean
+&apos;&apos;&apos;	The cursor is (re)positioned in the new record area
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if cursor move is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.MoveNew()
+
+Dim bMoveNew As Boolean		&apos;	Return value
+Const cstThisSub = &quot;SFDocuments.Form.MoveNew&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bMoveNew = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+Try:
+	With _Form
+		.last()				&apos;	To simulate the behaviour in the UI
+		.moveToInsertRow()
+	End With
+	bMoveNew = True
+
+Finally:
+	MoveNew = bMoveNew
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.MoveNew
+
+REM -----------------------------------------------------------------------------
+Public Function MoveNext(Optional ByVal Offset As Variant) As Boolean
+&apos;&apos;&apos;	The cursor is (re)positioned on the next row
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Offset: The number of records to go forward (default = 1)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if cursor move is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.MoveNext()
+
+Dim bMoveNext As Boolean		&apos;	Return value
+Dim lOffset As Long				&apos;	Alias of Offset
+Const cstThisSub = &quot;SFDocuments.Form.MoveNext&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bMoveNext = False
+
+Check:
+	If IsMissing(Offset) Or IsEmpty(Offset) Then Offset = 1
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Offset, &quot;Offset&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+Try:
+	lOffset = CLng(Offset)		&apos;	To be sure to have the right argument type
+	With _Form
+		If lOffset = 1 Then bMoveNext = .next() Else bMoveNext = .relative(lOffset)
+	End With
+
+Finally:
+	MoveNext = bMoveNext
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.MoveNext
+
+REM -----------------------------------------------------------------------------
+Public Function MovePrevious(Optional ByVal Offset As Variant) As Boolean
+&apos;&apos;&apos;	The cursor is (re)positioned on the previous row
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Offset: The number of records to go backward (default = 1)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if cursor move is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.MovePrevious()
+
+Dim bMovePrevious As Boolean		&apos;	Return value
+Dim lOffset As Long				&apos;	Alias of Offset
+Const cstThisSub = &quot;SFDocuments.Form.MovePrevious&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bMovePrevious = False
+
+Check:
+	If IsMissing(Offset) Or IsEmpty(Offset) Then Offset = 1
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Offset, &quot;Offset&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+Try:
+	lOffset = CLng(Offset)		&apos;	To be sure to have the right argument type
+	With _Form
+		If lOffset = 1 Then bMovePrevious = .previous() Else bMovePrevious = .relative(-lOffset)
+	End With
+
+Finally:
+	MovePrevious = bMovePrevious
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.MovePrevious
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Form class as an array
+
+	Properties = Array( _
+					&quot;AllowDeletes&quot; _
+					, &quot;AllowInserts&quot; _
+					, &quot;AllowUpdates&quot; _
+					, &quot;BaseForm&quot; _
+					, &quot;Bookmark&quot; _
+					, &quot;CurrentRecord&quot; _
+					, &quot;Filter&quot; _
+					, &quot;LinkChildFields&quot; _
+					, &quot;LinkParentFields&quot; _
+					, &quot;Name&quot; _
+					, &quot;OnApproveCursorMove&quot; _
+					, &quot;OnApproveParameter&quot; _
+					, &quot;OnApproveReset&quot; _
+					, &quot;OnApproveRowChange&quot; _
+					, &quot;OnApproveSubmit&quot; _
+					, &quot;OnConfirmDelete&quot; _
+					, &quot;OnCursorMoved&quot; _
+					, &quot;OnErrorOccurred&quot; _
+					, &quot;OnLoaded&quot; _
+					, &quot;OnReloaded&quot; _
+					, &quot;OnReloading&quot; _
+					, &quot;OnResetted&quot; _
+					, &quot;OnRowChanged&quot; _
+					, &quot;OnUnloaded&quot; _
+					, &quot;OnUnloading&quot; _
+					, &quot;OrderBy&quot; _
+					, &quot;Parent&quot; _
+					, &quot;RecordSource&quot; _
+					, &quot;XForm&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Form.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function Requery() As Boolean
+&apos;&apos;&apos;	Reload from the database the actual data into the form
+&apos;&apos;&apos;	The cursor is (re)positioned on the first row
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if requery is successful
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			myForm.Requery()
+
+Dim bRequery As Boolean		&apos;	Return value
+Const cstThisSub = &quot;SFDocuments.Form.Requery&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bRequery = False
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+	End If
+Try:
+	With _Form
+		If .isLoaded() Then .reload() Else .load()
+	End With
+	bRequery = True
+
+Finally:
+	Requery = bRequery
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.Requery
+
+REM -----------------------------------------------------------------------------
+Public Function SetProperty(Optional ByVal PropertyName As Variant _
+								, Optional ByRef Value As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set a new value to the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Value: its new value
+&apos;&apos;&apos;	Exceptions
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;SFDocuments.Form.SetProperty&quot;
+Const cstSubArgs = &quot;PropertyName, Value&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	SetProperty = False
+
+Check:
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	SetProperty = _PropertySet(PropertyName, Value)
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.SetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Subforms(Optional ByVal Subform As Variant) As Variant
+&apos;&apos;&apos;	Return either
+&apos;&apos;&apos;		- the list of the subforms contained in the actual form or subform instance
+&apos;&apos;&apos;		- a SFDocuments.Form object based on its name or its index in the alphabetic list of subforms
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Subform: a subform stored in the parent form given by its name or its index
+&apos;&apos;&apos;			When absent, the list of available subforms is returned
+&apos;&apos;&apos;			To get the first (unique ?) subform stored in the parent form, set Subform = 0
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		SUBFORMNOTFOUNDERROR		Subform not found
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-based array of strings if Subform is absent
+&apos;&apos;&apos;		An instance of the SF_Form class if Subform exists
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;			Dim myForm As Object, myList As Variant, mySubform As Object
+&apos;&apos;&apos;				myList = myForm.Subforms()
+&apos;&apos;&apos;				Set mySubform = myForm.Subforms(&quot;mySubform&quot;)
+
+Dim oSubform As Object				&apos;	The new Form class instance
+Dim oXSubform As Object				&apos;	com.sun.star.form.XForm
+Dim vSubformNames As Variant		&apos;	Array of subform names
+Dim i As Long
+Const cstDrawPage = 0				&apos;	Only 1 drawpage in a Writer document
+
+Const cstThisSub = &quot;SFDocuments.Form.Subforms&quot;
+Const cstSubArgs = &quot;[Subform=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	If IsMissing(Subform) Or IsEmpty(Subform) Then Subform = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Subform, &quot;Subform&quot;, Array(V_STRING, ScriptForge.V_NUMERIC)) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Collect all control names and retain only the subforms
+	vSubformNames = _Form.getElementNames()
+	For i = 0 To UBound(vSubformNames)
+		Set oSubform = _Form.getByName(vSubformNames(i))
+		&apos;	Subforms are the only control types having no ClassId property
+		If ScriptForge.SF_Session.HasUnoProperty(oSubform, &quot;ClassId&quot;) Then vSubformNames(i) = &quot;&quot;
+	Next i
+	vSubformNames = ScriptForge.SF_Array.TrimArray(vSubformNames)
+
+	If Len(Subform) = 0 Then	&apos;	Return the list of valid subform names
+		Subforms = vSubformNames
+	Else
+		If VarType(Subform) = V_STRING Then	&apos;	Find the form by name
+			If Not ScriptForge.SF_Array.Contains(vSubformNames, Subform, CaseSensitive := True) Then GoTo CatchNotFound
+			Set oXSubform = _Form.getByName(Subform)
+		Else								&apos;	Find the form by index
+			If Subform &lt; 0 Or Subform &gt; UBound(vSubformNames) Then GoTo CatchNotFound
+			Set oXSubform = _Form.getByName(vSubformNames(Subform))
+		End If
+		&apos;	Create the new Form class instance
+		Set oSubform = SF_Register._NewForm(oXSubform)
+		With oSubform
+			Set .[_Parent] = [Me]
+			._FormType = ISSUBFORM
+			Set ._Component = _Component
+			Set ._FormDocument = _FormDocument
+			._SheetName = _SheetName
+			._FormDocumentName = _FormDocumentName
+			Set ._Database = _Database
+			._Initialize()
+		End With
+		Set Subforms = oSubform
+	End If
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchNotFound:
+	ScriptForge.SF_Exception.RaiseFatal(SUBFORMNOTFOUNDERROR, Subform, _Name)
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form.Subforms
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Function _GetEventName(ByVal psProperty As String) As String
+&apos;&apos;&apos;	Return the LO internal event name derived from the SF property name
+&apos;&apos;&apos;	The SF property name is not case sensitive, while the LO name is case-sensitive
+&apos;	Corrects the typo on ErrorOccur(r?)ed, if necessary
+
+Dim vProperties As Variant			&apos;	Array of class properties
+Dim sProperty As String				&apos;	Correctly cased property name
+
+	vProperties = Properties()
+	sProperty = vProperties(ScriptForge.SF_Array.IndexOf(vProperties, psProperty, SortOrder := &quot;ASC&quot;))
+
+	_GetEventName = LCase(Mid(sProperty, 3, 1)) &amp; Right(sProperty, Len(sProperty) - 3)
+	
+End Function	&apos;	SFDocuments.SF_Form._GetEventName
+
+REM -----------------------------------------------------------------------------
+Private Function _GetListener(ByVal psEventName As String) As String
+&apos;&apos;&apos;	Getting/Setting macros triggered by events requires a Listener-EventName pair
+&apos;&apos;&apos;	Return the X...Listener corresponding with the event name in argument
+
+	Select Case UCase(psEventName)
+		Case UCase(&quot;OnApproveCursorMove&quot;)
+			_GetListener = &quot;XRowSetApproveListener&quot;
+		Case UCase(&quot;OnApproveParameter&quot;)
+			_GetListener = &quot;XDatabaseParameterListener&quot;
+		Case UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnResetted&quot;)
+			_GetListener = &quot;XResetListener&quot;
+		Case UCase(&quot;OnApproveRowChange&quot;)
+			_GetListener = &quot;XRowSetApproveListener&quot;
+		Case UCase(&quot;OnApproveSubmit&quot;)
+			_GetListener = &quot;XSubmitListener&quot;
+		Case UCase(&quot;OnConfirmDelete&quot;)
+			_GetListener = &quot;XConfirmDeleteListener&quot;
+		Case UCase(&quot;OnCursorMoved&quot;), UCase(&quot;OnRowChanged&quot;)
+			_GetListener = &quot;XRowSetListener&quot;
+		Case UCase(&quot;OnErrorOccurred&quot;)
+			_GetListener = &quot;XSQLErrorListener&quot;
+		Case UCase(&quot;OnLoaded&quot;), UCase(&quot;OnReloaded&quot;), UCase(&quot;OnReloading&quot;), UCase(&quot;OnUnloaded&quot;), UCase(&quot;OnUnloading&quot;)
+			_GetListener = &quot;XLoadListener&quot;
+	End Select
+	
+End Function	&apos;	SFDocuments.SF_Form._GetListener
+
+REM -----------------------------------------------------------------------------
+Private Sub _GetParents()
+&apos;&apos;&apos;	When the current instance is created top-down, the parents are completely defined
+&apos;&apos;&apos;	and nothing should be done in this method
+&apos;&apos;&apos;	When the a class instance is created in a (form/control) event, it is the opposite
+&apos;&apos;&apos;	The current method rebuilds the missing members in the instance from the bottom
+&apos;&apos;&apos;	Members potentially to collect are:
+&apos;&apos;&apos;		- _FormType
+&apos;&apos;&apos;		- [_Parent], the immediate parent: a form or a document instance
+&apos;&apos;&apos;		+ Only when the _FormType is a main form
+&apos;&apos;&apos;			- _SheetName (Calc only)
+&apos;&apos;&apos;			- _FormDocumentName (Base only)
+&apos;&apos;&apos;			- _FormDocument, the topmost form collection
+&apos;&apos;&apos;			- _Component, the containing document
+&apos;&apos;&apos;	They must be identified only starting from the _Form UNO object
+&apos;&apos;&apos;
+&apos;&apos;&apos;	The method is called from the _Initialize() method at instance creation
+
+Dim oParent As Object				&apos;	Successive bottom-up parents
+Dim sType As String					&apos;	UNO object type
+Dim sPersistentName As String		&apos;	The Obj... name of a Base form
+Dim iLevel As Integer				&apos;	When = 1 =&gt; first parent
+Dim oSession As Object				:	Set oSession = ScriptForge.SF_Session
+
+	On Local Error GoTo Finally		&apos;	Being probably called from events, this method should avoid failures
+	&apos;	When the form type is known, the upper part of the branch is not scanned
+	If _FormType &lt;&gt; ISUNDEFINED Then GoTo Finally
+
+Try:
+	&apos;	The whole branch is scanned bottom-up
+	If oSession.HasUnoProperty(_Form, &quot;Parent&quot;) Then Set oParent = _Form.Parent Else Set oParent = Nothing
+	_FormType = ISUNDEFINED
+	iLevel = 1
+
+	Do While Not IsNull(oParent)
+		sType = SF_Session.UnoObjectType(oParent)
+		Select Case sType
+			&apos;	Collect at each level the needed info
+			Case &quot;com.sun.star.comp.forms.ODatabaseForm&quot;	&apos;	The parent _Form of a subform
+				If iLevel = 1 Then
+					_FormType = ISSUBFORM
+					Set [_Parent] = SF_Register._NewForm(oParent)
+					&apos;	Everything is in the parent, copy items and stop scan
+					[_Parent]._Initialize()		&apos;	Current method is called recursively here
+					With [_Parent]
+						_SheetName = ._SheetName
+						_FormDocumentName = ._FormDocumentName
+						Set _FormDocument = ._FormDocument
+						Set _Component = ._Component
+					End With
+					Exit Sub
+				End If
+			Case &quot;com.sun.star.form.OFormsCollection&quot;		&apos;	The collection of forms inside a drawpage
+			Case &quot;SwXTextDocument&quot;							&apos;	The parent document: a Writer document or a Base form document
+				If oParent.Identifier = &quot;com.sun.star.sdb.FormDesign&quot; Then
+					sPersistentName = ScriptForge._GetPropertyValue(oParent.Args, &quot;HierarchicalDocumentName&quot;)
+				ElseIf oParent.Identifier = &quot;com.sun.star.text.TextDocument&quot; Then
+					_FormType = ISDOCFORM
+					Set [_Parent] = ScriptForge.SF_Services.CreateScriptService(&quot;SFDocuments.Document&quot;, oParent)
+					Set _Component = [_Parent]._Component
+				End If
+			Case &quot;ScModelObj&quot;								&apos;	The parent document: a Calc document
+				_FormType = ISCALCFORM
+				Set [_Parent] = ScriptForge.SF_Services.CreateScriptService(&quot;SFDocuments.Document&quot;, oParent)
+				Set _Component = oParent
+				&apos;	The triggered form event is presumed to be located in the (drawpage of the) active sheet
+				_SheetName = [_Parent].XSpreadsheet(&quot;~&quot;)
+			Case &quot;com.sun.star.comp.dba.ODatabaseDocument&quot;	&apos;	The Base document
+				_FormType = ISBASEFORM
+				Set [_Parent] = ScriptForge.SF_Services.CreateScriptService(&quot;SFDocuments.Document&quot;, oParent)
+				Set _Component = oParent
+				If IsNull([_Parent]._FormDocuments) Then Set [_Parent]._FormDocuments = _Component.getFormDocuments()
+				Set _FormDocument = [_Parent]._FindByPersistentName([_Parent]._FormDocuments, sPersistentName)
+				_FormDocumentName = _FormDocument.HierarchicalName
+			Case Else
+		End Select
+		If oSession.HasUnoProperty(oParent, &quot;Parent&quot;) Then Set oParent = oParent.Parent Else Set oParent = Nothing
+		iLevel = iLevel + 1
+	Loop
+
+Finally:
+	Exit Sub
+End Sub	&apos;	SFDocuments.SF_Form._GetParents
+
+REM -----------------------------------------------------------------------------
+Public Sub _Initialize()
+&apos;&apos;&apos;	Achieve the creation of a SF_Form instance
+&apos;&apos;&apos;		- complete the missing private members
+&apos;&apos;&apos;		- store the new instance in the cache
+
+	_GetParents()
+	_CacheIndex = SF_Register._AddFormToCache(_Form, [Me])
+
+End Sub			&apos;	SFDocuments.SF_Form._Initialize
+
+REM -----------------------------------------------------------------------------
+Private Function _IsStillAlive(Optional ByVal pbError As Boolean) As Boolean
+&apos;&apos;&apos;	Return True if the Form is still open
+&apos;&apos;&apos;	If dead the actual instance is disposed
+&apos;&apos;&apos;	and the execution is cancelled when pbError = True (default)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbError: if True (default), raise a fatal error
+
+Dim bAlive As Boolean		&apos;	Return value
+Dim sName As String			&apos;	Alias of _Name
+Dim sId As String			&apos;	Alias of FileIdent
+
+Check:
+	On Local Error GoTo Catch		&apos;	Anticipate DisposedException errors or alike
+	If IsMissing(pbError) Then pbError = True
+
+Try:
+	&apos;	At main form termination, all database connections are lost
+	bAlive = Not IsNull(_Form)
+	If Not bAlive Then GoTo Catch
+
+Finally:
+	_IsStillAlive = bAlive
+	Exit Function
+Catch:
+	bAlive = False
+	On Error GoTo 0
+	&apos;	Keep error message elements before disposing the instance
+	sName = _SheetName &amp; _FormDocumentName		&apos;	At least one of them is a zero-length string
+	sName = Iif(Len(sName) &gt; 0, &quot;[&quot; &amp; sName &amp; &quot;].&quot;, &quot;&quot;) &amp; _Name
+	If Not IsNull(_Component) Then sId = _Component.Location Else sId = &quot;&quot;
+	&apos;	Dispose the actual forms instance
+	Dispose()
+	&apos;	Display error message
+	If pbError Then ScriptForge.SF_Exception.RaiseFatal(FORMDEADERROR, sName, sId)
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form._IsStillAlive
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Static oSession As Object		&apos;	Alias of SF_Session
+Dim vBookmark As Variant		&apos;	Form bookmark
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;SFDocuments.Form.get&quot; &amp; psProperty
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	_PropertyGet = Empty
+	If Not _IsStillAlive() Then GoTo Finally
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	Select Case UCase(psProperty)
+		Case UCase(&quot;AllowDeletes&quot;)
+			If Not IsNull(_Form) Then _PropertyGet = _Form.AllowDeletes
+		Case UCase(&quot;AllowInserts&quot;)
+			If Not IsNull(_Form) Then _PropertyGet = _Form.AllowInserts
+		Case UCase(&quot;AllowUpdates&quot;)
+			If Not IsNull(_Form) Then _PropertyGet = _Form.AllowUpdates
+		Case UCase(&quot;BaseForm&quot;)
+			_PropertyGet = _FormDocumentName
+		Case UCase(&quot;Bookmark&quot;)
+			If IsNull(_Form) Then
+				_PropertyGet = 0
+			Else
+				On Local Error Resume Next			&apos;	Disable error handler because bookmarking does not always react well in events ...
+				If _Form.IsBookmarkable Then vBookmark = _Form.getBookmark() Else vBookmark = Nothing
+				If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error Goto Catch Else On Local Error Goto 0
+				If IsNull(vBookmark) Then Goto Catch
+				_PropertyGet = vBookmark
+			End If
+		Case UCase(&quot;CurrentRecord&quot;)
+			If IsNull(_Form) Then _PropertyGet = 0 Else _PropertyGet = _Form.Row
+		Case UCase(&quot;Filter&quot;)
+			If IsNull(_Form) Then _PropertyGet = &quot;&quot; Else _PropertyGet = _Form.Filter
+		Case UCase(&quot;LinkChildFields&quot;)
+			If IsNull(_Form) Or _FormType &lt;&gt; ISSUBFORM Then _PropertyGet = Array() Else _PropertyGet = _Form.DetailFields
+		Case UCase(&quot;LinkParentFields&quot;)
+			If IsNull(_Form) Or _FormType &lt;&gt; ISSUBFORM Then _PropertyGet = Array() Else _PropertyGet = _Form.MasterFields
+		Case UCase(&quot;Name&quot;)
+			_PropertyGet = _Name
+		Case UCase(&quot;OnApproveCursorMove&quot;), UCase(&quot;OnApproveParameter&quot;), UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnApproveRowChange&quot;) _
+					, UCase(&quot;OnApproveSubmit&quot;), UCase(&quot;OnConfirmDelete&quot;), UCase(&quot;OnCursorMoved&quot;), UCase(&quot;OnErrorOccurred&quot;) _
+					, UCase(&quot;OnLoaded&quot;), UCase(&quot;OnReloaded&quot;), UCase(&quot;OnReloading&quot;), UCase(&quot;OnResetted&quot;), UCase(&quot;OnRowChanged&quot;) _
+					, UCase(&quot;OnUnloaded&quot;), UCase(&quot;OnUnloading&quot;)
+			If IsNull(_Form) Then _PropertyGet = &quot;&quot; Else _PropertyGet = SF_Register._GetEventScriptCode(_Form, psProperty, _Name)
+		Case UCase(&quot;OrderBy&quot;)
+			If IsNull(_Form) Then _PropertyGet = &quot;&quot; Else _PropertyGet = _Form.Order
+		Case UCase(&quot;Parent&quot;)
+			_PropertyGet = [_Parent]
+		Case UCase(&quot;RecordSource&quot;)
+			If IsNull(_Form) Then _PropertyGet = &quot;&quot; Else _PropertyGet = _Form.Command
+		Case UCase(&quot;XForm&quot;)
+			Set _PropertyGet = _Form
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertySet(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if successful
+
+Dim bSet As Boolean							&apos;	Return value
+Dim oDatabase As Object						&apos;	Database class instance
+Dim lCommandType As Long					&apos;	Record source type: 0 = Table, 1 = Query, 2 = SELECT
+Dim sCommand As String						&apos;	Record source
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFDocuments.Form.set&quot; &amp; psProperty
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	bSet = True
+	Select Case UCase(psProperty)
+		Case UCase(&quot;AllowDeletes&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;AllowDeletes&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If Not IsNull(_Form) Then
+				_Form.AllowDeletes = pvValue
+				_Form.reload()
+			End If
+		Case UCase(&quot;AllowInserts&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;AllowInserts&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If Not IsNull(_Form) Then
+				_Form.AllowInserts = pvValue
+				_Form.reload()
+			End If
+		Case UCase(&quot;AllowUpdates&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;AllowUpdates&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+			If Not IsNull(_Form) Then
+				_Form.AllowUpdates = pvValue
+				_Form.reload()
+			End If
+		Case UCase(&quot;Bookmark&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Bookmark&quot;, Array(ScriptForge.V_NUMERIC, ScriptForge.V_OBJECT)) Then GoTo Finally
+			If Not IsNull(pvValue) And Not IsNull(_Form) Then bSet = _Form.moveToBookmark(pvValue)
+		Case UCase(&quot;CurrentRecord&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;CurrentRecord&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+			If Not IsNull(_Form) Then bSet = _Form.absolute(pvValue)
+		Case UCase(&quot;Filter&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;Filter&quot;, V_STRING) Then GoTo Finally
+			If Not IsNull(_Form) Then
+				With _Form
+					If Len(pvValue) &gt; 0 Then
+						Set oDatabase = GetDatabase()
+						If Not IsNull(oDatabase) Then .Filter = oDatabase._ReplaceSquareBrackets(pvValue) Else .Filter = pvValue
+					Else
+						.Filter = &quot;&quot;
+					End If
+					.ApplyFilter = True
+					.reload()
+				End With
+			End If
+		Case UCase(&quot;OnApproveCursorMove&quot;), UCase(&quot;OnApproveParameter&quot;), UCase(&quot;OnApproveReset&quot;), UCase(&quot;OnApproveRowChange&quot;) _
+					, UCase(&quot;OnApproveSubmit&quot;), UCase(&quot;OnConfirmDelete&quot;), UCase(&quot;OnCursorMoved&quot;), UCase(&quot;OnErrorOccurred&quot;) _
+					, UCase(&quot;OnLoaded&quot;), UCase(&quot;OnReloaded&quot;), UCase(&quot;OnReloading&quot;), UCase(&quot;OnResetted&quot;), UCase(&quot;OnRowChanged&quot;) _
+					, UCase(&quot;OnUnloaded&quot;), UCase(&quot;OnUnloading&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, psProperty, V_STRING) Then Goto Finally
+			If Not IsNull(_Form) Then
+				bSet = SF_Register._RegisterEventScript(_Form _
+							, psProperty _
+							, _GetListener(psProperty) _
+							, pvValue _
+							, _Name _
+							)
+			End If
+		Case UCase(&quot;OrderBy&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;OrderBy&quot;, V_STRING) Then GoTo Finally
+			If Not IsNull(_Form) Then
+				With _Form
+					If Len(pvValue) &gt; 0 Then
+						Set oDatabase = GetDatabase()
+						If Not IsNull(oDatabase) Then .Order = oDatabase._ReplaceSquareBrackets(pvValue) Else .Order = pvValue
+					Else
+						.Order = &quot;&quot;
+					End If
+					.reload()
+				End With
+			End If
+		Case UCase(&quot;RecordSource&quot;)
+			If Not ScriptForge.SF_Utils._Validate(pvValue, &quot;RecordSource&quot;, V_STRING) Then GoTo Finally
+			If Not IsNull(_Form) And Len(pvValue) &gt; 0 Then
+				Set oDatabase = GetDatabase()
+				If Not IsNull(oDatabase) Then
+					With oDatabase
+						If ScriptForge.SF_Array.Contains(.Tables, pvValue, CaseSensitive := True) Then
+							sCommand = pvValue
+							lCommandType = com.sun.star.sdb.CommandType.TABLE
+						ElseIf ScriptForge.SF_Array.Contains(.Queries, pvValue, CaseSensitive := True) Then
+							sCommand = pvValue
+							lCommandType = com.sun.star.sdb.CommandType.QUERY
+						ElseIf ScriptForge.SF_String.StartsWith(pvValue, &quot;SELECT&quot;, CaseSensitive := False) Then
+							sCommand = .ReplaceSquareBrackets(pvValue)
+							lCommandType = com.sun.star.sdb.CommandType.COMMAND
+						End If
+						_Form.Command = sCommand
+						_Form.CommandType = lCommandType
+					End With
+				End If
+			End If
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	_PropertySet = bSet
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Form._PropertySet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the Model instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[Form]: Name&quot;
+
+Dim sParent As String		&apos;	To recognize the parent
+
+	sParent = _SheetName &amp; _FormDocumentName		&apos;	At least one of them is a zero-length string
+	_Repr = &quot;[Form]: &quot; &amp; Iif(Len(sParent) &gt; 0, sParent &amp; &quot;...&quot;, &quot;&quot;) &amp; _Name
+
+End Function	&apos;	SFDocuments.SF_Form._Repr
+
+REM ============================================ END OF SFDOCUMENTS.SF_FORM
+</script:module>

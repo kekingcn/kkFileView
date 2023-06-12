@@ -1,0 +1,32 @@
+/*
+ * This file is part of the LibreOffice project.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.frame.XModel;
+import com.sun.star.lang.XMultiServiceFactory;
+
+import com.sun.star.text.XTextDocument;
+import com.sun.star.text.XText;
+import com.sun.star.text.XTextContent;
+import com.sun.star.text.XTextTable;
+
+oDoc = UnoRuntime.queryInterface(XModel.class,XSCRIPTCONTEXT.getInvocationContext());
+if ( oDoc == null )
+    oDoc = XSCRIPTCONTEXT.getDocument();
+
+XMultiServiceFactory xDocMSF = (XMultiServiceFactory) UnoRuntime.queryInterface(XMultiServiceFactory.class, oDoc);
+Object oTab = xDocMSF.createInstance("com.sun.star.text.TextTable");
+XTextTable xTextTable = (XTextTable)UnoRuntime.queryInterface(XTextTable.class, oTab);
+xTextTable.initialize(4,3); // four rows, three columns
+xTextContent = (XTextContent)UnoRuntime.queryInterface(XTextContent.class, xTextTable);
+
+xTextDoc = (XTextDocument) UnoRuntime.queryInterface(XTextDocument.class,oDoc);
+xText = (XText) UnoRuntime.queryInterface(XText.class, xTextDoc.getText());
+xText.insertTextContent(xText.getEnd(), xTextContent, false);
+
+return 0;

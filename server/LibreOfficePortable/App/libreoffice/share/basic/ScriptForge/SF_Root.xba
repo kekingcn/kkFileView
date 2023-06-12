@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Root" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+Option Private Module
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Root
+&apos;&apos;&apos;	=======
+&apos;&apos;&apos;		FOR INTERNAL USE ONLY
+&apos;&apos;&apos;		Singleton class holding all persistent variables shared
+&apos;&apos;&apos;			by all the modules of the ScriptForge library
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ============================================================= PRIVATE MEMBERS
+
+&apos;	Internals
+Private [Me]				As Object
+Private [_Parent]			As Object
+Private ObjectType			As String	&apos; Must be &quot;ROOT&quot;
+Private MainFunction		As String	&apos; Name of method or property called by user script
+Private MainFunctionArgs	As String	&apos; Syntax of method called by user script
+Private StackLevel			As Integer	&apos; Depth of calls between internal methods
+
+&apos;	Error management
+Private ErrorHandler		As Boolean	&apos; True = error handling active, False = internal debugging
+Private ConsoleLines()		As Variant	&apos; Array of messages displayable in console
+Private ConsoleDialog		As Object	&apos; SFDialogs.Dialog object
+Private ConsoleControl		As Object	&apos; SFDialogs.DialogControl object
+Private DisplayEnabled		As Boolean	&apos; When True, display of console or error messages is allowed
+Private StopWhenError		As Boolean	&apos; When True, process stops after error &gt; &quot;WARNING&quot;
+Private TriggeredByPython	As Boolean	&apos; When True, the actual user script is a Python script
+Private DebugMode			As Boolean	&apos; When True, log enter/exit each official Sub
+
+&apos;	Progress and status bars
+Private ProgressBarDialog	As Object	&apos; SFDialogs.Dialog object
+Private ProgressBarText		As Object	&apos; SFDialogs.DialogControl object
+Private ProgressBarBar		As Object	&apos; SFDialogs.DialogControl object
+Private Statusbar			As Object
+
+&apos;	Services management
+Private ServicesList		As Variant	&apos; Dictionary of provided services
+
+&apos;	Usual UNO services
+Private FunctionAccess		As Object	&apos; com.sun.star.sheet.FunctionAccess
+Private PathSettings		As Object	&apos; com.sun.star.util.PathSettings
+Private PathSubstitution	As Object	&apos; com.sun.star.util.PathSubstitution
+Private ScriptProvider		As Object	&apos; com.sun.star.script.provider.MasterScriptProviderFactory
+Private SystemShellExecute	As Object	&apos; com.sun.star.system.SystemShellExecute
+Private CoreReflection		As Object	&apos; com.sun.star.reflection.CoreReflection
+Private DispatchHelper		As Object	&apos; com.sun.star.frame.DispatchHelper
+Private TextSearch			As Object	&apos; com.sun.star.util.TextSearch
+Private SearchOptions		As Object	&apos; com.sun.star.util.SearchOptions
+Private SystemLocale		As Object	&apos; com.sun.star.lang.Locale
+Private OfficeLocale		As Object	&apos; com.sun.star.lang.Locale
+Private FormatLocale		As Object	&apos; com.sun.star.lang.Locale
+Private LocaleData			As Object	&apos; com.sun.star.i18n.LocaleData
+Private CalendarImpl		As Object	&apos; com.sun.star.i18n.CalendarImpl
+Private Number2Text			As Object	&apos; com.sun.star.linguistic2.NumberText
+Private PrinterServer		As Object	&apos; com.sun.star.awt.PrinterServer
+Private CharacterClass		As Object	&apos; com.sun.star.i18n.CharacterClassification
+Private FileAccess			As Object	&apos; com.sun.star.ucb.SimpleFileAccess
+Private FilterFactory		As Object	&apos; com.sun.star.document.FilterFactory
+Private FolderPicker		As Object	&apos; com.sun.star.ui.dialogs.FolderPicker
+Private FilePicker			As Object	&apos; com.sun.star.ui.dialogs.FilePicker
+Private URLTransformer		As Object	&apos; com.sun.star.util.URLTransformer
+Private Introspection		As Object	&apos; com.sun.star.beans.Introspection
+Private BrowseNodeFactory	As Object	&apos; com.sun.star.script.browse.BrowseNodeFactory
+Private DatabaseContext		As Object	&apos; com.sun.star.sdb.DatabaseContext
+Private ConfigurationProvider _
+							As Object	&apos; com.sun.star.configuration.ConfigurationProvider
+Private PackageProvider		As Object	&apos; com.sun.star.comp.deployment.PackageInformationProvider
+Private MailService			As Object	&apos; com.sun.star.system.SimpleCommandMail or com.sun.star.system.SimpleSystemMail
+Private GraphicExportFilter	As Object	&apos; com.sun.star.drawing.GraphicExportFilter
+Private Toolkit				As Object	&apos; com.sun.star.awt.Toolkit
+
+&apos;	Specific persistent services objects or properties
+Private FileSystemNaming	As String	&apos; If &quot;SYS&quot;, file and folder naming is based on operating system notation
+Private PythonHelper		As String	&apos; File name of Python helper functions (stored in $(inst)/share/Scripts/python)
+Private PythonHelper2		As String	&apos; Alternate Python helper file name for test purposes
+Private LocalizedInterface	As Object	&apos; ScriptForge own L10N service
+Private OSName				As String	&apos; WIN, LINUX, MACOS
+Private SFDialogs			As Variant	&apos; Persistent storage for the SFDialogs library
+Private SFForms				As Variant	&apos; Persistent storage for the SF_Form class in the SFDocuments library
+Private PythonStorage		As Variant	&apos; Persistent storage for the objects created and processed in Python
+Private PythonPermanent		As Long		&apos; Number of permanent entries in PythonStorage containing standard module objects
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	ObjectType = &quot;ROOT&quot;
+	MainFunction = &quot;&quot;
+	MainFunctionArgs = &quot;&quot;
+	StackLevel = 0
+	ErrorHandler = True
+	ConsoleLines = Array()
+	Set ConsoleDialog = Nothing
+	Set ConsoleControl = Nothing
+	DisplayEnabled = True
+	StopWhenError = True
+	TriggeredByPython = False
+	DebugMode = False
+	Set ProgressBarDialog = Nothing
+	Set ProgressBarText = Nothing
+	Set progressBarBar = Nothing
+	Set Statusbar = Nothing
+	ServicesList = Empty
+	Set FunctionAccess = Nothing
+	Set PathSettings = Nothing
+	Set PathSubstitution = Nothing
+	Set ScriptProvider = Nothing
+	Set SystemShellExecute = Nothing
+	Set CoreReflection = Nothing
+	Set DispatchHelper = Nothing
+	Set TextSearch = Nothing
+	Set SearchOptions = Nothing
+	Set SystemLocale = Nothing
+	Set OfficeLocale = Nothing
+	Set FormatLocale = Nothing
+	Set LocaleData = Nothing
+	Set CalendarImpl = Nothing
+	Set Number2Text = Nothing
+	Set PrinterServer = Nothing
+	Set CharacterClass = Nothing
+	Set FileAccess = Nothing
+	Set FilterFactory = Nothing
+	Set FolderPicker = Nothing
+	Set FilePicker = Nothing
+	Set URLTransformer = Nothing
+	Set Introspection = Nothing
+	FileSystemNaming = &quot;ANY&quot;
+	PythonHelper = &quot;ScriptForgeHelper.py&quot;
+	PythonHelper2 = &quot;&quot;
+	Set LocalizedInterface = Nothing
+	Set BrowseNodeFactory = Nothing
+	Set DatabaseContext = Nothing
+	Set ConfigurationProvider = Nothing
+	Set PackageProvider = Nothing
+	Set MailService = Nothing
+	Set GraphicExportFilter = Nothing
+	Set Toolkit = Nothing
+	OSName = &quot;&quot;
+	SFDialogs = Empty
+	SFForms = Empty
+	PythonStorage = Empty
+	PythonPermanent = -1
+End Sub		&apos;	ScriptForge.SF_Root Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	ScriptForge.SF_Root Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	ScriptForge.SF_Root Explicit destructor
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Public Sub _AddToConsole(ByVal psLine As String)
+&apos;&apos;&apos;	Add a new line to the console
+&apos;&apos;&apos;	TAB characters are expanded before the insertion of the line
+&apos;&apos;&apos;	NB: Array redimensioning of a member of an object must be done in the class module
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psLine: the line to add
+
+Dim lConsole As Long		&apos;	UBound of ConsoleLines
+Dim sLine As String			&apos;	Alias of psLine
+
+	&apos;	Resize ConsoleLines
+	lConsole = UBound(ConsoleLines)
+	If lConsole &lt; 0 Then
+		ReDim ConsoleLines(0)
+	Else
+		ReDim Preserve ConsoleLines(0 To lConsole + 1)
+	End If
+
+	&apos;	Add a timestamp to the line and insert it (without date)
+	sLine = Mid(SF_Utils._Repr(Now()), 12) &amp; &quot; -&gt; &quot; &amp; psLine
+	ConsoleLines(lConsole + 1) = sLine
+
+	&apos;	Add the new line to the actual (probably non-modal) console, if active
+	If Not IsNull(ConsoleDialog) Then
+		If ConsoleDialog._IsStillAlive(False) Then	&apos;	False to not raise an error
+			If IsNull(ConsoleControl) Then Set ConsoleControl = ConsoleDialog.Controls(SF_Exception.CONSOLENAME)	&apos;	Should not happen ...
+			ConsoleControl.WriteLine(sLine)
+		End If
+	End If
+
+End Sub		&apos;	ScriptForge.SF_Root._AddToConsole
+
+REM -----------------------------------------------------------------------------
+Public Function _AddToPythonStorage(ByRef poObject As Object) As Long
+&apos;&apos;&apos;	Insert a newly created object in the Python persistent storage
+&apos;&apos;&apos;	and return the index of the used entry
+&apos;&apos;&apos;	The persistent storage is a simple array of objects
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		poObject: the object to insert
+
+Dim lIndex As Long			&apos;	Return value
+Dim lSize As Long			&apos;	UBound of the persistent storage
+Dim i As Long
+
+Check:
+	lIndex = -1
+	If IsNull(poObject) Then Exit Function
+	On Local Error GoTo Finally
+	lSize = UBound(PythonStorage)
+
+Try:
+	&apos;	Can an empty entry be reused ?
+	For i = PythonPermanent + 1 To lSize
+		If IsNull(PythonStorage(i)) Then
+			lIndex = i
+			Exit For
+		End If
+	Next i
+
+	&apos;	Resize Python storage if no empty space
+	If lIndex &lt; 0 Then
+		lSize = lSize + 1
+		ReDim Preserve PythonStorage(0 To lSize)
+		lIndex = lSize
+	End If
+
+	&apos;	Insert new object
+	Set PythonStorage(lIndex) = poObject
+
+Finally:
+	_AddToPythonStorage = lIndex
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Root._AddToPythonStorage
+
+REM ------------------------------------------------------------------------------
+Public Function _GetLocalizedInterface() As Object
+&apos;&apos;&apos;	Returns the LN object instance related to the ScriptForge internal localization
+&apos;&apos;&apos;	If not yet done, load it from the shipped po files
+&apos;&apos;&apos;	Makes that the localized user interface is loaded only when needed
+
+Try:
+	If IsNull(LocalizedInterface) Then _LoadLocalizedInterface()
+
+Finally:
+	Set _GetLocalizedInterface = LocalizedInterface
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Root._GetLocalizedInterface
+
+REM -----------------------------------------------------------------------------
+Public Sub _InitPythonStorage()
+&apos;&apos;&apos;	Make PythonStorage an array
+&apos;&apos;&apos;	In prevision to an abundant use of those objects in Python, hardcode to optimize the performance and memory :
+&apos;&apos;&apos;	Initialize the first entries with the standard module objects located in the ScriptForge library
+
+Try:
+	If Not IsArray(PythonStorage) Then
+		PythonPermanent = 8
+		PythonStorage = Array()
+		ReDim PythonStorage(0 To PythonPermanent)
+		&apos;	Initialize each entry
+		PythonStorage(0) = ScriptForge.SF_Array
+		PythonStorage(1) = ScriptForge.SF_Exception
+		PythonStorage(2) = ScriptForge.SF_FileSystem
+		PythonStorage(3) = ScriptForge.SF_Platform
+		PythonStorage(4) = ScriptForge.SF_Region
+		PythonStorage(5) = ScriptForge.SF_Services
+		PythonStorage(6) = ScriptForge.SF_Session
+		PythonStorage(7) = ScriptForge.SF_String
+		PythonStorage(8) = ScriptForge.SF_UI
+	End If
+
+Finally:
+	Exit Sub
+End Sub		&apos;	ScriptForge.SF_Root._InitPythonStorage
+
+REM -----------------------------------------------------------------------------
+Public Sub _LoadLocalizedInterface(Optional ByVal psMode As String)
+&apos;&apos;&apos;	Build the user interface in a persistent L10N object
+&apos;&apos;&apos;	Executed - only once - at first request of a label inside the LocalizedInterface dictionary
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psMode:	ADDTEXT =&gt;	the (english) labels are loaded from code below
+&apos;&apos;&apos;				POFILE  =&gt;	the localized labels are loaded from a PO file
+&apos;&apos;&apos;							the name of the file is &quot;la.po&quot; where la = language part of locale
+&apos;&apos;&apos;							(fallback to ADDTEXT mode if file does not exist)
+
+Dim sInstallFolder As String		&apos;	ScriptForge installation directory
+Dim sPOFolder As String				&apos;	Folder containing the PO files
+Dim sPOFile As String				&apos;	PO File to load
+Dim sLocale As String				&apos;	Locale
+
+	If ErrorHandler Then On Local Error GoTo Catch
+
+Try:
+	&apos;TODO: Modify default value
+	If IsMissing(psMode) Then psMode = &quot;POFILE&quot;
+
+	If psMode = &quot;POFILE&quot; Then		&apos;	Use this mode in production
+		&apos;	Build the po file name
+		With SF_FileSystem
+			sInstallFolder = ._SFInstallFolder()	&apos;	ScriptForge installation folder
+			sLocale = SF_Utils._GetUNOService(&quot;OfficeLocale&quot;).Language
+			sPOFolder = .BuildPath(sInstallFolder, &quot;po&quot;)
+			sPOFile = .BuildPath(sPOFolder, sLocale &amp; &quot;.po&quot;)
+			If sLocale = &quot;en&quot; Then					&apos;	LocalizedInterface loaded by code i.o. read from po file
+				psMode = &quot;ADDTEXT&quot;
+			ElseIf Not .FileExists(sPOFile) Then	&apos;	File not found =&gt; load texts from code below
+				psMode = &quot;ADDTEXT&quot;
+			Else
+				Set LocalizedInterface = CreateScriptService(&quot;L10N&quot;, sPOFolder, sLocale)
+			End If
+		End With
+	End If
+
+	If psMode = &quot;ADDTEXT&quot; Then		&apos;	Use this mode in development to prepare a new POT file
+		Set LocalizedInterface = CreateScriptService(&quot;L10N&quot;)
+		With LocalizedInterface
+	&apos;	SF_Exception.Raise
+			.AddText(	Context := &quot;ERRORNUMBER&quot; _
+						, MsgId := &quot;Error %1&quot; _
+						, Comment :=	&quot;Title in error message box\n&quot; _
+									&amp;	&quot;%1: an error number&quot; _
+					)
+			.AddText(	Context := &quot;ERRORLOCATION&quot; _
+						, MsgId := &quot;Location : %1&quot; _
+						, Comment :=	&quot;Error message box\n&quot; _
+									&amp;	&quot;%1: a line number&quot; _
+					)
+			.AddText(	Context := &quot;LONGERRORDESC&quot; _
+						, MsgId := &quot;Error %1 - Location = %2 - Description = %3&quot; _
+						, Comment :=	&quot;Logfile record&quot; _
+					)
+			.AddText(	Context := &quot;STOPEXECUTION&quot; _
+						, MsgId := &quot;THE EXECUTION IS CANCELLED.&quot; _
+						, Comment :=	&quot;Any blocking error message&quot; _
+					)
+			.AddText(	Context := &quot;NEEDMOREHELP&quot; _
+						, MsgId := &quot;Do you want to receive more information about the &apos;%1&apos; method ?&quot; _
+						, Comment :=	&quot;Any blocking error message\n&quot; _
+									&amp;	&quot;%1: a method name&quot; _
+					)
+	&apos;	SF_Exception.RaiseAbort
+			.AddText(	Context := &quot;INTERNALERROR&quot; _
+						, MsgId := &quot;The ScriptForge library has crashed. The reason is unknown.\n&quot; _
+									&amp; &quot;Maybe a bug that could be reported on\n&quot; _
+									&amp; &quot;\thttps://bugs.documentfoundation.org/\n\n&quot; _
+									&amp; &quot;More details : \n\n&quot; _
+						, Comment :=	&quot;SF_Exception.RaiseAbort error message&quot; _
+					)
+	&apos;	SF_Utils._Validate
+			.AddText(	Context := &quot;VALIDATESOURCE&quot; _
+						, MsgId := &quot;Library : \t%1\nService : \t%2\nMethod : \t%3&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: probably ScriptForge\n&quot; _
+									&amp;	&quot;%2: service or module name\n&quot; _
+									&amp;	&quot;%3: property or method name where the error occurred&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEARGS&quot; _
+						, MsgId := &quot;Arguments: %1&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: list of arguments of the method&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEERROR&quot; _
+						, MsgId := &quot;A serious error has been detected in your code on argument : « %1 ».&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATIONRULES&quot; _
+						, MsgId := &quot;\tValidation rules :&quot;, Comment := &quot;SF_Utils.Validate error message&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATETYPES&quot; _
+						, MsgId := &quot;\t\t« %1 » must have next type (or one of next types) : %2&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;%2: Comma separated list of allowed types&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEVALUES&quot; _
+						, MsgId := &quot;\t\t« %1 » must contain one of next values : %2&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;%2: Comma separated list of allowed values&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEREGEX&quot; _
+						, MsgId := &quot;\t\t« %1 » must match next regular expression : %2&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;%2: A regular expression&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATECLASS&quot; _
+						, MsgId := &quot;\t\t« %1 » must be a Basic object of class : %2&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;%2: The name of a Basic class&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEACTUAL&quot; _
+						, MsgId := &quot;The actual value of « %1 » is : &apos;%2&apos;&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;%2: The value of the argument as a string&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEMISSING&quot; _
+						, MsgId := &quot;The « %1 » argument is mandatory, yet it is missing.&quot; _
+						, Comment :=	&quot;SF_Utils._Validate error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name&quot; _
+					)
+	&apos;	SF_Utils._ValidateArray
+			.AddText(	Context := &quot;VALIDATEARRAY&quot; _
+						, MsgId := &quot;\t\t« %1 » must be an array.&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateArray error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEDIMS&quot; _
+						, MsgId := &quot;\t\t« %1 » must have exactly %2 dimension(s).&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateArray error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;%2: Number of dimensions of the array&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEALLTYPES&quot; _
+						, MsgId := &quot;\t\t« %1 » must have all elements of the same type : %2&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateArray error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;%2: Either one single type or &apos;String, Date, Numeric&apos;&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATENOTNULL&quot; _
+						, MsgId := &quot;\t\t« %1 » must not contain any NULL or EMPTY elements.&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateArray error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;NULL and EMPTY should not be translated&quot; _
+					)
+	&apos;	SF_Utils._ValidateFile
+			.AddText(	Context := &quot;VALIDATEFILE&quot; _
+						, MsgId := &quot;\t\t« %1 » must be of type String.&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateFile error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;&apos;String&apos; should not be translated&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEFILESYS&quot; _
+						, MsgId := &quot;\t\t« %1 » must be a valid file or folder name expressed in the operating system native notation.&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateFile error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEFILEURL&quot; _
+						, MsgId := &quot;\t\t« %1 » must be a valid file or folder name expressed in the portable URL notation.&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateFile error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;&apos;URL&apos; should not be translated&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEFILEANY&quot; _
+						, MsgId := &quot;\t\t« %1 » must be a valid file or folder name.&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateFile error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name&quot; _
+					)
+			.AddText(	Context := &quot;VALIDATEWILDCARD&quot; _
+						, MsgId := &quot;\t\t« %1 » may contain one or more wildcard characters (?, *) in its last path component only.&quot; _
+						, Comment :=	&quot;SF_Utils._ValidateFile error message\n&quot; _
+									&amp;	&quot;%1: Wrong argument name\n&quot; _
+									&amp;	&quot;&apos;(?, *)&apos; is to be left as is&quot; _
+					)
+	&apos;	SF_Array.RangeInit
+			.AddText(	Context := &quot;ARRAYSEQUENCE&quot; _
+						, MsgId := &quot;The respective values of &apos;From&apos;, &apos;UpTo&apos; and &apos;ByStep&apos; are incoherent.\n\n&quot; _
+									&amp; &quot;\t« From » = %1\n&quot; _
+									&amp; &quot;\t« UpTo » = %2\n&quot; _
+									&amp; &quot;\t« ByStep » = %3&quot; _
+						, Comment :=	&quot;SF_Array.RangeInit error message\n&quot; _
+									&amp;	&quot;%1, %2, %3: Numeric values\n&quot; _
+									&amp;	&quot;&apos;From&apos;, &apos;UpTo&apos;, &apos;ByStep&apos; should not be translated&quot; _
+					)
+	&apos;	SF_Array.AppendColumn, AppendRow, PrependColumn, PrependRow
+			.AddText(	Context := &quot;ARRAYINSERT&quot; _
+						, MsgId := &quot;The array and the vector to insert have incompatible sizes.\n\n&quot; _
+									&amp; &quot;\t« Array_2D » = %2\n&quot; _
+									&amp; &quot;\t« %1 » = %3&quot; _
+						, Comment :=	&quot;SF_Array.AppendColumn (...) error message\n&quot; _
+									&amp;	&quot;%1: &apos;Column&apos; or &apos;Row&apos; of a matrix\n&quot; _
+									&amp;	&quot;%2, %3: array contents\n&quot; _
+									&amp;	&quot;&apos;Array_2D&apos; should not be translated&quot; _
+					)
+	&apos;	SF_Array.ExtractColumn, ExtractRow
+			.AddText(	Context := &quot;ARRAYINDEX1&quot; _
+						, MsgId := &quot;The given index does not fit within the bounds of the array.\n\n&quot; _
+									&amp; &quot;\t« Array_2D » = %2\n&quot; _
+									&amp; &quot;\t« %1 » = %3&quot; _
+						, Comment :=	&quot;SF_Array.ExtractColumn (...) error message\n&quot; _
+									&amp;	&quot;%1: &apos;Column&apos; or &apos;Row&apos; of a matrix\n&quot; _
+									&amp;	&quot;%2, %3: array contents\n&quot; _
+									&amp;	&quot;&apos;Array_2D&apos; should not be translated&quot; _
+					)
+	&apos;	SF_Array.ExtractColumn, ExtractRow
+			.AddText(	Context := &quot;ARRAYINDEX2&quot; _
+						, MsgId := &quot;The given slice limits do not fit within the bounds of the array.\n\n&quot; _
+									&amp; &quot;\t« Array_1D » = %1\n&quot; _
+									&amp; &quot;\t« From »     = %2\n&quot; _
+									&amp; &quot;\t« UpTo »     = %3&quot; _
+						, Comment :=	&quot;SF_Array.ExtractColumn (...) error message\n&quot; _
+									&amp;	&quot;%1: &apos;Column&apos; or &apos;Row&apos; of a matrix\n&quot; _
+									&amp;	&quot;%2, %3: array contents\n&quot; _
+									&amp;	&quot;&apos;Array_1D&apos;, &apos;From&apos; and &apos;UpTo&apos; should not be translated&quot; _
+					)
+	&apos;	SF_Array.ImportFromCSVFile
+			.AddText(	Context := &quot;CSVPARSING&quot; _
+						, MsgId := &quot;The given file could not be parsed as a valid CSV file.\n\n&quot; _
+									&amp; &quot;\t« File name »   = %1\n&quot; _
+									&amp; &quot;\tLine number     = %2\n&quot; _
+									&amp; &quot;\tContent         = %3&quot; _
+						, Comment :=	&quot;SF_Array.ImportFromCSVFile error message\n&quot; _
+									&amp;	&quot;%1: a file name\n&quot; _
+									&amp;	&quot;%2: numeric\n&quot; _
+									&amp;	&quot;%3: a long string&quot; _
+					)
+	&apos;	SF_Dictionary.Add/ReplaceKey
+			.AddText(	Context := &quot;DUPLICATEKEY&quot; _
+						, MsgId := &quot;The insertion of a new key &quot; _
+									&amp; &quot;into a dictionary failed because the key already exists.\n&quot; _
+									&amp; &quot;Note that the comparison between keys is NOT case-sensitive.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_Dictionary Add/ReplaceKey error message\n&quot; _
+									&amp;	&quot;%1: An identifier&quot; _
+									&amp;	&quot;%2: a (potentially long) string&quot; _
+					)
+	&apos;	SF_Dictionary.Remove/ReplaceKey/ReplaceItem
+			.AddText(	Context := &quot;UNKNOWNKEY&quot; _
+						, MsgId := &quot;The requested key does not exist in the dictionary.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_Dictionary Remove/ReplaceKey/ReplaceItem error message\n&quot; _
+									&amp;	&quot;%1: An identifier&quot; _
+									&amp;	&quot;%2: a (potentially long) string&quot; _
+					)
+	&apos;	SF_Dictionary.Add/ReplaceKey
+			.AddText(	Context := &quot;INVALIDKEY&quot; _
+						, MsgId := &quot;The insertion or the update of an entry &quot; _
+									&amp; &quot;into a dictionary failed because the given key contains only spaces.&quot; _
+						, Comment :=	&quot;SF_Dictionary Add/ReplaceKey error message\n&quot; _
+					)
+	&apos;	SF_FileSystem.CopyFile/MoveFile/DeleteFile/CreateScriptService(&quot;L10N&quot;)
+			.AddText(	Context := &quot;UNKNOWNFILE&quot; _
+						, MsgId := &quot;The given file could not be found on your system.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem copy/move/delete error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name&quot; _
+					)
+	&apos;	SF_FileSystem.CopyFolder/MoveFolder/DeleteFolder/Files/SubFolders
+			.AddText(	Context := &quot;UNKNOWNFOLDER&quot; _
+						, MsgId := &quot;The given folder could not be found on your system.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem copy/move/delete error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A folder name&quot; _
+					)
+	&apos;	SF_FileSystem.CopyFile/MoveFolder/DeleteFile
+			.AddText(	Context := &quot;NOTAFILE&quot; _
+						, MsgId := &quot;« %1 » contains the name of an existing folder, not that of a file.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem copy/move/delete error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name&quot; _
+					)
+	&apos;	SF_FileSystem.CopyFolder/MoveFolder/DeleteFolder/Files/SubFolders
+			.AddText(	Context := &quot;NOTAFOLDER&quot; _
+						, MsgId := &quot;« %1 » contains the name of an existing file, not that of a folder.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem copy/move/delete error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A folder name&quot; _
+					)
+	&apos;	SF_FileSystem.Copy+Move/File+Folder/CreateTextFile/OpenTextFile
+			.AddText(	Context := &quot;OVERWRITE&quot; _
+						, MsgId := &quot;You tried to create a new file which already exists. Overwriting it has been rejected.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem copy/move/... error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name&quot; _
+					)
+	&apos;	SF_FileSystem.Copy+Move+Delete/File+Folder
+			.AddText(	Context := &quot;READONLY&quot; _
+						, MsgId := &quot;Copying or moving a file to a destination which has its read-only attribute set, or deleting such a file or folder is forbidden.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem copy/move/delete error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name&quot; _
+					)
+	&apos;	SF_FileSystem.Copy+Move+Delete/File+Folder
+			.AddText(	Context := &quot;NOFILEMATCH&quot; _
+						, MsgId := &quot;When « %1 » contains wildcards. at least one file or folder must match the given filter. Otherwise the operation is rejected.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem copy/move/delete error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file or folder name with wildcards&quot; _
+					)
+	&apos;	SF_FileSystem.CreateFolder
+			.AddText(	Context := &quot;FOLDERCREATION&quot; _
+						, MsgId := &quot;« %1 » contains the name of an existing file or an existing folder. The operation is rejected.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_FileSystem CreateFolder error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file or folder name&quot; _
+					)
+	&apos;	SF_Services.CreateScriptService
+			.AddText(	Context := &quot;UNKNOWNSERVICE&quot; _
+						, MsgId := &quot;No service named &apos;%4&apos; has been registered for the library &apos;%3&apos;.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_Services.CreateScriptService error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: A Basic library name\n&quot; _
+									&amp;	&quot;%4: A service (1 word) name&quot; _
+					)
+	&apos;	SF_Services.CreateScriptService
+			.AddText(	Context := &quot;SERVICESNOTLOADED&quot; _
+						, MsgId := &quot;The library &apos;%3&apos; and its services could not been loaded.\n&quot; _
+									&amp; &quot;The reason is unknown.\n&quot; _
+									&amp; &quot;However, checking the &apos;%3.SF_Services.RegisterScriptServices()&apos; function and its return value can be a good starting point.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_Services.CreateScriptService error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: A Basic library name&quot; _
+					)
+	&apos;	SF_Session.ExecuteCalcFunction
+			.AddText(	Context := &quot;CALCFUNC&quot; _
+						, MsgId := &quot;The Calc &apos;%1&apos; function encountered an error. Either the given function does not exist or its arguments are invalid.&quot; _
+						, Comment :=	&quot;SF_Session.ExecuteCalcFunction error message\n&quot; _
+									&amp;	&quot;&apos;Calc&apos; should not be translated&quot; _
+					)
+	&apos;	SF_Session._GetScript
+			.AddText(	Context := &quot;NOSCRIPT&quot; _
+						, MsgId := &quot;The requested %1 script could not be located in the given libraries and modules.\n&quot; _
+									&amp; &quot;« %2 » = %3\n&quot; _
+									&amp; &quot;« %4 » = %5&quot; _
+						, Comment :=	&quot;SF_Session._GetScript error message\n&quot; _
+									&amp;	&quot;%1: &apos;Basic&apos; or &apos;Python&apos;\n&quot; _
+									&amp;	&quot;%2: An identifier\n&quot; _
+									&amp;	&quot;%3: A string\n&quot; _
+									&amp;	&quot;%4: An identifier\n&quot; _
+									&amp;	&quot;%5: A string&quot; _
+					)
+	&apos;	SF_Session.ExecuteBasicScript
+			.AddText(	Context := &quot;SCRIPTEXEC&quot; _
+						, MsgId := &quot;An exception occurred during the execution of the Basic script.\n&quot; _
+									&amp; &quot;Cause: %3\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_Session.ExecuteBasicScript error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: A (long) string&quot; _
+					)
+	&apos;	SF_Session.SendMail
+			.AddText(	Context := &quot;WRONGEMAIL&quot; _
+						, MsgId := &quot;One of the email addresses has been found invalid.\n&quot; _
+									&amp; &quot;Invalid mail = « %1 »&quot; _
+						, Comment :=	&quot;SF_Session.SendMail error message\n&quot; _
+									&amp;	&quot;%1 = a mail address&quot; _
+					)
+	&apos;	SF_Session.SendMail
+			.AddText(	Context := &quot;SENDMAIL&quot; _
+						, MsgId := &quot;The message could not be sent due to a system error.\n&quot; _
+									&amp; &quot;A possible cause is that LibreOffice could not find any mail client.&quot; _
+						, Comment :=	&quot;SF_Session.SendMail error message&quot; _
+					)
+	&apos;	SF_TextStream._IsFileOpen
+			.AddText(	Context := &quot;FILENOTOPEN&quot; _
+						, MsgId := &quot;The requested file operation could not be executed because the file was closed previously.\n\n&quot; _
+									&amp; &quot;File name = &apos;%1&apos;&quot; _
+						, Comment :=	&quot;SF_TextStream._IsFileOpen error message\n&quot; _
+									&amp;	&quot;%1: A file name&quot; _
+					)
+	&apos;	SF_TextStream._IsFileOpen
+			.AddText(	Context := &quot;FILEOPENMODE&quot; _
+						, MsgId := &quot;The requested file operation could not be executed because it is incompatible with the mode in which the file was opened.\n\n&quot; _
+									&amp; &quot;File name = &apos;%1&apos;\n&quot; _
+									&amp; &quot;Open mode = %2&quot; _
+						, Comment :=	&quot;SF_TextStream._IsFileOpen error message\n&quot; _
+									&amp;	&quot;%1: A file name\n&quot; _
+									&amp;	&quot;%2: READ, WRITE or APPEND&quot; _
+					)
+	&apos;	SF_TextStream.ReadLine, ReadAll, SkipLine
+			.AddText(	Context := &quot;ENDOFFILE&quot; _
+						, MsgId := &quot;The requested file read operation could not be completed because an unexpected end-of-file was encountered.\n\n&quot; _
+									&amp; &quot;File name = &apos;%1&apos;&quot; _
+						, Comment :=	&quot;SF_TextStream.ReadLine/ReadAll/SkipLine error message\n&quot; _
+									&amp;	&quot;%1: A file name&quot; _
+					)
+	&apos;	SF_UI.Document
+			.AddText(	Context := &quot;DOCUMENT&quot; _
+						, MsgId := &quot;The requested document could not be found.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;&quot; _
+						, Comment :=	&quot;SF_UI.GetDocument error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string&quot; _
+					)
+	&apos;	SF_UI.Create
+			.AddText(	Context := &quot;DOCUMENTCREATION&quot; _
+						, MsgId := &quot;The creation of a new document failed.\n&quot; _
+									&amp; &quot;Something must be wrong with some arguments.\n\n&quot; _
+									&amp; &quot;Either the document type is unknown, or no template file was given,\n&quot; _
+									&amp; &quot;or the given template file was not found on your system.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;\n&quot; _
+									&amp; &quot;%3 = &apos;%4&apos;&quot; _
+						, Comment :=	&quot;SF_UI.GetDocument error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A string&quot; _
+					)
+	&apos;	SF_UI.OpenDocument
+			.AddText(	Context := &quot;DOCUMENTOPEN&quot; _
+						, MsgId := &quot;The opening of the document failed.\n&quot; _
+									&amp; &quot;Something must be wrong with some arguments.\n\n&quot; _
+									&amp; &quot;Either the file does not exist, or the password is wrong, or the given filter is invalid.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;\n&quot; _
+									&amp; &quot;%3 = &apos;%4&apos;\n&quot; _
+									&amp; &quot;%5 = &apos;%6&apos;&quot; _
+						, Comment :=	&quot;SF_UI.OpenDocument error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A string\n&quot; _
+									&amp;	&quot;%5: An identifier\n&quot; _
+									&amp;	&quot;%6: A string&quot; _
+					)
+	&apos;	SF_UI.OpenBaseDocument
+			.AddText(	Context := &quot;BASEDOCUMENTOPEN&quot; _
+						, MsgId := &quot;The opening of the Base document failed.\n&quot; _
+									&amp; &quot;Something must be wrong with some arguments.\n\n&quot; _
+									&amp; &quot;Either the file does not exist, or the file is not registered under the given name.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;\n&quot; _
+									&amp; &quot;%3 = &apos;%4&apos;&quot; _
+						, Comment :=	&quot;SF_UI.OpenDocument error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A string&quot; _
+					)
+	&apos;	SF_Document._IsStillAlive
+			.AddText(	Context := &quot;DOCUMENTDEAD&quot; _
+						, MsgId := &quot;The requested action could not be executed because the document was closed inadvertently.\n\n&quot; _
+									&amp; &quot;The concerned document is &apos;%1&apos;&quot; _
+						, Comment :=	&quot;SF_Document._IsStillAlive error message\n&quot; _
+									&amp;	&quot;%1: A file name&quot; _
+					)
+	&apos;	SF_Document.Save
+			.AddText(	Context := &quot;DOCUMENTSAVE&quot; _
+						, MsgId := &quot;The document could not be saved.\n&quot; _
+									&amp; &quot;Either the document has been opened read-only, or the destination file has a read-only attribute set, &quot; _
+									&amp; &quot;or the file where to save to is undefined.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;&quot; _
+						, Comment :=	&quot;SF_Document.SaveAs error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name\n&quot; _
+					)
+	&apos;	SF_Document.SaveAs
+			.AddText(	Context := &quot;DOCUMENTSAVEAS&quot; _
+						, MsgId := &quot;The document could not be saved.\n&quot; _
+									&amp; &quot;Either the document must not be overwritten, or the destination file has a read-only attribute set, &quot; _
+									&amp; &quot;or the given filter is invalid.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;\n&quot; _
+									&amp; &quot;%3 = %4\n&quot; _
+									&amp; &quot;%5 = &apos;%6&apos;&quot; _
+						, Comment :=	&quot;SF_Document.SaveAs error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: True or False\n&quot; _
+									&amp;	&quot;%5: An identifier\n&quot; _
+									&amp;	&quot;%6: A string&quot; _
+					)
+	&apos;	SF_Document.any update
+			.AddText(	Context := &quot;DOCUMENTREADONLY&quot; _
+						, MsgId := &quot;You tried to edit a document which is not modifiable. The document has not been changed.\n\n&quot; _
+									&amp; &quot;« %1 » = %2&quot; _
+						, Comment :=	&quot;SF_Document any update\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name&quot; _
+					)
+	&apos;	SF_Base.GetDatabase
+			.AddText(	Context := &quot;DBCONNECT&quot; _
+						, MsgId := &quot;The database related to the actual Base document could not be retrieved.\n&quot; _
+									&amp; &quot;Check the connection/login parameters.\n\n&quot; _
+									&amp; &quot;« %1 » = &apos;%2&apos;\n&quot; _
+									&amp; &quot;« %3 » = &apos;%4&apos;\n&quot; _
+									&amp; &quot;« Document » = %5&quot; _
+						, Comment :=	&quot;SF_Base GetDatabase\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A user name\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A password\n&quot; _
+									&amp;	&quot;%5: A file name&quot; _
+					)
+	&apos;	SF_Calc._ParseAddress (sheet)
+			.AddText(	Context := &quot;CALCADDRESS1&quot; _
+						, MsgId := &quot;The given address does not correspond with a valid sheet name.\n\n&quot; _
+									&amp; &quot;« %1 » = %2\n&quot; _
+									&amp; &quot;« %3 » = %4&quot; _
+						, Comment :=	&quot;SF_Calc _ParseAddress (sheet)\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A file name&quot; _
+					)
+	&apos;	SF_Calc._ParseAddress (range)
+			.AddText(	Context := &quot;CALCADDRESS2&quot; _
+						, MsgId := &quot;The given address does not correspond with a valid range of cells.\n\n&quot; _
+									&amp; &quot;« %1 » = %2\n&quot; _
+									&amp; &quot;« %3 » = %4&quot; _
+						, Comment :=	&quot;SF_Calc _ParseAddress (range)\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A file name&quot; _
+					)
+	&apos;	SF_Calc.InsertSheet
+			.AddText(	Context := &quot;DUPLICATESHEET&quot; _
+						, MsgId := &quot;There exists already in the document a sheet with the same name.\n\n&quot; _
+									&amp; &quot;« %1 » = %2\n&quot; _
+									&amp; &quot;« %3 » = %4&quot; _
+						, Comment :=	&quot;SF_Calc InsertSheet\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A file name&quot; _
+					)
+	&apos;	SF_Calc.Offset
+			.AddText(	Context := &quot;OFFSETADDRESS&quot; _
+						, MsgId := &quot;The computed range falls beyond the sheet boundaries or is meaningless.\n\n&quot; _
+									&amp; &quot;« %1 » = %2\n&quot; _
+									&amp; &quot;« %3 » = %4\n&quot; _
+									&amp; &quot;« %5 » = %6\n&quot; _
+									&amp; &quot;« %7 » = %8\n&quot; _
+									&amp; &quot;« %9 » = %10\n&quot; _
+									&amp; &quot;« %11 » = %12&quot; _
+						, Comment :=	&quot;SF_Calc Offset\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A Calc reference\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A number\n&quot; _
+									&amp;	&quot;%5: An identifier\n&quot; _
+									&amp;	&quot;%6: A number\n&quot; _
+									&amp;	&quot;%7: An identifier\n&quot; _
+									&amp;	&quot;%8: A number\n&quot; _
+									&amp;	&quot;%9: An identifier\n&quot; _
+									&amp;	&quot;%10: A number\n&quot; _
+									&amp;	&quot;%11: An identifier\n&quot; _
+									&amp;	&quot;%12: A file name&quot; _
+					)
+	&apos;	SF_Calc.CreateChart
+			.AddText(	Context := &quot;DUPLICATECHART&quot; _
+						, MsgId := &quot;A chart with the same name exists already in the sheet.\n\n&quot; _
+									&amp; &quot;« %1 » = %2\n&quot; _
+									&amp; &quot;« %3 » = %4\n&quot; _
+									&amp; &quot;« %5 » = %6\n&quot; _
+						, Comment :=	&quot;SF_Calc CreateChart\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A string\n&quot; _
+									&amp;	&quot;%5: An identifier\n&quot; _
+									&amp;	&quot;%6: A file name&quot; _
+					)
+	&apos;	SF_Calc.ExportRangeToFile
+			.AddText(	Context := &quot;RANGEEXPORT&quot; _
+						, MsgId := &quot;The given range could not be exported.\n&quot; _
+									&amp; &quot;Either the destination file must not be overwritten, or it has a read-only attribute set.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;\n&quot; _
+									&amp; &quot;%3 = %4&quot; _
+						, Comment :=	&quot;SF_Calc.ExportRangeToFile error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: True or False\n&quot; _
+					)
+	&apos;	SF_Chart.ExportToFile
+			.AddText(	Context := &quot;CHARTEXPORT&quot; _
+						, MsgId := &quot;The chart could not be exported.\n&quot; _
+									&amp; &quot;Either the destination file must not be overwritten, or it has a read-only attribute set.\n\n&quot; _
+									&amp; &quot;%1 = &apos;%2&apos;\n&quot; _
+									&amp; &quot;%3 = %4&quot; _
+						, Comment :=	&quot;SF_Chart.ExportToFile error message\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A file name\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: True or False\n&quot; _
+					)
+	&apos;	SF_Form._IsStillAlive
+			.AddText(	Context := &quot;FORMDEAD&quot; _
+						, MsgId := &quot;The requested action could not be executed because the form is not open or the document was closed inadvertently.\n\n&quot; _
+									&amp; &quot;The concerned form is &apos;%1&apos; in document &apos;%2&apos;.&quot; _
+						, Comment :=	&quot;SF_Dialog._IsStillAlive error message\n&quot; _
+									&amp;	&quot;%1: An identifier&quot; _
+									&amp;	&quot;%2: A file name&quot; _
+					)
+	&apos;	SF_Calc.Forms
+			.AddText(	Context := &quot;CALCFORMNOTFOUND&quot; _
+						, MsgId := &quot;The requested form could not be found in the Calc sheet. The given index is off-limits.\n\n&quot; _
+									&amp; &quot;The concerned Calc document is &apos;%3&apos;.\n\n&quot; _
+									&amp; &quot;The name of the sheet = &apos;%2&apos;\n&quot; _
+									&amp; &quot;The index = %1.&quot; _
+						, Comment :=	&quot;SF_Form determination\n&quot; _
+									&amp;	&quot;%1: A number\n&quot; _
+									&amp;	&quot;%2: A sheet name\n&quot; _
+									&amp;	&quot;%3: A file name&quot; _
+					)
+	&apos;	SF_Document.Forms
+			.AddText(	Context := &quot;WRITERFORMNOTFOUND&quot; _
+						, MsgId := &quot;The requested form could not be found in the Writer document. The given index is off-limits.\n\n&quot; _
+									&amp; &quot;The concerned Writer document is &apos;%2&apos;.\n\n&quot; _
+									&amp; &quot;The index = %1.&quot; _
+						, Comment :=	&quot;SF_Form determination\n&quot; _
+									&amp;	&quot;%1: A number\n&quot; _
+									&amp;	&quot;%2: A file name&quot; _
+					)
+	&apos;	SF_Base.Forms
+			.AddText(	Context := &quot;BASEFORMNOTFOUND&quot; _
+						, MsgId := &quot;The requested form could not be found in the form document &apos;%2&apos;. The given index is off-limits.\n\n&quot; _
+									&amp; &quot;The concerned Base document is &apos;%3&apos;.\n\n&quot; _
+									&amp; &quot;The index = %1.&quot; _
+						, Comment :=	&quot;SF_Form determination\n&quot; _
+									&amp;	&quot;%1: A number\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: A file name&quot; _
+					)
+	&apos;	SF_Form.Subforms
+			.AddText(	Context := &quot;SUBFORMNOTFOUND&quot; _
+						, MsgId := &quot;The requested subform could not be found below the given main form.\n\n&quot; _
+									&amp; &quot;The main form = &apos;%2&apos;.\n&quot; _
+									&amp; &quot;The subform = &apos;%1&apos;.&quot; _
+						, Comment :=	&quot;SF_Form determination\n&quot; _
+									&amp;	&quot;%1: A form name\n&quot; _
+									&amp;	&quot;%2: A form name&quot; _
+					)
+	&apos;	SF_FormControl._SetProperty
+			.AddText(	Context := &quot;FORMCONTROLTYPE&quot; _
+						, MsgId := &quot;The control &apos;%1&apos; in form &apos;%2&apos; is of type &apos;%3&apos;.\n&quot; _
+									&amp; &quot;The property or method &apos;%4&apos; is not applicable on that type of form controls.&quot; _
+						, Comment :=	&quot;SF_FormControl property setting\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: An identifier\n&quot; _
+									&amp;	&quot;%3: A string\n&quot; _
+									&amp;	&quot;%4: An identifier&quot; _
+					)
+	&apos;	SF_Dialog._NewDialog
+			.AddText(	Context := &quot;DIALOGNOTFOUND&quot; _
+						, MsgId := &quot;The requested dialog could not be located in the given container or library.\n&quot; _
+									&amp; &quot;« %1 » = %2\n&quot; _
+									&amp; &quot;« %3 » = %4\n&quot; _
+									&amp; &quot;« %5 » = %6\n&quot; _
+									&amp; &quot;« %7 » = %8&quot; _
+						, Comment :=	&quot;SF_Dialog creation\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A string\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A file name\n&quot; _
+									&amp;	&quot;%5: An identifier\n&quot; _
+									&amp;	&quot;%6: A string\n&quot; _
+									&amp;	&quot;%7: An identifier\n&quot; _
+									&amp;	&quot;%8: A string&quot; _
+					)
+	&apos;	SF_Dialog._IsStillAlive
+			.AddText(	Context := &quot;DIALOGDEAD&quot; _
+						, MsgId := &quot;The requested action could not be executed because the dialog was closed inadvertently.\n\n&quot; _
+									&amp; &quot;The concerned dialog is &apos;%1&apos;.&quot; _
+						, Comment :=	&quot;SF_Dialog._IsStillAlive error message\n&quot; _
+									&amp;	&quot;%1: An identifier&quot; _
+					)
+	&apos;	SF_DialogControl._SetProperty
+			.AddText(	Context := &quot;CONTROLTYPE&quot; _
+						, MsgId := &quot;The control &apos;%1&apos; in dialog &apos;%2&apos; is of type &apos;%3&apos;.\n&quot; _
+									&amp; &quot;The property or method &apos;%4&apos; is not applicable on that type of dialog controls.&quot; _
+						, Comment :=	&quot;SF_DialogControl property setting\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: An identifier\n&quot; _
+									&amp;	&quot;%3: A string\n&quot; _
+									&amp;	&quot;%4: An identifier&quot; _
+					)
+	&apos;	SF_DialogControl.WriteLine
+			.AddText(	Context := &quot;TEXTFIELD&quot; _
+						, MsgId := &quot;The control &apos;%1&apos; in dialog &apos;%2&apos; is not a multiline text field.\n&quot; _
+									&amp; &quot;The requested method could not be executed.&quot; _
+						, Comment :=	&quot;SF_DialogControl add line in textbox\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: An identifier&quot; _
+					)
+	&apos;	SF_Dialog.SetPageManager
+			.AddText(	Context := &quot;PAGEMANAGER&quot; _
+						, MsgId := &quot;The Page Manager could not be setup due to inconsistent arguments.\n\n&quot; _
+									&amp; &quot; %1 : « %2 »\n&quot; _
+									&amp; &quot; %3 : « %4 »\n&quot; _
+									&amp; &quot; %5 : « %6 »&quot; _
+						, Comment :=	&quot;SF_Dialog Page Manager setting\n&quot; _
+									&amp;	&quot;%1: An identifier\n&quot; _
+									&amp;	&quot;%2: A list of names separated by commas\n&quot; _
+									&amp;	&quot;%3: An identifier\n&quot; _
+									&amp;	&quot;%4: A list of names separated by commas\n&quot; _
+									&amp;	&quot;%5: An identifier\n&quot; _
+									&amp;	&quot;%6: A list of names separated by commas&quot; _
+					)
+	&apos;	SF_Database.RunSql
+			.AddText(	Context := &quot;DBREADONLY&quot; _
+						, MsgId := &quot;The database has been opened in read-only mode.\n&quot; _
+									&amp; &quot;The &apos;%1&apos; method must not be executed in this context.&quot; _
+						, Comment :=	&quot;SF_Database when running update SQL statement\n&quot; _
+									&amp;	&quot;%1: The concerned method&quot; _
+					)
+	&apos;	SF_Database._ExecuteSql
+			.AddText(	Context := &quot;SQLSYNTAX&quot; _
+						, MsgId := &quot;An SQL statement could not be interpreted or executed by the database system.\n&quot; _
+									&amp; &quot;Check its syntax, table and/or field names, ...\n\n&quot; _
+									&amp; &quot;SQL Statement : « %1 »&quot; _
+						, Comment :=	&quot;SF_Database can&apos;t interpret SQL statement\n&quot; _
+									&amp;	&quot;%1: The statement&quot; _
+					)
+	&apos;	SF_Exception.PythonShell (Python only)
+			.AddText(	Context := &quot;PYTHONSHELL&quot; _
+						, MsgId := &quot;The APSO extension could not be located in your LibreOffice installation.&quot; _
+						, Comment :=	&quot;SF_Exception.PythonShell error message&quot; _
+									&amp;	&quot;APSO: to leave unchanged&quot; _
+					)
+	&apos;	SFUnitTests._NewUnitTest
+			.AddText(	Context := &quot;UNITTESTLIBRARY&quot; _
+						, MsgId := &quot;The requested library could not be located.\n&quot; _
+									&amp; &quot;The UnitTest service has not been initialized.\n\n&quot; _
+									&amp; &quot;Library name : « %1 »&quot; _
+						, Comment :=	&quot;SFUnitTest could not locate the library gven as argument\n&quot; _
+									&amp;	&quot;%1: The name of the library&quot; _
+					)
+	&apos;	SFUnitTests.SF_UnitTest
+			.AddText(	Context := &quot;UNITTESTMETHOD&quot; _
+						, MsgId := &quot;The method &apos;%1&apos; is unexpected in the current context.\n&quot; _
+									&amp; &quot;The UnitTest service cannot proceed further with the on-going test.&quot; _
+						, Comment :=	&quot;SFUnitTest finds a RunTest() call in a inappropriate location\n&quot; _
+									&amp;	&quot;%1: The name of a method&quot; _
+					)
+		End With
+	End If
+
+Finally:
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub		&apos;	ScriptForge.SF_Root._LoadLocalizedInterface
+
+REM -----------------------------------------------------------------------------
+Public Function _Repr() As String
+&apos;&apos;&apos;	Convert the unique SF_Root instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[Root] (MainFunction: xxx, Console: yyy lines, ServicesList)&quot;
+
+Dim sRoot As String				&apos;	Return value
+Const cstRoot = &quot;[Root] (&quot;
+
+	sRoot = cstRoot &amp; &quot;MainFunction: &quot; &amp; MainFunction &amp; &quot;, Console: &quot; &amp; UBound(ConsoleLines) + 1 &amp; &quot; lines&quot; _
+						&amp; &quot;, Libraries:&quot; &amp; SF_Utils._Repr(ServicesList.Keys) _
+						&amp; &quot;)&quot;
+
+	_Repr = sRoot
+
+End Function	&apos;	ScriptForge.SF_Root._Repr
+
+REM -----------------------------------------------------------------------------
+Public Sub _StackReset()
+&apos;&apos;&apos;	Reset private members after a fatal/abort error to leave
+&apos;&apos;&apos;	a stable persistent storage after an unwanted interrupt
+
+	MainFunction = &quot;&quot;
+	MainFunctionArgs = &quot;&quot;
+	StackLevel = 0
+	TriggeredByPython = False
+
+End Sub		&apos;		ScriptForge.SF_Root._StackReset
+
+REM ================================================== END OF SCRIPTFORGE.SF_ROOT
+</script:module>

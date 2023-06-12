@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Region" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Region
+&apos;&apos;&apos;	=========
+&apos;&apos;&apos;		Singleton class implementing the &quot;ScriptForge.Region&quot; service
+&apos;&apos;&apos;		Implemented as a usual Basic module
+&apos;&apos;&apos;
+&apos;&apos;&apos;		A collection of functions about languages, countries and timezones
+&apos;&apos;&apos;			- Locales
+&apos;&apos;&apos;			- Currencies
+&apos;&apos;&apos;			- Numbers and dates formatting
+&apos;&apos;&apos;			- Calendars
+&apos;&apos;&apos;			- Timezones conversions
+&apos;&apos;&apos;			- Numbers transformed to text
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Definitions:
+&apos;&apos;&apos;			Locale or Region
+&apos;&apos;&apos;				A combination of a language (2 or 3 lower case characters) and a country (2 upper case characters)
+&apos;&apos;&apos;				Most properties and methods require a locale as argument.
+&apos;&apos;&apos;				Some of them accept either the complete locale or only the language or country parts.
+&apos;&apos;&apos;				When absent, the considered locale is the locale used in the LibreOffice user interface.
+&apos;&apos;&apos;					(see the SF_Platform.OfficeLocale property)
+&apos;&apos;&apos;			Timezone
+&apos;&apos;&apos;				Specified as &quot;Region/City&quot; name like &quot;Europe/Berlin&quot;, or a custom time zone ID such as &quot;UTC&quot; or &quot;GMT-8:00&quot;.
+&apos;&apos;&apos;				The time offset between the timezone and the Greenwich Meridian Time (GMT) is expressed in minutes.
+&apos;&apos;&apos;				The Daylight Saving Time (DST) is an additional offset.
+&apos;&apos;&apos;				Both offsets can be positive or negative.
+&apos;&apos;&apos;				More info on
+&apos;&apos;&apos;					https://timezonedb.com/time-zones
+&apos;&apos;&apos;					https://en.wikipedia.org/wiki/Time_zone
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation example:
+&apos;&apos;&apos;			Dim regio As Object
+&apos;&apos;&apos;			Set regio = CreateScriptService(&quot;Region&quot;)
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_region.html?DbPAR=BASIC
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private UserLocale				As String		&apos;	platform.OfficeLocale
+
+&apos;	Reference tables
+Private LocaleData				As Variant		&apos;	com.sun.star.i18n.LocaleData
+Private LocaleNames				As Variant		&apos;	Array of all available &quot;la-CO&quot; strings
+
+Private UserIndex				As Integer		&apos;	Index of UserLocale in reference tables
+
+REM ============================================================ MODULE CONSTANTS
+
+REM ===================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Set Dispose = Nothing
+End Function	&apos;	ScriptForge.SF_Region Explicit destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get Country(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the english country name applicable in the given region.
+&apos;&apos;&apos;	The region expressed either as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- country only (CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.Country(&quot;IT&quot;)	&apos;	Italy
+	Country = _PropertyGet(&quot;Country&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.Country (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Currency(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the currency applicable in the given region.
+&apos;&apos;&apos;	The region is expressed either as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- country only (CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.Currency(&quot;IT&quot;)	&apos;	EUR
+	Currency = _PropertyGet(&quot;Currency&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.Currency (get)
+
+REM -----------------------------------------------------------------------------
+Public Function DatePatterns(Optional ByVal Region As Variant) As Variant	&apos;	Function better than Property when return value is an array
+&apos;&apos;&apos;	Returns list of date acceptance patterns for the given region.
+&apos;&apos;&apos;	Patterns with input combinations that are accepted as incomplete date input, such as M/D or D.M
+&apos;&apos;&apos;	The region is expressed as a locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	The list is zero-based.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Join(Regio.DatePatterns(&quot;it-IT&quot;), &quot;,&quot;)	&apos;	D/M/Y,D/M
+	DatePatterns = _PropertyGet(&quot;DatePatterns&quot;, Region)
+End Function	&apos;	ScriptForge.SF_Region.DatePatterns (get)
+
+REM -----------------------------------------------------------------------------
+Property Get DateSeparator(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the separator used in dates applicable in the given region.
+&apos;&apos;&apos;	The region is expressed as a locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.DateSeparator(&quot;it-IT&quot;)	&apos;	/
+	DateSeparator = _PropertyGet(&quot;DateSeparator&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.DateSeparator (get)
+
+REM -----------------------------------------------------------------------------
+Public Function DayAbbrevNames(Optional ByVal Region As Variant) As Variant	&apos;	Function better than Property when return value is an array
+&apos;&apos;&apos;	Returns list of abbreviated names of weekdays applicable in the given region.
+&apos;&apos;&apos;	The region expressed as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- language only (la)
+&apos;&apos;&apos;	The list is zero-based. The 1st in the list [0] is the Monday.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Join(Regio.DayAbbrevNames(&quot;it-IT&quot;), &quot;,&quot;)	&apos;	lun,mar,mer,gio,ven,sab,dom
+	DayAbbrevNames = _PropertyGet(&quot;DayAbbrevNames&quot;, Region)
+End Function	&apos;	ScriptForge.SF_Region.DayAbbrevNames (get)
+
+REM -----------------------------------------------------------------------------
+Public Function DayNames(Optional ByVal Region As Variant) As Variant	&apos;	Function better than Property when return value is an array
+&apos;&apos;&apos;	Returns list of names of weekdays applicable in the given region.
+&apos;&apos;&apos;	The region expressed as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- language only (la)
+&apos;&apos;&apos;	The list is zero-based. The 1st in the list [0] is the Monday.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Join(Regio.DayNames(&quot;it-IT&quot;), &quot;,&quot;)	&apos;	lunedì,martedì,mercoledì,giovedì,venerdì,sabato,domenica
+	DayNames = _PropertyGet(&quot;DayNames&quot;, Region)
+End Function	&apos;	ScriptForge.SF_Region.DayNames (get)
+
+REM -----------------------------------------------------------------------------
+Public Function DayNarrowNames(Optional ByVal Region As Variant) As Variant	&apos;	Function better than Property when return value is an array
+&apos;&apos;&apos;	Returns list of initials of weekdays applicable in the given region.
+&apos;&apos;&apos;	The region expressed as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- language only (la)
+&apos;&apos;&apos;	The list is zero-based. The 1st in the list [0] is the Monday.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Join(Regio.DayNarrowNames(&quot;it-IT&quot;), &quot;,&quot;)	&apos;	l,m,m,g,v,s,d
+	DayNarrowNames = _PropertyGet(&quot;DayNarrowNames&quot;, Region)
+End Function	&apos;	ScriptForge.SF_Region.DayNarrowNames (get)
+
+REM -----------------------------------------------------------------------------
+Property Get DecimalPoint(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the decimal separator used in numbers applicable in the given region.
+&apos;&apos;&apos;	The region is expressed as a locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.DecimalPoint(&quot;it-IT&quot;)	&apos;	.
+	DecimalPoint = _PropertyGet(&quot;DecimalPoint&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.DecimalPoint (get)
+
+REM -----------------------------------------------------------------------------
+Property Get Language(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the english Language name applicable in the given region.
+&apos;&apos;&apos;	The region expressed as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- language only (la)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.Language(&quot;it-IT&quot;)	&apos;	Italian
+	Language = _PropertyGet(&quot;Language&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.Language (get)
+
+REM -----------------------------------------------------------------------------
+Property Get ListSeparator(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the separator used in lists applicable in the given region.
+&apos;&apos;&apos;	The region is expressed as a locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.ListSeparator(&quot;it-IT&quot;)	&apos;	;
+	ListSeparator = _PropertyGet(&quot;ListSeparator&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.ListSeparator (get)
+
+REM -----------------------------------------------------------------------------
+Public Function MonthAbbrevNames(Optional ByVal Region As Variant) As Variant	&apos;	Function better than Property when return value is an array
+&apos;&apos;&apos;	Returns list of abbreviated names of months applicable in the given region.
+&apos;&apos;&apos;	The region expressed as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- language only (la)
+&apos;&apos;&apos;	The list is zero-based.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Join(Regio.MonthAbbrevNames(&quot;it-IT&quot;), &quot;,&quot;)	&apos;	gen,feb,mar,apr,mag,giu,lug,ago,set,ott,nov,dic
+	MonthAbbrevNames = _PropertyGet(&quot;MonthAbbrevNames&quot;, Region)
+End Function	&apos;	ScriptForge.SF_Region.MonthAbbrevNames (get)
+
+REM -----------------------------------------------------------------------------
+Public Function MonthNames(Optional ByVal Region As Variant) As Variant	&apos;	Function better than Property when return value is an array
+&apos;&apos;&apos;	Returns list of names of months applicable in the given region.
+&apos;&apos;&apos;	The region expressed as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- language only (la)
+&apos;&apos;&apos;	The list is zero-based.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Join(Regio.MonthNames(&quot;it-IT&quot;), &quot;,&quot;)	&apos;	gennaio,febbraio,marzo,aprile,maggio,giugno,luglio,agosto,settembre,ottobre,novembre,dicembre
+	MonthNames = _PropertyGet(&quot;MonthNames&quot;, Region)
+End Function	&apos;	ScriptForge.SF_Region.MonthNames (get)
+
+REM -----------------------------------------------------------------------------
+Public Function MonthNarrowNames(Optional ByVal Region As Variant) As Variant	&apos;	Function better than Property when return value is an array
+&apos;&apos;&apos;	Returns list of initials of months applicable in the given region.
+&apos;&apos;&apos;	The region expressed as a
+&apos;&apos;&apos;		- locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;		- language only (la)
+&apos;&apos;&apos;	The list is zero-based.
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Join(Regio.MonthNarrowNames(&quot;it-IT&quot;), &quot;,&quot;)	&apos;	g,f,m,a,m,g,l,a,s,o,n,d
+	MonthNarrowNames = _PropertyGet(&quot;MonthNarrowNames&quot;, Region)
+End Function	&apos;	ScriptForge.SF_Region.MonthNarrowNames (get)
+
+REM -----------------------------------------------------------------------------
+Property Get ObjectType As String
+&apos;&apos;&apos;	Only to enable object representation
+	ObjectType = &quot;SF_Region&quot;
+End Property	&apos;	ScriptForge.SF_Region.ObjectType
+
+REM -----------------------------------------------------------------------------
+Property Get ServiceName As String
+&apos;&apos;&apos;	Internal use
+	ServiceName = &quot;ScriptForge.Region&quot;
+End Property	&apos;	ScriptForge.SF_Region.ServiceName
+
+REM -----------------------------------------------------------------------------
+Property Get ThousandSeparator(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the thousands separator used in numbers applicable in the given region.
+&apos;&apos;&apos;	The region is expressed as a locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.ThousandSeparator(&quot;it-IT&quot;)	&apos;	.
+	ThousandSeparator = _PropertyGet(&quot;ThousandSeparator&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.ThousandSeparator (get)
+
+REM -----------------------------------------------------------------------------
+Property Get TimeSeparator(Optional ByVal Region As Variant) As String
+&apos;&apos;&apos;	Returns the separator used to format times applicable in the given region.
+&apos;&apos;&apos;	The region is expressed as a locale combining language-COUNTRY (la-CO)
+&apos;&apos;&apos;	Example:
+&apos;&apos;&apos;		MsgBox Regio.TimeSeparator(&quot;it-IT&quot;)	&apos;	:
+	TimeSeparator = _PropertyGet(&quot;TimeSeparator&quot;, Region)
+End Property	&apos;	ScriptForge.SF_Region.TimeSeparator (get)
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function DSTOffset(Optional ByVal LocalDateTime As Variant _
+						, Optional ByVal TimeZone As Variant _
+						, Optional ByVal Locale As Variant _
+						) As Integer
+&apos;&apos;&apos;	Computes the additional offset due to daylight saving (&quot;summer time&quot;)
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		LocalDateTime: local date and time as a Date. DST offset varies during the year.
+&apos;&apos;&apos;		TimeZone: specified as &quot;Region/City&quot; name like &quot;Europe/Berlin&quot;, or a custom time zone ID such as &quot;UTC&quot; or &quot;GMT-8:00&quot;
+&apos;&apos;&apos;		Locale: expressed as a locale combining language-COUNTRY (la-CO), or COUNTRY alone (CO)
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		The offset in minutes
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		regio.DSTOffset(DateSerial(2022, 8, 20) + TimeSerial(16, 58, 17), &quot;Europe/Brussels&quot;, &quot;fr-BE&quot;)	&apos;	60
+
+Dim iDSTOffset As Integer			&apos;	Return value
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim oCalendarImpl As Object			&apos;	com.sun.star.i18n.CalendarImpl
+Const cstThisSub = &quot;Region.DSTOffset&quot;
+Const cstSubArgs = &quot;LocalDateTime, TimeZone, [Locale=&quot;&quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	iDSTOffset = 0
+
+Check:
+	If IsMissing(Locale) Or IsEmpty(Locale) Then Locale = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(LocalDateTime, &quot;LocalDateTime&quot;, V_DATE) Then GoTo Finally
+		If Not SF_Utils._Validate(TimeZone, &quot;TimeZone&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Locale, &quot;Locale&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	Set oLocale = SF_Region._GetLocale(Locale, pbCountry := True)
+	If IsNull(oLocale) Then GoTo Finally
+
+Try:
+	Set oCalendarImpl = SF_Utils._GetUNOService(&quot;CalendarImpl&quot;)
+	With oCalendarImpl
+		.loadDefaultCalendarTZ(oLocale, TimeZone)
+		.setLocalDateTime(LocaldateTime)
+		iDSTOffset = .getValue(com.sun.star.i18n.CalendarFieldIndex.DST_OFFSET)
+	End With
+
+Finally:
+	DSTOffset = iDSTOffset
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Region.DSTOffset
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant _
+								, Optional Region As Variant _
+								) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;		Region: the language-COUNTRY combination (la-CO) or the country (CO- or the language (la)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		ARGUMENTERROR		The property does not exist
+
+Const cstThisSub = &quot;Region.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If IsMissing(Region) Or IsEmpty(Region) Then Region = &quot;&quot;
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+		If Not ScriptForge.SF_Utils._Validate(Region, &quot;Region&quot;, V_STRING) Then GoTo Catch
+	End If
+
+Try:
+	If Len(Region) = 0 Then
+		GetProperty = _PropertyGet(PropertyName)
+	Else
+		GetProperty = _PropertyGet(PropertyName, Region)
+	End If
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Region.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function LocalDateTime(Optional ByVal UTCDateTime As Variant _
+						, Optional ByVal TimeZone As Variant _
+						, Optional ByVal Locale As Variant _
+						) As Date
+&apos;&apos;&apos;	Computes the local date and time from a UTC date and time
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		UTCDateTime: the universal date and time to be converted to local time
+&apos;&apos;&apos;		TimeZone: specified as &quot;Region/City&quot; name like &quot;Europe/Berlin&quot;, or a custom time zone ID such as &quot;UTC&quot; or &quot;GMT-8:00&quot;
+&apos;&apos;&apos;		Locale: expressed as a locale combining language-COUNTRY (la-CO), or COUNTRY alone (CO)
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		The local time converted from the corresponding UTC date and time as a Date
+&apos;&apos;&apos;		If the returned value is before 1900, it is likely that the Locale is not recognized
+&apos;&apos;&apos;		If the returned value matches the local time, it is likely that the timezone is not recognized
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		regio.LocalDateTime(DateSerial(2022, 3, 20) + TimeSerial(16, 58, 17), &quot;Europe/Brussels&quot;, &quot;fr-BE&quot;)
+&apos;&apos;&apos;				&apos;	2022-03-20 17:58:17
+
+Dim dLocalDateTime As Double		&apos;	Return value
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim oCalendarImpl As Object			&apos;	com.sun.star.i18n.CalendarImpl
+Const cstThisSub = &quot;Region.LocalDateTime&quot;
+Const cstSubArgs = &quot;UTCDateTime, TimeZone, [Locale=&quot;&quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	dLocalDateTime = -1
+
+Check:
+	If IsMissing(Locale) Or IsEmpty(Locale) Then Locale = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(LocalDateTime, &quot;LocalDateTime&quot;, V_DATE) Then GoTo Finally
+		If Not SF_Utils._Validate(TimeZone, &quot;TimeZone&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Locale, &quot;Locale&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	Set oLocale = SF_Region._GetLocale(Locale, pbCountry := True)
+	If IsNull(oLocale) Then GoTo Finally
+
+Try:
+	Set oCalendarImpl = SF_Utils._GetUNOService(&quot;CalendarImpl&quot;)
+	With oCalendarImpl
+		.loadDefaultCalendarTZ(oLocale, TimeZone)
+		.setDateTime(UTCDateTime)
+		dLocalDateTime = .getLocalDateTime()
+	End With
+
+Finally:
+	LocalDateTime = CDate(dLocalDateTime)
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Region.LocalDateTime
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Region class as an array
+
+	Methods = Array( _
+					&quot;DSTOffset&quot; _
+					, &quot;LocalDateTime&quot; _
+					, &quot;Number2Text&quot; _
+					, &quot;TimeZoneOffset&quot; _
+					, &quot;UTCDateTime&quot; _
+					, &quot;UTCNow&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_Region.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function Number2Text(Optional ByVal Number As Variant _
+						, Optional ByVal Locale As Variant _
+						) As String
+&apos;&apos;&apos;	Convert numbers and money amounts in many languages into words
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		Number: the number to spell out
+&apos;&apos;&apos;			Accepted types: strings or numeric values (integer or real numbers)
+&apos;&apos;&apos;			When a string, a variety of prefixes is supported
+&apos;&apos;&apos;				The string &quot;help&quot; provides helpful tips about allowed prefixes by language
+&apos;&apos;&apos;					Example for french
+&apos;&apos;&apos;						un, deux, trois
+&apos;&apos;&apos;						feminine: une, deux, trois
+&apos;&apos;&apos;						masculine: un, deux, trois
+&apos;&apos;&apos;						ordinal: premier, deuxième, troisième
+&apos;&apos;&apos;						ordinal-feminine: première, deuxième, troisième
+&apos;&apos;&apos;						ordinal-masculine: premier, deuxième, troisième
+&apos;&apos;&apos;						informal: onze-cents, douze-cents, treize-cents
+&apos;&apos;&apos;				Numbers may be prefixed by ISO currency codes (EUR, USD, ...)
+&apos;&apos;&apos;		Locale: expressed as a locale combining language-COUNTRY (la-CO), or language alone (la)
+&apos;&apos;&apos;			The list of supported languages can be found on
+&apos;&apos;&apos;				https://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1linguistic2_1_1XNumberText.html
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		The number or amount transformed in words
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		regio.Number2Text(&quot;help&quot;, &quot;fr&quot;)				&apos;	See above
+&apos;&apos;&apos;		regio.Number2Text(&quot;79,93&quot;, &quot;fr-BE&quot;)			&apos;	septante-neuf virgule nonante-trois
+&apos;&apos;&apos;		regio.Number2Text(Pi(), &quot;pt-BR&quot;)			&apos;	três vírgula um quatro um cinco nove dois seis cinco três cinco oito nove sete nove
+&apos;&apos;&apos;		regio.Number2Text(&quot;EUR 1234.56&quot;, &quot;it&quot;)		&apos;	milleduecentotrentaquattro euro cinquantasei centesimi
+
+Dim sNumber2Text As String			&apos;	Return value
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim oNumber2Text As Object			&apos;	com.sun.star.linguistic2.NumberText
+Const cstThisSub = &quot;Region.Number2Text&quot;
+Const cstSubArgs = &quot;Number, [Locale=&quot;&quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	sNumber2Text = &quot;&quot;
+
+Check:
+	If IsMissing(Locale) Or IsEmpty(Locale) Then Locale = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(Number, &quot;Number&quot;, Array(V_STRING, V_NUMERIC)) Then GoTo Finally
+		If Not SF_Utils._Validate(Locale, &quot;Locale&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	Set oLocale = SF_Region._GetLocale(Locale, pbLanguage := True)
+	If IsNull(oLocale) Then GoTo Finally
+
+Try:
+	Set oNumber2Text = SF_Utils._GetUNOService(&quot;Number2Text&quot;)
+	sNumber2Text = oNumber2Text.getNumberText(Number, oLocale)
+
+Finally:
+	Number2Text = sNumber2Text
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Region.Number2Text
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Region class as an array
+
+	Properties = Array( _
+					&quot;Country&quot; _
+					, &quot;Currency&quot; _
+					, &quot;DatePatterns&quot; _
+					, &quot;DateSeparator&quot; _
+					, &quot;DayAbbrevNames&quot; _
+					, &quot;DayNames&quot; _
+					, &quot;DayNarrowNames&quot; _
+					, &quot;DecimalPoint&quot; _
+					, &quot;Language&quot; _
+					, &quot;ListSeparator&quot; _
+					, &quot;MonthAbbrevNames&quot; _
+					, &quot;MonthNames&quot; _
+					, &quot;MonthNarrowNames&quot; _
+					, &quot;ThousandSeparator&quot; _
+					, &quot;TimeSeparator&quot; _
+					)
+
+End Function	&apos;	ScriptForge.SF_Region.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function TimeZoneOffset(Optional ByVal TimeZone As Variant _
+						, Optional ByVal Locale As Variant _
+						) As Integer
+&apos;&apos;&apos;	Computes the offset between GMT and the given timezone and locale
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		TimeZone: specified as &quot;Region/City&quot; name like &quot;Europe/Berlin&quot;, or a custom time zone ID such as &quot;UTC&quot; or &quot;GMT-8:00&quot;
+&apos;&apos;&apos;		Locale: expressed as a locale combining language-COUNTRY (la-CO), or COUNTRY alone (CO)
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		The offset in minutes
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		regio.TimeZoneOffset(&quot;Europe/Brussels&quot;, &quot;fr-BE&quot;)	&apos;	60
+
+Dim iTimeZoneOffset As Integer		&apos;	Return value
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim oCalendarImpl As Object			&apos;	com.sun.star.i18n.CalendarImpl
+Const cstThisSub = &quot;Region.TimeZoneOffset&quot;
+Const cstSubArgs = &quot;TimeZone, [Locale=&quot;&quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	iTimeZoneOffset = 0
+
+Check:
+	If IsMissing(Locale) Or IsEmpty(Locale) Then Locale = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(TimeZone, &quot;TimeZone&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Locale, &quot;Locale&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	Set oLocale = SF_Region._GetLocale(Locale, pbCountry := True)
+	If IsNull(oLocale) Then GoTo Finally
+
+Try:
+	Set oCalendarImpl = SF_Utils._GetUNOService(&quot;CalendarImpl&quot;)
+	With oCalendarImpl
+		.loadDefaultCalendarTZ(oLocale, TimeZone)
+		iTimeZoneOffset = .getValue(com.sun.star.i18n.CalendarFieldIndex.ZONE_OFFSET)
+	End With
+
+Finally:
+	TimeZoneOffset = iTimeZoneOffset
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Region.TimeZoneOffset
+
+REM -----------------------------------------------------------------------------
+Public Function UTCDateTime(Optional ByVal LocalDateTime As Variant _
+						, Optional ByVal TimeZone As Variant _
+						, Optional ByVal Locale As Variant _
+						) As Date
+&apos;&apos;&apos;	Computes the UTC date and time of a given local date and time
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		LocalDateTime: the date and time measured in a given timezone
+&apos;&apos;&apos;		TimeZone: specified as &quot;Region/City&quot; name like &quot;Europe/Berlin&quot;, or a custom time zone ID such as &quot;UTC&quot; or &quot;GMT-8:00&quot;
+&apos;&apos;&apos;		Locale: expressed as a locale combining language-COUNTRY (la-CO), or COUNTRY alone (CO)
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		The local time converted to the corresponding UTC date and time as a Date
+&apos;&apos;&apos;		If the returned value is before 1900, it is likely that the Locale is not recognized
+&apos;&apos;&apos;		If the returned value matches the local time, it is likely that the the timezone is not recognized
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		regio.UTCDateTime(DateSerial(2022, 3, 20) + TimeSerial(17, 58, 17), &quot;Europe/Brussels&quot;, &quot;fr-BE&quot;)
+&apos;&apos;&apos;				&apos;	2022-03-20 16:58:17
+
+Dim dUTCDateTime As Double			&apos;	Return value
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim oCalendarImpl As Object			&apos;	com.sun.star.i18n.CalendarImpl
+Const cstThisSub = &quot;Region.UTCDateTime&quot;
+Const cstSubArgs = &quot;LocalDateTime, TimeZone, [Locale=&quot;&quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	dUTCDateTime = -1
+
+Check:
+	If IsMissing(Locale) Or IsEmpty(Locale) Then Locale = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(LocalDateTime, &quot;LocalDateTime&quot;, V_DATE) Then GoTo Finally
+		If Not SF_Utils._Validate(TimeZone, &quot;TimeZone&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Locale, &quot;Locale&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	Set oLocale = SF_Region._GetLocale(Locale, pbCountry := True)
+	If IsNull(oLocale) Then GoTo Finally
+
+Try:
+	Set oCalendarImpl = SF_Utils._GetUNOService(&quot;CalendarImpl&quot;)
+	With oCalendarImpl
+		.loadDefaultCalendarTZ(oLocale, TimeZone)
+		.setLocalDateTime(LocalDateTime)
+		dUTCDateTime = .getDateTime()
+	End With
+
+Finally:
+	UTCDateTime = CDate(dUTCDateTime)
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Region.UTCDateTime
+
+REM -----------------------------------------------------------------------------
+Public Function UTCNow(Optional ByVal TimeZone As Variant _
+						, Optional ByVal Locale As Variant _
+						) As Date
+&apos;&apos;&apos;	Computes the actual UTC date and time
+&apos;&apos;&apos;	Args
+&apos;&apos;&apos;		TimeZone: specified as &quot;Region/City&quot; name like &quot;Europe/Berlin&quot;, or a custom time zone ID such as &quot;UTC&quot; or &quot;GMT-8:00&quot;
+&apos;&apos;&apos;		Locale: expressed as a locale combining language-COUNTRY (la-CO), or COUNTRY alone (CO)
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		The actual UTC date and time as a Date
+&apos;&apos;&apos;		If the returned value is before 1900, it is likely that the Locale is not recognized
+&apos;&apos;&apos;		If the returned value matches the local time, it is likely that the the timezone is not recognized
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		regio.UTCNow(&quot;Europe/Brussels&quot;, &quot;fr-BE&quot;)	&apos;	2022-03-20 16:58:17
+
+Dim dUTCNow As Double				&apos;	Return value
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim oCalendarImpl As Object			&apos;	com.sun.star.i18n.CalendarImpl
+Const cstThisSub = &quot;Region.UTCNow&quot;
+Const cstSubArgs = &quot;TimeZone, [Locale=&quot;&quot;&quot;&quot;]&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	dUTCNow = -1
+
+Check:
+	If IsMissing(Locale) Or IsEmpty(Locale) Then Locale = &quot;&quot;
+	If SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not SF_Utils._Validate(TimeZone, &quot;TimeZone&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Locale, &quot;Locale&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	Set oLocale = SF_Region._GetLocale(Locale, pbCountry := True)
+	If IsNull(oLocale) Then GoTo Finally
+
+Try:
+	Set oCalendarImpl = SF_Utils._GetUNOService(&quot;CalendarImpl&quot;)
+	With oCalendarImpl
+		.loadDefaultCalendarTZ(oLocale, TimeZone)
+		.setLocalDateTime(Now())
+		dUTCNow = .getDateTime()
+	End With
+
+Finally:
+	UTCNow = CDate(dUTCNow)
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	ScriptForge.SF_Region.UTCNow
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _GetLocale(ByVal psLocale As String _
+								, Optional ByVal pbCountry As Variant _
+								, Optional ByVal pbLanguage As Variant _
+								) As Object
+&apos;&apos;&apos;	Convert a locale given as a string to a com.sun.star.lang.Locale object
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psLocale: the input string, as &quot;la-CO&quot;, &quot;la&quot; or &quot;CO&quot;
+&apos;&apos;&apos;		pbCountry: True when &quot;CO&quot; only is admitted
+&apos;&apos;&apos;		pbLanguage: True when &quot;la&quot; only is admitted
+&apos;&apos;&apos;			At most one out of pbLanguage or pbCountry may be True
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		com.sun.star.lang.Locale
+
+Dim sLocale As String				&apos;	&quot;la-CO&quot;
+Dim iLocale As Integer				&apos;	Index in reference tables
+Dim oLocale As Object				&apos;	Return value com.sun.star.lang.Locale
+Dim i As Integer
+
+	If IsMissing(pbCountry) Or IsEmpty(pbCountry) Then pbCountry = False
+	If IsMissing(pbLanguage) Or IsEmpty(pbLanguage) Then pbLanguage = False
+
+	_LoadAllLocales()		&apos;	Initialize locale reference tables
+
+Check:
+	&apos;	The argument may be a language &quot;la&quot;, a country &quot;CO&quot; or a Locale &quot;la-CO&quot;
+	&apos;	Scan the reference tables to find a valid locale as a com.sun.star.lang.Locale
+	Set oLocale = Nothing	:	sLocale = &quot;&quot;	:	iLocale = -1
+	If Len(psLocale) = 0 Then				&apos;	Default value is the office com.sun.star.i18n.Locale
+		sLocale = UserLocale
+		iLocale = UserIndex
+	ElseIf InStr(psLocale, &quot;-&quot;) = 0 Then	&apos;	Language only or country only
+		Select Case True
+			Case pbLanguage
+				&apos;	Find any locale having the argument as language
+				For i = 0 To UBound(LocaleNames)
+					&apos;	A language is presumed 2 or 3 characters long
+					If Split(LocaleNames(i), &quot;-&quot;)(0) = LCase(psLocale) Then
+						sLocale = LocaleNames(i)
+						iLocale = i
+						Exit For
+					End If
+				Next i
+			Case pbCountry
+				&apos;	Find any locale having the argument as country
+				For i = 0 To UBound(LocaleNames)
+					&apos;	A country is presumed exactly 2 characters long
+					If Right(LocaleNames(i), 2) = UCase(psLocale) Then
+						sLocale = LocaleNames(i)
+						iLocale = i
+						Exit For
+					End If
+				Next i
+			Case Else
+		End Select
+	Else									&apos;	A full locale is given
+		iLocale = SF_Array.IndexOf(LocaleNames, psLocale, CaseSensitive := False)
+		If iLocale &gt;= 0 Then sLocale = LocaleNames(iLocale)
+	End If
+
+Try:
+	&apos;	Build error message when relevant
+	If iLocale &lt; 0 Then
+		If Not SF_Utils._Validate(psLocale, &quot;Locale&quot;, V_STRING, LocaleNames) Then GoTo Finally
+	Else
+		Set oLocale = CreateUnoStruct(&quot;com.sun.star.lang.Locale&quot;)
+		oLocale.Language = Split(sLocale, &quot;-&quot;)(0)		&apos;	A language is 2 or 3 characters long
+		oLocale.Country = Right(sLocale, 2)
+	End If
+
+Finally:
+	Set _GetLocale = oLocale
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Region._GetLocale
+
+REM -----------------------------------------------------------------------------
+Private Sub _LoadAllLocales()
+&apos;&apos;&apos;	Initialize the LocaleNames array = the list of all available locales in the LibreOffice installation
+
+Dim oOffice As Object				&apos;	com.sun.star.lang.Locale
+Dim vLocales As Variant				&apos;	Array of com.sun.star.lang.Locale
+Dim iTop As Integer					&apos;	Upper bound of LocaleNames
+Dim i As Integer
+
+Try:
+	&apos;	Office locale
+	If Len(UserLocale) = 0 Then
+		Set oOffice = SF_Utils._GetUNOService(&quot;OfficeLocale&quot;)
+		UserLocale = oOffice.Language &amp; &quot;-&quot; &amp; oOffice.Country
+	End If
+
+	&apos;	LocaleData, localeNames and UserIndex
+	If IsEmpty(LocaleData) Or IsNull(LocaleData) Or Not IsArray(LocaleNames) Then
+		LocaleData = SF_Utils._GetUNOService(&quot;LocaleData&quot;)
+		vLocales = LocaleData.getAllInstalledLocaleNames()
+		LocaleNames = Array()
+		iTop = UBound(vLocales)
+		ReDim LocaleNames(0 To iTop)
+		For i = 0 To iTop
+			LocaleNames(i) = vLocales(i).Language &amp; &quot;-&quot; &amp; vLocales(i).Country
+			If LocaleNames(i) = UserLocale Then UserIndex = i
+		Next i
+	End If
+
+End Sub			&apos;	ScriptForge.SF_Region._LoadAllLocales
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String _
+								, Optional ByVal pvLocale As Variant) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvLocale: a locale in the form language-COUNTRY (la-CO) or language only, or country only
+&apos;&apos;&apos;			When language or country only, any locale matching either the language or the country is selected
+
+Dim oLocale As Object				&apos;	com.sun.star.lang.Locale
+Dim vCurrencies As Variant			&apos;	Array of com.sun.star.i18n.Currency
+Dim oCurrency As Object				&apos;	com.sun.star.i18n.Currency
+Dim oLanguageCountryInfo As Object	&apos;	com.sun.star.i18n.LanguageCountryInfo
+Dim oLocaleDataItem2 As Object		&apos;	com.sun.star.i18n.LocaleDataItem2
+Dim oCalendarImpl As Object			&apos;	com.sun.star.i18n.CalendarImpl
+Dim oCalItem As Object				&apos;	com.sun.star.i18n.CalendarItem2
+Dim vCalItems() As Variant			&apos;	Array of days/months
+Dim i As Integer, j As Integer
+
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	cstThisSub = &quot;Region.Get&quot; &amp; psProperty
+	SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+
+Check:
+	If IsMissing(pvLocale) Or IsEmpty(pvLocale) Then pvLocale = &quot;&quot;
+	If Not SF_Utils._Validate(pvLocale, &quot;Locale&quot;, V_STRING) Then GoTo Finally
+
+	Select Case psProperty
+		Case &quot;Currency&quot;, &quot;Country&quot;
+			Set oLocale = SF_Region._GetLocale(pvLocale, pbCountry := True)		&apos;	Country only is admitted
+		Case &quot;Language&quot;, &quot;DayNames&quot;, &quot;DayAbbrevNames&quot;, &quot;DayNarrowNames&quot; _
+				, &quot;MonthNames&quot;, &quot;MonthAbbrevNames&quot;, &quot;MonthNarrowNames&quot;
+			Set oLocale = SF_Region._GetLocale(pvLocale, pbLanguage := True)	&apos;	Language only is admitted
+		Case Else
+			Set oLocale = SF_Region._GetLocale(pvLocale)
+	End Select
+	If IsNull(oLocale) Then GoTo Finally
+
+Try:
+	Select Case psProperty
+		Case &quot;Country&quot;, &quot;Language&quot;
+			Set oLanguageCountryInfo = LocaleData.getLanguageCountryInfo(oLocale)
+			With oLanguageCountryInfo
+				If psProperty = &quot;Country&quot; Then _PropertyGet = .CountryDefaultName Else _PropertyGet = .LanguageDefaultName
+			End With
+		Case &quot;Currency&quot;
+			vCurrencies = LocaleData.getAllCurrencies(oLocale)
+			_PropertyGet = &quot;&quot;
+			For Each oCurrency In vCurrencies
+				If oCurrency.Default Then
+					_PropertyGet = oCurrency.BankSymbol
+					Exit For
+				End If
+			Next oCurrency
+		Case &quot;DatePatterns&quot;
+			_PropertyGet = LocaleData.getDateAcceptancePatterns(oLocale)
+		Case &quot;DateSeparator&quot;, &quot;DecimalPoint&quot;, &quot;ListSeparator&quot;, &quot;ThousandSeparator&quot;, &quot;TimeSeparator&quot;
+			Set oLocaleDataItem2 = LocaleData.getLocaleItem2(oLocale)
+			With oLocaleDataItem2
+				Select Case psProperty
+					Case &quot;DateSeparator&quot;			:	_PropertyGet = .dateSeparator
+					Case &quot;DecimalPoint&quot;				:	_PropertyGet = .decimalSeparator
+					Case &quot;ListSeparator&quot;			:	_PropertyGet = .listSeparator
+					Case &quot;ThousandSeparator&quot;		:	_PropertyGet = .thousandSeparator
+					Case &quot;TimeSeparator&quot;			:	_PropertyGet = .timeSeparator
+				End Select
+			End With
+		Case &quot;DayAbbrevNames&quot;, &quot;DayNames&quot;, &quot;DayNarrowNames&quot;
+			Set oCalendarImpl = SF_Utils._GetUNOService(&quot;CalendarImpl&quot;)
+			With oCalendarImpl
+				.loadDefaultCalendar(oLocale)
+				vCalItems = Array()	: ReDim vCalItems(0 To 6)
+				For i = 0 To UBound(.Days2)
+					Set oCalItem = .Days2(i)
+					j = Iif(i = 0, 6, i - 1)
+					Select Case psProperty
+						Case &quot;DayNames&quot;			:	vCalItems(j) = oCalItem.FullName
+						Case &quot;DayAbbrevNames&quot;	:	vCalItems(j) = oCalItem.AbbrevName
+						Case &quot;DayNarrowNames&quot;	:	vCalItems(j) = oCalItem.NarrowName
+					End Select
+				Next i
+				_PropertyGet = vCalItems
+			End With
+		Case &quot;MonthAbbrevNames&quot;, &quot;MonthNames&quot;, &quot;MonthNarrowNames&quot;
+			Set oCalendarImpl = SF_Utils._GetUNOService(&quot;CalendarImpl&quot;)
+			With oCalendarImpl
+				.loadDefaultCalendar(oLocale)
+				vCalItems = Array()	: ReDim vCalItems(0 To 11)
+				For i = 0 To UBound(.Months2)
+					Set oCalItem = .Months2(i)
+					Select Case psProperty
+						Case &quot;MonthNames&quot;		:	vCalItems(i) = oCalItem.FullName
+						Case &quot;MonthAbbrevNames&quot;	:	vCalItems(i) = oCalItem.AbbrevName
+						Case &quot;MonthNarrowNames&quot;	:	vCalItems(i) = oCalItem.NarrowName
+					End Select
+				Next i
+				_PropertyGet = vCalItems
+			End With
+		Case Else
+			_PropertyGet = &quot;&quot;
+	End Select
+
+Finally:
+	SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	ScriptForge.SF_Region._PropertyGet
+
+REM ================================================ END OF SCRIPTFORGE.SF_REGION
+</script:module>

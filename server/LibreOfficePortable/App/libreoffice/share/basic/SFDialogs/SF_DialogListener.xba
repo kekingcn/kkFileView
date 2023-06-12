@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_DialogListener" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDialogs library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Listener
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;		The current module is dedicated to the management of dialog control events, triggered by user actions,
+&apos;&apos;&apos;		which cannot be defined with the Basic IDE
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Concerned events:
+&apos;&apos;&apos;			TreeControl control type, prefix = _SFEXP_
+&apos;&apos;&apos;			-----------
+&apos;&apos;&apos;				The OnNodeSelected event, triggered when a user selects a node
+&apos;&apos;&apos;					A typical action is to display additional info about the selected item elsewhere in the dialog
+&apos;&apos;&apos;				The OnNodeExpanded event, triggered when a user clicks on the expansion symbol
+&apos;&apos;&apos;					A typical action is to create dynamically a subnode or a subtree below the expanded item
+&apos;&apos;&apos;
+&apos;&apos;&apos;			PageManager facility, prefix = _SFTAB_
+&apos;&apos;&apos;			-----------
+&apos;&apos;&apos;				Depending on the piloting control(s), next event types are implemented
+&apos;&apos;&apos;					XActionListener: for buttons
+&apos;&apos;&apos;					XItemListener: for listboxes, comboboxes and radio buttons
+&apos;&apos;&apos;					
+&apos;&apos;&apos;			The described events are processed thru UNO listeners
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================= DEFINITIONS
+
+REM ================================================================== EXCEPTIONS
+
+REM ================================================ PUBLIC METHODS (TREECONTROL)
+
+REM -----------------------------------------------------------------------------
+Public Sub _SFEXP_requestChildNodes(Optional ByRef poEvent As Object)
+&apos;&apos;&apos;	Triggered by the OnNodeExpanded event of a tree control
+&apos;&apos;&apos;	The event is triggered thru a com.sun.star.view.XTreeExpansionListener
+&apos;&apos;&apos;	The argument is passed to a user routine sstored in the SF_DialogControl instance
+&apos;&apos;&apos;		as a scripting framework URI
+
+Dim oControl As Object				&apos;	The SF_DialogControl object having triggered the event
+
+	On Local Error GoTo Catch		&apos;	Avoid stopping event scripts
+
+Check:	
+	&apos;	Ensure there is a node
+	If IsNull(poEvent) Or IsMissing(poEvent) Then Exit Sub
+	If IsNull(poEvent.Node) Then Exit Sub
+
+Try:
+	Set oControl = ScriptForge.SF_Services.CreateScriptService(&quot;SFDialogs.DialogEvent&quot;, poEvent)
+	ScriptForge.SF_Session._ExecuteScript(oControl.OnNodeExpanded, poEvent)
+
+Finally:
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub
+
+Sub _SFEXP_disposing(ByRef poEvent As Object)
+End Sub
+
+Sub _SFEXP_treeExpanding(Optional ByRef poEvent As Object)
+End Sub
+
+Sub _SFEXP_treeCollapsing(ByRef poEvent As Object)
+End Sub
+
+Sub _SFEXP_treeExpanded(ByRef poEvent As Object)
+End Sub
+
+Sub _SFEXP_treeCollapsed(ByRef poEvent As Object)
+End Sub
+
+REM -----------------------------------------------------------------------------
+Public Sub _SFSEL_selectionChanged(Optional ByRef poEvent As Object)
+&apos;&apos;&apos;	Triggered by the OnNodeSelected event of a tree control
+&apos;&apos;&apos;	The event is triggered thru a com.sun.star.view.XSelectionChangeListener
+&apos;&apos;&apos;	The argument is passed to a user routine sstored in the SF_DialogControl instance
+&apos;&apos;&apos;		as a scripting framework URI
+&apos;&apos;&apos;
+&apos;&apos;&apos;	Nothing happens if there are several selected nodes or none
+
+Dim vSelection As Variant			&apos;	Variant, not object !!
+Dim oControl As Object				&apos;	The SF_DialogControl object having triggered the event
+
+	On Local Error GoTo Catch		&apos;	Avoid stopping event scripts
+
+Check:	
+	&apos;	Ensure there is a selection
+	If IsNull(poEvent) Or IsMissing(poEvent) Then Exit Sub
+	vSelection = poEvent.Source.getSelection()
+	If IsEmpty(vSelection) Or IsArray(vSelection) Then Exit Sub
+
+Try:
+	Set oControl = ScriptForge.SF_Services.CreateScriptService(&quot;SFDialogs.DialogEvent&quot;, poEvent)
+	ScriptForge.SF_Session._ExecuteScript(oControl.OnNodeSelected, poEvent)
+
+Finally:
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub
+
+Sub _SFSEL_disposing(ByRef poEvent As Object)
+End Sub
+
+REM ============================================ PUBLIC METHODS (PAGE MANAGEMENT)
+
+REM -----------------------------------------------------------------------------
+Public Sub _SFTAB_actionPerformed(Optional ByRef poEvent As Object)
+&apos;&apos;&apos;	Event triggered by a button configured through the dialog page manager
+&apos;&apos;&apos;	Buttons may be of type TABCONTROL, BACKCONTROL or NEXTCONTROL
+
+Dim oControl As Object			&apos;	The DialogControl instance having caused the event
+Dim sName As String				&apos;	Control name
+Dim oDialog As Object			&apos;	The parent Dialog instance
+Dim oPageManager As Object		&apos;	An entry in dialog._PageManagement
+Const TABCONTROL		= 2
+Const BACKCONTROL		= 3
+Const NEXTCONTROL		= 4
+
+Check:
+	On Local Error GoTo Finally		&apos;	Never interrupt !!
+	Set oControl = CreateScriptService(&quot;DialogEvent&quot;, poEvent)
+	If IsNull(oControl) Then GoTo Finally
+
+Try:
+	Set oDialog = oControl.Parent
+	With oDialog
+		sName = oControl.Name
+		&apos;	Find entry in page manager settings
+		For Each oPageManager In ._PageManagement
+			If oPageManager.ControlName = sName Then
+				Select Case oPageManager.PageMgtType
+					Case TABCONTROL		:	.Page = oPageManager.PageNumber
+					Case BACKCONTROL	:	.Page = .Page - 1
+					Case NEXTCONTROL	:	.Page = .Page + 1
+					Case Else
+				End Select
+				Exit For
+			End If
+		Next oPageManager
+	End With
+
+Finally:
+	Exit Sub
+End Sub
+
+REM -----------------------------------------------------------------------------
+Public Sub _SFTAB_itemStateChanged(Optional ByRef poEvent As Object)
+&apos;&apos;&apos;	Event triggered by a listbox, combobox or radiobutton configured through the dialog page manager
+&apos;&apos;&apos;	Buttons are of type PILOTCONTROL
+
+Dim oControl As Object			&apos;	The DialogControl instance having caused the event
+Dim sName As String				&apos;	Control name
+Dim oDialog As Object			&apos;	The parent Dialog instance
+Dim oPageManager As Object		&apos;	An entry in dialog._PageManagement
+Dim lPage As Long				&apos;	Actual page number
+
+Check:
+	On Local Error GoTo Finally		&apos;	Never interrupt !!
+	Set oControl = CreateScriptService(&quot;DialogEvent&quot;, poEvent)
+	If IsNull(oControl) Then GoTo Finally
+
+Try:
+	Set oDialog = oControl.Parent
+	With oDialog
+		sName = oControl.Name
+		&apos;	Find entry in page manager settings
+		For Each oPageManager In ._PageManagement
+			If oPageManager.ControlName = sName Then
+				lPage = oPageManager.PageNumber
+				If lPage = 0 Then .Page = oControl.ListIndex + 1 Else .Page = lPage
+				Exit For
+			End If
+		Next oPageManager
+	End With
+
+Finally:
+	Exit Sub
+End Sub
+
+REM -----------------------------------------------------------------------------
+Public Sub _SFTAB_disposing(Optional ByRef poEvent As Object)
+End Sub
+
+REM ============================================================= PRIVATE METHODS
+
+REM ============================================ END OF SFDIALOGS.SF_DIALOGLISTENER
+</script:module>

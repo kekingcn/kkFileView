@@ -1,0 +1,1507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="SF_Document" script:language="StarBasic" script:moduleType="normal">REM =======================================================================================================================
+REM ===			The ScriptForge library and its associated libraries are part of the LibreOffice project.				===
+REM	===						The SFDocuments library is one of the associated libraries.									===
+REM ===					Full documentation is available on https://help.libreoffice.org/								===
+REM =======================================================================================================================
+
+Option Compatible
+Option ClassModule
+
+Option Explicit
+
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+&apos;&apos;&apos;	SF_Document
+&apos;&apos;&apos;	===========
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The SFDocuments library gathers a number of methods and properties making easy
+&apos;&apos;&apos;		managing and manipulating LibreOffice documents
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Some methods are generic for all types of documents: they are combined in the
+&apos;&apos;&apos;		current SF_Document module
+&apos;&apos;&apos;			- saving, closing documents
+&apos;&apos;&apos;			- accessing their standard or custom properties
+&apos;&apos;&apos;		Specific properties and methods are implemented in the concerned subclass(es) SF_Calc, SF_Base, ...
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Documents might contain forms. The current service gives access to the &quot;SFDocuments.Form&quot; service
+&apos;&apos;&apos;
+&apos;&apos;&apos;		To workaround the absence of class inheritance in LibreOffice Basic, some redundancy is necessary
+&apos;&apos;&apos;		Each subclass MUST implement also the generic methods and properties, even if they only call
+&apos;&apos;&apos;		the parent methods and properties implemented below
+&apos;&apos;&apos;		They should also duplicate some generic private members as a subset of their own set of members
+&apos;&apos;&apos;
+&apos;&apos;&apos;		The current module is closely related to the &quot;UI&quot; and &quot;FileSystem&quot; services
+&apos;&apos;&apos;		of the ScriptForge library
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Service invocation examples:
+&apos;&apos;&apos;		1) From the UI service
+&apos;&apos;&apos;			Dim ui As Object, oDoc As Object
+&apos;&apos;&apos;			Set ui = CreateScriptService(&quot;UI&quot;)
+&apos;&apos;&apos;			Set oDoc = ui.GetDocument(&quot;Untitled 1&quot;)
+&apos;&apos;&apos;				&apos; or Set oDoc = ui.CreateDocument(&quot;Calc&quot;, ...)
+&apos;&apos;&apos;				&apos; or Set oDoc = ui.OpenDocument(&quot;C:\Me\MyFile.odt&quot;)
+&apos;&apos;&apos;		2) Directly if the document is already opened
+&apos;&apos;&apos;			Dim oDoc As Object
+&apos;&apos;&apos;			Set oDoc = CreateScriptService(&quot;SFDocuments.Document&quot;, &quot;Untitled 1&quot;)	&apos;	Default = ActiveWindow
+&apos;&apos;&apos;				&apos; The substring &quot;SFDocuments.&quot; in the service name is optional
+&apos;&apos;&apos;
+&apos;&apos;&apos;		Detailed user documentation:
+&apos;&apos;&apos;			https://help.libreoffice.org/latest/en-US/text/sbasic/shared/03/sf_document.html?DbPAR=BASIC
+&apos;&apos;&apos;
+&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;&apos;
+
+REM ================================================================== EXCEPTIONS
+
+Private Const DOCUMENTDEADERROR		=	&quot;DOCUMENTDEADERROR&quot;
+Private Const DOCUMENTSAVEERROR		=	&quot;DOCUMENTSAVEERROR&quot;
+Private Const DOCUMENTSAVEASERROR	=	&quot;DOCUMENTSAVEASERROR&quot;
+Private Const DOCUMENTREADONLYERROR	=	&quot;DOCUMENTREADONLYERROR&quot;
+
+Private Const FORMDEADERROR			=	&quot;FORMDEADERROR&quot;
+
+REM ============================================================= PRIVATE MEMBERS
+
+Private [Me]					As Object
+Private [_Parent]				As Object
+Private [_SubClass]				As Object		&apos;	Subclass instance
+Private ObjectType				As String		&apos;	Must be DOCUMENT
+Private ServiceName				As String
+
+&apos;	Window description
+Private _Component				As Object		&apos;	com.sun.star.lang.XComponent
+Private _Frame					As Object		&apos;	com.sun.star.comp.framework.Frame
+Private _WindowName				As String		&apos;	Object Name
+Private _WindowTitle			As String		&apos;	Only mean to identify new documents
+Private _WindowFileName			As String		&apos;	URL of file name
+Private _DocumentType			As String		&apos;	Writer, Calc, ...
+
+&apos;	Properties (work variables - real properties could have been set manually by user)
+Private _DocumentProperties		As Object		&apos;	Dictionary of document properties
+Private _CustomProperties		As Object		&apos;	Dictionary of custom properties
+
+REM ============================================================ MODULE CONSTANTS
+
+Const ISDOCFORM = 1				&apos;	Form is stored in a Writer document
+
+REM ====================================================== CONSTRUCTOR/DESTRUCTOR
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Initialize()
+	Set [Me] = Nothing
+	Set [_Parent] = Nothing
+	Set [_SubClass] = Nothing
+	ObjectType = &quot;DOCUMENT&quot;
+	ServiceName = &quot;SFDocuments.Document&quot;
+	Set _Component = Nothing
+	Set _Frame = Nothing
+	_WindowName = &quot;&quot;
+	_WindowTitle = &quot;&quot;
+	_WindowFileName = &quot;&quot;
+	_DocumentType = &quot;&quot;
+	Set _DocumentProperties = Nothing
+	Set _CustomProperties = Nothing
+End Sub		&apos;	SFDocuments.SF_Document Constructor
+
+REM -----------------------------------------------------------------------------
+Private Sub Class_Terminate()
+	Call Class_Initialize()
+End Sub		&apos;	SFDocuments.SF_Document Destructor
+
+REM -----------------------------------------------------------------------------
+Public Function Dispose() As Variant
+	Call Class_Terminate()
+	Set Dispose = Nothing
+End Function	&apos;	SFDocuments.SF_Document Explicit Destructor
+
+REM ================================================================== PROPERTIES
+
+REM -----------------------------------------------------------------------------
+Property Get CustomProperties() As Variant
+&apos;&apos;&apos;	Returns a dictionary of all custom properties of the document
+	CustomProperties = _PropertyGet(&quot;CustomProperties&quot;)
+End Property	&apos;	SFDocuments.SF_Document.CustomProperties
+
+REM -----------------------------------------------------------------------------
+Property Let CustomProperties(Optional ByVal pvCustomProperties As Variant)
+&apos;&apos;&apos;	Sets the updatable custom properties
+&apos;&apos;&apos;	The argument is a dictionary
+
+Dim vPropertyValues As Variant			&apos;	Array of com.sun.star.beans.PropertyValue
+Dim vCustomProperties As Variant		&apos;	Alias of argument
+Dim oUserdefinedProperties As Object	&apos;	Custom properties object
+Dim vOldPropertyValues As Variant		&apos;	Array of (to remove) existing user defined properties
+Dim oProperty As Object					&apos;	Single com.sun.star.beans.PropertyValues
+Dim sProperty As String					&apos;	Property name
+Dim vKeys As Variant					&apos;	Array of dictionary keys
+Dim vItems As Variant					&apos;	Array of dictionary items
+Dim vValue As Variant					&apos;	Value to store in property
+Dim iAttribute As Integer				&apos;	com.sun.star.beans.PropertyAttribute.REMOVEABLE
+Dim i As Long
+Const cstThisSub = &quot;SFDocuments.Document.setCustomProperties&quot;
+Const cstSubArgs = &quot;CustomProperties&quot;
+
+	On Local Error GoTo Catch
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvCustomProperties, &quot;CustomProperties&quot;, ScriptForge.V_OBJECT, , , &quot;DICTIONARY&quot;) Then GoTo Finally
+	End If
+
+Try:
+	Set oUserDefinedProperties = _Component.getDocumentProperties().UserDefinedProperties
+
+	Set vCustomProperties = pvCustomProperties		&apos;	To avoid &quot;Object variable not set&quot; error
+	With vCustomProperties
+
+		&apos;	All existing custom properties must first be removed to avoid type conflicts
+		vOldPropertyValues = oUserDefinedProperties.getPropertyValues
+		For Each oProperty In vOldPropertyValues
+			sProperty = oProperty.Name
+			oUserDefinedProperties.removeProperty(sProperty)
+		Next oProperty
+
+		&apos;	Insert new properties one by one after type adjustment (dates, arrays, numbers)
+		vKeys = .Keys
+		vItems = .Items
+		iAttribute = com.sun.star.beans.PropertyAttribute.REMOVEABLE
+		For i = 0 To UBound(vKeys)
+			If VarType(vItems(i)) = V_DATE Then
+				vValue = ScriptForge.SF_Utils._CDateToUnoDate(vItems(i))
+			ElseIf IsArray(vItems(i)) Then
+				vValue = Null
+			ElseIf ScriptForge.SF_Utils._VarTypeExt(vItems(i)) = ScriptForge.V_NUMERIC Then
+				vValue = CreateUnoValue(&quot;double&quot;, vItems(i))
+			Else
+				vValue = vItems(i)
+			End If
+			oUserDefinedProperties.addProperty(vKeys(i), iAttribute, vValue)
+		Next i
+
+		&apos;	Declare the document as changed
+		_Component.setModified(True)
+	End With
+
+	&apos;	Reload custom properties in current object instance
+	_PropertyGet(&quot;CustomProperties&quot;)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Property
+Catch:
+	GoTo Finally
+End Property	&apos;	SFDocuments.SF_Document.CustomProperties
+
+REM -----------------------------------------------------------------------------
+Property Get Description() As Variant
+&apos;&apos;&apos;	Returns the updatable document property Description
+	Description = _PropertyGet(&quot;Description&quot;)
+End Property	&apos;	SFDocuments.SF_Document.Description
+
+REM -----------------------------------------------------------------------------
+Property Let Description(Optional ByVal pvDescription As Variant)
+&apos;&apos;&apos;	Sets the updatable document property Description
+&apos;&apos;&apos;	If multilined, separate lines by &quot;\n&quot; escape sequence or by hard breaks
+
+Dim sDescription As String			&apos;	Alias of pvDescription
+Const cstThisSub = &quot;SFDocuments.Document.setDescription&quot;
+Const cstSubArgs = &quot;Description&quot;
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvDescription, &quot;Description&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Update in UNO component object and in current instance
+	sDescription = Replace(pvDescription, &quot;\n&quot;, ScriptForge.SF_String.sfNEWLINE)
+	_Component.DocumentProperties.Description = sDescription
+	If Not IsNull(_DocumentProperties) Then _DocumentProperties.ReplaceItem(&quot;Description&quot;, sdescription)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Property
+End Property	&apos;	SFDocuments.SF_Document.Description
+
+REM -----------------------------------------------------------------------------
+Property Get DocumentProperties() As Variant
+&apos;&apos;&apos;	Returns a dictionary of all standard document properties, custom properties are excluded
+	DocumentProperties = _PropertyGet(&quot;DocumentProperties&quot;)
+End Property	&apos;	SFDocuments.SF_Document.DocumentProperties
+
+REM -----------------------------------------------------------------------------
+Property Get DocumentType() As String
+&apos;&apos;&apos;	Returns &quot;Base&quot;, &quot;Calc&quot;, &quot;Draw&quot;, ... or &quot;Writer&quot;
+	DocumentType = _PropertyGet(&quot;DocumentType&quot;)
+End Property	&apos;	SFDocuments.SF_Document.DocumentType
+
+REM -----------------------------------------------------------------------------
+Property Get ExportFilters() As Variant
+&apos;&apos;&apos;	Returns the list of the export filter names applicable to the current document
+&apos;&apos;&apos;	as a zero-based array of strings
+&apos;&apos;&apos;	Import/Export filters are included
+	ExportFilters = _PropertyGet(&quot;ExportFilters&quot;)
+End Property	&apos;	SFDocuments.SF_Document.ExportFilters
+
+REM -----------------------------------------------------------------------------
+Property Get ImportFilters() As Variant
+&apos;&apos;&apos;	Returns the list of the import filter names applicable to the current document
+&apos;&apos;&apos;	as a zero-based array of strings
+&apos;&apos;&apos;	Import/Export filters are included
+	ImportFilters = _PropertyGet(&quot;ImportFilters&quot;)
+End Property	&apos;	SFDocuments.SF_Document.ImportFilters
+
+REM -----------------------------------------------------------------------------
+Property Get IsBase() As Boolean
+	IsBase = _PropertyGet(&quot;IsBase&quot;)
+End Property	&apos;	SFDocuments.SF_Document.IsBase
+
+REM -----------------------------------------------------------------------------
+Property Get IsCalc() As Boolean
+	IsCalc = _PropertyGet(&quot;IsCalc&quot;)
+End Property	&apos;	SFDocuments.SF_Document.IsCalc
+
+REM -----------------------------------------------------------------------------
+Property Get IsDraw() As Boolean
+	IsDraw = _PropertyGet(&quot;IsDraw&quot;)
+End Property	&apos;	SFDocuments.SF_Document.IsDraw
+
+REM -----------------------------------------------------------------------------
+Property Get IsImpress() As Boolean
+	IsImpress = _PropertyGet(&quot;IsImpress&quot;)
+End Property	&apos;	SFDocuments.SF_Document.IsImpress
+
+REM -----------------------------------------------------------------------------
+Property Get IsMath() As Boolean
+	IsMath = _PropertyGet(&quot;IsMath&quot;)
+End Property	&apos;	SFDocuments.SF_Document.IsMath
+
+REM -----------------------------------------------------------------------------
+Property Get IsWriter() As Boolean
+	IsWriter = _PropertyGet(&quot;IsWriter&quot;)
+End Property	&apos;	SFDocuments.SF_Document.IsWriter
+
+REM -----------------------------------------------------------------------------
+Property Get Keywords() As Variant
+&apos;&apos;&apos;	Returns the updatable document property Keywords
+	Keywords = _PropertyGet(&quot;Keywords&quot;)
+End Property	&apos;	SFDocuments.SF_Document.Keywords
+
+REM -----------------------------------------------------------------------------
+Property Let Keywords(Optional ByVal pvKeywords As Variant)
+&apos;&apos;&apos;	Sets the updatable document property Keywords
+
+Dim vKeywords As Variant			&apos;	Alias of pvKeywords
+Const cstThisSub = &quot;SFDocuments.Document.setKeywords&quot;
+Const cstSubArgs = &quot;Keywords&quot;
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvKeywords, &quot;Keywords&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Update in UNO component object and in current instance
+	vKeywords = ScriptForge.SF_Array.TrimArray(Split(pvKeywords, &quot;,&quot;))
+	_Component.DocumentProperties.Keywords = vKeywords
+	If Not IsNull(_DocumentProperties) Then _DocumentProperties.ReplaceItem(&quot;Keywords&quot;, Join(vKeywords, &quot;, &quot;))
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Property
+End Property	&apos;	SFDocuments.SF_Document.Keywords
+
+REM -----------------------------------------------------------------------------
+Property Get Readonly() As Boolean
+&apos;&apos;&apos;	Returns True if the document must not be modified
+	Readonly = _PropertyGet(&quot;Readonly&quot;)
+End Property	&apos;	SFDocuments.SF_Document.Readonly
+
+REM -----------------------------------------------------------------------------
+Property Get Subject() As Variant
+&apos;&apos;&apos;	Returns the updatable document property Subject
+	Subject = _PropertyGet(&quot;Subject&quot;)
+End Property	&apos;	SFDocuments.SF_Document.Subject
+
+REM -----------------------------------------------------------------------------
+Property Let Subject(Optional ByVal pvSubject As Variant)
+&apos;&apos;&apos;	Sets the updatable document property Subject
+
+Const cstThisSub = &quot;SFDocuments.Document.setSubject&quot;
+Const cstSubArgs = &quot;Subject&quot;
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvSubject, &quot;Subject&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Update in UNO component object and in current instance
+	_Component.DocumentProperties.Subject = pvSubject
+	If Not IsNull(_DocumentProperties) Then _DocumentProperties.ReplaceItem(&quot;Subject&quot;, pvSubject)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Property
+End Property	&apos;	SFDocuments.SF_Document.Subject
+
+REM -----------------------------------------------------------------------------
+Property Get Title() As Variant
+&apos;&apos;&apos;	Returns the updatable document property Title
+	Title = _PropertyGet(&quot;Title&quot;)
+End Property	&apos;	SFDocuments.SF_Document.Title
+
+REM -----------------------------------------------------------------------------
+Property Let Title(Optional ByVal pvTitle As Variant)
+&apos;&apos;&apos;	Sets the updatable document property Title
+
+Const cstThisSub = &quot;SFDocuments.Document.setTitle&quot;
+Const cstSubArgs = &quot;Title&quot;
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive(True) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(pvTitle, &quot;Title&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	&apos;	Update in UNO component object and in current instance
+	_Component.DocumentProperties.Title = pvTitle
+	If Not IsNull(_DocumentProperties) Then _DocumentProperties.ReplaceItem(&quot;Title&quot;, pvTitle)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Property
+End Property	&apos;	SFDocuments.SF_Document.Title
+
+REM -----------------------------------------------------------------------------
+Property Get XComponent() As Variant
+&apos;&apos;&apos;	Returns the com.sun.star.lang.XComponent UNO object representing the document
+	XComponent = _PropertyGet(&quot;XComponent&quot;)
+End Property	&apos;	SFDocuments.SF_Document.XComponent
+
+REM ===================================================================== METHODS
+
+REM -----------------------------------------------------------------------------
+Public Function Activate() As Boolean
+&apos;&apos;&apos; Make the current document active
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if the document could be activated
+&apos;&apos;&apos;		Otherwise, there is no change in the actual user interface
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.Activate()
+
+Dim bActivate As Boolean			&apos;	Return value
+Dim oContainer As Object			&apos;	com.sun.star.awt.XWindow
+Const cstThisSub = &quot;SFDocuments.Document.Activate&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bActivate = False
+
+Check:
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+Try:
+	Set oContainer = _Frame.ContainerWindow
+	With oContainer
+		If .isVisible() = False Then .setVisible(True)
+		.IsMinimized = False
+		.setFocus()
+		.toFront()				&apos;	Force window change in Linux
+		Wait 1					&apos;	Bypass desynchro issue in Linux
+	End With
+	bActivate = True
+
+Finally:
+	Activate = bActivate
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function    &apos;   SFDocuments.SF_Document.Activate
+
+REM -----------------------------------------------------------------------------
+Public Function CloseDocument(Optional ByVal SaveAsk As Variant) As Boolean
+&apos;&apos;&apos; Close the document. Does nothing if the document is already closed
+&apos;&apos;&apos;	regardless of how the document was closed, manually or by program
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		SaveAsk: If True (default), the user is invited to confirm or not the writing of the changes on disk
+&apos;&apos;&apos;					No effect if the document was not modified
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False if the user declined to close
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		If oDoc.CloseDocument() Then
+&apos;&apos;&apos;			&apos; ...
+
+Dim bClosed As Boolean		&apos;	return value
+Dim oDispatch				&apos;	com.sun.star.frame.DispatchHelper
+Const cstThisSub = &quot;SFDocuments.Document.CloseDocument&quot;
+Const cstSubArgs = &quot;[SaveAsk=True]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bClosed = False
+
+Check:
+	If IsMissing(SaveAsk) Or IsEmpty(SaveAsk) Then SaveAsk = True
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(SaveAsk, &quot;SaveAsk&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+	End If
+
+Try:
+	If SaveAsk And _Component.IsModified Then	&apos;	Execute closure with the File/Close menu command
+		Activate()
+		RunCommand(&quot;CloseDoc&quot;)
+		bClosed = _IsStillAlive(, False)			&apos;	Do not raise error
+	Else
+		_Frame.close(True)
+		_Frame.dispose()
+		bClosed = True
+	End If
+
+Finally:
+	If bClosed Then Dispose()
+	CloseDocument = bClosed
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.CloseDocument
+
+REM -----------------------------------------------------------------------------
+Public Function CreateMenu(Optional ByVal MenuHeader As Variant _
+								, Optional ByVal Before As Variant _
+								, Optional ByVal SubmenuChar As Variant _
+								, Optional ByRef _Document As Variant _
+								) As Object
+&apos;&apos;&apos; Create a new menu entry in the document&apos;s menubar
+&apos;&apos;&apos;	The menu is not intended to be saved neither in the LibreOffice global environment, nor in the document
+&apos;&apos;&apos;	The method returns a SFWidgets.Menu instance. Its methods let define the menu further.
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuHeader: the name/header of the menu
+&apos;&apos;&apos;		Before: the place where to put the new menu on the menubar (string or number &gt;= 1)
+&apos;&apos;&apos;			When not found =&gt; last position
+&apos;&apos;&apos;		SubmenuChar: the delimiter used in menu trees. Default = &quot;&gt;&quot;
+&apos;&apos;&apos;		_Document: undocumented argument to designate the document where the menu will be located
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A SFWidgets.Menu instance or Nothing
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		Dim oMenu As Object
+&apos;&apos;&apos;		Set oMenu = oDoc.CreateMenu(&quot;My menu&quot;, Before := &quot;Styles&quot;)
+&apos;&apos;&apos;		With oMenu
+&apos;&apos;&apos;			.AddItem(&quot;Item 1&quot;, Command := &quot;About&quot;)
+&apos;&apos;&apos;			&apos;...
+&apos;&apos;&apos;			.Dispose()	&apos;	When definition is complete, the menu instance may be disposed
+&apos;&apos;&apos;		End With
+&apos;&apos;&apos;			&apos; ...
+
+Dim oMenu As Object			&apos;	return value
+Const cstThisSub = &quot;SFDocuments.Document.CreateMenu&quot;
+Const cstSubArgs = &quot;MenuHeader, [Before=&quot;&quot;&quot;&quot;], [SubmenuChar=&quot;&quot;&gt;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	Set oMenu = Nothing
+
+Check:
+	If IsMissing(Before) Or IsEmpty(Before) Then Before = &quot;&quot;
+	If IsMissing(SubmenuChar) Or IsEmpty(SubmenuChar) Then SubmenuChar = &quot;&quot;
+	If IsMissing(_Document) Or IsEmpty(_Document) Or IsNull(_Document) Then Set _Document = _Component
+
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(MenuHeader, &quot;MenuHeader&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Before, &quot;Before&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(SubmenuChar, &quot;SubmenuChar&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	Set oMenu = ScriptForge.SF_Services.CreateScriptService(&quot;SFWidgets.Menu&quot;, _Document, MenuHeader, Before, SubmenuChar)
+
+Finally:
+	Set CreateMenu = oMenu
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.CreateMenu
+
+REM -----------------------------------------------------------------------------
+Public Function ExportAsPDF(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Pages As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal Watermark As Variant _
+							) As Boolean
+&apos;&apos;&apos;	Store the document to the given file location in PDF format
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FileName: Identifies the file where to save. It must follow the SF_FileSystem.FileNaming notation
+&apos;&apos;&apos;		Overwrite: True if the destination file may be overwritten (default = False)
+&apos;&apos;&apos;		Pages: the pages to print as a string, like in the user interface. Example: &quot;1-4;10;15-18&quot;. Default = all pages
+&apos;&apos;&apos;		Password: password to open the document
+&apos;&apos;&apos;		Watermark: the text for a watermark to be drawn on every page of the exported PDF file
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False if the document could not be saved
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		DOCUMENTSAVEASERROR		The destination has its readonly attribute set or overwriting rejected
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.ExportAsPDF(&quot;C:\Me\myDoc.pdf&quot;, Overwrite := True)
+
+Dim bSaved As Boolean				&apos;	return value
+Dim oSfa As Object					&apos;	com.sun.star.ucb.SimpleFileAccess
+Dim sFile As String					&apos;	Alias of FileName
+Dim sFilter As String				&apos;	One of the pdf filter names
+Dim vFilterData As Variant			&apos;	Array of com.sun.star.beans.PropertyValue
+Dim vProperties As Variant			&apos;	Array of com.sun.star.beans.PropertyValue
+Dim FSO As Object					&apos;	SF_FileSystem
+Const cstThisSub = &quot;SFDocuments.Document.ExportAsPDF&quot;
+Const cstSubArgs = &quot;FileName, [Overwrite=False], [Pages=&quot;&quot;&quot;&quot;], [Password=&quot;&quot;&quot;&quot;], [Watermark=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo CatchError
+	bSaved = False
+
+Check:
+	If IsMissing(Overwrite) Or IsEmpty(Overwrite) Then Overwrite = False
+	If IsMissing(Pages) Or IsEmpty(Pages) Then Pages = &quot;&quot;
+	If IsMissing(Password) Or IsEmpty(Password) Then Password = &quot;&quot;
+	If IsMissing(Watermark) Or IsEmpty(Watermark) Then Watermark = &quot;&quot;
+
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not SF_Utils._ValidateFile(FileName, &quot;FileName&quot;) Then GoTo Finally
+		If Not SF_Utils._Validate(Overwrite, &quot;Overwrite&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not SF_Utils._Validate(Pages, &quot;Pages&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Password, &quot;Password&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(Watermark, &quot;Watermark&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	&apos;	Check destination file overwriting
+	Set FSO = CreateScriptService(&quot;FileSystem&quot;)
+	sFile = FSO._ConvertToUrl(FileName)
+	If FSO.FileExists(FileName) Then
+		If Overwrite = False Then GoTo CatchError
+		Set oSfa = ScriptForge.SF_Utils._GetUNOService(&quot;FileAccess&quot;)
+		If oSfa.isReadonly(sFile) Then GoTo CatchError
+	End If
+
+Try:
+	&apos;	Setup arguments
+	sFilter = LCase(_DocumentType) &amp; &quot;_pdf_Export&quot;
+	&apos;	FilterData parameters are added only if they are meaningful
+	vFilterData = Array()
+	If Len(Pages) &gt; 0 Then
+		vFilterData = ScriptForge.SF_Array.Append(vFilterData _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;PageRange&quot;, Pages))
+	End If
+	If Len(Password) &gt; 0 Then
+		vFilterData = ScriptForge.SF_Array.Append(vFilterData _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;EncryptFile&quot;, True) _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;DocumentOpenPassword&quot;, Password))
+	End If
+	If Len(Watermark) &gt; 0 Then
+		vFilterData = ScriptForge.SF_Array.Append(vFilterData _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;Watermark&quot;, Watermark))
+	End If
+
+	&apos;	Finalize properties and export
+	vProperties = Array( _
+						ScriptForge.SF_Utils._MakePropertyValue(&quot;FilterName&quot;, sFilter) _
+						, ScriptForge.SF_Utils._MakePropertyValue(&quot;FilterData&quot;, vFilterData))
+	_Component.StoreToURL(sFile, vProperties)
+	bSaved = True
+
+Finally:
+	ExportAsPDF = bSaved
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchError:
+	ScriptForge.SF_Exception.RaiseFatal(DOCUMENTSAVEASERROR, &quot;FileName&quot;, FileName, &quot;Overwrite&quot;, Overwrite _
+					, &quot;FilterName&quot;, &quot;PDF Export&quot;)
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.ExportAsPDF
+
+REM -----------------------------------------------------------------------------
+Public Function GetProperty(Optional ByVal PropertyName As Variant) As Variant
+&apos;&apos;&apos;	Return the actual value of the given property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		PropertyName: the name of the property as a string
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		The actual value of the property
+&apos;&apos;&apos;		If the property does not exist, returns Null
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		see the exceptions of the individual properties
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		myModel.GetProperty(&quot;MyProperty&quot;)
+
+Const cstThisSub = &quot;SFDocuments.Document.GetProperty&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	GetProperty = Null
+
+Check:
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not ScriptForge.SF_Utils._Validate(PropertyName, &quot;PropertyName&quot;, V_STRING, Properties()) Then GoTo Catch
+	End If
+
+Try:
+	GetProperty = _PropertyGet(PropertyName)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Document.GetProperty
+
+REM -----------------------------------------------------------------------------
+Public Function Methods() As Variant
+&apos;&apos;&apos;	Return the list of public methods of the Document service as an array
+
+	Methods = Array( _
+					&quot;Activate&quot; _
+					, &quot;CloseDocument&quot; _
+					, &quot;CreateMenu&quot; _
+					, &quot;ExportAsPDF&quot; _
+					, &quot;PrintOut&quot; _
+					, &quot;RemoveMenu&quot; _
+					, &quot;RunCommand&quot; _
+					, &quot;Save&quot; _
+					, &quot;SaveAs&quot; _
+					, &quot;SaveCopyAs&quot; _
+					, &quot;SetPrinter&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Document.Methods
+
+REM -----------------------------------------------------------------------------
+Public Function PrintOut(Optional ByVal Pages As Variant _
+							, Optional ByVal Copies As Variant _
+							, Optional ByRef _Document As Variant _
+							) As Boolean
+&apos;&apos;&apos; Send the content of the document to the printer.
+&apos;&apos;&apos;	The printer might be defined previously by default, by the user or by the SetPrinter() method
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Pages: the pages to print as a string, like in the user interface. Example: &quot;1-4;10;15-18&quot;. Default = all pages
+&apos;&apos;&apos;		Copies: the number of copies
+&apos;&apos;&apos;		_Document: undocumented argument to designate the document to print when called from a subclass
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.PrintOut(&quot;1-4;10;15-18&quot;, Copies := 2)
+
+Dim bPrint As Boolean				&apos;	Return value
+Dim vPrintGoal As Variant			&apos;	Array of property values
+
+Const cstThisSub = &quot;SFDocuments.Document.PrintOut&quot;
+Const cstSubArgs = &quot;[Pages=&quot;&quot;&quot;&quot;], [Copies=1]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bPrint = False
+
+Check:
+	If IsMissing(Pages) Or IsEmpty(Pages) Then Pages = &quot;&quot;
+	If IsMissing(Copies) Or IsEmpty(Copies) Then Copies = 1
+	If IsMissing(_Document) Or IsEmpty(_Document) Or IsNull(_Document) Then Set _Document = _Component
+
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Pages, &quot;Pages&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Copies, &quot;Copies&quot;, ScriptForge.V_NUMERIC) Then GoTo Finally
+	End If
+
+Try:
+	vPrintGoal = Array( _
+						ScriptForge.SF_Utils._MakePropertyValue(&quot;CopyCount&quot;, CInt(Copies)) _
+						, ScriptForge.SF_Utils._MakePropertyValue(&quot;Collate&quot;, True) _
+						, ScriptForge.SF_Utils._MakePropertyValue(&quot;Pages&quot;, Pages) _
+						, ScriptForge.SF_Utils._MakePropertyValue(&quot;Wait&quot;, False) _
+						)
+
+	_Document.Print(vPrintGoal)
+	bPrint = True
+
+Finally:
+	PrintOut = bPrint
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.PrintOut
+
+REM -----------------------------------------------------------------------------
+Public Function Properties() As Variant
+&apos;&apos;&apos;	Return the list or properties of the Document class as an array
+
+	Properties = Array( _
+					&quot;CustomProperties&quot; _
+					, &quot;Description&quot; _
+					, &quot;DocumentProperties&quot; _
+					, &quot;DocumentType&quot; _
+					, &quot;ExportFilters&quot; _
+					, &quot;ImportFilters&quot; _
+					, &quot;IsBase&quot; _
+					, &quot;IsCalc&quot; _
+					, &quot;IsDraw&quot; _
+					, &quot;IsImpress&quot; _
+					, &quot;IsMath&quot; _
+					, &quot;IsWriter&quot; _
+					, &quot;Keywords&quot; _
+					, &quot;Readonly&quot; _
+					, &quot;Subject&quot; _
+					, &quot;Title&quot; _
+					, &quot;XComponent&quot; _
+					)
+
+End Function	&apos;	SFDocuments.SF_Document.Properties
+
+REM -----------------------------------------------------------------------------
+Public Function RemoveMenu(Optional ByVal MenuHeader As Variant _
+							, Optional ByRef _Document As Variant _
+							) As Boolean
+&apos;&apos;&apos; Remove a menu entry in the document&apos;s menubar
+&apos;&apos;&apos;	The removal is not intended to be saved neither in the LibreOffice global environment, nor in the document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		MenuHeader: the name/header of the menu, without tilde &quot;~&quot;, as a case-sensitive string
+&apos;&apos;&apos;		_Document: undocumented argument to designate the document where the menu is located
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.RemoveMenu(&quot;File&quot;)
+&apos;&apos;&apos;			&apos; ...
+
+Dim bRemove As Boolean			&apos;	Return value
+Dim oLayout As Object			&apos;	com.sun.star.comp.framework.LayoutManager
+Dim oMenuBar As Object			&apos;	com.sun.star.awt.XMenuBar or stardiv.Toolkit.VCLXMenuBar
+Dim sName As String				&apos;	Menu name
+Dim iMenuId As Integer			&apos;	Menu identifier
+Dim iMenuPosition As Integer	&apos;	Menu position &gt;= 0
+Dim i As Integer
+Const cstTilde = &quot;~&quot;
+
+Const cstThisSub = &quot;SFDocuments.Document.RemoveMenu&quot;
+Const cstSubArgs = &quot;MenuHeader&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bRemove = False
+
+Check:
+	If IsMissing(_Document) Or IsEmpty(_Document) Or IsNull(_Document) Then Set _Document = _Component
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(MenuHeader, &quot;MenuHeader&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	Set oLayout = _Document.CurrentController.Frame.LayoutManager
+	Set oMenuBar = oLayout.getElement(&quot;private:resource/menubar/menubar&quot;).XMenuBar
+
+	&apos;	Search the menu identifier to remove by its name, Mark its position
+	With oMenuBar
+		iMenuPosition = -1
+		For i = 0 To .ItemCount - 1
+			iMenuId = .getItemId(i)
+			sName = Replace(.getItemText(iMenuId), cstTilde, &quot;&quot;)
+			If MenuHeader= sName Then
+				iMenuPosition = i
+				Exit For
+			End If
+		Next i
+		&apos;	Remove the found menu item
+		If iMenuPosition &gt;= 0 Then
+			.removeItem(iMenuPosition, 1)
+			bRemove = True
+		End If
+	End With
+
+Finally:
+	RemoveMenu = bRemove
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.RemoveMenu
+
+REM -----------------------------------------------------------------------------
+Public Sub RunCommand(Optional ByVal Command As Variant _
+									, ParamArray Args As Variant _
+									)
+&apos;&apos;&apos; Run on the current document window the given menu command. The command is executed with or without arguments
+&apos;&apos;&apos;	A few typical commands:
+&apos;&apos;&apos;		Save, SaveAs, ExportToPDF, SetDocumentProperties, Undo, Copy, Paste, ...
+&apos;&apos;&apos;	Dozens can be found on next page: https://wiki.documentfoundation.org/Development/DispatchCommands
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Command: Case-sensitive. The command itself is not checked.
+&apos;&apos;&apos;			If the command does not contain the &quot;.uno:&quot; prefix, it is added.
+&apos;&apos;&apos;			If nothing happens, then the command is probably wrong
+&apos;&apos;&apos;		Args: Pairs of arguments name (string), value (any)
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.RunCommand(&quot;EditDoc&quot;, &quot;Editable&quot;, False)	&apos;	Toggle edit mode
+
+Dim vArgs As Variant		&apos;	Alias of Args
+Dim oDispatch				&apos;	com.sun.star.frame.DispatchHelper
+Dim vProps As Variant		&apos;	Array of PropertyValues
+Dim vValue As Variant		&apos;	A single value argument
+Dim sCommand As String		&apos;	Alias of Command
+Dim i As Long
+Const cstPrefix = &quot;.uno:&quot;
+
+Const cstThisSub = &quot;SFDocuments.Document.RunCommand&quot;
+Const cstSubArgs = &quot;Command, [arg0Name, arg0Value], [arg1Name, arg1Value], ...&quot;
+
+	If SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+
+Check:
+	&apos;	When called from a subclass (Calc, Writer, ..) the arguments are gathered into one single array item
+	vArgs = Args
+	If IsArray(Args) Then
+		If UBound(Args) &gt;= 0 Then
+			If IsArray(Args(0)) Then vArgs = Args(0)
+		End If
+	End If
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not ScriptForge.SF_Utils._Validate(Command, &quot;Command&quot;, V_STRING) Then GoTo Finally
+		If Not ScriptForge.SF_Utils._ValidateArray(vArgs, &quot;Args&quot;, 1) Then GoTo Finally
+		For i = 0 To UBound(vArgs) - 1 Step 2
+			If Not ScriptForge.SF_Utils._Validate(vArgs(i), &quot;Arg&quot; &amp; CStr(i/2) &amp; &quot;Name&quot;, V_STRING) Then GoTo Finally
+		Next i
+	End If
+
+Try:
+	&apos;	Build array of property values
+	vProps = Array()
+	For i = 0 To UBound(vArgs) - 1 Step 2
+		If IsEmpty(vArgs(i + 1)) Then vValue = Null Else vValue = vArgs(i + 1)
+		vProps = ScriptForge.SF_Array.Append(vProps, ScriptForge.SF_Utils._MakePropertyValue(vArgs(i), vValue))
+	Next i
+	Set oDispatch = ScriptForge.SF_Utils._GetUNOService(&quot;DispatchHelper&quot;)
+	If ScriptForge.SF_String.StartsWith(Command, cstPrefix) Then sCommand = Command Else sCommand = cstPrefix &amp; Command
+	oDispatch.executeDispatch(_Frame, sCommand, &quot;&quot;, 0, vProps)
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Sub
+Catch:
+	GoTo Finally
+End Sub			&apos;	SFDocuments.SF_Document.RunCommand
+
+REM -----------------------------------------------------------------------------
+Public Function Save() As Boolean
+&apos;&apos;&apos; Store the document to the file location from which it was loaded
+&apos;&apos;&apos;	Ignored if the document was not modified
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False if the document could not be saved
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		DOCUMENTSAVEERROR		The file has been opened readonly or was opened as new and was not yet saved
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		If Not oDoc.Save() Then
+&apos;&apos;&apos;			&apos; ...
+
+Dim bSaved As Boolean		&apos;	return value
+Const cstThisSub = &quot;SFDocuments.Document.Save&quot;
+Const cstSubArgs = &quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSaved = False
+
+Check:
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+	bSaved = False
+
+Try:
+	With _Component
+		If .isReadonly() Or Not .hasLocation() Then GoTo CatchReadonly
+		If .IsModified() Then
+			.store()
+			bSaved = True
+		End If
+	End With
+
+Finally:
+	Save = bSaved
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchReadonly:
+	ScriptForge.SF_Exception.RaiseFatal(DOCUMENTSAVEERROR, &quot;FileName&quot;, _FileIdent())
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.Save
+
+REM -----------------------------------------------------------------------------
+Public Function SaveAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+&apos;&apos;&apos; Store the document to the given file location
+&apos;&apos;&apos;	The new location becomes the new file name on which simple Save method calls will be applied
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FileName: Identifies the file where to save. It must follow the SF_FileSystem.FileNaming notation
+&apos;&apos;&apos;		Overwrite: True if the destination file may be overwritten (default = False)
+&apos;&apos;&apos;		Password: Use to protect the document
+&apos;&apos;&apos;		FilterName: the name of a filter that should be used for saving the document
+&apos;&apos;&apos;			If present, the filter must exist
+&apos;&apos;&apos;		FilterOptions: an optional string of options associated with the filter
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False if the document could not be saved
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		DOCUMENTSAVEASERROR		The destination has its readonly attribute set or overwriting rejected
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.SaveAs(&quot;C:\Me\Copy2.odt&quot;, Overwrite := True)
+
+Dim bSaved As Boolean				&apos;	return value
+Dim oFilterFactory As Object		&apos;	com.sun.star.document.FilterFactory
+Dim oSfa As Object					&apos;	com.sun.star.ucb.SimpleFileAccess
+Dim sFile As String					&apos;	Alias of FileName
+Dim vProperties As Variant			&apos;	Array of com.sun.star.beans.PropertyValue
+Dim FSO As Object					&apos;	SF_FileSystem
+Const cstThisSub = &quot;SFDocuments.Document.SaveAs&quot;
+Const cstSubArgs = &quot;FileName, [Overwrite=False], [Password=&quot;&quot;&quot;&quot;], [FilterName=&quot;&quot;&quot;&quot;], [FilterOptions=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo CatchError
+	bSaved = False
+
+Check:
+	If IsMissing(Overwrite) Or IsEmpty(Overwrite) Then Overwrite = False
+	If IsMissing(Password) Or IsEmpty(Password) Then Password = &quot;&quot;
+	If IsMissing(FilterName) Or IsEmpty(FilterName) Then FilterName = &quot;&quot;
+	If IsMissing(FilterOptions) Or IsEmpty(FilterOptions) Then FilterOptions = &quot;&quot;
+
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not SF_Utils._ValidateFile(FileName, &quot;FileName&quot;) Then GoTo Finally
+		If Not SF_Utils._Validate(Overwrite, &quot;Overwrite&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not SF_Utils._Validate(Password, &quot;Password&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(FilterName, &quot;FilterName&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(FilterOptions, &quot;FilterOptions&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	&apos;	Check that the filter exists
+	If Len(FilterName) &gt; 0 Then
+		Set oFilterFactory = ScriptForge.SF_Utils._GetUNOService(&quot;FilterFactory&quot;)
+		If Not oFilterFactory.hasByName(FilterName) Then GoTo CatchError
+	End If
+
+	&apos;	Check destination file overwriting
+	Set FSO = CreateScriptService(&quot;FileSystem&quot;)
+	sFile = FSO._ConvertToUrl(FileName)
+	If FSO.FileExists(FileName) Then
+		If Overwrite = False Then GoTo CatchError
+		Set oSfa = ScriptForge.SF_Utils._GetUNOService(&quot;FileAccess&quot;)
+		If oSfa.isReadonly(sFile) Then GoTo CatchError
+	End If
+
+Try:
+	&apos;	Setup arguments
+	If Len(Password) + Len(FilterName) = 0 Then
+		vProperties = Array()
+	Else
+		vProperties = Array( _
+								ScriptForge.SF_Utils._MakePropertyValue(&quot;FilterName&quot;, FilterName) _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;FilterOptions&quot;, FilterOptions) _
+							)
+		If Len(Password) &gt; 0 Then		&apos;	Password is to add only if &lt;&gt; &quot;&quot; !?
+			vProperties = ScriptForge.SF_Array.Append(vProperties _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;Password&quot;, Password))
+		End If
+	End If
+
+	_Component.StoreAsURL(sFile, vProperties)
+
+	&apos;	Remind the new file name
+	_WindowFileName = sFile
+	_WindowName = FSO.GetName(FileName)
+	bSaved = True
+
+Finally:
+	SaveAs = bSaved
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchError:
+	ScriptForge.SF_Exception.RaiseFatal(DOCUMENTSAVEASERROR, &quot;FileName&quot;, FileName, &quot;Overwrite&quot;, Overwrite _
+					, &quot;FilterName&quot;, FilterName)
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.SaveAs
+
+REM -----------------------------------------------------------------------------
+Public Function SaveCopyAs(Optional ByVal FileName As Variant _
+							, Optional ByVal Overwrite As Variant _
+							, Optional ByVal Password As Variant _
+							, Optional ByVal FilterName As Variant _
+							, Optional ByVal FilterOptions As Variant _
+							) As Boolean
+&apos;&apos;&apos; Store a copy or export the document to the given file location
+&apos;&apos;&apos;	The actual location is unchanged
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		FileName: Identifies the file where to save. It must follow the SF_FileSystem.FileNaming notation
+&apos;&apos;&apos;		Overwrite: True if the destination file may be overwritten (default = False)
+&apos;&apos;&apos;		Password: Use to protect the document
+&apos;&apos;&apos;		FilterName: the name of a filter that should be used for saving the document
+&apos;&apos;&apos;			If present, the filter must exist
+&apos;&apos;&apos;		FilterOptions: an optional string of options associated with the filter
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		False if the document could not be saved
+&apos;&apos;&apos;	Exceptions:
+&apos;&apos;&apos;		DOCUMENTSAVEASERROR		The destination has its readonly attribute set or overwriting rejected
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.SaveCopyAs(&quot;C:\Me\Copy2.odt&quot;, Overwrite := True)
+
+Dim bSaved As Boolean				&apos;	return value
+Dim oFilterFactory As Object		&apos;	com.sun.star.document.FilterFactory
+Dim oSfa As Object					&apos;	com.sun.star.ucb.SimpleFileAccess
+Dim sFile As String					&apos;	Alias of FileName
+Dim vProperties As Variant			&apos;	Array of com.sun.star.beans.PropertyValue
+Dim FSO As Object					&apos;	SF_FileSystem
+Const cstThisSub = &quot;SFDocuments.Document.SaveCopyAs&quot;
+Const cstSubArgs = &quot;FileName, [Overwrite=False], [Password=&quot;&quot;&quot;&quot;], [FilterName=&quot;&quot;&quot;&quot;], [FilterOptions=&quot;&quot;&quot;&quot;]&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo CatchError
+	bSaved = False
+
+Check:
+	If IsMissing(Overwrite) Or IsEmpty(Overwrite) Then Overwrite = False
+	If IsMissing(Password) Or IsEmpty(Password) Then Password = &quot;&quot;
+	If IsMissing(FilterName) Or IsEmpty(FilterName) Then FilterName = &quot;&quot;
+	If IsMissing(FilterOptions) Or IsEmpty(FilterOptions) Then FilterOptions = &quot;&quot;
+
+	If ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs) Then
+		If Not _IsStillAlive() Then GoTo Finally
+		If Not SF_Utils._ValidateFile(FileName, &quot;FileName&quot;) Then GoTo Finally
+		If Not SF_Utils._Validate(Overwrite, &quot;Overwrite&quot;, ScriptForge.V_BOOLEAN) Then GoTo Finally
+		If Not SF_Utils._Validate(Password, &quot;Password&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(FilterName, &quot;FilterName&quot;, V_STRING) Then GoTo Finally
+		If Not SF_Utils._Validate(FilterOptions, &quot;FilterOptions&quot;, V_STRING) Then GoTo Finally
+	End If
+
+	&apos;	Check that the filter exists
+	If Len(FilterName) &gt; 0 Then
+		Set oFilterFactory = ScriptForge.SF_Utils._GetUNOService(&quot;FilterFactory&quot;)
+		If Not oFilterFactory.hasByName(FilterName) Then GoTo CatchError
+	End If
+
+	&apos;	Check destination file overwriting
+	Set FSO = CreateScriptService(&quot;FileSystem&quot;)
+	sFile = FSO._ConvertToUrl(FileName)
+	If FSO.FileExists(FileName) Then
+		If Overwrite = False Then GoTo CatchError
+		Set oSfa = ScriptForge.SF_Utils._GetUNOService(&quot;FileAccess&quot;)
+		If oSfa.isReadonly(sFile) Then GoTo CatchError
+	End If
+
+Try:
+	&apos;	Setup arguments
+	If Len(Password) + Len(FilterName) = 0 Then
+		vProperties = Array()
+	Else
+		vProperties = Array( _
+								ScriptForge.SF_Utils._MakePropertyValue(&quot;FilterName&quot;, FilterName) _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;FilterOptions&quot;, FilterOptions) _
+							)
+		If Len(Password) &gt; 0 Then		&apos;	Password is to add only if &lt;&gt; &quot;&quot; !?
+			vProperties = ScriptForge.SF_Array.Append(vProperties _
+								, ScriptForge.SF_Utils._MakePropertyValue(&quot;Password&quot;, Password))
+		End If
+	End If
+
+	_Component.StoreToURL(sFile, vProperties)
+	bSaved = True
+
+Finally:
+	SaveCopyAs = bSaved
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+CatchError:
+	ScriptForge.SF_Exception.RaiseFatal(DOCUMENTSAVEASERROR, &quot;FileName&quot;, FileName, &quot;Overwrite&quot;, Overwrite _
+					, &quot;FilterName&quot;, FilterName)
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.SaveCopyAs
+
+REM -----------------------------------------------------------------------------
+Public Function SetPrinter(Optional ByVal Printer As Variant _
+							, Optional ByVal Orientation As Variant _
+							, Optional ByVal PaperFormat As Variant _
+							, Optional ByRef _PrintComponent As Variant _
+							) As Boolean
+&apos;&apos;&apos; Define the printer options for the document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		Printer: the name of the printer queue where to print to
+&apos;&apos;&apos;			When absent or space, the default printer is set
+&apos;&apos;&apos;		Orientation: either &quot;PORTRAIT&quot; or &quot;LANDSCAPE&quot;. Left unchanged when absent
+&apos;&apos;&apos;		PaperFormat: one of next values
+&apos;&apos;&apos;			&quot;A3&quot;, &quot;A4&quot;, &quot;A5&quot;, &quot;B4&quot;, &quot;B5&quot;, &quot;LETTER&quot;, &quot;LEGAL&quot;, &quot;TABLOID&quot;
+&apos;&apos;&apos;			Left unchanged when absent
+&apos;&apos;&apos;		_PrintComponent: undocumented argument to determine the component
+&apos;&apos;&apos;			Useful typically to apply printer settings on a Base form document
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True when successful
+&apos;&apos;&apos;	Examples:
+&apos;&apos;&apos;		oDoc.SetPrinter(Orientation := &quot;PORTRAIT&quot;)
+
+Dim bPrinter As Boolean				&apos;	Return value
+Dim vPrinters As Variant			&apos;	Array of known printers
+Dim vOrientations As Variant		&apos;	Array of allowed paper orientations
+Dim vPaperFormats As Variant		&apos;	Array of allowed formats
+Dim vPrinterSettings As Variant		&apos;	Array of property values
+Dim oPropertyValue As New com.sun.star.beans.PropertyValue
+									&apos;	A single property value item
+Const cstThisSub = &quot;SFDocuments.Document.SetPrinter&quot;
+Const cstSubArgs = &quot;[Printer=&quot;&quot;&quot;&quot;], [Orientation=&quot;&quot;PORTRAIT&quot;&quot;|&quot;&quot;LANDSCAPE&quot;&quot;]&quot; _
+						&amp; &quot;, [PaperFormat=&quot;&quot;A3&quot;&quot;|&quot;&quot;A4&quot;&quot;|&quot;&quot;A5&quot;&quot;|&quot;&quot;B4&quot;&quot;|&quot;&quot;B5&quot;&quot;|&quot;&quot;LETTER&quot;&quot;|&quot;&quot;LEGAL&quot;&quot;|&quot;&quot;TABLOID&quot;&quot;&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bPrinter = False
+
+Check:
+	If IsMissing(Printer) Or IsEmpty(Printer) Then Printer = &quot;&quot;
+	If IsMissing(Orientation) Or IsEmpty(Orientation) Then Orientation = &quot;&quot;
+	If IsMissing(PaperFormat) Or IsEmpty(PaperFormat) Then PaperFormat = &quot;&quot;
+	If IsMissing(_PrintComponent) Or IsEmpty(_PrintComponent) Then Set _PrintComponent = _Component
+
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)		&apos;	Unconditional validation
+	If Not _IsStillAlive() Then GoTo Finally
+	If VarType(Printer) = V_STRING Then
+		vPrinters = ScriptForge.SF_Platform.Printers
+		If Len(Printer) &gt; 0 Then
+			If Not ScriptForge.SF_Utils._Validate(Printer, &quot;Printer&quot;, V_STRING, vPrinters) Then GoTo Finally
+		End If
+	Else
+		If Not ScriptForge.SF_Utils._Validate(Printer, &quot;Printer&quot;, V_STRING) Then GoTo Finally	&apos;	Manage here the VarType error
+	End If
+	If VarType(Orientation) = V_STRING Then
+		vOrientations = Array(&quot;PORTRAIT&quot;, &quot;LANDSCAPE&quot;)
+		If Len(Orientation) &gt; 0 Then
+			If Not ScriptForge.SF_Utils._Validate(Orientation, &quot;Orientation&quot;, V_STRING, vOrientations) Then GoTo Finally
+		End If
+	Else
+		If Not ScriptForge.SF_Utils._Validate(Orientation, &quot;Orientation&quot;, V_STRING) Then GoTo Finally
+	End If
+	If VarType(PaperFormat) = V_STRING Then
+		vPaperFormats = Array(&quot;A3&quot;, &quot;A4&quot;, &quot;A5&quot;, &quot;B4&quot;, &quot;B5&quot;, &quot;LETTER&quot;, &quot;LEGAL&quot;, &quot;TABLOID&quot;)
+		If Len(PaperFormat) &gt; 0 Then
+			If Not ScriptForge.SF_Utils._Validate(PaperFormat, &quot;PaperFormat&quot;, V_STRING, vPaperFormats) Then GoTo Finally
+		End If
+	Else
+		If Not ScriptForge.SF_Utils._Validate(PaperFormat, &quot;PaperFormat&quot;, V_STRING) Then GoTo Finally
+	End If
+
+Try:
+	With _PrintComponent
+		Set oPropertyValue = ScriptForge.SF_Utils._MakePropertyValue(&quot;Name&quot;, Iif(Len(Printer) &gt; 0, Printer, vPrinters(0)))
+		vPrinterSettings = Array(oPropertyValue)
+		If Len(Orientation) &gt; 0 Then
+			vPrinterSettings = ScriptForge.SF_Utils._SetPropertyValue(vPrinterSettings, &quot;PaperOrientation&quot; _
+					, ScriptForge.SF_Array.IndexOf(vOrientations, Orientation, CaseSensitive := False))
+		End If
+		If Len(PaperFormat) &gt; 0 Then
+			vPrinterSettings = ScriptForge.SF_Utils._SetPropertyValue(vPrinterSettings, &quot;PaperFormat&quot; _
+					, ScriptForge.SF_Array.IndexOf(vPaperFormats, PaperFormat, CaseSensitive := False))
+		End If
+		.setPrinter(vPrinterSettings)
+	End With
+	bPrinter = True
+
+Finally:
+	SetPrinter = bPrinter
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function   &apos;   SFDocuments.SF_Document.SetPrinter
+
+REM -----------------------------------------------------------------------------
+Private Function SetProperty(Optional ByVal psProperty As String _
+								, Optional ByVal pvValue As Variant _
+								) As Boolean
+&apos;&apos;&apos;	Set the new value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+&apos;&apos;&apos;		pvValue: the new value of the given property
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		True if successful
+
+Dim bSet As Boolean							&apos;	Return value
+Static oSession As Object					&apos;	Alias of SF_Session
+Dim cstThisSub As String
+Const cstSubArgs = &quot;Value&quot;
+
+	If ScriptForge.SF_Utils._ErrorHandling() Then On Local Error GoTo Catch
+	bSet = False
+
+	cstThisSub = &quot;SFDocuments.Document.set&quot; &amp; psProperty
+	If IsMissing(pvValue) Then pvValue = Empty
+	&apos;ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)	&apos;	Validation done in Property Lets
+
+	If IsNull(oSession) Then Set oSession = ScriptForge.SF_Services.CreateScriptService(&quot;Session&quot;)
+	bSet = True
+	Select Case UCase(psProperty)
+		Case UCase(&quot;CustomProperties&quot;)
+			CustomProperties = pvValue
+		Case UCase(&quot;Description&quot;)
+			Description = pvValue
+		Case UCase(&quot;Keywords&quot;)
+			Keywords = pvValue
+		Case UCase(&quot;Subject&quot;)
+			Subject = pvValue
+		Case UCase(&quot;Title&quot;)
+			Title = pvValue
+		Case Else
+			bSet = False
+	End Select
+
+Finally:
+	SetProperty = bSet
+	&apos;ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+Catch:
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Document.SetProperty
+
+REM =========================================================== PRIVATE FUNCTIONS
+
+REM -----------------------------------------------------------------------------
+Private Function _FileIdent() As String
+&apos;&apos;&apos;	Returns a file identification from the information that is currently available
+&apos;&apos;&apos;	Useful e.g. for display in error messages
+
+	&apos;	OS notation is used to avoid presence of &quot;%nn&quot; in error messages and wrong parameter substitutions
+	_FileIdent = Iif(Len(_WindowFileName) &gt; 0, ConvertFromUrl(_WindowFileName), _WindowTitle)
+
+End Function	&apos;	SFDocuments.SF_Document._FileIdent
+
+REM -----------------------------------------------------------------------------
+Private Function _GetFilterNames(ByVal pbExport As Boolean) As Variant
+&apos;&apos;&apos;	Returns the list of export (pbExport = True) or import filters
+&apos;&apos;&apos;	applicable to the current document
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbExport: True for export, False for import
+&apos;&apos;&apos;	Returns:
+&apos;&apos;&apos;		A zero-based array of strings
+
+Dim vFilters As Variant				&apos;	Return value
+Dim sIdentifier As String			&apos;	Document service, like com.sun.star.text.TextDocument
+Dim oFilterFactory As Object		&apos;	com.sun.star.document.FilterFactory
+Dim vAllFilters As Variant			&apos;	The full list of installed filters
+Dim sFilter As String				&apos;	A single filter name
+Dim iCount As Integer				&apos;	Filters counter
+Dim vFilter As Variant				&apos;	A filter descriptor as an array of Name/Value pairs
+Dim sType As String					&apos;	The filter type to be compared with the document service
+Dim lFlags As Long					&apos;	Read https://wiki.documentfoundation.org/Documentation/DevGuide/Office_Development#Properties_of_a_Filter
+Dim bExport As Boolean				&apos;	Filter valid for export when True
+Dim bImport As Boolean				&apos;	Filter valid for import when True
+Dim bImportExport As Boolean		&apos;	Filter valid both for import and export when True
+
+	vFilters = Array()
+	On Local Error GoTo Finally		&apos;	Return empty or partial list if error
+
+Try:
+	sIdentifier = _Component.Identifier
+	Set oFilterFactory = ScriptForge.SF_Utils._GetUNOService(&quot;FilterFactory&quot;)
+	vAllFilters = oFilterFactory.getElementNames()
+	ReDim vFilters(0 To UBound(vAllFilters))
+	iCount = -1
+
+	For Each sFilter In vAllFilters
+		vFilter = oFilterFactory.getByName(sFilter)
+		sType = ScriptForge.SF_Utils._GetPropertyValue(vFilter, &quot;DocumentService&quot;)
+		If sType = sIdentifier Then
+			lFlags = ScriptForge.SF_Utils._GetPropertyValue(vFilter, &quot;Flags&quot;)
+			&apos;	export: flag is even
+			&apos;	import: flag is odd and flag/2 is even
+			&apos;	import/export: flag is odd and flag/2 is odd
+			bExport = ( lFlags Mod 2 = 0 )
+			bImport = ( (lFlags Mod 2 = 1) And ((lFlags \ 2) Mod 2 = 0) )
+			bImportExport = ( (lFlags Mod 2 = 1) And ((lFlags \ 2) Mod 2 = 1) )
+			&apos;	Select filter ?
+			If bImportExport _
+				Or (pbExport And bExport) _
+				Or (Not pbExport And bImport) Then
+					iCount = iCount + 1
+					vFilters(iCount) = sFilter
+			End If
+		End If
+	Next sFilter
+
+	If iCount &gt; -1 Then
+		ReDim Preserve vFilters(0 To iCount)
+	End If
+
+Finally:
+	_GetFilterNames = vFilters
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Document._GetFilterNames
+
+REM -----------------------------------------------------------------------------
+Private Function _IsStillAlive(Optional ByVal pbForUpdate As Boolean _
+									, Optional ByVal pbError As Boolean _
+									) As Boolean
+&apos;&apos;&apos;	Returns True if the document has not been closed manually or incidentally since the last use
+&apos;&apos;&apos;	If dead the actual instance is disposed. The execution is cancelled when pbError = True (default)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		pbForUpdate: if True (default = False), check additionally if document is open for editing
+&apos;&apos;&apos;		pbError: if True (default), raise a fatal error
+
+Dim bAlive As Boolean			&apos;	Return value
+Dim sFileName As String			&apos;	File identification used to display error message
+
+	On Local Error GoTo Catch		&apos;	Anticipate DisposedException errors or alike
+	If IsMissing(pbForUpdate) Then pbForUpdate = False
+	If IsMissing(pbError) Then pbError = True
+
+Try:
+	&apos;	Check existence of document
+	bAlive = Not IsNull(_Frame)
+	If bAlive Then bAlive = Not IsNull(_Component)
+	If bAlive Then bAlive = Not IsNull(_Component.CurrentController)
+
+	&apos;	Check document is not read only
+	If bAlive And pbForUpdate Then
+		If _Component.isreadonly() Then GoTo CatchReadonly
+	End If
+
+Finally:
+	_IsStillAlive = bAlive
+	Exit Function
+Catch:
+	bAlive = False
+	On Error GoTo 0
+	sFileName = _FileIdent()
+	Dispose()
+	If pbError Then ScriptForge.SF_Exception.RaiseFatal(DOCUMENTDEADERROR, sFileName)
+	GoTo Finally
+CatchReadonly:
+	bAlive = False
+	If pbError Then ScriptForge.SF_Exception.RaiseFatal(DOCUMENTREADONLYERROR, &quot;Document&quot;, _FileIdent())
+	GoTo Finally
+End Function	&apos;	SFDocuments.SF_Document._IsStillAlive
+
+REM -----------------------------------------------------------------------------
+Private Sub _LoadDocumentProperties()
+&apos;&apos;&apos;	Create dictionary with document properties as entries/ Custom properties are excluded
+&apos;&apos;&apos;	Document is presumed still alive
+&apos;&apos;&apos;	Special values:
+&apos;&apos;&apos;		Only valid dates are taken
+&apos;&apos;&apos;		Statistics are exploded in subitems. Subitems are specific to document type
+&apos;&apos;&apos;		Keywords are joined
+&apos;&apos;&apos;		Language is aligned on L10N convention la-CO
+
+Dim oProperties As Object			&apos;	Document properties
+Dim vNamedValue As Variant			&apos;	com.sun.star.beans.NamedValue
+
+			If IsNull(_DocumentProperties) Then
+				Set oProperties = _Component.getDocumentProperties
+				Set _DocumentProperties = CreateScriptService(&quot;Dictionary&quot;)
+				With _DocumentProperties
+					.Add(&quot;Author&quot;, oProperties.Author)
+					.Add(&quot;AutoloadSecs&quot;, oProperties.AutoloadSecs)
+					.Add(&quot;AutoloadURL&quot;, oProperties.AutoloadURL)
+					If oProperties.CreationDate.Year &gt; 0 Then .Add(&quot;CreationDate&quot;, CDateFromUnoDateTime(oProperties.CreationDate))
+					.Add(&quot;DefaultTarget&quot;, oProperties.DefaultTarget)
+					.Add(&quot;Description&quot;, oProperties.Description)	&apos;	The description can be multiline
+					&apos;	DocumentStatistics : number and names of statistics depend on document type
+					For Each vNamedValue In oProperties.DocumentStatistics
+						.Add(vNamedValue.Name, vNamedValue.Value)
+					Next vNamedValue
+					.Add(&quot;EditingDuration&quot;, oProperties.EditingDuration)
+					.Add(&quot;Generator&quot;, oProperties.Generator)
+					.Add(&quot;Keywords&quot;, Join(oProperties.Keywords, &quot;, &quot;))
+					.Add(&quot;Language&quot;, oProperties.Language.Language &amp; Iif(Len(oProperties.Language.Country) &gt; 0, &quot;-&quot; &amp; oProperties.Language.Country, &quot;&quot;))
+					If oProperties.ModificationDate.Year &gt; 0 Then .Add(&quot;ModificationDate&quot;, CDateFromUnoDateTime(oProperties.ModificationDate))
+					If oProperties.PrintDate.Year &gt; 0 Then .Add(&quot;PrintDate&quot;, CDateFromUnoDateTime(oProperties.PrintDate))
+					.Add(&quot;PrintedBy&quot;, oProperties.PrintedBy)
+					.Add(&quot;Subject&quot;, oProperties.Subject)
+					If oProperties.TemplateDate.Year &gt; 0 Then .Add(&quot;TemplateDate&quot;, CDateFromUnoDateTime(oProperties.TemplateDate))
+					.Add(&quot;TemplateName&quot;, oProperties.TemplateName)
+					.Add(&quot;TemplateURL&quot;, oProperties.TemplateURL)
+					.Add(&quot;Title&quot;, oProperties.Title)
+				End With
+			End If
+
+End Sub		&apos;	SFDocuments.SF_Document._LoadDocumentProperties
+
+REM -----------------------------------------------------------------------------
+Private Function _PropertyGet(Optional ByVal psProperty As String) As Variant
+&apos;&apos;&apos;	Return the value of the named property
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;		psProperty: the name of the property
+
+Dim oProperties As Object			&apos;	Document or Custom properties
+Dim cstThisSub As String
+Const cstSubArgs = &quot;&quot;
+
+	_PropertyGet = False
+
+	Select Case _DocumentType
+		Case &quot;Calc&quot;		:	cstThisSub = &quot;SFDocuments.SF_&quot; &amp; _DocumentType &amp; &quot;.get&quot; &amp; psProperty
+		Case Else		:	cstThisSub = &quot;SFDocuments.SF_Document.get&quot; &amp; psProperty
+	End Select
+	ScriptForge.SF_Utils._EnterFunction(cstThisSub, cstSubArgs)
+	If Not _IsStillAlive() Then GoTo Finally
+
+	Select Case psProperty
+		Case &quot;CustomProperties&quot;
+			_CustomProperties = CreateScriptService(&quot;Dictionary&quot;)	&apos;	Always reload as updates could have been done manually by user
+			_CustomProperties.ImportFromPropertyValues(_Component.getDocumentProperties().UserDefinedProperties.getPropertyValues)
+			_PropertyGet = _CustomProperties
+		Case &quot;Description&quot;
+			_PropertyGet = _Component.DocumentProperties.Description
+		Case &quot;DocumentProperties&quot;
+			_LoadDocumentProperties()	&apos;	Always reload as updates could have been done manually by user
+			Set _PropertyGet = _DocumentProperties
+		Case &quot;DocumentType&quot;
+			_PropertyGet = _DocumentType
+		Case &quot;ExportFilters&quot;
+			_PropertyGet = _GetFilterNames(True)
+		Case &quot;ImportFilters&quot;
+			_PropertyGet = _GetFilterNames(False)
+		Case &quot;IsBase&quot;, &quot;IsCalc&quot;, &quot;IsDraw&quot;, &quot;IsImpress&quot;, &quot;IsMath&quot;, &quot;IsWriter&quot;
+			_PropertyGet = ( Mid(psProperty, 3) = _DocumentType )
+		Case &quot;Keywords&quot;
+			_PropertyGet = Join(_Component.DocumentProperties.Keywords, &quot;, &quot;)
+		Case &quot;Readonly&quot;
+			_PropertyGet = _Component.isReadonly()
+		Case &quot;Subject&quot;
+			_PropertyGet = _Component.DocumentProperties.Subject
+		Case &quot;Title&quot;
+			_PropertyGet = _Component.DocumentProperties.Title
+		Case &quot;XComponent&quot;
+			Set _PropertyGet = _Component
+		Case Else
+			_PropertyGet = Null
+	End Select
+
+Finally:
+	ScriptForge.SF_Utils._ExitFunction(cstThisSub)
+	Exit Function
+End Function	&apos;	SFDocuments.SF_Document._PropertyGet
+
+REM -----------------------------------------------------------------------------
+Private Function _Repr() As String
+&apos;&apos;&apos;	Convert the SF_Document instance to a readable string, typically for debugging purposes (DebugPrint ...)
+&apos;&apos;&apos;	Args:
+&apos;&apos;&apos;	Return:
+&apos;&apos;&apos;		&quot;[DOCUMENT]: Type - File&quot;
+
+	_Repr = &quot;[Document]: &quot; &amp; _DocumentType &amp; &quot; - &quot; &amp; _FileIdent()
+
+End Function	&apos;	SFDocuments.SF_Document._Repr
+
+REM ============================================ END OF SFDOCUMENTS.SF_DOCUMENT
+</script:module>
