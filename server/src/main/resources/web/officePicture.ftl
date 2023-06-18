@@ -32,7 +32,7 @@
 </head>
 <body>
 <div class="container">
-    <#list imgurls as img>
+    <#list imgUrls as img>
         <div class="img-area">
             <img class="my-photo" alt="loading"  data-src="${img}" src="images/loading.gif">
         </div>

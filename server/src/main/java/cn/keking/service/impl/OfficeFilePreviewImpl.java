@@ -162,7 +162,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         if (imageUrls == null || imageUrls.size() < 1) {
             return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
         }
-        model.addAttribute("imgurls", imageUrls);
+        model.addAttribute("imgUrls", imageUrls);
         model.addAttribute("currentUrl", imageUrls.get(0));
         if (officePreviewTypeImage.equals(officePreviewType)) {
             // PPT 图片模式使用专用预览页面

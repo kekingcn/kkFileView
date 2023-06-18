@@ -89,14 +89,14 @@
     var resultData = {
         "code": 1,
         "name": "PPT预览",
-        "totalSize": ${imgurls?size},
+        "totalSize": ${imgUrls ? size},
         "curPage": 1,
         "totalPage": 1,
         "pageSize": 10,
         "titles": null,
         "data": [
             <#assign index = 0>
-            <#list imgurls as img>
+            <#list imgUrls as img>
             <#if index != 0>, </#if>{
                 "uuid": null,
                 "title": null,
