@@ -88,7 +88,7 @@ public class ConfigRefreshComponent {
                     size = properties.getProperty("spring.servlet.multipart.max-file-size", ConfigConstants.DEFAULT_SIZE);
                     beiAn = properties.getProperty("beiAn", ConfigConstants.DEFAULT_BEIAN);
                     prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_PROHIBIT);
-                    password = properties.getProperty("sc.password", ConfigConstants.DEFAULT_PASSWORD);
+                    password = properties.getProperty("delete.password", ConfigConstants.DEFAULT_PASSWORD);
                     pdf2JpgDpi = Integer.parseInt(properties.getProperty("pdf2jpg.dpi", ConfigConstants.DEFAULT_PDF2_JPG_DPI));
                     officeTypeWeb = properties.getProperty("office.type.web", ConfigConstants.DEFAULT_OFFICE_TyPEWEB_DISABLE);
                     deleteSourceFile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_DELETE_SOURCE_FILE));

@@ -404,7 +404,7 @@ public class ConfigConstants {
     public static String getPassword() {
         return password;
     }
-    @Value("${sc.password:123456}")
+    @Value("${delete.password:123456}")
     public void setPassword(String password) {
         setPasswordValue(password);
     }
