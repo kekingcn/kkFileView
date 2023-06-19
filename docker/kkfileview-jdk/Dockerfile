@@ -19,7 +19,7 @@ RUN apt-get clean && apt-get update &&\
 
 # 安装 libreoffice
     apt-get install -y libxrender1 libxinerama1 libxt6 libxext-dev libfreetype6-dev libcairo2 libcups2 libx11-xcb1 libnss3 &&\
-    wget https://kkview.cn/resource/LibreOffice_7.5.3_Linux_x86-64_deb.tar.gz -cO libreoffice_deb.tar.gz &&\
+    wget https://downloadarchive.documentfoundation.org/libreoffice/old/7.5.3.2/deb/x86_64/LibreOffice_7.5.3.2_Linux_x86-64_deb.tar.gz -cO libreoffice_deb.tar.gz &&\
     tar -zxf /tmp/libreoffice_deb.tar.gz && cd /tmp/LibreOffice_7.5.3.2_Linux_x86-64_deb/DEBS &&\
     dpkg -i *.deb &&\
 
