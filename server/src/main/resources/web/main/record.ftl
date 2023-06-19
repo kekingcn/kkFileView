@@ -64,8 +64,13 @@
                 10.调整生成的PDF文件 文件名称添加文件后缀 防止生成同名文件 <br>
                 11.新增pages格式支持,调整SQL文件预览方式 <br>
                 12.OFD修复部分已知Bug，提高OFD兼容性处理。 <br>
-                13.新增前端解析xlsx方法(目前测试中还没放出代码)。 <br>
-                14.其他功能优化。 <br>
+                13.新增前端解析xlsx方法。 <br>
+                14.OFD修复部分文字未显示的问题，完善OFD兼容性处理。 <br>
+                15.美化TXT文本 分页框的显示。 <br>
+                16.修复预览压缩包时，如果点击的是文件目录（树节点），页面会报错。 <br>
+                17.升级Windows内置office为 LibreOffice-7.5.3 Portable版本。 <br>
+                18.新增pages,eps, iges , igs, dwt, dng, ifc, dwfx, stl, cf2, plt等格式支持 。 <br>
+                19.其他功能优化。 <br>
             </div>
         </div>
     <div class="panel panel-success">
