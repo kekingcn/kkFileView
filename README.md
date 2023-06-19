@@ -4,19 +4,19 @@
 
 Document online preview project solution, built using the popular Spring Boot framework for easy setup and deployment. This versatile open source project provides basic support for a wide range of document formats, including:
 
-1. Supports Office documents such as `doc`, `docx`, `xls`, `xlsx`, `xlsm`, `ppt`, `pptx`, `csv`, `tsv`, , `dotm`, `xlt`, `xltm`, `dot`, `xlam`, `dotx`, `xla,` etc.
+1. Supports Office documents such as `doc`, `docx`, `xls`, `xlsx`, `xlsm`, `ppt`, `pptx`, `csv`, `tsv`, , `dotm`, `xlt`, `xltm`, `dot`, `xlam`, `dotx`, `xla,` ,`pages` etc.
 2. Supports domestic WPS Office documents such as `wps`, `dps`, `et` , `ett`, ` wpt`.
 3. Supports OpenOffice, LibreOffice office documents such as `odt`, `ods`, `ots`, `odp`, `otp`, `six`, `ott`, `fodt` and `fods`.
 4. Supports Visio flowchart files such as `vsd`, `vsdx`.
 5. Supports Windows system image files such as `wmf`, `emf`.
-6. Supports Photoshop software model files such as `psd`.
+6. Supports Photoshop software model files such as `psd` ,`eps`.
 7. Supports document formats like `pdf`, `ofd`, and `rtf`.
 8. Supports software model files like `xmind`. 
 9. Support for `bpmn` workflow files.
 10. Support for `eml` mail files
 11. Support for `epub` book documents
 12. Supports 3D model files like `obj`, `3ds`, `stl`, `ply`, `gltf`, `glb`, `off`, `3dm`, `fbx`, `dae`, `wrl`, `3mf`, `ifc`, `brep`, `step`, `iges`, `fcstd`, `bim`, etc.
-13. Supports CAD model files such as `dwg`, `dxf`, 'dwf'.
+13. Supports CAD model files such as `dwg`, `dxf`, `dwf`  `iges` ,` igs`, `dwt` , `dng` , `ifc` , `dwfx` , `stl` , `cf2` , `plt`, etc.
 14. Supports all plain text files such as `txt`, `xml` (rendering), `md` (rendering), `java`, `php`, `py`, `js`, `css`, etc.
 15. Supports compressed packages such as `zip`, `rar`, `jar`, `tar`, `gzip`, `7z`, etc.
 16. Supports image previewing (flip, zoom, mirror) of `jpg`, `jpeg`, `png`, `gif`, `bmp`, `ico`, `jfif`, `webp`, etc.
