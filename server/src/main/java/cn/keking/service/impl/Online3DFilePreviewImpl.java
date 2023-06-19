@@ -21,6 +21,6 @@ public class Online3DFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         commonPreview.filePreviewHandle(url,model,fileAttribute);
-        return Online3D_FILE_PAGE;
+        return ONLINE3D_PREVIEW_PAGE;
     }
 }

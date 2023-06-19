@@ -22,6 +22,6 @@ public class EpubFilePreviewImpl implements FilePreview {
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         commonPreview.filePreviewHandle(url,model,fileAttribute);
-        return EpubFilePreviewImpl;
+        return EPUB_PREVIEW_PAGE;
     }
 }
