@@ -51,8 +51,10 @@
     };
 
     function chooseNode(event, treeId, treeNode) {
-        var path = '${baseUrl}' + treeNode.id +"?fileKey="+'${fileName}';
-        location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
+        if (!treeNode.isParent) {
+            var path = '${baseUrl}' + treeNode.id + "?fileKey=" + '${fileName}';
+            location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
+        }
     }
 
     $(document).ready(function () {
