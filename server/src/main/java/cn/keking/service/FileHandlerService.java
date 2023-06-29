@@ -357,9 +357,9 @@ public class FileHandlerService {
             suffix = KkFileUtils.suffixFromFileName(fullFileName);
             // 移除fullfilename参数
             if (url.indexOf("fullfilename=" + fullFileName + "&") > 0) {
-                url.replace("fullfilename=" + fullFileName + "&", "");
+                url = url.replace("fullfilename=" + fullFileName + "&", "");
             } else {
-                url.replace("fullfilename=" + fullFileName, "");
+                url = url.replace("fullfilename=" + fullFileName, "");
             }
         } else {
             fileName = WebUtils.getFileNameFromURL(url);
