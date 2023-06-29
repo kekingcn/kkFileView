@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
     <title>DCM预览</title>
     <#include "*/commonHeader.ftl">
+     <script src="js/base64.min.js" type="text/javascript"></script>
 </head>
 	<style>
      .container{
 		width: 100%; 
-		height: 600px;
-		max-width: 900px;  
+		height: 98%;
+		max-width: 98%;
 		margin: auto;
          position: absolute;
         top: 0;
