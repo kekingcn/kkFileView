@@ -355,6 +355,12 @@ public class FileHandlerService {
             fileName = fullFileName;
             type = FileType.typeFromFileName(fullFileName);
             suffix = KkFileUtils.suffixFromFileName(fullFileName);
+            // 移除fullfilename参数
+            if (url.indexOf("fullfilename=" + fullFileName + "&") > 0) {
+                url.replace("fullfilename=" + fullFileName + "&", "");
+            } else {
+                url.replace("fullfilename=" + fullFileName, "");
+            }
         } else {
             fileName = WebUtils.getFileNameFromURL(url);
             type = FileType.typeFromUrl(url);

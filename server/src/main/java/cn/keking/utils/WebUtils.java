@@ -154,23 +154,6 @@ public class WebUtils {
      */
     public static String encodeUrlFileName(String url) {
         String encodedFileName;
-        String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
-        if (fullFileName != null && fullFileName.length() > 0) {
-            try {
-                encodedFileName = URLEncoder.encode(fullFileName, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                return null;
-            }
-            String  urlStrr = url.toLowerCase();  //转换为小写对比
-            boolean wjl =kuayu("&fullfilename=", urlStrr);  //判断是否启用文件流
-            if(wjl){
-                url =  url.substring(0,url.lastIndexOf("&"));  //删除添加的文件流内容
-            }
-            String noQueryUrl = url.substring(0, url.indexOf("?"));
-            String parameterStr = url.substring(url.indexOf("?"));
-            parameterStr = parameterStr.replaceFirst(fullFileName, encodedFileName);
-            return noQueryUrl + parameterStr;
-        }
         String noQueryUrl = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         int fileNameStartIndex = noQueryUrl.lastIndexOf('/') + 1;
         int fileNameEndIndex = noQueryUrl.lastIndexOf('.');
