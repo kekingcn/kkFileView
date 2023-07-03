@@ -154,11 +154,13 @@
         </div>
     </div>
 </div>
-<div style="display: grid; place-items: center;">
-    <div>
-        <a target="_blank"  href="https://beian.miit.gov.cn/">${beiAn}</a>
+<#if beian?? && beian != "default">
+    <div style="display: grid; place-items: center;">
+        <div>
+            <a target="_blank"  href="https://beian.miit.gov.cn/">${beian}</a>
+        </div>
     </div>
-</div>
+</#if>
 <script>
     function deleteFile(fileName,password) {
         if(window.confirm('你确定要删除文件吗？')){
@@ -209,11 +211,7 @@
             + '(/[\\w_!~*\'()\\.;?:@&=+$,%#-]+)+/?)$';//请求参数结尾- 英文或数字和[]内的各种字符
         var re = new RegExp(strRegex, 'i');//i不区分大小写
         //将url做uri转码后再匹配，解除请求参数中的中文和空字符影响
-        if (re.test(encodeURI(url))) {
-            return (true);
-        } else {
-            return (false);
-        }
+        return re.test(encodeURI(url));
     }
 
     $(function () {

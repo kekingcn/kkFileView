@@ -42,7 +42,7 @@ public class ConfigConstants {
     private static String pdfBookmarkDisable;
     private static Boolean fileUploadDisable;
     private static String tifPreviewType;
-    private static String beiAn;
+    private static String beian;
     private static String[] prohibit = {};
     private static String size;
     private static String password;
@@ -368,15 +368,15 @@ public class ConfigConstants {
         ConfigConstants.tifPreviewType = tifPreviewType;
     }
 
-    public static String getBeiAn() {
-        return beiAn;
+    public static String getBeian() {
+        return beian;
     }
-    @Value("${beiAn:无}")
-    public void setBeiAn(String beiAn) {
-        setBeiAnValue(beiAn);
+    @Value("${beian:default}")
+    public void setBeian(String beian) {
+        setBeianValue(beian);
     }
-    public static void setBeiAnValue(String beiAn) {
-        ConfigConstants.beiAn = beiAn;
+    public static void setBeianValue(String beian) {
+        ConfigConstants.beian = beian;
     }
     public static String[] getProhibit() {
         return prohibit;
