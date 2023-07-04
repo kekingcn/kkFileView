@@ -48,29 +48,30 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2023年04月20日，v4.3.0-SNAPSHOT版本</h3>
+            <h3 class="panel-title">2023年07月04日，v4.3.0版本</h3>
         </div>
         <div class="panel-body">
             <div>
-                1.新增 dcm 等医疗数位影像预览<br>
-                2.新增 drawio 绘图预览<br>
-                3.新增开启缓存的情况下重新生成的命令 &forceUpdatedCache=true <br>
-                4.新增 dwf CAD文件预览 <br>
-                5.新增 PDF文件支持密码功能 <br>
-                6.修复反代情况下压缩包获取路径错误 <br>
-                7.新增:PDF文件生成图片的像素大小 <br>
-                8.修复预览图片的url中如果包含&会导致.click报错 <br>
-                9.新增:删除转换后OFFICE、CAD、TIFF、压缩包源文件 默认开启 节约磁盘空间 <br>
-                10.调整生成的PDF文件 文件名称添加文件后缀 防止生成同名文件 <br>
-                11.新增pages格式支持,调整SQL文件预览方式 <br>
-                12.OFD修复部分已知Bug，提高OFD兼容性处理。 <br>
-                13.新增前端解析xlsx方法。 <br>
-                14.OFD修复部分文字未显示的问题，完善OFD兼容性处理。 <br>
-                15.美化TXT文本 分页框的显示。 <br>
-                16.修复预览压缩包时，如果点击的是文件目录（树节点），页面会报错。 <br>
-                17.升级Windows内置office为 LibreOffice-7.5.3 Portable版本。 <br>
-                18.新增pages,eps, iges , igs, dwt, dng, ifc, dwfx, stl, cf2, plt等格式支持 。 <br>
-                19.其他功能优化。 <br>
+                1. 新增dcm等医疗数位影像预览<br>
+                2. 新增drawio绘图预览<br>
+                3. 新增开启缓存的情况下重新生成的命令 &forceUpdatedCache=true <br>
+                4. 新增dwg CAD文件预览 <br>
+                5. 新增PDF文件支持密码功能 <br>
+                6. 修复反代情况下压缩包获取路径错误 <br>
+                7. 新增PDF文件生成图片的dpi自定义配置 <br>
+                8. 修复预览图片的url中如果包含&会导致.click报错 <br>
+                9. 新增删除转换后OFFICE、CAD、TIFF、压缩包源文件配置 默认开启 节约磁盘空间 <br>
+                10. 调整生成的PDF文件 文件名称添加文件后缀 防止生成同名文件 <br>
+                11. 新增pages格式支持,调整SQL文件预览方式 <br>
+                12. OFD修复部分已知Bug，提高OFD兼容性处理。 <br>
+                13. 新增前端解析xlsx方法。 <br>
+                14. OFD修复部分文字未显示的问题，完善OFD兼容性处理 <br>
+                15. 美化TXT文本 分页框的显示 <br>
+                16. 修复预览压缩包时，如果点击的是文件目录（树节点），页面会报错 <br>
+                17. 升级Linux、Docker版内置office为LibreOffice-7.5.3版本
+                18. 升级Windows内置office为LibreOffice-7.5.3 Portable版本 <br>
+                19. 新增pages,eps, iges , igs, dwt, dng, ifc, dwfx, stl, cf2, plt等格式支持 <br>
+                20. 其他功能优化及已知问题修复 <br>
             </div>
         </div>
     <div class="panel panel-success">
