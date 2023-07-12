@@ -42,9 +42,7 @@
 地址：[https://file.kkview.cn](https://file.kkview.cn)
 
 ### 项目文档（Project documentation）
-1. 详细wiki文档：https://gitee.com/kekingcn/file-online-preview/wikis/pages
-1. 中文文档：https://gitee.com/kekingcn/file-online-preview/blob/master/README.md
-1. English document：https://gitee.com/kekingcn/file-online-preview/blob/master/README.en.md
+1. 详细使用文档：https://kkview.cn/zh-cn/docs/home.html
 
 ### 联系我们，加入组织
 > 我们会用心回答解决大家在项目使用中的问题，也请大家在提问前至少 Google 或 baidu 过，珍爱生命远离无效的交流沟通
@@ -136,6 +134,7 @@ pdf预览模式预览效果如下
 - freemarker
 - redisson 
 - jodconverter
+
 > 依赖外部环境
 - redis (可选，默认不用)
 - OpenOffice 或者 LibreOffice( Windows 下已内置，Linux 脚本启动模式会自动安装，Mac OS 下需要手动安装)
@@ -151,7 +150,7 @@ pdf预览模式预览效果如下
 
 #### > 2023年07月05日，v4.3 版本发布 ：
 
-###新增功能:
+#### 新增功能:
 1. 新增dcm等医疗数位影像预 
 2. 新增drawio绘图预览
 3. 新增开启缓存的情况下重新生成的命令 &forceUpdatedCache=true
@@ -162,7 +161,7 @@ pdf预览模式预览效果如下
 8. 新增前端解析xlsx方法
 9. 新增pages,eps, iges , igs, dwt, dng, ifc, dwfx, stl, cf2, plt等格式支持 
 
-###优化:
+#### 优化:
 1. 调整生成的PDF文件 文件名称添加文件后缀 防止生成同名文件
 2. 调整SQL文件预览方式
 3. 优化OFD预览兼容性
@@ -171,22 +170,22 @@ pdf预览模式预览效果如下
 6. 升级Windows版内置office为LibreOffice-7.5.3 Portable版本
 7. 其他功能优化
 
-###修复:
+#### 修复:
 1. 修复反代情况下压缩包获取路径错误
 2. 修复预览图片的url中如果包含&会导致.click报错
 3. 修复OFD预览部分已知问题
 4. 修复预览压缩包时，如果点击的是文件目录（树节点），页面会报错
 5. 其他已知问题修复
 
-> 2023年04月18日，v4.2.1 版本发布 ：
+#### > 2023年04月18日，v4.2.1 版本发布 ：
 
-###更新日志:
+#### 更新日志:
 
 1. 修复 dwg 文件预览报空指针的 bug  
 
 #### > 2023年04月13日，v4.2.0 版本发布 ：
 
-###新增功能:
+#### 新增功能:
 1. 新增 SVG 格式文件预览支持
 2. 新增加密的 Office 文件预览支持
 3. 新增加密的 zip、rar 等压缩包文件预览支持
@@ -200,7 +199,7 @@ pdf预览模式预览效果如下
 11. 新增可配置站点的备案信息
 12. 新增演示站点删除文件需要密码的功能  
 
-###优化:
+#### 优化:
 1. 文本文档预览加入缓存
 2. 美化 404、500 报错页
 3. 优化发票等 ofd 文件预览的印证渲染兼容性
@@ -212,7 +211,7 @@ pdf预览模式预览效果如下
 9. 优化演示页 UI 部署
 10. 压缩包文件预览支持目录
 
-###修复:
+#### 修复:
 1. 修复部分接口 XSS 问题
 2. 修复控制台打印的演示地址不跟着 content-path 配置走的问题
 3. 修复 ofd 文件预览跨域问题
@@ -368,9 +367,7 @@ dcm医疗数位影像  引用于 [dcmjs](https://github.com/dcmjs-org/dcmjs )开
 如果这个项目解决了你的实际问题，可在 https://gitee.com/kekingcn/file-online-preview/issues/IGSBV
 登记下，如果节省了你的三方预览服务费用，也愿意支持下的话，可点击下方【捐助】请作者喝杯咖啡，也是非常感谢
 
-### Stars 趋势图
-#### Gitee
-[![Stargazers over time](https://whnb.wang/img/kekingcn/file-online-preview)](https://whnb.wang/kekingcn/file-online-preview?e=86400)
+### Stars
 
 #### GitHub
 
