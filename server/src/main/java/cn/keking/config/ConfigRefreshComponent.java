@@ -60,6 +60,7 @@ public class ConfigRefreshComponent {
                 String password;
                 int pdf2JpgDpi;
                 String officeTypeWeb;
+                String cadPreviewType;
                 boolean deleteSourceFile;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
@@ -85,6 +86,7 @@ public class ConfigRefreshComponent {
                     pdfBookmarkDisable = properties.getProperty("pdf.bookmark.disable", ConfigConstants.DEFAULT_PDF_BOOKMARK_DISABLE);
                     fileUploadDisable = Boolean.parseBoolean(properties.getProperty("file.upload.disable", ConfigConstants.DEFAULT_FILE_UPLOAD_DISABLE));
                     tifPreviewType = properties.getProperty("tif.preview.type", ConfigConstants.DEFAULT_TIF_PREVIEW_TYPE);
+                    cadPreviewType = properties.getProperty("cad.preview.type", ConfigConstants.DEFAULT_CAD_PREVIEW_TYPE);
                     size = properties.getProperty("spring.servlet.multipart.max-file-size", ConfigConstants.DEFAULT_SIZE);
                     beian = properties.getProperty("beian", ConfigConstants.DEFAULT_BEIAN);
                     prohibit = properties.getProperty("prohibit", ConfigConstants.DEFAULT_PROHIBIT);
@@ -111,6 +113,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setPdfBookmarkDisableValue(pdfBookmarkDisable);
                     ConfigConstants.setFileUploadDisableValue(fileUploadDisable);
                     ConfigConstants.setTifPreviewTypeValue(tifPreviewType);
+                    ConfigConstants.setCadPreviewTypeValue(cadPreviewType);
                     ConfigConstants.setBeianValue(beian);
                     ConfigConstants.setSizeValue(size);
                     ConfigConstants.setProhibitValue(prohibitArray);
