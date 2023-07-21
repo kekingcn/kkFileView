@@ -48,6 +48,7 @@ public class ConfigConstants {
     private static String password;
     private static int pdf2JpgDpi;
     private static String officeTypeWeb;
+    private static String cadPreviewType;
     private static Boolean deleteSourceFile;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
@@ -69,6 +70,7 @@ public class ConfigConstants {
     public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
     public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
     public static final String DEFAULT_TIF_PREVIEW_TYPE = "tif";
+    public static final String DEFAULT_CAD_PREVIEW_TYPE = "pdf";
     public static final String DEFAULT_BEIAN = "无";
     public static final String DEFAULT_SIZE = "500MB";
     public static final String DEFAULT_PROHIBIT = "exe,dll";
@@ -443,6 +445,21 @@ public class ConfigConstants {
     @Value("${delete.source.file:true}")
     public void setDeleteSourceFile(Boolean deleteSourceFile) {
         setDeleteSourceFileValue(deleteSourceFile);
+    }
+
+
+
+    public static String getCadPreviewType() {
+        return cadPreviewType;
+    }
+
+    @Value("${cad.preview.type:pdf}")
+    public void setCadPreviewType(String cadPreviewType) {
+        setCadPreviewTypeValue(cadPreviewType);
+    }
+
+    public static void setCadPreviewTypeValue(String cadPreviewType) {
+        ConfigConstants.cadPreviewType = cadPreviewType;
     }
 
     public static void setDeleteSourceFileValue(Boolean deleteSourceFile) {

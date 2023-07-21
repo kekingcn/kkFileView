@@ -3,16 +3,14 @@ package cn.keking.service.impl;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
-import cn.keking.service.FileHandlerService;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 
@@ -43,7 +41,8 @@ public class CadFilePreviewImpl implements FilePreview {
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         String fileName = fileAttribute.getName();
         String suffix = fileAttribute.getSuffix();
-        String pdfName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix +"." + "pdf" ; //生成文件添加类型后缀 防止同名文件
+        String cadPreviewType = ConfigConstants.getCadPreviewType();
+        String pdfName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix +"." + cadPreviewType ; //生成文件添加类型后缀 防止同名文件
         String outFilePath = FILE_DIR + pdfName;
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
@@ -56,7 +55,7 @@ public class CadFilePreviewImpl implements FilePreview {
             String imageUrls = null;
             if (StringUtils.hasText(outFilePath)) {
                 try {
-                    imageUrls =  fileHandlerService.cadToPdf(filePath, outFilePath);
+                    imageUrls =  fileHandlerService.cadToPdf(filePath, outFilePath,cadPreviewType);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -73,12 +72,17 @@ public class CadFilePreviewImpl implements FilePreview {
                 }
             }
         }
+        if("tif".equalsIgnoreCase(cadPreviewType)){
+            model.addAttribute("currentUrl", pdfName);
+            return TIFF_FILE_PREVIEW_PAGE;
+        }else if("svg".equalsIgnoreCase(cadPreviewType)){
+            model.addAttribute("currentUrl", pdfName);
+            return SVG_FILE_PREVIEW_PAGE;
+        }
         if (baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
             return getPreviewType(model, fileAttribute, officePreviewType, baseUrl, pdfName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE,otherFilePreview);
         }
         model.addAttribute("pdfUrl", pdfName);
         return PDF_FILE_PREVIEW_PAGE;
     }
-
-
 }
