@@ -62,6 +62,7 @@ public class ConfigRefreshComponent {
                 String officeTypeWeb;
                 String cadPreviewType;
                 boolean deleteSourceFile;
+                boolean deleteCaptcha;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -94,6 +95,7 @@ public class ConfigRefreshComponent {
                     pdf2JpgDpi = Integer.parseInt(properties.getProperty("pdf2jpg.dpi", ConfigConstants.DEFAULT_PDF2_JPG_DPI));
                     officeTypeWeb = properties.getProperty("office.type.web", ConfigConstants.DEFAULT_OFFICE_TYPE_WEB);
                     deleteSourceFile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_DELETE_SOURCE_FILE));
+                    deleteCaptcha =  Boolean.parseBoolean(properties.getProperty("delete.captcha", ConfigConstants.DEFAULT_DELETE_CAPTCHA));
                     prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
@@ -121,6 +123,7 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setPdf2JpgDpiValue(pdf2JpgDpi);
                     ConfigConstants.setOfficeTypeWebValue(officeTypeWeb);
                     ConfigConstants.setDeleteSourceFileValue(deleteSourceFile);
+                    ConfigConstants.setDeleteCaptchaValue(deleteCaptcha);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();

@@ -111,6 +111,52 @@
             </form>
         </div>
     </div>
+    <#if deleteCaptcha >
+    <#--  获取删除吗  -->
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">获取删除码(注意:每个验证码只能删除一个文件,验证码有效期为50秒)</h3>
+        </div>
+        <div class="panel-body">
+            <img id="verImg" width="130px" height="48px"/>
+            <button id="getPic" type="button" class="btn btn-success">获取删除码</button>
+        </div>
+    </div>
+  <script>
+            window.onload = function(){
+                var windowUrl = window.URL || window.webkitURL; //处理浏览器兼容性
+                document.getElementById('getPic').onclick = function(e){
+                    //1、创建ajax对象
+                    var xhr = null;
+                    try{
+                        xhr = new XMLHttpRequest();
+                    }catch(error){
+                        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                    }
+                    //2、调用open
+                    xhr.open("get", "/captcha", true);
+                    xhr.responseType = "blob";
+                    //3、调用send
+                    xhr.send();
+                    //4、等待数据响应
+                    xhr.onreadystatechange = function(){
+                        if(xhr.readyState == 4){
+                            //判断本次下载的状态码都是多少
+                            if(xhr.status == 200){
+                                var blob = this.response;
+                                $("#verImg").attr("src",windowUrl.createObjectURL(blob));
+                                //$('#verImg').attr('src', xhr.responseText);
+
+                                //  alert(windowUrl.createObjectURL(blob));
+                            }else{
+                                alert("Error:" + xhr.status);
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+    </#if>
     <#--  预览测试  -->
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -164,7 +210,11 @@
 <script>
     function deleteFile(fileName,password) {
         if(window.confirm('你确定要删除文件吗？')){
+            <#if deleteCaptcha >
+            password = prompt("请输入获取的验证码:");
+            <#else>
             password = prompt("请输入默认密码:123456");
+            </#if>
             $.ajax({
                 url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
                 success: function (data) {

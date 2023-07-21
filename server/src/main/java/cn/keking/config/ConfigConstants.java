@@ -50,6 +50,7 @@ public class ConfigConstants {
     private static String officeTypeWeb;
     private static String cadPreviewType;
     private static Boolean deleteSourceFile;
+    private static Boolean deleteCaptcha;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -78,6 +79,7 @@ public class ConfigConstants {
     public static final String DEFAULT_PDF2_JPG_DPI = "105";
     public static final String DEFAULT_OFFICE_TYPE_WEB = "web";
     public static final String DEFAULT_DELETE_SOURCE_FILE = "true";
+    public static final String DEFAULT_DELETE_CAPTCHA = "false";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -447,7 +449,9 @@ public class ConfigConstants {
         setDeleteSourceFileValue(deleteSourceFile);
     }
 
-
+    public static void setDeleteSourceFileValue(Boolean deleteSourceFile) {
+        ConfigConstants.deleteSourceFile = deleteSourceFile;
+    }
 
     public static String getCadPreviewType() {
         return cadPreviewType;
@@ -462,8 +466,16 @@ public class ConfigConstants {
         ConfigConstants.cadPreviewType = cadPreviewType;
     }
 
-    public static void setDeleteSourceFileValue(Boolean deleteSourceFile) {
-        ConfigConstants.deleteSourceFile = deleteSourceFile;
+    public static Boolean getDeleteCaptcha() {
+        return deleteCaptcha;
     }
 
+    @Value("${delete.captcha:false}")
+    public void setDeleteCaptcha(Boolean deleteCaptcha) {
+        setDeleteCaptchaValue(deleteCaptcha);
+    }
+
+    public static void setDeleteCaptchaValue(Boolean deleteCaptcha) {
+        ConfigConstants.deleteCaptcha = deleteCaptcha;
+    }
 }

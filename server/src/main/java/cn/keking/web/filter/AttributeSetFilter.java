@@ -42,6 +42,7 @@ public class AttributeSetFilter implements Filter {
         request.setAttribute("fileUploadDisable", ConfigConstants.getFileUploadDisable());
         request.setAttribute("beian", ConfigConstants.getBeian());
         request.setAttribute("size", ConfigConstants.maxSize());
+        request.setAttribute("deleteCaptcha", ConfigConstants.getDeleteCaptcha());
     }
 
     /**

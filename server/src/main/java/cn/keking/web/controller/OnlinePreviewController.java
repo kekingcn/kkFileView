@@ -1,5 +1,6 @@
 package cn.keking.web.controller;
 
+import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
@@ -7,6 +8,7 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.utils.KkFileUtils;
+import cn.keking.utils.RandomValidateCodeUtil;
 import cn.keking.utils.WebUtils;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
@@ -15,18 +17,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
 
@@ -159,6 +169,82 @@ public class OnlinePreviewController {
                 IOUtils.closeQuietly(inputStream);
             }
         }
+    }
+    /**
+     * 验证码方法
+     */
+    @RequestMapping("/captcha")
+    public void captcha(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        if(!ConfigConstants.getDeleteCaptcha()){
+            return;
+        }
+        response.setContentType("image/gif");
+        response.setHeader("Pragma", "No-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+        Date date = new Date();   // 当前时间
+        SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   // 设置时间格式
+        String sessionCode;
+        try {
+             sessionCode = request.getSession().getAttribute("code").toString();  //获取已经保存的验证码
+        } catch (Exception e) {
+            sessionCode= null;
+        }
+        Object time = request.getSession().getAttribute("time");  //获取已经保存的时间
+        if (ObjectUtils.isEmpty(time)){  //判断时间是否为空
+            request.getSession().setAttribute("time", formater.format(date));  //为空重新添加缓存时间
+            time = request.getSession().getAttribute("time");
+        }
+        Date joinTime =  formater.parse(String.valueOf(time));
+        String dateStart = formater.format(joinTime);
+        Date d1=formater.parse(dateStart);
+        // 时间差：
+        long diff = date.getTime() - d1.getTime();
+        long diffSeconds = diff / 1000 % 60;
+        String ip=request.getRemoteAddr();
+        ServletOutputStream sos = null;
+        if (ObjectUtils.isEmpty(sessionCode) ||  diffSeconds > 50){   //判断验证码是否为空 为空重新生成  判断是否在有效时间内 默认50秒
+            Map<String, Object> codeMap = RandomValidateCodeUtil.generateCodeAndPic(ip,sessionCode,0);
+            // 验证码存入session
+            request.getSession().setAttribute("code", codeMap.get("code").toString());
+            // 时间存入session
+            request.getSession().setAttribute("time", formater.format(date));
+            // 禁止图像缓存。
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", -1);
+            response.setContentType("image/jpeg");
+            // 将图像输出到Servlet输出流中。
+            try {
+                sos = response.getOutputStream();
+                ImageIO.write((RenderedImage) codeMap.get("codePic"), "jpeg", sos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                assert sos != null;
+                sos.close();
+            }
+        }else {
+           // System.out.println("请输入你的姓名:");
+            Map<String, Object> codeMap = RandomValidateCodeUtil.generateCodeAndPic(ip,sessionCode,1);
+            // 禁止图像缓存。
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", -1);
+            response.setContentType("image/jpeg");
+            // 将图像输出到Servlet输出流中。
+            try {
+                sos = response.getOutputStream();
+                ImageIO.write((RenderedImage) codeMap.get("codePic"), "jpeg", sos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                assert sos != null;
+                sos.close();
+            }
+
+        }
+
     }
 
     /**

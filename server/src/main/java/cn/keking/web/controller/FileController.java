@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,15 +60,28 @@ public class FileController {
     }
 
     @GetMapping("/deleteFile")
-    public ReturnResponse<Object> deleteFile(String fileName,String password) {
+    public ReturnResponse<Object> deleteFile(HttpServletRequest request, String fileName, String password) {
         ReturnResponse<Object> checkResult = this.deleteFileCheck(fileName);
         if (checkResult.isFailure()) {
             return checkResult;
         }
          fileName = checkResult.getContent().toString();
-        if(!ConfigConstants.getPassword().equalsIgnoreCase(password)) {
-            logger.error("删除文件【{}】失败，密码错误！",fileName);
-            return ReturnResponse.failure("删除文件失败，密码错误！");
+        if(ConfigConstants.getDeleteCaptcha()){
+            String sessionCode;
+            try {
+                sessionCode = request.getSession().getAttribute("code").toString();  //获取已经保存的验证码
+            } catch (Exception e) {
+                sessionCode = "null";
+            }
+            if (password==null || !sessionCode.equalsIgnoreCase(password)){
+                logger.error("删除文件【{}】失败，密码错误！",fileName);
+                return ReturnResponse.failure("删除文件失败，密码错误！");
+            }
+        }else {
+            if(password==null || !ConfigConstants.getPassword().equalsIgnoreCase(password)) {
+                logger.error("删除文件【{}】失败，密码错误！",fileName);
+                return ReturnResponse.failure("删除文件失败，密码错误！");
+            }
         }
         File file = new File(fileDir + demoPath + fileName);
         logger.info("删除文件：{}", file.getAbsolutePath());
@@ -76,6 +90,7 @@ public class FileController {
             logger.error(msg);
             return ReturnResponse.failure(msg);
         }
+        request.getSession().removeAttribute("code"); //删除缓存验证码
         return ReturnResponse.success();
     }
 
