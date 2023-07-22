@@ -95,7 +95,7 @@ public class ConfigConstants {
     public static final String DEFAULT_OFFICE_MAXIMAQERESOLUTION = "150";
     public static final String DEFAULT_OFFICE_EXPORTBOOKMARKS = "true";
     public static final String DEFAULT_OFFICE_EXPORTNOTES = "true";
-    public static final String DEFAULT_EOCUMENTOPENPASSWORDS = "true";
+    public static final String DEFAULT_OFFICE_EOCUMENTOPENPASSWORDS = "true";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -499,81 +499,81 @@ public class ConfigConstants {
      * 以下为OFFICE转换模块设置
      */
 
-    public static String getofficePageRange() {
+    public static String getOfficePageRange() {
         return officePageRange;
     }
     @Value("${office.pagerange:false}")
-    public void setOfficePageRange(String officepagerange) {
-        setOfficePageRangeValue(officepagerange);
+    public void setOfficePageRange(String officePageRange) {
+        setOfficePageRangeValue(officePageRange);
     }
-    public static void setOfficePageRangeValue(String officepagerange) {
-        ConfigConstants.officePageRange = officepagerange;
+    public static void setOfficePageRangeValue(String officePageRange) {
+        ConfigConstants.officePageRange = officePageRange;
     }
 
-    public static String getofficeWatermark() {
+    public static String getOfficeWatermark() {
         return officeWatermark;
     }
     @Value("${office.watermark:false}")
-    public void setOfficeWatermark(String officewatermark) {
-        setOfficeWatermarkValue(officewatermark);
+    public void setOfficeWatermark(String officeWatermark) {
+        setOfficeWatermarkValue(officeWatermark);
     }
-    public static void setOfficeWatermarkValue(String officewatermark) {
-        ConfigConstants.officeWatermark = officewatermark;
+    public static void setOfficeWatermarkValue(String officeWatermark) {
+        ConfigConstants.officeWatermark = officeWatermark;
     }
 
-    public static String getofficeQuality() {
+    public static String getOfficeQuality() {
         return officeQuality;
     }
-    @Value("${office.Quality:80}")
-    public void setOfficeQuality(String officequality) {
-        setOfficeQualityValue(officequality);
+    @Value("${office.quality:80}")
+    public void setOfficeQuality(String officeQuality) {
+        setOfficeQualityValue(officeQuality);
     }
-    public static void setOfficeQualityValue(String officequality) {
-        ConfigConstants.officeQuality = officequality;
+    public static void setOfficeQualityValue(String officeQuality) {
+        ConfigConstants.officeQuality = officeQuality;
     }
 
-    public static String getofficeMaxImageResolution() {
+    public static String getOfficeMaxImageResolution() {
         return officeMaxImageResolution;
     }
     @Value("${office.maximageresolution:150}")
-    public void setofficeMaxImageResolution(String officemaximageresolution) {
-        setOfficeMaxImageResolutionValue(officemaximageresolution);
+    public void setOfficeMaxImageResolution(String officeMaxImageResolution) {
+        setOfficeMaxImageResolutionValue(officeMaxImageResolution);
     }
-    public static void setOfficeMaxImageResolutionValue(String officemaximageresolution) {
-        ConfigConstants.officeMaxImageResolution = officemaximageresolution;
+    public static void setOfficeMaxImageResolutionValue(String officeMaxImageResolution) {
+        ConfigConstants.officeMaxImageResolution = officeMaxImageResolution;
     }
 
-    public static Boolean getofficeExportBookmarks() {
+    public static Boolean getOfficeExportBookmarks() {
         return officeExportBookmarks;
     }
     @Value("${office.exportbookmarks:true}")
-    public void setofficeExportBookmarks(Boolean officeexportbookmarks) {
-        setOfficeExportBookmarksValue(officeexportbookmarks);
+    public void setOfficeExportBookmarks(Boolean officeExportBookmarks) {
+        setOfficeExportBookmarksValue(officeExportBookmarks);
     }
-    public static void setOfficeExportBookmarksValue(Boolean officeexportbookmarks) {
-        ConfigConstants.officeExportBookmarks = officeexportbookmarks;
+    public static void setOfficeExportBookmarksValue(Boolean officeExportBookmarks) {
+        ConfigConstants.officeExportBookmarks = officeExportBookmarks;
     }
 
-    public static Boolean getofficeExportNotes() {
+    public static Boolean getOfficeExportNotes() {
         return officeExportNotes;
     }
     @Value("${office.exportnotes:true}")
-    public void setExportNotes(Boolean officeofficeexportnotes) {
-        setOfficeExportNotesValue(officeofficeexportnotes);
+    public void setExportNotes(Boolean officeExportNotes) {
+        setOfficeExportNotesValue(officeExportNotes);
     }
-    public static void setOfficeExportNotesValue(Boolean officeofficeexportnotes) {
-        ConfigConstants.officeExportNotes = officeofficeexportnotes;
+    public static void setOfficeExportNotesValue(Boolean officeExportNotes) {
+        ConfigConstants.officeExportNotes = officeExportNotes;
     }
 
-    public static Boolean getofficeDocumentOpenPasswords() {
+    public static Boolean getOfficeDocumentOpenPasswords() {
         return officeDocumentOpenPasswords;
     }
     @Value("${office.documentopenpasswords:true}")
-    public void setDocumentOpenPasswords(Boolean officedocumentopenpasswords) {
-        setOfficeDocumentOpenPasswordsValue(officedocumentopenpasswords);
+    public void setDocumentOpenPasswords(Boolean officeDocumentOpenPasswords) {
+        setOfficeDocumentOpenPasswordsValue(officeDocumentOpenPasswords);
     }
-    public static void setOfficeDocumentOpenPasswordsValue(Boolean officedocumentopenpasswords) {
-        ConfigConstants.officeDocumentOpenPasswords = officedocumentopenpasswords;
+    public static void setOfficeDocumentOpenPasswordsValue(Boolean officeDocumentOpenPasswords) {
+        ConfigConstants.officeDocumentOpenPasswords = officeDocumentOpenPasswords;
     }
 
 }

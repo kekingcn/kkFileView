@@ -36,21 +36,21 @@ public class OfficeToPdfService {
         LocalConverter.Builder builder;
         Map<String, Object> filterData = new HashMap<>();
         filterData.put("EncryptFile", true);
-        if(!ConfigConstants.getofficePageRange().equals("false")){
-            filterData.put("PageRange", ConfigConstants.getofficePageRange()); //限制页面
+        if(!ConfigConstants.getOfficePageRange().equals("false")){
+            filterData.put("PageRange", ConfigConstants.getOfficePageRange()); //限制页面
         }
-        if(!ConfigConstants.getofficeWatermark().equals("false")){
-            filterData.put("Watermark", ConfigConstants.getofficeWatermark());  //水印
+        if(!ConfigConstants.getOfficeWatermark().equals("false")){
+            filterData.put("Watermark", ConfigConstants.getOfficeWatermark());  //水印
         }
-        filterData.put("Quality", ConfigConstants.getofficeQuality()); //图片压缩
-        filterData.put("MaxImageResolution", ConfigConstants.getofficeMaxImageResolution()); //DPI
-        if(ConfigConstants.getofficeExportBookmarks()){
+        filterData.put("Quality", ConfigConstants.getOfficeQuality()); //图片压缩
+        filterData.put("MaxImageResolution", ConfigConstants.getOfficeMaxImageResolution()); //DPI
+        if(ConfigConstants.getOfficeExportBookmarks()){
             filterData.put("ExportBookmarks", true); //导出书签
         }
-        if(ConfigConstants.getofficeExportNotes()){
+        if(ConfigConstants.getOfficeExportNotes()){
             filterData.put("ExportNotes", true); //批注作为PDF的注释
         }
-        if(!ConfigConstants.getofficeDocumentOpenPasswords()){
+        if(!ConfigConstants.getOfficeDocumentOpenPasswords()){
             filterData.put("DocumentOpenPassword", fileAttribute.getFilePassword()); //给PDF添加密码
         }
         Map<String, Object> customProperties = new HashMap<>();
