@@ -54,7 +54,6 @@ public class FileHandlerService {
     private final Logger logger = LoggerFactory.getLogger(FileHandlerService.class);
     private final String fileDir = ConfigConstants.getFileDir();
     private final CacheService cacheService;
-    private final InterruptionTokenSource source = new com.aspose.cad.InterruptionTokenSource(); //CAD延时
     @Value("${server.tomcat.uri-encoding:UTF-8}")
     private String uriEncoding;
 
@@ -148,7 +147,7 @@ public class FileHandlerService {
     /**
      cad定义线程池
      */
-    private static final ExecutorService pool = Executors.newFixedThreadPool(1);
+    private static final ExecutorService pool = Executors.newFixedThreadPool(ConfigConstants.getCadThread());
     /**
      * 对转换后的文件进行操作(改变编码方式)
      *
@@ -304,82 +303,77 @@ public class FileHandlerService {
      * @return 转换是否成功
      */
     public String cadToPdf(String inputFilePath, String outputFilePath ,String  cadPreviewType)  throws Exception  {
+        final InterruptionTokenSource source = new InterruptionTokenSource();//CAD延时
         Callable<String> call = () -> {
-        File outputFile = new File(outputFilePath);
-        LoadOptions opts = new LoadOptions();
-        opts.setSpecifiedEncoding(CodePages.SimpChinese);
-        Image cadImage = Image.load(inputFilePath, opts);
-        CadRasterizationOptions cadRasterizationOptions = new CadRasterizationOptions();
-        cadRasterizationOptions.setBackgroundColor(Color.getWhite());
-        cadRasterizationOptions.setPageWidth(1400);
-        cadRasterizationOptions.setPageHeight(650);
-        cadRasterizationOptions.setAutomaticLayoutsScaling(true);
-        cadRasterizationOptions.setNoScaling(false);
-        cadRasterizationOptions.setDrawType(1);
-        SvgOptions SvgOptions = null;
-        PdfOptions pdfOptions = null;
-        TiffOptions TiffOptions  = null;
-        switch (cadPreviewType) {  //新增格式方法
-            case "svg":
-                SvgOptions = new SvgOptions();
-                SvgOptions.setVectorRasterizationOptions(cadRasterizationOptions);
-                SvgOptions.setInterruptionToken(source.getToken());
-                break;
-            case "pdf":
-                pdfOptions = new PdfOptions();
-                pdfOptions.setVectorRasterizationOptions(cadRasterizationOptions);
-                pdfOptions.setInterruptionToken(source.getToken());
-                break;
-            case "tif":
-                TiffOptions = new TiffOptions(TiffExpectedFormat.TiffJpegRgb);
-                TiffOptions.setVectorRasterizationOptions(cadRasterizationOptions);
-                TiffOptions.setInterruptionToken(source.getToken());
-                break;
-        }
-        OutputStream stream = null;
-        try {
-            stream = new FileOutputStream(outputFile);
-            switch (cadPreviewType) {
+            File outputFile = new File(outputFilePath);
+            LoadOptions opts = new LoadOptions();
+            opts.setSpecifiedEncoding(CodePages.SimpChinese);
+            Image cadImage = Image.load(inputFilePath, opts);
+            CadRasterizationOptions cadRasterizationOptions = new CadRasterizationOptions();
+            cadRasterizationOptions.setBackgroundColor(Color.getWhite());
+            cadRasterizationOptions.setPageWidth(1400);
+            cadRasterizationOptions.setPageHeight(650);
+            cadRasterizationOptions.setAutomaticLayoutsScaling(true);
+            cadRasterizationOptions.setNoScaling(false);
+            cadRasterizationOptions.setDrawType(1);
+            SvgOptions SvgOptions = null;
+            PdfOptions pdfOptions = null;
+            TiffOptions TiffOptions  = null;
+            switch (cadPreviewType) {  //新增格式方法
                 case "svg":
-                    cadImage.save(stream, SvgOptions);
+                    SvgOptions = new SvgOptions();
+                    SvgOptions.setVectorRasterizationOptions(cadRasterizationOptions);
+                    SvgOptions.setInterruptionToken(source.getToken());
                     break;
                 case "pdf":
-                    cadImage.save(stream, pdfOptions);
+                    pdfOptions = new PdfOptions();
+                    pdfOptions.setVectorRasterizationOptions(cadRasterizationOptions);
+                    pdfOptions.setInterruptionToken(source.getToken());
                     break;
                 case "tif":
-                    cadImage.save(stream, TiffOptions);
+                    TiffOptions = new TiffOptions(TiffExpectedFormat.TiffJpegRgb);
+                    TiffOptions.setVectorRasterizationOptions(cadRasterizationOptions);
+                    TiffOptions.setInterruptionToken(source.getToken());
                     break;
             }
-        } catch (IOException e) {
-            logger.error("PDFFileNotFoundException，inputFilePath：{}", inputFilePath, e);
-            return "null";
-        } finally {
-            if (stream != null) {   //关闭
-                stream.close();
+            try (OutputStream stream = new FileOutputStream(outputFile)) {
+                switch (cadPreviewType) {
+                    case "svg":
+                        cadImage.save(stream, SvgOptions);
+                        break;
+                    case "pdf":
+                        cadImage.save(stream, pdfOptions);
+                        break;
+                    case "tif":
+                        cadImage.save(stream, TiffOptions);
+                        break;
+                }
+            } catch (IOException e) {
+                logger.error("PDFFileNotFoundException，inputFilePath：{}", inputFilePath, e);
+                return null;
+            } finally {
+                //关闭
+                if (cadImage != null) {   //关闭
+                    cadImage.dispose();
+                }
+                source.interrupt();  //结束任务
             }
-            if (cadImage != null) {   //关闭
-                cadImage.close();
-            }
-            source.interrupt();  //结束任务
-            source.dispose();
-        }
-        return "true";
+            return "true";
         };
         Future<String> result = pool.submit(call);
         try {
             // 如果在超时时间内，没有数据返回：则抛出TimeoutException异常
-            result.get(60, TimeUnit.SECONDS);
+            result.get(Long.parseLong(ConfigConstants.getCadTimeout()), TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             System.out.println("InterruptedException发生");
-            return "null";
+            return null;
         } catch (ExecutionException e) {
             System.out.println("ExecutionException发生");
-            return "null";
+            return null;
         } catch (TimeoutException e) {
             System.out.println("TimeoutException发生，意味着线程超时报错");
-            return "null";
+            return null;
         } finally {
-            source.interrupt();  //结束任务
             source.dispose();
         }
         return "true";
