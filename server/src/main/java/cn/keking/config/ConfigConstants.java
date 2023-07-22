@@ -58,6 +58,8 @@ public class ConfigConstants {
     private static Boolean officeExportBookmarks;
     private static Boolean officeExportNotes;
     private static Boolean officeDocumentOpenPasswords;
+    private static String cadTimeout;
+    private static int cadThread;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -88,6 +90,9 @@ public class ConfigConstants {
     public static final String DEFAULT_DELETE_SOURCE_FILE = "true";
     public static final String DEFAULT_DELETE_CAPTCHA = "false";
 
+
+    public static final String DEFAULT_CAD_TIMEOUT = "90";
+    public static final String DEFAULT_CAD_THREAD = "5";
 
     public static final String DEFAULT_OFFICE_PAQERANQE = "false";
     public static final String DEFAULT_OFFICE_WATERMARK = "false";
@@ -469,6 +474,23 @@ public class ConfigConstants {
         ConfigConstants.deleteSourceFile = deleteSourceFile;
     }
 
+    public static Boolean getDeleteCaptcha() {
+        return deleteCaptcha;
+    }
+
+    @Value("${delete.captcha:false}")
+    public void setDeleteCaptcha(Boolean deleteCaptcha) {
+        setDeleteCaptchaValue(deleteCaptcha);
+    }
+
+    public static void setDeleteCaptchaValue(Boolean deleteCaptcha) {
+        ConfigConstants.deleteCaptcha = deleteCaptcha;
+    }
+
+    /**
+     * 以下为cad转换模块设置
+     */
+
     public static String getCadPreviewType() {
         return cadPreviewType;
     }
@@ -482,17 +504,32 @@ public class ConfigConstants {
         ConfigConstants.cadPreviewType = cadPreviewType;
     }
 
-    public static Boolean getDeleteCaptcha() {
-        return deleteCaptcha;
+
+    public static String getCadTimeout() {
+        return cadTimeout;
     }
 
-    @Value("${delete.captcha:false}")
-    public void setDeleteCaptcha(Boolean deleteCaptcha) {
-        setDeleteCaptchaValue(deleteCaptcha);
+    @Value("${cad.timeout:90}")
+    public void setCadTimeout(String cadTimeout) {
+        setCadTimeoutValue(cadTimeout);
     }
 
-    public static void setDeleteCaptchaValue(Boolean deleteCaptcha) {
-        ConfigConstants.deleteCaptcha = deleteCaptcha;
+    public static void setCadTimeoutValue(String cadTimeout) {
+        ConfigConstants.cadTimeout = cadTimeout;
+    }
+
+
+    public static int getCadThread() {
+        return cadThread;
+    }
+
+    @Value("${cad.thread:5}")
+    public void setCadThread(int cadthread) {
+        setCadThreadValue(cadthread);
+    }
+
+    public static void setCadThreadValue(int cadthread) {
+        ConfigConstants.cadThread = cadthread;
     }
 
     /**

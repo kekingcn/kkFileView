@@ -70,6 +70,8 @@ public class ConfigRefreshComponent {
                 boolean officExportBookmarks;
                 boolean officeExportNotes;
                 boolean officeDocumentOpenPasswords;
+                String cadTimeout;
+                int cadThread;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -110,6 +112,8 @@ public class ConfigRefreshComponent {
                     officExportBookmarks = Boolean.parseBoolean(properties.getProperty("office.exportbookmarks", ConfigConstants.DEFAULT_OFFICE_EXPORTBOOKMARKS));
                     officeExportNotes = Boolean.parseBoolean(properties.getProperty("office.exportnotes", ConfigConstants.DEFAULT_OFFICE_EXPORTNOTES));
                     officeDocumentOpenPasswords =  Boolean.parseBoolean(properties.getProperty("office.documentopenpasswords", ConfigConstants.DEFAULT_OFFICE_EOCUMENTOPENPASSWORDS));
+                    cadTimeout = properties.getProperty("cad.timeout", ConfigConstants.DEFAULT_CAD_TIMEOUT);
+                    cadThread = Integer.parseInt(properties.getProperty("cad.thread", ConfigConstants.DEFAULT_CAD_THREAD));
                     prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
@@ -145,6 +149,8 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setOfficeDocumentOpenPasswordsValue(officeDocumentOpenPasswords);
                     ConfigConstants.setDeleteSourceFileValue(deleteSourceFile);
                     ConfigConstants.setDeleteCaptchaValue(deleteCaptcha);
+                    ConfigConstants.setCadTimeoutValue(cadTimeout);
+                    ConfigConstants.setCadThreadValue(cadThread);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();
