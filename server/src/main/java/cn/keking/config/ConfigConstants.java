@@ -495,7 +495,7 @@ public class ConfigConstants {
         return cadPreviewType;
     }
 
-    @Value("${cad.preview.type:pdf}")
+    @Value("${cad.preview.type:svg}")
     public void setCadPreviewType(String cadPreviewType) {
         setCadPreviewTypeValue(cadPreviewType);
     }
