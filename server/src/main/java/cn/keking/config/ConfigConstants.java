@@ -51,6 +51,13 @@ public class ConfigConstants {
     private static String cadPreviewType;
     private static Boolean deleteSourceFile;
     private static Boolean deleteCaptcha;
+    private static String officePageRange;
+    private static String officeWatermark;
+    private static String officeQuality;
+    private static String officeMaxImageResolution;
+    private static Boolean officeExportBookmarks;
+    private static Boolean officeExportNotes;
+    private static Boolean officeDocumentOpenPasswords;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
@@ -80,6 +87,15 @@ public class ConfigConstants {
     public static final String DEFAULT_OFFICE_TYPE_WEB = "web";
     public static final String DEFAULT_DELETE_SOURCE_FILE = "true";
     public static final String DEFAULT_DELETE_CAPTCHA = "false";
+
+
+    public static final String DEFAULT_OFFICE_PAQERANQE = "false";
+    public static final String DEFAULT_OFFICE_WATERMARK = "false";
+    public static final String DEFAULT_OFFICE_QUALITY = "80";
+    public static final String DEFAULT_OFFICE_MAXIMAQERESOLUTION = "150";
+    public static final String DEFAULT_OFFICE_EXPORTBOOKMARKS = "true";
+    public static final String DEFAULT_OFFICE_EXPORTNOTES = "true";
+    public static final String DEFAULT_EOCUMENTOPENPASSWORDS = "true";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -478,4 +494,86 @@ public class ConfigConstants {
     public static void setDeleteCaptchaValue(Boolean deleteCaptcha) {
         ConfigConstants.deleteCaptcha = deleteCaptcha;
     }
+
+    /**
+     * 以下为OFFICE转换模块设置
+     */
+
+    public static String getofficePageRange() {
+        return officePageRange;
+    }
+    @Value("${office.pagerange:false}")
+    public void setOfficePageRange(String officepagerange) {
+        setOfficePageRangeValue(officepagerange);
+    }
+    public static void setOfficePageRangeValue(String officepagerange) {
+        ConfigConstants.officePageRange = officepagerange;
+    }
+
+    public static String getofficeWatermark() {
+        return officeWatermark;
+    }
+    @Value("${office.watermark:false}")
+    public void setOfficeWatermark(String officewatermark) {
+        setOfficeWatermarkValue(officewatermark);
+    }
+    public static void setOfficeWatermarkValue(String officewatermark) {
+        ConfigConstants.officeWatermark = officewatermark;
+    }
+
+    public static String getofficeQuality() {
+        return officeQuality;
+    }
+    @Value("${office.Quality:80}")
+    public void setOfficeQuality(String officequality) {
+        setOfficeQualityValue(officequality);
+    }
+    public static void setOfficeQualityValue(String officequality) {
+        ConfigConstants.officeQuality = officequality;
+    }
+
+    public static String getofficeMaxImageResolution() {
+        return officeMaxImageResolution;
+    }
+    @Value("${office.maximageresolution:150}")
+    public void setofficeMaxImageResolution(String officemaximageresolution) {
+        setOfficeMaxImageResolutionValue(officemaximageresolution);
+    }
+    public static void setOfficeMaxImageResolutionValue(String officemaximageresolution) {
+        ConfigConstants.officeMaxImageResolution = officemaximageresolution;
+    }
+
+    public static Boolean getofficeExportBookmarks() {
+        return officeExportBookmarks;
+    }
+    @Value("${office.exportbookmarks:true}")
+    public void setofficeExportBookmarks(Boolean officeexportbookmarks) {
+        setOfficeExportBookmarksValue(officeexportbookmarks);
+    }
+    public static void setOfficeExportBookmarksValue(Boolean officeexportbookmarks) {
+        ConfigConstants.officeExportBookmarks = officeexportbookmarks;
+    }
+
+    public static Boolean getofficeExportNotes() {
+        return officeExportNotes;
+    }
+    @Value("${office.exportnotes:true}")
+    public void setExportNotes(Boolean officeofficeexportnotes) {
+        setOfficeExportNotesValue(officeofficeexportnotes);
+    }
+    public static void setOfficeExportNotesValue(Boolean officeofficeexportnotes) {
+        ConfigConstants.officeExportNotes = officeofficeexportnotes;
+    }
+
+    public static Boolean getofficeDocumentOpenPasswords() {
+        return officeDocumentOpenPasswords;
+    }
+    @Value("${office.documentopenpasswords:true}")
+    public void setDocumentOpenPasswords(Boolean officedocumentopenpasswords) {
+        setOfficeDocumentOpenPasswordsValue(officedocumentopenpasswords);
+    }
+    public static void setOfficeDocumentOpenPasswordsValue(Boolean officedocumentopenpasswords) {
+        ConfigConstants.officeDocumentOpenPasswords = officedocumentopenpasswords;
+    }
+
 }

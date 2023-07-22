@@ -63,6 +63,13 @@ public class ConfigRefreshComponent {
                 String cadPreviewType;
                 boolean deleteSourceFile;
                 boolean deleteCaptcha;
+                String officPageRange;
+                String officWatermark;
+                String officQuality;
+                String officMaxImageResolution;
+                boolean officExportBookmarks;
+                boolean officeExportNotes;
+                boolean officeDocumentOpenPasswords;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -96,6 +103,13 @@ public class ConfigRefreshComponent {
                     officeTypeWeb = properties.getProperty("office.type.web", ConfigConstants.DEFAULT_OFFICE_TYPE_WEB);
                     deleteSourceFile =  Boolean.parseBoolean(properties.getProperty("delete.source.file", ConfigConstants.DEFAULT_DELETE_SOURCE_FILE));
                     deleteCaptcha =  Boolean.parseBoolean(properties.getProperty("delete.captcha", ConfigConstants.DEFAULT_DELETE_CAPTCHA));
+                    officPageRange = properties.getProperty("office.pagerange", ConfigConstants.DEFAULT_OFFICE_PAQERANQE);
+                    officWatermark = properties.getProperty("office.watermark", ConfigConstants.DEFAULT_OFFICE_WATERMARK);
+                    officQuality = properties.getProperty("office.quality", ConfigConstants.DEFAULT_OFFICE_QUALITY);
+                    officMaxImageResolution = properties.getProperty("office.maximageresolution", ConfigConstants.DEFAULT_OFFICE_MAXIMAQERESOLUTION);
+                    officExportBookmarks = Boolean.parseBoolean(properties.getProperty("office.exportbookmarks", ConfigConstants.DEFAULT_OFFICE_EXPORTBOOKMARKS));
+                    officeExportNotes = Boolean.parseBoolean(properties.getProperty("office.exportnotes", ConfigConstants.DEFAULT_OFFICE_EXPORTNOTES));
+                    officeDocumentOpenPasswords =  Boolean.parseBoolean(properties.getProperty("office.documentopenpasswords", ConfigConstants.DEFAULT_EOCUMENTOPENPASSWORDS));
                     prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
@@ -122,6 +136,13 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setPasswordValue(password);
                     ConfigConstants.setPdf2JpgDpiValue(pdf2JpgDpi);
                     ConfigConstants.setOfficeTypeWebValue(officeTypeWeb);
+                    ConfigConstants.setOfficePageRangeValue(officPageRange);
+                    ConfigConstants.setOfficeWatermarkValue(officWatermark);
+                    ConfigConstants.setOfficeQualityValue(officQuality);
+                    ConfigConstants.setOfficeMaxImageResolutionValue(officMaxImageResolution);
+                    ConfigConstants.setOfficeExportBookmarksValue(officExportBookmarks);
+                    ConfigConstants.setOfficeExportNotesValue(officeExportNotes);
+                    ConfigConstants.setOfficeDocumentOpenPasswordsValue(officeDocumentOpenPasswords);
                     ConfigConstants.setDeleteSourceFileValue(deleteSourceFile);
                     ConfigConstants.setDeleteCaptchaValue(deleteCaptcha);
                     setWatermarkConfig(properties);
