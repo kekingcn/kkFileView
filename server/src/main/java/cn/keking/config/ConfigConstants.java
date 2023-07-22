@@ -524,12 +524,12 @@ public class ConfigConstants {
     }
 
     @Value("${cad.thread:5}")
-    public void setCadThread(int cadthread) {
-        setCadThreadValue(cadthread);
+    public void setCadThread(int cadThread) {
+        setCadThreadValue(cadThread);
     }
 
-    public static void setCadThreadValue(int cadthread) {
-        ConfigConstants.cadThread = cadthread;
+    public static void setCadThreadValue(int cadThread) {
+        ConfigConstants.cadThread = cadThread;
     }
 
     /**
