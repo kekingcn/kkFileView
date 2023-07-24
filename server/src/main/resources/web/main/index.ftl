@@ -22,6 +22,39 @@
             width: 50%;
         }
     </style>
+ <#--  删除吗CSS样式 -->
+<#if deleteCaptcha >
+    <style>
+        .code{
+            position: fixed;
+            width: 300px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            background-color: #F0FFF0;
+            text-align: center;
+            padding: 20px;
+            z-index: 100002;
+        }
+        .close{
+            margin-top: 20px;
+        }
+        .code-input{
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            width: 110px;
+            height: 40px;
+        }
+        .code-input:focus{
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+        }
+
+    </style>
+</#if>
 </head>
 
 <body>
@@ -111,51 +144,9 @@
             </form>
         </div>
     </div>
+    <#--  删除吗弹窗  -->
     <#if deleteCaptcha >
-    <#--  获取删除吗  -->
-    <div class="panel panel-success">
-        <div class="panel-heading">
-            <h3 class="panel-title">获取删除码(注意:每个验证码只能删除一个文件,验证码有效期为50秒)</h3>
-        </div>
-        <div class="panel-body">
-            <img id="verImg" width="130px" height="48px"/>
-            <button id="getPic" type="button" class="btn btn-success">获取删除码</button>
-        </div>
-    </div>
-  <script>
-            window.onload = function(){
-                var windowUrl = window.URL || window.webkitURL; //处理浏览器兼容性
-                document.getElementById('getPic').onclick = function(e){
-                    //1、创建ajax对象
-                    var xhr = null;
-                    try{
-                        xhr = new XMLHttpRequest();
-                    }catch(error){
-                        xhr = new ActiveXObject("Microsoft.XMLHTTP");
-                    }
-                    //2、调用open
-                    xhr.open("get", "/captcha", true);
-                    xhr.responseType = "blob";
-                    //3、调用send
-                    xhr.send();
-                    //4、等待数据响应
-                    xhr.onreadystatechange = function(){
-                        if(xhr.readyState == 4){
-                            //判断本次下载的状态码都是多少
-                            if(xhr.status == 200){
-                                var blob = this.response;
-                                $("#verImg").attr("src",windowUrl.createObjectURL(blob));
-                                //$('#verImg').attr('src', xhr.responseText);
-
-                                //  alert(windowUrl.createObjectURL(blob));
-                            }else{
-                                alert("Error:" + xhr.status);
-                            }
-                        }
-                    }
-                }
-            }
-        </script>
+        <div id="codeContent">  </div>
     </#if>
     <#--  预览测试  -->
     <div class="panel panel-success">
@@ -208,6 +199,71 @@
     </div>
 </#if>
 <script>
+    <#if deleteCaptcha >
+    function deleteFile(fileName) {
+        var codename =`<div class="code"><h4>请输入下面删除码!</h4><div><img id="verImg" width="130px" height="48px" src="/captcha"></div><form><input type="type" oninput="if(value.length>5)value=value.slice(0,5);" class="code-input"  id="_code" placeholder="请输入验证码"><button id="deleteFile1" type="button" class="btn btn-success">提交</button></form><button id="close" type="button"class="btn btn-danger">关闭</button></div>`;
+        $('#codeContent').html(codename);
+        var code = document.querySelector('.code');
+        var closeBtn = document.getElementById("close");
+        closeBtn.addEventListener('click', hidePopup);
+        function hidePopup(){
+            code.style.display = 'none';
+        }
+        var closedelete = document.getElementById("deleteFile1");
+        closedelete.addEventListener('click', deleteFile1);
+        function deleteFile1(){
+            var password = $("#_code").val();
+//console.log(password);
+            $.ajax({
+                    url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
+                success: function (data) {
+                    // console.log(data);
+                    // 删除完成，刷新table
+                    if ("删除文件失败，密码错误！" === data.msg) {
+                        alert(data.msg);
+                    } else {
+                        $('#table').bootstrapTable('refresh', {});
+                        code.style.display = 'none';
+                    }
+                },
+                error: function (data) {
+                    return false;
+                }
+            })
+        }
+        var windowUrl = window.URL || window.webkitURL; //处理浏览器兼容性
+        document.getElementById('verImg').onclick = function(e){
+            //1、创建ajax对象
+            var xhr = null;
+            try{
+                xhr = new XMLHttpRequest();
+            }catch(error){
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            //2、调用open
+            xhr.open("get", "/captcha", true);
+            xhr.responseType = "blob";
+            //3、调用send
+            xhr.send();
+            //4、等待数据响应
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4){
+                    //判断本次下载的状态码都是多少
+                    if(xhr.status == 200){
+                        var blob = this.response;
+                        $("#verImg").attr("src",windowUrl.createObjectURL(blob));
+                        //$('#verImg').attr('src', xhr.responseText);
+
+                        //  alert(windowUrl.createObjectURL(blob));
+                    }else{
+                        alert("Error:" + xhr.status);
+                    }
+                }
+            }
+        }
+
+    }
+    <#else>
     function deleteFile(fileName,password) {
         if(window.confirm('你确定要删除文件吗？')){
             <#if deleteCaptcha >
@@ -218,7 +274,7 @@
             $.ajax({
                 url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
                 success: function (data) {
-                // console.log(data);
+                    // console.log(data);
                     // 删除完成，刷新table
                     if ("删除文件失败，密码错误！" === data.msg) {
                         alert(data.msg);
@@ -235,6 +291,7 @@
         }
 
     }
+    </#if>
 
     function showLoadingDiv() {
         var height = window.document.documentElement.clientHeight - 1;
