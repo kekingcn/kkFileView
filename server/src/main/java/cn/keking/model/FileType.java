@@ -43,6 +43,7 @@ public enum FileType {
     private static final String[] EPUB_TYPES = {"epub"};
     private static final String[] DCM_TYPES = {"dcm"};
     private static final String[] DRAWIO_TYPES = {"drawio"};
+    private static final String[] XML_TYPES = {"xml","xbrl"};
     private static final String[] TIFF_TYPES = {"tif", "tiff"};
     private static final String[] OFD_TYPES = {"ofd"};
     private static final String[] SVG_TYPES = {"svg"};
@@ -105,8 +106,10 @@ public enum FileType {
         for (String drawio : DRAWIO_TYPES) {
             FILE_TYPE_MAPPER.put(drawio, FileType.DRAWIO);
         }
+        for (String xml : XML_TYPES) {
+            FILE_TYPE_MAPPER.put(xml, FileType.XML);
+        }
         FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
-        FILE_TYPE_MAPPER.put("xml", FileType.XML);
         FILE_TYPE_MAPPER.put("pdf", FileType.PDF);
         FILE_TYPE_MAPPER.put("flv", FileType.FLV);
         FILE_TYPE_MAPPER.put("bpmn", FileType.BPMN);
