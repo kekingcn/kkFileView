@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -264,7 +265,11 @@ public class FileHandlerService {
                 imageUrls.add(imageUrl);
             }
             try {
-                pdfReader =  new PdfReader(pdfFilePath,filePassword.getBytes());   //读取PDF文件
+                if (ObjectUtils.isEmpty(filePassword)){
+                    pdfReader =  new PdfReader(pdfFilePath);   //读取PDF文件
+                }else {
+                    pdfReader =  new PdfReader(pdfFilePath,filePassword.getBytes());   //读取PDF文件
+                }
             } catch (Exception e) {  //获取异常方法 判断是否有加密字符串
                 Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
                 for (Throwable throwable : throwableArray) {
