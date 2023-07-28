@@ -12,7 +12,10 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.UUID;
 
 import static cn.keking.utils.KkFileUtils.isFtpUrl;
@@ -37,6 +40,7 @@ public class DownloadUtils {
     public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
         // 忽略ssl证书
         String urlStr = null;
+        HttpURLConnection urlcon;
         try {
             SslUtils.ignoreSsl();
             urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
@@ -70,6 +74,50 @@ public class DownloadUtils {
         }
         try {
             URL url = WebUtils.normalizedURL(urlStr);
+            if (!urlStr.toLowerCase().startsWith("ftp:")&& !urlStr.toLowerCase().startsWith("file")){
+                urlcon=(HttpURLConnection)url.openConnection();
+                urlcon.setConnectTimeout(30000);
+                urlcon.setReadTimeout(30000);
+                urlcon.setInstanceFollowRedirects(false);
+                int responseCode = urlcon.getResponseCode();
+                if(responseCode != 200){
+                    if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) { //301 302
+                        url =new URL(urlcon.getHeaderField("Location"));
+                    }
+                    if (responseCode == 403|| responseCode == 500) { //301 302
+                        response.setCode(1);
+                        response.setContent(null);
+                        response.setMsg("下载失败:地址错误!" + urlStr);
+                        return response;
+                    }
+                    if (responseCode  == 404 ) {  //404
+                        try {
+                            urlStr = URLDecoder.decode(urlStr, "UTF-8");
+                            urlStr = URLDecoder.decode(urlStr, "UTF-8");
+                            url = WebUtils.normalizedURL(urlStr);
+                            urlcon=(HttpURLConnection)url.openConnection();
+                            urlcon.setConnectTimeout(30000);
+                            urlcon.setReadTimeout(30000);
+                            urlcon.setInstanceFollowRedirects(false);
+                            responseCode = urlcon.getResponseCode();
+                            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) { //301 302
+                                url =new URL(urlcon.getHeaderField("Location"));
+                            }
+                            if(responseCode == 404 ||responseCode == 403|| responseCode == 500 ){
+                                response.setCode(1);
+                                response.setContent(null);
+                                response.setMsg("下载失败:地址错误!" + urlStr);
+                                return response;
+                            }
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }finally {
+                            assert urlcon != null;
+                            urlcon.disconnect();
+                        }
+                    }
+                }
+            }
             if (!fileAttribute.getSkipDownLoad()) {
                 if (isHttpUrl(url)) {
                     File realFile = new File(realPath);
