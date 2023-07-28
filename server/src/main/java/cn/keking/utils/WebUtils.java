@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class WebUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebUtils.class);
-
+    private static final String BASE64_MSG = "base64"; 
     /**
      * 获取标准的URL
      *
@@ -243,8 +243,13 @@ public class WebUtils {
         try {
             return new String(Base64Utils.decodeFromString(source.replaceAll(" ", "+").replaceAll("\n", "")), charsets);
         } catch (Exception e) {
-            LOGGER.error("url解码异常，可能是接入方法错误或者未使用BASE64", e);
+           if (e.getMessage().toLowerCase().contains(BASE64_MSG)) {
+         LOGGER.error("url解码异常，接入方法错误未使用BASE64");
+        }else {
+        LOGGER.error("url解码异常，其他错误", e);
+          }
             return null;
+        }
         }
     }
 
