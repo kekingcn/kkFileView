@@ -48,6 +48,27 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
+            <h3 class="panel-title">2023年07月10日，v4.4.0版本迭代开启 </h3>
+        </div>
+        <div class="panel-body">
+            <div>
+                1. ofd修复部分已知问题. <br>
+                2. 更新xlsx前端解析组件 <br>
+                3. 修复 forceUpdatedCache 属性设置，但是本地缓存文件不更新缺陷 <br>
+                4. 配置文件新增启用 GZIP压缩 <br>
+                5. CAD格式新增支持 转换成svg tif 格式 <br>
+                6. CAD 转换新增 超时结束 新增线程管理 <br>
+                7. 删除功能 新增验证码方法 <br> 
+                8. 升级 CAD转换组件 <br> 
+                9. office 功能调整 支持批注 转换页码限制 生成水印等等 <br> 
+                10.新增xbrl格式 <br> 
+                11.修复PDF解密加密文件 转换成功后台报错问题  <br> 
+                12.支持 301重定向 及文件名被编码 <br> 
+                13.其他功能优化及已知问题修复 <br>
+            </div>
+        </div>
+    <div class="panel panel-success">
+        <div class="panel-heading">
             <h3 class="panel-title">2023年07月04日，v4.3.0版本</h3>
         </div>
         <div class="panel-body">
