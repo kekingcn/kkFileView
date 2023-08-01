@@ -45,14 +45,30 @@
         initWaterMark();
         loadMarkdown();
     }
+     function htmlEscape(str){
+        var s = "";
+        if(str.length == 0) return "";
+        s = str.replace(/&amp;/g,"&");
+        s = str.replace(/&amp;amp;/g,"&");
+        s = s.replace(/&lt;/g,"<");
+        s = s.replace(/&gt;/g,">");
+        s = s.replace(/&nbsp;/g," ");
+        s = s.replace(/&#39;/g,"\'");
+        s = s.replace(/&quot;/g,"\"");
+        s = s.replace(/<script.*?>.*?<\/script>/ig, '');
+        s = s.replace(/<script/gi, "&lt;script ");
+        s = s.replace(/<iframe/gi, "&lt;iframe ");
+        return s;
+    }
 
     /**
      * 加载markdown
      */
     function loadMarkdown() {
         var textData = Base64.decode($("#textData").val())
+        textData = htmlEscape(textData);
         window.textPreData = "<pre style='background-color: #FFFFFF;border:none'>" + textData + "</pre>";
-        window.textMarkdownData = marked(textData);
+        window.textMarkdownData = marked.parse(textData);
         $("#markdown").html(window.textMarkdownData);
     }
 
