@@ -30,15 +30,35 @@
     if (!url.startsWith(baseUrl)) {
          url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url));
     }
-  var currentSectionIndex = 100;
-    // Load the opf
-    var book = ePub(url);
-    //var rendition = book.renderTo("viewer", { flow: "scrolled-doc" });
+    
+function blobToArrayBuffer(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsArrayBuffer(blob);
+  });
+  }
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET',url); //文件所在地址
+        xhr.responseType = 'blob';
+        xhr.onload = () => {
+          var currentSectionIndex = 100;
+          var book = ePub();
+         let content = xhr.response;
+         let blob = new Blob([content]);
+         var bookData = blobToArrayBuffer(blob);
+        book.open(bookData, "binary");
     var rendition = book.renderTo("viewer", {
       flow: "scrolled-doc",
-      width: "100%"
+      width: "100%",
+      allowScriptedContent: true
      // height: 600
     });
+    
+    var displayed = rendition.display();
     var params = URLSearchParams && new URLSearchParams(document.location.search.substring(1));
     var currentSectionIndex = (params && params.get("loc")) ? params.get("loc") : undefined;
     rendition.display(currentSectionIndex);
@@ -116,18 +136,19 @@
 
 				docfrag.appendChild(option);
 			});
-
 			$select.appendChild(docfrag);
-
 			$select.onchange = function(){
-					var index = $select.selectedIndex,
-							url = $select.options[index].getAttribute("ref");
-					rendition.display(url);
-					return false;
+			var index = $select.selectedIndex,
+			url = $select.options[index].getAttribute("ref");
+			rendition.display(url);
+			return false;
 			};
-
 		});
-
+       
+        }
+        xhr.send();
+        
+ 
   		 /*初始化水印*/
  if (!!window.ActiveXObject || "ActiveXObject" in window)
 {
