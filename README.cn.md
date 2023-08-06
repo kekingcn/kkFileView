@@ -13,7 +13,7 @@
 11. 支持 epub 图书文档
 12. 支持 obj, 3ds, stl, ply, gltf, glb, off, 3dm, fbx, dae, wrl, 3mf, ifc, brep, step, iges, fcstd, bim 等 3D 模型文件
 13. 支持 dwg, dxf, dwf, iges , igs, dwt, dng, ifc, dwfx, stl, cf2, plt 等 CAD 模型文件
-14. 支持 txt, xml(渲染), md(渲染), java, php, py, js, css 等所有纯文本
+14. 支持 txt, xml(渲染), xbrl(渲染), md(渲染), java, php, py, js, css 等所有纯文本
 15. 支持 zip, rar, jar, tar, gzip, 7z 等压缩包
 16. 支持 jpg, jpeg, png, gif, bmp, ico, jfif, webp 等图片预览（翻转，缩放，镜像）
 17. 支持 tif, tiff 图信息模型文件
@@ -51,7 +51,7 @@
 
 ### 文档预览效果
 #### 1. 文本预览
-支持所有类型的文本文档预览， 由于文本文档类型过多，无法全部枚举，默认开启的类型如下 txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd  
+支持所有类型的文本文档预览， 由于文本文档类型过多，无法全部枚举，默认开启的类型如下 txt,html,htm,asp,jsp,xml,xbrl,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd  
 文本预览效果如下  
 ![文本预览效果如下](https://kkview.cn/img/preview/preview-text.png)      
 
