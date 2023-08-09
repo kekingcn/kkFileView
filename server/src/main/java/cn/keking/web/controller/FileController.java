@@ -73,12 +73,12 @@ public class FileController {
             } catch (Exception e) {
                 sessionCode = "null";
             }
-            if (password==null || !sessionCode.equalsIgnoreCase(password)){
+            if (!sessionCode.equalsIgnoreCase(password)){
                 logger.error("删除文件【{}】失败，密码错误！",fileName);
                 return ReturnResponse.failure("删除文件失败，密码错误！");
             }
         }else {
-            if(password==null || !ConfigConstants.getPassword().equalsIgnoreCase(password)) {
+            if(!ConfigConstants.getPassword().equalsIgnoreCase(password)) {
                 logger.error("删除文件【{}】失败，密码错误！",fileName);
                 return ReturnResponse.failure("删除文件失败，密码错误！");
             }
