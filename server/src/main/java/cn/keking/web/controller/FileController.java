@@ -190,7 +190,7 @@ public class FileController {
             return ReturnResponse.failure("非法文件名，删除失败！");
         }
         if (ObjectUtils.isEmpty(password)) {
-            return ReturnResponse.failure("密码为空，删除失败！");
+            return ReturnResponse.failure("密码 or 验证码为空，删除失败！");
         }
 
         String expectedPassword = ConfigConstants.getDeleteCaptcha() ? WebUtils.getSessionAttr(request, captcha_code) : ConfigConstants.getPassword();
