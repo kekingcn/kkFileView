@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,7 +29,7 @@ import java.util.regex.Pattern;
 public class WebUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebUtils.class);
-    private static final String BASE64_MSG = "base64"; 
+    private static final String BASE64_MSG = "base64";
     /**
      * 获取标准的URL
      *
@@ -205,13 +207,7 @@ public class WebUtils {
         Matcher matcher = pattern.matcher(url);
         return matcher.find();
     }
-    public static boolean kuayu(String host, String wjl) {  //查询域名是否相同
-        if (wjl.contains(host)) {
-            return true;
-        }else {
-            return false;
-        }
-    }
+
     /**
      * 将 Base64 字符串解码，再解码URL参数, 默认使用 UTF-8
      * @param source 原始 Base64 字符串
@@ -264,5 +260,49 @@ public class WebUtils {
         } catch (MalformedURLException ignored) {
         }
         return null;
+    }
+
+    /**
+     * 获取 session 中的 String 属性
+     * @param request 请求
+     * @return 属性值
+     */
+    public static String getSessionAttr(HttpServletRequest request, String key) {
+        HttpSession session = request.getSession();
+        if (session == null) {
+            return null;
+        }
+        Object value = session.getAttribute(key);
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
+
+    /**
+     * 获取 session 中的 long 属性
+     * @param request 请求
+     * @param key 属性名
+     * @return 属性值
+     */
+    public static long getLongSessionAttr(HttpServletRequest request, String key) {
+        String value = getSessionAttr(request, key);
+        if (value == null) {
+            return 0;
+        }
+        return Long.parseLong(value);
+    }
+
+    /**
+     * 移除 session 中的属性
+     * @param request 请求
+     * @param key 属性名
+     */
+    public static void removeSessionAttr(HttpServletRequest request, String key) {
+        HttpSession session = request.getSession();
+        if (session == null) {
+            return;
+        }
+        session.removeAttribute(key);
     }
 }
