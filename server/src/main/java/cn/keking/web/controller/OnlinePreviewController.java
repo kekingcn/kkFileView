@@ -1,6 +1,5 @@
 package cn.keking.web.controller;
 
-import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
@@ -8,7 +7,6 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.utils.KkFileUtils;
-import cn.keking.utils.CaptchaUtil;
 import cn.keking.utils.WebUtils;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import io.mola.galimatias.GalimatiasParseException;
@@ -17,17 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -35,11 +28,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
 
