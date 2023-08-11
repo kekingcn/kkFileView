@@ -201,7 +201,7 @@
 <script>
     <#if deleteCaptcha >
     function deleteFile(fileName) {
-        var codename =`<div class="code"><h4>请输入下面删除码!</h4><div><img id="verImg" width="130px" height="48px" src="/captcha"></div><form><input type="type" oninput="if(value.length>5)value=value.slice(0,5);" class="code-input"  id="_code" placeholder="请输入验证码"><button id="deleteFile1" type="button" class="btn btn-success">提交</button></form><button id="close" type="button"class="btn btn-danger">关闭</button></div>`;
+        var codename =`<div class="code"><h4>请输入下面删除码!</h4><div><img id="verImg" width="130px" height="48px" src="/deleteFile/captcha"></div><form><input type="type" oninput="if(value.length>5)value=value.slice(0,5);" class="code-input"  id="_code" placeholder="请输入验证码"><button id="deleteFile1" type="button" class="btn btn-success">提交</button></form><button id="close" type="button"class="btn btn-danger">关闭</button></div>`;
         $('#codeContent').html(codename);
         var code = document.querySelector('.code');
         var closeBtn = document.getElementById("close");
@@ -213,15 +213,14 @@
         closedelete.addEventListener('click', deleteFile1);
         function deleteFile1(){
             var password = $("#_code").val();
-//console.log(password);
             $.ajax({
                     url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
                 success: function (data) {
-                    // console.log(data);
-                    // 删除完成，刷新table
                     if ("删除文件失败，密码错误！" === data.msg) {
                         alert(data.msg);
                     } else {
+                        //刷新验证码
+                        document.getElementById('verImg').click();
                         $('#table').bootstrapTable('refresh', {});
                         code.style.display = 'none';
                     }
@@ -241,7 +240,7 @@
                 xhr = new ActiveXObject("Microsoft.XMLHTTP");
             }
             //2、调用open
-            xhr.open("get", "/captcha", true);
+            xhr.open("get", "/deleteFile/captcha", true);
             xhr.responseType = "blob";
             //3、调用send
             xhr.send();
@@ -279,6 +278,7 @@
                     if ("删除文件失败，密码错误！" === data.msg) {
                         alert(data.msg);
                     } else {
+
                         $('#table').bootstrapTable('refresh', {});
                     }
                 },
