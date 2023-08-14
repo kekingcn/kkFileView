@@ -429,6 +429,8 @@ public class FileHandlerService {
             attribute.setSkipDownLoad(true);
         }
         url = WebUtils.encodeUrlFileName(url);
+         // 把不合法的名称转换
+        fileName = KkFileUtils.convertToValidFileName(fileName);
         fileName = KkFileUtils.htmlEscape(fileName);  //文件名处理
         attribute.setType(type);
         attribute.setName(fileName);
