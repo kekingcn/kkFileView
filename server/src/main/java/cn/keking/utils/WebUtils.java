@@ -294,6 +294,19 @@ public class WebUtils {
     }
 
     /**
+     * session 中设置属性
+     * @param request 请求
+     * @param key 属性名
+     */
+    public static void setSessionAttr(HttpServletRequest request, String key, Object value) {
+        HttpSession session = request.getSession();
+        if (session == null) {
+            return;
+        }
+        session.setAttribute(key, value);
+    }
+
+    /**
      * 移除 session 中的属性
      * @param request 请求
      * @param key 属性名
