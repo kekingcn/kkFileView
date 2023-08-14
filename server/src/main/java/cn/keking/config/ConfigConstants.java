@@ -13,9 +13,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author: chenjh
  * @since: 2019/4/10 17:22
  */
-@Component
+@Component(value = ConfigConstants.BEAN_NAME)
 public class ConfigConstants {
-
+    public static final String BEAN_NAME = "configConstants";
     static {
         //pdfbox兼容低版本jdk
         System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
