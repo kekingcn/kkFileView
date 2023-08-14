@@ -25,6 +25,7 @@ import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.apache.poi.EncryptedDocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -48,7 +49,7 @@ import java.util.stream.IntStream;
  * @date 2017/11/13
  */
 @Component
-public class FileHandlerService {
+public class FileHandlerService implements InitializingBean {
 
     private static final String PDF2JPG_IMAGE_FORMAT = ".jpg";
     private static final String PDF_PASSWORD_MSG = "password";
@@ -148,7 +149,11 @@ public class FileHandlerService {
     /**
      cad定义线程池
      */
-    private static final ExecutorService pool = Executors.newFixedThreadPool(ConfigConstants.getCadThread());
+    private ExecutorService pool = null;
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        pool = Executors.newFixedThreadPool(ConfigConstants.getCadThread());
+    }
     /**
      * 对转换后的文件进行操作(改变编码方式)
      *
