@@ -36,6 +36,7 @@ public class ConfigConstants {
     private static String localPreviewDir;
     private static CopyOnWriteArraySet<String> trustHostSet;
     private static String pdfPresentationModeDisable;
+    private static String pdfDisableEditing;
     private static String pdfOpenFileDisable;
     private static String pdfPrintDisable;
     private static String pdfDownloadDisable;
@@ -78,6 +79,7 @@ public class ConfigConstants {
     public static final String DEFAULT_PDF_PRINT_DISABLE = "true";
     public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
     public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
+    public static final String DEFAULT_PDF_DISABLE_EDITING = "true";
     public static final String DEFAULT_FILE_UPLOAD_DISABLE = "false";
     public static final String DEFAULT_TIF_PREVIEW_TYPE = "tif";
     public static final String DEFAULT_CAD_PREVIEW_TYPE = "pdf";
@@ -353,6 +355,18 @@ public class ConfigConstants {
     }
     public static void setPdfBookmarkDisableValue(String pdfBookmarkDisable) {
         ConfigConstants.pdfBookmarkDisable = pdfBookmarkDisable;
+    }
+
+
+    public static String getPdfDisableEditing() {
+        return pdfDisableEditing;
+    }
+    @Value("${pdf.disable.editing:true}")
+    public void setpdfDisableEditing(String pdfDisableEditing) {
+        setPdfDisableEditingValue(pdfDisableEditing);
+    }
+    public static void setPdfDisableEditingValue(String pdfDisableEditing) {
+        ConfigConstants.pdfDisableEditing = pdfDisableEditing;
     }
 
     public static String getOfficePreviewSwitchDisabled() {
