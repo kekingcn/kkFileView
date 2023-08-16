@@ -12,9 +12,7 @@
   cornerstoneTools = cornerstoneTools && cornerstoneTools.hasOwnProperty('default') ? cornerstoneTools['default'] : cornerstoneTools;
 
   var _cornerstoneWADOImage = cornerstoneWADOImageLoader.wadors.metaData,
-      getNumberString = _cornerstoneWADOImage.getNumberString,
       getNumberValue = _cornerstoneWADOImage.getNumberValue,
-      getNumberValues = _cornerstoneWADOImage.getNumberValues,
       getValue = _cornerstoneWADOImage.getValue;
 
   function wadoRsMetaDataProvider(type, imageId) {
@@ -46,15 +44,22 @@
     if (type === 'patientModule') {
       return {
         patientName: getValue(metaData['00100010']),
-        patientId: getValue(metaData['00100020'])
+        patientId: getValue(metaData['00100020']),
+        patientSex: getValue(metaData['00100040']),
+        patientBirthDate: getValue(metaData['00100030'])
       };
+    }
+
+    if (type === 'spacingBetweenSlices') {
+      return getValue(metaData['00180088']);
     }
 
     if (type === 'generalStudyModule') {
       return {
         studyDescription: getValue(metaData['00081030']),
         studyDate: getValue(metaData['00080020']),
-        studyTime: getValue(metaData['00080030'])
+        studyTime: getValue(metaData['00080030']),
+        accessionNumber: getValue(metaData['00080050'])
       };
     }
 
@@ -127,6 +132,8 @@
     }
   }
 
+  var classCallCheck = _classCallCheck;
+
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
@@ -143,6 +150,103 @@
     return Constructor;
   }
 
+  var createClass = _createClass;
+
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function commonjsRequire () {
+  	throw new Error('Dynamic requires are not currently supported by rollup-plugin-commonjs');
+  }
+
+  function unwrapExports (x) {
+  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+  }
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var _typeof_1 = createCommonjsModule(function (module) {
+  function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+  function _typeof(obj) {
+    if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+      module.exports = _typeof = function _typeof(obj) {
+        return _typeof2(obj);
+      };
+    } else {
+      module.exports = _typeof = function _typeof(obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+      };
+    }
+
+    return _typeof(obj);
+  }
+
+  module.exports = _typeof;
+  });
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  var assertThisInitialized = _assertThisInitialized;
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (_typeof_1(call) === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return assertThisInitialized(self);
+  }
+
+  var possibleConstructorReturn = _possibleConstructorReturn;
+
+  var getPrototypeOf = createCommonjsModule(function (module) {
+  function _getPrototypeOf(o) {
+    module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  module.exports = _getPrototypeOf;
+  });
+
+  var setPrototypeOf = createCommonjsModule(function (module) {
+  function _setPrototypeOf(o, p) {
+    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  module.exports = _setPrototypeOf;
+  });
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) setPrototypeOf(subClass, superClass);
+  }
+
+  var inherits = _inherits;
+
   function _defineProperty(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
@@ -158,62 +262,309 @@
     return obj;
   }
 
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function");
-    }
+  var defineProperty = _defineProperty;
 
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        writable: true,
-        configurable: true
+  var reactIs_production_min = createCommonjsModule(function (module, exports) {
+  Object.defineProperty(exports,"__esModule",{value:!0});
+  var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?Symbol.for("react.suspense_list"):
+  60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.fundamental"):60117,w=b?Symbol.for("react.responder"):60118;function x(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case h:return a;default:return u}}case t:case r:case d:return u}}}function y(a){return x(a)===m}exports.typeOf=x;exports.AsyncMode=l;
+  exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;exports.Fragment=e;exports.Lazy=t;exports.Memo=r;exports.Portal=d;exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;
+  exports.isValidElementType=function(a){return "string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===v||a.$$typeof===w)};exports.isAsyncMode=function(a){return y(a)||x(a)===l};exports.isConcurrentMode=y;exports.isContextConsumer=function(a){return x(a)===k};exports.isContextProvider=function(a){return x(a)===h};
+  exports.isElement=function(a){return "object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return x(a)===n};exports.isFragment=function(a){return x(a)===e};exports.isLazy=function(a){return x(a)===t};exports.isMemo=function(a){return x(a)===r};exports.isPortal=function(a){return x(a)===d};exports.isProfiler=function(a){return x(a)===g};exports.isStrictMode=function(a){return x(a)===f};exports.isSuspense=function(a){return x(a)===p};
+  });
+
+  unwrapExports(reactIs_production_min);
+  var reactIs_production_min_1 = reactIs_production_min.typeOf;
+  var reactIs_production_min_2 = reactIs_production_min.AsyncMode;
+  var reactIs_production_min_3 = reactIs_production_min.ConcurrentMode;
+  var reactIs_production_min_4 = reactIs_production_min.ContextConsumer;
+  var reactIs_production_min_5 = reactIs_production_min.ContextProvider;
+  var reactIs_production_min_6 = reactIs_production_min.Element;
+  var reactIs_production_min_7 = reactIs_production_min.ForwardRef;
+  var reactIs_production_min_8 = reactIs_production_min.Fragment;
+  var reactIs_production_min_9 = reactIs_production_min.Lazy;
+  var reactIs_production_min_10 = reactIs_production_min.Memo;
+  var reactIs_production_min_11 = reactIs_production_min.Portal;
+  var reactIs_production_min_12 = reactIs_production_min.Profiler;
+  var reactIs_production_min_13 = reactIs_production_min.StrictMode;
+  var reactIs_production_min_14 = reactIs_production_min.Suspense;
+  var reactIs_production_min_15 = reactIs_production_min.isValidElementType;
+  var reactIs_production_min_16 = reactIs_production_min.isAsyncMode;
+  var reactIs_production_min_17 = reactIs_production_min.isConcurrentMode;
+  var reactIs_production_min_18 = reactIs_production_min.isContextConsumer;
+  var reactIs_production_min_19 = reactIs_production_min.isContextProvider;
+  var reactIs_production_min_20 = reactIs_production_min.isElement;
+  var reactIs_production_min_21 = reactIs_production_min.isForwardRef;
+  var reactIs_production_min_22 = reactIs_production_min.isFragment;
+  var reactIs_production_min_23 = reactIs_production_min.isLazy;
+  var reactIs_production_min_24 = reactIs_production_min.isMemo;
+  var reactIs_production_min_25 = reactIs_production_min.isPortal;
+  var reactIs_production_min_26 = reactIs_production_min.isProfiler;
+  var reactIs_production_min_27 = reactIs_production_min.isStrictMode;
+  var reactIs_production_min_28 = reactIs_production_min.isSuspense;
+
+  var reactIs_development = createCommonjsModule(function (module, exports) {
+
+
+
+  if (process.env.NODE_ENV !== "production") {
+    (function() {
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+  // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
+  // nor polyfill, then a plain number is used for performance.
+  var hasSymbol = typeof Symbol === 'function' && Symbol.for;
+
+  var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
+  var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for('react.portal') : 0xeaca;
+  var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb;
+  var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeacc;
+  var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
+  var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
+  var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace;
+  // TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
+  // (unstable) APIs that have been removed. Can we remove the symbols?
+  var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for('react.async_mode') : 0xeacf;
+  var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
+  var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
+  var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
+  var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
+  var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
+  var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
+  var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
+  var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
+
+  function isValidElementType(type) {
+    return typeof type === 'string' || typeof type === 'function' ||
+    // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
+    type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE);
+  }
+
+  /**
+   * Forked from fbjs/warning:
+   * https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/__forks__/warning.js
+   *
+   * Only change is we use console.warn instead of console.error,
+   * and do nothing when 'console' is not supported.
+   * This really simplifies the code.
+   * ---
+   * Similar to invariant but only logs a warning if the condition is not met.
+   * This can be used to log issues in development environments in critical
+   * paths. Removing the logging code for production environments will keep the
+   * same logic and follow the same code paths.
+   */
+
+  var lowPriorityWarning = function () {};
+
+  {
+    var printWarning = function (format) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
       }
-    });
-    if (superClass) _setPrototypeOf(subClass, superClass);
-  }
 
-  function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-      return o.__proto__ || Object.getPrototypeOf(o);
+      var argIndex = 0;
+      var message = 'Warning: ' + format.replace(/%s/g, function () {
+        return args[argIndex++];
+      });
+      if (typeof console !== 'undefined') {
+        console.warn(message);
+      }
+      try {
+        // --- Welcome to debugging React ---
+        // This error was thrown as a convenience so that you can use this stack
+        // to find the callsite that caused this warning to fire.
+        throw new Error(message);
+      } catch (x) {}
     };
-    return _getPrototypeOf(o);
-  }
 
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
+    lowPriorityWarning = function (condition, format) {
+      if (format === undefined) {
+        throw new Error('`lowPriorityWarning(condition, format, ...args)` requires a warning ' + 'message argument');
+      }
+      if (!condition) {
+        for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+          args[_key2 - 2] = arguments[_key2];
+        }
+
+        printWarning.apply(undefined, [format].concat(args));
+      }
     };
-
-    return _setPrototypeOf(o, p);
   }
 
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  var lowPriorityWarning$1 = lowPriorityWarning;
+
+  function typeOf(object) {
+    if (typeof object === 'object' && object !== null) {
+      var $$typeof = object.$$typeof;
+      switch ($$typeof) {
+        case REACT_ELEMENT_TYPE:
+          var type = object.type;
+
+          switch (type) {
+            case REACT_ASYNC_MODE_TYPE:
+            case REACT_CONCURRENT_MODE_TYPE:
+            case REACT_FRAGMENT_TYPE:
+            case REACT_PROFILER_TYPE:
+            case REACT_STRICT_MODE_TYPE:
+            case REACT_SUSPENSE_TYPE:
+              return type;
+            default:
+              var $$typeofType = type && type.$$typeof;
+
+              switch ($$typeofType) {
+                case REACT_CONTEXT_TYPE:
+                case REACT_FORWARD_REF_TYPE:
+                case REACT_PROVIDER_TYPE:
+                  return $$typeofType;
+                default:
+                  return $$typeof;
+              }
+          }
+        case REACT_LAZY_TYPE:
+        case REACT_MEMO_TYPE:
+        case REACT_PORTAL_TYPE:
+          return $$typeof;
+      }
     }
 
-    return self;
+    return undefined;
   }
 
-  function _possibleConstructorReturn(self, call) {
-    if (call && (typeof call === "object" || typeof call === "function")) {
-      return call;
+  // AsyncMode is deprecated along with isAsyncMode
+  var AsyncMode = REACT_ASYNC_MODE_TYPE;
+  var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
+  var ContextConsumer = REACT_CONTEXT_TYPE;
+  var ContextProvider = REACT_PROVIDER_TYPE;
+  var Element = REACT_ELEMENT_TYPE;
+  var ForwardRef = REACT_FORWARD_REF_TYPE;
+  var Fragment = REACT_FRAGMENT_TYPE;
+  var Lazy = REACT_LAZY_TYPE;
+  var Memo = REACT_MEMO_TYPE;
+  var Portal = REACT_PORTAL_TYPE;
+  var Profiler = REACT_PROFILER_TYPE;
+  var StrictMode = REACT_STRICT_MODE_TYPE;
+  var Suspense = REACT_SUSPENSE_TYPE;
+
+  var hasWarnedAboutDeprecatedIsAsyncMode = false;
+
+  // AsyncMode should be deprecated
+  function isAsyncMode(object) {
+    {
+      if (!hasWarnedAboutDeprecatedIsAsyncMode) {
+        hasWarnedAboutDeprecatedIsAsyncMode = true;
+        lowPriorityWarning$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+      }
     }
-
-    return _assertThisInitialized(self);
+    return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
+  }
+  function isConcurrentMode(object) {
+    return typeOf(object) === REACT_CONCURRENT_MODE_TYPE;
+  }
+  function isContextConsumer(object) {
+    return typeOf(object) === REACT_CONTEXT_TYPE;
+  }
+  function isContextProvider(object) {
+    return typeOf(object) === REACT_PROVIDER_TYPE;
+  }
+  function isElement(object) {
+    return typeof object === 'object' && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
+  }
+  function isForwardRef(object) {
+    return typeOf(object) === REACT_FORWARD_REF_TYPE;
+  }
+  function isFragment(object) {
+    return typeOf(object) === REACT_FRAGMENT_TYPE;
+  }
+  function isLazy(object) {
+    return typeOf(object) === REACT_LAZY_TYPE;
+  }
+  function isMemo(object) {
+    return typeOf(object) === REACT_MEMO_TYPE;
+  }
+  function isPortal(object) {
+    return typeOf(object) === REACT_PORTAL_TYPE;
+  }
+  function isProfiler(object) {
+    return typeOf(object) === REACT_PROFILER_TYPE;
+  }
+  function isStrictMode(object) {
+    return typeOf(object) === REACT_STRICT_MODE_TYPE;
+  }
+  function isSuspense(object) {
+    return typeOf(object) === REACT_SUSPENSE_TYPE;
   }
 
-  var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function commonjsRequire () {
-  	throw new Error('Dynamic requires are not currently supported by rollup-plugin-commonjs');
+  exports.typeOf = typeOf;
+  exports.AsyncMode = AsyncMode;
+  exports.ConcurrentMode = ConcurrentMode;
+  exports.ContextConsumer = ContextConsumer;
+  exports.ContextProvider = ContextProvider;
+  exports.Element = Element;
+  exports.ForwardRef = ForwardRef;
+  exports.Fragment = Fragment;
+  exports.Lazy = Lazy;
+  exports.Memo = Memo;
+  exports.Portal = Portal;
+  exports.Profiler = Profiler;
+  exports.StrictMode = StrictMode;
+  exports.Suspense = Suspense;
+  exports.isValidElementType = isValidElementType;
+  exports.isAsyncMode = isAsyncMode;
+  exports.isConcurrentMode = isConcurrentMode;
+  exports.isContextConsumer = isContextConsumer;
+  exports.isContextProvider = isContextProvider;
+  exports.isElement = isElement;
+  exports.isForwardRef = isForwardRef;
+  exports.isFragment = isFragment;
+  exports.isLazy = isLazy;
+  exports.isMemo = isMemo;
+  exports.isPortal = isPortal;
+  exports.isProfiler = isProfiler;
+  exports.isStrictMode = isStrictMode;
+  exports.isSuspense = isSuspense;
+    })();
   }
+  });
 
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  unwrapExports(reactIs_development);
+  var reactIs_development_1 = reactIs_development.typeOf;
+  var reactIs_development_2 = reactIs_development.AsyncMode;
+  var reactIs_development_3 = reactIs_development.ConcurrentMode;
+  var reactIs_development_4 = reactIs_development.ContextConsumer;
+  var reactIs_development_5 = reactIs_development.ContextProvider;
+  var reactIs_development_6 = reactIs_development.Element;
+  var reactIs_development_7 = reactIs_development.ForwardRef;
+  var reactIs_development_8 = reactIs_development.Fragment;
+  var reactIs_development_9 = reactIs_development.Lazy;
+  var reactIs_development_10 = reactIs_development.Memo;
+  var reactIs_development_11 = reactIs_development.Portal;
+  var reactIs_development_12 = reactIs_development.Profiler;
+  var reactIs_development_13 = reactIs_development.StrictMode;
+  var reactIs_development_14 = reactIs_development.Suspense;
+  var reactIs_development_15 = reactIs_development.isValidElementType;
+  var reactIs_development_16 = reactIs_development.isAsyncMode;
+  var reactIs_development_17 = reactIs_development.isConcurrentMode;
+  var reactIs_development_18 = reactIs_development.isContextConsumer;
+  var reactIs_development_19 = reactIs_development.isContextProvider;
+  var reactIs_development_20 = reactIs_development.isElement;
+  var reactIs_development_21 = reactIs_development.isForwardRef;
+  var reactIs_development_22 = reactIs_development.isFragment;
+  var reactIs_development_23 = reactIs_development.isLazy;
+  var reactIs_development_24 = reactIs_development.isMemo;
+  var reactIs_development_25 = reactIs_development.isPortal;
+  var reactIs_development_26 = reactIs_development.isProfiler;
+  var reactIs_development_27 = reactIs_development.isStrictMode;
+  var reactIs_development_28 = reactIs_development.isSuspense;
+
+  var reactIs = createCommonjsModule(function (module) {
+
+  if (process.env.NODE_ENV === 'production') {
+    module.exports = reactIs_production_min;
+  } else {
+    module.exports = reactIs_development;
   }
+  });
 
   /*
   object-assign
@@ -320,6 +671,7 @@
   if (process.env.NODE_ENV !== 'production') {
     var ReactPropTypesSecret$1 = ReactPropTypesSecret_1;
     var loggedTypeFailures = {};
+    var has = Function.call.bind(Object.prototype.hasOwnProperty);
 
     printWarning = function(text) {
       var message = 'Warning: ' + text;
@@ -349,7 +701,7 @@
   function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
     if (process.env.NODE_ENV !== 'production') {
       for (var typeSpecName in typeSpecs) {
-        if (typeSpecs.hasOwnProperty(typeSpecName)) {
+        if (has(typeSpecs, typeSpecName)) {
           var error;
           // Prop type validation may throw. In case they do, we don't want to
           // fail the render phase where it didn't fail before. So we log it.
@@ -378,7 +730,6 @@
               'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' +
               'shape all require an argument).'
             );
-
           }
           if (error instanceof Error && !(error.message in loggedTypeFailures)) {
             // Only monitor this failure once because there tends to be a lot of the
@@ -396,8 +747,20 @@
     }
   }
 
+  /**
+   * Resets warning cache when testing.
+   *
+   * @private
+   */
+  checkPropTypes.resetWarningCache = function() {
+    if (process.env.NODE_ENV !== 'production') {
+      loggedTypeFailures = {};
+    }
+  };
+
   var checkPropTypes_1 = checkPropTypes;
 
+  var has$1 = Function.call.bind(Object.prototype.hasOwnProperty);
   var printWarning$1 = function() {};
 
   if (process.env.NODE_ENV !== 'production') {
@@ -508,6 +871,7 @@
       any: createAnyTypeChecker(),
       arrayOf: createArrayOfTypeChecker,
       element: createElementTypeChecker(),
+      elementType: createElementTypeTypeChecker(),
       instanceOf: createInstanceTypeChecker,
       node: createNodeChecker(),
       objectOf: createObjectOfTypeChecker,
@@ -661,6 +1025,18 @@
       return createChainableTypeChecker(validate);
     }
 
+    function createElementTypeTypeChecker() {
+      function validate(props, propName, componentName, location, propFullName) {
+        var propValue = props[propName];
+        if (!reactIs.isValidElementType(propValue)) {
+          var propType = getPropType(propValue);
+          return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected a single ReactElement type.'));
+        }
+        return null;
+      }
+      return createChainableTypeChecker(validate);
+    }
+
     function createInstanceTypeChecker(expectedClass) {
       function validate(props, propName, componentName, location, propFullName) {
         if (!(props[propName] instanceof expectedClass)) {
@@ -675,7 +1051,16 @@
 
     function createEnumTypeChecker(expectedValues) {
       if (!Array.isArray(expectedValues)) {
-        process.env.NODE_ENV !== 'production' ? printWarning$1('Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
+        if (process.env.NODE_ENV !== 'production') {
+          if (arguments.length > 1) {
+            printWarning$1(
+              'Invalid arguments supplied to oneOf, expected an array, got ' + arguments.length + ' arguments. ' +
+              'A common mistake is to write oneOf(x, y, z) instead of oneOf([x, y, z]).'
+            );
+          } else {
+            printWarning$1('Invalid argument supplied to oneOf, expected an array.');
+          }
+        }
         return emptyFunctionThatReturnsNull;
       }
 
@@ -687,8 +1072,14 @@
           }
         }
 
-        var valuesString = JSON.stringify(expectedValues);
-        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of value `' + propValue + '` ' + ('supplied to `' + componentName + '`, expected one of ' + valuesString + '.'));
+        var valuesString = JSON.stringify(expectedValues, function replacer(key, value) {
+          var type = getPreciseType(value);
+          if (type === 'symbol') {
+            return String(value);
+          }
+          return value;
+        });
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of value `' + String(propValue) + '` ' + ('supplied to `' + componentName + '`, expected one of ' + valuesString + '.'));
       }
       return createChainableTypeChecker(validate);
     }
@@ -704,7 +1095,7 @@
           return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected an object.'));
         }
         for (var key in propValue) {
-          if (propValue.hasOwnProperty(key)) {
+          if (has$1(propValue, key)) {
             var error = typeChecker(propValue, key, componentName, location, propFullName + '.' + key, ReactPropTypesSecret_1);
             if (error instanceof Error) {
               return error;
@@ -861,6 +1252,11 @@
         return true;
       }
 
+      // falsy value can't be a Symbol
+      if (!propValue) {
+        return false;
+      }
+
       // 19.4.3.5 Symbol.prototype[@@toStringTag] === 'Symbol'
       if (propValue['@@toStringTag'] === 'Symbol') {
         return true;
@@ -935,12 +1331,15 @@
     }
 
     ReactPropTypes.checkPropTypes = checkPropTypes_1;
+    ReactPropTypes.resetWarningCache = checkPropTypes_1.resetWarningCache;
     ReactPropTypes.PropTypes = ReactPropTypes;
 
     return ReactPropTypes;
   };
 
   function emptyFunction() {}
+  function emptyFunctionWithReset() {}
+  emptyFunctionWithReset.resetWarningCache = emptyFunction;
 
   var factoryWithThrowingShims = function() {
     function shim(props, propName, componentName, location, propFullName, secret) {
@@ -972,16 +1371,19 @@
       any: shim,
       arrayOf: getShim,
       element: shim,
+      elementType: shim,
       instanceOf: getShim,
       node: shim,
       objectOf: getShim,
       oneOf: getShim,
       oneOfType: getShim,
       shape: getShim,
-      exact: getShim
+      exact: getShim,
+
+      checkPropTypes: emptyFunctionWithReset,
+      resetWarningCache: emptyFunction
     };
 
-    ReactPropTypes.checkPropTypes = emptyFunction;
     ReactPropTypes.PropTypes = ReactPropTypes;
 
     return ReactPropTypes;
@@ -996,21 +1398,12 @@
    */
 
   if (process.env.NODE_ENV !== 'production') {
-    var REACT_ELEMENT_TYPE = (typeof Symbol === 'function' &&
-      Symbol.for &&
-      Symbol.for('react.element')) ||
-      0xeac7;
-
-    var isValidElement = function(object) {
-      return typeof object === 'object' &&
-        object !== null &&
-        object.$$typeof === REACT_ELEMENT_TYPE;
-    };
+    var ReactIs = reactIs;
 
     // By explicitly using `prop-types` you are opting into new development behavior.
     // http://fb.me/prop-types-in-prod
     var throwOnDirectAccess = true;
-    module.exports = factoryWithTypeCheckers(isValidElement, throwOnDirectAccess);
+    module.exports = factoryWithTypeCheckers(ReactIs.isElement, throwOnDirectAccess);
   } else {
     // By explicitly using `prop-types` you are opting into new production behavior.
     // http://fb.me/prop-types-in-prod
@@ -1429,28 +1822,28 @@
   var ImageScrollbar =
   /*#__PURE__*/
   function (_PureComponent) {
-    _inherits(ImageScrollbar, _PureComponent);
+    inherits(ImageScrollbar, _PureComponent);
 
     function ImageScrollbar() {
       var _getPrototypeOf2;
 
       var _this;
 
-      _classCallCheck(this, ImageScrollbar);
+      classCallCheck(this, ImageScrollbar);
 
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ImageScrollbar)).call.apply(_getPrototypeOf2, [this].concat(args)));
+      _this = possibleConstructorReturn(this, (_getPrototypeOf2 = getPrototypeOf(ImageScrollbar)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onChange", function (event) {
+      defineProperty(assertThisInitialized(_this), "onChange", function (event) {
         var intValue = parseInt(event.target.value, 10);
 
         _this.props.onInputCallback(intValue);
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onKeyDown", function (event) {
+      defineProperty(assertThisInitialized(_this), "onKeyDown", function (event) {
         // We don't allow direct keyboard up/down input on the
         // image sliders since the natural direction is reversed (0 is at the top)
         // Store the KeyCodes in an object for readability
@@ -1471,7 +1864,7 @@
       return _this;
     }
 
-    _createClass(ImageScrollbar, [{
+    createClass(ImageScrollbar, [{
       key: "render",
       value: function render() {
         if (this.props.max === 0) {
@@ -1502,7 +1895,7 @@
     return ImageScrollbar;
   }(React.PureComponent);
 
-  _defineProperty(ImageScrollbar, "propTypes", {
+  defineProperty(ImageScrollbar, "propTypes", {
     value: propTypes.number.isRequired,
     max: propTypes.number.isRequired,
     height: propTypes.string.isRequired,
@@ -1528,7 +1921,7 @@
 
   var moment = createCommonjsModule(function (module, exports) {
   (function (global, factory) {
-      module.exports = factory();
+       module.exports = factory() ;
   }(commonjsGlobal, (function () {
       var hookCallback;
 
@@ -2666,22 +3059,36 @@
       function createDate (y, m, d, h, M, s, ms) {
           // can't just apply() to create a date:
           // https://stackoverflow.com/q/181348
-          var date = new Date(y, m, d, h, M, s, ms);
-
+          var date;
           // the date constructor remaps years 0-99 to 1900-1999
-          if (y < 100 && y >= 0 && isFinite(date.getFullYear())) {
-              date.setFullYear(y);
+          if (y < 100 && y >= 0) {
+              // preserve leap years using a full 400 year cycle, then reset
+              date = new Date(y + 400, m, d, h, M, s, ms);
+              if (isFinite(date.getFullYear())) {
+                  date.setFullYear(y);
+              }
+          } else {
+              date = new Date(y, m, d, h, M, s, ms);
           }
+
           return date;
       }
 
       function createUTCDate (y) {
-          var date = new Date(Date.UTC.apply(null, arguments));
-
+          var date;
           // the Date.UTC function remaps years 0-99 to 1900-1999
-          if (y < 100 && y >= 0 && isFinite(date.getUTCFullYear())) {
-              date.setUTCFullYear(y);
+          if (y < 100 && y >= 0) {
+              var args = Array.prototype.slice.call(arguments);
+              // preserve leap years using a full 400 year cycle, then reset
+              args[0] = y + 400;
+              date = new Date(Date.UTC.apply(null, args));
+              if (isFinite(date.getUTCFullYear())) {
+                  date.setUTCFullYear(y);
+              }
+          } else {
+              date = new Date(Date.UTC.apply(null, arguments));
           }
+
           return date;
       }
 
@@ -2892,25 +3299,28 @@
       }
 
       // LOCALES
+      function shiftWeekdays (ws, n) {
+          return ws.slice(n, 7).concat(ws.slice(0, n));
+      }
 
       var defaultLocaleWeekdays = 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_');
       function localeWeekdays (m, format) {
-          if (!m) {
-              return isArray(this._weekdays) ? this._weekdays :
-                  this._weekdays['standalone'];
-          }
-          return isArray(this._weekdays) ? this._weekdays[m.day()] :
-              this._weekdays[this._weekdays.isFormat.test(format) ? 'format' : 'standalone'][m.day()];
+          var weekdays = isArray(this._weekdays) ? this._weekdays :
+              this._weekdays[(m && m !== true && this._weekdays.isFormat.test(format)) ? 'format' : 'standalone'];
+          return (m === true) ? shiftWeekdays(weekdays, this._week.dow)
+              : (m) ? weekdays[m.day()] : weekdays;
       }
 
       var defaultLocaleWeekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
       function localeWeekdaysShort (m) {
-          return (m) ? this._weekdaysShort[m.day()] : this._weekdaysShort;
+          return (m === true) ? shiftWeekdays(this._weekdaysShort, this._week.dow)
+              : (m) ? this._weekdaysShort[m.day()] : this._weekdaysShort;
       }
 
       var defaultLocaleWeekdaysMin = 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_');
       function localeWeekdaysMin (m) {
-          return (m) ? this._weekdaysMin[m.day()] : this._weekdaysMin;
+          return (m === true) ? shiftWeekdays(this._weekdaysMin, this._week.dow)
+              : (m) ? this._weekdaysMin[m.day()] : this._weekdaysMin;
       }
 
       function handleStrictParse$1(weekdayName, format, strict) {
@@ -4605,7 +5015,7 @@
       }
 
       function positiveMomentsDifference(base, other) {
-          var res = {milliseconds: 0, months: 0};
+          var res = {};
 
           res.months = other.month() - base.month() +
               (other.year() - base.year()) * 12;
@@ -4943,62 +5353,130 @@
           return this._locale;
       }
 
+      var MS_PER_SECOND = 1000;
+      var MS_PER_MINUTE = 60 * MS_PER_SECOND;
+      var MS_PER_HOUR = 60 * MS_PER_MINUTE;
+      var MS_PER_400_YEARS = (365 * 400 + 97) * 24 * MS_PER_HOUR;
+
+      // actual modulo - handles negative numbers (for dates before 1970):
+      function mod$1(dividend, divisor) {
+          return (dividend % divisor + divisor) % divisor;
+      }
+
+      function localStartOfDate(y, m, d) {
+          // the date constructor remaps years 0-99 to 1900-1999
+          if (y < 100 && y >= 0) {
+              // preserve leap years using a full 400 year cycle, then reset
+              return new Date(y + 400, m, d) - MS_PER_400_YEARS;
+          } else {
+              return new Date(y, m, d).valueOf();
+          }
+      }
+
+      function utcStartOfDate(y, m, d) {
+          // Date.UTC remaps years 0-99 to 1900-1999
+          if (y < 100 && y >= 0) {
+              // preserve leap years using a full 400 year cycle, then reset
+              return Date.UTC(y + 400, m, d) - MS_PER_400_YEARS;
+          } else {
+              return Date.UTC(y, m, d);
+          }
+      }
+
       function startOf (units) {
+          var time;
           units = normalizeUnits(units);
-          // the following switch intentionally omits break keywords
-          // to utilize falling through the cases.
+          if (units === undefined || units === 'millisecond' || !this.isValid()) {
+              return this;
+          }
+
+          var startOfDate = this._isUTC ? utcStartOfDate : localStartOfDate;
+
           switch (units) {
               case 'year':
-                  this.month(0);
-                  /* falls through */
+                  time = startOfDate(this.year(), 0, 1);
+                  break;
               case 'quarter':
+                  time = startOfDate(this.year(), this.month() - this.month() % 3, 1);
+                  break;
               case 'month':
-                  this.date(1);
-                  /* falls through */
+                  time = startOfDate(this.year(), this.month(), 1);
+                  break;
               case 'week':
+                  time = startOfDate(this.year(), this.month(), this.date() - this.weekday());
+                  break;
               case 'isoWeek':
+                  time = startOfDate(this.year(), this.month(), this.date() - (this.isoWeekday() - 1));
+                  break;
               case 'day':
               case 'date':
-                  this.hours(0);
-                  /* falls through */
+                  time = startOfDate(this.year(), this.month(), this.date());
+                  break;
               case 'hour':
-                  this.minutes(0);
-                  /* falls through */
+                  time = this._d.valueOf();
+                  time -= mod$1(time + (this._isUTC ? 0 : this.utcOffset() * MS_PER_MINUTE), MS_PER_HOUR);
+                  break;
               case 'minute':
-                  this.seconds(0);
-                  /* falls through */
+                  time = this._d.valueOf();
+                  time -= mod$1(time, MS_PER_MINUTE);
+                  break;
               case 'second':
-                  this.milliseconds(0);
+                  time = this._d.valueOf();
+                  time -= mod$1(time, MS_PER_SECOND);
+                  break;
           }
 
-          // weeks are a special case
-          if (units === 'week') {
-              this.weekday(0);
-          }
-          if (units === 'isoWeek') {
-              this.isoWeekday(1);
-          }
-
-          // quarters are also special
-          if (units === 'quarter') {
-              this.month(Math.floor(this.month() / 3) * 3);
-          }
-
+          this._d.setTime(time);
+          hooks.updateOffset(this, true);
           return this;
       }
 
       function endOf (units) {
+          var time;
           units = normalizeUnits(units);
-          if (units === undefined || units === 'millisecond') {
+          if (units === undefined || units === 'millisecond' || !this.isValid()) {
               return this;
           }
 
-          // 'date' is an alias for 'day', so it should be considered as such.
-          if (units === 'date') {
-              units = 'day';
+          var startOfDate = this._isUTC ? utcStartOfDate : localStartOfDate;
+
+          switch (units) {
+              case 'year':
+                  time = startOfDate(this.year() + 1, 0, 1) - 1;
+                  break;
+              case 'quarter':
+                  time = startOfDate(this.year(), this.month() - this.month() % 3 + 3, 1) - 1;
+                  break;
+              case 'month':
+                  time = startOfDate(this.year(), this.month() + 1, 1) - 1;
+                  break;
+              case 'week':
+                  time = startOfDate(this.year(), this.month(), this.date() - this.weekday() + 7) - 1;
+                  break;
+              case 'isoWeek':
+                  time = startOfDate(this.year(), this.month(), this.date() - (this.isoWeekday() - 1) + 7) - 1;
+                  break;
+              case 'day':
+              case 'date':
+                  time = startOfDate(this.year(), this.month(), this.date() + 1) - 1;
+                  break;
+              case 'hour':
+                  time = this._d.valueOf();
+                  time += MS_PER_HOUR - mod$1(time + (this._isUTC ? 0 : this.utcOffset() * MS_PER_MINUTE), MS_PER_HOUR) - 1;
+                  break;
+              case 'minute':
+                  time = this._d.valueOf();
+                  time += MS_PER_MINUTE - mod$1(time, MS_PER_MINUTE) - 1;
+                  break;
+              case 'second':
+                  time = this._d.valueOf();
+                  time += MS_PER_SECOND - mod$1(time, MS_PER_SECOND) - 1;
+                  break;
           }
 
-          return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
+          this._d.setTime(time);
+          hooks.updateOffset(this, true);
+          return this;
       }
 
       function valueOf () {
@@ -5704,10 +6182,14 @@
 
           units = normalizeUnits(units);
 
-          if (units === 'month' || units === 'year') {
-              days   = this._days   + milliseconds / 864e5;
+          if (units === 'month' || units === 'quarter' || units === 'year') {
+              days = this._days + milliseconds / 864e5;
               months = this._months + daysToMonths(days);
-              return units === 'month' ? months : months / 12;
+              switch (units) {
+                  case 'month':   return months;
+                  case 'quarter': return months / 3;
+                  case 'year':    return months / 12;
+              }
           } else {
               // handle milliseconds separately because of floating point math errors (issue #1867)
               days = this._days + Math.round(monthsToDays(this._months));
@@ -5750,6 +6232,7 @@
       var asDays         = makeAs('d');
       var asWeeks        = makeAs('w');
       var asMonths       = makeAs('M');
+      var asQuarters     = makeAs('Q');
       var asYears        = makeAs('y');
 
       function clone$1 () {
@@ -5941,6 +6424,7 @@
       proto$2.asDays         = asDays;
       proto$2.asWeeks        = asWeeks;
       proto$2.asMonths       = asMonths;
+      proto$2.asQuarters     = asQuarters;
       proto$2.asYears        = asYears;
       proto$2.valueOf        = valueOf$1;
       proto$2._bubble        = bubble;
@@ -5985,7 +6469,7 @@
       // Side effect imports
 
 
-      hooks.version = '2.23.0';
+      hooks.version = '2.24.0';
 
       setHookCallback(createLocal);
 
@@ -6109,15 +6593,15 @@
   var ViewportOverlay =
   /*#__PURE__*/
   function (_PureComponent) {
-    _inherits(ViewportOverlay, _PureComponent);
+    inherits(ViewportOverlay, _PureComponent);
 
     function ViewportOverlay() {
-      _classCallCheck(this, ViewportOverlay);
+      classCallCheck(this, ViewportOverlay);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(ViewportOverlay).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(ViewportOverlay).apply(this, arguments));
     }
 
-    _createClass(ViewportOverlay, [{
+    createClass(ViewportOverlay, [{
       key: "render",
       value: function render() {
         var imageId = this.props.imageId;
@@ -6189,7 +6673,7 @@
     return ViewportOverlay;
   }(React.PureComponent);
 
-  _defineProperty(ViewportOverlay, "propTypes", {
+  defineProperty(ViewportOverlay, "propTypes", {
     viewport: propTypes.object.isRequired,
     imageId: propTypes.string.isRequired,
     stack: propTypes.object.isRequired
@@ -6201,15 +6685,15 @@
   var LoadingIndicator =
   /*#__PURE__*/
   function (_PureComponent) {
-    _inherits(LoadingIndicator, _PureComponent);
+    inherits(LoadingIndicator, _PureComponent);
 
     function LoadingIndicator() {
-      _classCallCheck(this, LoadingIndicator);
+      classCallCheck(this, LoadingIndicator);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(LoadingIndicator).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(LoadingIndicator).apply(this, arguments));
     }
 
-    _createClass(LoadingIndicator, [{
+    createClass(LoadingIndicator, [{
       key: "render",
       value: function render() {
         var percComplete;
@@ -6222,9 +6706,9 @@
           className: "imageViewerErrorLoadingIndicator loadingIndicator"
         }, React__default.createElement("div", {
           className: "indicatorContents"
-        }, React__default.createElement("h4", null, "Error Loading Image"), React__default.createElement("p", {
+        }, React__default.createElement("h4", null, "加载图像时出错"), React__default.createElement("p", {
           className: "description"
-        }, "An error has occurred."), React__default.createElement("p", {
+        }, "发生错误."), React__default.createElement("p", {
           className: "details"
         }, this.props.error.message))) : React__default.createElement("div", {
           className: "imageViewerLoadingIndicator loadingIndicator"
@@ -6239,12 +6723,12 @@
     return LoadingIndicator;
   }(React.PureComponent);
 
-  _defineProperty(LoadingIndicator, "propTypes", {
+  defineProperty(LoadingIndicator, "propTypes", {
     percentComplete: propTypes.number.isRequired,
     error: propTypes.object
   });
 
-  _defineProperty(LoadingIndicator, "defaultProps", {
+  defineProperty(LoadingIndicator, "defaultProps", {
     percentComplete: 0,
     error: null
   });
@@ -6310,15 +6794,15 @@
   var ViewportOrientationMarkers =
   /*#__PURE__*/
   function (_PureComponent) {
-    _inherits(ViewportOrientationMarkers, _PureComponent);
+    inherits(ViewportOrientationMarkers, _PureComponent);
 
     function ViewportOrientationMarkers() {
-      _classCallCheck(this, ViewportOrientationMarkers);
+      classCallCheck(this, ViewportOrientationMarkers);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(ViewportOrientationMarkers).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(ViewportOrientationMarkers).apply(this, arguments));
     }
 
-    _createClass(ViewportOrientationMarkers, [{
+    createClass(ViewportOrientationMarkers, [{
       key: "render",
       value: function render() {
         var _this$props = this.props,
@@ -6348,7 +6832,7 @@
     return ViewportOrientationMarkers;
   }(React.PureComponent);
 
-  _defineProperty(ViewportOrientationMarkers, "propTypes", {
+  defineProperty(ViewportOrientationMarkers, "propTypes", {
     imageId: propTypes.string.isRequired,
     viewport: propTypes.object.isRequired
   });
@@ -6357,11 +6841,12 @@
   styleInject(css$4);
 
   var EVENT_RESIZE = 'resize';
-  var scrollToIndex = cornerstoneTools.import('util/scrollToIndex');
+  var scrollToIndex = cornerstoneTools.importInternal('util/scrollToIndex');
+  var loadHandlerManager = cornerstoneTools.loadHandlerManager;
 
-  function setToolsPassive(cornerstoneTools$$1, tools) {
+  function setToolsPassive(cornerstoneTools, tools) {
     tools.forEach(function (tool) {
-      cornerstoneTools$$1.setToolPassive(tool);
+      cornerstoneTools.setToolPassive(tool);
     });
   }
 
@@ -6369,49 +6854,108 @@
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  function initializeTools(cornerstoneTools$$1, tools, element) {
+  function initializeTools(cornerstoneTools, tools, element) {
     Array.from(tools).forEach(function (tool) {
-      var apiTool = cornerstoneTools$$1["".concat(tool.name, "Tool")] || tool.apiTool;
+      var apiTool = cornerstoneTools["".concat(tool.name, "Tool")] || tool.apiTool;
 
       if (apiTool) {
-        cornerstoneTools$$1.addToolForElement(element, apiTool, tool.configuration);
+        cornerstoneTools.addToolForElement(element, apiTool, tool.props);
       } else {
         throw new Error("Tool not found: ".concat(tool.name, "Tool"));
       }
 
       if (tool.mode) {
-        cornerstoneTools$$1["setTool".concat(capitalizeFirstLetter(tool.mode), "ForElement")](element, tool.name);
+        cornerstoneTools["setTool".concat(capitalizeFirstLetter(tool.mode), "ForElement")](element, tool.name);
       }
     });
+  }
+
+  function areLayoutsEqual(a, b) {
+    var viewportIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+    var notEqual = false;
+    var viewportsExist = a && b && a.viewports && b.viewports && a.viewports.length > 0 && b.viewports.length > 0;
+    var wasNotSetAndNowIs = !a && b || !a.viewports && !b.viewports;
+    var hasNumViewportsChanged = viewportsExist && a.viewports.length !== b.viewports.length;
+
+    if (wasNotSetAndNowIs || hasNumViewportsChanged) {
+      return notEqual;
+    }
+
+    var aViewport = a.viewports[viewportIndex];
+    var bViewport = b.viewports[viewportIndex];
+    return viewportsEqual(aViewport, bViewport);
+  }
+
+  function viewportsEqual(a, b) {
+    return a.height === b.height && a.width === b.width;
   }
 
   var CornerstoneViewport =
   /*#__PURE__*/
   function (_Component) {
-    _inherits(CornerstoneViewport, _Component);
+    inherits(CornerstoneViewport, _Component);
 
     function CornerstoneViewport(props) {
       var _this;
 
-      _classCallCheck(this, CornerstoneViewport);
+      classCallCheck(this, CornerstoneViewport);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(CornerstoneViewport).call(this, props)); // TODO: Allow viewport as a prop
+      _this = possibleConstructorReturn(this, getPrototypeOf(CornerstoneViewport).call(this, props)); // TODO: Allow viewport as a prop
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onContextMenu", function (event) {
+      defineProperty(assertThisInitialized(_this), "updateViewportSpecificData", function () {
+        if (!_this.props.setViewportSpecificData) {
+          return;
+        }
+
+        var stateStack = _this.state.stack;
+        var viewportDataStack = _this.props.viewportData.stack; // Skip if study or display set was changed
+
+        if (stateStack.displaySetInstanceUid !== viewportDataStack.displaySetInstanceUid || stateStack.studyInstanceUid !== viewportDataStack.studyInstanceUid) {
+          return;
+        } // Skip if image was not changed
+
+
+        if (stateStack.sopInstanceUid && viewportDataStack.sopInstanceUid && stateStack.currentImageIdIndex === viewportDataStack.currentImageIdIndex && stateStack.sopInstanceUid === viewportDataStack.sopInstanceUid) {
+          return;
+        }
+
+        var stackData = cornerstoneTools.getToolState(_this.element, 'stack');
+        var stack = stackData && stackData.data[0]; // Use viewport stack if cornerstone stack is not ready yet
+
+        if (!stack) {
+          stack = viewportDataStack;
+        }
+
+        var imageId = stack.imageIds[stack.currentImageIdIndex];
+        var sopCommonModule = cornerstone.metaData.get('sopCommonModule', imageId);
+
+        if (!sopCommonModule) {
+          return;
+        }
+
+        _this.props.setViewportSpecificData({
+          displaySetInstanceUid: stack.displaySetInstanceUid,
+          studyInstanceUid: stack.studyInstanceUid,
+          currentImageIdIndex: stack.currentImageIdIndex,
+          sopInstanceUid: sopCommonModule.sopInstanceUID
+        });
+      });
+
+      defineProperty(assertThisInitialized(_this), "onContextMenu", function (event) {
         event.preventDefault();
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onWindowResize", function () {
+      defineProperty(assertThisInitialized(_this), "onWindowResize", function () {
         _this.debouncedResize();
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onImageRendered", function (event) {
+      defineProperty(assertThisInitialized(_this), "onImageRendered", function (event) {
         _this.setState({
           viewport: Object.assign({}, event.detail.viewport)
         });
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onNewImage", function (event) {
+      defineProperty(assertThisInitialized(_this), "onNewImage", function (event) {
         _this.setState({
           imageId: event.detail.image.imageId
         });
@@ -6419,15 +6963,17 @@
         if (_this.props.onNewImage) {
           _this.props.onNewImage(event);
         }
+
+        _this.debouncedUpdateViewportSpecificData();
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onDoubleClick", function (event) {
+      defineProperty(assertThisInitialized(_this), "onDoubleClick", function (event) {
         if (_this.props.onDoubleClick) {
           _this.props.onDoubleClick(event);
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "setActiveTool", function (activeTool) {
+      defineProperty(assertThisInitialized(_this), "setActiveTool", function (activeTool) {
         // TODO: cache these, update it on componentDidUpdate
         var leftMouseToolNames = _this.props.availableTools.filter(function (tool) {
           if (!tool.mouseButtonMasks) {
@@ -6473,7 +7019,7 @@
         });
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onStackScroll", function (event) {
+      defineProperty(assertThisInitialized(_this), "onStackScroll", function (event) {
         _this.setViewportActive();
 
         var element = event.currentTarget;
@@ -6483,22 +7029,15 @@
         _this.setState({
           stack: stack
         });
-        /*
-        TODO: call this, but debounce it
-         Temporarily removed because it didn't seem to be performing well
-        if (this.props.setViewportSpecificData) {
-          this.props.setViewportSpecificData({ stack });
-        }*/
-
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onImageLoaded", function () {
+      defineProperty(assertThisInitialized(_this), "onImageLoaded", function () {
         _this.setState({
           numImagesLoaded: _this.state.numImagesLoaded + 1
         });
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "startLoadingHandler", function () {
+      defineProperty(assertThisInitialized(_this), "startLoadingHandler", function () {
         clearTimeout(_this.loadHandlerTimeout);
         _this.loadHandlerTimeout = setTimeout(function () {
           _this.setState({
@@ -6507,7 +7046,7 @@
         }, CornerstoneViewport.loadIndicatorDelay);
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "doneLoadingHandler", function () {
+      defineProperty(assertThisInitialized(_this), "doneLoadingHandler", function () {
         clearTimeout(_this.loadHandlerTimeout);
 
         _this.setState({
@@ -6515,31 +7054,31 @@
         });
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onMeasurementAdded", function (event) {
+      defineProperty(assertThisInitialized(_this), "onMeasurementAdded", function (event) {
         if (_this.props.onMeasurementsChanged) {
           _this.props.onMeasurementsChanged(event, 'added');
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onMeasurementRemoved", function (event) {
+      defineProperty(assertThisInitialized(_this), "onMeasurementRemoved", function (event) {
         if (_this.props.onMeasurementsChanged) {
           _this.props.onMeasurementsChanged(event, 'removed');
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onMeasurementModified", function (event) {
+      defineProperty(assertThisInitialized(_this), "onMeasurementModified", function (event) {
         if (_this.props.onMeasurementsChanged) {
           _this.props.onMeasurementsChanged(event, 'modified');
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "setViewportActive", function () {
+      defineProperty(assertThisInitialized(_this), "setViewportActive", function () {
         if (!_this.props.isActive && _this.props.setViewportActive) {
           _this.props.setViewportActive();
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onMouseClick", function (event) {
+      defineProperty(assertThisInitialized(_this), "onMouseClick", function (event) {
         _this.setViewportActive();
 
         if (event.detail.event.which === 3) {
@@ -6553,7 +7092,7 @@
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onTouchPress", function (event) {
+      defineProperty(assertThisInitialized(_this), "onTouchPress", function (event) {
         _this.setViewportActive();
 
         if (_this.props.onTouchPress) {
@@ -6561,7 +7100,7 @@
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onTouchStart", function () {
+      defineProperty(assertThisInitialized(_this), "onTouchStart", function (event) {
         _this.setViewportActive();
 
         if (_this.props.onTouchStart) {
@@ -6569,14 +7108,8 @@
         }
       });
 
-      _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "imageSliderOnInputCallback", function (value) {
+      defineProperty(assertThisInitialized(_this), "imageSliderOnInputCallback", function (value) {
         _this.setViewportActive();
-        /*
-        Temporarily removed because it didn't seem to be performing well
-        if (this.props.setViewportSpecificData) {
-          this.props.setViewportSpecificData({ stack });
-        }*/
-
 
         scrollToIndex(_this.element, value);
         var stack = _this.state.stack;
@@ -6587,20 +7120,20 @@
         });
       });
 
-      var _stack = props.viewportData.stack;
+      var _viewportDataStack = props.viewportData.stack;
+
+      var _stack = Object.assign({}, _viewportDataStack);
+
       _this.state = {
         stack: _stack,
         displaySetInstanceUid: props.viewportData.displaySetInstanceUid,
         imageId: _stack.imageIds[_stack.currentImageIdIndex || 0],
         viewportHeight: '100%',
-        isLoading: false,
+        isLoading: true,
         numImagesLoaded: 0,
         error: null,
         viewport: cornerstone.getDefaultViewport(null, undefined)
       };
-      var loadHandlerManager = cornerstoneTools.loadHandlerManager;
-      loadHandlerManager.setStartLoadHandler(_this.startLoadingHandler);
-      loadHandlerManager.setEndLoadHandler(_this.doneLoadingHandler);
       _this.debouncedResize = lodash_debounce(function () {
         try {
           cornerstone.getEnabledElement(_this.element);
@@ -6609,16 +7142,35 @@
           return;
         }
 
-        cornerstone.resize(_this.element, true);
+        cornerstone.resize(_this.element, props.shouldFitToWindowOnResize);
 
         _this.setState({
           viewportHeight: "".concat(_this.element.clientHeight - 20, "px")
         });
       }, 300);
+      _this.debouncedUpdateViewportSpecificData = lodash_debounce(_this.updateViewportSpecificData, 300);
       return _this;
     }
+    /**
+     * Updates viewportSpecificData only if new image is displayed for the same study and display set (stack scroll, cine play, etc.)
+     */
 
-    _createClass(CornerstoneViewport, [{
+
+    createClass(CornerstoneViewport, [{
+      key: "getOverlay",
+      value: function getOverlay() {
+        var Component = this.props.viewportOverlayComponent;
+        var _this$state = this.state,
+            imageId = _this$state.imageId,
+            stack = _this$state.stack,
+            viewport = _this$state.viewport;
+        return React__default.createElement(Component, {
+          stack: stack,
+          viewport: viewport,
+          imageId: imageId
+        });
+      }
+    }, {
       key: "render",
       value: function render() {
         var _this2 = this;
@@ -6632,15 +7184,6 @@
         if (this.props.isActive) {
           className += ' active';
         }
-
-        var getOverlay = function getOverlay() {
-          var Component = _this2.props.viewportOverlayComponent;
-          return React__default.createElement(Component, {
-            stack: _this2.state.stack,
-            viewport: _this2.state.viewport,
-            imageId: _this2.state.imageId
-          });
-        };
 
         return React__default.createElement("div", {
           className: className
@@ -6659,7 +7202,7 @@
           error: this.state.error
         }), React__default.createElement("canvas", {
           className: "cornerstone-canvas"
-        }), getOverlay(), React__default.createElement(ViewportOrientationMarkers, {
+        }), this.getOverlay(), React__default.createElement(ViewportOrientationMarkers, {
           imageId: this.state.imageId,
           viewport: this.state.viewport
         })), React__default.createElement(ImageScrollbar, {
@@ -6742,9 +7285,30 @@
           eventTarget: cornerstone.events,
           eventType: cornerstone.EVENTS.IMAGE_LOADED,
           handler: this.onImageLoaded
-        }]; // Enable the DOM Element for use with Cornerstone
+        }];
+        this.eventHandlerData.forEach(function (data) {
+          var eventTarget = data.eventTarget,
+              eventType = data.eventType,
+              handler = data.handler;
+          eventTarget.addEventListener(eventType, handler);
+        }); // Pass ELEMENT_ENABLED event to parent
 
-        cornerstone.enable(element, this.props.cornerstoneOptions); // Handle the case where the imageId isn't loaded correctly and the
+        var onElementEnabledFn = function onElementEnabledFn(evt) {
+          var enabledElement = evt.detail.element;
+
+          if (enabledElement === _this3.element) {
+            if (_this3.props.onElementEnabled) {
+              _this3.props.onElementEnabled(evt);
+            }
+
+            cornerstone.events.removeEventListener(cornerstone.EVENTS.ELEMENT_ENABLED, onElementEnabledFn);
+          }
+        };
+
+        cornerstone.events.addEventListener(cornerstone.EVENTS.ELEMENT_ENABLED, onElementEnabledFn);
+        cornerstone.enable(element, this.props.cornerstoneOptions);
+        loadHandlerManager.setStartLoadHandler(this.startLoadingHandler, this.element);
+        loadHandlerManager.setEndLoadHandler(this.doneLoadingHandler, this.element); // Handle the case where the imageId isn't loaded correctly and the
         // imagePromise returns undefined
         // To test, uncomment the next line
         //let imageId = 'AfileThatDoesntWork'; // For testing only!
@@ -6833,16 +7397,18 @@
             isTouchActive: true
           });
 
-          _this3.eventHandlerData.forEach(function (data) {
-            var eventTarget = data.eventTarget,
-                eventType = data.eventType,
-                handler = data.handler;
-            eventTarget.addEventListener(eventType, handler);
-          });
-
           _this3.setState({
             viewportHeight: "".concat(_this3.element.clientHeight - 20, "px")
-          });
+          }); // Our `doneLoadingHandler` isn't firing for the initial image load
+          // Dropping this here, as the image should definitely be loaded at this point,
+          // and we can force the loading state off. TODO: investigate
+
+
+          setTimeout(function () {
+            _this3.setState({
+              isLoading: false
+            });
+          }, CornerstoneViewport.loadIndicatorDelay);
         }, function (error) {
           console.error(error);
 
@@ -6863,22 +7429,20 @@
         var element = this.element; // Clear the stack prefetch data
         // TODO[cornerstoneTools]: Make this happen internally
 
-        cornerstoneTools.clearToolState(element, 'stackPrefetch'); // Disable the viewport element with Cornerstone
-        // This also triggers the removal of the element from all available
-        // synchronizers, such as the one used for reference lines.
-
-        cornerstone.disable(element); // Try to stop any currently playing clips
+        cornerstoneTools.clearToolState(element, 'stackPrefetch'); // Try to stop any currently playing clips
         // Otherwise the interval will continuously throw errors
         // TODO[cornerstoneTools]: Make this happen internally
 
-        try {
-          var enabledElement = cornerstone.getEnabledElement(element);
+        var enabledElement = cornerstone.getEnabledElement(element);
 
-          if (enabledElement) {
-            cornerstoneTools.stopClip(element);
-          }
-        } catch (error) {//console.warn(error);
-        }
+        if (enabledElement) {
+          cornerstoneTools.stopClip(element);
+        } // Disable the viewport element with Cornerstone
+        // This also triggers the removal of the element from all available
+        // synchronizers, such as the one used for reference lines.
+
+
+        cornerstone.disable(element);
 
         if (this.props.clearViewportSpecificData) {
           this.props.clearViewportSpecificData();
@@ -6901,6 +7465,8 @@
 
           if (!currentStack) {
             currentStack = {
+              displaySetInstanceUid: displaySetInstanceUid,
+              studyInstanceUid: studyInstanceUid,
               currentImageIdIndex: currentImageIdIndex,
               imageIds: stack.imageIds
             };
@@ -6908,24 +7474,19 @@
             cornerstoneTools.addToolState(this.element, 'stack', currentStack);
           } else {
             // TODO: we should make something like setToolState by an ID
+            currentStack.displaySetInstanceUid = displaySetInstanceUid;
+            currentStack.studyInstanceUid = studyInstanceUid;
             currentStack.currentImageIdIndex = currentImageIdIndex;
             currentStack.imageIds = stack.imageIds;
           }
 
           var imageId = currentStack.imageIds[currentImageIdIndex] || currentStack.imageIds[0];
-          var viewportSpecificData = {
+          this.setState({
             displaySetInstanceUid: displaySetInstanceUid,
             studyInstanceUid: studyInstanceUid,
             stack: stack,
             imageId: imageId
-          };
-          this.setState(viewportSpecificData);
-          /*
-          Temporarily removed because it didn't seem to be performing well
-          if (this.props.setViewportSpecificData) {
-            this.props.setViewportSpecificData(viewportSpecificData);
-          }*/
-
+          });
           cornerstoneTools.stackPrefetch.disable(this.element);
           cornerstone.loadAndCacheImage(imageId).then(function (image) {
             try {
@@ -6952,7 +7513,9 @@
               _displaySetInstanceUid = _this$props$viewportD2.displaySetInstanceUid,
               _studyInstanceUid = _this$props$viewportD2.studyInstanceUid;
           var _currentImageIdIndex = this.props.viewportData.stack.currentImageIdIndex;
-          var _stack2 = this.props.viewportData.stack;
+          var viewportDataStack = this.props.viewportData.stack;
+
+          var _stack2 = Object.assign({}, viewportDataStack);
 
           var _stackData = cornerstoneTools.getToolState(this.element, 'stack');
 
@@ -6960,6 +7523,8 @@
 
           if (!_currentStack) {
             _currentStack = {
+              displaySetInstanceUid: _displaySetInstanceUid,
+              studyInstanceUid: _studyInstanceUid,
               currentImageIdIndex: _currentImageIdIndex,
               imageIds: _stack2.imageIds
             };
@@ -6968,18 +7533,19 @@
           } else {
             scrollToIndex(this.element, _currentImageIdIndex); // TODO: we should make something like setToolState by an ID
 
+            _currentStack.displaySetInstanceUid = _displaySetInstanceUid;
+            _currentStack.studyInstanceUid = _studyInstanceUid;
             _currentStack.currentImageIdIndex = _currentImageIdIndex;
             _currentStack.imageIds = _stack2.imageIds;
           }
 
           var _imageId = _currentStack.imageIds[_currentImageIdIndex];
-          var _viewportSpecificData = {
+          this.setState({
             displaySetInstanceUid: _displaySetInstanceUid,
             studyInstanceUid: _studyInstanceUid,
             stack: _stack2,
             imageId: _imageId
-          };
-          this.setState(_viewportSpecificData);
+          });
         }
 
         if (this.props.activeTool !== prevProps.activeTool) {
@@ -6991,7 +7557,7 @@
           });
         }
 
-        if (this.props.layout !== prevProps.layout) {
+        if (this.props.layout && !areLayoutsEqual(this.props.layout, prevProps.layout)) {
           this.debouncedResize();
         }
 
@@ -7006,16 +7572,6 @@
             cornerstoneTools.playClip(this.element);
           } else {
             cornerstoneTools.stopClip(this.element);
-
-            var _stackData2 = cornerstoneTools.getToolState(this.element, 'stack');
-
-            var _stack3 = _stackData2.data[0];
-
-            if (this.props.setViewportSpecificData) {
-              this.props.setViewportSpecificData({
-                stack: _stack3
-              });
-            }
           }
         }
 
@@ -7032,7 +7588,7 @@
     return CornerstoneViewport;
   }(React.Component);
 
-  _defineProperty(CornerstoneViewport, "defaultProps", {
+  defineProperty(CornerstoneViewport, "defaultProps", {
     activeTool: 'Wwwc',
     viewportData: {
       stack: {
@@ -7052,7 +7608,7 @@
       mouseButtonMasks: [1, 4]
     }, {
       name: 'Zoom',
-      configuration: {
+      props: {
         minScale: 0.3,
         maxScale: 25,
         preventZoomOutsideImage: true
@@ -7066,6 +7622,9 @@
       mouseButtonMasks: [1]
     }, {
       name: 'Length',
+      mouseButtonMasks: [1]
+    }, {
+      name: 'FreehandRoi',
       mouseButtonMasks: [1]
     }, {
       name: 'Angle',
@@ -7085,10 +7644,11 @@
     }, {
       name: 'StackScrollMultiTouch'
     }],
-    viewportOverlayComponent: ViewportOverlay
+    viewportOverlayComponent: ViewportOverlay,
+    shouldFitToWindowOnResize: false
   });
 
-  _defineProperty(CornerstoneViewport, "propTypes", {
+  defineProperty(CornerstoneViewport, "propTypes", {
     activeTool: propTypes.string.isRequired,
     viewportData: propTypes.object.isRequired,
     cornerstoneOptions: propTypes.object.isRequired,
@@ -7096,6 +7656,7 @@
     cineToolData: propTypes.object.isRequired,
     availableTools: propTypes.array.isRequired,
     onMeasurementsChanged: propTypes.func,
+    onElementEnabled: propTypes.func,
     isActive: propTypes.bool.isRequired,
     layout: propTypes.object,
     children: propTypes.node,
@@ -7108,10 +7669,12 @@
     setViewportActive: propTypes.func,
     setViewportSpecificData: propTypes.func,
     clearViewportSpecificData: propTypes.func,
-    viewportOverlayComponent: propTypes.oneOfType([propTypes.string, propTypes.func])
+    viewportOverlayComponent: propTypes.oneOfType([propTypes.string, propTypes.func]),
+    shouldFitToWindowOnResize: propTypes.bool,
+    viewportIndex: propTypes.number
   });
 
-  _defineProperty(CornerstoneViewport, "loadIndicatorDelay", 45);
+  defineProperty(CornerstoneViewport, "loadIndicatorDelay", 45);
 
   return CornerstoneViewport;
 

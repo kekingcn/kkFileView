@@ -1,4 +1,4 @@
-/*! cornerstone-tools - 4.0.0-beta6 - 2019-09-06 | (c) 2017 Chris Hafey | https://github.com/cornerstonejs/cornerstoneTools */
+/*! cornerstone-tools - 6.0.9 - 2023-03-27 | (c) 2017 Chris Hafey | https://github.com/cornerstonejs/cornerstoneTools */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -22,20 +22,20 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/ 	// eslint-disable-next-line no-unused-vars
 /******/ 	function hotDownloadUpdateChunk(chunkId) {
-/******/ 		var head = document.getElementsByTagName("head")[0];
 /******/ 		var script = document.createElement("script");
 /******/ 		script.charset = "utf-8";
 /******/ 		script.src = __webpack_require__.p + "" + chunkId + "." + hotCurrentHash + ".hot-update.js";
-/******/ 		;
-/******/ 		head.appendChild(script);
+/******/ 		if (null) script.crossOrigin = null;
+/******/ 		document.head.appendChild(script);
 /******/ 	}
 /******/
 /******/ 	// eslint-disable-next-line no-unused-vars
 /******/ 	function hotDownloadManifest(requestTimeout) {
 /******/ 		requestTimeout = requestTimeout || 10000;
 /******/ 		return new Promise(function(resolve, reject) {
-/******/ 			if (typeof XMLHttpRequest === "undefined")
+/******/ 			if (typeof XMLHttpRequest === "undefined") {
 /******/ 				return reject(new Error("No browser support"));
+/******/ 			}
 /******/ 			try {
 /******/ 				var request = new XMLHttpRequest();
 /******/ 				var requestPath = __webpack_require__.p + "" + hotCurrentHash + ".hot-update.json";
@@ -73,12 +73,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	}
 /******/
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "30d63fc1ffe03077e2da"; // eslint-disable-line no-unused-vars
+/******/ 	// eslint-disable-next-line no-unused-vars
+/******/ 	var hotCurrentHash = "1df8937449c88a7d5c59";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
-/******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
-/******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
-/******/ 	var hotCurrentParentsTemp = []; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentChildModule;
+/******/ 	// eslint-disable-next-line no-unused-vars
+/******/ 	var hotCurrentParents = [];
+/******/ 	// eslint-disable-next-line no-unused-vars
+/******/ 	var hotCurrentParentsTemp = [];
 /******/
 /******/ 	// eslint-disable-next-line no-unused-vars
 /******/ 	function hotCreateRequire(moduleId) {
@@ -87,13 +90,16 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		var fn = function(request) {
 /******/ 			if (me.hot.active) {
 /******/ 				if (installedModules[request]) {
-/******/ 					if (installedModules[request].parents.indexOf(moduleId) === -1)
+/******/ 					if (installedModules[request].parents.indexOf(moduleId) === -1) {
 /******/ 						installedModules[request].parents.push(moduleId);
+/******/ 					}
 /******/ 				} else {
 /******/ 					hotCurrentParents = [moduleId];
 /******/ 					hotCurrentChildModule = request;
 /******/ 				}
-/******/ 				if (me.children.indexOf(request) === -1) me.children.push(request);
+/******/ 				if (me.children.indexOf(request) === -1) {
+/******/ 					me.children.push(request);
+/******/ 				}
 /******/ 			} else {
 /******/ 				console.warn(
 /******/ 					"[HMR] unexpected require(" +
@@ -120,7 +126,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		for (var name in __webpack_require__) {
 /******/ 			if (
 /******/ 				Object.prototype.hasOwnProperty.call(__webpack_require__, name) &&
-/******/ 				name !== "e"
+/******/ 				name !== "e" &&
+/******/ 				name !== "t"
 /******/ 			) {
 /******/ 				Object.defineProperty(fn, name, ObjectFactory(name));
 /******/ 			}
@@ -145,6 +152,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 				}
 /******/ 			}
 /******/ 		};
+/******/ 		fn.t = function(value, mode) {
+/******/ 			if (mode & 1) value = fn(value);
+/******/ 			return __webpack_require__.t(value, mode & ~1);
+/******/ 		};
 /******/ 		return fn;
 /******/ 	}
 /******/
@@ -162,7 +173,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			// Module API
 /******/ 			active: true,
 /******/ 			accept: function(dep, callback) {
-/******/ 				if (typeof dep === "undefined") hot._selfAccepted = true;
+/******/ 				if (dep === undefined) hot._selfAccepted = true;
 /******/ 				else if (typeof dep === "function") hot._selfAccepted = dep;
 /******/ 				else if (typeof dep === "object")
 /******/ 					for (var i = 0; i < dep.length; i++)
@@ -170,7 +181,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 				else hot._acceptedDependencies[dep] = callback || function() {};
 /******/ 			},
 /******/ 			decline: function(dep) {
-/******/ 				if (typeof dep === "undefined") hot._selfDeclined = true;
+/******/ 				if (dep === undefined) hot._selfDeclined = true;
 /******/ 				else if (typeof dep === "object")
 /******/ 					for (var i = 0; i < dep.length; i++)
 /******/ 						hot._declinedDependencies[dep[i]] = true;
@@ -235,8 +246,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	}
 /******/
 /******/ 	function hotCheck(apply) {
-/******/ 		if (hotStatus !== "idle")
+/******/ 		if (hotStatus !== "idle") {
 /******/ 			throw new Error("check() is only allowed in idle status");
+/******/ 		}
 /******/ 		hotApplyOnUpdate = apply;
 /******/ 		hotSetStatus("check");
 /******/ 		return hotDownloadManifest(hotRequestTimeout).then(function(update) {
@@ -258,8 +270,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			});
 /******/ 			hotUpdate = {};
 /******/ 			var chunkId = "cornerstoneTools";
+/******/ 			// eslint-disable-next-line no-lone-blocks
 /******/ 			{
-/******/ 				// eslint-disable-line no-lone-blocks
 /******/ 				/*globals chunkId */
 /******/ 				hotEnsureUpdateChunk(chunkId);
 /******/ 			}
@@ -346,7 +358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			var outdatedModules = [updateModuleId];
 /******/ 			var outdatedDependencies = {};
 /******/
-/******/ 			var queue = outdatedModules.slice().map(function(id) {
+/******/ 			var queue = outdatedModules.map(function(id) {
 /******/ 				return {
 /******/ 					chain: [id],
 /******/ 					id: id
@@ -523,12 +535,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			moduleId = outdatedModules[i];
 /******/ 			if (
 /******/ 				installedModules[moduleId] &&
-/******/ 				installedModules[moduleId].hot._selfAccepted
-/******/ 			)
+/******/ 				installedModules[moduleId].hot._selfAccepted &&
+/******/ 				// removed self-accepted modules should not be required
+/******/ 				appliedUpdate[moduleId] !== warnUnexpectedRequire
+/******/ 			) {
 /******/ 				outdatedSelfAcceptedModules.push({
 /******/ 					module: moduleId,
 /******/ 					errorHandler: installedModules[moduleId].hot._selfAccepted
 /******/ 				});
+/******/ 			}
 /******/ 		}
 /******/
 /******/ 		// Now in "dispose" phase
@@ -595,7 +610,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			}
 /******/ 		}
 /******/
-/******/ 		// Not in "apply" phase
+/******/ 		// Now in "apply" phase
 /******/ 		hotSetStatus("apply");
 /******/
 /******/ 		hotCurrentHash = hotUpdateNewHash;
@@ -739,17 +754,32 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -920,6 +950,32 @@ function _createClass(Constructor, protoProps, staticProps) {
 }
 
 module.exports = _createClass;
+
+/***/ }),
+
+/***/ "../node_modules/@babel/runtime/helpers/defineProperty.js":
+/*!****************************************************************!*\
+  !*** ../node_modules/@babel/runtime/helpers/defineProperty.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+module.exports = _defineProperty;
 
 /***/ }),
 
@@ -1175,559 +1231,6 @@ module.exports = __webpack_require__(/*! regenerator-runtime */ "../node_modules
 
 /***/ }),
 
-/***/ "../node_modules/debug/src/browser.js":
-/*!********************************************!*\
-  !*** ../node_modules/debug/src/browser.js ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(process) {/* eslint-env browser */
-
-/**
- * This is the web browser implementation of `debug()`.
- */
-
-exports.log = log;
-exports.formatArgs = formatArgs;
-exports.save = save;
-exports.load = load;
-exports.useColors = useColors;
-exports.storage = localstorage();
-
-/**
- * Colors.
- */
-
-exports.colors = [
-	'#0000CC',
-	'#0000FF',
-	'#0033CC',
-	'#0033FF',
-	'#0066CC',
-	'#0066FF',
-	'#0099CC',
-	'#0099FF',
-	'#00CC00',
-	'#00CC33',
-	'#00CC66',
-	'#00CC99',
-	'#00CCCC',
-	'#00CCFF',
-	'#3300CC',
-	'#3300FF',
-	'#3333CC',
-	'#3333FF',
-	'#3366CC',
-	'#3366FF',
-	'#3399CC',
-	'#3399FF',
-	'#33CC00',
-	'#33CC33',
-	'#33CC66',
-	'#33CC99',
-	'#33CCCC',
-	'#33CCFF',
-	'#6600CC',
-	'#6600FF',
-	'#6633CC',
-	'#6633FF',
-	'#66CC00',
-	'#66CC33',
-	'#9900CC',
-	'#9900FF',
-	'#9933CC',
-	'#9933FF',
-	'#99CC00',
-	'#99CC33',
-	'#CC0000',
-	'#CC0033',
-	'#CC0066',
-	'#CC0099',
-	'#CC00CC',
-	'#CC00FF',
-	'#CC3300',
-	'#CC3333',
-	'#CC3366',
-	'#CC3399',
-	'#CC33CC',
-	'#CC33FF',
-	'#CC6600',
-	'#CC6633',
-	'#CC9900',
-	'#CC9933',
-	'#CCCC00',
-	'#CCCC33',
-	'#FF0000',
-	'#FF0033',
-	'#FF0066',
-	'#FF0099',
-	'#FF00CC',
-	'#FF00FF',
-	'#FF3300',
-	'#FF3333',
-	'#FF3366',
-	'#FF3399',
-	'#FF33CC',
-	'#FF33FF',
-	'#FF6600',
-	'#FF6633',
-	'#FF9900',
-	'#FF9933',
-	'#FFCC00',
-	'#FFCC33'
-];
-
-/**
- * Currently only WebKit-based Web Inspectors, Firefox >= v31,
- * and the Firebug extension (any Firefox version) are known
- * to support "%c" CSS customizations.
- *
- * TODO: add a `localStorage` variable to explicitly enable/disable colors
- */
-
-// eslint-disable-next-line complexity
-function useColors() {
-	// NB: In an Electron preload script, document will be defined but not fully
-	// initialized. Since we know we're in Chrome, we'll just detect this case
-	// explicitly
-	if (typeof window !== 'undefined' && window.process && (window.process.type === 'renderer' || window.process.__nwjs)) {
-		return true;
-	}
-
-	// Internet Explorer and Edge do not support colors.
-	if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
-		return false;
-	}
-
-	// Is webkit? http://stackoverflow.com/a/16459606/376773
-	// document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
-	return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
-		// Is firebug? http://stackoverflow.com/a/398120/376773
-		(typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
-		// Is firefox >= v31?
-		// https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-		(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
-		// Double check webkit in userAgent just in case we are in a worker
-		(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
-}
-
-/**
- * Colorize log arguments if enabled.
- *
- * @api public
- */
-
-function formatArgs(args) {
-	args[0] = (this.useColors ? '%c' : '') +
-		this.namespace +
-		(this.useColors ? ' %c' : ' ') +
-		args[0] +
-		(this.useColors ? '%c ' : ' ') +
-		'+' + module.exports.humanize(this.diff);
-
-	if (!this.useColors) {
-		return;
-	}
-
-	const c = 'color: ' + this.color;
-	args.splice(1, 0, c, 'color: inherit');
-
-	// The final "%c" is somewhat tricky, because there could be other
-	// arguments passed either before or after the %c, so we need to
-	// figure out the correct index to insert the CSS into
-	let index = 0;
-	let lastC = 0;
-	args[0].replace(/%[a-zA-Z%]/g, match => {
-		if (match === '%%') {
-			return;
-		}
-		index++;
-		if (match === '%c') {
-			// We only are interested in the *last* %c
-			// (the user may have provided their own)
-			lastC = index;
-		}
-	});
-
-	args.splice(lastC, 0, c);
-}
-
-/**
- * Invokes `console.log()` when available.
- * No-op when `console.log` is not a "function".
- *
- * @api public
- */
-function log(...args) {
-	// This hackery is required for IE8/9, where
-	// the `console.log` function doesn't have 'apply'
-	return typeof console === 'object' &&
-		console.log &&
-		console.log(...args);
-}
-
-/**
- * Save `namespaces`.
- *
- * @param {String} namespaces
- * @api private
- */
-function save(namespaces) {
-	try {
-		if (namespaces) {
-			exports.storage.setItem('debug', namespaces);
-		} else {
-			exports.storage.removeItem('debug');
-		}
-	} catch (error) {
-		// Swallow
-		// XXX (@Qix-) should we be logging these?
-	}
-}
-
-/**
- * Load `namespaces`.
- *
- * @return {String} returns the previously persisted debug modes
- * @api private
- */
-function load() {
-	let r;
-	try {
-		r = exports.storage.getItem('debug');
-	} catch (error) {
-		// Swallow
-		// XXX (@Qix-) should we be logging these?
-	}
-
-	// If debug isn't set in LS, and we're in Electron, try to load $DEBUG
-	if (!r && typeof process !== 'undefined' && 'env' in process) {
-		r = process.env.DEBUG;
-	}
-
-	return r;
-}
-
-/**
- * Localstorage attempts to return the localstorage.
- *
- * This is necessary because safari throws
- * when a user disables cookies/localstorage
- * and you attempt to access it.
- *
- * @return {LocalStorage}
- * @api private
- */
-
-function localstorage() {
-	try {
-		// TVMLKit (Apple TV JS Runtime) does not have a window object, just localStorage in the global context
-		// The Browser also has localStorage in the global context.
-		return localStorage;
-	} catch (error) {
-		// Swallow
-		// XXX (@Qix-) should we be logging these?
-	}
-}
-
-module.exports = __webpack_require__(/*! ./common */ "../node_modules/debug/src/common.js")(exports);
-
-const {formatters} = module.exports;
-
-/**
- * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
- */
-
-formatters.j = function (v) {
-	try {
-		return JSON.stringify(v);
-	} catch (error) {
-		return '[UnexpectedJSONParseError]: ' + error.message;
-	}
-};
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../process/browser.js */ "../node_modules/process/browser.js")))
-
-/***/ }),
-
-/***/ "../node_modules/debug/src/common.js":
-/*!*******************************************!*\
-  !*** ../node_modules/debug/src/common.js ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * This is the common logic for both the Node.js and web browser
- * implementations of `debug()`.
- */
-
-function setup(env) {
-	createDebug.debug = createDebug;
-	createDebug.default = createDebug;
-	createDebug.coerce = coerce;
-	createDebug.disable = disable;
-	createDebug.enable = enable;
-	createDebug.enabled = enabled;
-	createDebug.humanize = __webpack_require__(/*! ms */ "../node_modules/ms/index.js");
-
-	Object.keys(env).forEach(key => {
-		createDebug[key] = env[key];
-	});
-
-	/**
-	* Active `debug` instances.
-	*/
-	createDebug.instances = [];
-
-	/**
-	* The currently active debug mode names, and names to skip.
-	*/
-
-	createDebug.names = [];
-	createDebug.skips = [];
-
-	/**
-	* Map of special "%n" handling functions, for the debug "format" argument.
-	*
-	* Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
-	*/
-	createDebug.formatters = {};
-
-	/**
-	* Selects a color for a debug namespace
-	* @param {String} namespace The namespace string for the for the debug instance to be colored
-	* @return {Number|String} An ANSI color code for the given namespace
-	* @api private
-	*/
-	function selectColor(namespace) {
-		let hash = 0;
-
-		for (let i = 0; i < namespace.length; i++) {
-			hash = ((hash << 5) - hash) + namespace.charCodeAt(i);
-			hash |= 0; // Convert to 32bit integer
-		}
-
-		return createDebug.colors[Math.abs(hash) % createDebug.colors.length];
-	}
-	createDebug.selectColor = selectColor;
-
-	/**
-	* Create a debugger with the given `namespace`.
-	*
-	* @param {String} namespace
-	* @return {Function}
-	* @api public
-	*/
-	function createDebug(namespace) {
-		let prevTime;
-
-		function debug(...args) {
-			// Disabled?
-			if (!debug.enabled) {
-				return;
-			}
-
-			const self = debug;
-
-			// Set `diff` timestamp
-			const curr = Number(new Date());
-			const ms = curr - (prevTime || curr);
-			self.diff = ms;
-			self.prev = prevTime;
-			self.curr = curr;
-			prevTime = curr;
-
-			args[0] = createDebug.coerce(args[0]);
-
-			if (typeof args[0] !== 'string') {
-				// Anything else let's inspect with %O
-				args.unshift('%O');
-			}
-
-			// Apply any `formatters` transformations
-			let index = 0;
-			args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
-				// If we encounter an escaped % then don't increase the array index
-				if (match === '%%') {
-					return match;
-				}
-				index++;
-				const formatter = createDebug.formatters[format];
-				if (typeof formatter === 'function') {
-					const val = args[index];
-					match = formatter.call(self, val);
-
-					// Now we need to remove `args[index]` since it's inlined in the `format`
-					args.splice(index, 1);
-					index--;
-				}
-				return match;
-			});
-
-			// Apply env-specific formatting (colors, etc.)
-			createDebug.formatArgs.call(self, args);
-
-			const logFn = self.log || createDebug.log;
-			logFn.apply(self, args);
-		}
-
-		debug.namespace = namespace;
-		debug.enabled = createDebug.enabled(namespace);
-		debug.useColors = createDebug.useColors();
-		debug.color = selectColor(namespace);
-		debug.destroy = destroy;
-		debug.extend = extend;
-		// Debug.formatArgs = formatArgs;
-		// debug.rawLog = rawLog;
-
-		// env-specific initialization logic for debug instances
-		if (typeof createDebug.init === 'function') {
-			createDebug.init(debug);
-		}
-
-		createDebug.instances.push(debug);
-
-		return debug;
-	}
-
-	function destroy() {
-		const index = createDebug.instances.indexOf(this);
-		if (index !== -1) {
-			createDebug.instances.splice(index, 1);
-			return true;
-		}
-		return false;
-	}
-
-	function extend(namespace, delimiter) {
-		const newDebug = createDebug(this.namespace + (typeof delimiter === 'undefined' ? ':' : delimiter) + namespace);
-		newDebug.log = this.log;
-		return newDebug;
-	}
-
-	/**
-	* Enables a debug mode by namespaces. This can include modes
-	* separated by a colon and wildcards.
-	*
-	* @param {String} namespaces
-	* @api public
-	*/
-	function enable(namespaces) {
-		createDebug.save(namespaces);
-
-		createDebug.names = [];
-		createDebug.skips = [];
-
-		let i;
-		const split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
-		const len = split.length;
-
-		for (i = 0; i < len; i++) {
-			if (!split[i]) {
-				// ignore empty strings
-				continue;
-			}
-
-			namespaces = split[i].replace(/\*/g, '.*?');
-
-			if (namespaces[0] === '-') {
-				createDebug.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-			} else {
-				createDebug.names.push(new RegExp('^' + namespaces + '$'));
-			}
-		}
-
-		for (i = 0; i < createDebug.instances.length; i++) {
-			const instance = createDebug.instances[i];
-			instance.enabled = createDebug.enabled(instance.namespace);
-		}
-	}
-
-	/**
-	* Disable debug output.
-	*
-	* @return {String} namespaces
-	* @api public
-	*/
-	function disable() {
-		const namespaces = [
-			...createDebug.names.map(toNamespace),
-			...createDebug.skips.map(toNamespace).map(namespace => '-' + namespace)
-		].join(',');
-		createDebug.enable('');
-		return namespaces;
-	}
-
-	/**
-	* Returns true if the given mode name is enabled, false otherwise.
-	*
-	* @param {String} name
-	* @return {Boolean}
-	* @api public
-	*/
-	function enabled(name) {
-		if (name[name.length - 1] === '*') {
-			return true;
-		}
-
-		let i;
-		let len;
-
-		for (i = 0, len = createDebug.skips.length; i < len; i++) {
-			if (createDebug.skips[i].test(name)) {
-				return false;
-			}
-		}
-
-		for (i = 0, len = createDebug.names.length; i < len; i++) {
-			if (createDebug.names[i].test(name)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	* Convert regexp to namespace
-	*
-	* @param {RegExp} regxep
-	* @return {String} namespace
-	* @api private
-	*/
-	function toNamespace(regexp) {
-		return regexp.toString()
-			.substring(2, regexp.toString().length - 2)
-			.replace(/\.\*\?$/, '*');
-	}
-
-	/**
-	* Coerce `val`.
-	*
-	* @param {Mixed} val
-	* @return {Mixed}
-	* @api private
-	*/
-	function coerce(val) {
-		if (val instanceof Error) {
-			return val.stack || val.message;
-		}
-		return val;
-	}
-
-	createDebug.enable(createDebug.load());
-
-	return createDebug;
-}
-
-module.exports = setup;
-
-
-/***/ }),
-
 /***/ "../node_modules/ms/index.js":
 /*!***********************************!*\
   !*** ../node_modules/ms/index.js ***!
@@ -1765,7 +1268,7 @@ module.exports = function(val, options) {
   var type = typeof val;
   if (type === 'string' && val.length > 0) {
     return parse(val);
-  } else if (type === 'number' && isNaN(val) === false) {
+  } else if (type === 'number' && isFinite(val)) {
     return options.long ? fmtLong(val) : fmtShort(val);
   }
   throw new Error(
@@ -1787,7 +1290,7 @@ function parse(str) {
   if (str.length > 100) {
     return;
   }
-  var match = /^((?:\d+)?\-?\d?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
+  var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
     str
   );
   if (!match) {
@@ -2929,10 +2432,11 @@ __webpack_require__.r(__webpack_exports__);
  * @param  {Object} end       The end position.
  * @param  {string} color     The color of the arrow.
  * @param  {number} lineWidth The width of the arrow line.
+ * @param  {number[] | undefined} [lineDash] The optional lineDash style.
  * @returns {undefined}
  */
 
-/* harmony default export */ __webpack_exports__["default"] = (function (context, start, end, color, lineWidth) {
+/* harmony default export */ __webpack_exports__["default"] = (function (context, start, end, color, lineWidth, lineDash) {
   // Variables to be used when creating the arrow
   var headLength = 10;
   var angle = Math.atan2(end.y - start.y, end.x - start.x); // Starting path of the arrow from the start square to the end square and drawing the stroke
@@ -2941,6 +2445,11 @@ __webpack_require__.r(__webpack_exports__);
     color: color,
     lineWidth: lineWidth
   };
+
+  if (lineDash) {
+    options.lineDash = lineDash;
+  }
+
   Object(_drawLine_js__WEBPACK_IMPORTED_MODULE_0__["default"])(context, undefined, start, end, options, 'canvas');
   options = {
     color: color,
@@ -3139,12 +2648,22 @@ __webpack_require__.r(__webpack_exports__);
       return "continue";
     }
 
+    if (options.hideHandlesIfMoving && handle.moving) {
+      return "continue";
+    }
+
     var lineWidth = handle.active ? _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_1__["default"].getActiveWidth() : _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_1__["default"].getToolWidth();
     var fillStyle = options.fill;
-    Object(_path_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, {
+    var pathOptions = {
       lineWidth: lineWidth,
       fillStyle: fillStyle
-    }, function (context) {
+    };
+
+    if (options.lineDash) {
+      pathOptions.lineDash = options.lineDash;
+    }
+
+    Object(_path_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, pathOptions, function (context) {
       var handleCanvasCoords = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.pixelToCanvas(element, handle); // Handle's radisu, then tool's radius, then default radius
 
       var handleRadius = handle.radius || options.handleRadius || _store_index_js__WEBPACK_IMPORTED_MODULE_4__["state"].handleRadius;
@@ -3382,6 +2901,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
 /* harmony import */ var _drawTextBox_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./drawTextBox.js */ "./drawing/drawTextBox.js");
 /* harmony import */ var _drawLink_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./drawLink.js */ "./drawing/drawLink.js");
+/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../store/index.js */ "./store/index.js");
+/* harmony import */ var _util_clip_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/clip.js */ "./util/clip.js");
+
+
 
 
 
@@ -3405,9 +2928,9 @@ __webpack_require__.r(__webpack_exports__);
  */
 
 /* harmony default export */ __webpack_exports__["default"] = (function (context, element, textBox, text, handles, textBoxAnchorPoints, color, lineWidth, xOffset, yCenter) {
-  var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone; // Convert the textbox Image coordinates into Canvas coordinates
+  var pixelToCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.pixelToCanvas; // Convert the textbox Image coordinates into Canvas coordinates
 
-  var textCoords = cornerstone.pixelToCanvas(element, textBox);
+  var textCoords = pixelToCanvas(element, textBox);
 
   if (xOffset) {
     textCoords.x += xOffset;
@@ -3418,14 +2941,21 @@ __webpack_require__.r(__webpack_exports__);
       x: false,
       y: yCenter
     }
-  }; // Draw the text box
+  }; // Clip the bounding box to the displayed area of the image
+
+  if (_store_index_js__WEBPACK_IMPORTED_MODULE_3__["state"].preventTextBoxOutsideDisplayedArea) {
+    options.displacer = function (box) {
+      return Object(_util_clip_js__WEBPACK_IMPORTED_MODULE_4__["clipBoxToDisplayedArea"])(element, box);
+    };
+  } // Draw the text box
+
 
   textBox.boundingBox = Object(_drawTextBox_js__WEBPACK_IMPORTED_MODULE_1__["default"])(context, text, textCoords.x, textCoords.y, color, options);
 
   if (textBox.hasMoved) {
     // Identify the possible anchor points for the tool -> text line
     var linkAnchorPoints = textBoxAnchorPoints(handles).map(function (h) {
-      return cornerstone.pixelToCanvas(element, h);
+      return pixelToCanvas(element, h);
     }); // Draw dashed link line between tool and text
 
     Object(_drawLink_js__WEBPACK_IMPORTED_MODULE_2__["default"])(linkAnchorPoints, textCoords, textBox.boundingBox, context, color, lineWidth);
@@ -3523,11 +3053,8 @@ __webpack_require__.r(__webpack_exports__);
   Object(_path_js__WEBPACK_IMPORTED_MODULE_1__["default"])(context, options, function (context) {
     context.moveTo(corner1.x, corner1.y);
     context.lineTo(corner3.x, corner3.y);
-    context.moveTo(corner3.x, corner3.y);
     context.lineTo(corner2.x, corner2.y);
-    context.moveTo(corner2.x, corner2.y);
     context.lineTo(corner4.x, corner4.y);
-    context.moveTo(corner4.x, corner4.y);
     context.lineTo(corner1.x, corner1.y);
   });
 });
@@ -3592,10 +3119,14 @@ function textBoxWidth(context, text, padding) {
  * @param  {number} y           The y position of the textBox.
  * @param  {string} color       The color of the textBox.
  * @param  {Object} options     Options for the textBox.
+ * @param  {boolean} options.centering Option to center the textbox.
+ * @param  {function} options.displacer displacer function.
  * @returns {Object} {top, left, width, height} - Bounding box; can be used for pointNearTool
  */
 
-/* harmony default export */ __webpack_exports__["default"] = (function (context, textLines, x, y, color, options) {
+/* harmony default export */ __webpack_exports__["default"] = (function (context, textLines, x, y, color) {
+  var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
+
   if (Object.prototype.toString.call(textLines) !== '[object Array]') {
     textLines = [textLines];
   }
@@ -3619,18 +3150,24 @@ function textBoxWidth(context, text, padding) {
   Object(_draw_js__WEBPACK_IMPORTED_MODULE_1__["default"])(context, function (context) {
     context.strokeStyle = color; // Draw the background box with padding
 
-    if (options && options.centering && options.centering.x === true) {
-      x -= boundingBox.width / 2;
-    }
+    if (options.centering) {
+      if (options.centering.x === true) {
+        x -= boundingBox.width / 2;
+      }
 
-    if (options && options.centering && options.centering.y === true) {
-      y -= boundingBox.height / 2;
+      if (options.centering.y === true) {
+        y -= boundingBox.height / 2;
+      }
     }
 
     boundingBox.left = x;
-    boundingBox.top = y;
-    var fillStyle = options && options.debug === true ? '#FF0000' : backgroundColor;
-    Object(_fillBox_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, boundingBox, fillStyle); // Draw each of the text lines on top of the background box
+    boundingBox.top = y; // Check if a displacer function was provided
+
+    if (typeof options.displacer === 'function') {
+      options.displacer(boundingBox);
+    }
+
+    Object(_fillBox_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, boundingBox, backgroundColor); // Draw each of the text lines on top of the background box
 
     Object(_fillTextLines_js__WEBPACK_IMPORTED_MODULE_2__["default"])(context, boundingBox, textLines, color, padding);
   }); // Return the bounding box so it can be used for pointNearHandle
@@ -4086,13 +3623,14 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../store/index.js */ "./store/index.js");
-/* harmony import */ var _eventListeners_onImageRenderedBrushEventHandler_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../eventListeners/onImageRenderedBrushEventHandler.js */ "./eventListeners/onImageRenderedBrushEventHandler.js");
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _stateManagement_toolState__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../stateManagement/toolState */ "./stateManagement/toolState.js");
+/* harmony import */ var _eventListeners_onImageRenderedBrushEventHandler_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../eventListeners/onImageRenderedBrushEventHandler.js */ "./eventListeners/onImageRenderedBrushEventHandler.js");
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../externalModules.js */ "./externalModules.js");
+
 
 
 
 var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation');
-var segmentationConfiguration = segmentationModule.configuration;
 
 var onImageRendered = function onImageRendered(evt) {
   var eventData = evt.detail;
@@ -4100,25 +3638,31 @@ var onImageRendered = function onImageRendered(evt) {
 
   var toolsToRender = _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].tools.filter(function (tool) {
     return tool.element === element && (tool.mode === 'active' || tool.mode === 'passive' || tool.mode === 'enabled');
-  });
+  }); // Must be using stacks in order to use segmentation tools.
 
-  if (segmentationConfiguration.renderFill || segmentationConfiguration.renderOutline) {
-    Object(_eventListeners_onImageRenderedBrushEventHandler_js__WEBPACK_IMPORTED_MODULE_1__["default"])(evt);
+  var stackToolState = Object(_stateManagement_toolState__WEBPACK_IMPORTED_MODULE_1__["getToolState"])(element, 'stack');
+  var segmentationConfiguration = segmentationModule.configuration;
+
+  if (stackToolState && (segmentationConfiguration.renderFill || segmentationConfiguration.renderOutline)) {
+    Object(_eventListeners_onImageRenderedBrushEventHandler_js__WEBPACK_IMPORTED_MODULE_2__["default"])(evt);
   }
 
+  var context = eventData.canvasContext.canvas.getContext('2d');
   toolsToRender.forEach(function (tool) {
     if (tool.renderToolData) {
+      context.save();
       tool.renderToolData(evt);
+      context.restore();
     }
   });
 };
 
 var enable = function enable(element) {
-  element.addEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_2__["default"].cornerstone.EVENTS.IMAGE_RENDERED, onImageRendered);
+  element.addEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_3__["default"].cornerstone.EVENTS.IMAGE_RENDERED, onImageRendered);
 };
 
 var disable = function disable(element) {
-  element.removeEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_2__["default"].cornerstone.EVENTS.IMAGE_RENDERED, onImageRendered);
+  element.removeEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_3__["default"].cornerstone.EVENTS.IMAGE_RENDERED, onImageRendered);
 };
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -4189,20 +3733,33 @@ var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_4__["getLogger"])('
 
   if (!measurementData) {
     return;
-  } // Associate this data with this imageId so we can render it and manipulate it
-
+  }
 
   Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["addToolState"])(element, tool.name, measurementData);
   _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
   var handleMover = Object.keys(measurementData.handles).length === 1 ? _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["moveHandle"] : _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["moveNewHandle"];
-  handleMover(eventData, tool.name, measurementData, measurementData.handles.end, tool.options, 'mouse', function () {
-    var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_COMPLETED;
-    var eventData = {
-      toolName: tool.name,
-      element: element,
-      measurementData: measurementData
-    };
-    Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__["default"])(element, eventType, eventData);
+  var timestamp = new Date().getTime();
+  handleMover(eventData, tool.name, measurementData, measurementData.handles.end, tool.options, 'mouse', function (success) {
+    if (measurementData.cancelled) {
+      return;
+    }
+
+    var hasThreshold = tool.configuration && Object(tool.configuration).hasOwnProperty('measurementCreationThreshold');
+    var isTooFast = hasThreshold ? new Date().getTime() - timestamp < tool.configuration.measurementCreationThreshold : false;
+
+    if (success && isTooFast === false) {
+      var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_COMPLETED;
+      var _eventData = {
+        toolName: tool.name,
+        toolType: tool.name,
+        // Deprecation notice: toolType will be replaced by toolName
+        element: element,
+        measurementData: measurementData
+      };
+      Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__["default"])(element, eventType, _eventData);
+    } else {
+      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["removeToolState"])(element, tool.name, measurementData);
+    }
   });
 });
 
@@ -4777,6 +4334,8 @@ var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_7__["getLogger"])('
     var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_COMPLETED;
     var eventData = {
       toolName: tool.name,
+      toolType: tool.name,
+      // Deprecation notice: toolType will be replaced by toolName
       element: element,
       measurementData: measurementData
     };
@@ -5402,9 +4961,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation'),
-    configuration = _getModule.configuration;
+var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation');
 /**
  * Renders the segmentation based on the brush configuration and
  * the active status of the labelmap.
@@ -5415,7 +4972,6 @@ var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"
  * @param  {boolean} isActiveLabelMap Whether or not the labelmap is active.
  * @returns {null}
  */
-
 
 function renderSegmentation(evt, labelmap3D, labelmapIndex, labelmap2D, isActiveLabelMap) {
   if (shouldRenderFill(isActiveLabelMap)) {
@@ -5435,6 +4991,7 @@ function renderSegmentation(evt, labelmap3D, labelmapIndex, labelmap2D, isActive
  */
 
 function shouldRenderFill(isActiveLabelMap) {
+  var configuration = segmentationModule.configuration;
   return configuration.renderFill && (isActiveLabelMap && configuration.fillAlpha !== 0 || !isActiveLabelMap && configuration.fillAlphaInactive !== 0);
 }
 /**
@@ -5447,6 +5004,7 @@ function shouldRenderFill(isActiveLabelMap) {
 
 
 function shouldRenderOutline(isActiveLabelMap) {
+  var configuration = segmentationModule.configuration;
   return configuration.renderOutline && (isActiveLabelMap && configuration.outlineAlpha !== 0 || !isActiveLabelMap && configuration.outlineAlphaInactive !== 0);
 }
 
@@ -5470,11 +5028,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation'),
-    state = _getModule.state,
-    configuration = _getModule.configuration;
-
+var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation');
 function renderSegmentationFill(evt, labelmap3D, labelmap2D, labelmapIndex, isActiveLabelMap) {
   var labelmapCanvas = getLabelmapCanvas(evt, labelmap3D, labelmap2D);
   renderFill(evt, labelmapCanvas, isActiveLabelMap);
@@ -5491,6 +5045,7 @@ function renderSegmentationFill(evt, labelmap3D, labelmap2D, labelmapIndex, isAc
  */
 
 function getLabelmapCanvas(evt, labelmap3D, labelmap2D) {
+  var state = segmentationModule.state;
   var eventData = evt.detail;
   var image = eventData.image;
   var cols = image.width;
@@ -5535,6 +5090,7 @@ function getLabelmapCanvas(evt, labelmap3D, labelmap2D) {
  */
 
 function renderFill(evt, labelmapCanvas, isActiveLabelMap) {
+  var configuration = segmentationModule.configuration;
   var eventData = evt.detail;
   var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_1__["getNewContext"])(eventData.canvasContext.canvas);
   var canvasTopLeft = _externalModules__WEBPACK_IMPORTED_MODULE_2__["default"].cornerstone.pixelToCanvas(eventData.element, {
@@ -5558,14 +5114,36 @@ function renderFill(evt, labelmapCanvas, isActiveLabelMap) {
   context.imageSmoothingEnabled = false;
   context.globalAlpha = isActiveLabelMap ? configuration.fillAlpha : configuration.fillAlphaInactive;
   Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_1__["transformCanvasContext"])(context, canvas, viewport);
-  var canvasViewportTranslation = {
-    x: viewport.translation.x * viewport.scale,
-    y: viewport.translation.y * viewport.scale
-  };
+  var canvasViewportTranslation = getCanvasViewportTranslation(eventData);
   context.drawImage(labelmapCanvas, canvas.width / 2 - cornerstoneCanvasWidth / 2 + canvasViewportTranslation.x, canvas.height / 2 - cornerstoneCanvasHeight / 2 + canvasViewportTranslation.y, cornerstoneCanvasWidth, cornerstoneCanvasHeight);
   context.globalAlpha = previousGlobalAlpha;
   context.imageSmoothingEnabled = previousImageSmoothingEnabled;
   Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_1__["resetCanvasContextTransform"])(context);
+}
+/**
+ * GetCanvasViewportTranslation - Returns translation coordinations for
+ * canvas viewport with calculation of image row/column pixel spacing.
+ *
+ * @param  {Object} eventData The data associated with the event.
+ * @returns  {Object} The coordinates of the translation.
+ */
+
+function getCanvasViewportTranslation(eventData) {
+  var viewport = eventData.viewport,
+      image = eventData.image;
+  var widthScale = viewport.scale;
+  var heightScale = viewport.scale;
+
+  if (image.rowPixelSpacing < image.columnPixelSpacing) {
+    widthScale *= image.columnPixelSpacing / image.rowPixelSpacing;
+  } else if (image.columnPixelSpacing < image.rowPixelSpacing) {
+    heightScale *= image.rowPixelSpacing / image.columnPixelSpacing;
+  }
+
+  return {
+    x: viewport.translation.x * widthScale,
+    y: viewport.translation.y * heightScale
+  };
 }
 
 /***/ }),
@@ -5591,12 +5169,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation'),
-    state = _getModule.state,
-    configuration = _getModule.configuration;
-
+var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation');
 function renderSegmentationOutline(evt, labelmap3D, labelmap2D, labelmapIndex, isActiveLabelMap) {
+  var configuration = segmentationModule.configuration;
   var outline = getOutline(evt, labelmap3D, labelmap2D, configuration.outlineWidth);
   renderOutline(evt, outline, labelmap3D.colorLUTIndex, isActiveLabelMap);
 }
@@ -5612,6 +5187,8 @@ function renderSegmentationOutline(evt, labelmap3D, labelmap2D, labelmapIndex, i
 
 function renderOutline(evt, outline, colorLUTIndex) {
   var isActiveLabelMap = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+  var configuration = segmentationModule.configuration,
+      state = segmentationModule.state;
   var eventData = evt.detail;
   var element = eventData.element,
       canvasContext = eventData.canvasContext;
@@ -6103,6 +5680,7 @@ var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_4__["getLogger"])('
 var isClickEvent = true;
 var preventClickTimeout;
 var clickDelay = 200;
+var addedListeners = new Map();
 
 function getEventButtons(event) {
   if (typeof event.buttons === 'number') {
@@ -6299,12 +5877,16 @@ function mouseDown(e) {
     Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_3__["default"])(eventData.element, eventType, eventData);
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
+    addedListeners.delete(onMouseMove);
+    addedListeners.delete(onMouseUp);
     element.addEventListener('mousemove', mouseMove);
     isClickEvent = true;
   }
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
+  addedListeners.set(onMouseMove, 'mousemove');
+  addedListeners.set(onMouseUp, 'mouseup');
 }
 
 function mouseMove(e) {
@@ -6361,7 +5943,12 @@ function mouseMove(e) {
 function disable(element) {
   element.removeEventListener('mousedown', mouseDown);
   element.removeEventListener('mousemove', mouseMove);
-  element.removeEventListener('dblclick', mouseDoubleClick);
+  element.removeEventListener('dblclick', mouseDoubleClick); // Make sure we have removed any listeners that were added within the above listeners (#1337)
+
+  addedListeners.forEach(function (event, listener) {
+    document.removeEventListener(event, listener);
+  });
+  addedListeners.clear();
 }
 
 function enable(element) {
@@ -6392,10 +5979,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _internals_renderSegmentation_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./internals/renderSegmentation.js */ "./eventListeners/internals/renderSegmentation.js");
 
 
-
-var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation'),
-    configuration = _getModule.configuration,
-    getters = _getModule.getters;
+var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation');
 /**
  * Finds which segmentations need to be rendered based on the configuration and
  * presence of `Labelmap2D` data on these frames.
@@ -6404,10 +5988,11 @@ var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_0__["getModule"
  * @returns {null}
  */
 
-
 /* harmony default export */ __webpack_exports__["default"] = (function (evt) {
   var eventData = evt.detail;
   var element = eventData.element;
+  var configuration = segmentationModule.configuration,
+      getters = segmentationModule.getters;
 
   var _getters$labelmaps3D = getters.labelmaps3D(element),
       activeLabelmapIndex = _getters$labelmaps3D.activeLabelmapIndex,
@@ -6585,7 +6170,7 @@ var lastScale = 1.0,
     lastDelta;
 var pressDelay = 700,
     pressMaxDistance = 5;
-var toolType = 'touchInput';
+var inputName = 'touchInput';
 
 function onTouch(e) {
   var element = e.currentTarget || e.srcEvent.currentTarget;
@@ -6991,10 +6576,12 @@ function enable(element) {
     element.addEventListener(eventType, onTouch, {
       passive: false
     });
-  });
-  var options = Object(_toolOptions_js__WEBPACK_IMPORTED_MODULE_5__["getToolOptions"])(toolType, element);
-  options.hammer = mc;
-  Object(_toolOptions_js__WEBPACK_IMPORTED_MODULE_5__["setToolOptions"])(toolType, element, options);
+  }); // TODO: Check why we are using tool options if it's not a tool
+
+  var options = Object(_toolOptions_js__WEBPACK_IMPORTED_MODULE_5__["getToolOptions"])(inputName, element);
+  options.hammer = mc; // TODO: Check why we are using tool options if it's not a tool
+
+  Object(_toolOptions_js__WEBPACK_IMPORTED_MODULE_5__["setToolOptions"])(inputName, element, options);
 }
 
 function disable(element) {
@@ -7002,13 +6589,18 @@ function disable(element) {
   var touchEvents = ['touchstart', 'touchend'];
   touchEvents.forEach(function (eventType) {
     element.removeEventListener(eventType, onTouch);
-  });
-  var options = Object(_toolOptions_js__WEBPACK_IMPORTED_MODULE_5__["getToolOptions"])(toolType, element);
+  }); // TODO: Check why we are using tool options if it's not a tool
+
+  var options = Object(_toolOptions_js__WEBPACK_IMPORTED_MODULE_5__["getToolOptions"])(inputName, element);
   var mc = options.hammer;
 
   if (mc) {
     mc.off('tap doubletap panstart panmove panend pinchstart pinchmove rotatemove', onTouch);
+    mc.input.destroy();
   }
+
+  options.hammer = null;
+  Object(_toolOptions_js__WEBPACK_IMPORTED_MODULE_5__["clearToolOptions"])(inputName, element);
 } // Module exports
 
 
@@ -7474,7 +7066,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!******************!*\
   !*** ./index.js ***!
   \******************/
-/*! exports provided: AngleTool, ArrowAnnotateTool, BidirectionalTool, CircleRoiTool, CobbAngleTool, EllipticalRoiTool, FreehandRoiTool, LengthTool, ProbeTool, RectangleRoiTool, TextMarkerTool, BrushTool, SphericalBrushTool, RectangleScissorsTool, FreehandScissorsTool, CircleScissorsTool, CorrectionScissorsTool, CrosshairsTool, DoubleTapFitToWindowTool, DragProbeTool, EraserTool, FreehandRoiSculptorTool, MagnifyTool, PanMultiTouchTool, PanTool, ReferenceLinesTool, RotateTool, RotateTouchTool, ScaleOverlayTool, StackScrollMouseWheelTool, StackScrollMultiTouchTool, StackScrollTool, WwwcRegionTool, WwwcTool, ZoomMouseWheelTool, ZoomTool, ZoomTouchPinchTool, init, stackPrefetch, stackRenderers, playClip, stopClip, store, getModule, getToolForElement, addTool, addToolForElement, removeTool, removeToolForElement, setToolOptions, setToolOptionsForElement, setToolActive, setToolActiveForElement, setToolEnabled, setToolEnabledForElement, setToolDisabled, setToolDisabledForElement, setToolPassive, setToolPassiveForElement, addToolState, getToolState, removeToolState, clearToolState, setElementToolStateManager, getElementToolStateManager, textStyle, toolStyle, toolColors, toolCoordinates, stackSpecificStateManager, newStackSpecificToolStateManager, addStackStateManager, loadHandlerManager, newImageIdSpecificToolStateManager, globalImageIdSpecificToolStateManager, newFrameOfReferenceSpecificToolStateManager, globalFrameOfReferenceSpecificToolStateManager, forceEnabledElementResize, orientation, SaveAs, enableLogger, disableLogger, register, registerSome, wwwcSynchronizer, updateImageSynchronizer, Synchronizer, stackScrollSynchronizer, stackImagePositionSynchronizer, stackImagePositionOffsetSynchronizer, stackImageIndexSynchronizer, panZoomSynchronizer, requestPoolManager, importInternal, external, EVENTS, version, import, default */
+/*! exports provided: AngleTool, ArrowAnnotateTool, BidirectionalTool, CircleRoiTool, CobbAngleTool, EllipticalRoiTool, FreehandRoiTool, LengthTool, ProbeTool, RectangleRoiTool, TextMarkerTool, BrushTool, SphericalBrushTool, RectangleScissorsTool, FreehandScissorsTool, CircleScissorsTool, CorrectionScissorsTool, CrosshairsTool, DoubleTapFitToWindowTool, DragProbeTool, EraserTool, FreehandRoiSculptorTool, MagnifyTool, OverlayTool, OrientationMarkersTool, PanMultiTouchTool, PanTool, ReferenceLinesTool, RotateTool, RotateTouchTool, ScaleOverlayTool, StackScrollMouseWheelTool, StackScrollMultiTouchTool, StackScrollTool, WwwcRegionTool, WwwcTool, ZoomMouseWheelTool, ZoomTool, ZoomTouchPinchTool, init, stackPrefetch, stackRenderers, playClip, stopClip, store, getModule, getToolForElement, addTool, addToolForElement, removeTool, removeToolForElement, setToolOptions, setToolOptionsForElement, isToolActiveForElement, setToolActive, setToolActiveForElement, setToolEnabled, setToolEnabledForElement, setToolDisabled, setToolDisabledForElement, setToolPassive, setToolPassiveForElement, addToolState, getToolState, removeToolState, clearToolState, setElementToolStateManager, getElementToolStateManager, textStyle, toolStyle, toolColors, toolCoordinates, stackSpecificStateManager, newStackSpecificToolStateManager, addStackStateManager, loadHandlerManager, newImageIdSpecificToolStateManager, globalImageIdSpecificToolStateManager, newFrameOfReferenceSpecificToolStateManager, globalFrameOfReferenceSpecificToolStateManager, forceEnabledElementResize, orientation, SaveAs, enableLogger, disableLogger, register, registerSome, wwwcSynchronizer, updateImageSynchronizer, Synchronizer, stackScrollSynchronizer, stackImagePositionSynchronizer, stackImagePositionOffsetSynchronizer, stackImageIndexSynchronizer, panZoomSynchronizer, importInternal, external, EVENTS, version, import, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7527,6 +7119,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "FreehandRoiSculptorTool", function() { return _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["FreehandRoiSculptorTool"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagnifyTool", function() { return _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["MagnifyTool"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "OverlayTool", function() { return _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["OverlayTool"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "OrientationMarkersTool", function() { return _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["OrientationMarkersTool"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PanMultiTouchTool", function() { return _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["PanMultiTouchTool"]; });
 
@@ -7610,97 +7206,97 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "setToolPassiveForElement", function() { return _store_setToolMode_js__WEBPACK_IMPORTED_MODULE_12__["setToolPassiveForElement"]; });
 
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["addToolState"]; });
+/* harmony import */ var _store_isToolActiveForElement__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./store/isToolActiveForElement */ "./store/isToolActiveForElement.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isToolActiveForElement", function() { return _store_isToolActiveForElement__WEBPACK_IMPORTED_MODULE_13__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["getToolState"]; });
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["addToolState"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "removeToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["removeToolState"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["getToolState"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "clearToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["clearToolState"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "removeToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["removeToolState"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "setElementToolStateManager", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["setElementToolStateManager"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "clearToolState", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["clearToolState"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getElementToolStateManager", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["getElementToolStateManager"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "setElementToolStateManager", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["setElementToolStateManager"]; });
 
-/* harmony import */ var _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./stateManagement/textStyle.js */ "./stateManagement/textStyle.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "textStyle", function() { return _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_14__["default"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getElementToolStateManager", function() { return _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["getElementToolStateManager"]; });
 
-/* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "toolStyle", function() { return _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_15__["default"]; });
+/* harmony import */ var _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./stateManagement/textStyle.js */ "./stateManagement/textStyle.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "textStyle", function() { return _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_15__["default"]; });
 
-/* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "toolColors", function() { return _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_16__["default"]; });
+/* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "toolStyle", function() { return _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_16__["default"]; });
 
-/* harmony import */ var _stateManagement_toolCoordinates_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./stateManagement/toolCoordinates.js */ "./stateManagement/toolCoordinates.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "toolCoordinates", function() { return _stateManagement_toolCoordinates_js__WEBPACK_IMPORTED_MODULE_17__["default"]; });
+/* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "toolColors", function() { return _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_17__["default"]; });
 
-/* harmony import */ var _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./stateManagement/stackSpecificStateManager.js */ "./stateManagement/stackSpecificStateManager.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackSpecificStateManager", function() { return _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_18__["stackSpecificStateManager"]; });
+/* harmony import */ var _stateManagement_toolCoordinates_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./stateManagement/toolCoordinates.js */ "./stateManagement/toolCoordinates.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "toolCoordinates", function() { return _stateManagement_toolCoordinates_js__WEBPACK_IMPORTED_MODULE_18__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "newStackSpecificToolStateManager", function() { return _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_18__["newStackSpecificToolStateManager"]; });
+/* harmony import */ var _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./stateManagement/stackSpecificStateManager.js */ "./stateManagement/stackSpecificStateManager.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackSpecificStateManager", function() { return _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_19__["stackSpecificStateManager"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addStackStateManager", function() { return _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_18__["addStackStateManager"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "newStackSpecificToolStateManager", function() { return _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_19__["newStackSpecificToolStateManager"]; });
 
-/* harmony import */ var _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./stateManagement/loadHandlerManager.js */ "./stateManagement/loadHandlerManager.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loadHandlerManager", function() { return _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_19__["default"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addStackStateManager", function() { return _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_19__["addStackStateManager"]; });
 
-/* harmony import */ var _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./stateManagement/imageIdSpecificStateManager.js */ "./stateManagement/imageIdSpecificStateManager.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "newImageIdSpecificToolStateManager", function() { return _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_20__["newImageIdSpecificToolStateManager"]; });
+/* harmony import */ var _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./stateManagement/loadHandlerManager.js */ "./stateManagement/loadHandlerManager.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loadHandlerManager", function() { return _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_20__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "globalImageIdSpecificToolStateManager", function() { return _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_20__["globalImageIdSpecificToolStateManager"]; });
+/* harmony import */ var _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./stateManagement/imageIdSpecificStateManager.js */ "./stateManagement/imageIdSpecificStateManager.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "newImageIdSpecificToolStateManager", function() { return _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_21__["newImageIdSpecificToolStateManager"]; });
 
-/* harmony import */ var _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./stateManagement/frameOfReferenceStateManager.js */ "./stateManagement/frameOfReferenceStateManager.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "newFrameOfReferenceSpecificToolStateManager", function() { return _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_21__["newFrameOfReferenceSpecificToolStateManager"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "globalImageIdSpecificToolStateManager", function() { return _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_21__["globalImageIdSpecificToolStateManager"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "globalFrameOfReferenceSpecificToolStateManager", function() { return _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_21__["globalFrameOfReferenceSpecificToolStateManager"]; });
+/* harmony import */ var _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./stateManagement/frameOfReferenceStateManager.js */ "./stateManagement/frameOfReferenceStateManager.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "newFrameOfReferenceSpecificToolStateManager", function() { return _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_22__["newFrameOfReferenceSpecificToolStateManager"]; });
 
-/* harmony import */ var _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./eventListeners/windowResizeHandler.js */ "./eventListeners/windowResizeHandler.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "forceEnabledElementResize", function() { return _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_22__["forceEnabledElementResize"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "globalFrameOfReferenceSpecificToolStateManager", function() { return _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_22__["globalFrameOfReferenceSpecificToolStateManager"]; });
 
-/* harmony import */ var _orientation_index_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./orientation/index.js */ "./orientation/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "orientation", function() { return _orientation_index_js__WEBPACK_IMPORTED_MODULE_23__["default"]; });
+/* harmony import */ var _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./eventListeners/windowResizeHandler.js */ "./eventListeners/windowResizeHandler.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "forceEnabledElementResize", function() { return _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_23__["forceEnabledElementResize"]; });
 
-/* harmony import */ var _util_SaveAs_js__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./util/SaveAs.js */ "./util/SaveAs.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SaveAs", function() { return _util_SaveAs_js__WEBPACK_IMPORTED_MODULE_24__["default"]; });
+/* harmony import */ var _orientation_index_js__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./orientation/index.js */ "./orientation/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "orientation", function() { return _orientation_index_js__WEBPACK_IMPORTED_MODULE_24__["default"]; });
 
-/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./util/logger.js */ "./util/logger.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "enableLogger", function() { return _util_logger_js__WEBPACK_IMPORTED_MODULE_25__["enable"]; });
+/* harmony import */ var _util_SaveAs_js__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./util/SaveAs.js */ "./util/SaveAs.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SaveAs", function() { return _util_SaveAs_js__WEBPACK_IMPORTED_MODULE_25__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "disableLogger", function() { return _util_logger_js__WEBPACK_IMPORTED_MODULE_25__["disable"]; });
+/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./util/logger.js */ "./util/logger.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "enableLogger", function() { return _util_logger_js__WEBPACK_IMPORTED_MODULE_26__["enable"]; });
 
-/* harmony import */ var _thirdParty_register_js__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./thirdParty/register.js */ "./thirdParty/register.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "register", function() { return _thirdParty_register_js__WEBPACK_IMPORTED_MODULE_26__["default"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "disableLogger", function() { return _util_logger_js__WEBPACK_IMPORTED_MODULE_26__["disable"]; });
 
-/* harmony import */ var _thirdParty_registerSome_js__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./thirdParty/registerSome.js */ "./thirdParty/registerSome.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "registerSome", function() { return _thirdParty_registerSome_js__WEBPACK_IMPORTED_MODULE_27__["default"]; });
+/* harmony import */ var _thirdParty_register_js__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./thirdParty/register.js */ "./thirdParty/register.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "register", function() { return _thirdParty_register_js__WEBPACK_IMPORTED_MODULE_27__["default"]; });
 
-/* harmony import */ var _synchronization_wwwcSynchronizer_js__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./synchronization/wwwcSynchronizer.js */ "./synchronization/wwwcSynchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "wwwcSynchronizer", function() { return _synchronization_wwwcSynchronizer_js__WEBPACK_IMPORTED_MODULE_28__["default"]; });
+/* harmony import */ var _thirdParty_registerSome_js__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./thirdParty/registerSome.js */ "./thirdParty/registerSome.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "registerSome", function() { return _thirdParty_registerSome_js__WEBPACK_IMPORTED_MODULE_28__["default"]; });
 
-/* harmony import */ var _synchronization_updateImageSynchronizer_js__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./synchronization/updateImageSynchronizer.js */ "./synchronization/updateImageSynchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateImageSynchronizer", function() { return _synchronization_updateImageSynchronizer_js__WEBPACK_IMPORTED_MODULE_29__["default"]; });
+/* harmony import */ var _synchronization_wwwcSynchronizer_js__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./synchronization/wwwcSynchronizer.js */ "./synchronization/wwwcSynchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "wwwcSynchronizer", function() { return _synchronization_wwwcSynchronizer_js__WEBPACK_IMPORTED_MODULE_29__["default"]; });
 
-/* harmony import */ var _synchronization_Synchronizer_js__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./synchronization/Synchronizer.js */ "./synchronization/Synchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Synchronizer", function() { return _synchronization_Synchronizer_js__WEBPACK_IMPORTED_MODULE_30__["default"]; });
+/* harmony import */ var _synchronization_updateImageSynchronizer_js__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./synchronization/updateImageSynchronizer.js */ "./synchronization/updateImageSynchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateImageSynchronizer", function() { return _synchronization_updateImageSynchronizer_js__WEBPACK_IMPORTED_MODULE_30__["default"]; });
 
-/* harmony import */ var _synchronization_stackScrollSynchronizer_js__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./synchronization/stackScrollSynchronizer.js */ "./synchronization/stackScrollSynchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackScrollSynchronizer", function() { return _synchronization_stackScrollSynchronizer_js__WEBPACK_IMPORTED_MODULE_31__["default"]; });
+/* harmony import */ var _synchronization_Synchronizer_js__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./synchronization/Synchronizer.js */ "./synchronization/Synchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Synchronizer", function() { return _synchronization_Synchronizer_js__WEBPACK_IMPORTED_MODULE_31__["default"]; });
 
-/* harmony import */ var _synchronization_stackImagePositionSynchronizer_js__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./synchronization/stackImagePositionSynchronizer.js */ "./synchronization/stackImagePositionSynchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackImagePositionSynchronizer", function() { return _synchronization_stackImagePositionSynchronizer_js__WEBPACK_IMPORTED_MODULE_32__["default"]; });
+/* harmony import */ var _synchronization_stackScrollSynchronizer_js__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./synchronization/stackScrollSynchronizer.js */ "./synchronization/stackScrollSynchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackScrollSynchronizer", function() { return _synchronization_stackScrollSynchronizer_js__WEBPACK_IMPORTED_MODULE_32__["default"]; });
 
-/* harmony import */ var _synchronization_stackImagePositionOffsetSynchronizer_js__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./synchronization/stackImagePositionOffsetSynchronizer.js */ "./synchronization/stackImagePositionOffsetSynchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackImagePositionOffsetSynchronizer", function() { return _synchronization_stackImagePositionOffsetSynchronizer_js__WEBPACK_IMPORTED_MODULE_33__["default"]; });
+/* harmony import */ var _synchronization_stackImagePositionSynchronizer_js__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./synchronization/stackImagePositionSynchronizer.js */ "./synchronization/stackImagePositionSynchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackImagePositionSynchronizer", function() { return _synchronization_stackImagePositionSynchronizer_js__WEBPACK_IMPORTED_MODULE_33__["default"]; });
 
-/* harmony import */ var _synchronization_stackImageIndexSynchronizer_js__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./synchronization/stackImageIndexSynchronizer.js */ "./synchronization/stackImageIndexSynchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackImageIndexSynchronizer", function() { return _synchronization_stackImageIndexSynchronizer_js__WEBPACK_IMPORTED_MODULE_34__["default"]; });
+/* harmony import */ var _synchronization_stackImagePositionOffsetSynchronizer_js__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./synchronization/stackImagePositionOffsetSynchronizer.js */ "./synchronization/stackImagePositionOffsetSynchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackImagePositionOffsetSynchronizer", function() { return _synchronization_stackImagePositionOffsetSynchronizer_js__WEBPACK_IMPORTED_MODULE_34__["default"]; });
 
-/* harmony import */ var _synchronization_panZoomSynchronizer_js__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./synchronization/panZoomSynchronizer.js */ "./synchronization/panZoomSynchronizer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "panZoomSynchronizer", function() { return _synchronization_panZoomSynchronizer_js__WEBPACK_IMPORTED_MODULE_35__["default"]; });
+/* harmony import */ var _synchronization_stackImageIndexSynchronizer_js__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./synchronization/stackImageIndexSynchronizer.js */ "./synchronization/stackImageIndexSynchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackImageIndexSynchronizer", function() { return _synchronization_stackImageIndexSynchronizer_js__WEBPACK_IMPORTED_MODULE_35__["default"]; });
 
-/* harmony import */ var _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./requestPool/requestPoolManager.js */ "./requestPool/requestPoolManager.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "requestPoolManager", function() { return _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_36__["default"]; });
+/* harmony import */ var _synchronization_panZoomSynchronizer_js__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./synchronization/panZoomSynchronizer.js */ "./synchronization/panZoomSynchronizer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "panZoomSynchronizer", function() { return _synchronization_panZoomSynchronizer_js__WEBPACK_IMPORTED_MODULE_36__["default"]; });
 
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./externalModules.js */ "./externalModules.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "external", function() { return _externalModules_js__WEBPACK_IMPORTED_MODULE_37__["default"]; });
@@ -7817,6 +7413,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
  // ~~~~~~ ORIENTATION  ~~~~~ //
 
  // ~~~~~~ CANVAS EXPORT  ~~~~~ //
@@ -7835,7 +7432,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
  // ~~~~~~ REQUEST POOL MANAGER  ~~~~~ //
-
 
 
 
@@ -7869,6 +7465,8 @@ var cornerstoneTools = {
   EraserTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["EraserTool"],
   FreehandRoiSculptorTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["FreehandRoiSculptorTool"],
   MagnifyTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["MagnifyTool"],
+  OverlayTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["OverlayTool"],
+  OrientationMarkersTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["OrientationMarkersTool"],
   PanMultiTouchTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["PanMultiTouchTool"],
   PanTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["PanTool"],
   ReferenceLinesTool: _tools_index_js__WEBPACK_IMPORTED_MODULE_2__["ReferenceLinesTool"],
@@ -7897,6 +7495,7 @@ var cornerstoneTools = {
   removeToolForElement: _store_removeTool_js__WEBPACK_IMPORTED_MODULE_10__["removeToolForElement"],
   setToolOptions: _store_setToolOptions_js__WEBPACK_IMPORTED_MODULE_11__["setToolOptions"],
   setToolOptionsForElement: _store_setToolOptions_js__WEBPACK_IMPORTED_MODULE_11__["setToolOptionsForElement"],
+  isToolActiveForElement: _store_isToolActiveForElement__WEBPACK_IMPORTED_MODULE_13__["default"],
   setToolActive: _store_setToolMode_js__WEBPACK_IMPORTED_MODULE_12__["setToolActive"],
   setToolActiveForElement: _store_setToolMode_js__WEBPACK_IMPORTED_MODULE_12__["setToolActiveForElement"],
   setToolEnabled: _store_setToolMode_js__WEBPACK_IMPORTED_MODULE_12__["setToolEnabled"],
@@ -7905,42 +7504,41 @@ var cornerstoneTools = {
   setToolDisabledForElement: _store_setToolMode_js__WEBPACK_IMPORTED_MODULE_12__["setToolDisabledForElement"],
   setToolPassive: _store_setToolMode_js__WEBPACK_IMPORTED_MODULE_12__["setToolPassive"],
   setToolPassiveForElement: _store_setToolMode_js__WEBPACK_IMPORTED_MODULE_12__["setToolPassiveForElement"],
-  addToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["addToolState"],
-  getToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["getToolState"],
-  removeToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["removeToolState"],
-  clearToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["clearToolState"],
-  setElementToolStateManager: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["setElementToolStateManager"],
-  getElementToolStateManager: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_13__["getElementToolStateManager"],
-  textStyle: _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_14__["default"],
-  toolStyle: _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_15__["default"],
-  toolColors: _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_16__["default"],
-  toolCoordinates: _stateManagement_toolCoordinates_js__WEBPACK_IMPORTED_MODULE_17__["default"],
-  stackSpecificStateManager: _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_18__["stackSpecificStateManager"],
-  newStackSpecificToolStateManager: _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_18__["newStackSpecificToolStateManager"],
-  addStackStateManager: _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_18__["addStackStateManager"],
-  loadHandlerManager: _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_19__["default"],
-  newImageIdSpecificToolStateManager: _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_20__["newImageIdSpecificToolStateManager"],
-  globalImageIdSpecificToolStateManager: _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_20__["globalImageIdSpecificToolStateManager"],
-  newFrameOfReferenceSpecificToolStateManager: _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_21__["newFrameOfReferenceSpecificToolStateManager"],
-  globalFrameOfReferenceSpecificToolStateManager: _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_21__["globalFrameOfReferenceSpecificToolStateManager"],
-  forceEnabledElementResize: _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_22__["forceEnabledElementResize"],
-  orientation: _orientation_index_js__WEBPACK_IMPORTED_MODULE_23__["default"],
-  SaveAs: _util_SaveAs_js__WEBPACK_IMPORTED_MODULE_24__["default"],
-  enableLogger: _util_logger_js__WEBPACK_IMPORTED_MODULE_25__["enable"],
-  disableLogger: _util_logger_js__WEBPACK_IMPORTED_MODULE_25__["disable"],
+  addToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["addToolState"],
+  getToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["getToolState"],
+  removeToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["removeToolState"],
+  clearToolState: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["clearToolState"],
+  setElementToolStateManager: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["setElementToolStateManager"],
+  getElementToolStateManager: _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_14__["getElementToolStateManager"],
+  textStyle: _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_15__["default"],
+  toolStyle: _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_16__["default"],
+  toolColors: _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_17__["default"],
+  toolCoordinates: _stateManagement_toolCoordinates_js__WEBPACK_IMPORTED_MODULE_18__["default"],
+  stackSpecificStateManager: _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_19__["stackSpecificStateManager"],
+  newStackSpecificToolStateManager: _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_19__["newStackSpecificToolStateManager"],
+  addStackStateManager: _stateManagement_stackSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_19__["addStackStateManager"],
+  loadHandlerManager: _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_20__["default"],
+  newImageIdSpecificToolStateManager: _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_21__["newImageIdSpecificToolStateManager"],
+  globalImageIdSpecificToolStateManager: _stateManagement_imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_21__["globalImageIdSpecificToolStateManager"],
+  newFrameOfReferenceSpecificToolStateManager: _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_22__["newFrameOfReferenceSpecificToolStateManager"],
+  globalFrameOfReferenceSpecificToolStateManager: _stateManagement_frameOfReferenceStateManager_js__WEBPACK_IMPORTED_MODULE_22__["globalFrameOfReferenceSpecificToolStateManager"],
+  forceEnabledElementResize: _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_23__["forceEnabledElementResize"],
+  orientation: _orientation_index_js__WEBPACK_IMPORTED_MODULE_24__["default"],
+  SaveAs: _util_SaveAs_js__WEBPACK_IMPORTED_MODULE_25__["default"],
+  enableLogger: _util_logger_js__WEBPACK_IMPORTED_MODULE_26__["enable"],
+  disableLogger: _util_logger_js__WEBPACK_IMPORTED_MODULE_26__["disable"],
   importInternal: _importInternal_js__WEBPACK_IMPORTED_MODULE_40__["default"],
   import: _importInternal_js__WEBPACK_IMPORTED_MODULE_40__["default"],
-  register: _thirdParty_register_js__WEBPACK_IMPORTED_MODULE_26__["default"],
-  registerSome: _thirdParty_registerSome_js__WEBPACK_IMPORTED_MODULE_27__["default"],
-  wwwcSynchronizer: _synchronization_wwwcSynchronizer_js__WEBPACK_IMPORTED_MODULE_28__["default"],
-  updateImageSynchronizer: _synchronization_updateImageSynchronizer_js__WEBPACK_IMPORTED_MODULE_29__["default"],
-  Synchronizer: _synchronization_Synchronizer_js__WEBPACK_IMPORTED_MODULE_30__["default"],
-  stackScrollSynchronizer: _synchronization_stackScrollSynchronizer_js__WEBPACK_IMPORTED_MODULE_31__["default"],
-  stackImagePositionSynchronizer: _synchronization_stackImagePositionSynchronizer_js__WEBPACK_IMPORTED_MODULE_32__["default"],
-  stackImagePositionOffsetSynchronizer: _synchronization_stackImagePositionOffsetSynchronizer_js__WEBPACK_IMPORTED_MODULE_33__["default"],
-  stackImageIndexSynchronizer: _synchronization_stackImageIndexSynchronizer_js__WEBPACK_IMPORTED_MODULE_34__["default"],
-  panZoomSynchronizer: _synchronization_panZoomSynchronizer_js__WEBPACK_IMPORTED_MODULE_35__["default"],
-  requestPoolManager: _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_36__["default"],
+  register: _thirdParty_register_js__WEBPACK_IMPORTED_MODULE_27__["default"],
+  registerSome: _thirdParty_registerSome_js__WEBPACK_IMPORTED_MODULE_28__["default"],
+  wwwcSynchronizer: _synchronization_wwwcSynchronizer_js__WEBPACK_IMPORTED_MODULE_29__["default"],
+  updateImageSynchronizer: _synchronization_updateImageSynchronizer_js__WEBPACK_IMPORTED_MODULE_30__["default"],
+  Synchronizer: _synchronization_Synchronizer_js__WEBPACK_IMPORTED_MODULE_31__["default"],
+  stackScrollSynchronizer: _synchronization_stackScrollSynchronizer_js__WEBPACK_IMPORTED_MODULE_32__["default"],
+  stackImagePositionSynchronizer: _synchronization_stackImagePositionSynchronizer_js__WEBPACK_IMPORTED_MODULE_33__["default"],
+  stackImagePositionOffsetSynchronizer: _synchronization_stackImagePositionOffsetSynchronizer_js__WEBPACK_IMPORTED_MODULE_34__["default"],
+  stackImageIndexSynchronizer: _synchronization_stackImageIndexSynchronizer_js__WEBPACK_IMPORTED_MODULE_35__["default"],
+  panZoomSynchronizer: _synchronization_panZoomSynchronizer_js__WEBPACK_IMPORTED_MODULE_36__["default"],
   external: _externalModules_js__WEBPACK_IMPORTED_MODULE_37__["default"],
   EVENTS: _events_js__WEBPACK_IMPORTED_MODULE_38__["default"],
   version: _version_js__WEBPACK_IMPORTED_MODULE_39__["default"]
@@ -7979,21 +7577,38 @@ __webpack_require__.r(__webpack_exports__);
  * @method
  * @name init
  *
- * @param {Object} [configuration = {}] The global configuration to apply.
+ * @param {Object|Object[]} [defaultConfiguration = {}] The configuration to apply. Assumed globalConfiguration
+ * only one value, otherwise moduleName, configuration entires in an array.
  * @returns {Object} A configured CornerstoneTools instance with top level API members.
  */
 
 /* harmony default export */ __webpack_exports__["default"] = (function () {
-  var configuration = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var defaultConfiguration = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   _addCornerstoneEventListeners();
 
   _initModules();
 
-  _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_4__["default"].enable(); // Apply global configuration
-
   var globalConfigurationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_1__["getModule"])('globalConfiguration');
-  globalConfigurationModule.configuration = Object.assign({}, globalConfigurationModule.configuration, configuration);
+
+  if (Array.isArray(defaultConfiguration)) {
+    defaultConfiguration.forEach(function (configurationEntry) {
+      var moduleName = configurationEntry.moduleName,
+          configuration = configurationEntry.configuration;
+      var module = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_1__["getModule"])(moduleName);
+
+      if (module) {
+        module.configuration = Object.assign({}, module.configuration, configuration);
+      }
+    });
+  } else {
+    // DefaultConfiguration is an object, default to assigning it to globalConfiguration.
+    globalConfigurationModule.configuration = Object.assign({}, globalConfigurationModule.configuration, defaultConfiguration);
+  }
+
+  if (globalConfigurationModule.configuration.autoResizeViewports) {
+    _eventListeners_windowResizeHandler_js__WEBPACK_IMPORTED_MODULE_4__["default"].enable();
+  }
 });
 /**
  * Wires up event listeners for the Cornerstone#ElementDisabled and
@@ -8075,34 +7690,64 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mixins_index_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./mixins/index.js */ "./mixins/index.js");
 /* harmony import */ var _tools_cursors_index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./tools/cursors/index.js */ "./tools/cursors/index.js");
 /* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./drawing/index.js */ "./drawing/index.js");
-/* harmony import */ var _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./drawing/drawTextBox.js */ "./drawing/drawTextBox.js");
-/* harmony import */ var _drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./drawing/drawArrow.js */ "./drawing/drawArrow.js");
-/* harmony import */ var _drawing_drawLink_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./drawing/drawLink.js */ "./drawing/drawLink.js");
-/* harmony import */ var _drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./drawing/drawLinkedTextBox.js */ "./drawing/drawLinkedTextBox.js");
-/* harmony import */ var _drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./drawing/drawHandles.js */ "./drawing/drawHandles.js");
-/* harmony import */ var _util_getLuminance_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./util/getLuminance.js */ "./util/getLuminance.js");
-/* harmony import */ var _util_copyPoints_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./util/copyPoints.js */ "./util/copyPoints.js");
-/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./util/calculateSUV.js */ "./util/calculateSUV.js");
-/* harmony import */ var _util_setContextToDisplayFontSize_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./util/setContextToDisplayFontSize.js */ "./util/setContextToDisplayFontSize.js");
-/* harmony import */ var _util_scrollToIndex_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./util/scrollToIndex.js */ "./util/scrollToIndex.js");
-/* harmony import */ var _util_scroll_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./util/scroll.js */ "./util/scroll.js");
-/* harmony import */ var _util_roundToDecimal_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./util/roundToDecimal.js */ "./util/roundToDecimal.js");
-/* harmony import */ var _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./util/pointProjector.js */ "./util/pointProjector.js");
-/* harmony import */ var _util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./util/lineSegDistance.js */ "./util/lineSegDistance.js");
-/* harmony import */ var _util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./util/pointInsideBoundingBox.js */ "./util/pointInsideBoundingBox.js");
-/* harmony import */ var _util_makeUnselectable_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./util/makeUnselectable.js */ "./util/makeUnselectable.js");
-/* harmony import */ var _util_getRGBPixels_js__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./util/getRGBPixels.js */ "./util/getRGBPixels.js");
-/* harmony import */ var _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./util/getMaxSimultaneousRequests.js */ "./util/getMaxSimultaneousRequests.js");
-/* harmony import */ var _util_angleBetweenPoints_js__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./util/angleBetweenPoints.js */ "./util/angleBetweenPoints.js");
-/* harmony import */ var _util_getKeyFromKeyCode_js__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./util/getKeyFromKeyCode.js */ "./util/getKeyFromKeyCode.js");
-/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
-/* harmony import */ var _tools_cursors_MouseCursor_js__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./tools/cursors/MouseCursor.js */ "./tools/cursors/MouseCursor.js");
-/* harmony import */ var _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./util/ellipse/index.js */ "./util/ellipse/index.js");
-/* harmony import */ var _util_freehand_index_js__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./util/freehand/index.js */ "./util/freehand/index.js");
-/* harmony import */ var _util_segmentation__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./util/segmentation */ "./util/segmentation/index.js");
-/* harmony import */ var _util_zoom_index_js__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./util/zoom/index.js */ "./util/zoom/index.js");
-/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./util/triggerEvent.js */ "./util/triggerEvent.js");
-/* harmony import */ var _util_convertToVector3_js__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./util/convertToVector3.js */ "./util/convertToVector3.js");
+/* harmony import */ var _util_clip_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./util/clip.js */ "./util/clip.js");
+/* harmony import */ var _util_debounce__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./util/debounce */ "./util/debounce.js");
+/* harmony import */ var _util_deepmerge__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./util/deepmerge */ "./util/deepmerge.js");
+/* harmony import */ var _util_getDefault__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./util/getDefault */ "./util/getDefault.js");
+/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./util/getPixelSpacing */ "./util/getPixelSpacing.js");
+/* harmony import */ var _util_isEmptyObject__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./util/isEmptyObject */ "./util/isEmptyObject.js");
+/* harmony import */ var _util_isObject__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./util/isObject */ "./util/isObject.js");
+/* harmony import */ var _util_isPointInImage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./util/isPointInImage */ "./util/isPointInImage.js");
+/* harmony import */ var _util_isPointInPolygon__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./util/isPointInPolygon */ "./util/isPointInPolygon.js");
+/* harmony import */ var _util_throttle__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./util/throttle */ "./util/throttle.js");
+/* harmony import */ var _util_wait__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./util/wait */ "./util/wait.js");
+/* harmony import */ var _util_getKeyPressData__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./util/getKeyPressData */ "./util/getKeyPressData.js");
+/* harmony import */ var _util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./util/getProximityThreshold.js */ "./util/getProximityThreshold.js");
+/* harmony import */ var _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./drawing/drawTextBox.js */ "./drawing/drawTextBox.js");
+/* harmony import */ var _drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./drawing/drawArrow.js */ "./drawing/drawArrow.js");
+/* harmony import */ var _drawing_drawLink_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./drawing/drawLink.js */ "./drawing/drawLink.js");
+/* harmony import */ var _drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./drawing/drawLinkedTextBox.js */ "./drawing/drawLinkedTextBox.js");
+/* harmony import */ var _drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./drawing/drawHandles.js */ "./drawing/drawHandles.js");
+/* harmony import */ var _util_getActiveTool__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./util/getActiveTool */ "./util/getActiveTool.js");
+/* harmony import */ var _util_getLuminance_js__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./util/getLuminance.js */ "./util/getLuminance.js");
+/* harmony import */ var _util_getROITextBoxCoords__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./util/getROITextBoxCoords */ "./util/getROITextBoxCoords.js");
+/* harmony import */ var _util_copyPoints_js__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./util/copyPoints.js */ "./util/copyPoints.js");
+/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./util/calculateSUV.js */ "./util/calculateSUV.js");
+/* harmony import */ var _util_setContextToDisplayFontSize_js__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./util/setContextToDisplayFontSize.js */ "./util/setContextToDisplayFontSize.js");
+/* harmony import */ var _util_scrollToIndex_js__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./util/scrollToIndex.js */ "./util/scrollToIndex.js");
+/* harmony import */ var _util_scroll_js__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./util/scroll.js */ "./util/scroll.js");
+/* harmony import */ var _util_roundToDecimal_js__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./util/roundToDecimal.js */ "./util/roundToDecimal.js");
+/* harmony import */ var _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./util/pointProjector.js */ "./util/pointProjector.js");
+/* harmony import */ var _util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./util/lineSegDistance.js */ "./util/lineSegDistance.js");
+/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./util/logger */ "./util/logger.js");
+/* harmony import */ var _util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./util/pointInsideBoundingBox.js */ "./util/pointInsideBoundingBox.js");
+/* harmony import */ var _util_makeUnselectable_js__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./util/makeUnselectable.js */ "./util/makeUnselectable.js");
+/* harmony import */ var _util_getRGBPixels_js__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./util/getRGBPixels.js */ "./util/getRGBPixels.js");
+/* harmony import */ var _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./util/getMaxSimultaneousRequests.js */ "./util/getMaxSimultaneousRequests.js");
+/* harmony import */ var _util_angleBetweenPoints_js__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./util/angleBetweenPoints.js */ "./util/angleBetweenPoints.js");
+/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
+/* harmony import */ var _tools_cursors_MouseCursor_js__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./tools/cursors/MouseCursor.js */ "./tools/cursors/MouseCursor.js");
+/* harmony import */ var _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./util/ellipse/index.js */ "./util/ellipse/index.js");
+/* harmony import */ var _util_freehand_index_js__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./util/freehand/index.js */ "./util/freehand/index.js");
+/* harmony import */ var _util_segmentation__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ./util/segmentation */ "./util/segmentation/index.js");
+/* harmony import */ var _util_zoom_index_js__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! ./util/zoom/index.js */ "./util/zoom/index.js");
+/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_49__ = __webpack_require__(/*! ./util/triggerEvent.js */ "./util/triggerEvent.js");
+/* harmony import */ var _util_convertToVector3_js__WEBPACK_IMPORTED_MODULE_50__ = __webpack_require__(/*! ./util/convertToVector3.js */ "./util/convertToVector3.js");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8143,10 +7788,11 @@ var lib = {
   'base/BaseTool': _tools_base_BaseTool_js__WEBPACK_IMPORTED_MODULE_0__["default"],
   'base/BaseAnnotationTool': _tools_base_BaseAnnotationTool_js__WEBPACK_IMPORTED_MODULE_1__["default"],
   'base/BaseBrushTool': _tools_base_BaseBrushTool_js__WEBPACK_IMPORTED_MODULE_2__["default"],
-  'tools/cursors/MouseCursor': _tools_cursors_MouseCursor_js__WEBPACK_IMPORTED_MODULE_29__["default"],
+  'tools/cursors/MouseCursor': _tools_cursors_MouseCursor_js__WEBPACK_IMPORTED_MODULE_44__["default"],
   'tools/cursors': _tools_cursors_index_js__WEBPACK_IMPORTED_MODULE_6__,
   'manipulators/anyHandlesOutsideImage': _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["anyHandlesOutsideImage"],
   'manipulators/getHandleNearImagePoint': _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["getHandleNearImagePoint"],
+  'manipulators/getHandlePixelPosition': _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["getHandlePixelPosition"],
   'manipulators/handleActivator': _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["handleActivator"],
   'manipulators/moveAllHandles': _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["moveAllHandles"],
   'manipulators/moveHandle': _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["moveHandle"],
@@ -8167,42 +7813,58 @@ var lib = {
   'drawing/drawEllipse': _drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["drawEllipse"],
   'drawing/drawRect': _drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["drawRect"],
   'drawing/fillOutsideRect': _drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["fillOutsideRect"],
-  'drawing/drawTextBox': _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_8__["default"],
-  'drawing/drawArrow': _drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_9__["default"],
+  'drawing/drawTextBox': _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_21__["default"],
+  'drawing/drawArrow': _drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_22__["default"],
   'drawing/fillBox': _drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["fillBox"],
   'drawing/fillTextLines': _drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["fillTextLines"],
-  'drawing/drawLink': _drawing_drawLink_js__WEBPACK_IMPORTED_MODULE_10__["default"],
-  'drawing/drawLinkedTextBox': _drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_11__["default"],
-  'drawing/drawHandles': _drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_12__["default"],
-  'drawing/textBoxWidth': _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_8__["textBoxWidth"],
-  'util/getLuminance': _util_getLuminance_js__WEBPACK_IMPORTED_MODULE_13__["default"],
-  'util/copyPoints': _util_copyPoints_js__WEBPACK_IMPORTED_MODULE_14__["default"],
-  'util/calculateSUV': _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_15__["default"],
-  'util/setContextToDisplayFontSize': _util_setContextToDisplayFontSize_js__WEBPACK_IMPORTED_MODULE_16__["default"],
-  'util/scrollToIndex': _util_scrollToIndex_js__WEBPACK_IMPORTED_MODULE_17__["default"],
-  'util/scroll': _util_scroll_js__WEBPACK_IMPORTED_MODULE_18__["default"],
-  'util/roundToDecimal': _util_roundToDecimal_js__WEBPACK_IMPORTED_MODULE_19__["default"],
-  'util/projectPatientPointToImagePlane': _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_20__["projectPatientPointToImagePlane"],
-  'util/imagePointToPatientPoint': _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_20__["imagePointToPatientPoint"],
-  'util/planePlaneIntersection': _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_20__["planePlaneIntersection"],
-  'util/pointInsideBoundingBox': _util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_22__["default"],
-  'util/makeUnselectable': _util_makeUnselectable_js__WEBPACK_IMPORTED_MODULE_23__["default"],
-  'util/getRGBPixels': _util_getRGBPixels_js__WEBPACK_IMPORTED_MODULE_24__["default"],
-  'util/getDefaultSimultaneousRequests': _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_25__["getDefaultSimultaneousRequests"],
-  'util/getMaxSimultaneousRequests': _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_25__["getMaxSimultaneousRequests"],
-  'util/getBrowserInfo': _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_25__["getBrowserInfo"],
-  'util/isMobileDevice': _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_25__["isMobileDevice"],
-  'util/angleBetweenPoints': _util_angleBetweenPoints_js__WEBPACK_IMPORTED_MODULE_26__["default"],
-  'util/getKeyFromKeyCode': _util_getKeyFromKeyCode_js__WEBPACK_IMPORTED_MODULE_27__["default"],
-  'util/numbersWithCommas': _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_28__["default"],
-  'util/lineSegDistance': _util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_21__["default"],
-  'util/triggerEvent': _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_34__["default"],
-  'util/convertToVector3': _util_convertToVector3_js__WEBPACK_IMPORTED_MODULE_35__["default"],
+  'drawing/drawLink': _drawing_drawLink_js__WEBPACK_IMPORTED_MODULE_23__["default"],
+  'drawing/drawLinkedTextBox': _drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_24__["default"],
+  'drawing/drawHandles': _drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_25__["default"],
+  'drawing/textBoxWidth': _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_21__["textBoxWidth"],
+  'util/getActiveTool': _util_getActiveTool__WEBPACK_IMPORTED_MODULE_26__["default"],
+  'util/getLuminance': _util_getLuminance_js__WEBPACK_IMPORTED_MODULE_27__["default"],
+  'util/getROITextBoxCoords': _util_getROITextBoxCoords__WEBPACK_IMPORTED_MODULE_28__["default"],
+  'util/copyPoints': _util_copyPoints_js__WEBPACK_IMPORTED_MODULE_29__["default"],
+  'util/calculateSUV': _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_30__["default"],
+  'util/setContextToDisplayFontSize': _util_setContextToDisplayFontSize_js__WEBPACK_IMPORTED_MODULE_31__["default"],
+  'util/scrollToIndex': _util_scrollToIndex_js__WEBPACK_IMPORTED_MODULE_32__["default"],
+  'util/scroll': _util_scroll_js__WEBPACK_IMPORTED_MODULE_33__["default"],
+  'util/roundToDecimal': _util_roundToDecimal_js__WEBPACK_IMPORTED_MODULE_34__["default"],
+  'util/projectPatientPointToImagePlane': _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_35__["projectPatientPointToImagePlane"],
+  'util/imagePointToPatientPoint': _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_35__["imagePointToPatientPoint"],
+  'util/planePlaneIntersection': _util_pointProjector_js__WEBPACK_IMPORTED_MODULE_35__["planePlaneIntersection"],
+  'util/pointInsideBoundingBox': _util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_38__["default"],
+  'util/makeUnselectable': _util_makeUnselectable_js__WEBPACK_IMPORTED_MODULE_39__["default"],
+  'util/getRGBPixels': _util_getRGBPixels_js__WEBPACK_IMPORTED_MODULE_40__["default"],
+  'util/getBrowserInfo': _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_41__["getBrowserInfo"],
+  'util/isMobileDevice': _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_41__["isMobileDevice"],
+  'util/angleBetweenPoints': _util_angleBetweenPoints_js__WEBPACK_IMPORTED_MODULE_42__["default"],
+  'util/numbersWithCommas': _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_43__["default"],
+  'util/lineSegDistance': _util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_36__["default"],
+  'util/triggerEvent': _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_49__["default"],
+  'util/convertToVector3': _util_convertToVector3_js__WEBPACK_IMPORTED_MODULE_50__["default"],
+  'util/clip': _util_clip_js__WEBPACK_IMPORTED_MODULE_8__["clip"],
+  'util/clipToBox': _util_clip_js__WEBPACK_IMPORTED_MODULE_8__["clipToBox"],
+  'util/clipBoxToDisplayedArea': _util_clip_js__WEBPACK_IMPORTED_MODULE_8__["clipBoxToDisplayedArea"],
+  'util/debounce': _util_debounce__WEBPACK_IMPORTED_MODULE_9__["default"],
+  'util/deepmerge': _util_deepmerge__WEBPACK_IMPORTED_MODULE_10__["default"],
+  'util/getDefault': _util_getDefault__WEBPACK_IMPORTED_MODULE_11__["default"],
+  'util/getProximityThreshold': _util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_20__["default"],
+  'util/getPixelSpacing': _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_12__["default"],
+  'util/isEmptyObject': _util_isEmptyObject__WEBPACK_IMPORTED_MODULE_13__["default"],
+  'util/isObject': _util_isObject__WEBPACK_IMPORTED_MODULE_14__["default"],
+  'util/isPointInImage': _util_isPointInImage__WEBPACK_IMPORTED_MODULE_15__["default"],
+  'util/isPointInPolygon': _util_isPointInPolygon__WEBPACK_IMPORTED_MODULE_16__["default"],
+  'util/getLogger': _util_logger__WEBPACK_IMPORTED_MODULE_37__["getLogger"],
+  'util/throttle': _util_throttle__WEBPACK_IMPORTED_MODULE_17__["default"],
+  'util/wait': _util_wait__WEBPACK_IMPORTED_MODULE_18__["wait"],
+  'util/waitForEnabledElementImageToLoad': _util_wait__WEBPACK_IMPORTED_MODULE_18__["waitForEnabledElementImageToLoad"],
+  'util/getKeyPressData': _util_getKeyPressData__WEBPACK_IMPORTED_MODULE_19__["default"],
   // Whole tool specific util packages
-  'util/ellipseUtils': _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_30__["default"],
-  'util/freehandUtils': _util_freehand_index_js__WEBPACK_IMPORTED_MODULE_31__["default"],
-  'util/segmentationUtils': _util_segmentation__WEBPACK_IMPORTED_MODULE_32__,
-  'util/zoomUtils': _util_zoom_index_js__WEBPACK_IMPORTED_MODULE_33__["default"]
+  'util/ellipseUtils': _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_45__["default"],
+  'util/freehandUtils': _util_freehand_index_js__WEBPACK_IMPORTED_MODULE_46__["default"],
+  'util/segmentationUtils': _util_segmentation__WEBPACK_IMPORTED_MODULE_47__,
+  'util/zoomUtils': _util_zoom_index_js__WEBPACK_IMPORTED_MODULE_48__["default"]
 };
 
 /***/ }),
@@ -8372,6 +8034,48 @@ var _isHandleNearImagePoint = function _isHandleNearImagePoint(handle, element, 
 
 /***/ }),
 
+/***/ "./manipulators/getHandlePixelPosition.js":
+/*!************************************************!*\
+  !*** ./manipulators/getHandlePixelPosition.js ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../store/index.js */ "./store/index.js");
+
+
+/**
+ * Return the handle position considering offset for touch interaction.
+ * @public
+ * @function getHandlePixelPosition
+ * @memberof Manipulators
+ *
+ * @param {Object} eventData - Data object associated with the event
+ * @param {string} interactionType - Type of user's input
+ * @returns {Object} - The translated point object
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = (function (eventData, interactionType) {
+  var currentPoints = eventData.currentPoints,
+      element = eventData.element;
+  var page = currentPoints.page;
+  var handleTouchOffset = _store_index_js__WEBPACK_IMPORTED_MODULE_1__["state"].handleTouchOffset;
+  var offsetX = 0;
+  var offsetY = 0;
+
+  if (interactionType === 'touch') {
+    offsetX = handleTouchOffset.x;
+    offsetY = handleTouchOffset.y;
+  }
+
+  return _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.pageToPixel(element, page.x + offsetX, page.y + offsetY);
+});
+
+/***/ }),
+
 /***/ "./manipulators/handleActivator.js":
 /*!*****************************************!*\
   !*** ./manipulators/handleActivator.js ***!
@@ -8446,7 +8150,7 @@ function _getActiveHandle(handles) {
 /*!*******************************!*\
   !*** ./manipulators/index.js ***!
   \*******************************/
-/*! exports provided: anyHandlesOutsideImage, getHandleNearImagePoint, handleActivator, moveAllHandles, moveHandle, moveNewHandle */
+/*! exports provided: anyHandlesOutsideImage, getHandleNearImagePoint, getHandlePixelPosition, handleActivator, moveAllHandles, moveHandle, moveNewHandle */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8457,17 +8161,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./getHandleNearImagePoint.js */ "./manipulators/getHandleNearImagePoint.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getHandleNearImagePoint", function() { return _getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_1__["default"]; });
 
-/* harmony import */ var _handleActivator_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handleActivator.js */ "./manipulators/handleActivator.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "handleActivator", function() { return _handleActivator_js__WEBPACK_IMPORTED_MODULE_2__["default"]; });
+/* harmony import */ var _getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./getHandlePixelPosition.js */ "./manipulators/getHandlePixelPosition.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getHandlePixelPosition", function() { return _getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_2__["default"]; });
 
-/* harmony import */ var _moveAllHandles_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./moveAllHandles.js */ "./manipulators/moveAllHandles.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "moveAllHandles", function() { return _moveAllHandles_js__WEBPACK_IMPORTED_MODULE_3__["default"]; });
+/* harmony import */ var _handleActivator_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./handleActivator.js */ "./manipulators/handleActivator.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "handleActivator", function() { return _handleActivator_js__WEBPACK_IMPORTED_MODULE_3__["default"]; });
 
-/* harmony import */ var _moveHandle_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./moveHandle.js */ "./manipulators/moveHandle.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "moveHandle", function() { return _moveHandle_js__WEBPACK_IMPORTED_MODULE_4__["default"]; });
+/* harmony import */ var _moveAllHandles_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./moveAllHandles.js */ "./manipulators/moveAllHandles.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "moveAllHandles", function() { return _moveAllHandles_js__WEBPACK_IMPORTED_MODULE_4__["default"]; });
 
-/* harmony import */ var _moveNewHandle_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./moveNewHandle.js */ "./manipulators/moveNewHandle.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "moveNewHandle", function() { return _moveNewHandle_js__WEBPACK_IMPORTED_MODULE_5__["default"]; });
+/* harmony import */ var _moveHandle_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./moveHandle.js */ "./manipulators/moveHandle.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "moveHandle", function() { return _moveHandle_js__WEBPACK_IMPORTED_MODULE_5__["default"]; });
+
+/* harmony import */ var _moveNewHandle_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./moveNewHandle.js */ "./manipulators/moveNewHandle.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "moveNewHandle", function() { return _moveNewHandle_js__WEBPACK_IMPORTED_MODULE_6__["default"]; });
+
 
 
 
@@ -8508,7 +8216,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_9__["getLogger"])('manipulators:moveAllHandles');
+var manipulatorStateModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_6__["getModule"])('manipulatorState');
 var _dragEvents = {
   mouse: [_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MOUSE_DRAG],
   touch: [_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_DRAG]
@@ -8557,6 +8267,10 @@ var _upOrEndEvents = {
     }, evt, doneMovingCallback);
   };
 
+  manipulatorStateModule.setters.addActiveManipulatorForElement(element, _cancelEventHandler.bind(null, annotation, options, interactionType, {
+    dragHandler: dragHandler,
+    upOrEndHandler: upOrEndHandler
+  }, element, doneMovingCallback));
   annotation.active = true;
   _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].isToolLocked = true; // Add Event Listeners
 
@@ -8612,6 +8326,8 @@ function _dragHandler(toolName, annotation) {
   var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_MODIFIED;
   var modifiedEventData = {
     toolName: toolName,
+    toolType: toolName,
+    // Deprecation notice: toolType will be replaced by toolName
     element: element,
     measurementData: annotation
   };
@@ -8620,18 +8336,58 @@ function _dragHandler(toolName, annotation) {
   evt.stopPropagation();
 }
 
+function _cancelEventHandler(annotation) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var interactionType = arguments.length > 2 ? arguments[2] : undefined;
+
+  var _ref2 = arguments.length > 3 ? arguments[3] : undefined,
+      dragHandler = _ref2.dragHandler,
+      upOrEndHandler = _ref2.upOrEndHandler;
+
+  var element = arguments.length > 4 ? arguments[4] : undefined;
+  var doneMovingCallback = arguments.length > 5 ? arguments[5] : undefined;
+
+  _endHandler(annotation, options, interactionType, {
+    dragHandler: dragHandler,
+    upOrEndHandler: upOrEndHandler
+  }, element, doneMovingCallback, false);
+}
+
 function _upOrEndHandler(toolName, annotation) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var interactionType = arguments.length > 3 ? arguments[3] : undefined;
 
-  var _ref2 = arguments.length > 4 ? arguments[4] : undefined,
-      dragHandler = _ref2.dragHandler,
-      upOrEndHandler = _ref2.upOrEndHandler;
+  var _ref3 = arguments.length > 4 ? arguments[4] : undefined,
+      dragHandler = _ref3.dragHandler,
+      upOrEndHandler = _ref3.upOrEndHandler;
 
   var evt = arguments.length > 5 ? arguments[5] : undefined;
   var doneMovingCallback = arguments.length > 6 ? arguments[6] : undefined;
   var eventData = evt.detail;
-  var element = evt.detail.element;
+  var element = eventData.element;
+  manipulatorStateModule.setters.removeActiveManipulatorForElement(element); // If any handle is outside the image, delete the tool data
+
+  if (options.deleteIfHandleOutsideImage && Object(_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_2__["default"])(eventData, annotation.handles)) {
+    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["removeToolState"])(element, toolName, annotation);
+  }
+
+  _endHandler(annotation, options, interactionType, {
+    dragHandler: dragHandler,
+    upOrEndHandler: upOrEndHandler
+  }, element, doneMovingCallback, true);
+}
+
+function _endHandler(annotation) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var interactionType = arguments.length > 2 ? arguments[2] : undefined;
+
+  var _ref4 = arguments.length > 3 ? arguments[3] : undefined,
+      dragHandler = _ref4.dragHandler,
+      upOrEndHandler = _ref4.upOrEndHandler;
+
+  var element = arguments.length > 4 ? arguments[4] : undefined;
+  var doneMovingCallback = arguments.length > 5 ? arguments[5] : undefined;
+  var success = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
   annotation.active = false;
   annotation.invalidated = true;
   _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].isToolLocked = false; // Remove Event Listeners
@@ -8642,20 +8398,15 @@ function _upOrEndHandler(toolName, annotation) {
 
   _upOrEndEvents[interactionType].forEach(function (eventType) {
     element.removeEventListener(eventType, upOrEndHandler);
-  }); // If any handle is outside the image, delete the tool data
-
-
-  if (options.deleteIfHandleOutsideImage && Object(_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_2__["default"])(eventData, annotation.handles)) {
-    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["removeToolState"])(element, toolName, annotation);
-  }
+  });
 
   if (typeof options.doneMovingCallback === 'function') {
     logger.warn('`options.doneMovingCallback` has been depricated. See https://github.com/cornerstonejs/cornerstoneTools/pull/915 for details.');
-    options.doneMovingCallback();
+    options.doneMovingCallback(success);
   }
 
   if (typeof doneMovingCallback === 'function') {
-    doneMovingCallback();
+    doneMovingCallback(success);
   }
 
   _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
@@ -8675,13 +8426,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../events.js */ "./events.js");
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
 /* harmony import */ var _anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./anyHandlesOutsideImage.js */ "./manipulators/anyHandlesOutsideImage.js");
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/triggerEvent.js */ "./util/triggerEvent.js");
-/* harmony import */ var _util_clip_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../util/clip.js */ "./util/clip.js");
-/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../store/index.js */ "./store/index.js");
-/* harmony import */ var _util_getActiveTool__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../util/getActiveTool */ "./util/getActiveTool.js");
-/* harmony import */ var _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../tools/base/BaseAnnotationTool */ "./tools/base/BaseAnnotationTool.js");
-/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
+/* harmony import */ var _getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./getHandlePixelPosition.js */ "./manipulators/getHandlePixelPosition.js");
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../util/triggerEvent.js */ "./util/triggerEvent.js");
+/* harmony import */ var _util_clip_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../util/clip.js */ "./util/clip.js");
+/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../store/index.js */ "./store/index.js");
+/* harmony import */ var _util_getActiveTool__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../util/getActiveTool */ "./util/getActiveTool.js");
+/* harmony import */ var _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../tools/base/BaseAnnotationTool */ "./tools/base/BaseAnnotationTool.js");
+/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
 
 
 
@@ -8692,7 +8444,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_9__["getLogger"])('manipulators:moveHandle');
+
+
+var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_10__["getLogger"])('manipulators:moveHandle');
+var manipulatorStateModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_7__["getModule"])('manipulatorState');
 var runAnimation = {
   value: false
 };
@@ -8729,24 +8484,29 @@ var _upOrEndEvents = {
   var doneMovingCallback = arguments.length > 6 ? arguments[6] : undefined;
   // Use global defaults, unless overidden by provided options
   options = Object.assign({
-    deleteIfHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].deleteIfHandleOutsideImage,
-    preventHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].preventHandleOutsideImage
+    deleteIfHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].deleteIfHandleOutsideImage,
+    preventHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].preventHandleOutsideImage
   }, options);
   var element = evtDetail.element;
 
   var dragHandler = _dragHandler.bind(this, toolName, annotation, handle, options, interactionType); // So we don't need to inline the entire `upOrEndHandler` function
 
 
-  var upOrEndHandler = function upOrEndHandler(evt) {
+  var upOrEndHandler = function upOrEndHandler() {
     _upOrEndHandler(toolName, evtDetail, annotation, handle, options, interactionType, {
       dragHandler: dragHandler,
       upOrEndHandler: upOrEndHandler
-    }, evt, doneMovingCallback);
+    }, doneMovingCallback);
   };
 
+  manipulatorStateModule.setters.addActiveManipulatorForElement(element, _cancelEventHandler.bind(null, toolName, evtDetail, annotation, handle, options, interactionType, {
+    dragHandler: dragHandler,
+    upOrEndHandler: upOrEndHandler
+  }, doneMovingCallback));
   handle.active = true;
+  handle.moving = true;
   annotation.active = true;
-  _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].isToolLocked = true; // Add Event Listeners
+  _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].isToolLocked = true; // Add Event Listeners
 
   _dragEvents[interactionType].forEach(function (eventType) {
     element.addEventListener(eventType, dragHandler);
@@ -8761,15 +8521,8 @@ var _upOrEndEvents = {
 
   if (interactionType === 'touch') {
     runAnimation.value = true;
-    var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.getEnabledElement(element); // Average pixel width of index finger is 45-57 pixels
-    // https://www.smashingmagazine.com/2012/02/finger-friendly-design-ideal-mobile-touchscreen-target-sizes/
-
-    var fingerDistance = -57;
-    var aboveFinger = {
-      x: evtDetail.currentPoints.page.x,
-      y: evtDetail.currentPoints.page.y + fingerDistance
-    };
-    var targetLocation = _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.pageToPixel(element, aboveFinger.x, aboveFinger.y);
+    var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.getEnabledElement(element);
+    var targetLocation = Object(_getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_3__["default"])(evtDetail, interactionType);
 
     _animate(handle, runAnimation, enabledElement, targetLocation);
   }
@@ -8778,12 +8531,9 @@ var _upOrEndEvents = {
 function _dragHandler(toolName, annotation, handle, options, interactionType, evt) {
   var _evt$detail = evt.detail,
       image = _evt$detail.image,
-      currentPoints = _evt$detail.currentPoints,
       element = _evt$detail.element,
       buttons = _evt$detail.buttons;
-  var page = currentPoints.page;
-  var fingerOffset = -57;
-  var targetLocation = _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.pageToPixel(element, page.x, interactionType === 'touch' ? page.y + fingerOffset : page.y);
+  var targetLocation = Object(_getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_3__["default"])(evt.detail, interactionType);
   runAnimation.value = false;
   handle.active = true;
   handle.hasMoved = true;
@@ -8793,26 +8543,28 @@ function _dragHandler(toolName, annotation, handle, options, interactionType, ev
   annotation.invalidated = true;
 
   if (options.preventHandleOutsideImage) {
-    Object(_util_clip_js__WEBPACK_IMPORTED_MODULE_5__["clipToBox"])(handle, image);
+    Object(_util_clip_js__WEBPACK_IMPORTED_MODULE_6__["clipToBox"])(handle, image);
   }
 
   _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
-  var activeTool = Object(_util_getActiveTool__WEBPACK_IMPORTED_MODULE_7__["default"])(element, buttons, interactionType);
+  var activeTool = Object(_util_getActiveTool__WEBPACK_IMPORTED_MODULE_8__["default"])(element, buttons, interactionType);
 
-  if (activeTool instanceof _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_8__["default"]) {
+  if (activeTool instanceof _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_9__["default"]) {
     activeTool.updateCachedStats(image, element, annotation);
   }
 
   var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_MODIFIED;
   var modifiedEventData = {
     toolName: toolName,
+    toolType: toolName,
+    // Deprecation notice: toolType will be replaced by toolName
     element: element,
     measurementData: annotation
   };
-  Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_4__["default"])(element, eventType, modifiedEventData);
+  Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__["default"])(element, eventType, modifiedEventData);
 }
 
-function _upOrEndHandler(toolName, evtDetail, annotation, handle) {
+function _cancelEventHandler(toolName, evtDetail, annotation, handle) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
   var interactionType = arguments.length > 5 ? arguments[5] : undefined;
 
@@ -8820,16 +8572,49 @@ function _upOrEndHandler(toolName, evtDetail, annotation, handle) {
       dragHandler = _ref.dragHandler,
       upOrEndHandler = _ref.upOrEndHandler;
 
-  var evt = arguments.length > 7 ? arguments[7] : undefined;
-  var doneMovingCallback = arguments.length > 8 ? arguments[8] : undefined;
-  var image = evtDetail.currentPoints.image;
-  var element = evt.detail.element;
-  handle.active = false;
-  annotation.active = false; // TODO: A way to not flip this for textboxes on annotations
+  var doneMovingCallback = arguments.length > 7 ? arguments[7] : undefined;
 
+  _endHandler(toolName, evtDetail, annotation, handle, options, interactionType, {
+    dragHandler: dragHandler,
+    upOrEndHandler: upOrEndHandler
+  }, doneMovingCallback, false);
+}
+
+function _upOrEndHandler(toolName, evtDetail, annotation, handle) {
+  var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+  var interactionType = arguments.length > 5 ? arguments[5] : undefined;
+
+  var _ref2 = arguments.length > 6 ? arguments[6] : undefined,
+      dragHandler = _ref2.dragHandler,
+      upOrEndHandler = _ref2.upOrEndHandler;
+
+  var doneMovingCallback = arguments.length > 7 ? arguments[7] : undefined;
+  var element = evtDetail.element;
+  manipulatorStateModule.setters.removeActiveManipulatorForElement(element);
+
+  _endHandler(toolName, evtDetail, annotation, handle, options, interactionType, {
+    dragHandler: dragHandler,
+    upOrEndHandler: upOrEndHandler
+  }, doneMovingCallback, true);
+}
+
+function _endHandler(toolName, evtDetail, annotation, handle) {
+  var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+  var interactionType = arguments.length > 5 ? arguments[5] : undefined;
+
+  var _ref3 = arguments.length > 6 ? arguments[6] : undefined,
+      dragHandler = _ref3.dragHandler,
+      upOrEndHandler = _ref3.upOrEndHandler;
+
+  var doneMovingCallback = arguments.length > 7 ? arguments[7] : undefined;
+  var success = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : true;
+  var element = evtDetail.element;
+  handle.active = false;
+  handle.moving = false;
+  annotation.active = false;
   annotation.invalidated = true;
-  _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].isToolLocked = false;
-  runAnimation.value = false; // Remove Event Listeners
+  runAnimation.value = false;
+  _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].isToolLocked = false; // Remove Event Listeners
 
   _dragEvents[interactionType].forEach(function (eventType) {
     element.removeEventListener(eventType, dragHandler);
@@ -8841,24 +8626,22 @@ function _upOrEndHandler(toolName, evtDetail, annotation, handle) {
 
 
   if (options.deleteIfHandleOutsideImage && Object(_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_2__["default"])(evtDetail, annotation.handles)) {
-    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["removeToolState"])(element, toolName, annotation);
-  } // TODO: What dark magic makes us want to handle TOUCH_PRESS differently?
+    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__["removeToolState"])(element, toolName, annotation);
+  } // // TODO: What dark magic makes us want to handle TOUCH_PRESS differently?
+  // if (evt.type === EVENTS.TOUCH_PRESS) {
+  //   evt.detail.handlePressed = annotation;
+  //   handle.x = image.x; // Original Event
+  //   handle.y = image.y;
+  // }
 
-
-  if (evt.type === _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_PRESS) {
-    evt.detail.handlePressed = annotation;
-    handle.x = image.x; // Original Event
-
-    handle.y = image.y;
-  }
 
   if (typeof options.doneMovingCallback === 'function') {
     logger.warn('`options.doneMovingCallback` has been depricated. See https://github.com/cornerstonejs/cornerstoneTools/pull/915 for details.');
-    options.doneMovingCallback();
+    options.doneMovingCallback(success);
   }
 
   if (typeof doneMovingCallback === 'function') {
-    doneMovingCallback();
+    doneMovingCallback(success);
   }
 
   _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
@@ -8919,13 +8702,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../events.js */ "./events.js");
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
 /* harmony import */ var _anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./anyHandlesOutsideImage.js */ "./manipulators/anyHandlesOutsideImage.js");
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/triggerEvent.js */ "./util/triggerEvent.js");
-/* harmony import */ var _util_clip_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../util/clip.js */ "./util/clip.js");
-/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../store/index.js */ "./store/index.js");
-/* harmony import */ var _util_getActiveTool__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../util/getActiveTool */ "./util/getActiveTool.js");
-/* harmony import */ var _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../tools/base/BaseAnnotationTool */ "./tools/base/BaseAnnotationTool.js");
-/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
+/* harmony import */ var _getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./getHandlePixelPosition.js */ "./manipulators/getHandlePixelPosition.js");
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../util/triggerEvent.js */ "./util/triggerEvent.js");
+/* harmony import */ var _util_clip_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../util/clip.js */ "./util/clip.js");
+/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../store/index.js */ "./store/index.js");
+/* harmony import */ var _util_getActiveTool__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../util/getActiveTool */ "./util/getActiveTool.js");
+/* harmony import */ var _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../tools/base/BaseAnnotationTool */ "./tools/base/BaseAnnotationTool.js");
+/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
 
 
 
@@ -8936,7 +8720,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_9__["getLogger"])('manipulators:moveNewHandle');
+
+
+var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_10__["getLogger"])('manipulators:moveNewHandle');
+var manipulatorStateModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_7__["getModule"])('manipulatorState');
 var _moveEvents = {
   mouse: [_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MOUSE_MOVE, _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MOUSE_DRAG],
   touch: [_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_DRAG]
@@ -8947,11 +8734,12 @@ var _moveEndEvents = {
 };
 /**
  * Move a new handle
+ *
  * @public
  * @method moveNewHandle
  * @memberof Manipulators
  *
- * @param {*} evtDetail
+ * @param {*} eventData
  * @param {*} toolName
  * @param {*} annotation
  * @param {*} handle
@@ -8963,24 +8751,23 @@ var _moveEndEvents = {
  * @returns {void}
  */
 
-/* harmony default export */ __webpack_exports__["default"] = (function (evtDetail, toolName, annotation, handle, options) {
+/* harmony default export */ __webpack_exports__["default"] = (function (eventData, toolName, annotation, handle, options) {
   var interactionType = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 'mouse';
   var doneMovingCallback = arguments.length > 6 ? arguments[6] : undefined;
   // Use global defaults, unless overidden by provided options
   options = Object.assign({
-    deleteIfHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].deleteIfHandleOutsideImage,
-    preventHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].preventHandleOutsideImage
+    deleteIfHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].deleteIfHandleOutsideImage,
+    preventHandleOutsideImage: _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].preventHandleOutsideImage
   }, options);
-  var element = evtDetail.element;
+  options.hasMoved = false;
+  var element = eventData.element;
   annotation.active = true;
+  handle.moving = true;
   handle.active = true;
-  _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].isToolLocked = true;
+  _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].isToolLocked = true;
 
   function moveHandler(evt) {
-    _moveHandler(toolName, annotation, handle, options, interactionType, {
-      moveHandler: moveHandler,
-      moveEndHandler: moveEndHandler
-    }, evt);
+    _moveHandler(toolName, annotation, handle, options, interactionType, evt);
   } // So we don't need to inline the entire `moveEndEventHandler` function
 
 
@@ -8989,7 +8776,11 @@ var _moveEndEvents = {
       moveHandler: moveHandler,
       moveEndHandler: moveEndHandler
     }, evt, doneMovingCallback);
-  } // Add event listeners
+  } // Factory function
+  // begin, end, cancel
+  // Or... Handle "CANCEL"
+  // TODO: SETUP IN all other manipulators
+  // Add event listeners
 
 
   _moveEvents[interactionType].forEach(function (eventType) {
@@ -8997,65 +8788,75 @@ var _moveEndEvents = {
   });
 
   element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_START, _stopImmediatePropagation);
-});
-
-function _moveHandler(toolName, annotation, handle, options, interactionType, _ref, evt) {
-  var moveEndHandler = _ref.moveEndHandler;
-  var _evt$detail = evt.detail,
-      currentPoints = _evt$detail.currentPoints,
-      image = _evt$detail.image,
-      element = _evt$detail.element,
-      buttons = _evt$detail.buttons; // Add moveEndEvent Handler when move trigger
 
   _moveEndEvents[interactionType].forEach(function (eventType) {
     element.addEventListener(eventType, moveEndHandler);
-  });
+  }); // When cancelling... What is our active tool?
+  // `isToolLocked` ... Track which (annotation) tool is being manipulated
+  // If not "completed", removeToolState (maybe an `isComplete` flag)
+  // 5 locations: MEASUREMENT_COMPLETED
+  // Firing event... Sets `isCompleted` flag for annotation uuid
 
-  var page = currentPoints.page;
-  var fingerOffset = -57;
-  var targetLocation = _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.pageToPixel(element, interactionType === 'touch' ? page.x + fingerOffset : page.x, interactionType === 'touch' ? page.y + fingerOffset : page.y);
+
+  manipulatorStateModule.setters.addActiveManipulatorForElement(element, _cancelEventHandler.bind(null, annotation, handle, options, interactionType, {
+    moveHandler: moveHandler,
+    moveEndHandler: moveEndHandler
+  }, element, doneMovingCallback));
+});
+/**
+ * Updates annotation as the "pointer" is moved/dragged
+ * Emits `cornerstonetoolsmeasurementmodified` events
+ *
+ * @param {string} toolName
+ * @param {*} annotation
+ * @param {*} handle
+ * @param {*} options
+ * @param {string} interactionType
+ * @param {*} evt
+ *
+ * @returns {void}
+ */
+
+function _moveHandler(toolName, annotation, handle, options, interactionType, evt) {
+  var _evt$detail = evt.detail,
+      image = _evt$detail.image,
+      element = _evt$detail.element,
+      buttons = _evt$detail.buttons;
+  var targetLocation = Object(_getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_3__["default"])(evt.detail, interactionType);
+  options.hasMoved = true;
   annotation.invalidated = true;
   handle.active = true;
   handle.x = targetLocation.x;
   handle.y = targetLocation.y;
 
   if (options && options.preventHandleOutsideImage) {
-    Object(_util_clip_js__WEBPACK_IMPORTED_MODULE_5__["clipToBox"])(handle, image);
+    Object(_util_clip_js__WEBPACK_IMPORTED_MODULE_6__["clipToBox"])(handle, image);
   }
 
   _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
-  var activeTool = Object(_util_getActiveTool__WEBPACK_IMPORTED_MODULE_7__["default"])(element, buttons, interactionType);
+  var activeTool = Object(_util_getActiveTool__WEBPACK_IMPORTED_MODULE_8__["default"])(element, buttons, interactionType);
 
-  if (activeTool instanceof _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_8__["default"]) {
+  if (activeTool instanceof _tools_base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_9__["default"]) {
     activeTool.updateCachedStats(image, element, annotation);
   }
 
   var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_MODIFIED;
   var modifiedEventData = {
     toolName: toolName,
+    toolType: toolName,
+    // Deprecation notice: toolType will be replaced by toolName
     element: element,
     measurementData: annotation
   };
-  Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_4__["default"])(element, eventType, modifiedEventData);
+  Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__["default"])(element, eventType, modifiedEventData);
 }
 
-function _moveEndHandler(toolName, annotation, handle, options, interactionType, _ref2, evt, doneMovingCallback) {
-  var moveHandler = _ref2.moveHandler,
-      moveEndHandler = _ref2.moveEndHandler;
-  var _evt$detail2 = evt.detail,
-      element = _evt$detail2.element,
-      currentPoints = _evt$detail2.currentPoints;
-  var page = currentPoints.page;
-  var fingerOffset = -57;
-  var targetLocation = _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.pageToPixel(element, interactionType === 'touch' ? page.x + fingerOffset : page.x, interactionType === 'touch' ? page.y + fingerOffset : page.y); // "Release" the handle
+function _endHandler(interactionType, options, element, _ref, doneMovingCallback) {
+  var moveHandler = _ref.moveHandler,
+      moveEndHandler = _ref.moveEndHandler;
+  var success = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
 
-  annotation.active = false;
-  annotation.invalidated = true;
-  handle.active = false;
-  handle.x = targetLocation.x;
-  handle.y = targetLocation.y;
-  _store_index_js__WEBPACK_IMPORTED_MODULE_6__["state"].isToolLocked = false; // Remove event listeners
-
+  // Remove event listeners
   _moveEvents[interactionType].forEach(function (eventType) {
     element.removeEventListener(eventType, moveHandler);
   });
@@ -9064,45 +8865,87 @@ function _moveEndHandler(toolName, annotation, handle, options, interactionType,
     element.removeEventListener(eventType, moveEndHandler);
   });
 
-  element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_START, _stopImmediatePropagation); // TODO: WHY?
-  // Why would a Touch_Pinch or Touch_Press be associated with a new handle?
+  element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_START, _stopImmediatePropagation);
+  _store_index_js__WEBPACK_IMPORTED_MODULE_7__["state"].isToolLocked = false;
 
-  if (evt.type === _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_PINCH || evt.type === _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].TOUCH_PRESS) {
-    handle.active = false;
-    _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
-
-    if (typeof options.doneMovingCallback === 'function') {
-      logger.warn('`options.doneMovingCallback` has been depricated. See https://github.com/cornerstonejs/cornerstoneTools/pull/915 for details.');
-      options.doneMovingCallback();
-    }
-
-    if (typeof doneMovingCallback === 'function') {
-      doneMovingCallback();
-    }
-
-    return;
-  }
-
-  if (options.preventHandleOutsideImage) {
-    Object(_util_clip_js__WEBPACK_IMPORTED_MODULE_5__["clipToBox"])(handle, evt.detail.image);
-  } // If any handle is outside the image, delete the tool data
-
-
-  if (options.deleteIfHandleOutsideImage && Object(_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_2__["default"])(evt.detail, annotation.handles)) {
-    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["removeToolState"])(element, toolName, annotation);
+  if (typeof doneMovingCallback === 'function') {
+    doneMovingCallback(success);
   }
 
   if (typeof options.doneMovingCallback === 'function') {
     logger.warn('`options.doneMovingCallback` has been depricated. See https://github.com/cornerstonejs/cornerstoneTools/pull/915 for details.');
-    options.doneMovingCallback();
-  }
-
-  if (typeof doneMovingCallback === 'function') {
-    doneMovingCallback();
+    options.doneMovingCallback(success);
   } // Update Image
 
 
   _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
+}
+
+function _moveEndHandler(toolName, annotation, handle, options, interactionType, _ref2, evt, doneMovingCallback) {
+  var moveHandler = _ref2.moveHandler,
+      moveEndHandler = _ref2.moveEndHandler;
+  var eventData = evt.detail;
+  var element = eventData.element;
+  var moveNewHandleSuccessful = true;
+
+  if (options.hasMoved === false) {
+    return;
+  }
+
+  var targetLocation = Object(_getHandlePixelPosition_js__WEBPACK_IMPORTED_MODULE_3__["default"])(eventData, interactionType); // "Release" the handle
+
+  annotation.active = false;
+  annotation.invalidated = true;
+  handle.active = false;
+  handle.moving = false;
+  handle.x = targetLocation.x;
+  handle.y = targetLocation.y;
+  manipulatorStateModule.setters.removeActiveManipulatorForElement(element); // TODO: WHY?
+  // Why would a Touch_Pinch or Touch_Press be associated with a new handle?
+  // if (evt.type === EVENTS.TOUCH_PINCH || evt.type === EVENTS.TOUCH_PRESS) {
+  //   handle.active = false;
+  //   external.cornerstone.updateImage(element);
+  //   if (typeof options.doneMovingCallback === 'function') {
+  //     logger.warn(
+  //       '`options.doneMovingCallback` has been depricated. See https://github.com/cornerstonejs/cornerstoneTools/pull/915 for details.'
+  //     );
+  //     options.doneMovingCallback(success);
+  //   }
+  //   if (typeof doneMovingCallback === 'function') {
+  //     doneMovingCallback(success);
+  //   }
+  //   return;
+  // }
+
+  if (options.preventHandleOutsideImage) {
+    Object(_util_clip_js__WEBPACK_IMPORTED_MODULE_6__["clipToBox"])(handle, evt.detail.image);
+  } // If any handle is outside the image, delete the tool data
+
+
+  if (options.deleteIfHandleOutsideImage && Object(_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_2__["default"])(evt.detail, annotation.handles)) {
+    annotation.cancelled = true;
+    moveNewHandleSuccessful = false;
+    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__["removeToolState"])(element, toolName, annotation);
+  }
+
+  _endHandler(interactionType, options, element, {
+    moveHandler: moveHandler,
+    moveEndHandler: moveEndHandler
+  }, doneMovingCallback, moveNewHandleSuccessful);
+}
+
+function _cancelEventHandler(annotation, handle, options, interactionType, _ref3, element, doneMovingCallback) {
+  var moveHandler = _ref3.moveHandler,
+      moveEndHandler = _ref3.moveEndHandler;
+  // "Release" the handle
+  annotation.active = false;
+  annotation.invalidated = true;
+  handle.active = false;
+
+  _endHandler(interactionType, options, element, {
+    moveHandler: moveHandler,
+    moveEndHandler: moveEndHandler
+  }, doneMovingCallback, false);
 }
 /**
  * Stop the CornerstoneToolsTouchStart event from
@@ -9230,6 +9073,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _segmentation_polylineSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./segmentation/polylineSegmentationMixin.js */ "./mixins/segmentation/polylineSegmentationMixin.js");
 /* harmony import */ var _segmentation_freehandSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./segmentation/freehandSegmentationMixin.js */ "./mixins/segmentation/freehandSegmentationMixin.js");
 /* harmony import */ var _segmentation_rectangleSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./segmentation/rectangleSegmentationMixin.js */ "./mixins/segmentation/rectangleSegmentationMixin.js");
+/* harmony import */ var _segmentation_renderBrushMixin_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./segmentation/renderBrushMixin.js */ "./mixins/segmentation/renderBrushMixin.js");
+
 
 
 
@@ -9242,7 +9087,8 @@ __webpack_require__.r(__webpack_exports__);
   circleSegmentationMixin: _segmentation_circleSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_2__["default"],
   polylineSegmentationMixin: _segmentation_polylineSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_3__["default"],
   freehandSegmentationMixin: _segmentation_freehandSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_4__["default"],
-  rectangleSegmentationMixin: _segmentation_rectangleSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_5__["default"]
+  rectangleSegmentationMixin: _segmentation_rectangleSegmentationMixin_js__WEBPACK_IMPORTED_MODULE_5__["default"],
+  renderBrushMixin: _segmentation_renderBrushMixin_js__WEBPACK_IMPORTED_MODULE_6__["default"]
 });
 
 /***/ }),
@@ -9887,6 +9733,81 @@ function _resetHandles() {
 
 /***/ }),
 
+/***/ "./mixins/segmentation/renderBrushMixin.js":
+/*!*************************************************!*\
+  !*** ./mixins/segmentation/renderBrushMixin.js ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../../store/index.js */ "./store/index.js");
+
+
+/**
+ * Called by the event dispatcher to render the image.
+ *
+ * @param {Object} evt - The event.
+ * @returns {void}
+ */
+
+function renderBrush(evt) {
+  var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone;
+
+  var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_1__["getModule"])('segmentation'),
+      getters = _getModule.getters,
+      configuration = _getModule.configuration;
+
+  var eventData = evt.detail;
+  var viewport = eventData.viewport;
+  var mousePosition;
+
+  if (this._drawing) {
+    mousePosition = this._lastImageCoords;
+  } else if (this._mouseUpRender) {
+    mousePosition = this._lastImageCoords;
+    this._mouseUpRender = false;
+  } else {
+    mousePosition = _store_index_js__WEBPACK_IMPORTED_MODULE_1__["default"].state.mousePositionImage;
+  }
+
+  if (!mousePosition) {
+    return;
+  }
+
+  var _eventData$image = eventData.image,
+      rows = _eventData$image.rows,
+      columns = _eventData$image.columns;
+  var _mousePosition = mousePosition,
+      x = _mousePosition.x,
+      y = _mousePosition.y;
+
+  if (x < 0 || x > columns || y < 0 || y > rows) {
+    return;
+  } // Draw the hover overlay on top of the pixel data
+
+
+  var radius = configuration.radius;
+  var context = eventData.canvasContext;
+  var element = eventData.element;
+  var color = getters.brushColor(element, this._drawing);
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  var circleRadius = radius * viewport.scale;
+  var mouseCoordsCanvas = cornerstone.pixelToCanvas(element, mousePosition);
+  context.beginPath();
+  context.strokeStyle = color;
+  context.ellipse(mouseCoordsCanvas.x, mouseCoordsCanvas.y, circleRadius, circleRadius, 0, 0, 2 * Math.PI);
+  context.stroke();
+}
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  renderBrush: renderBrush
+});
+
+/***/ }),
+
 /***/ "./orientation/getOrientationString.js":
 /*!*********************************************!*\
   !*** ./orientation/getOrientationString.js ***!
@@ -9919,16 +9840,29 @@ __webpack_require__.r(__webpack_exports__);
   var orientationZ = vec3.z < 0 ? 'F' : 'H'; // Should probably make this a function vector3.abs
 
   var abs = new _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.Vector3(Math.abs(vec3.x), Math.abs(vec3.y), Math.abs(vec3.z));
+  var MIN = 0.0001;
 
   for (var i = 0; i < 3; i++) {
-    if (abs.x > 0.0001 && abs.x > abs.y && abs.x > abs.z) {
+    if (abs.x > MIN && abs.x > abs.y && abs.x > abs.z) {
       orientation += orientationX;
       abs.x = 0;
-    } else if (abs.y > 0.0001 && abs.y > abs.x && abs.y > abs.z) {
+    } else if (abs.y > MIN && abs.y > abs.x && abs.y > abs.z) {
       orientation += orientationY;
       abs.y = 0;
-    } else if (abs.z > 0.0001 && abs.z > abs.x && abs.z > abs.y) {
+    } else if (abs.z > MIN && abs.z > abs.x && abs.z > abs.y) {
       orientation += orientationZ;
+      abs.z = 0;
+    } else if (abs.x > MIN && abs.y > MIN && abs.x === abs.y) {
+      orientation += orientationX + orientationY;
+      abs.x = 0;
+      abs.y = 0;
+    } else if (abs.x > MIN && abs.z > MIN && abs.x === abs.z) {
+      orientation += orientationX + orientationZ;
+      abs.x = 0;
+      abs.z = 0;
+    } else if (abs.y > MIN && abs.z > MIN && abs.y === abs.z) {
+      orientation += orientationY + orientationZ;
+      abs.y = 0;
       abs.z = 0;
     } else {
       break;
@@ -9987,218 +9921,6 @@ __webpack_require__.r(__webpack_exports__);
   inverted = inverted.replace('P', 'a');
   inverted = inverted.toUpperCase();
   return inverted;
-});
-
-/***/ }),
-
-/***/ "./requestPool/requestPoolManager.js":
-/*!*******************************************!*\
-  !*** ./requestPool/requestPoolManager.js ***!
-  \*******************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util/getMaxSimultaneousRequests.js */ "./util/getMaxSimultaneousRequests.js");
-
-
-var requestPool = {
-  interaction: [],
-  thumbnail: [],
-  prefetch: []
-};
-var numRequests = {
-  interaction: 0,
-  thumbnail: 0,
-  prefetch: 0
-};
-var maxNumRequests = {
-  interaction: 6,
-  thumbnail: 6,
-  prefetch: 5
-};
-var awake = false;
-var grabDelay = 20;
-
-function addRequest(element, imageId, type, preventCache, doneCallback, failCallback, addToBeginning) {
-  if (!requestPool.hasOwnProperty(type)) {
-    throw new Error('Request type must be one of interaction, thumbnail, or prefetch');
-  }
-
-  if (!element || !imageId) {
-    return;
-  } // Describe the request
-
-
-  var requestDetails = {
-    type: type,
-    imageId: imageId,
-    preventCache: preventCache,
-    doneCallback: doneCallback,
-    failCallback: failCallback
-  }; // If this imageId is in the cache, resolve it immediately
-
-  var imageLoadObject = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.imageCache.getImageLoadObject(imageId);
-
-  if (imageLoadObject) {
-    imageLoadObject.promise.then(function (image) {
-      doneCallback(image);
-    }, function (error) {
-      failCallback(error);
-    });
-    return;
-  }
-
-  if (addToBeginning) {
-    // Add it to the beginning of the stack
-    requestPool[type].unshift(requestDetails);
-  } else {
-    // Add it to the end of the stack
-    requestPool[type].push(requestDetails);
-  } // Wake up
-
-
-  awake = true;
-}
-
-function clearRequestStack(type) {
-  // Console.log('clearRequestStack');
-  if (!requestPool.hasOwnProperty(type)) {
-    throw new Error('Request type must be one of interaction, thumbnail, or prefetch');
-  }
-
-  requestPool[type] = [];
-}
-
-function startAgain() {
-  if (!awake) {
-    return;
-  }
-
-  setTimeout(function () {
-    startGrabbing();
-  }, grabDelay);
-}
-
-function sendRequest(requestDetails) {
-  var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone; // Increment the number of current requests of this type
-
-  var type = requestDetails.type;
-  numRequests[type]++;
-  awake = true;
-  var imageId = requestDetails.imageId;
-  var doneCallback = requestDetails.doneCallback;
-  var failCallback = requestDetails.failCallback; // Check if we already have this image promise in the cache
-
-  var imageLoadObject = cornerstone.imageCache.getImageLoadObject(imageId);
-
-  if (imageLoadObject) {
-    // If we do, remove from list (when resolved, as we could have
-    // Pending prefetch requests) and stop processing this iteration
-    imageLoadObject.promise.then(function (image) {
-      numRequests[type]--; // Console.log(numRequests);
-
-      doneCallback(image);
-      startAgain();
-    }, function (error) {
-      numRequests[type]--; // Console.log(numRequests);
-
-      failCallback(error);
-      startAgain();
-    });
-    return;
-  }
-
-  function requestTypeToLoadPriority(requestDetails) {
-    if (requestDetails.type === 'prefetch') {
-      return -5;
-    } else if (requestDetails.type === 'interactive') {
-      return 0;
-    } else if (requestDetails.type === 'thumbnail') {
-      return 5;
-    }
-  }
-
-  var priority = requestTypeToLoadPriority(requestDetails);
-  var loader;
-
-  if (requestDetails.preventCache === true) {
-    loader = cornerstone.loadImage(imageId, {
-      priority: priority,
-      type: requestDetails.type
-    });
-  } else {
-    loader = cornerstone.loadAndCacheImage(imageId, {
-      priority: priority,
-      type: requestDetails.type
-    });
-  } // Load and cache the image
-
-
-  loader.then(function (image) {
-    numRequests[type]--; // Console.log(numRequests);
-
-    doneCallback(image);
-    startAgain();
-  }, function (error) {
-    numRequests[type]--; // Console.log(numRequests);
-
-    failCallback(error);
-    startAgain();
-  });
-}
-
-function startGrabbing() {
-  // Begin by grabbing X images
-  var maxSimultaneousRequests = Object(_util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_1__["getMaxSimultaneousRequests"])();
-  maxNumRequests = {
-    interaction: Math.max(maxSimultaneousRequests, 1),
-    thumbnail: Math.max(maxSimultaneousRequests - 2, 1),
-    prefetch: Math.max(maxSimultaneousRequests - 1, 1)
-  };
-  var currentRequests = numRequests.interaction + numRequests.thumbnail + numRequests.prefetch;
-  var requestsToSend = maxSimultaneousRequests - currentRequests;
-
-  for (var i = 0; i < requestsToSend; i++) {
-    var requestDetails = getNextRequest();
-
-    if (requestDetails) {
-      sendRequest(requestDetails);
-    }
-  }
-}
-
-function getNextRequest() {
-  if (requestPool.interaction.length && numRequests.interaction < maxNumRequests.interaction) {
-    return requestPool.interaction.shift();
-  }
-
-  if (requestPool.thumbnail.length && numRequests.thumbnail < maxNumRequests.thumbnail) {
-    return requestPool.thumbnail.shift();
-  }
-
-  if (requestPool.prefetch.length && numRequests.prefetch < maxNumRequests.prefetch) {
-    return requestPool.prefetch.shift();
-  }
-
-  if (!requestPool.interaction.length && !requestPool.thumbnail.length && !requestPool.prefetch.length) {
-    awake = false;
-  }
-
-  return false;
-}
-
-function getRequestPool() {
-  return requestPool;
-}
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  addRequest: addRequest,
-  clearRequestStack: clearRequestStack,
-  startGrabbing: startGrabbing,
-  getRequestPool: getRequestPool
 });
 
 /***/ }),
@@ -10337,7 +10059,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var toolType = 'playClip';
+var toolName = 'playClip';
 /**
  * [private] Turns a Frame Time Vector (0018,1065) array into a normalized array of timeouts. Each element
  * ... of the resulting array represents the amount of time each frame will remain on the screen.
@@ -10461,7 +10183,7 @@ function playClip(element, framesPerSecond) {
   }
 
   var stackData = stackToolData.data[0];
-  var playClipToolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolType);
+  var playClipToolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolName);
 
   if (!playClipToolData || !playClipToolData.data || !playClipToolData.data.length) {
     playClipData = {
@@ -10476,7 +10198,7 @@ function playClip(element, framesPerSecond) {
       reverse: false,
       loop: true
     };
-    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["addToolState"])(element, toolType, playClipData);
+    Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["addToolState"])(element, toolName, playClipData);
   } else {
     playClipData = playClipToolData.data[0]; // Make sure the specified clip is not running before any property update
 
@@ -10591,7 +10313,7 @@ function playClip(element, framesPerSecond) {
 
 
 function stopClip(element) {
-  var playClipToolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolType);
+  var playClipToolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolName);
 
   if (!playClipToolData || !playClipToolData.data || !playClipToolData.data.length) {
     return;
@@ -10614,26 +10336,25 @@ function stopClip(element) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../requestPool/requestPoolManager.js */ "./requestPool/requestPoolManager.js");
-/* harmony import */ var _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../stateManagement/loadHandlerManager.js */ "./stateManagement/loadHandlerManager.js");
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/getMaxSimultaneousRequests.js */ "./util/getMaxSimultaneousRequests.js");
-/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
-/* harmony import */ var _util_triggerEvent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../util/triggerEvent */ "./util/triggerEvent.js");
-/* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../events.js */ "./events.js");
+/* harmony import */ var _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../stateManagement/loadHandlerManager.js */ "./stateManagement/loadHandlerManager.js");
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
+/* harmony import */ var _util_triggerEvent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/triggerEvent */ "./util/triggerEvent.js");
+/* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../events.js */ "./events.js");
 
 
 
 
 
 
-
-
-var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_5__["getLogger"])('stackTools:stackPrefetch');
-var toolType = 'stackPrefetch';
+var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_3__["getLogger"])('stackTools:stackPrefetch');
+var toolName = 'stackPrefetch';
 var requestType = 'prefetch';
+var priority = 0;
+var addToBeginning = true;
 var configuration = {
-  maxImagesToPrefetch: Infinity
+  maxImagesToPrefetch: Infinity,
+  preserveExistingPool: false
 };
 var resetPrefetchTimeout;
 var resetPrefetchDelay = 10;
@@ -10657,35 +10378,27 @@ function range(lowEnd, highEnd) {
   return arr;
 }
 
-var max = function max(arr) {
-  return Math.max.apply(null, arr);
-};
-
-var min = function min(arr) {
-  return Math.min.apply(null, arr);
-};
-
 function nearestIndex(arr, x) {
   // Return index of nearest values in array
   // http://stackoverflow.com/questions/25854212/return-index-of-nearest-values-in-an-array
-  var l = [];
-  var h = [];
-  arr.forEach(function (v) {
+  var low = 0;
+  var high = arr.length - 1;
+  arr.forEach(function (v, idx) {
     if (v < x) {
-      l.push(v);
+      low = Math.max(idx, low);
     } else if (v > x) {
-      h.push(v);
+      high = Math.min(idx, high);
     }
   });
   return {
-    low: arr.indexOf(max(l)),
-    high: arr.indexOf(min(h))
+    low: low,
+    high: high
   };
 }
 
 function prefetch(element) {
   // Check to make sure stack data exists
-  var stackData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, 'stack');
+  var stackData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["getToolState"])(element, 'stack');
 
   if (!stackData || !stackData.data || !stackData.data.length) {
     return;
@@ -10693,7 +10406,7 @@ function prefetch(element) {
 
   var stack = stackData.data[0]; // Get the stackPrefetch tool data
 
-  var stackPrefetchData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolType);
+  var stackPrefetchData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["getToolState"])(element, toolName);
 
   if (!stackPrefetchData) {
     return;
@@ -10744,10 +10457,13 @@ function prefetch(element) {
 
   if (!stackPrefetch.indicesToRequest.length) {
     return;
-  } // Clear the requestPool of prefetch requests
+  } // Clear the requestPool of prefetch requests, if needed.
 
 
-  _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_1__["default"].clearRequestStack(requestType); // Identify the nearest imageIdIndex to the currentImageIdIndex
+  if (!configuration.preserveExistingPool) {
+    _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.imageLoadPoolManager.clearRequestStack(requestType);
+  } // Identify the nearest imageIdIndex to the currentImageIdIndex
+
 
   var nearest = nearestIndex(stackPrefetch.indicesToRequest, stack.currentImageIdIndex);
   var imageId;
@@ -10758,7 +10474,7 @@ function prefetch(element) {
     logger.log('prefetch done: %s', image.imageId);
     var imageIdIndex = stack.imageIds.indexOf(image.imageId);
     removeFromList(imageIdIndex);
-    Object(_util_triggerEvent__WEBPACK_IMPORTED_MODULE_6__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].STACK_PREFETCH_IMAGE_LOADED, {
+    Object(_util_triggerEvent__WEBPACK_IMPORTED_MODULE_4__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_5__["default"].STACK_PREFETCH_IMAGE_LOADED, {
       element: element,
       imageId: image.imageId,
       imageIndex: imageIdIndex,
@@ -10767,7 +10483,7 @@ function prefetch(element) {
     }); // If there are no more images to fetch
 
     if (!(stackPrefetch.indicesToRequest && stackPrefetch.indicesToRequest.length > 0)) {
-      Object(_util_triggerEvent__WEBPACK_IMPORTED_MODULE_6__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].STACK_PREFETCH_DONE, {
+      Object(_util_triggerEvent__WEBPACK_IMPORTED_MODULE_4__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_5__["default"].STACK_PREFETCH_DONE, {
         element: element,
         stackPrefetch: stackPrefetch,
         stack: stack
@@ -10776,7 +10492,7 @@ function prefetch(element) {
   } // Retrieve the errorLoadingHandler if one exists
 
 
-  var errorLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_2__["default"].getErrorLoadingHandler(element);
+  var errorLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_1__["default"].getErrorLoadingHandler(element);
 
   function failCallback(error) {
     logger.log('prefetch errored: %o', error);
@@ -10789,6 +10505,7 @@ function prefetch(element) {
 
   var lowerIndex = nearest.low;
   var higherIndex = nearest.high;
+  var imageIdsToPrefetch = [];
 
   while (lowerIndex >= 0 || higherIndex < stackPrefetch.indicesToRequest.length) {
     var currentIndex = stack.currentImageIdIndex;
@@ -10804,19 +10521,39 @@ function prefetch(element) {
     if (shouldLoadLower) {
       nextImageIdIndex = stackPrefetch.indicesToRequest[lowerIndex--];
       imageId = stack.imageIds[nextImageIdIndex];
-      _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_1__["default"].addRequest(element, imageId, requestType, preventCache, doneCallback, failCallback);
+      imageIdsToPrefetch.push(imageId);
     }
 
     if (shouldLoadHigher) {
       nextImageIdIndex = stackPrefetch.indicesToRequest[higherIndex++];
       imageId = stack.imageIds[nextImageIdIndex];
-      _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_1__["default"].addRequest(element, imageId, requestType, preventCache, doneCallback, failCallback);
+      imageIdsToPrefetch.push(imageId);
     }
-  } // Try to start the requestPool's grabbing procedure
-  // In case it isn't already running
+  }
 
+  var requestFn;
+  var options = {
+    addToBeginning: addToBeginning,
+    priority: priority,
+    requestType: requestType
+  };
 
-  _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_1__["default"].startGrabbing();
+  if (preventCache) {
+    requestFn = function requestFn(id) {
+      return _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.loadImage(id, options);
+    };
+  } else {
+    requestFn = function requestFn(id) {
+      return _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.loadAndCacheImage(id, options);
+    };
+  }
+
+  imageIdsToPrefetch.reverse().forEach(function (imageId) {
+    _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.imageLoadPoolManager.addRequest(requestFn.bind(null, imageId), requestType, // Additional details
+    {
+      imageId: imageId
+    }, priority, addToBeginning);
+  });
 }
 
 function getPromiseRemovedHandler(element) {
@@ -10829,7 +10566,7 @@ function getPromiseRemovedHandler(element) {
 
     try {
       // It will throw an exception in some cases (eg: thumbnails)
-      stackData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, 'stack');
+      stackData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["getToolState"])(element, 'stack');
     } catch (error) {
       return;
     }
@@ -10846,7 +10583,7 @@ function getPromiseRemovedHandler(element) {
       return;
     }
 
-    var stackPrefetchData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolType);
+    var stackPrefetchData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["getToolState"])(element, toolName);
 
     if (!stackPrefetchData || !stackPrefetchData.data || !stackPrefetchData.data.length) {
       return;
@@ -10874,10 +10611,10 @@ function onImageUpdated(e) {
 
 function enable(element) {
   // Clear old prefetch data. Skipping this can cause problems when changing the series inside an element
-  var stackPrefetchDataArray = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolType);
+  var stackPrefetchDataArray = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["getToolState"])(element, toolName);
   stackPrefetchDataArray.data = []; // First check that there is stack data available
 
-  var stackData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, 'stack');
+  var stackData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["getToolState"])(element, 'stack');
 
   if (!stackData || !stackData.data || !stackData.data.length) {
     return;
@@ -10899,7 +10636,7 @@ function enable(element) {
 
   var indexOfCurrentImage = stackPrefetchData.indicesToRequest.indexOf(stack.currentImageIdIndex);
   stackPrefetchData.indicesToRequest.splice(indexOfCurrentImage, 1);
-  Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["addToolState"])(element, toolType, stackPrefetchData);
+  Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["addToolState"])(element, toolName, stackPrefetchData);
   prefetch(element);
   element.removeEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.EVENTS.NEW_IMAGE, onImageUpdated);
   element.addEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.EVENTS.NEW_IMAGE, onImageUpdated);
@@ -10913,12 +10650,12 @@ function disable(element) {
   element.removeEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.EVENTS.NEW_IMAGE, onImageUpdated);
   var promiseRemovedHandler = getPromiseRemovedHandler(element);
   _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.events.removeEventListener(_externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.EVENTS.IMAGE_CACHE_PROMISE_REMOVED, promiseRemovedHandler);
-  var stackPrefetchData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(element, toolType); // If there is actually something to disable, disable it
+  var stackPrefetchData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__["getToolState"])(element, toolName); // If there is actually something to disable, disable it
 
   if (stackPrefetchData && stackPrefetchData.data.length) {
     stackPrefetchData.data[0].enabled = false; // Clear current prefetch requests from the requestPool
 
-    _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_1__["default"].clearRequestStack(requestType);
+    _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.imageLoadPoolManager.clearRequestStack(requestType);
   }
 }
 
@@ -10928,10 +10665,6 @@ function getConfiguration() {
 
 function setConfiguration(config) {
   configuration = config;
-
-  if (config.maxSimultaneousRequests) {
-    Object(_util_getMaxSimultaneousRequests_js__WEBPACK_IMPORTED_MODULE_4__["setMaxSimultaneousRequests"])(config.maxSimultaneousRequests);
-  }
 } // Module/private exports
 
 
@@ -10987,7 +10720,7 @@ function newFrameOfReferenceSpecificToolStateManager() {
   var toolState = {}; // Here we add tool state, this is done by tools as well
   // As modules that restore saved state
 
-  function addFrameOfReferenceSpecificToolState(frameOfReference, toolType, data) {
+  function addFrameOfReferenceSpecificToolState(frameOfReference, toolName, data) {
     // If we don't have any tool state for this frameOfReference, add an empty object
     if (toolState.hasOwnProperty(frameOfReference) === false) {
       toolState[frameOfReference] = {};
@@ -10995,20 +10728,20 @@ function newFrameOfReferenceSpecificToolStateManager() {
 
     var frameOfReferenceToolState = toolState[frameOfReference]; // If we don't have tool state for this type of tool, add an empty object
 
-    if (frameOfReferenceToolState.hasOwnProperty(toolType) === false) {
-      frameOfReferenceToolState[toolType] = {
+    if (frameOfReferenceToolState.hasOwnProperty(toolName) === false) {
+      frameOfReferenceToolState[toolName] = {
         data: []
       };
     }
 
-    var toolData = frameOfReferenceToolState[toolType]; // Finally, add this new tool to the state
+    var toolData = frameOfReferenceToolState[toolName]; // Finally, add this new tool to the state
 
     toolData.data.push(data);
   } // Here you can get state - used by tools as well as modules
   // That save state persistently
 
 
-  function getFrameOfReferenceSpecificToolState(frameOfReference, toolType) {
+  function getFrameOfReferenceSpecificToolState(frameOfReference, toolName) {
     // If we don't have any tool state for this frame of reference, return undefined
     if (toolState.hasOwnProperty(frameOfReference) === false) {
       return;
@@ -11016,15 +10749,15 @@ function newFrameOfReferenceSpecificToolStateManager() {
 
     var frameOfReferenceToolState = toolState[frameOfReference]; // If we don't have tool state for this type of tool, return undefined
 
-    if (frameOfReferenceToolState.hasOwnProperty(toolType) === false) {
+    if (frameOfReferenceToolState.hasOwnProperty(toolName) === false) {
       return;
     }
 
-    var toolData = frameOfReferenceToolState[toolType];
+    var toolData = frameOfReferenceToolState[toolName];
     return toolData;
   }
 
-  function removeFrameOfReferenceSpecificToolState(frameOfReference, toolType, data) {
+  function removeFrameOfReferenceSpecificToolState(frameOfReference, toolName, data) {
     // If we don't have any tool state for this frame of reference, return undefined
     if (toolState.hasOwnProperty(frameOfReference) === false) {
       return;
@@ -11032,11 +10765,11 @@ function newFrameOfReferenceSpecificToolStateManager() {
 
     var frameOfReferenceToolState = toolState[frameOfReference]; // If we don't have tool state for this type of tool, return undefined
 
-    if (frameOfReferenceToolState.hasOwnProperty(toolType) === false) {
+    if (frameOfReferenceToolState.hasOwnProperty(toolName) === false) {
       return;
     }
 
-    var toolData = frameOfReferenceToolState[toolType]; // Find this tool data
+    var toolData = frameOfReferenceToolState[toolName]; // Find this tool data
 
     var indexOfData = -1;
 
@@ -11111,65 +10844,108 @@ function newImageIdSpecificToolStateManager() {
   // As modules that restore saved state
 
 
-  function addImageIdSpecificToolState(element, toolType, data) {
+  function addElementToolState(element, toolName, data) {
     var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element); // If we don't have an image for this element exit early
 
     if (!enabledElement.image) {
       return;
-    } // If we don't have any tool state for this imageId, add an empty object
-
-
-    if (toolState.hasOwnProperty(enabledElement.image.imageId) === false) {
-      toolState[enabledElement.image.imageId] = {};
     }
 
-    var imageIdToolState = toolState[enabledElement.image.imageId]; // If we don't have tool state for this type of tool, add an empty object
+    addImageIdToolState(enabledElement.image.imageId, toolName, data);
+  }
 
-    if (imageIdToolState.hasOwnProperty(toolType) === false) {
-      imageIdToolState[toolType] = {
+  function addImageIdToolState(imageId, toolName, data) {
+    // If we don't have any tool state for this imageId, add an empty object
+    if (toolState.hasOwnProperty(imageId) === false) {
+      toolState[imageId] = {};
+    }
+
+    var imageIdToolState = toolState[imageId]; // If we don't have tool state for this tool name, add an empty object
+
+    if (imageIdToolState.hasOwnProperty(toolName) === false) {
+      imageIdToolState[toolName] = {
         data: []
       };
     }
 
-    var toolData = imageIdToolState[toolType]; // Finally, add this new tool to the state
+    var toolData = imageIdToolState[toolName]; // Finally, add this new tool to the state
 
     toolData.data.push(data);
+  }
+
+  function getElementToolState(element, toolName) {
+    var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element); // If the element does not have an image return undefined.
+
+    if (!enabledElement.image) {
+      return;
+    }
+
+    return getImageIdToolState(enabledElement.image.imageId, toolName);
   } // Here you can get state - used by tools as well as modules
   // That save state persistently
 
 
-  function getImageIdSpecificToolState(element, toolType) {
-    var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element); // If we don't have any tool state for this imageId, return undefined
-
-    if (!enabledElement.image || toolState.hasOwnProperty(enabledElement.image.imageId) === false) {
+  function getImageIdToolState(imageId, toolName) {
+    // If we don't have any tool state for this imageId, return undefined
+    if (toolState.hasOwnProperty(imageId) === false) {
       return;
     }
 
-    var imageIdToolState = toolState[enabledElement.image.imageId]; // If we don't have tool state for this type of tool, return undefined
+    var imageIdToolState = toolState[imageId]; // If we don't have tool state for this tool name, return undefined
 
-    if (imageIdToolState.hasOwnProperty(toolType) === false) {
+    if (imageIdToolState.hasOwnProperty(toolName) === false) {
       return;
     }
 
-    var toolData = imageIdToolState[toolType];
-    return toolData;
+    return imageIdToolState[toolName];
+  } // Replaces the given tool's state using the provided element's imageId
+
+
+  function setElementToolState(element, toolName, data) {
+    var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element);
+
+    if (!enabledElement.image) {
+      return;
+    }
+
+    setImageIdToolState(enabledElement.image.imageId, toolName, data);
+  } // Replaces the imageId's tool state for a given tool
+
+
+  function setImageIdToolState(imageId, toolName, data) {
+    var imageIdToolState = toolState[imageId]; // Set the toolState
+
+    imageIdToolState[toolName] = data;
   } // Clears all tool data from this toolStateManager.
 
 
-  function clearImageIdSpecificToolStateManager(element) {
+  function clearElementToolState(element) {
     var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element);
 
-    if (!enabledElement.image || toolState.hasOwnProperty(enabledElement.image.imageId) === false) {
+    if (!enabledElement.image) {
       return;
     }
 
-    delete toolState[enabledElement.image.imageId];
+    clearImageIdToolState(enabledElement.image.imageId);
+  }
+
+  function clearImageIdToolState(imageId) {
+    if (toolState.hasOwnProperty(imageId) === false) {
+      return;
+    }
+
+    delete toolState[imageId];
   }
 
   return {
-    get: getImageIdSpecificToolState,
-    add: addImageIdSpecificToolState,
-    clear: clearImageIdSpecificToolStateManager,
+    get: getElementToolState,
+    add: addElementToolState,
+    set: setElementToolState,
+    clear: clearElementToolState,
+    getImageIdToolState: getImageIdToolState,
+    addImageIdToolState: addImageIdToolState,
+    setImageIdToolState: setImageIdToolState,
+    clearImageIdToolState: clearImageIdToolState,
     saveImageIdToolState: saveImageIdToolState,
     restoreImageIdToolState: restoreImageIdToolState,
     saveToolState: saveToolState,
@@ -11313,12 +11089,12 @@ __webpack_require__.r(__webpack_exports__);
  * @constructor newStackSpecificToolStateManager
  * @memberof StateManagement
  *
- * @param  {string[]} toolTypes       The tool types to apply to the stack.
- * @param  {Object} oldStateManager The imageIdSpecificStateManager.
+ * @param {string[]} toolNames     List of tools that should have state shared across a stack (a display set) of images
+ * @param {Object} oldStateManager The imageIdSpecificStateManager.
  * @returns {Object} A stackSpecificToolStateManager instance.
  */
 
-function newStackSpecificToolStateManager(toolTypes, oldStateManager) {
+function newStackSpecificToolStateManager(toolNames, oldStateManager) {
   var toolState = {};
 
   function saveToolState() {
@@ -11331,42 +11107,42 @@ function newStackSpecificToolStateManager(toolTypes, oldStateManager) {
   // As modules that restore saved state
 
 
-  function addStackSpecificToolState(element, toolType, data) {
+  function addStackSpecificToolState(element, toolName, data) {
     // If this is a tool type to apply to the stack, do so
-    if (toolTypes.indexOf(toolType) >= 0) {
-      // If we don't have tool state for this type of tool, add an empty object
-      if (toolState.hasOwnProperty(toolType) === false) {
-        toolState[toolType] = {
+    if (toolNames.indexOf(toolName) >= 0) {
+      // If we don't have tool state for this tool name, add an empty object
+      if (toolState.hasOwnProperty(toolName) === false) {
+        toolState[toolName] = {
           data: []
         };
       }
 
-      var toolData = toolState[toolType]; // Finally, add this new tool to the state
+      var toolData = toolState[toolName]; // Finally, add this new tool to the state
 
       toolData.data.push(data);
     } else {
       // Call the imageId specific tool state manager
-      return oldStateManager.add(element, toolType, data);
+      return oldStateManager.add(element, toolName, data);
     }
   } // Here you can get state - used by tools as well as modules
   // That save state persistently
 
 
-  function getStackSpecificToolState(element, toolType) {
+  function getStackSpecificToolState(element, toolName) {
     // If this is a tool type to apply to the stack, do so
-    if (toolTypes.indexOf(toolType) >= 0) {
-      // If we don't have tool state for this type of tool, add an empty object
-      if (toolState.hasOwnProperty(toolType) === false) {
-        toolState[toolType] = {
+    if (toolNames.indexOf(toolName) >= 0) {
+      // If we don't have tool state for this tool name, add an empty object
+      if (toolState.hasOwnProperty(toolName) === false) {
+        toolState[toolName] = {
           data: []
         };
       }
 
-      return toolState[toolType];
+      return toolState[toolName];
     } // Call the imageId specific tool state manager
 
 
-    return oldStateManager.get(element, toolType);
+    return oldStateManager.get(element, toolName);
   }
 
   var stackSpecificToolStateManager = {
@@ -11416,43 +11192,126 @@ var stackSpecificStateManager = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-var defaultFontSize = 15,
-    defaultFont = "".concat(defaultFontSize, "px Arial"),
-    defaultBackgroundColor = 'transparent';
+var textStyle = {
+  fontSize: 15,
+  fontFamily: 'Arial',
+  backgroundColor: 'transparent'
+};
+/**
+ * @deprecated
+ * This function will be deprecated and users must use `setFontSize` and
+ * `setFontFamily` to set the font configuration independently.
+ *
+ * @param {string} font Font string with font size and font family
+ * @returns {void}
+ */
 
 function setFont(font) {
-  defaultFont = font;
+  var split = font.split('px ');
+
+  if (split.length === 2) {
+    setFontSize(parseFloat(split[0]));
+    setFontFamily(split[1]);
+  }
 }
+/**
+ * Returns all the font styling properties combined into a single string
+ * following the CSS font property pattern.
+ * @see {@link https://www.w3.org/TR/css-fonts-3/#font-prop|3.7. Shorthand font property: the font property}
+ *
+ * @returns {string} CSS font property
+ */
+
 
 function getFont() {
-  return defaultFont;
+  return "".concat(textStyle.fontSize, "px ").concat(textStyle.fontFamily);
 }
+/**
+ * Sets the font family that will be used for general font rendering.
+ * @see {@link https://www.w3.org/TR/css-fonts-3/#font-family-prop|3.1. Font family: the font-family property}
+ *
+ * @param {string} fontFamily Name of the font to be used
+ * @returns {void}
+ */
+
+
+function setFontFamily(fontFamily) {
+  if (typeof fontFamily !== 'string') {
+    throw new Error('Font family must be a valid string');
+  }
+
+  textStyle.fontFamily = fontFamily;
+}
+/**
+ * Returns the defined font family for rendering text boxes.
+ *
+ * @returns {string} The font family used for rendering text boxes
+ */
+
+
+function getFontFamily() {
+  return textStyle.fontFamily;
+}
+/**
+ * Sets the font size in pixels that will be used for general font rendering.
+ *
+ * @param {number} fontSize Font size in pixels
+ * @returns {void}
+ */
+
 
 function setFontSize(fontSize) {
-  defaultFontSize = fontSize;
+  if (typeof fontSize !== 'number' || isNaN(fontSize) || !isFinite(fontSize)) {
+    throw new Error('Font size must be a valid number');
+  }
+
+  textStyle.fontSize = parseFloat(fontSize);
 }
+/**
+ * Returns the font size in pixels that will be used for general font rendering.
+ *
+ * @returns {number} Font size in pixels
+ */
+
 
 function getFontSize() {
-  return defaultFontSize;
+  return textStyle.fontSize;
 }
+/**
+ * Changes the background color of the text's bounding box.
+ * The default background color is transparent, that's why it doesn't display
+ * any background for the text box.
+ *
+ * @param {string} backgroundColor Background color for the text
+ * @returns {void}
+ */
+
 
 function setBackgroundColor(backgroundColor) {
-  defaultBackgroundColor = backgroundColor;
+  textStyle.backgroundColor = backgroundColor;
 }
+/**
+ * Returns the background color that is being used for rendering text boxes.
+ *
+ * @returns {string} The background color for the text's bounding box
+ */
+
 
 function getBackgroundColor() {
-  return defaultBackgroundColor;
+  return textStyle.backgroundColor;
 }
 
-var textStyle = {
+var textStyleApi = {
   setFont: setFont,
   getFont: getFont,
   setFontSize: setFontSize,
   getFontSize: getFontSize,
+  setFontFamily: setFontFamily,
+  getFontFamily: getFontFamily,
   setBackgroundColor: setBackgroundColor,
   getBackgroundColor: getBackgroundColor
 };
-/* harmony default export */ __webpack_exports__["default"] = (textStyle);
+/* harmony default export */ __webpack_exports__["default"] = (textStyleApi);
 
 /***/ }),
 
@@ -11560,6 +11419,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
 /* harmony import */ var _imageIdSpecificStateManager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./imageIdSpecificStateManager.js */ "./stateManagement/imageIdSpecificStateManager.js");
 /* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util/triggerEvent.js */ "./util/triggerEvent.js");
+/* harmony import */ var _util_uuidv4_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/uuidv4.js */ "./util/uuidv4.js");
+
 
 
 
@@ -11590,18 +11451,21 @@ function getElementToolStateManager(element) {
  * @method addToolState
  *
  * @param  {HTMLElement} element  The element.
- * @param  {string} toolType      The toolType of the state.
+ * @param  {string} toolName      The name of the tool the state belongs to.
  * @param  {Object} measurementData The data to store in the state.
  * @returns {undefined}
  */
 
 
-function addToolState(element, toolType, measurementData) {
+function addToolState(element, toolName, measurementData) {
   var toolStateManager = getElementToolStateManager(element);
-  toolStateManager.add(element, toolType, measurementData);
+  measurementData.uuid = measurementData.uuid || Object(_util_uuidv4_js__WEBPACK_IMPORTED_MODULE_4__["default"])();
+  toolStateManager.add(element, toolName, measurementData);
   var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_ADDED;
   var eventData = {
-    toolType: toolType,
+    toolName: toolName,
+    toolType: toolName,
+    // Deprecation notice: toolType will be replaced by toolName
     element: element,
     measurementData: measurementData
   };
@@ -11616,14 +11480,14 @@ function addToolState(element, toolType, measurementData) {
  * @name getToolState
  *
  * @param  {HTMLElement} element The element.
- * @param  {string} toolType The toolType of the state.
- * @returns {Object}          The element's state for the given toolType.
+ * @param  {string} toolName The name of the tool the state belongs to.
+ * @returns {Object}          The element's state for the given toolName.
  */
 
 
-function getToolState(element, toolType) {
+function getToolState(element, toolName) {
   var toolStateManager = getElementToolStateManager(element);
-  return toolStateManager.get(element, toolType);
+  return toolStateManager.get(element, toolName);
 }
 /**
  * Removes specific tool state from the toolStateManager.
@@ -11631,15 +11495,20 @@ function getToolState(element, toolType) {
  * @method removeToolState
  *
  * @param  {HTMLElement} element  The element.
- * @param  {string} toolType      The toolType of the state.
+ * @param  {string} toolName      The name of the tool the state belongs to.
  * @param  {Object} data          The data to remove from the toolStateManager.
  * @returns {undefined}
  */
 
 
-function removeToolState(element, toolType, data) {
+function removeToolState(element, toolName, data) {
   var toolStateManager = getElementToolStateManager(element);
-  var toolData = toolStateManager.get(element, toolType); // Find this tool data
+  var toolData = toolStateManager.get(element, toolName);
+
+  if (!toolData || !toolData.data || !toolData.data.length) {
+    return;
+  } // Find this tool data
+
 
   var indexOfData = -1;
 
@@ -11653,7 +11522,9 @@ function removeToolState(element, toolType, data) {
     toolData.data.splice(indexOfData, 1);
     var eventType = _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].MEASUREMENT_REMOVED;
     var eventData = {
-      toolType: toolType,
+      toolName: toolName,
+      toolType: toolName,
+      // Deprecation notice: toolType will be replaced by toolName
       element: element,
       measurementData: data
     };
@@ -11662,19 +11533,19 @@ function removeToolState(element, toolType, data) {
 }
 /**
  * Removes all toolState from the toolStateManager corresponding to
- * the toolType and element.
+ * the toolName and element.
  * @public
  * @method clearToolState
  *
  * @param  {HTMLElement} element  The element.
- * @param  {string} toolType      The toolType of the state.
+ * @param  {string} toolName      The name of the tool the state belongs to.
  * @returns {undefined}
  */
 
 
-function clearToolState(element, toolType) {
+function clearToolState(element, toolName) {
   var toolStateManager = getElementToolStateManager(element);
-  var toolData = toolStateManager.get(element, toolType); // If any toolData actually exists, clear it
+  var toolData = toolStateManager.get(element, toolName); // If any toolData actually exists, clear it
 
   if (toolData !== undefined) {
     toolData.data = [];
@@ -12005,9 +11876,9 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./index.js */ "./store/index.js");
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../manipulators/getHandleNearImagePoint.js */ "./manipulators/getHandleNearImagePoint.js");
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony import */ var _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../manipulators/getHandleNearImagePoint.js */ "./manipulators/getHandleNearImagePoint.js");
+/* harmony import */ var _util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/getProximityThreshold.js */ "./util/getProximityThreshold.js");
 
 
 
@@ -12027,12 +11898,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = (function (element, tools, coords) {
   var interactionType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'mouse';
-  var proximity = interactionType === 'mouse' ? _index_js__WEBPACK_IMPORTED_MODULE_0__["state"].clickProximity : _index_js__WEBPACK_IMPORTED_MODULE_0__["state"].touchProximity;
   return tools.filter(function (tool) {
-    var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__["getToolState"])(element, tool.name);
+    var distanceThreshold = Object(_util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_2__["default"])(interactionType, tool.name);
+    var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_0__["getToolState"])(element, tool.name);
 
     for (var i = 0; i < toolState.data.length; i++) {
-      if (Object(_manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_2__["default"])(element, toolState.data[i].handles, coords, proximity) !== undefined) {
+      if (Object(_manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_1__["default"])(element, toolState.data[i].handles, coords, distanceThreshold) !== undefined) {
         return true;
       }
     }
@@ -12047,28 +11918,29 @@ __webpack_require__.r(__webpack_exports__);
 /*!************************!*\
   !*** ./store/index.js ***!
   \************************/
-/*! exports provided: state, getters, setters, modules, getModule, default */
+/*! exports provided: state, getters, modules, getModule, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "state", function() { return state; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getters", function() { return getters; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setters", function() { return setters; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "modules", function() { return modules; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getModule", function() { return getModule; });
 /* harmony import */ var _modules_segmentationModule__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/segmentationModule */ "./store/modules/segmentationModule/index.js");
-/* harmony import */ var _modules_cursorModule_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/cursorModule.js */ "./store/modules/cursorModule.js");
-/* harmony import */ var _modules_globalConfigurationModule_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/globalConfigurationModule.js */ "./store/modules/globalConfigurationModule.js");
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
+/* harmony import */ var _modules_manipulatorStateModule__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/manipulatorStateModule */ "./store/modules/manipulatorStateModule.js");
+/* harmony import */ var _modules_cursorModule_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/cursorModule.js */ "./store/modules/cursorModule.js");
+/* harmony import */ var _modules_globalConfigurationModule_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/globalConfigurationModule.js */ "./store/modules/globalConfigurationModule.js");
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../util/logger.js */ "./util/logger.js");
 // Modules
 
 
 
 
 
-var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_4__["getLogger"])('store:modules:storeLogger');
+
+var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_5__["getLogger"])('store:modules:storeLogger');
 var state = {
   // Global
   globalTools: {},
@@ -12085,6 +11957,13 @@ var state = {
   handleRadius: 6,
   deleteIfHandleOutsideImage: true,
   preventHandleOutsideImage: false,
+  preventTextBoxOutsideDisplayedArea: false,
+  // Average pixel width of index finger is 45-57 pixels
+  // https://www.smashingmagazine.com/2012/02/finger-friendly-design-ideal-mobile-touchscreen-target-sizes/
+  handleTouchOffset: {
+    x: 0,
+    y: -57
+  },
   // Cursor
   svgCursorUrl: null
 };
@@ -12101,15 +11980,15 @@ var getters = {
   },
   enabledElementByUID: function enabledElementByUID(enabledElementUID) {
     return state.enabledElements.find(function (element) {
-      return _externalModules_js__WEBPACK_IMPORTED_MODULE_3__["default"].cornerstone.getEnabledElement(element).uuid === enabledElementUID;
+      return _externalModules_js__WEBPACK_IMPORTED_MODULE_4__["default"].cornerstone.getEnabledElement(element).uuid === enabledElementUID;
     });
   }
 };
-var setters = {};
 var modules = {
   segmentation: _modules_segmentationModule__WEBPACK_IMPORTED_MODULE_0__["default"],
-  cursor: _modules_cursorModule_js__WEBPACK_IMPORTED_MODULE_1__["default"],
-  globalConfiguration: _modules_globalConfigurationModule_js__WEBPACK_IMPORTED_MODULE_2__["default"]
+  cursor: _modules_cursorModule_js__WEBPACK_IMPORTED_MODULE_2__["default"],
+  globalConfiguration: _modules_globalConfigurationModule_js__WEBPACK_IMPORTED_MODULE_3__["default"],
+  manipulatorState: _modules_manipulatorStateModule__WEBPACK_IMPORTED_MODULE_1__["default"]
 };
 function getModule(moduleName) {
   return modules[moduleName];
@@ -12307,6 +12186,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../index.js */ "./store/index.js");
 /* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
 /* harmony import */ var _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../stateManagement/loadHandlerManager.js */ "./stateManagement/loadHandlerManager.js");
+/* harmony import */ var _setToolMode__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setToolMode */ "./store/setToolMode.js");
+
 
 
 
@@ -12373,8 +12254,11 @@ var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_3__["getLogger"])('
  */
 
 var _removeAllToolsForElement = function _removeAllToolsForElement(enabledElement) {
-  // Note: We may want to `setToolDisabled` before removing from store
-  // Or take other action to remove any lingering eventListeners/state
+  _index_js__WEBPACK_IMPORTED_MODULE_2__["default"].state.tools.forEach(function (tool) {
+    if (tool.element === enabledElement) {
+      Object(_setToolMode__WEBPACK_IMPORTED_MODULE_5__["setToolDisabledForElement"])(tool.element, tool.name);
+    }
+  });
   _index_js__WEBPACK_IMPORTED_MODULE_2__["default"].state.tools = _index_js__WEBPACK_IMPORTED_MODULE_2__["default"].state.tools.filter(function (tool) {
     return tool.element !== enabledElement;
   });
@@ -12436,10 +12320,10 @@ function _cleanModulesOnElement(enabledElement) {
 
 /***/ }),
 
-/***/ "./store/isToolActive.js":
-/*!*******************************!*\
-  !*** ./store/isToolActive.js ***!
-  \*******************************/
+/***/ "./store/isToolActiveForElement.js":
+/*!*****************************************!*\
+  !*** ./store/isToolActiveForElement.js ***!
+  \*****************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -12452,7 +12336,7 @@ __webpack_require__.r(__webpack_exports__);
  * @export
  * @public
  * @method
- * @name isToolActive
+ * @name isToolActiveForElement
  *
  * @param  {HTMLElement} element The element being queried.
  * @param  {string} name    The name of the tool.
@@ -12475,6 +12359,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../externalModules */ "./externalModules.js");
+
 var configuration = {
   iconSize: 16,
   viewBox: {
@@ -12498,6 +12384,7 @@ var getters = {
   }
 };
 /* harmony default export */ __webpack_exports__["default"] = ({
+  configuration: configuration,
   getters: getters,
   setters: setters
 });
@@ -12517,10 +12404,99 @@ var configuration = {
   mouseEnabled: true,
   touchEnabled: true,
   globalToolSyncEnabled: false,
-  showSVGCursors: false
+  showSVGCursors: false,
+  autoResizeViewports: true,
+  lineDash: [4, 4]
 };
 /* harmony default export */ __webpack_exports__["default"] = ({
   configuration: configuration
+});
+
+/***/ }),
+
+/***/ "./store/modules/manipulatorStateModule.js":
+/*!*************************************************!*\
+  !*** ./store/modules/manipulatorStateModule.js ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../externalModules */ "./externalModules.js");
+
+var state = {
+  activeManipulators: {}
+};
+
+function addActiveManipulatorForElement(element, cancelFn) {
+  var enabledElement = _externalModules__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element);
+  var enabledElementUUID = enabledElement.uuid;
+  state.activeManipulators[enabledElementUUID] = cancelFn;
+}
+
+function removeActiveManipulatorForElement(element) {
+  var enabledElement = _externalModules__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element);
+  var enabledElementUUID = enabledElement.uuid;
+  var activeManipulators = state.activeManipulators;
+  delete activeManipulators[enabledElementUUID];
+}
+
+function cancelActiveManipulatorsForElement(element) {
+  var enabledElement = _externalModules__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.getEnabledElement(element);
+  var enabledElementUUID = enabledElement.uuid;
+
+  _cancelActiveManipulatorsForElementUUID(enabledElementUUID);
+}
+
+function _cancelActiveManipulatorsForElementUUID(enabledElementUUID) {
+  var activeManipulators = state.activeManipulators;
+  var cancelFn = activeManipulators[enabledElementUUID];
+
+  if (typeof cancelFn === 'function') {
+    cancelFn();
+  }
+
+  delete activeManipulators[enabledElementUUID];
+}
+
+function cancelActiveManipulators() {
+  var activeManipulators = state.activeManipulators;
+  Object.keys(activeManipulators).forEach(function (enabledElementUUID) {
+    return _cancelActiveManipulatorsForElementUUID(enabledElementUUID);
+  });
+}
+
+function _cornerstoneNewImageHandler(evt) {
+  var eventData = evt.detail;
+  var element = eventData.element;
+  removeActiveManipulatorForElement(element);
+}
+
+function removeEnabledElementCallback(element) {
+  var NEW_IMAGE = _externalModules__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.EVENTS.NEW_IMAGE;
+  element.removeEventListener(NEW_IMAGE, _cornerstoneNewImageHandler);
+  removeActiveManipulatorForElement(element);
+}
+
+function enabledElementCallback(element) {
+  var NEW_IMAGE = _externalModules__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.EVENTS.NEW_IMAGE;
+  element.removeEventListener(NEW_IMAGE, _cornerstoneNewImageHandler);
+  element.addEventListener(NEW_IMAGE, _cornerstoneNewImageHandler);
+}
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  setters: {
+    // Add/remove
+    addActiveManipulatorForElement: addActiveManipulatorForElement,
+    removeActiveManipulatorForElement: removeActiveManipulatorForElement,
+    // Cancel
+    cancelActiveManipulatorsForElement: cancelActiveManipulatorsForElement,
+    cancelActiveManipulators: cancelActiveManipulators
+  },
+  state: state,
+  enabledElementCallback: enabledElementCallback,
+  removeEnabledElementCallback: removeEnabledElementCallback
 });
 
 /***/ }),
@@ -12641,7 +12617,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _getElement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./getElement */ "./store/modules/segmentationModule/getElement.js");
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
-/* harmony import */ var _configuration__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./configuration */ "./store/modules/segmentationModule/configuration.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../index.js */ "./store/index.js");
 
 
 
@@ -12707,10 +12683,13 @@ function setActiveSegmentIndex(elementOrEnabledElementUID, segmentIndex) {
   var activeLabelmapIndex = brushStackState.activeLabelmapIndex;
   var labelmap3D = brushStackState.labelmaps3D[activeLabelmapIndex];
 
+  var _getModule = Object(_index_js__WEBPACK_IMPORTED_MODULE_3__["getModule"])('segmentation'),
+      configuration = _getModule.configuration;
+
   if (segmentIndex <= 0) {
     segmentIndex = 1;
-  } else if (segmentIndex > _configuration__WEBPACK_IMPORTED_MODULE_3__["default"].segmentsPerLabelmap) {
-    segmentIndex = _configuration__WEBPACK_IMPORTED_MODULE_3__["default"].segmentsPerLabelmap;
+  } else if (segmentIndex > configuration.segmentsPerLabelmap) {
+    segmentIndex = configuration.segmentsPerLabelmap;
   }
 
   labelmap3D.activeSegmentIndex = segmentIndex;
@@ -12762,6 +12741,10 @@ function decrementActiveSegmentIndex(elementOrEnabledElementUID) {
 
 function _changeActiveSegmentIndex(element) {
   var increaseOrDecrease = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'increase';
+
+  var _getModule2 = Object(_index_js__WEBPACK_IMPORTED_MODULE_3__["getModule"])('segmentation'),
+      configuration = _getModule2.configuration;
+
   var stackState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__["getToolState"])(element, 'stack');
   var stackData = stackState.data[0];
   var firstImageId = stackData.imageIds[0];
@@ -12778,7 +12761,7 @@ function _changeActiveSegmentIndex(element) {
     case 'increase':
       labelmap3D.activeSegmentIndex++;
 
-      if (labelmap3D.activeSegmentIndex > _configuration__WEBPACK_IMPORTED_MODULE_3__["default"].segmentsPerLabelmap) {
+      if (labelmap3D.activeSegmentIndex > configuration.segmentsPerLabelmap) {
         labelmap3D.activeSegmentIndex = 1;
       }
 
@@ -12788,7 +12771,7 @@ function _changeActiveSegmentIndex(element) {
       labelmap3D.activeSegmentIndex--;
 
       if (labelmap3D.activeSegmentIndex <= 0) {
-        labelmap3D.activeSegmentIndex = _configuration__WEBPACK_IMPORTED_MODULE_3__["default"].segmentsPerLabelmap;
+        labelmap3D.activeSegmentIndex = configuration.segmentsPerLabelmap;
       }
 
       break;
@@ -12809,6 +12792,12 @@ function _changeActiveSegmentIndex(element) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return addLabelmap2D; });
+/* harmony import */ var _arrayTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./arrayTypes */ "./store/modules/segmentationModule/arrayTypes.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../index.js */ "./store/index.js");
+
+
+var UINT_16_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_0__["default"].UINT_16_ARRAY,
+    FLOAT_32_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_0__["default"].FLOAT_32_ARRAY;
 /**
  * Adds a `Labelmap2D` view of one frame of a `Labelmap3D`.
  *
@@ -12819,11 +12808,30 @@ __webpack_require__.r(__webpack_exports__);
  * @param  {number} columns             The number of columns in the image.
  * @returns {null}
  */
-function addLabelmap2D(brushStackState, labelmapIndex, imageIdIndex, rows, columns) {
-  var sliceLength = rows * columns;
-  var byteOffset = sliceLength * 2 * imageIdIndex; // 2 bytes/pixel
 
-  var pixelData = new Uint16Array(brushStackState.labelmaps3D[labelmapIndex].buffer, byteOffset, sliceLength);
+function addLabelmap2D(brushStackState, labelmapIndex, imageIdIndex, rows, columns) {
+  var _getModule = Object(_index_js__WEBPACK_IMPORTED_MODULE_1__["getModule"])('segmentation'),
+      configuration = _getModule.configuration;
+
+  var sliceLength = rows * columns;
+  var elementOffset = sliceLength * imageIdIndex;
+  var pixelData;
+
+  switch (configuration.arrayType) {
+    case UINT_16_ARRAY:
+      pixelData = new Uint16Array(brushStackState.labelmaps3D[labelmapIndex].buffer, elementOffset * 2, // 2 bytes/voxel
+      sliceLength);
+      break;
+
+    case FLOAT_32_ARRAY:
+      pixelData = new Float32Array(brushStackState.labelmaps3D[labelmapIndex].buffer, elementOffset * 4, // 4 bytes/voxel
+      sliceLength);
+      break;
+
+    default:
+      throw new Error("Unsupported Array Type ".concat(configuration.arrayType));
+  }
+
   brushStackState.labelmaps3D[labelmapIndex].labelmaps2D[imageIdIndex] = {
     pixelData: pixelData,
     segmentsOnLabelmap: []
@@ -12842,6 +12850,12 @@ function addLabelmap2D(brushStackState, labelmapIndex, imageIdIndex, rows, colum
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return addLabelmap3D; });
+/* harmony import */ var _arrayTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./arrayTypes */ "./store/modules/segmentationModule/arrayTypes.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../index.js */ "./store/index.js");
+
+
+var UINT_16_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_0__["default"].UINT_16_ARRAY,
+    FLOAT_32_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_0__["default"].FLOAT_32_ARRAY;
 /**
  * AddLabelmap3D - Adds a `Labelmap3D` object to the `BrushStackState` object.
  *
@@ -12850,10 +12864,29 @@ __webpack_require__.r(__webpack_exports__);
  * @param  {number} size            The size of the ArrayBuffer in bytes/ 2.
  * @returns {null}
  */
+
 function addLabelmap3D(brushStackState, labelmapIndex, size) {
-  // Buffer size is multiplied by 2 as we are using 2 bytes/voxel for 65536 segments.
+  var _getModule = Object(_index_js__WEBPACK_IMPORTED_MODULE_1__["getModule"])('segmentation'),
+      configuration = _getModule.configuration;
+
+  var bytesPerVoxel;
+
+  switch (configuration.arrayType) {
+    case UINT_16_ARRAY:
+      bytesPerVoxel = 2;
+      break;
+
+    case FLOAT_32_ARRAY:
+      bytesPerVoxel = 4;
+      break;
+
+    default:
+      throw new Error("Unsupported Array Type ".concat(configuration.arrayType));
+  } // Buffer size is multiplied by bytesPerVoxel to allocate enough space.
+
+
   brushStackState.labelmaps3D[labelmapIndex] = {
-    buffer: new ArrayBuffer(size * 2),
+    buffer: new ArrayBuffer(size * bytesPerVoxel),
     labelmaps2D: [],
     metadata: [],
     activeSegmentIndex: 1,
@@ -12863,6 +12896,23 @@ function addLabelmap3D(brushStackState, labelmapIndex, size) {
     redo: []
   };
 }
+
+/***/ }),
+
+/***/ "./store/modules/segmentationModule/arrayTypes.js":
+/*!********************************************************!*\
+  !*** ./store/modules/segmentationModule/arrayTypes.js ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+var ARRAY_TYPES = {
+  UINT_16_ARRAY: 0,
+  FLOAT_32_ARRAY: 1
+};
+/* harmony default export */ __webpack_exports__["default"] = (ARRAY_TYPES);
 
 /***/ }),
 
@@ -12882,16 +12932,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getColorLUT", function() { return getColorLUT; });
 /* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "../node_modules/@babel/runtime/helpers/toConsumableArray.js");
 /* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../externalModules */ "./externalModules.js");
-/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../util/logger */ "./util/logger.js");
-/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
-/* harmony import */ var _configuration__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./configuration */ "./store/modules/segmentationModule/configuration.js");
+/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../util/logger */ "./util/logger.js");
+/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../index.js */ "./store/index.js");
 
 
 
 
-
-var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_2__["getLogger"])('store:modules:segmentationModule:setColorLUT');
+var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_1__["getLogger"])('store:modules:segmentationModule:setColorLUT');
 /**
  * SetColorLUT - Sets the labelmap to a specfic LUT, or generates a new LUT.
  *
@@ -12902,7 +12950,11 @@ var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_2__["getLogger"])('sto
 
 function setColorLUT(colorLUTIndex) {
   var colorLUT = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-  var segmentsPerLabelmap = _configuration__WEBPACK_IMPORTED_MODULE_4__["default"].segmentsPerLabelmap;
+
+  var _getModule = Object(_index_js__WEBPACK_IMPORTED_MODULE_3__["getModule"])('segmentation'),
+      configuration = _getModule.configuration;
+
+  var segmentsPerLabelmap = configuration.segmentsPerLabelmap;
 
   if (colorLUT) {
     _checkColorLUTLength(colorLUT, segmentsPerLabelmap);
@@ -12917,7 +12969,7 @@ function setColorLUT(colorLUTIndex) {
 
 
   colorLUT.unshift([0, 0, 0, 0]);
-  _state__WEBPACK_IMPORTED_MODULE_3__["default"].colorLutTables[colorLUTIndex] = colorLUT;
+  _state__WEBPACK_IMPORTED_MODULE_2__["default"].colorLutTables[colorLUTIndex] = colorLUT;
 }
 function setColorLUTIndexForLabelmap3D(labelmap3D, colorLUTIndex) {
   labelmap3D.colorLUTIndex = colorLUTIndex;
@@ -12931,7 +12983,7 @@ function getColorForSegmentIndexColorLUT(labelmap3DOrColorLUTIndex, segmentIndex
  *
  * @param {Object|number} labelmap3DOrColorLUTIndex Either a `Labelmap3D` object (who's referenced colorLUT will be changed), or a colorLUTIndex.
  * @param {number} segmentIndex The segmentIndex color to change.
- * @param {[number,number,number,number]} colorArray The color values in RGBA array format.
+ * @param {number[]} colorArray The color values in RGBA array format (required length 4).
  */
 
 function setColorForSegmentIndexOfColorLUT(labelmap3DOrColorLUTIndex, segmentIndex, colorArray) {
@@ -12940,10 +12992,10 @@ function setColorForSegmentIndexOfColorLUT(labelmap3DOrColorLUTIndex, segmentInd
 }
 function getColorLUT(labelmap3DOrColorLUTIndex) {
   if (typeof labelmap3DOrColorLUTIndex === 'number') {
-    return _state__WEBPACK_IMPORTED_MODULE_3__["default"].colorLutTables[labelmap3DOrColorLUTIndex];
+    return _state__WEBPACK_IMPORTED_MODULE_2__["default"].colorLutTables[labelmap3DOrColorLUTIndex];
   }
 
-  return _state__WEBPACK_IMPORTED_MODULE_3__["default"].colorLutTables[labelmap3DOrColorLUTIndex.colorLUTIndex];
+  return _state__WEBPACK_IMPORTED_MODULE_2__["default"].colorLutTables[labelmap3DOrColorLUTIndex.colorLUTIndex];
 }
 /**
  * Checks the length of `colorLUT` compared to `segmnetsPerLabelmap` and flags up any warnings.
@@ -13058,33 +13110,37 @@ function getRGBAfromHSLA(hue) {
 
 /***/ }),
 
-/***/ "./store/modules/segmentationModule/configuration.js":
-/*!***********************************************************!*\
-  !*** ./store/modules/segmentationModule/configuration.js ***!
-  \***********************************************************/
+/***/ "./store/modules/segmentationModule/defaultConfiguration.js":
+/*!******************************************************************!*\
+  !*** ./store/modules/segmentationModule/defaultConfiguration.js ***!
+  \******************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-// Segmentation module configuration.
-var configuration = {
+/* harmony import */ var _arrayTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./arrayTypes */ "./store/modules/segmentationModule/arrayTypes.js");
+
+var UINT_16_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_0__["default"].UINT_16_ARRAY; // Segmentation module configuration.
+
+var defaultConfiguration = {
   renderOutline: true,
   renderFill: true,
   shouldRenderInactiveLabelmaps: true,
   radius: 10,
   minRadius: 1,
   maxRadius: 50,
-  segmentsPerLabelmap: 65535,
-  // Max is 65535 due to using 16-bit Unsigned ints.
   fillAlpha: 0.2,
   fillAlphaInactive: 0.1,
   outlineAlpha: 0.7,
   outlineAlphaInactive: 0.35,
   outlineWidth: 3,
-  storeHistory: true
+  storeHistory: true,
+  segmentsPerLabelmap: 65535,
+  // Max is 65535 due to using 16-bit Unsigned ints.
+  arrayType: UINT_16_ARRAY
 };
-/* harmony default export */ __webpack_exports__["default"] = (configuration);
+/* harmony default export */ __webpack_exports__["default"] = (defaultConfiguration);
 
 /***/ }),
 
@@ -13182,9 +13238,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
 /* harmony import */ var _getElement__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./getElement */ "./store/modules/segmentationModule/getElement.js");
+/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../util/logger */ "./util/logger.js");
 
 
 
+
+var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_3__["getLogger"])('store:modules:segmentationModule:getBrushColor');
 /**
  * Returns the brush color as a rgba CSS color for the active segment of the active
  * `Labelmap3D` for the `BrushStackState` displayed on the element.
@@ -13204,6 +13263,12 @@ function getBrushColor(elementOrEnabledElementUID) {
   }
 
   var stackState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_0__["getToolState"])(element, 'stack');
+
+  if (!stackState) {
+    logger.error('Consumers must define stacks in their application if using segmentations in cornerstoneTools.');
+    return;
+  }
+
   var stackData = stackState.data[0];
   var firstImageId = stackData.imageIds[0];
   var brushStackState = _state__WEBPACK_IMPORTED_MODULE_1__["default"].series[firstImageId];
@@ -13267,16 +13332,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLabelmap2DByImageIdIndex", function() { return getLabelmap2DByImageIdIndex; });
 /* harmony import */ var _getElement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./getElement */ "./store/modules/segmentationModule/getElement.js");
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _addLabelmap3D__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./addLabelmap3D */ "./store/modules/segmentationModule/addLabelmap3D.js");
-/* harmony import */ var _addLabelmap2D__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./addLabelmap2D */ "./store/modules/segmentationModule/addLabelmap2D.js");
-/* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../externalModules */ "./externalModules.js");
-/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
+/* harmony import */ var _getSegmentsOnPixeldata__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./getSegmentsOnPixeldata */ "./store/modules/segmentationModule/getSegmentsOnPixeldata.js");
+/* harmony import */ var _addLabelmap3D__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./addLabelmap3D */ "./store/modules/segmentationModule/addLabelmap3D.js");
+/* harmony import */ var _addLabelmap2D__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./addLabelmap2D */ "./store/modules/segmentationModule/addLabelmap2D.js");
+/* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../externalModules */ "./externalModules.js");
+/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
+/* harmony import */ var _arrayTypes__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./arrayTypes */ "./store/modules/segmentationModule/arrayTypes.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../index.js */ "./store/index.js");
+/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../../util/logger */ "./util/logger.js");
 
 
 
 
 
 
+
+
+
+
+var UINT_16_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_7__["default"].UINT_16_ARRAY,
+    FLOAT_32_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_7__["default"].FLOAT_32_ARRAY;
+var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_9__["getLogger"])('store:modules:segmentationModule:getLabelmap2D');
 /**
  * Returns the active `labelmap3D` and the `currentImageIdIndex`. If a labelmap does
  * not get exist, creates a new one. Generates a `labelmap2D` for the `currentImageIndex`
@@ -13294,8 +13370,14 @@ function getLabelmap2D(elementOrEnabledElementUID) {
     return;
   }
 
-  var cornerstone = _externalModules__WEBPACK_IMPORTED_MODULE_4__["default"].cornerstone;
+  var cornerstone = _externalModules__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone;
   var stackState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__["getToolState"])(element, 'stack');
+
+  if (!stackState) {
+    logger.error('Consumers must define stacks in their application if using segmentations in cornerstoneTools.');
+    return;
+  }
+
   var stackData = stackState.data[0];
   var enabledElement = cornerstone.getEnabledElement(element);
   var currentImageIdIndex = stackData.currentImageIdIndex;
@@ -13304,7 +13386,7 @@ function getLabelmap2D(elementOrEnabledElementUID) {
       columns = _enabledElement$image.columns;
   var numberOfFrames = stackData.imageIds.length;
   var firstImageId = stackData.imageIds[0];
-  var brushStackState = _state__WEBPACK_IMPORTED_MODULE_5__["default"].series[firstImageId];
+  var brushStackState = _state__WEBPACK_IMPORTED_MODULE_6__["default"].series[firstImageId];
   var activeLabelmapIndex;
 
   if (brushStackState) {
@@ -13312,24 +13394,24 @@ function getLabelmap2D(elementOrEnabledElementUID) {
 
     if (!brushStackState.labelmaps3D[activeLabelmapIndex]) {
       var size = rows * columns * numberOfFrames;
-      Object(_addLabelmap3D__WEBPACK_IMPORTED_MODULE_2__["default"])(brushStackState, activeLabelmapIndex, size);
+      Object(_addLabelmap3D__WEBPACK_IMPORTED_MODULE_3__["default"])(brushStackState, activeLabelmapIndex, size);
     }
 
     if (!brushStackState.labelmaps3D[activeLabelmapIndex].labelmaps2D[currentImageIdIndex]) {
-      Object(_addLabelmap2D__WEBPACK_IMPORTED_MODULE_3__["default"])(brushStackState, activeLabelmapIndex, currentImageIdIndex, rows, columns);
+      Object(_addLabelmap2D__WEBPACK_IMPORTED_MODULE_4__["default"])(brushStackState, activeLabelmapIndex, currentImageIdIndex, rows, columns);
     }
   } else {
     activeLabelmapIndex = 0;
-    _state__WEBPACK_IMPORTED_MODULE_5__["default"].series[firstImageId] = {
+    _state__WEBPACK_IMPORTED_MODULE_6__["default"].series[firstImageId] = {
       activeLabelmapIndex: activeLabelmapIndex,
       labelmaps3D: []
     };
-    brushStackState = _state__WEBPACK_IMPORTED_MODULE_5__["default"].series[firstImageId];
+    brushStackState = _state__WEBPACK_IMPORTED_MODULE_6__["default"].series[firstImageId];
 
     var _size = rows * columns * numberOfFrames;
 
-    Object(_addLabelmap3D__WEBPACK_IMPORTED_MODULE_2__["default"])(brushStackState, activeLabelmapIndex, _size);
-    Object(_addLabelmap2D__WEBPACK_IMPORTED_MODULE_3__["default"])(brushStackState, activeLabelmapIndex, currentImageIdIndex, rows, columns);
+    Object(_addLabelmap3D__WEBPACK_IMPORTED_MODULE_3__["default"])(brushStackState, activeLabelmapIndex, _size);
+    Object(_addLabelmap2D__WEBPACK_IMPORTED_MODULE_4__["default"])(brushStackState, activeLabelmapIndex, currentImageIdIndex, rows, columns);
   }
 
   var labelmap3D = brushStackState.labelmaps3D[activeLabelmapIndex];
@@ -13353,15 +13435,31 @@ function getLabelmap2D(elementOrEnabledElementUID) {
 
 function getLabelmap2DByImageIdIndex(labelmap3D, imageIdIndex, rows, columns) {
   if (!labelmap3D.labelmaps2D[imageIdIndex]) {
-    var sliceLength = rows * columns;
-    var byteOffset = sliceLength * 2 * imageIdIndex; // 2 bytes/pixel
+    var _getModule = Object(_index_js__WEBPACK_IMPORTED_MODULE_8__["getModule"])('segmentation'),
+        configuration = _getModule.configuration;
 
-    var pixelData = new Uint16Array(labelmap3D.buffer, byteOffset, sliceLength);
+    var sliceLength = rows * columns;
+    var elementOffset = sliceLength * imageIdIndex;
+    var pixelData;
+
+    switch (configuration.arrayType) {
+      case UINT_16_ARRAY:
+        pixelData = new Uint16Array(labelmap3D.buffer, elementOffset * 2, // 2 bytes/voxel
+        sliceLength);
+        break;
+
+      case FLOAT_32_ARRAY:
+        pixelData = new Float32Array(labelmap3D.buffer, elementOffset * 4, // 4 bytes/voxel
+        sliceLength);
+        break;
+
+      default:
+        throw new Error("Unsupported Array Type ".concat(configuration.arrayType));
+    }
+
     labelmap3D.labelmaps2D[imageIdIndex] = {
       pixelData: pixelData,
-      getSegmentIndexes: function getSegmentIndexes() {
-        return new Set(pixelData);
-      }
+      segmentsOnLabelmap: Object(_getSegmentsOnPixeldata__WEBPACK_IMPORTED_MODULE_2__["default"])(pixelData)
     };
   }
 
@@ -13385,10 +13483,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _getLabelmaps3D__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./getLabelmaps3D */ "./store/modules/segmentationModule/getLabelmaps3D.js");
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
+/* harmony import */ var _arrayTypes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./arrayTypes */ "./store/modules/segmentationModule/arrayTypes.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../index.js */ "./store/index.js");
 
 
 
 
+
+
+var UINT_16_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_4__["default"].UINT_16_ARRAY,
+    FLOAT_32_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_4__["default"].FLOAT_32_ARRAY;
 /**
  * GetLabelmapBuffers - Returns the `buffer` of each `Labelmap3D` associated
  *                      with the `BrushStackState` displayed on the element, or a specific
@@ -13416,6 +13520,27 @@ function getLabelmapBuffers(elementOrEnabledElementUID, labelmapIndex) {
     return [];
   }
 
+  var _getModule = Object(_index_js__WEBPACK_IMPORTED_MODULE_5__["getModule"])('segmentation'),
+      configuration = _getModule.configuration;
+
+  var type;
+  var bytesPerVoxel;
+
+  switch (configuration.arrayType) {
+    case UINT_16_ARRAY:
+      type = 'Uint16Array';
+      bytesPerVoxel = '2';
+      break;
+
+    case FLOAT_32_ARRAY:
+      type = 'Float32Array';
+      bytesPerVoxel = '4';
+      break;
+
+    default:
+      throw new Error("Unsupported Array Type ".concat(configuration.arrayType));
+  }
+
   var colorLutTables = _state__WEBPACK_IMPORTED_MODULE_3__["default"].colorLutTables;
 
   if (labelmapIndex !== undefined) {
@@ -13424,7 +13549,8 @@ function getLabelmapBuffers(elementOrEnabledElementUID, labelmapIndex) {
     if (labelmap3D) {
       return {
         labelmapIndex: labelmapIndex,
-        bytesPerVoxel: 2,
+        bytesPerVoxel: bytesPerVoxel,
+        type: type,
         buffer: labelmap3D.buffer,
         colorLUT: colorLutTables[labelmap3D.colorLUTIndex]
       };
@@ -13489,52 +13615,67 @@ function getActiveLabelmapBuffer(elementOrEnabledElementUID) {
 /*!**************************************************************!*\
   !*** ./store/modules/segmentationModule/getLabelmapStats.js ***!
   \**************************************************************/
-/*! exports provided: default */
+/*! exports provided: default, _calculateLabelmapStats */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getLabelmapStats; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_calculateLabelmapStats", function() { return _calculateLabelmapStats; });
 /* harmony import */ var _getElement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./getElement */ "./store/modules/segmentationModule/getElement.js");
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
 /* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../externalModules */ "./externalModules.js");
+/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../util/logger */ "./util/logger.js");
 
 
 
 
+
+var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_4__["getLogger"])('store:modules:segmentationModule:getLabelmapStats');
 /**
  * Returns the maximum pixel value, mean and standard deviation of the segment
- * given by the `segmentIndex` of the scan on the element.
+ * given by the `segmentIndex` and `labelmapIndex`.
  *
  * @param  {HTMLElement|string} elementOrEnabledElementUID   The cornerstone enabled
  *                                                    element or its UUID.
  * @param  {number} segmentIndex  The segment index to query.
- * @returns {Promise} A promise that resolves to an object containing
+ * @param  {number} labelmapIndex The `labelmapIndex` of the `Labelmap3D` to query.
+ *                                Defaults to the activeLabelmapIndex if not given.
+ * @returns {Promise|null} A promise that resolves to an object containing
  *                    the maximum pixel value, the mean and the standard deviation.
+ *                    Returns null if no cornerstone element is found.
  */
 
-function getLabelmapStats(elementOrEnabledElementUID, segmentIndex) {
+function getLabelmapStats(elementOrEnabledElementUID, segmentIndex, labelmapIndex) {
+  var cornerstone = _externalModules__WEBPACK_IMPORTED_MODULE_3__["default"].cornerstone;
   var element = Object(_getElement__WEBPACK_IMPORTED_MODULE_0__["default"])(elementOrEnabledElementUID);
 
   if (!element) {
-    return;
+    return null;
   }
 
+  var stackState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__["getToolState"])(element, 'stack');
+  var imageIds = stackState.data[0].imageIds;
+  var firstImageId = imageIds[0];
   return new Promise(function (resolve) {
-    var cornerstone = _externalModules__WEBPACK_IMPORTED_MODULE_3__["default"].cornerstone;
-    var stackState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__["getToolState"])(element, 'stack');
-    var imageIds = stackState.data[0].imageIds;
-    var firstImageId = imageIds[0];
     var brushStackState = _state__WEBPACK_IMPORTED_MODULE_2__["default"].series[firstImageId];
 
     if (!brushStackState) {
-      resolve();
+      resolve(null);
     }
 
-    var activeLabelmapIndex = brushStackState.activeLabelmapIndex;
-    var labelmap3D = brushStackState.labelmaps3D[activeLabelmapIndex];
-    var labelmap3Dbuffer = labelmap3D.buffer;
+    var _getImagePlanes2 = _getImagePlanes(imageIds),
+        sufficientMetadata = _getImagePlanes2.sufficientMetadata,
+        imagePlanes = _getImagePlanes2.imagePlanes;
+
+    if (!sufficientMetadata) {
+      logger.warn('Insufficient imagePlaneModule information to calculate volume statistics.');
+      resolve(null);
+    }
+
+    labelmapIndex = labelmapIndex === undefined ? brushStackState.activeLabelmapIndex : labelmapIndex;
+    var labelmap3D = brushStackState.labelmaps3D[labelmapIndex];
     var imagePromises = [];
 
     for (var i = 0; i < imageIds.length; i++) {
@@ -13542,65 +13683,191 @@ function getLabelmapStats(elementOrEnabledElementUID, segmentIndex) {
     }
 
     Promise.all(imagePromises).then(function (images) {
-      var imagePixelData = [];
-      var _images$ = images[0],
-          rows = _images$.rows,
-          columns = _images$.columns;
-
-      for (var _i = 0; _i < images.length; _i++) {
-        imagePixelData.push(images[_i].getPixelData());
-      }
-
-      var stats = _calculateLabelmapStats(labelmap3Dbuffer, imagePixelData, rows * columns, segmentIndex);
+      var stats = _calculateLabelmapStats(labelmap3D, images, imagePlanes, segmentIndex);
 
       resolve(stats);
     });
   });
 }
 /**
- * Returns the statistics of the requested labelmap.
  *
- * @param  {type} labelmapBuffer The buffer for the labelmap.
- * @param  {Number[][]} imagePixelData The pixeldata of each image slice.
- * @param  {Number} sliceLength    The number of pixels in one slice.
- * @param  {Number} segmentIndex   The index of the segment.
- * @returns {Promise} A promise that resolves to the stats.
+ * @param {string[]} imageIds An array of cornerstone imageIds.
+ * @returns {Object} An object containing an array of per-frame imagePlane metadata,
+ * and a flag indicating if the metadata was present.
  */
 
-function _calculateLabelmapStats(labelmapBuffer, imagePixelData, sliceLength, segmentIndex) {
-  var segmentPixelValues = [];
+function _getImagePlanes(imageIds) {
+  var imagePlanes = [];
+  var cornerstone = _externalModules__WEBPACK_IMPORTED_MODULE_3__["default"].cornerstone;
+  var metadataProvider = cornerstone.metaData;
+  var sufficientMetadata = true;
 
-  for (var img = 0; img < imagePixelData.length; img++) {
-    var Uint8SliceView = new Uint8Array(labelmapBuffer, img * sliceLength, sliceLength);
-    var image = imagePixelData[img];
+  for (var i = 0; i < imageIds.length; i++) {
+    var imagePlaneModule = metadataProvider.get('imagePlaneModule', imageIds[i]);
 
-    for (var ind = 0; ind < image.length; ind++) {
-      if (Uint8SliceView[ind] === segmentIndex) {
-        segmentPixelValues.push(image[ind]);
+    if (!imagePlaneModule) {
+      sufficientMetadata = false;
+      break;
+    }
+
+    imagePlanes.push(imagePlaneModule);
+  }
+
+  return {
+    sufficientMetadata: sufficientMetadata,
+    imagePlanes: imagePlanes
+  };
+}
+/**
+ *
+ * @param {Labelmap3D} labelmap3D The labelmap3D object.
+ * @param {Object[]} images An array of cornerstone images.
+ * @param {Object[]} imagePlanes An array of the per-frame imagePlane metadata.
+ * @param {number} segmentIndex
+ *
+ * @returns {Object} Statistics object containing the volume in mm^3; and the
+ *                   min, max, mean and stdev of the segmented voxels.
+ */
+
+
+function _calculateLabelmapStats(labelmap3D, images, imagePlanes, segmentIndex) {
+  var voxelsPerFrame = _getVoxelsPerFrameForSegment(labelmap3D, images, imagePlanes, segmentIndex);
+
+  var volumeWeightedMean = 0;
+  var max = voxelsPerFrame[0].values[0];
+  var min = max;
+  var volume = 0; // Calculate Min, Max, volume and mean.
+
+  for (var i = 0; i < voxelsPerFrame.length; i++) {
+    var _voxelsPerFrame$i = voxelsPerFrame[i],
+        values = _voxelsPerFrame$i.values,
+        voxelInMM3 = _voxelsPerFrame$i.voxelInMM3;
+    volume += voxelInMM3 * values.length;
+    var sum = 0;
+    values.forEach(function (value) {
+      if (value > max) {
+        max = value;
+      } else if (value < min) {
+        min = value;
       }
+
+      sum += value;
+    });
+    volumeWeightedMean += sum * voxelInMM3;
+  }
+
+  volumeWeightedMean /= volume;
+  var volumeWeightedStDev = 0; // Calculate the volume weigthed standard deviation.
+
+  for (var _i = 0; _i < voxelsPerFrame.length; _i++) {
+    var _voxelsPerFrame$_i = voxelsPerFrame[_i],
+        values = _voxelsPerFrame$_i.values,
+        voxelInMM3 = _voxelsPerFrame$_i.voxelInMM3;
+    var stdDevSum = 0;
+    values.forEach(function (value) {
+      stdDevSum += Math.pow(value - volumeWeightedMean, 2);
+    });
+    volumeWeightedStDev += stdDevSum * voxelInMM3;
+  }
+
+  volumeWeightedStDev /= volume;
+  volumeWeightedStDev = Math.sqrt(volumeWeightedStDev);
+  return {
+    volume: volume,
+    mean: volumeWeightedMean,
+    stdDev: volumeWeightedStDev,
+    max: max,
+    min: min
+  };
+}
+/**
+ * Returns an array of voxel values masked by the segment for each frame,
+ * as well as the real world volume of a voxel on that frame.
+ *
+ * @param {Labelmap3D} labelmap3D The `Labelmap3D` object.
+ * @param {Object[]} images An array of cornerstone images.
+ * @param {Object[]} imagePlanes An array of the per-frame imagePlane metadata.
+ * @param {number} segmentIndex The index of the segment to check.
+ *
+ * @returns {Object[]} An array of voxel values and voxel volumes per frame.
+ */
+
+function _getVoxelsPerFrameForSegment(labelmap3D, images, imagePlanes, segmentIndex) {
+  var _images$ = images[0],
+      rowPixelSpacing = _images$.rowPixelSpacing,
+      columnPixelSpacing = _images$.columnPixelSpacing;
+  var labelmaps2D = labelmap3D.labelmaps2D;
+  var voxelsPerFrame = [];
+
+  for (var i = 0; i < labelmaps2D.length; i++) {
+    var labelmap2D = labelmaps2D[i];
+
+    if (labelmap2D && labelmap2D.segmentsOnLabelmap.includes(segmentIndex)) {
+      var sliceThickness = _getSliceThickness(images, imagePlanes, i);
+
+      var voxelInMM3 = sliceThickness * rowPixelSpacing * columnPixelSpacing;
+      var segmentationPixelData = labelmap2D.pixelData;
+      var imagePixelData = images[i].getPixelData();
+      var values = []; // Iterate over segmentationPixelData and count voxels.
+
+      for (var p = 0; p < segmentationPixelData.length; p++) {
+        if (segmentationPixelData[p] === segmentIndex) {
+          values.push(imagePixelData[p]);
+        }
+      }
+
+      voxelsPerFrame.push({
+        voxelInMM3: voxelInMM3,
+        values: values
+      });
     }
   }
 
-  var maximum = Math.max.apply(Math, segmentPixelValues);
-  var mean = 0;
+  return voxelsPerFrame;
+}
+/**
+ * Estimates the slice thickness given the image position patient of adjacent frames.
+ * For the edges the slice thickness is assumed to be the perpendicular distance to the closest frame.
+ * For all other frames the slice thickness is taken to be the sum of half of the distance to the frame above and below.
+ *
+ * Voxels on the first or last frame are assumed to be full occupied.
+ *
+ * @param {Object[]} images An array of cornerstone images.
+ * @param {Object[]} imagePlanes An array of the per-frame imagePlane metadata.
+ * @param {number} frameIndex The index of the frame to get the slice thickness for.
+ *
+ * @returns {number}
+ */
 
-  for (var i = 0; i < segmentPixelValues.length; i++) {
-    mean += segmentPixelValues[i];
-  }
 
-  mean /= segmentPixelValues.length;
-  var stdDev = 0;
+function _getSliceThickness(images, imagePlanes, frameIndex) {
+  var numberOfSlices = images.length;
+  var ipp = imagePlanes[frameIndex].imagePositionPatient; // Special cases: Edge of volume - Assume thickness is the distance
+  // between the current slice and the closest slice as this is all the information we have.
 
-  for (var _i2 = 0; _i2 < segmentPixelValues.length; _i2++) {
-    stdDev += Math.pow(segmentPixelValues[_i2] - mean, 2);
-  }
+  if (frameIndex === 0) {
+    var _ippAbove = imagePlanes[frameIndex + 1].imagePositionPatient;
+    return distanceBetweenSlices(ipp, _ippAbove);
+  } else if (frameIndex === numberOfSlices - 1) {
+    var _ippBelow = imagePlanes[frameIndex - 1].imagePositionPatient;
+    return distanceBetweenSlices(ipp, _ippBelow);
+  } // Estimate slice thickness from the two adjacent slices.
 
-  stdDev = Math.pow(stdDev, 0.5);
-  return {
-    maximum: maximum,
-    mean: mean,
-    stdDev: stdDev
-  };
+
+  var ippBelow = imagePlanes[frameIndex - 1].imagePositionPatient;
+  var ippAbove = imagePlanes[frameIndex + 1].imagePositionPatient;
+  return (distanceBetweenSlices(ipp, ippBelow) + distanceBetweenSlices(ipp, ippAbove)) / 2;
+}
+/**
+ * Returns the ditance between two imagePostionPatient coordinates.
+ *
+ * @param {number[]} ipp1 The first image position patient array.
+ * @param {number[]} ipp2 The second image position patient array.
+ */
+
+
+function distanceBetweenSlices(ipp1, ipp2) {
+  return Math.sqrt(Math.pow(ipp1[0] - ipp2[0], 2) + Math.pow(ipp1[1] - ipp2[1], 2) + Math.pow(ipp1[2] - ipp2[2], 2));
 }
 
 /***/ }),
@@ -13619,9 +13886,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _getElement__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./getElement */ "./store/modules/segmentationModule/getElement.js");
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
+/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../util/logger */ "./util/logger.js");
 
 
 
+
+var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_3__["getLogger"])('store:modules:segmentationModule:getLabelmaps3D');
 /**
  * Returns the `Labelmap3D` objects associated with the series displayed
  * in the element, the `activeLabelmapIndex` and the `currentImageIdIndex`.
@@ -13640,6 +13910,12 @@ function getLabelmaps3D(elementOrEnabledElementUID) {
   }
 
   var stackState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_0__["getToolState"])(element, 'stack');
+
+  if (!stackState) {
+    logger.error('Consumers must define stacks in their application if using segmentations in cornerstoneTools.');
+    return;
+  }
+
   var stackData = stackState.data[0];
   var firstImageId = stackData.imageIds[0];
   var brushStackState = _state__WEBPACK_IMPORTED_MODULE_2__["default"].series[firstImageId];
@@ -13782,26 +14058,16 @@ function getSegmentOfActiveLabelmapAtEvent(evt) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getSegmentsOnPixelData; });
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "../node_modules/@babel/runtime/helpers/toConsumableArray.js");
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
+
+
 /**
  * Returns an array of the segment indicies present on the `pixelData`.
- * @param  {UInt16Array} pixelData The pixel data array.
+ * @param  {UInt16Array|Float32Array} pixelData The pixel data array.
  */
 function getSegmentsOnPixelData(pixelData) {
-  var segmentSet = new Set(pixelData);
-  var iterator = segmentSet.values();
-  var segmentsOnLabelmap = [];
-  var done = false;
-
-  while (!done) {
-    var next = iterator.next();
-    done = next.done;
-
-    if (!done) {
-      segmentsOnLabelmap.push(next.value);
-    }
-  }
-
-  return segmentsOnLabelmap;
+  return _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(new Set(pixelData));
 }
 
 /***/ }),
@@ -13913,8 +14179,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _getSegmentsOnPixeldata__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./getSegmentsOnPixeldata */ "./store/modules/segmentationModule/getSegmentsOnPixeldata.js");
 /* harmony import */ var _deleteSegment__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./deleteSegment */ "./store/modules/segmentationModule/deleteSegment.js");
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
-/* harmony import */ var _configuration__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./configuration */ "./store/modules/segmentationModule/configuration.js");
+/* harmony import */ var _defaultConfiguration__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./defaultConfiguration */ "./store/modules/segmentationModule/defaultConfiguration.js");
 /* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./history */ "./store/modules/segmentationModule/history.js");
+/* harmony import */ var _setRadius__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./setRadius */ "./store/modules/segmentationModule/setRadius.js");
+
 
 
 
@@ -13950,7 +14218,7 @@ __webpack_require__.r(__webpack_exports__);
  * A 3D labelmap object which stores the labelmap data for an entire stack of cornerstone images.
  *
  * @typedef {Object} Labelmap3D An object defining a 3D labelmap.
- * @property {ArrayBuffer}  buffer An array buffer to store the pixel data of the `Labelmap3D` (2 bytes/voxel).
+ * @property {ArrayBuffer}  buffer An array buffer to store the pixel data of the `Labelmap3D` (2 bytes/voxel for Uint16 and 4 bytes/voxel for Float32).
  * @property {Labelmap2D[]} labelmaps2D array of `labelmap2D` views on the `buffer`, indexed by in-stack
  *                          image positions.
  * @property {Object[]} metadata An array of metadata per segment. Metadata is optional and its form is
@@ -13968,7 +14236,7 @@ __webpack_require__.r(__webpack_exports__);
  * A 2D labelmap object which accesses only one frame's worth of data from its parent `Labelmap3D`.
  *
  * @typedef {Object} Labelmap2D An object defining a 2D view on a section of a `Labelmap3D`'s `buffer`.
- * @property {Uint16Array} pixelData A 2D view on a section of the parent `Labelmap3D`'s `buffer`.
+ * @property {Uint16Array|Float32Array} pixelData A 2D view on a section of the parent `Labelmap3D`'s `buffer`.
  * @property {number[]} segmentsOnLabelmap An array of segments present in the `pixelData`.
  */
 
@@ -13984,7 +14252,7 @@ function onRegisterCallback() {
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   state: _state__WEBPACK_IMPORTED_MODULE_14__["default"],
-  configuration: _configuration__WEBPACK_IMPORTED_MODULE_15__["default"],
+  configuration: _defaultConfiguration__WEBPACK_IMPORTED_MODULE_15__["default"],
   onRegisterCallback: onRegisterCallback,
   getters: {
     metadata: _metadata__WEBPACK_IMPORTED_MODULE_0__["getMetadata"],
@@ -14019,9 +14287,7 @@ function onRegisterCallback() {
     colorLUTIndexForLabelmap3D: _colorLUT__WEBPACK_IMPORTED_MODULE_10__["setColorLUTIndexForLabelmap3D"],
     colorForSegmentIndexOfColorLUT: _colorLUT__WEBPACK_IMPORTED_MODULE_10__["setColorForSegmentIndexOfColorLUT"],
     activeLabelmapIndex: _activeLabelmapIndex__WEBPACK_IMPORTED_MODULE_1__["setActiveLabelmapIndex"],
-    radius: function radius(newRadius) {
-      _configuration__WEBPACK_IMPORTED_MODULE_15__["default"].radius = Math.min(Math.max(newRadius, _configuration__WEBPACK_IMPORTED_MODULE_15__["default"].minRadius), _configuration__WEBPACK_IMPORTED_MODULE_15__["default"].maxRadius);
-    },
+    radius: _setRadius__WEBPACK_IMPORTED_MODULE_17__["default"],
     pushState: _history__WEBPACK_IMPORTED_MODULE_16__["pushState"],
     undo: _history__WEBPACK_IMPORTED_MODULE_16__["undo"],
     redo: _history__WEBPACK_IMPORTED_MODULE_16__["redo"]
@@ -14283,14 +14549,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state */ "./store/modules/segmentationModule/state.js");
 /* harmony import */ var _getSegmentsOnPixeldata__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./getSegmentsOnPixeldata */ "./store/modules/segmentationModule/getSegmentsOnPixeldata.js");
-/* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../externalModules */ "./externalModules.js");
-/* harmony import */ var _util_segmentation__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../util/segmentation */ "./util/segmentation/index.js");
+/* harmony import */ var _util_segmentation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../util/segmentation */ "./util/segmentation/index.js");
+/* harmony import */ var _arrayTypes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./arrayTypes */ "./store/modules/segmentationModule/arrayTypes.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../index.js */ "./store/index.js");
 
 
 
 
 
 
+
+var UINT_16_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_5__["default"].UINT_16_ARRAY,
+    FLOAT_32_ARRAY = _arrayTypes__WEBPACK_IMPORTED_MODULE_5__["default"].FLOAT_32_ARRAY;
 /**
  * Takes a 16-bit encoded `ArrayBuffer` and stores it as a `Labelmap3D` for the
  * `BrushStackState` associated with the element.
@@ -14320,7 +14590,7 @@ function setLabelmap3DForElement(elementOrEnabledElementUID, buffer, labelmapInd
   var numberOfFrames = stackState.data[0].imageIds.length;
   var firstImageId = stackState.data[0].imageIds[0];
   setLabelmap3DByFirstImageId(firstImageId, buffer, labelmapIndex, metadata, numberOfFrames, segmentsOnLabelmapArray, colorLUTIndex);
-  Object(_util_segmentation__WEBPACK_IMPORTED_MODULE_5__["triggerLabelmapModifiedEvent"])(element, labelmapIndex);
+  Object(_util_segmentation__WEBPACK_IMPORTED_MODULE_4__["triggerLabelmapModifiedEvent"])(element, labelmapIndex);
 }
 /**
  * Takes an 16-bit encoded `ArrayBuffer` and stores it as a `Labelmap3D` for
@@ -14345,6 +14615,10 @@ function setLabelmap3DByFirstImageId(firstImageId, buffer, labelmapIndex) {
   var numberOfFrames = arguments.length > 4 ? arguments[4] : undefined;
   var segmentsOnLabelmapArray = arguments.length > 5 ? arguments[5] : undefined;
   var colorLUTIndex = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
+
+  var _getModule = Object(_index_js__WEBPACK_IMPORTED_MODULE_6__["getModule"])('segmentation'),
+      configuration = _getModule.configuration;
+
   var brushStackState = _state__WEBPACK_IMPORTED_MODULE_2__["default"].series[firstImageId];
 
   if (!brushStackState) {
@@ -14360,17 +14634,31 @@ function setLabelmap3DByFirstImageId(firstImageId, buffer, labelmapIndex) {
     labelmaps2D: [],
     metadata: metadata,
     activeSegmentIndex: 1,
-    colorLUTIndex: 0,
+    colorLUTIndex: colorLUTIndex,
     segmentsHidden: [],
     undo: [],
     redo: []
   };
   var labelmaps2D = brushStackState.labelmaps3D[labelmapIndex].labelmaps2D;
   var slicelengthInBytes = buffer.byteLength / numberOfFrames;
-  var sliceLengthInUint16 = slicelengthInBytes / 2; // SliceLength in Uint16.
 
   for (var i = 0; i < numberOfFrames; i++) {
-    var pixelData = new Uint16Array(buffer, slicelengthInBytes * i, sliceLengthInUint16);
+    var pixelData = void 0;
+
+    switch (configuration.arrayType) {
+      case UINT_16_ARRAY:
+        pixelData = new Uint16Array(buffer, slicelengthInBytes * i, // 2 bytes/voxel
+        slicelengthInBytes / 2);
+        break;
+
+      case FLOAT_32_ARRAY:
+        pixelData = new Float32Array(buffer, slicelengthInBytes * i, slicelengthInBytes / 4);
+        break;
+
+      default:
+        throw new Error("Unsupported Array Type ".concat(configuration.arrayType));
+    }
+
     var segmentsOnLabelmap = segmentsOnLabelmapArray ? segmentsOnLabelmapArray[i] : Object(_getSegmentsOnPixeldata__WEBPACK_IMPORTED_MODULE_3__["default"])(pixelData);
 
     if (segmentsOnLabelmap && segmentsOnLabelmap.some(function (segment) {
@@ -14385,6 +14673,27 @@ function setLabelmap3DByFirstImageId(firstImageId, buffer, labelmapIndex) {
 }
 
 
+
+/***/ }),
+
+/***/ "./store/modules/segmentationModule/setRadius.js":
+/*!*******************************************************!*\
+  !*** ./store/modules/segmentationModule/setRadius.js ***!
+  \*******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return setRadius; });
+/* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../index */ "./store/index.js");
+
+function setRadius(newRadius) {
+  var _getModule = Object(_index__WEBPACK_IMPORTED_MODULE_0__["getModule"])('segmentation'),
+      configuration = _getModule.configuration;
+
+  configuration.radius = Math.min(Math.max(newRadius, configuration.minRadius), configuration.maxRadius);
+}
 
 /***/ }),
 
@@ -14806,6 +15115,8 @@ function setToolModeForElement(mode, changeEvent, element, toolName, options) {
     var statusChangeEventData = {
       options: options,
       toolName: toolName,
+      toolType: toolName,
+      // Deprecation notice: toolType will be replaced by toolName
       type: changeEvent
     };
     Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"])(element, changeEvent, statusChangeEventData);
@@ -15297,6 +15608,7 @@ function Synchronizer(event, handler) {
       return;
     }
 
+    var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone;
     initialData.distances = {};
     initialData.imageIds = {
       sourceElements: [],
@@ -15371,7 +15683,7 @@ function Synchronizer(event, handler) {
    */
 
 
-  function fireEvent(sourceElement, eventData) {
+  this.fireEvent = function (sourceElement, eventData) {
     var isDisabled = !that.enabled;
     var noElements = !sourceElements.length || !targetElements.length;
 
@@ -15406,7 +15718,7 @@ function Synchronizer(event, handler) {
       eventHandler(that, sourceElement, targetElement, eventData, positionDifference);
     });
     ignoreFiredEvents = false;
-  }
+  };
   /**
    * Call fireEvent if not ignoring events, and pass along event data
    *
@@ -15416,15 +15728,15 @@ function Synchronizer(event, handler) {
    */
 
 
-  function onEvent(e) {
+  this.onEvent = function (e) {
     var eventData = e.detail;
 
     if (ignoreFiredEvents === true) {
       return;
     }
 
-    fireEvent(e.currentTarget, eventData);
-  }
+    that.fireEvent(e.currentTarget, eventData);
+  };
   /**
    * Add a source element to this synchronizer
    *
@@ -15445,7 +15757,7 @@ function Synchronizer(event, handler) {
     sourceElements.push(element); // Subscribe to the event
 
     event.split(' ').forEach(function (oneEvent) {
-      element.addEventListener(oneEvent, onEvent);
+      element.addEventListener(oneEvent, that.onEvent);
     }); // Update the initial distances between elements
 
     that.getDistances();
@@ -15507,12 +15819,12 @@ function Synchronizer(event, handler) {
     sourceElements.splice(index, 1); // Stop listening for the event
 
     event.split(' ').forEach(function (oneEvent) {
-      element.removeEventListener(oneEvent, onEvent);
+      element.removeEventListener(oneEvent, that.onEvent);
     }); // Update the initial distances between elements
 
     that.getDistances(); // Update everyone listening for events
 
-    fireEvent(element);
+    that.fireEvent(element);
     that.updateDisableHandlers();
   };
   /**
@@ -15583,7 +15895,7 @@ function Synchronizer(event, handler) {
 
   this.displayImage = function (element, image, viewport) {
     ignoreFiredEvents = true;
-    cornerstone.displayImage(element, image, viewport);
+    _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.displayImage(element, image, viewport);
     ignoreFiredEvents = false;
   };
   /**
@@ -15597,7 +15909,7 @@ function Synchronizer(event, handler) {
 
   this.setViewport = function (element, viewport) {
     ignoreFiredEvents = true;
-    cornerstone.setViewport(element, viewport);
+    _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.setViewport(element, viewport);
     ignoreFiredEvents = false;
   };
   /**
@@ -16491,7 +16803,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!************************!*\
   !*** ./toolOptions.js ***!
   \************************/
-/*! exports provided: getToolOptions, setToolOptions, clearToolOptions, clearToolOptionsByToolType, clearToolOptionsByElement */
+/*! exports provided: getToolOptions, setToolOptions, clearToolOptions, clearToolOptionsByToolType, clearToolOptionsByToolName, clearToolOptionsByElement */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16500,27 +16812,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setToolOptions", function() { return setToolOptions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clearToolOptions", function() { return clearToolOptions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clearToolOptionsByToolType", function() { return clearToolOptionsByToolType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clearToolOptionsByToolName", function() { return clearToolOptionsByToolName; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clearToolOptionsByElement", function() { return clearToolOptionsByElement; });
 var elementToolOptions = {};
 /**
- * Retrieve the options object associated with a particular toolType and element
+ * Retrieve the options object associated with a particular toolName and element
  * @export
  * @public
  * @method
  * @name getToolOptions
  *
- * @param {string} toolType Tool type identifier of the target options object
+ * @param {string} toolName Tool name identifier of the target options object
  * @param {HTMLElement} element Element of the target options object
  *
  * @returns {Object} Target options object (empty if not yet set)
  */
 
-function getToolOptions(toolType, element) {
-  if (!elementToolOptions[toolType]) {
+function getToolOptions(toolName, element) {
+  if (!elementToolOptions[toolName]) {
     return {};
   }
 
-  var toolOptions = elementToolOptions[toolType];
+  var toolOptions = elementToolOptions[toolName];
   var optionsObject = toolOptions.find(function (toolOptionObject) {
     return toolOptionObject.element === element;
   });
@@ -16532,67 +16845,71 @@ function getToolOptions(toolType, element) {
   return optionsObject.options;
 }
 /**
- * Set the options object associated with a particular toolType and element.
+ * Set the options object associated with a particular toolName and element.
  * @export
  * @public
  * @method
  * @name setToolOptions
  *
- * @param {string} toolType Tool type identifier of the target options object.
+ * @param {string} toolName Tool name identifier of the target options object.
  * @param {HTMLElement} element Element of the target options object.
  * @param {Object} options Options object to store at target.
  * @returns {void}
  */
 
 
-function setToolOptions(toolType, element, options) {
-  if (!elementToolOptions[toolType]) {
-    elementToolOptions[toolType] = [{
+function setToolOptions(toolName, element, options) {
+  if (!elementToolOptions[toolName]) {
+    elementToolOptions[toolName] = [{
       element: element,
       options: options
     }];
     return;
   }
 
-  var toolOptions = elementToolOptions[toolType];
+  var toolOptions = elementToolOptions[toolName];
   var index = toolOptions.findIndex(function (toolOptionObject) {
     return toolOptionObject.element === element;
   });
 
   if (index === -1) {
-    elementToolOptions[toolType].push({
+    elementToolOptions[toolName].push({
       element: element,
       options: options
     });
   } else {
-    var elementOptions = elementToolOptions[toolType][index].options || {};
-    elementToolOptions[toolType][index].options = Object.assign(elementOptions, options);
+    var elementOptions = elementToolOptions[toolName][index].options || {};
+    elementToolOptions[toolName][index].options = Object.assign(elementOptions, options);
   }
 }
 /**
- * Clear the options object associated with a particular toolType and element.
+ * Clear the options object associated with a particular toolName and element.
  * @export
  * @public
  * @method
  * @name clearToolOptions
  *
- * @param {string} toolType Tool type identifier of the target options object.
+ * @param {string} toolName Tool name identifier of the target options object.
  * @param {HTMLElement} element Element of the target options object.
  * @returns {void}
  */
 
 
-function clearToolOptions(toolType, element) {
-  var toolOptions = elementToolOptions[toolType];
+function clearToolOptions(toolName, element) {
+  var toolOptions = elementToolOptions[toolName];
 
   if (toolOptions) {
-    elementToolOptions[toolType] = toolOptions.filter(function (toolOptionObject) {
+    elementToolOptions[toolName] = toolOptions.filter(function (toolOptionObject) {
       return toolOptionObject.element !== element;
     });
   }
 }
 /**
  * Clear the options objects associated with a particular toolType.
+ *
+ * Deprecation notice: use clearToolOptionsByToolName instead
+ * @deprecated
+ *
  * @export
  * @public
  * @method
@@ -16604,7 +16921,22 @@ function clearToolOptions(toolType, element) {
 
 
 function clearToolOptionsByToolType(toolType) {
-  delete elementToolOptions[toolType];
+  return clearToolOptionsByToolName(toolType);
+}
+/**
+ * Clear the options objects associated with a particular toolName.
+ * @export
+ * @public
+ * @method
+ * @name clearToolOptionsByToolName
+ *
+ * @param {string} toolName Tool name identifier of the target options objects.
+ * @returns {void}
+ */
+
+
+function clearToolOptionsByToolName(toolName) {
+  delete elementToolOptions[toolName];
 }
 /**
  * Clear the options objects associated with a particular element.
@@ -16619,8 +16951,8 @@ function clearToolOptionsByToolType(toolType) {
 
 
 function clearToolOptionsByElement(element) {
-  for (var toolType in elementToolOptions) {
-    elementToolOptions[toolType] = elementToolOptions[toolType].filter(function (toolOptionObject) {
+  for (var toolName in elementToolOptions) {
+    elementToolOptions[toolName] = elementToolOptions[toolName].filter(function (toolOptionObject) {
       return toolOptionObject.element !== element;
     });
   }
@@ -16702,7 +17034,7 @@ function (_BaseTool) {
       svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_13__["crosshairsCursor"]
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(CrosshairsTool).call(this, props, defaultProps));
-    _this.mouseDownCallback = _this._chooseLocation.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this.preMouseDownCallback = _this._chooseLocation.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
     _this.mouseDragCallback = _this._chooseLocation.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
     _this.touchDragCallback = _this._chooseLocation.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
     return _this;
@@ -16947,9 +17279,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var _this2 = undefined;
-
-
 
 
 
@@ -17041,8 +17370,8 @@ function (_BaseTool) {
 
 
 
-var defaultStrategy = function defaultStrategy(evt) {
-  var config = _this2.configuration;
+function defaultStrategy(evt) {
+  var config = this.configuration;
   var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone;
   var eventData = evt.detail;
   var element = eventData.element,
@@ -17089,7 +17418,7 @@ var defaultStrategy = function defaultStrategy(evt) {
     Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_13__["default"])(context, str, textCoords.x, textCoords.y + fontHeight + 5, color);
     Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_13__["default"])(context, text, textCoords.x, textCoords.y, color);
   });
-};
+}
 /**
  * Minimal strategy will position a circle and use the center of the circle to calculate and display probe data.
  *
@@ -17098,8 +17427,8 @@ var defaultStrategy = function defaultStrategy(evt) {
  */
 
 
-var minimalStrategy = function minimalStrategy(evt) {
-  var config = _this2.configuration;
+function minimalStrategy(evt) {
+  var config = this.configuration;
   var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone;
   var eventData = evt.detail;
   var element = eventData.element,
@@ -17174,7 +17503,7 @@ var minimalStrategy = function minimalStrategy(evt) {
     }, 'canvas');
     Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_13__["default"])(context, text, textCoords.x + translation.x, textCoords.y + translation.y, color);
   });
-};
+}
 
 /***/ }),
 
@@ -17364,7 +17693,7 @@ function (_BaseTool) {
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(FreehandRoiSculptorTool).call(this, props, defaultProps));
     _this.updateOnMouseMove = true;
     _this.isMultiPartTool = true;
-    _this.referencedToolName = defaultProps.referencedToolName;
+    _this.referencedToolName = _this.initialConfiguration.referencedToolName;
     _this._active = false; // Create bound functions for private event loop.
 
     _this.activeMouseUpCallback = _this.activeMouseUpCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
@@ -18788,7 +19117,7 @@ function (_BaseTool) {
     key: "_removeZoomElement",
     value: function _removeZoomElement() {
       if (this.zoomElement !== undefined) {
-        _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.disable(this.zoomCanvas);
+        _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.disable(this.zoomElement);
         this.zoomElement = undefined;
         this.zoomCanvas = undefined;
       }
@@ -18840,6 +19169,364 @@ function (_BaseTool) {
 
   return MagnifyTool;
 }(_base_BaseTool_js__WEBPACK_IMPORTED_MODULE_8__["default"]);
+
+
+
+/***/ }),
+
+/***/ "./tools/OrientationMarkersTool.js":
+/*!*****************************************!*\
+  !*** ./tools/OrientationMarkersTool.js ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return OrientationMarkersTool; });
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "../node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "../node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "../node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "../node_modules/@babel/runtime/helpers/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "../node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _base_BaseTool_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./base/BaseTool.js */ "./tools/base/BaseTool.js");
+/* harmony import */ var _orientation_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../orientation/index.js */ "./orientation/index.js");
+/* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../drawing/index.js */ "./drawing/index.js");
+/* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
+/* harmony import */ var _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../drawing/drawTextBox.js */ "./drawing/drawTextBox.js");
+
+
+
+
+
+
+
+ // Drawing
+
+
+
+
+/**
+ * @public
+ * @class OrientationMarkersTool
+ * @memberof Tools
+ *
+ * @classdesc Tool for displaying orientation markers on the image.
+ * @extends Tools.Base.BaseTool
+ */
+
+var OrientationMarkersTool =
+/*#__PURE__*/
+function (_BaseTool) {
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default()(OrientationMarkersTool, _BaseTool);
+
+  function OrientationMarkersTool() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, OrientationMarkersTool);
+
+    var defaultProps = {
+      name: 'OrientationMarkers',
+      configuration: {
+        drawAllMarkers: true
+      },
+      mixins: ['enabledOrDisabledBinaryTool']
+    };
+    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(OrientationMarkersTool).call(this, props, defaultProps));
+  }
+
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(OrientationMarkersTool, [{
+    key: "enabledCallback",
+    value: function enabledCallback(element) {
+      this.forceImageUpdate(element);
+    }
+  }, {
+    key: "disabledCallback",
+    value: function disabledCallback(element) {
+      this.forceImageUpdate(element);
+    }
+  }, {
+    key: "forceImageUpdate",
+    value: function forceImageUpdate(element) {
+      var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone;
+      var enabledElement = cornerstone.getEnabledElement(element);
+
+      if (enabledElement.image) {
+        cornerstone.updateImage(element);
+      }
+    }
+  }, {
+    key: "renderToolData",
+    value: function renderToolData(evt) {
+      var eventData = evt.detail;
+      var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_8__["getNewContext"])(eventData.canvasContext.canvas);
+      var element = eventData.element;
+      var markers = getOrientationMarkers(element);
+
+      if (!markers) {
+        return;
+      }
+
+      var coords = getOrientationMarkerPositions(element, markers);
+      var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_9__["default"].getToolColor();
+      var textWidths = {
+        top: Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["textBoxWidth"])(context, markers.top, 0),
+        left: Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["textBoxWidth"])(context, markers.left, 0),
+        right: Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["textBoxWidth"])(context, markers.right, 0),
+        bottom: Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["textBoxWidth"])(context, markers.bottom, 0),
+        height: Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["textBoxWidth"])(context, 'M', 0) // Trick to get an approximation of the height of the text
+
+      };
+      drawTopLeftText(context, markers, coords, textWidths, color);
+
+      if (this.configuration.drawAllMarkers) {
+        drawBottomRightText(context, markers, coords, textWidths, color);
+      }
+    }
+  }]);
+
+  return OrientationMarkersTool;
+}(_base_BaseTool_js__WEBPACK_IMPORTED_MODULE_6__["default"]);
+
+
+
+var drawTopLeftText = function drawTopLeftText(context, markers, coords, textWidths, color) {
+  Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["default"])(context, markers.top, coords.top.x - textWidths.top / 2, coords.top.y, color);
+  Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["default"])(context, markers.left, coords.left.x - textWidths.left / 2, coords.left.y, color);
+};
+
+var drawBottomRightText = function drawBottomRightText(context, markers, coords, textWidths, color) {
+  Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["default"])(context, markers.right, coords.right.x - textWidths.right, coords.right.y, color);
+  Object(_drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_10__["default"])(context, markers.bottom, coords.bottom.x - textWidths.bottom / 2, coords.bottom.y - textWidths.height, color);
+};
+
+var getOrientationMarkers = function getOrientationMarkers(element) {
+  var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone;
+  var enabledElement = cornerstone.getEnabledElement(element);
+  var imagePlane = cornerstone.metaData.get('imagePlaneModule', enabledElement.image.imageId);
+
+  if (!imagePlane || !imagePlane.rowCosines || !imagePlane.columnCosines) {
+    return;
+  }
+
+  var row = _orientation_index_js__WEBPACK_IMPORTED_MODULE_7__["default"].getOrientationString(imagePlane.rowCosines);
+  var column = _orientation_index_js__WEBPACK_IMPORTED_MODULE_7__["default"].getOrientationString(imagePlane.columnCosines);
+  var oppositeRow = _orientation_index_js__WEBPACK_IMPORTED_MODULE_7__["default"].invertOrientationString(row);
+  var oppositeColumn = _orientation_index_js__WEBPACK_IMPORTED_MODULE_7__["default"].invertOrientationString(column);
+  return {
+    top: oppositeColumn,
+    bottom: column,
+    left: oppositeRow,
+    right: row
+  };
+};
+
+var getOrientationMarkerPositions = function getOrientationMarkerPositions(element) {
+  var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.getEnabledElement(element);
+  var top = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, {
+    x: enabledElement.image.width / 2,
+    y: 5
+  });
+  var bottom = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, {
+    x: enabledElement.image.width / 2,
+    y: enabledElement.image.height - 15
+  });
+  var left = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, {
+    x: 5,
+    y: enabledElement.image.height / 2
+  });
+  var right = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, {
+    x: enabledElement.image.width - 10,
+    y: enabledElement.image.height / 2
+  });
+  return {
+    top: top,
+    bottom: bottom,
+    left: left,
+    right: right
+  };
+};
+
+/***/ }),
+
+/***/ "./tools/OverlayTool.js":
+/*!******************************!*\
+  !*** ./tools/OverlayTool.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return OverlayTool; });
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "../node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "../node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "../node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "../node_modules/@babel/runtime/helpers/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "../node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/index */ "./store/index.js");
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _base_BaseTool_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./base/BaseTool.js */ "./tools/base/BaseTool.js");
+
+
+
+
+
+
+
+
+var globalConfiguration = _store_index__WEBPACK_IMPORTED_MODULE_5__["modules"].globalConfiguration;
+/**
+ *
+ * http://dicom.nema.org/dicom/2013/output/chtml/part03/sect_C.9.html
+ *
+ * @public
+ * @class Overlay
+ * @memberof Tools
+ *
+ * @classdesc Tool for displaying a scale overlay on the image.  Uses viewport.overlayColor to set the default colour.
+ * @extends Tools.Base.BaseTool
+ */
+
+var OverlayTool =
+/*#__PURE__*/
+function (_BaseTool) {
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default()(OverlayTool, _BaseTool);
+
+  function OverlayTool() {
+    var _this;
+
+    var configuration = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, OverlayTool);
+
+    var defaultConfig = {
+      name: 'Overlay',
+      configuration: {},
+      mixins: ['enabledOrDisabledBinaryTool']
+    };
+    var initialConfiguration = Object.assign(defaultConfig, configuration);
+    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(OverlayTool).call(this, initialConfiguration));
+    _this.initialConfiguration = initialConfiguration;
+    return _this;
+  }
+
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(OverlayTool, [{
+    key: "enabledCallback",
+    value: function enabledCallback(element) {
+      this.forceImageUpdate(element);
+    }
+  }, {
+    key: "disabledCallback",
+    value: function disabledCallback(element) {
+      this.forceImageUpdate(element);
+    }
+  }, {
+    key: "forceImageUpdate",
+    value: function forceImageUpdate(element) {
+      var enabledElement = _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.getEnabledElement(element);
+
+      if (enabledElement.image) {
+        _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.updateImage(element);
+      }
+    }
+  }, {
+    key: "setupRender",
+    value: function setupRender(image) {
+      if (!image) {
+        return;
+      }
+
+      var overlayPlaneMetadata = _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.metaData.get('overlayPlaneModule', image.imageId);
+
+      if (!overlayPlaneMetadata || !overlayPlaneMetadata.overlays || !overlayPlaneMetadata.overlays.length) {
+        return;
+      }
+
+      return overlayPlaneMetadata;
+    }
+  }, {
+    key: "setupViewport",
+    value: function setupViewport(viewport) {
+      if (viewport.overlayColor === undefined) {
+        viewport.overlayColor = globalConfiguration.configuration.overlayColor || 'white';
+      } // Allow turning off overlays by setting overlayColor to false
+
+
+      if (viewport.overlayColor === false) {
+        return;
+      }
+
+      return true;
+    }
+  }, {
+    key: "renderToolData",
+    value: function renderToolData(evt) {
+      var eventData = evt.detail;
+      var enabledElement = eventData.enabledElement,
+          image = eventData.image,
+          viewport = eventData.viewport,
+          canvasContext = eventData.canvasContext;
+      var overlayPlaneMetadata = this.setupRender(image);
+
+      if (!eventData || !enabledElement || !overlayPlaneMetadata) {
+        return;
+      }
+
+      if (!this.setupViewport(viewport)) {
+        return;
+      }
+
+      var imageWidth = image.columns;
+      var imageHeight = image.rows;
+      overlayPlaneMetadata.overlays.forEach(function (overlay) {
+        if (overlay.visible === false) {
+          return;
+        }
+
+        var layerCanvas = document.createElement('canvas');
+        layerCanvas.width = imageWidth;
+        layerCanvas.height = imageHeight;
+        var layerContext = layerCanvas.getContext('2d');
+        layerContext.fillStyle = overlay.fillStyle || viewport.overlayColor;
+
+        if (overlay.type === 'R') {
+          layerContext.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
+          layerContext.globalCompositeOperation = 'xor';
+        }
+
+        var i = 0;
+
+        for (var y = 0; y < overlay.rows; y++) {
+          for (var x = 0; x < overlay.columns; x++) {
+            if (overlay.pixelData[i++] > 0) {
+              layerContext.fillRect(x, y, 1, 1);
+            }
+          }
+        } // Guard against non-number values
+
+
+        var overlayX = !isNaN(parseFloat(overlay.x)) && isFinite(overlay.x) ? overlay.x : 0;
+        var overlayY = !isNaN(parseFloat(overlay.y)) && isFinite(overlay.y) ? overlay.y : 0; // Draw the overlay layer onto the canvas
+
+        canvasContext.drawImage(layerCanvas, overlayX, overlayY);
+      });
+    }
+  }]);
+
+  return OverlayTool;
+}(_base_BaseTool_js__WEBPACK_IMPORTED_MODULE_7__["default"]);
 
 
 
@@ -19322,6 +20009,12 @@ function (_BaseTool) {
       },
       defaultStrategy: 'default',
       supportedInteractionTypes: ['Mouse', 'Touch'],
+      configuration: {
+        roundAngles: false,
+        flipHorizontal: false,
+        flipVertical: false,
+        rotateScale: 1
+      },
       svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_8__["rotateCursor"]
     };
     return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(RotateTool).call(this, props, defaultProps));
@@ -19346,7 +20039,7 @@ function (_BaseTool) {
     key: "dragCallback",
     value: function dragCallback(evt) {
       evt.detail.viewport.initialRotation = this.initialRotation;
-      this.applyActiveStrategy(evt, this.configuration);
+      this.applyActiveStrategy(evt);
       _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.setViewport(evt.detail.element, evt.detail.viewport);
     }
   }]);
@@ -19356,51 +20049,89 @@ function (_BaseTool) {
 
 
 
-var defaultStrategy = function defaultStrategy(evt) {
-  var eventData = evt.detail;
-  var element = eventData.element,
-      viewport = eventData.viewport;
-  var initialRotation = viewport.initialRotation; // Calculate the center of the image
+function defaultStrategy(evt) {
+  var _this$configuration = this.configuration,
+      roundAngles = _this$configuration.roundAngles,
+      rotateScale = _this$configuration.rotateScale;
+  var _evt$detail = evt.detail,
+      element = _evt$detail.element,
+      viewport = _evt$detail.viewport,
+      startPoints = _evt$detail.startPoints,
+      currentPoints = _evt$detail.currentPoints;
+  var initialRotation = viewport.initialRotation ? viewport.initialRotation : viewport.rotation; // Calculate the center of the image
 
   var rect = element.getBoundingClientRect(element);
   var width = element.clientWidth,
       height = element.clientHeight;
-  var initialPoints = {
-    x: eventData.startPoints.client.x,
-    y: eventData.startPoints.client.y
-  };
   var scale = viewport.scale,
       translation = viewport.translation;
   var centerPoints = {
     x: rect.left + width / 2 + translation.x * scale,
     y: rect.top + height / 2 + translation.y * scale
   };
-  var currentPoints = {
-    x: eventData.currentPoints.client.x,
-    y: eventData.currentPoints.client.y
-  };
-  var angleInfo = Object(_util_angleBetweenPoints_js__WEBPACK_IMPORTED_MODULE_7__["default"])(centerPoints, initialPoints, currentPoints);
+  var angleInfo = Object(_util_angleBetweenPoints_js__WEBPACK_IMPORTED_MODULE_7__["default"])(centerPoints, startPoints.client, currentPoints.client);
+  angleInfo.angle *= rotateScale;
+
+  if (roundAngles) {
+    angleInfo.angle = Math.ceil(angleInfo.angle);
+  }
 
   if (angleInfo.direction < 0) {
     angleInfo.angle = -angleInfo.angle;
   }
 
   viewport.rotation = initialRotation + angleInfo.angle;
-};
+}
 
-var horizontalStrategy = function horizontalStrategy(evt) {
-  var eventData = evt.detail;
-  var viewport = eventData.viewport,
-      deltaPoints = eventData.deltaPoints;
-  viewport.rotation += deltaPoints.page.x / viewport.scale;
-};
+function horizontalStrategy(evt) {
+  var _this$configuration2 = this.configuration,
+      roundAngles = _this$configuration2.roundAngles,
+      flipHorizontal = _this$configuration2.flipHorizontal,
+      rotateScale = _this$configuration2.rotateScale;
+  var _evt$detail2 = evt.detail,
+      viewport = _evt$detail2.viewport,
+      startPoints = _evt$detail2.startPoints,
+      currentPoints = _evt$detail2.currentPoints;
+  var initialRotation = viewport.initialRotation;
+  var initialPointX = startPoints.client.x;
+  var currentPointX = currentPoints.client.x;
+  var angle = (currentPointX - initialPointX) * rotateScale;
 
-var verticalStrategy = function verticalStrategy(evt) {
-  var eventData = evt.detail;
-  var viewport = eventData.viewport,
-      deltaPoints = eventData.deltaPoints;
-  viewport.rotation += deltaPoints.page.y / viewport.scale;
-};
+  if (roundAngles) {
+    angle = Math.round(Math.abs(angle)) * (angle > 0 ? 1 : -1);
+  }
+
+  if (flipHorizontal) {
+    angle = -angle;
+  }
+
+  viewport.rotation = initialRotation + angle;
+}
+
+function verticalStrategy(evt) {
+  var _this$configuration3 = this.configuration,
+      roundAngles = _this$configuration3.roundAngles,
+      flipVertical = _this$configuration3.flipVertical,
+      rotateScale = _this$configuration3.rotateScale;
+  var _evt$detail3 = evt.detail,
+      viewport = _evt$detail3.viewport,
+      startPoints = _evt$detail3.startPoints,
+      currentPoints = _evt$detail3.currentPoints;
+  var initialRotation = viewport.initialRotation;
+  var initialPointY = startPoints.client.y;
+  var currentPointY = currentPoints.client.y;
+  var angle = (currentPointY - initialPointY) * rotateScale;
+
+  if (roundAngles) {
+    angle = Math.round(Math.abs(angle)) * (angle > 0 ? 1 : -1);
+  }
+
+  if (flipVertical) {
+    angle = -angle;
+  }
+
+  viewport.rotation = initialRotation + angle;
+}
 
 /***/ }),
 
@@ -19638,14 +20369,14 @@ function (_BaseTool) {
         Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["setShadow"])(context, imageAttributes); // Draw vertical line
 
         Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["drawLine"])(context, element, imageAttributes.verticalLine.start, imageAttributes.verticalLine.end, {
-          color: color,
-          lineWidth: lineWidth
+          color: imageAttributes.color,
+          lineWidth: imageAttributes.lineWidth
         }, 'canvas');
         drawVerticalScalebarIntervals(context, element, imageAttributes); // Draw horizontal line
 
         Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["drawLine"])(context, element, imageAttributes.horizontalLine.start, imageAttributes.horizontalLine.end, {
-          color: color,
-          lineWidth: lineWidth
+          color: imageAttributes.color,
+          lineWidth: imageAttributes.lineWidth
         }, 'canvas');
         drawHorizontalScalebarIntervals(context, element, imageAttributes);
       });
@@ -20385,7 +21116,9 @@ var _applyWWWCRegion = function _applyWWWCRegion(evt, config) {
   }
 
   viewport.voi.windowWidth = Math.max(Math.abs(minMaxMean.max - minMaxMean.min), config.minWindowWidth);
-  viewport.voi.windowCenter = minMaxMean.mean;
+  viewport.voi.windowCenter = minMaxMean.mean; // Unset any existing VOI LUT
+
+  viewport.voiLUT = undefined;
   _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.setViewport(element, viewport);
   _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.updateImage(element);
 };
@@ -20543,7 +21276,10 @@ function basicLevelingStrategy(evt) {
   } else {
     eventData.viewport.voi.windowWidth += deltaY;
     eventData.viewport.voi.windowCenter += deltaX;
-  }
+  } // Unset any existing VOI LUT
+
+
+  eventData.viewport.voiLUT = undefined;
 }
 
 /***/ }),
@@ -21049,6 +21785,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../events.js */ "./events.js");
 /* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
 /* harmony import */ var _util_throttle__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../util/throttle */ "./util/throttle.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
 
 
 
@@ -21062,6 +21799,7 @@ __webpack_require__.r(__webpack_exports__);
  // Manipulators
 
  // Drawing
+
 
 
 
@@ -21100,7 +21838,13 @@ function (_BaseAnnotationTool) {
     var defaultProps = {
       name: 'Angle',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_17__["angleCursor"]
+      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_17__["angleCursor"],
+      configuration: {
+        drawHandles: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        renderDashed: false
+      }
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(AngleTool).call(this, props, defaultProps));
     _this.preventNewMeasurement = false;
@@ -21159,22 +21903,9 @@ function (_BaseAnnotationTool) {
   }, {
     key: "updateCachedStats",
     value: function updateCachedStats(image, element, data) {
-      var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_20__["default"])(image),
-          rowPixelSpacing = _getPixelSpacing.rowPixelSpacing,
-          colPixelSpacing = _getPixelSpacing.colPixelSpacing;
-
-      var sideA = {
-        x: (data.handles.middle.x - data.handles.start.x) * colPixelSpacing,
-        y: (data.handles.middle.y - data.handles.start.y) * rowPixelSpacing
-      };
-      var sideB = {
-        x: (data.handles.end.x - data.handles.middle.x) * colPixelSpacing,
-        y: (data.handles.end.y - data.handles.middle.y) * rowPixelSpacing
-      };
-      var sideC = {
-        x: (data.handles.end.x - data.handles.start.x) * colPixelSpacing,
-        y: (data.handles.end.y - data.handles.start.y) * rowPixelSpacing
-      };
+      var sideA = getSide(image, data.handles.middle, data.handles.start);
+      var sideB = getSide(image, data.handles.end, data.handles.middle);
+      var sideC = getSide(image, data.handles.end, data.handles.start);
       var sideALength = length(sideA);
       var sideBLength = length(sideB);
       var sideCLength = length(sideC); // Cosine law
@@ -21193,9 +21924,12 @@ function (_BaseAnnotationTool) {
       var enabledElement = eventData.enabledElement;
       var _this$configuration = this.configuration,
           handleRadius = _this$configuration.handleRadius,
-          drawHandlesOnHover = _this$configuration.drawHandlesOnHover; // If we have no toolData for this element, return immediately as there is nothing to do
+          drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+          hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+          renderDashed = _this$configuration.renderDashed; // If we have no toolData for this element, return immediately as there is nothing to do
 
       var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_7__["getToolState"])(evt.currentTarget, this.name);
+      var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_22__["getModule"])('globalConfiguration').configuration.lineDash;
 
       if (!toolData) {
         return;
@@ -21206,9 +21940,9 @@ function (_BaseAnnotationTool) {
       var image = eventData.image,
           element = eventData.element;
 
-      var _getPixelSpacing2 = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_20__["default"])(image),
-          rowPixelSpacing = _getPixelSpacing2.rowPixelSpacing,
-          colPixelSpacing = _getPixelSpacing2.colPixelSpacing;
+      var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_20__["default"])(image),
+          rowPixelSpacing = _getPixelSpacing.rowPixelSpacing,
+          colPixelSpacing = _getPixelSpacing.colPixelSpacing;
 
       var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_8__["default"].getToolWidth();
 
@@ -21225,16 +21959,27 @@ function (_BaseAnnotationTool) {
           var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_9__["default"].getColorIfActive(data);
           var handleStartCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(eventData.element, data.handles.start);
           var handleMiddleCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(eventData.element, data.handles.middle);
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawJoinedLines"])(context, eventData.element, data.handles.start, [data.handles.middle, data.handles.end], {
+          var lineOptions = {
             color: color
-          }); // Draw the handles
+          };
+
+          if (renderDashed) {
+            lineOptions.lineDash = lineDash;
+          }
+
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawJoinedLines"])(context, eventData.element, data.handles.start, [data.handles.middle, data.handles.end], lineOptions); // Draw the handles
 
           var handleOptions = {
             color: color,
             handleRadius: handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving: hideHandlesIfMoving
           };
-          Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_14__["default"])(context, eventData, data.handles, handleOptions); // Update textbox stats
+
+          if (_this2.configuration.drawHandles) {
+            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_14__["default"])(context, eventData, data.handles, handleOptions);
+          } // Update textbox stats
+
 
           if (data.invalidated === true) {
             if (data.rAngle) {
@@ -21311,15 +22056,36 @@ function (_BaseAnnotationTool) {
       Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_7__["addToolState"])(element, this.name, measurementData);
       _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element); // Step 1, create start and second middle.
 
-      Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_10__["moveNewHandle"])(eventData, this.name, measurementData, measurementData.handles.middle, this.options, interactionType, function () {
+      Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_10__["moveNewHandle"])(eventData, this.name, measurementData, measurementData.handles.middle, this.options, interactionType, function (success) {
         measurementData.active = false;
+
+        if (!success) {
+          Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_7__["removeToolState"])(element, _this3.name, measurementData);
+          _this3.preventNewMeasurement = false;
+          return;
+        }
+
         measurementData.handles.end.active = true;
         _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element); // Step 2, create end.
 
-        Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_10__["moveNewHandle"])(eventData, _this3.name, measurementData, measurementData.handles.end, _this3.options, interactionType, function () {
-          measurementData.active = false;
+        Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_10__["moveNewHandle"])(eventData, _this3.name, measurementData, measurementData.handles.end, _this3.options, interactionType, function (success) {
+          if (success) {
+            measurementData.active = false;
+            _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element);
+          } else {
+            Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_7__["removeToolState"])(element, _this3.name, measurementData);
+          }
+
           _this3.preventNewMeasurement = false;
           _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element);
+          var modifiedEventData = {
+            toolName: _this3.name,
+            toolType: _this3.name,
+            // Deprecation notice: toolType will be replaced by toolName
+            element: element,
+            measurementData: measurementData
+          };
+          Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_18__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_19__["default"].MEASUREMENT_COMPLETED, modifiedEventData);
         });
       });
     }
@@ -21332,6 +22098,17 @@ function (_BaseAnnotationTool) {
 
 function length(vector) {
   return Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
+}
+
+function getSide(image, handleEnd, handleStart) {
+  var _getPixelSpacing2 = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_20__["default"])(image),
+      rowPixelSpacing = _getPixelSpacing2.rowPixelSpacing,
+      colPixelSpacing = _getPixelSpacing2.colPixelSpacing;
+
+  return {
+    x: (handleEnd.x - handleStart.x) * (colPixelSpacing || 1),
+    y: (handleEnd.y - handleStart.y) * (rowPixelSpacing || 1)
+  };
 }
 
 /***/ }),
@@ -21373,6 +22150,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./../../drawing/drawHandles.js */ "./drawing/drawHandles.js");
 /* harmony import */ var _drawing_drawTextBox_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./../../drawing/drawTextBox.js */ "./drawing/drawTextBox.js");
 /* harmony import */ var _cursors_index_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../cursors/index.js */ "./tools/cursors/index.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
 
 
 
@@ -21380,6 +22158,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* eslint no-alert: 0 */
+
 
 
 
@@ -21423,9 +22202,12 @@ function (_BaseAnnotationTool) {
       configuration: {
         getTextCallback: getTextCallback,
         changeTextCallback: changeTextCallback,
-        drawHandles: false,
-        drawHandlesOnHover: true,
-        arrowFirst: true
+        drawHandles: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        arrowFirst: true,
+        renderDashed: false,
+        allowEmptyLabel: false
       },
       svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_21__["arrowAnnotateCursor"]
     };
@@ -21489,7 +22271,9 @@ function (_BaseAnnotationTool) {
           enabledElement = _evt$detail.enabledElement;
       var _this$configuration = this.configuration,
           handleRadius = _this$configuration.handleRadius,
-          drawHandlesOnHover = _this$configuration.drawHandlesOnHover; // If we have no toolData for this element, return immediately as there is nothing to do
+          drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+          hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+          renderDashed = _this$configuration.renderDashed; // If we have no toolData for this element, return immediately as there is nothing to do
 
       var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_15__["getToolState"])(element, this.name);
 
@@ -21501,6 +22285,11 @@ function (_BaseAnnotationTool) {
       var canvas = evt.detail.canvasContext.canvas;
       var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_17__["getNewContext"])(canvas);
       var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_8__["default"].getToolWidth();
+      var lineDash;
+
+      if (renderDashed) {
+        lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_22__["getModule"])('globalConfiguration').configuration.lineDash;
+      }
 
       var _loop = function _loop(i) {
         var data = toolData.data[i];
@@ -21517,15 +22306,16 @@ function (_BaseAnnotationTool) {
           var handleEndCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, data.handles.end); // Config.arrowFirst = false;
 
           if (_this2.configuration.arrowFirst) {
-            Object(_drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_18__["default"])(context, handleEndCanvas, handleStartCanvas, color, lineWidth);
+            Object(_drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_18__["default"])(context, handleEndCanvas, handleStartCanvas, color, lineWidth, lineDash);
           } else {
-            Object(_drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_18__["default"])(context, handleStartCanvas, handleEndCanvas, color, lineWidth);
+            Object(_drawing_drawArrow_js__WEBPACK_IMPORTED_MODULE_18__["default"])(context, handleStartCanvas, handleEndCanvas, color, lineWidth, lineDash);
           }
 
           var handleOptions = {
             color: color,
             handleRadius: handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving: hideHandlesIfMoving
           };
 
           if (_this2.configuration.drawHandles) {
@@ -21598,22 +22388,34 @@ function (_BaseAnnotationTool) {
       var _this3 = this;
 
       var element = evt.detail.element;
-      var measurementData = this.createNewMeasurement(evt); // Associate this data with this imageId so we can render it and manipulate it
+      var measurementData = this.createNewMeasurement(evt);
+      var allowEmptyLabel = this.configuration.allowEmptyLabel; // Associate this data with this imageId so we can render it and manipulate it
 
       Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_15__["addToolState"])(element, this.name, measurementData);
       _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element);
-      Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_11__["moveNewHandle"])(evt.detail, this.name, measurementData, measurementData.handles.end, this.options, interactionType, function () {
-        if (measurementData.text === undefined) {
-          _this3.configuration.getTextCallback(function (text) {
-            if (text) {
-              measurementData.text = text;
-            } else {
-              Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_15__["removeToolState"])(element, _this3.name, measurementData);
-            }
-
-            measurementData.active = false;
-            _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element);
-          });
+      Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_11__["moveNewHandle"])(evt.detail, this.name, measurementData, measurementData.handles.end, this.options, interactionType, function (success) {
+        if (success) {
+          if (measurementData.text === undefined) {
+            _this3.configuration.getTextCallback(function (text) {
+              if (text || allowEmptyLabel) {
+                measurementData.text = text;
+                measurementData.active = false;
+                var modifiedEventData = {
+                  toolName: _this3.name,
+                  toolType: _this3.name,
+                  // Deprecation notice: toolType will be replaced by toolName
+                  element: element,
+                  measurementData: measurementData
+                };
+                _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element);
+                Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_14__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MEASUREMENT_COMPLETED, modifiedEventData);
+              } else {
+                Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_15__["removeToolState"])(element, _this3.name, measurementData);
+              }
+            }, evt.detail);
+          }
+        } else {
+          Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_15__["removeToolState"])(element, _this3.name, measurementData);
         }
 
         _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element);
@@ -21657,15 +22459,22 @@ function (_BaseAnnotationTool) {
     }
   }, {
     key: "_doneChangingTextCallback",
-    value: function _doneChangingTextCallback(element, data, updatedText, deleteTool) {
+    value: function _doneChangingTextCallback(element, measurementData, updatedText, deleteTool) {
       if (deleteTool === true) {
-        Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_15__["removeToolState"])(element, this.name, data);
+        Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_15__["removeToolState"])(element, this.name, measurementData);
       } else {
-        data.text = updatedText;
+        measurementData.text = updatedText;
       }
 
-      data.active = false;
+      measurementData.active = false;
       _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.updateImage(element);
+      Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_14__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MEASUREMENT_MODIFIED, {
+        toolName: this.name,
+        toolType: this.name,
+        // Deprecation notice: toolType will be replaced by toolName
+        element: element,
+        measurementData: measurementData
+      });
     }
   }]);
 
@@ -21770,7 +22579,10 @@ function (_BaseAnnotationTool) {
         getMeasurementLocationCallback: emptyLocationCallback,
         textBox: '',
         shadow: '',
+        drawHandles: true,
         drawHandlesOnHover: true,
+        hideHandlesIfMoving: false,
+        renderDashed: false,
         additionalData: []
       },
       svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_15__["bidirectionalCursor"]
@@ -21791,6 +22603,11 @@ function (_BaseAnnotationTool) {
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(BidirectionalTool, [{
     key: "updateCachedStats",
     value: function updateCachedStats(image, element, data) {
+      // Prevent updating other tools' data
+      if (data.toolName !== this.name) {
+        return;
+      }
+
       var pixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_17__["default"])(image);
 
       var _calculateLongestAndS = Object(_bidirectionalTool_utils_calculateLongestAndShortestDiameters__WEBPACK_IMPORTED_MODULE_18__["default"])(data, pixelSpacing),
@@ -21836,16 +22653,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./../../stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
 /* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../../stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
-/* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./../../drawing/index.js */ "./drawing/index.js");
-/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./../../util/calculateSUV.js */ "./util/calculateSUV.js");
-/* harmony import */ var _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./../../util/ellipse/index.js */ "./util/ellipse/index.js");
-/* harmony import */ var _util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../util/getROITextBoxCoords.js */ "./util/getROITextBoxCoords.js");
-/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./../../util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
-/* harmony import */ var _util_throttle_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./../../util/throttle.js */ "./util/throttle.js");
-/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
-/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
-/* harmony import */ var _cursors_index_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../cursors/index.js */ "./tools/cursors/index.js");
-/* harmony import */ var _util_getCircleCoords__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../util/getCircleCoords */ "./util/getCircleCoords.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
+/* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./../../drawing/index.js */ "./drawing/index.js");
+/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./../../util/calculateSUV.js */ "./util/calculateSUV.js");
+/* harmony import */ var _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./../../util/ellipse/index.js */ "./util/ellipse/index.js");
+/* harmony import */ var _util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../util/getROITextBoxCoords.js */ "./util/getROITextBoxCoords.js");
+/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./../../util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
+/* harmony import */ var _util_throttle_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./../../util/throttle.js */ "./util/throttle.js");
+/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
+/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
+/* harmony import */ var _cursors_index_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../cursors/index.js */ "./tools/cursors/index.js");
+/* harmony import */ var _util_getCircleCoords__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../util/getCircleCoords */ "./util/getCircleCoords.js");
 
 
 
@@ -21853,6 +22671,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
  // State
+
 
 
 
@@ -21869,7 +22688,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_16__["getLogger"])('tools:annotation:CircleRoiTool');
+var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_17__["getLogger"])('tools:annotation:CircleRoiTool');
 /**
  * @public
  * @class CircleRoiTool
@@ -21894,10 +22713,15 @@ function (_BaseAnnotationTool) {
     var defaultProps = {
       name: 'CircleRoi',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_18__["circleRoiCursor"]
+      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_19__["circleRoiCursor"],
+      configuration: {
+        centerPointRadius: 0,
+        renderDashed: false,
+        hideHandlesIfMoving: false
+      }
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(CircleRoiTool).call(this, props, defaultProps));
-    _this.throttledUpdateCachedStats = Object(_util_throttle_js__WEBPACK_IMPORTED_MODULE_15__["default"])(_this.updateCachedStats, 110);
+    _this.throttledUpdateCachedStats = Object(_util_throttle_js__WEBPACK_IMPORTED_MODULE_16__["default"])(_this.updateCachedStats, 110);
     return _this;
   }
 
@@ -21970,7 +22794,7 @@ function (_BaseAnnotationTool) {
     value: function updateCachedStats(image, element, data) {
       var seriesModule = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.metaData.get('generalSeriesModule', image.imageId) || {};
       var modality = seriesModule.modality;
-      var pixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_17__["default"])(image);
+      var pixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__["default"])(image);
 
       var stats = _calculateStats(image, element, data.handles, modality, pixelSpacing);
 
@@ -21996,19 +22820,23 @@ function (_BaseAnnotationTool) {
       var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_8__["default"].getToolWidth();
       var _this$configuration = this.configuration,
           handleRadius = _this$configuration.handleRadius,
-          drawHandlesOnHover = _this$configuration.drawHandlesOnHover;
-      var newContext = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["getNewContext"])(canvasContext.canvas);
+          drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+          hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+          renderDashed = _this$configuration.renderDashed,
+          centerPointRadius = _this$configuration.centerPointRadius;
+      var newContext = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["getNewContext"])(canvasContext.canvas);
 
-      var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_17__["default"])(image),
+      var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__["default"])(image),
           rowPixelSpacing = _getPixelSpacing.rowPixelSpacing,
-          colPixelSpacing = _getPixelSpacing.colPixelSpacing; // Meta
+          colPixelSpacing = _getPixelSpacing.colPixelSpacing;
 
+      var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_10__["getModule"])('globalConfiguration').configuration.lineDash; // Meta
 
       var seriesModule = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.metaData.get('generalSeriesModule', image.imageId) || {}; // Pixel Spacing
 
       var modality = seriesModule.modality;
       var hasPixelSpacing = rowPixelSpacing && colPixelSpacing;
-      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["draw"])(newContext, function (context) {
+      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["draw"])(newContext, function (context) {
         // If we have tool data for this element, iterate over each set and draw it
         for (var i = 0; i < toolData.data.length; i++) {
           var data = toolData.data[i];
@@ -22022,18 +22850,35 @@ function (_BaseAnnotationTool) {
           var handleOptions = {
             color: color,
             handleRadius: handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving: hideHandlesIfMoving
           };
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["setShadow"])(context, _this2.configuration);
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["setShadow"])(context, _this2.configuration);
           var startCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, data.handles.start);
           var endCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, data.handles.end); // Calculating the radius where startCanvas is the center of the circle to be drawn
 
-          var radius = getDistance(startCanvas, endCanvas); // Draw Circle
-
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawCircle"])(context, element, data.handles.start, radius, {
+          var radius = getDistance(startCanvas, endCanvas);
+          var circleOptions = {
             color: color
-          }, 'pixel');
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawHandles"])(context, eventData, data.handles, handleOptions); // Update textbox stats
+          };
+
+          if (renderDashed) {
+            circleOptions.lineDash = lineDash;
+          } // Draw Circle
+
+
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawCircle"])(context, element, data.handles.start, radius, circleOptions, 'pixel');
+
+          if (centerPointRadius && radius > 3 * centerPointRadius) {
+            Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawCircle"])(context, element, data.handles.start, centerPointRadius, circleOptions, 'pixel');
+          }
+
+          if (data.handles) {
+            data.handles.start.drawnIndependently = true;
+            data.handles.end.drawnIndependently = true;
+          }
+
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawHandles"])(context, eventData, data.handles, handleOptions); // Update textbox stats
 
           if (data.invalidated === true) {
             if (data.cachedStats) {
@@ -22045,7 +22890,7 @@ function (_BaseAnnotationTool) {
 
 
           if (!data.handles.textBox.hasMoved) {
-            var defaultCoords = Object(_util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_13__["default"])(eventData.viewport, data.handles);
+            var defaultCoords = Object(_util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_14__["default"])(eventData.viewport, data.handles);
             Object.assign(data.handles.textBox, defaultCoords);
           }
 
@@ -22056,7 +22901,7 @@ function (_BaseAnnotationTool) {
           var textBoxContent = _createTextBoxContent(context, image.color, data.cachedStats, modality, hasPixelSpacing, _this2.configuration);
 
           data.unit = _getUnit(modality, _this2.configuration.showHounsfieldUnits);
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawLinkedTextBox"])(context, element, data.handles.textBox, textBoxContent, data.handles, textBoxAnchorPoints, color, lineWidth, 10, true);
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawLinkedTextBox"])(context, element, data.handles.textBox, textBoxContent, data.handles, textBoxAnchorPoints, color, lineWidth, 10, true);
         }
       });
     }
@@ -22076,7 +22921,7 @@ function (_BaseAnnotationTool) {
 
 
 function _findTextBoxAnchorPoints(startHandle, endHandle) {
-  var _getCircleCoords = Object(_util_getCircleCoords__WEBPACK_IMPORTED_MODULE_19__["default"])(startHandle, endHandle),
+  var _getCircleCoords = Object(_util_getCircleCoords__WEBPACK_IMPORTED_MODULE_20__["default"])(startHandle, endHandle),
       left = _getCircleCoords.left,
       top = _getCircleCoords.top,
       width = _getCircleCoords.width,
@@ -22119,12 +22964,22 @@ function _getUnit(modality, showHounsfieldUnits) {
 
 function _createTextBoxContent(context, isColorImage) {
   var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      area = _ref.area,
-      mean = _ref.mean,
-      stdDev = _ref.stdDev,
-      min = _ref.min,
-      max = _ref.max,
-      meanStdDevSUV = _ref.meanStdDevSUV;
+      _ref$area = _ref.area,
+      area = _ref$area === void 0 ? 0 : _ref$area,
+      _ref$radius = _ref.radius,
+      radius = _ref$radius === void 0 ? 0 : _ref$radius,
+      _ref$perimeter = _ref.perimeter,
+      perimeter = _ref$perimeter === void 0 ? 0 : _ref$perimeter,
+      _ref$mean = _ref.mean,
+      mean = _ref$mean === void 0 ? 0 : _ref$mean,
+      _ref$stdDev = _ref.stdDev,
+      stdDev = _ref$stdDev === void 0 ? 0 : _ref$stdDev,
+      _ref$min = _ref.min,
+      min = _ref$min === void 0 ? 0 : _ref$min,
+      _ref$max = _ref.max,
+      max = _ref$max === void 0 ? 0 : _ref$max,
+      _ref$meanStdDevSUV = _ref.meanStdDevSUV,
+      meanStdDevSUV = _ref$meanStdDevSUV === void 0 ? 0 : _ref$meanStdDevSUV;
 
   var modality = arguments.length > 3 ? arguments[3] : undefined;
   var hasPixelSpacing = arguments.length > 4 ? arguments[4] : undefined;
@@ -22139,13 +22994,13 @@ function _createTextBoxContent(context, isColorImage) {
 
     var unit = _getUnit(modality, options.showHounsfieldUnits);
 
-    var meanString = "Mean: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(mean.toFixed(2)), " ").concat(unit);
-    var stdDevString = "Std Dev: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(stdDev.toFixed(2)), " ").concat(unit); // If this image has SUV values to display, concatenate them to the text line
+    var meanString = "Mean: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(mean.toFixed(2)), " ").concat(unit);
+    var stdDevString = "Std Dev: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(stdDev.toFixed(2)), " ").concat(unit); // If this image has SUV values to display, concatenate them to the text line
 
     if (hasStandardUptakeValues) {
       var SUVtext = ' SUV: ';
-      var meanSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(meanStdDevSUV.mean.toFixed(2)));
-      var stdDevSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(meanStdDevSUV.stdDev.toFixed(2)));
+      var meanSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(meanStdDevSUV.mean.toFixed(2)));
+      var stdDevSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(meanStdDevSUV.stdDev.toFixed(2)));
       var targetStringLength = Math.floor(context.measureText("".concat(stdDevString, "     ")).width);
 
       while (context.measureText(meanString).width < targetStringLength) {
@@ -22173,6 +23028,15 @@ function _createTextBoxContent(context, isColorImage) {
   }
 
   textLines.push(_formatArea(area, hasPixelSpacing));
+
+  if (radius) {
+    textLines.push(_formatLength(radius, 'Radius', hasPixelSpacing));
+  }
+
+  if (perimeter) {
+    textLines.push(_formatLength(perimeter, 'Perimeter', hasPixelSpacing));
+  }
+
   otherLines.forEach(function (x) {
     return textLines.push(x);
   });
@@ -22190,7 +23054,16 @@ function _createTextBoxContent(context, isColorImage) {
 function _formatArea(area, hasPixelSpacing) {
   // This uses Char code 178 for a superscript 2
   var suffix = hasPixelSpacing ? " mm".concat(String.fromCharCode(178)) : " px".concat(String.fromCharCode(178));
-  return "Area: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(area.toFixed(2))).concat(suffix);
+  return "Area: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(area.toFixed(2))).concat(suffix);
+}
+
+function _formatLength(value, name, hasPixelSpacing) {
+  if (!value) {
+    return '';
+  }
+
+  var suffix = hasPixelSpacing ? ' mm' : ' px';
+  return "".concat(name, ": ").concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(value.toFixed(1))).concat(suffix);
 }
 /**
  *
@@ -22206,23 +23079,27 @@ function _formatArea(area, hasPixelSpacing) {
 
 function _calculateStats(image, element, handles, modality, pixelSpacing) {
   // Retrieve the bounds of the ellipse in image coordinates
-  var circleCoordinates = Object(_util_getCircleCoords__WEBPACK_IMPORTED_MODULE_19__["default"])(handles.start, handles.end); // Retrieve the array of pixels that the ellipse bounds cover
+  var circleCoordinates = Object(_util_getCircleCoords__WEBPACK_IMPORTED_MODULE_20__["default"])(handles.start, handles.end); // Retrieve the array of pixels that the ellipse bounds cover
 
   var pixels = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.getPixels(element, circleCoordinates.left, circleCoordinates.top, circleCoordinates.width, circleCoordinates.height); // Calculate the mean & standard deviation from the pixels and the ellipse details.
 
-  var ellipseMeanStdDev = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_12__["calculateEllipseStatistics"])(pixels, circleCoordinates);
+  var ellipseMeanStdDev = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_13__["calculateEllipseStatistics"])(pixels, circleCoordinates);
   var meanStdDevSUV;
 
   if (modality === 'PT') {
     meanStdDevSUV = {
-      mean: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_11__["default"])(image, ellipseMeanStdDev.mean, true) || 0,
-      stdDev: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_11__["default"])(image, ellipseMeanStdDev.stdDev, true) || 0
+      mean: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_12__["default"])(image, ellipseMeanStdDev.mean, true) || 0,
+      stdDev: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_12__["default"])(image, ellipseMeanStdDev.stdDev, true) || 0
     };
   }
 
-  var area = Math.PI * (circleCoordinates.width * (pixelSpacing.colPixelSpacing || 1) / 2) * (circleCoordinates.height * (pixelSpacing.rowPixelSpacing || 1) / 2);
+  var radius = circleCoordinates.width * (pixelSpacing && pixelSpacing.colPixelSpacing || 1) / 2;
+  var perimeter = 2 * Math.PI * radius;
+  var area = Math.PI * (circleCoordinates.width * (pixelSpacing && pixelSpacing.colPixelSpacing || 1) / 2) * (circleCoordinates.height * (pixelSpacing && pixelSpacing.rowPixelSpacing || 1) / 2);
   return {
     area: area || 0,
+    radius: radius || 0,
+    perimeter: perimeter || 0,
     count: ellipseMeanStdDev.count || 0,
     mean: ellipseMeanStdDev.mean || 0,
     variance: ellipseMeanStdDev.variance || 0,
@@ -22272,6 +23149,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../util/triggerEvent.js */ "./util/triggerEvent.js");
 /* harmony import */ var _util_throttle__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../util/throttle */ "./util/throttle.js");
 /* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
 
 
 
@@ -22286,6 +23164,7 @@ __webpack_require__.r(__webpack_exports__);
  // Manipulators
 
  // Drawing
+
 
 
 
@@ -22320,7 +23199,13 @@ function (_BaseAnnotationTool) {
     var defaultProps = {
       name: 'CobbAngle',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_18__["cobbAngleCursor"]
+      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_18__["cobbAngleCursor"],
+      configuration: {
+        drawHandles: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        renderDashed: false
+      }
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(CobbAngleTool).call(this, props, defaultProps));
     _this.hasIncomplete = false;
@@ -22398,7 +23283,9 @@ function (_BaseAnnotationTool) {
         return false;
       }
 
-      return Object(_util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_15__["default"])(element, data.handles.start, data.handles.end, coords) < 25 || Object(_util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_15__["default"])(element, data.handles.start2, data.handles.end2, coords) < 25;
+      var seg1Near = Object(_util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_15__["default"])(element, data.handles.start, data.handles.end, coords) < 25;
+      var seg2Near = Object(_util_lineSegDistance_js__WEBPACK_IMPORTED_MODULE_15__["default"])(element, data.handles.start2, data.handles.end2, coords) < 25;
+      return seg1Near || seg2Near;
     }
   }, {
     key: "updateCachedStats",
@@ -22407,10 +23294,10 @@ function (_BaseAnnotationTool) {
           rowPixelSpacing = _getPixelSpacing.rowPixelSpacing,
           colPixelSpacing = _getPixelSpacing.colPixelSpacing;
 
-      var dx1 = (Math.ceil(data.handles.start.x) - Math.ceil(data.handles.end.x)) * colPixelSpacing;
-      var dy1 = (Math.ceil(data.handles.start.y) - Math.ceil(data.handles.end.y)) * rowPixelSpacing;
-      var dx2 = (Math.ceil(data.handles.start2.x) - Math.ceil(data.handles.end2.x)) * colPixelSpacing;
-      var dy2 = (Math.ceil(data.handles.start2.y) - Math.ceil(data.handles.end2.y)) * rowPixelSpacing;
+      var dx1 = (Math.ceil(data.handles.start.x) - Math.ceil(data.handles.end.x)) * (colPixelSpacing || 1);
+      var dy1 = (Math.ceil(data.handles.start.y) - Math.ceil(data.handles.end.y)) * (rowPixelSpacing || 1);
+      var dx2 = (Math.ceil(data.handles.start2.x) - Math.ceil(data.handles.end2.x)) * (colPixelSpacing || 1);
+      var dy2 = (Math.ceil(data.handles.start2.y) - Math.ceil(data.handles.end2.y)) * (rowPixelSpacing || 1);
       var angle = Math.acos(Math.abs((dx1 * dx2 + dy1 * dy2) / (Math.sqrt(dx1 * dx1 + dy1 * dy1) * Math.sqrt(dx2 * dx2 + dy2 * dy2))));
       angle *= 180 / Math.PI;
       data.rAngle = Object(_util_roundToDecimal_js__WEBPACK_IMPORTED_MODULE_16__["default"])(angle, 2);
@@ -22424,7 +23311,9 @@ function (_BaseAnnotationTool) {
       var eventData = evt.detail;
       var _this$configuration = this.configuration,
           handleRadius = _this$configuration.handleRadius,
-          drawHandlesOnHover = _this$configuration.drawHandlesOnHover; // If we have no toolData for this element, return immediately as there is nothing to do
+          drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+          hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+          renderDashed = _this$configuration.renderDashed; // If we have no toolData for this element, return immediately as there is nothing to do
 
       var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_8__["getToolState"])(evt.currentTarget, this.name);
 
@@ -22435,7 +23324,14 @@ function (_BaseAnnotationTool) {
 
       var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_12__["getNewContext"])(eventData.canvasContext.canvas);
       var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_9__["default"].getToolWidth();
+      var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_22__["getModule"])('globalConfiguration').configuration.lineDash;
       var font = _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_7__["default"].getFont();
+      var element = evt.detail.element;
+      var image = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.getEnabledElement(element).image;
+
+      var _getPixelSpacing2 = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_21__["default"])(image),
+          rowPixelSpacing = _getPixelSpacing2.rowPixelSpacing,
+          colPixelSpacing = _getPixelSpacing2.colPixelSpacing;
 
       var _loop = function _loop(i) {
         var data = toolData.data[i];
@@ -22444,27 +23340,40 @@ function (_BaseAnnotationTool) {
           return "continue";
         }
 
+        if (!data.value) {
+          data.value = _this2.textBoxText(data, rowPixelSpacing, colPixelSpacing);
+        }
+
         Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_12__["draw"])(context, function (context) {
           Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_12__["setShadow"])(context, _this2.configuration); // Differentiate the color of activation tool
 
           var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_10__["default"].getColorIfActive(data);
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_12__["drawLine"])(context, eventData.element, data.handles.start, data.handles.end, {
+          var lineOptions = {
             color: color
-          });
+          };
+
+          if (renderDashed) {
+            lineOptions.lineDash = lineDash;
+          }
+
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_12__["drawLine"])(context, eventData.element, data.handles.start, data.handles.end, lineOptions);
 
           if (data.complete) {
-            Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_12__["drawLine"])(context, eventData.element, data.handles.start2, data.handles.end2, {
-              color: color
-            });
+            Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_12__["drawLine"])(context, eventData.element, data.handles.start2, data.handles.end2, lineOptions);
           } // Draw the handles
 
 
           var handleOptions = {
             color: color,
             handleRadius: handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving: hideHandlesIfMoving
           };
-          Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_13__["default"])(context, eventData, data.handles, handleOptions); // Draw the text
+
+          if (_this2.configuration.drawHandles) {
+            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_13__["default"])(context, eventData, data.handles, handleOptions);
+          } // Draw the text
+
 
           context.fillStyle = color;
           var text = data.value;
@@ -22515,7 +23424,25 @@ function (_BaseAnnotationTool) {
       var eventData = evt.detail;
       var measurementData;
       var toMoveHandle;
-      var doneMovingCallback; // Search for incomplete measurements
+
+      var doneMovingCallback = function doneMovingCallback(success) {
+        // DoneMovingCallback for first measurement.
+        if (!success) {
+          Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_8__["removeToolState"])(element, _this3.name, measurementData);
+          return;
+        }
+
+        var eventType = _events_js__WEBPACK_IMPORTED_MODULE_17__["default"].MEASUREMENT_COMPLETED;
+        var eventData = {
+          toolName: _this3.name,
+          toolType: _this3.name,
+          // Deprecation notice: toolType will be replaced by toolName
+          element: element,
+          measurementData: measurementData
+        };
+        Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_19__["default"])(element, eventType, eventData);
+      }; // Search for incomplete measurements
+
 
       var element = evt.detail.element;
       var pendingMeasurement = this.getIncomplete(element);
@@ -22540,10 +23467,18 @@ function (_BaseAnnotationTool) {
         toMoveHandle = measurementData.handles.end2;
         this.hasIncomplete = false;
 
-        doneMovingCallback = function doneMovingCallback() {
+        doneMovingCallback = function doneMovingCallback(success) {
+          // DoneMovingCallback for second measurement
+          if (!success) {
+            Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_8__["removeToolState"])(element, _this3.name, measurementData);
+            return;
+          }
+
           var eventType = _events_js__WEBPACK_IMPORTED_MODULE_17__["default"].MEASUREMENT_COMPLETED;
           var eventData = {
+            toolName: _this3.name,
             toolType: _this3.name,
+            // Deprecation notice: toolType will be replaced by toolName
             element: element,
             measurementData: measurementData
           };
@@ -22565,9 +23500,9 @@ function (_BaseAnnotationTool) {
       var element = ev.detail.element;
       var image = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.getEnabledElement(element).image;
 
-      var _getPixelSpacing2 = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_21__["default"])(image),
-          rowPixelSpacing = _getPixelSpacing2.rowPixelSpacing,
-          colPixelSpacing = _getPixelSpacing2.colPixelSpacing;
+      var _getPixelSpacing3 = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_21__["default"])(image),
+          rowPixelSpacing = _getPixelSpacing3.rowPixelSpacing,
+          colPixelSpacing = _getPixelSpacing3.colPixelSpacing;
 
       if (ev.detail.toolName !== this.name) {
         return;
@@ -22583,19 +23518,23 @@ function (_BaseAnnotationTool) {
         }
       }
 
-      var rAngle = data.rAngle;
-      data.value = '';
+      data.value = this.textBoxText(data, rowPixelSpacing, colPixelSpacing);
+    }
+  }, {
+    key: "textBoxText",
+    value: function textBoxText(_ref2, rowPixelSpacing, colPixelSpacing) {
+      var rAngle = _ref2.rAngle;
 
-      if (!Number.isNaN(rAngle)) {
-        data.value = textBoxText(rAngle, rowPixelSpacing, colPixelSpacing);
+      if (rAngle === undefined) {
+        return '';
       }
 
-      function textBoxText(rAngle, rowPixelSpacing, colPixelSpacing) {
-        var suffix = !rowPixelSpacing || !colPixelSpacing ? ' (isotropic)' : '';
-        var str = '00B0'; // Degrees symbol
-
-        return rAngle.toString() + String.fromCharCode(parseInt(str, 16)) + suffix;
+      if (Number.isNaN(rAngle)) {
+        return '';
       }
+
+      var suffix = !rowPixelSpacing || !colPixelSpacing ? ' (isotropic)' : '';
+      return "".concat(rAngle, "\xB0").concat(suffix);
     }
   }, {
     key: "activeCallback",
@@ -22653,15 +23592,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./../../stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
 /* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../../stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
-/* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./../../drawing/index.js */ "./drawing/index.js");
-/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./../../util/calculateSUV.js */ "./util/calculateSUV.js");
-/* harmony import */ var _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./../../util/ellipse/index.js */ "./util/ellipse/index.js");
-/* harmony import */ var _util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../util/getROITextBoxCoords.js */ "./util/getROITextBoxCoords.js");
-/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./../../util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
-/* harmony import */ var _util_throttle_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./../../util/throttle.js */ "./util/throttle.js");
-/* harmony import */ var _cursors_index_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../cursors/index.js */ "./tools/cursors/index.js");
-/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
-/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
+/* harmony import */ var _manipulators_getHandleNearImagePoint__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../manipulators/getHandleNearImagePoint */ "./manipulators/getHandleNearImagePoint.js");
+/* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./../../drawing/index.js */ "./drawing/index.js");
+/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./../../util/calculateSUV.js */ "./util/calculateSUV.js");
+/* harmony import */ var _util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./../../util/ellipse/index.js */ "./util/ellipse/index.js");
+/* harmony import */ var _util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../util/getROITextBoxCoords.js */ "./util/getROITextBoxCoords.js");
+/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./../../util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
+/* harmony import */ var _util_throttle_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./../../util/throttle.js */ "./util/throttle.js");
+/* harmony import */ var _cursors_index_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../cursors/index.js */ "./tools/cursors/index.js");
+/* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
+/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
 
 
 
@@ -22669,6 +23610,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
  // State
+
 
 
 
@@ -22684,7 +23626,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_17__["getLogger"])('tools:annotation:EllipticalRoiTool');
+
+var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_18__["getLogger"])('tools:annotation:EllipticalRoiTool');
 /**
  * @public
  * @class EllipticalRoiTool
@@ -22709,13 +23652,17 @@ function (_BaseAnnotationTool) {
     var defaultProps = {
       name: 'EllipticalRoi',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      configuration: {// showMinMax: false,
+      configuration: {
+        // showMinMax: false,
         // showHounsfieldUnits: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        renderDashed: false
       },
-      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_16__["ellipticalRoiCursor"]
+      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_17__["ellipticalRoiCursor"]
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(EllipticalRoiTool).call(this, props, defaultProps));
-    _this.throttledUpdateCachedStats = Object(_util_throttle_js__WEBPACK_IMPORTED_MODULE_15__["default"])(_this.updateCachedStats, 110);
+    _this.throttledUpdateCachedStats = Object(_util_throttle_js__WEBPACK_IMPORTED_MODULE_16__["default"])(_this.updateCachedStats, 110);
     return _this;
   }
 
@@ -22773,6 +23720,12 @@ function (_BaseAnnotationTool) {
         return false;
       }
 
+      var handleNearImagePoint = Object(_manipulators_getHandleNearImagePoint__WEBPACK_IMPORTED_MODULE_10__["default"])(element, data.handles, coords, 6);
+
+      if (handleNearImagePoint) {
+        return true;
+      }
+
       var distance = interactionType === 'mouse' ? 15 : 25;
       var startCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, data.handles.start);
       var endCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.pixelToCanvas(element, data.handles.end);
@@ -22788,8 +23741,8 @@ function (_BaseAnnotationTool) {
         width: Math.abs(startCanvas.x - endCanvas.x) + distance,
         height: Math.abs(startCanvas.y - endCanvas.y) + distance
       };
-      var pointInMinorEllipse = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_12__["pointInEllipse"])(minorEllipse, coords);
-      var pointInMajorEllipse = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_12__["pointInEllipse"])(majorEllipse, coords);
+      var pointInMinorEllipse = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_13__["pointInEllipse"])(minorEllipse, coords);
+      var pointInMajorEllipse = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_13__["pointInEllipse"])(majorEllipse, coords);
 
       if (pointInMajorEllipse && !pointInMinorEllipse) {
         return true;
@@ -22802,7 +23755,7 @@ function (_BaseAnnotationTool) {
     value: function updateCachedStats(image, element, data) {
       var seriesModule = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.metaData.get('generalSeriesModule', image.imageId) || {};
       var modality = seriesModule.modality;
-      var pixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__["default"])(image);
+      var pixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_19__["default"])(image);
 
       var stats = _calculateStats(image, element, data.handles, modality, pixelSpacing);
 
@@ -22824,12 +23777,15 @@ function (_BaseAnnotationTool) {
       var image = eventData.image,
           element = eventData.element;
       var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_8__["default"].getToolWidth();
+      var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_20__["getModule"])('globalConfiguration').configuration.lineDash;
       var _this$configuration = this.configuration,
           handleRadius = _this$configuration.handleRadius,
-          drawHandlesOnHover = _this$configuration.drawHandlesOnHover;
-      var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["getNewContext"])(eventData.canvasContext.canvas);
+          drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+          hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+          renderDashed = _this$configuration.renderDashed;
+      var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["getNewContext"])(eventData.canvasContext.canvas);
 
-      var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__["default"])(image),
+      var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_19__["default"])(image),
           rowPixelSpacing = _getPixelSpacing.rowPixelSpacing,
           colPixelSpacing = _getPixelSpacing.colPixelSpacing; // Meta
 
@@ -22838,7 +23794,7 @@ function (_BaseAnnotationTool) {
 
       var modality = seriesModule.modality;
       var hasPixelSpacing = rowPixelSpacing && colPixelSpacing;
-      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["draw"])(context, function (context) {
+      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["draw"])(context, function (context) {
         // If we have tool data for this element - iterate over each set and draw it
         for (var i = 0; i < toolData.data.length; i++) {
           var data = toolData.data[i];
@@ -22852,14 +23808,21 @@ function (_BaseAnnotationTool) {
           var handleOptions = {
             color: color,
             handleRadius: handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving: hideHandlesIfMoving
           };
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["setShadow"])(context, _this2.configuration); // Draw
-
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawEllipse"])(context, element, data.handles.start, data.handles.end, {
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["setShadow"])(context, _this2.configuration);
+          var ellipseOptions = {
             color: color
-          }, 'pixel', data.handles.initialRotation);
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawHandles"])(context, eventData, data.handles, handleOptions); // Update textbox stats
+          };
+
+          if (renderDashed) {
+            ellipseOptions.lineDash = lineDash;
+          } // Draw
+
+
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawEllipse"])(context, element, data.handles.start, data.handles.end, ellipseOptions, 'pixel', data.handles.initialRotation);
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawHandles"])(context, eventData, data.handles, handleOptions); // Update textbox stats
 
           if (data.invalidated === true) {
             if (data.cachedStats) {
@@ -22871,7 +23834,7 @@ function (_BaseAnnotationTool) {
 
 
           if (!data.handles.textBox.hasMoved) {
-            var defaultCoords = Object(_util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_13__["default"])(eventData.viewport, data.handles);
+            var defaultCoords = Object(_util_getROITextBoxCoords_js__WEBPACK_IMPORTED_MODULE_14__["default"])(eventData.viewport, data.handles);
             Object.assign(data.handles.textBox, defaultCoords);
           }
 
@@ -22882,7 +23845,7 @@ function (_BaseAnnotationTool) {
           var textBoxContent = _createTextBoxContent(context, image.color, data.cachedStats, modality, hasPixelSpacing, _this2.configuration);
 
           data.unit = _getUnit(modality, _this2.configuration.showHounsfieldUnits);
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawLinkedTextBox"])(context, element, data.handles.textBox, textBoxContent, data.handles, textBoxAnchorPoints, color, lineWidth, 10, true);
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_11__["drawLinkedTextBox"])(context, element, data.handles.textBox, textBoxContent, data.handles, textBoxAnchorPoints, color, lineWidth, 10, true);
         }
       });
     }
@@ -22945,12 +23908,18 @@ function _getUnit(modality, showHounsfieldUnits) {
 
 function _createTextBoxContent(context, isColorImage) {
   var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      area = _ref.area,
-      mean = _ref.mean,
-      stdDev = _ref.stdDev,
-      min = _ref.min,
-      max = _ref.max,
-      meanStdDevSUV = _ref.meanStdDevSUV;
+      _ref$area = _ref.area,
+      area = _ref$area === void 0 ? 0 : _ref$area,
+      _ref$mean = _ref.mean,
+      mean = _ref$mean === void 0 ? 0 : _ref$mean,
+      _ref$stdDev = _ref.stdDev,
+      stdDev = _ref$stdDev === void 0 ? 0 : _ref$stdDev,
+      _ref$min = _ref.min,
+      min = _ref$min === void 0 ? 0 : _ref$min,
+      _ref$max = _ref.max,
+      max = _ref$max === void 0 ? 0 : _ref$max,
+      _ref$meanStdDevSUV = _ref.meanStdDevSUV,
+      meanStdDevSUV = _ref$meanStdDevSUV === void 0 ? 0 : _ref$meanStdDevSUV;
 
   var modality = arguments.length > 3 ? arguments[3] : undefined;
   var hasPixelSpacing = arguments.length > 4 ? arguments[4] : undefined;
@@ -22965,13 +23934,13 @@ function _createTextBoxContent(context, isColorImage) {
 
     var unit = _getUnit(modality, options.showHounsfieldUnits);
 
-    var meanString = "Mean: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(mean.toFixed(2)), " ").concat(unit);
-    var stdDevString = "Std Dev: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(stdDev.toFixed(2)), " ").concat(unit); // If this image has SUV values to display, concatenate them to the text line
+    var meanString = "Mean: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(mean.toFixed(2)), " ").concat(unit);
+    var stdDevString = "Std Dev: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(stdDev.toFixed(2)), " ").concat(unit); // If this image has SUV values to display, concatenate them to the text line
 
     if (hasStandardUptakeValues) {
       var SUVtext = ' SUV: ';
-      var meanSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(meanStdDevSUV.mean.toFixed(2)));
-      var stdDevSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(meanStdDevSUV.stdDev.toFixed(2)));
+      var meanSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(meanStdDevSUV.mean.toFixed(2)));
+      var stdDevSuvString = "".concat(SUVtext).concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(meanStdDevSUV.stdDev.toFixed(2)));
       var targetStringLength = Math.floor(context.measureText("".concat(stdDevString, "     ")).width);
 
       while (context.measureText(meanString).width < targetStringLength) {
@@ -22981,7 +23950,8 @@ function _createTextBoxContent(context, isColorImage) {
       otherLines.push("".concat(meanString).concat(meanSuvString));
       otherLines.push("".concat(stdDevString, "     ").concat(stdDevSuvString));
     } else {
-      otherLines.push("".concat(meanString, "     ").concat(stdDevString));
+      otherLines.push("".concat(meanString));
+      otherLines.push("".concat(stdDevString));
     }
 
     if (showMinMax) {
@@ -23016,7 +23986,7 @@ function _createTextBoxContent(context, isColorImage) {
 function _formatArea(area, hasPixelSpacing) {
   // This uses Char code 178 for a superscript 2
   var suffix = hasPixelSpacing ? " mm".concat(String.fromCharCode(178)) : " px".concat(String.fromCharCode(178));
-  return "Area: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_14__["default"])(area.toFixed(2))).concat(suffix);
+  return "Area: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_15__["default"])(area.toFixed(2))).concat(suffix);
 }
 /**
  *
@@ -23037,13 +24007,13 @@ function _calculateStats(image, element, handles, modality, pixelSpacing) {
 
   var pixels = _externalModules_js__WEBPACK_IMPORTED_MODULE_5__["default"].cornerstone.getPixels(element, ellipseCoordinates.left, ellipseCoordinates.top, ellipseCoordinates.width, ellipseCoordinates.height); // Calculate the mean & standard deviation from the pixels and the ellipse details.
 
-  var ellipseMeanStdDev = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_12__["calculateEllipseStatistics"])(pixels, ellipseCoordinates);
+  var ellipseMeanStdDev = Object(_util_ellipse_index_js__WEBPACK_IMPORTED_MODULE_13__["calculateEllipseStatistics"])(pixels, ellipseCoordinates);
   var meanStdDevSUV;
 
   if (modality === 'PT') {
     meanStdDevSUV = {
-      mean: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_11__["default"])(image, ellipseMeanStdDev.mean, true) || 0,
-      stdDev: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_11__["default"])(image, ellipseMeanStdDev.stdDev, true) || 0
+      mean: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_12__["default"])(image, ellipseMeanStdDev.mean, true) || 0,
+      stdDev: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_12__["default"])(image, ellipseMeanStdDev.stdDev, true) || 0
     };
   } // Calculate the image area from the ellipse dimensions and pixel spacing
 
@@ -23090,32 +24060,31 @@ function _getEllipseImageCoordinates(startHandle, endHandle) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return FreehandRoiTool; });
-/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "../node_modules/@babel/runtime/helpers/toConsumableArray.js");
-/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "../node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "../node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "../node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "../node_modules/@babel/runtime/helpers/getPrototypeOf.js");
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/assertThisInitialized */ "../node_modules/@babel/runtime/helpers/assertThisInitialized.js");
-/* harmony import */ var _babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "../node_modules/@babel/runtime/helpers/inherits.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../events.js */ "./events.js");
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./../../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _base_BaseAnnotationTool_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../base/BaseAnnotationTool.js */ "./tools/base/BaseAnnotationTool.js");
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./../../stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
-/* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./../../stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
-/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../store/index.js */ "./store/index.js");
-/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../util/triggerEvent.js */ "./util/triggerEvent.js");
-/* harmony import */ var _util_findAndMoveHelpers_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../util/findAndMoveHelpers.js */ "./util/findAndMoveHelpers.js");
-/* harmony import */ var _util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../util/pointInsideBoundingBox.js */ "./util/pointInsideBoundingBox.js");
-/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../util/calculateSUV.js */ "./util/calculateSUV.js");
-/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "../node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "../node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "../node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "../node_modules/@babel/runtime/helpers/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/assertThisInitialized */ "../node_modules/@babel/runtime/helpers/assertThisInitialized.js");
+/* harmony import */ var _babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "../node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../../events.js */ "./events.js");
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _base_BaseAnnotationTool_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./../base/BaseAnnotationTool.js */ "./tools/base/BaseAnnotationTool.js");
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./../../stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
+/* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./../../stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
+/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../store/index.js */ "./store/index.js");
+/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../util/triggerEvent.js */ "./util/triggerEvent.js");
+/* harmony import */ var _util_findAndMoveHelpers_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../util/findAndMoveHelpers.js */ "./util/findAndMoveHelpers.js");
+/* harmony import */ var _util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../util/pointInsideBoundingBox.js */ "./util/pointInsideBoundingBox.js");
+/* harmony import */ var _util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../util/calculateSUV.js */ "./util/calculateSUV.js");
+/* harmony import */ var _util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../util/numbersWithCommas.js */ "./util/numbersWithCommas.js");
+/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
 /* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../drawing/index.js */ "./drawing/index.js");
 /* harmony import */ var _drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../drawing/drawLinkedTextBox.js */ "./drawing/drawLinkedTextBox.js");
 /* harmony import */ var _drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../drawing/drawHandles.js */ "./drawing/drawHandles.js");
@@ -23125,7 +24094,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_freehand_index_js__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../../util/freehand/index.js */ "./util/freehand/index.js");
 /* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
 /* harmony import */ var _util_throttle__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../../util/throttle */ "./util/throttle.js");
-
 
 
 
@@ -23146,7 +24114,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
  // Drawing
+
 
 
 
@@ -23175,14 +24145,14 @@ var insertOrDelete = _util_freehand_index_js__WEBPACK_IMPORTED_MODULE_25__["defa
 var FreehandRoiTool =
 /*#__PURE__*/
 function (_BaseAnnotationTool) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_6___default()(FreehandRoiTool, _BaseAnnotationTool);
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(FreehandRoiTool, _BaseAnnotationTool);
 
   function FreehandRoiTool() {
     var _this;
 
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default()(this, FreehandRoiTool);
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, FreehandRoiTool);
 
     var defaultProps = {
       name: 'FreehandRoi',
@@ -23190,28 +24160,28 @@ function (_BaseAnnotationTool) {
       configuration: defaultFreehandConfiguration(),
       svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_24__["freehandRoiCursor"]
     };
-    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_3___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_4___default()(FreehandRoiTool).call(this, props, defaultProps));
+    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(FreehandRoiTool).call(this, props, defaultProps));
     _this.isMultiPartTool = true;
     _this._drawing = false;
     _this._dragging = false;
     _this._modifying = false; // Create bound callback functions for private event loops
 
-    _this._drawingMouseDownCallback = _this._drawingMouseDownCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._drawingMouseMoveCallback = _this._drawingMouseMoveCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._drawingMouseDragCallback = _this._drawingMouseDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._drawingMouseUpCallback = _this._drawingMouseUpCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._drawingMouseDoubleClickCallback = _this._drawingMouseDoubleClickCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._editMouseUpCallback = _this._editMouseUpCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._editMouseDragCallback = _this._editMouseDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._drawingTouchStartCallback = _this._drawingTouchStartCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._drawingTouchDragCallback = _this._drawingTouchDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._drawingDoubleTapClickCallback = _this._drawingDoubleTapClickCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
-    _this._editTouchDragCallback = _this._editTouchDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5___default()(_this));
+    _this._drawingMouseDownCallback = _this._drawingMouseDownCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._drawingMouseMoveCallback = _this._drawingMouseMoveCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._drawingMouseDragCallback = _this._drawingMouseDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._drawingMouseUpCallback = _this._drawingMouseUpCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._drawingMouseDoubleClickCallback = _this._drawingMouseDoubleClickCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._editMouseUpCallback = _this._editMouseUpCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._editMouseDragCallback = _this._editMouseDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._drawingTouchStartCallback = _this._drawingTouchStartCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._drawingTouchDragCallback = _this._drawingTouchDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._drawingDoubleTapClickCallback = _this._drawingDoubleTapClickCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
+    _this._editTouchDragCallback = _this._editTouchDragCallback.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
     _this.throttledUpdateCachedStats = Object(_util_throttle__WEBPACK_IMPORTED_MODULE_27__["default"])(_this.updateCachedStats, 110);
     return _this;
   }
 
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default()(FreehandRoiTool, [{
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(FreehandRoiTool, [{
     key: "createNewMeasurement",
     value: function createNewMeasurement(eventData) {
       var goodEventData = eventData && eventData.currentPoints && eventData.currentPoints.image;
@@ -23285,7 +24255,7 @@ function (_BaseAnnotationTool) {
       var distance = Infinity;
 
       for (var i = 0; i < data.handles.points.length; i++) {
-        var distanceI = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstoneMath.point.distance(data.handles.points[i], coords);
+        var distanceI = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstoneMath.point.distance(data.handles.points[i], coords);
         distance = Math.min(distance, distanceI);
       } // If an error caused distance not to be calculated, return -1.
 
@@ -23314,12 +24284,12 @@ function (_BaseAnnotationTool) {
         return -1;
       }
 
-      var canvasCoords = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.pixelToCanvas(element, coords);
+      var canvasCoords = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.pixelToCanvas(element, coords);
       var points = data.handles.points;
 
       for (var i = 0; i < points.length; i++) {
-        var handleCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.pixelToCanvas(element, points[i]);
-        var distanceI = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstoneMath.point.distance(handleCanvas, canvasCoords);
+        var handleCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.pixelToCanvas(element, points[i]);
+        var distanceI = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstoneMath.point.distance(handleCanvas, canvasCoords);
         distance = Math.min(distance, distanceI);
       } // If an error caused distance not to be calculated, return -1.
 
@@ -23346,7 +24316,7 @@ function (_BaseAnnotationTool) {
     value: function updateCachedStats(image, element, data) {
       // Define variables for the area and mean/standard deviation
       var meanStdDev, meanStdDevSUV;
-      var seriesModule = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.metaData.get('generalSeriesModule', image.imageId);
+      var seriesModule = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.metaData.get('generalSeriesModule', image.imageId);
       var modality = seriesModule ? seriesModule.modality : null;
       var points = data.handles.points; // If the data has been invalidated, and the tool is not currently active,
       // We need to calculate it again.
@@ -23378,7 +24348,7 @@ function (_BaseAnnotationTool) {
 
       if (!image.color) {
         // Retrieve the array of pixels that the ROI bounds cover
-        var pixels = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.getPixels(element, polyBoundingBox.left, polyBoundingBox.top, polyBoundingBox.width, polyBoundingBox.height); // Calculate the mean & standard deviation from the pixels and the object shape
+        var pixels = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.getPixels(element, polyBoundingBox.left, polyBoundingBox.top, polyBoundingBox.width, polyBoundingBox.height); // Calculate the mean & standard deviation from the pixels and the object shape
 
         meanStdDev = calculateFreehandStatistics.call(this, pixels, polyBoundingBox, data.handles.points);
 
@@ -23390,8 +24360,8 @@ function (_BaseAnnotationTool) {
           // Returning the values to storedPixel values before calcuating SUV with them.
           // TODO: Clean this up? Should we add an option to not scale in calculateSUV?
           meanStdDevSUV = {
-            mean: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_17__["default"])(image, (meanStdDev.mean - image.intercept) / image.slope),
-            stdDev: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_17__["default"])(image, (meanStdDev.stdDev - image.intercept) / image.slope)
+            mean: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_16__["default"])(image, (meanStdDev.mean - image.intercept) / image.slope),
+            stdDev: Object(_util_calculateSUV_js__WEBPACK_IMPORTED_MODULE_16__["default"])(image, (meanStdDev.stdDev - image.intercept) / image.slope)
           };
         } // If the mean and standard deviation values are sane, store them for later retrieval
 
@@ -23404,9 +24374,11 @@ function (_BaseAnnotationTool) {
       // Real non-zero values, set them to 1
 
 
-      var columnPixelSpacing = image.columnPixelSpacing || 1;
-      var rowPixelSpacing = image.rowPixelSpacing || 1;
-      var scaling = columnPixelSpacing * rowPixelSpacing;
+      var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__["default"])(image),
+          colPixelSpacing = _getPixelSpacing.colPixelSpacing,
+          rowPixelSpacing = _getPixelSpacing.rowPixelSpacing;
+
+      var scaling = (colPixelSpacing || 1) * (rowPixelSpacing || 1);
       var area = freehandArea(data.handles.points, scaling); // If the area value is sane, store it for later retrieval
 
       if (!isNaN(area)) {
@@ -23430,7 +24402,7 @@ function (_BaseAnnotationTool) {
 
       var eventData = evt.detail; // If we have no toolState for this element, return immediately as there is nothing to do
 
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(evt.currentTarget, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(evt.currentTarget, this.name);
 
       if (!toolState) {
         return;
@@ -23439,11 +24411,13 @@ function (_BaseAnnotationTool) {
       var image = eventData.image,
           element = eventData.element;
       var config = this.configuration;
-      var seriesModule = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.metaData.get('generalSeriesModule', image.imageId);
+      var seriesModule = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.metaData.get('generalSeriesModule', image.imageId);
       var modality = seriesModule ? seriesModule.modality : null; // We have tool data for this element - iterate over each one and draw it
 
       var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_19__["getNewContext"])(eventData.canvasContext.canvas);
-      var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_11__["default"].getToolWidth();
+      var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_10__["default"].getToolWidth();
+      var renderDashed = config.renderDashed;
+      var lineDash = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_12__["getModule"])('globalConfiguration').configuration.lineDash;
 
       var _loop = function _loop(i) {
         var data = toolState.data[i];
@@ -23453,7 +24427,7 @@ function (_BaseAnnotationTool) {
         }
 
         Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_19__["draw"])(context, function (context) {
-          var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_12__["default"].getColorIfActive(data);
+          var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_11__["default"].getColorIfActive(data);
           var fillColor;
 
           if (data.active) {
@@ -23461,33 +24435,34 @@ function (_BaseAnnotationTool) {
               color = config.invalidColor;
               fillColor = config.invalidColor;
             } else {
-              color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_12__["default"].getColorIfActive(data);
-              fillColor = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_12__["default"].getFillColor();
+              color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_11__["default"].getColorIfActive(data);
+              fillColor = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_11__["default"].getFillColor();
             }
           } else {
-            fillColor = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_12__["default"].getToolColor();
+            fillColor = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_11__["default"].getToolColor();
+          }
+
+          var options = {
+            color: color
+          };
+
+          if (renderDashed) {
+            options.lineDash = lineDash;
           }
 
           if (data.handles.points.length) {
-            for (var j = 0; j < data.handles.points.length; j++) {
-              var lines = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(data.handles.points[j].lines);
+            var points = data.handles.points;
+            Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_19__["drawJoinedLines"])(context, element, points[0], points, options);
 
-              var points = data.handles.points;
-
-              if (j === points.length - 1 && !data.polyBoundingBox) {
-                // If it's still being actively drawn, keep the last line to
-                // The mouse location
-                lines.push(config.mouseLocation.handles.start);
-              }
-
-              Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_19__["drawJoinedLines"])(context, element, data.handles.points[j], lines, {
-                color: color
-              });
+            if (data.polyBoundingBox) {
+              Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_19__["drawJoinedLines"])(context, element, points[points.length - 1], [points[0]], options);
+            } else {
+              Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_19__["drawJoinedLines"])(context, element, points[points.length - 1], [config.mouseLocation.handles.start], options);
             }
           } // Draw handles
 
 
-          var options = {
+          options = {
             color: color,
             fill: fillColor
           };
@@ -23495,22 +24470,35 @@ function (_BaseAnnotationTool) {
           if (config.alwaysShowHandles || data.active && data.polyBoundingBox) {
             // Render all handles
             options.handleRadius = config.activeHandleRadius;
-            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, data.handles.points, options);
+
+            if (_this2.configuration.drawHandles) {
+              Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, data.handles.points, options);
+            }
           }
 
           if (data.canComplete) {
             // Draw large handle at the origin if can complete drawing
             options.handleRadius = config.completeHandleRadius;
             var handle = data.handles.points[0];
-            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, [handle], options);
+
+            if (_this2.configuration.drawHandles) {
+              Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, [handle], options);
+            }
           }
 
           if (data.active && !data.polyBoundingBox) {
             // Draw handle at origin and at mouse if actively drawing
             options.handleRadius = config.activeHandleRadius;
-            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, config.mouseLocation.handles, options);
+
+            if (_this2.configuration.drawHandles) {
+              Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, config.mouseLocation.handles, options);
+            }
+
             var firstHandle = data.handles.points[0];
-            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, [firstHandle], options);
+
+            if (_this2.configuration.drawHandles) {
+              Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_21__["default"])(context, eventData, [firstHandle], options);
+            }
           } // Update textbox stats
 
 
@@ -23562,14 +24550,14 @@ function (_BaseAnnotationTool) {
 
           data.unit = moSuffix; // Create a line of text to display the mean and any units that were specified (i.e. HU)
 
-          var meanText = "Mean: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_18__["default"])(meanStdDev.mean.toFixed(2)), " ").concat(moSuffix); // Create a line of text to display the standard deviation and any units that were specified (i.e. HU)
+          var meanText = "Mean: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_17__["default"])(meanStdDev.mean.toFixed(2)), " ").concat(moSuffix); // Create a line of text to display the standard deviation and any units that were specified (i.e. HU)
 
-          var stdDevText = "StdDev: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_18__["default"])(meanStdDev.stdDev.toFixed(2)), " ").concat(moSuffix); // If this image has SUV values to display, concatenate them to the text line
+          var stdDevText = "StdDev: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_17__["default"])(meanStdDev.stdDev.toFixed(2)), " ").concat(moSuffix); // If this image has SUV values to display, concatenate them to the text line
 
           if (meanStdDevSUV && meanStdDevSUV.mean !== undefined) {
             var SUVtext = ' SUV: ';
-            meanText += SUVtext + Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_18__["default"])(meanStdDevSUV.mean.toFixed(2));
-            stdDevText += SUVtext + Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_18__["default"])(meanStdDevSUV.stdDev.toFixed(2));
+            meanText += SUVtext + Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_17__["default"])(meanStdDevSUV.mean.toFixed(2));
+            stdDevText += SUVtext + Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_17__["default"])(meanStdDevSUV.stdDev.toFixed(2));
           } // Add these text lines to the array to be displayed in the textbox
 
 
@@ -23584,12 +24572,16 @@ function (_BaseAnnotationTool) {
           // This uses Char code 178 for a superscript 2
           var suffix = " mm".concat(String.fromCharCode(178));
 
-          if (!image.rowPixelSpacing || !image.columnPixelSpacing) {
+          var _getPixelSpacing2 = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_18__["default"])(image),
+              rowPixelSpacing = _getPixelSpacing2.rowPixelSpacing,
+              colPixelSpacing = _getPixelSpacing2.colPixelSpacing;
+
+          if (!rowPixelSpacing || !colPixelSpacing) {
             suffix = " pixels".concat(String.fromCharCode(178));
           } // Create a line of text to display the area and its units
 
 
-          var areaText = "Area: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_18__["default"])(area.toFixed(2))).concat(suffix); // Add this text line to the array to be displayed in the textbox
+          var areaText = "Area: ".concat(Object(_util_numbersWithCommas_js__WEBPACK_IMPORTED_MODULE_17__["default"])(area.toFixed(2))).concat(suffix); // Add this text line to the array to be displayed in the textbox
 
           textLines.push(areaText);
         }
@@ -23636,11 +24628,11 @@ function (_BaseAnnotationTool) {
     value: function handleSelectedCallback(evt, toolData, handle) {
       var interactionType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'mouse';
       var element = evt.detail.element;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
 
       if (handle.hasBoundingBox) {
         // Use default move handler.
-        Object(_util_findAndMoveHelpers_js__WEBPACK_IMPORTED_MODULE_15__["moveHandleNearImagePoint"])(evt, this, toolData, handle, interactionType);
+        Object(_util_findAndMoveHelpers_js__WEBPACK_IMPORTED_MODULE_14__["moveHandleNearImagePoint"])(evt, this, toolData, handle, interactionType);
         return;
       }
 
@@ -23682,7 +24674,7 @@ function (_BaseAnnotationTool) {
       var eventData = evt.detail;
       var currentPoints = eventData.currentPoints,
           element = eventData.element;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var config = this.configuration;
       var currentTool = config.currentTool;
       var data = toolState.data[currentTool];
@@ -23704,7 +24696,7 @@ function (_BaseAnnotationTool) {
       } // Force onImageRendered
 
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Event handler for MOUSE_DRAG during drawing event loop.
@@ -23741,7 +24733,7 @@ function (_BaseAnnotationTool) {
     value: function _drawingDrag(evt) {
       var eventData = evt.detail;
       var element = eventData.element;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var config = this.configuration;
       var currentTool = config.currentTool;
       var data = toolState.data[currentTool]; // Set the mouseLocation handle
@@ -23754,7 +24746,7 @@ function (_BaseAnnotationTool) {
 
       this._dragging = true; // Force onImageRendered
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Event handler for MOUSE_UP during drawing event loop.
@@ -23776,7 +24768,7 @@ function (_BaseAnnotationTool) {
       this._dragging = false;
       var config = this.configuration;
       var currentTool = config.currentTool;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var data = toolState.data[currentTool];
 
       if (!freehandIntersect.end(data.handles.points) && data.canComplete) {
@@ -23811,7 +24803,7 @@ function (_BaseAnnotationTool) {
       var coords = currentPoints.canvas;
       var config = this.configuration;
       var currentTool = config.currentTool;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var data = toolState.data[currentTool];
 
       var handleNearby = this._pointNearHandle(element, data, coords);
@@ -23844,7 +24836,7 @@ function (_BaseAnnotationTool) {
       var coords = currentPoints.canvas;
       var config = this.configuration;
       var currentTool = config.currentTool;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var data = toolState.data[currentTool];
 
       var handleNearby = this._pointNearHandle(element, data, coords);
@@ -23874,7 +24866,7 @@ function (_BaseAnnotationTool) {
         return;
       }
 
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var config = this.configuration;
       var data = toolState.data[config.currentTool];
 
@@ -23934,7 +24926,7 @@ function (_BaseAnnotationTool) {
         return;
       }
 
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var config = this.configuration;
       var data = toolState.data[config.currentTool];
       var currentHandle = config.currentHandle;
@@ -23958,7 +24950,7 @@ function (_BaseAnnotationTool) {
       } // Update the image
 
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Event handler for TOUCH_DRAG during handle drag event loop.
@@ -23973,7 +24965,7 @@ function (_BaseAnnotationTool) {
     value: function _editTouchDragCallback(evt) {
       var eventData = evt.detail;
       var element = eventData.element;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var config = this.configuration;
       var data = toolState.data[config.currentTool];
       var currentHandle = config.currentHandle;
@@ -23997,7 +24989,7 @@ function (_BaseAnnotationTool) {
       } // Update the image
 
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Returns the previous handle to the current one.
@@ -24028,7 +25020,7 @@ function (_BaseAnnotationTool) {
     value: function _editMouseUpCallback(evt) {
       var eventData = evt.detail;
       var element = eventData.element;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
 
       this._deactivateModify(element);
 
@@ -24036,7 +25028,7 @@ function (_BaseAnnotationTool) {
 
       this._endDrawing(element);
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Places a handle of the freehand tool if the new location is valid.
@@ -24094,9 +25086,9 @@ function (_BaseAnnotationTool) {
       var config = this.configuration;
       var interactionType;
 
-      if (evt.type === _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DOWN_ACTIVATE) {
+      if (evt.type === _events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DOWN_ACTIVATE) {
         interactionType = 'Mouse';
-      } else if (evt.type === _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_START_ACTIVE) {
+      } else if (evt.type === _events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_START_ACTIVE) {
         interactionType = 'Touch';
       }
 
@@ -24104,8 +25096,8 @@ function (_BaseAnnotationTool) {
 
       this._getMouseLocation(eventData);
 
-      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["addToolState"])(element, this.name, measurementData);
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["addToolState"])(element, this.name, measurementData);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       config.currentTool = toolState.data.length - 1;
       this._activeDrawingToolReference = toolState.data[config.currentTool];
     }
@@ -24122,7 +25114,7 @@ function (_BaseAnnotationTool) {
     value: function _addPoint(eventData) {
       var currentPoints = eventData.currentPoints,
           element = eventData.element;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name); // Get the toolState from the last-drawn polygon
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name); // Get the toolState from the last-drawn polygon
 
       var config = this.configuration;
       var data = toolState.data[config.currentTool];
@@ -24143,7 +25135,7 @@ function (_BaseAnnotationTool) {
 
       config.currentHandle += 1; // Force onImageRendered to fire
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
       this.fireModifiedEvent(element, data);
     }
     /**
@@ -24185,7 +25177,7 @@ function (_BaseAnnotationTool) {
   }, {
     key: "_endDrawing",
     value: function _endDrawing(element, handleNearby) {
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var config = this.configuration;
       var data = toolState.data[config.currentTool];
       data.active = false;
@@ -24211,7 +25203,7 @@ function (_BaseAnnotationTool) {
         this._deactivateDraw(element);
       }
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
       this.fireModifiedEvent(element, data);
       this.fireCompletedEvent(element, data);
     }
@@ -24237,16 +25229,16 @@ function (_BaseAnnotationTool) {
       }
 
       for (var i = 0; i < data.handles.points.length; i++) {
-        var handleCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.pixelToCanvas(element, data.handles.points[i]);
+        var handleCanvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.pixelToCanvas(element, data.handles.points[i]);
 
-        if (_externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstoneMath.point.distance(handleCanvas, coords) < 6) {
+        if (_externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstoneMath.point.distance(handleCanvas, coords) < 6) {
           return i;
         }
       } // Check to see if mouse in bounding box of textbox
 
 
       if (data.handles.textBox) {
-        if (Object(_util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_16__["default"])(data.handles.textBox, coords)) {
+        if (Object(_util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_15__["default"])(data.handles.textBox, coords)) {
           return data.handles.textBox;
         }
       }
@@ -24265,7 +25257,7 @@ function (_BaseAnnotationTool) {
       var currentPoints = eventData.currentPoints,
           element = eventData.element;
       var coords = currentPoints.canvas;
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
 
       if (!toolState) {
         return;
@@ -24431,8 +25423,8 @@ function (_BaseAnnotationTool) {
   }, {
     key: "_isDistanceSmallerThanCompleteSpacingCanvas",
     value: function _isDistanceSmallerThanCompleteSpacingCanvas(element, p1, p2) {
-      var p1Canvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.pixelToCanvas(element, p1);
-      var p2Canvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.pixelToCanvas(element, p2);
+      var p1Canvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.pixelToCanvas(element, p1);
+      var p2Canvas = _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.pixelToCanvas(element, p2);
       var completeHandleRadius;
 
       if (this._drawingInteractionType === 'Mouse') {
@@ -24495,10 +25487,10 @@ function (_BaseAnnotationTool) {
       var spacing = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : this.configuration.spacing;
 
       if (comparison === '>') {
-        return _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstoneMath.point.distance(p1, p2) > spacing;
+        return _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstoneMath.point.distance(p1, p2) > spacing;
       }
 
-      return _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstoneMath.point.distance(p1, p2) < spacing;
+      return _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstoneMath.point.distance(p1, p2) < spacing;
     }
     /**
      * Adds drawing loop event listeners.
@@ -24516,22 +25508,22 @@ function (_BaseAnnotationTool) {
       var interactionType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Mouse';
       this._drawing = true;
       this._drawingInteractionType = interactionType;
-      _store_index_js__WEBPACK_IMPORTED_MODULE_13__["state"].isMultiPartToolActive = true;
+      _store_index_js__WEBPACK_IMPORTED_MODULE_12__["state"].isMultiPartToolActive = true;
       Object(_store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_23__["hideToolCursor"])(this.element); // Polygonal Mode
 
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DOWN, this._drawingMouseDownCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_MOVE, this._drawingMouseMoveCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DOUBLE_CLICK, this._drawingMouseDoubleClickCallback); // Drag/Pencil Mode
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DOWN, this._drawingMouseDownCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_MOVE, this._drawingMouseMoveCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DOUBLE_CLICK, this._drawingMouseDoubleClickCallback); // Drag/Pencil Mode
 
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DRAG, this._drawingMouseDragCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_UP, this._drawingMouseUpCallback); // Touch
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DRAG, this._drawingMouseDragCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_UP, this._drawingMouseUpCallback); // Touch
 
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_START, this._drawingMouseMoveCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_START, this._drawingTouchStartCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_DRAG, this._drawingTouchDragCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_END, this._drawingMouseUpCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].DOUBLE_TAP, this._drawingDoubleTapClickCallback);
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_START, this._drawingMouseMoveCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_START, this._drawingTouchStartCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_DRAG, this._drawingTouchDragCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_END, this._drawingMouseUpCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].DOUBLE_TAP, this._drawingDoubleTapClickCallback);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Removes drawing loop event listeners.
@@ -24546,21 +25538,21 @@ function (_BaseAnnotationTool) {
     key: "_deactivateDraw",
     value: function _deactivateDraw(element) {
       this._drawing = false;
-      _store_index_js__WEBPACK_IMPORTED_MODULE_13__["state"].isMultiPartToolActive = false;
+      _store_index_js__WEBPACK_IMPORTED_MODULE_12__["state"].isMultiPartToolActive = false;
       this._activeDrawingToolReference = null;
       this._drawingInteractionType = null;
       Object(_store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_23__["setToolCursor"])(this.element, this.svgCursor);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DOWN, this._drawingMouseDownCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_MOVE, this._drawingMouseMoveCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DOUBLE_CLICK, this._drawingMouseDoubleClickCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DRAG, this._drawingMouseDragCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_UP, this._drawingMouseUpCallback); // Touch
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DOWN, this._drawingMouseDownCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_MOVE, this._drawingMouseMoveCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DOUBLE_CLICK, this._drawingMouseDoubleClickCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DRAG, this._drawingMouseDragCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_UP, this._drawingMouseUpCallback); // Touch
 
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_START, this._drawingTouchStartCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_DRAG, this._drawingTouchDragCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_START, this._drawingMouseMoveCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_END, this._drawingMouseUpCallback);
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_START, this._drawingTouchStartCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_DRAG, this._drawingTouchDragCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_START, this._drawingMouseMoveCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_END, this._drawingMouseUpCallback);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Adds modify loop event listeners.
@@ -24574,13 +25566,13 @@ function (_BaseAnnotationTool) {
   }, {
     key: "_activateModify",
     value: function _activateModify(element) {
-      _store_index_js__WEBPACK_IMPORTED_MODULE_13__["state"].isToolLocked = true;
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_UP, this._editMouseUpCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DRAG, this._editMouseDragCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_CLICK, this._editMouseUpCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_END, this._editMouseUpCallback);
-      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_DRAG, this._editTouchDragCallback);
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _store_index_js__WEBPACK_IMPORTED_MODULE_12__["state"].isToolLocked = true;
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_UP, this._editMouseUpCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DRAG, this._editMouseDragCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_CLICK, this._editMouseUpCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_END, this._editMouseUpCallback);
+      element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_DRAG, this._editTouchDragCallback);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * Removes modify loop event listeners.
@@ -24594,13 +25586,13 @@ function (_BaseAnnotationTool) {
   }, {
     key: "_deactivateModify",
     value: function _deactivateModify(element) {
-      _store_index_js__WEBPACK_IMPORTED_MODULE_13__["state"].isToolLocked = false;
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_UP, this._editMouseUpCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_DRAG, this._editMouseDragCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MOUSE_CLICK, this._editMouseUpCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_END, this._editMouseUpCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_7__["default"].TOUCH_DRAG, this._editTouchDragCallback);
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _store_index_js__WEBPACK_IMPORTED_MODULE_12__["state"].isToolLocked = false;
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_UP, this._editMouseUpCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_DRAG, this._editMouseDragCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MOUSE_CLICK, this._editMouseUpCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_END, this._editMouseUpCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_6__["default"].TOUCH_DRAG, this._editTouchDragCallback);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
   }, {
     key: "passiveCallback",
@@ -24627,7 +25619,7 @@ function (_BaseAnnotationTool) {
 
         this._endDrawing(element, lastHandlePlaced);
 
-        _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+        _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
       }
     }
     /**
@@ -24640,24 +25632,28 @@ function (_BaseAnnotationTool) {
   }, {
     key: "fireModifiedEvent",
     value: function fireModifiedEvent(element, measurementData) {
-      var eventType = _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MEASUREMENT_MODIFIED;
+      var eventType = _events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MEASUREMENT_MODIFIED;
       var eventData = {
         toolName: this.name,
+        toolType: this.name,
+        // Deprecation notice: toolType will be replaced by toolName
         element: element,
         measurementData: measurementData
       };
-      Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_14__["default"])(element, eventType, eventData);
+      Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_13__["default"])(element, eventType, eventData);
     }
   }, {
     key: "fireCompletedEvent",
     value: function fireCompletedEvent(element, measurementData) {
-      var eventType = _events_js__WEBPACK_IMPORTED_MODULE_7__["default"].MEASUREMENT_COMPLETED;
+      var eventType = _events_js__WEBPACK_IMPORTED_MODULE_6__["default"].MEASUREMENT_COMPLETED;
       var eventData = {
         toolName: this.name,
+        toolType: this.name,
+        // Deprecation notice: toolType will be replaced by toolName
         element: element,
         measurementData: measurementData
       };
-      Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_14__["default"])(element, eventType, eventData);
+      Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_13__["default"])(element, eventType, eventData);
     } // ===================================================================
     // Public Configuration API. .
     // ===================================================================
@@ -24677,7 +25673,7 @@ function (_BaseAnnotationTool) {
         return;
       }
 
-      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["getToolState"])(element, this.name);
+      var toolState = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["getToolState"])(element, this.name);
       var config = this.configuration;
       var data = toolState.data[config.currentTool];
       data.active = false;
@@ -24687,11 +25683,11 @@ function (_BaseAnnotationTool) {
       config.currentHandle = 0;
       config.currentTool = -1;
       data.canComplete = false;
-      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__["removeToolState"])(element, this.name, data);
+      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_9__["removeToolState"])(element, this.name, data);
 
       this._deactivateDraw(element);
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
     /**
      * New image event handler.
@@ -24726,7 +25722,7 @@ function (_BaseAnnotationTool) {
 
       this._deactivateDraw(element);
 
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(element);
     }
   }, {
     key: "spacing",
@@ -24739,7 +25735,7 @@ function (_BaseAnnotationTool) {
       }
 
       this.configuration.spacing = value;
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(this.element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(this.element);
     }
   }, {
     key: "activeHandleRadius",
@@ -24752,7 +25748,7 @@ function (_BaseAnnotationTool) {
       }
 
       this.configuration.activeHandleRadius = value;
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(this.element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(this.element);
     }
   }, {
     key: "completeHandleRadius",
@@ -24765,7 +25761,7 @@ function (_BaseAnnotationTool) {
       }
 
       this.configuration.completeHandleRadius = value;
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(this.element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(this.element);
     }
   }, {
     key: "alwaysShowHandles",
@@ -24778,7 +25774,7 @@ function (_BaseAnnotationTool) {
       }
 
       this.configuration.alwaysShowHandles = value;
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(this.element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(this.element);
     }
   }, {
     key: "invalidColor",
@@ -24793,12 +25789,12 @@ function (_BaseAnnotationTool) {
         it'll show up grey.
       */
       this.configuration.invalidColor = value;
-      _externalModules_js__WEBPACK_IMPORTED_MODULE_8__["default"].cornerstone.updateImage(this.element);
+      _externalModules_js__WEBPACK_IMPORTED_MODULE_7__["default"].cornerstone.updateImage(this.element);
     }
   }]);
 
   return FreehandRoiTool;
-}(_base_BaseAnnotationTool_js__WEBPACK_IMPORTED_MODULE_9__["default"]);
+}(_base_BaseAnnotationTool_js__WEBPACK_IMPORTED_MODULE_8__["default"]);
 
 
 
@@ -24819,7 +25815,9 @@ function defaultFreehandConfiguration() {
     alwaysShowHandles: false,
     invalidColor: 'crimson',
     currentHandle: 0,
-    currentTool: -1
+    currentTool: -1,
+    drawHandles: true,
+    renderDashed: false
   };
 }
 
@@ -24863,6 +25861,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
 /* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
 /* harmony import */ var _util_throttle__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../util/throttle */ "./util/throttle.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
 
 
 
@@ -24873,6 +25872,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
  // Drawing
+
 
 
 
@@ -24906,7 +25906,14 @@ function (_BaseAnnotationTool) {
     var defaultProps = {
       name: 'Length',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_13__["lengthCursor"]
+      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_13__["lengthCursor"],
+      configuration: {
+        drawHandles: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        renderDashed: false,
+        digits: 2
+      }
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(LengthTool).call(this, props, defaultProps));
     _this.throttledUpdateCachedStats = Object(_util_throttle__WEBPACK_IMPORTED_MODULE_16__["default"])(_this.updateCachedStats, 110);
@@ -25005,7 +26012,10 @@ function (_BaseAnnotationTool) {
       var eventData = evt.detail;
       var _this$configuration = this.configuration,
           handleRadius = _this$configuration.handleRadius,
-          drawHandlesOnHover = _this$configuration.drawHandlesOnHover;
+          drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+          hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+          renderDashed = _this$configuration.renderDashed,
+          digits = _this$configuration.digits;
       var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_6__["getToolState"])(evt.currentTarget, this.name);
 
       if (!toolData) {
@@ -25022,6 +26032,7 @@ function (_BaseAnnotationTool) {
           colPixelSpacing = _getPixelSpacing2.colPixelSpacing;
 
       var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_7__["default"].getToolWidth();
+      var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_17__["getModule"])('globalConfiguration').configuration.lineDash;
 
       var _loop = function _loop(i) {
         var data = toolData.data[i];
@@ -25033,18 +26044,28 @@ function (_BaseAnnotationTool) {
         Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_9__["draw"])(context, function (context) {
           // Configurable shadow
           Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_9__["setShadow"])(context, _this2.configuration);
-          var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_8__["default"].getColorIfActive(data); // Draw the measurement line
-
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_9__["drawLine"])(context, element, data.handles.start, data.handles.end, {
+          var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_8__["default"].getColorIfActive(data);
+          var lineOptions = {
             color: color
-          }); // Draw the handles
+          };
+
+          if (renderDashed) {
+            lineOptions.lineDash = lineDash;
+          } // Draw the measurement line
+
+
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_9__["drawLine"])(context, element, data.handles.start, data.handles.end, lineOptions); // Draw the handles
 
           var handleOptions = {
             color: color,
             handleRadius: handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving: hideHandlesIfMoving
           };
-          Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_11__["default"])(context, eventData, data.handles, handleOptions);
+
+          if (_this2.configuration.drawHandles) {
+            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_11__["default"])(context, eventData, data.handles, handleOptions);
+          }
 
           if (!data.handles.textBox.hasMoved) {
             var coords = {
@@ -25083,18 +26104,26 @@ function (_BaseAnnotationTool) {
         var _ret = _loop(i);
 
         if (_ret === "continue") continue;
-      }
+      } // - SideEffect: Updates annotation 'suffix'
 
-      function textBoxText(data, rowPixelSpacing, colPixelSpacing) {
-        // Set the length text suffix depending on whether or not pixelSpacing is available
+
+      function textBoxText(annotation, rowPixelSpacing, colPixelSpacing) {
+        var measuredValue = _sanitizeMeasuredValue(annotation.length); // Measured value is not defined, return empty string
+
+
+        if (!measuredValue) {
+          return '';
+        } // Set the length text suffix depending on whether or not pixelSpacing is available
+
+
         var suffix = 'mm';
 
         if (!rowPixelSpacing || !colPixelSpacing) {
           suffix = 'pixels';
         }
 
-        data.unit = suffix;
-        return "".concat(data.length.toFixed(2), " ").concat(suffix);
+        annotation.unit = suffix;
+        return "".concat(measuredValue.toFixed(digits), " ").concat(suffix);
       }
 
       function textBoxAnchorPoints(handles) {
@@ -25109,8 +26138,22 @@ function (_BaseAnnotationTool) {
 
   return LengthTool;
 }(_base_BaseAnnotationTool_js__WEBPACK_IMPORTED_MODULE_5__["default"]);
+/**
+ * Attempts to sanitize a value by casting as a number; if unable to cast,
+ * we return `undefined`
+ *
+ * @param {*} value
+ * @returns a number or undefined
+ */
 
 
+
+
+function _sanitizeMeasuredValue(value) {
+  var parsedValue = Number(value);
+  var isNumber = !isNaN(parsedValue);
+  return isNumber ? parsedValue : undefined;
+}
 
 /***/ }),
 
@@ -25147,6 +26190,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _cursors_index_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../cursors/index.js */ "./tools/cursors/index.js");
 /* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
 /* harmony import */ var _util_throttle__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../util/throttle */ "./util/throttle.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
 
 
 
@@ -25162,6 +26206,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
  // Utilities
+
 
 
 
@@ -25193,7 +26238,11 @@ function (_BaseAnnotationTool) {
     var defaultProps = {
       name: 'Probe',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_15__["probeCursor"]
+      svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_15__["probeCursor"],
+      configuration: {
+        drawHandles: true,
+        renderDashed: false
+      }
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(ProbeTool).call(this, props, defaultProps));
     _this.throttledUpdateCachedStats = Object(_util_throttle__WEBPACK_IMPORTED_MODULE_17__["default"])(_this.updateCachedStats, 110);
@@ -25281,7 +26330,9 @@ function (_BaseAnnotationTool) {
       var _this2 = this;
 
       var eventData = evt.detail;
-      var handleRadius = this.configuration.handleRadius;
+      var _this$configuration = this.configuration,
+          handleRadius = _this$configuration.handleRadius,
+          renderDashed = _this$configuration.renderDashed;
       var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_7__["getToolState"])(evt.currentTarget, this.name);
 
       if (!toolData) {
@@ -25293,6 +26344,7 @@ function (_BaseAnnotationTool) {
       var image = eventData.image,
           element = eventData.element;
       var fontHeight = _stateManagement_textStyle_js__WEBPACK_IMPORTED_MODULE_8__["default"].getFontSize();
+      var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_18__["getModule"])('globalConfiguration').configuration.lineDash;
 
       var _loop = function _loop(i) {
         var data = toolData.data[i];
@@ -25302,12 +26354,22 @@ function (_BaseAnnotationTool) {
         }
 
         Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["draw"])(context, function (context) {
-          var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_9__["default"].getColorIfActive(data); // Draw the handles
+          var color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_9__["default"].getColorIfActive(data);
 
-          Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_12__["default"])(context, eventData, data.handles, {
-            handleRadius: handleRadius,
-            color: color
-          }); // Update textbox stats
+          if (_this2.configuration.drawHandles) {
+            // Draw the handles
+            var handleOptions = {
+              handleRadius: handleRadius,
+              color: color
+            };
+
+            if (renderDashed) {
+              handleOptions.lineDash = lineDash;
+            }
+
+            Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_12__["default"])(context, eventData, data.handles, handleOptions);
+          } // Update textbox stats
+
 
           if (data.invalidated === true) {
             if (data.cachedStats) {
@@ -25401,6 +26463,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _cursors_index_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../cursors/index.js */ "./tools/cursors/index.js");
 /* harmony import */ var _util_logger_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../util/logger.js */ "./util/logger.js");
 /* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../store/index */ "./store/index.js");
 
 
 
@@ -25414,6 +26477,7 @@ __webpack_require__.r(__webpack_exports__);
  // Drawing
 
  // Util
+
 
 
 
@@ -25447,8 +26511,13 @@ function (_BaseAnnotationTool) {
     var defaultProps = {
       name: 'RectangleRoi',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      configuration: {// showMinMax: false,
+      configuration: {
+        drawHandles: true,
+        drawHandlesOnHover: false,
+        hideHandlesIfMoving: false,
+        renderDashed: false // showMinMax: false,
         // showHounsfieldUnits: true
+
       },
       svgCursor: _cursors_index_js__WEBPACK_IMPORTED_MODULE_15__["rectangleRoiCursor"]
     };
@@ -25550,9 +26619,12 @@ function (_BaseAnnotationTool) {
       var image = eventData.image,
           element = eventData.element;
       var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_8__["default"].getToolWidth();
+      var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_18__["getModule"])('globalConfiguration').configuration.lineDash;
       var _this$configuration = this.configuration,
           handleRadius = _this$configuration.handleRadius,
-          drawHandlesOnHover = _this$configuration.drawHandlesOnHover;
+          drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+          hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+          renderDashed = _this$configuration.renderDashed;
       var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["getNewContext"])(eventData.canvasContext.canvas);
 
       var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_17__["default"])(image),
@@ -25578,14 +26650,25 @@ function (_BaseAnnotationTool) {
           var handleOptions = {
             color: color,
             handleRadius: handleRadius,
-            drawHandlesIfActive: drawHandlesOnHover
+            drawHandlesIfActive: drawHandlesOnHover,
+            hideHandlesIfMoving: hideHandlesIfMoving
           };
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["setShadow"])(context, _this2.configuration); // Draw
-
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawRect"])(context, element, data.handles.start, data.handles.end, {
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["setShadow"])(context, _this2.configuration);
+          var rectOptions = {
             color: color
-          }, 'pixel', data.handles.initialRotation);
-          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawHandles"])(context, eventData, data.handles, handleOptions); // Update textbox stats
+          };
+
+          if (renderDashed) {
+            rectOptions.lineDash = lineDash;
+          } // Draw
+
+
+          Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawRect"])(context, element, data.handles.start, data.handles.end, rectOptions, 'pixel', data.handles.initialRotation);
+
+          if (_this2.configuration.drawHandles) {
+            Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_10__["drawHandles"])(context, eventData, data.handles, handleOptions);
+          } // Update textbox stats
+
 
           if (data.invalidated === true) {
             if (data.cachedStats) {
@@ -25668,8 +26751,10 @@ function _calculateStats(image, element, handles, modality, pixelSpacing) {
 
 
   var area = roiCoordinates.width * (pixelSpacing.colPixelSpacing || 1) * (roiCoordinates.height * (pixelSpacing.rowPixelSpacing || 1));
+  var perimeter = roiCoordinates.width * 2 * (pixelSpacing.colPixelSpacing || 1) + roiCoordinates.height * 2 * (pixelSpacing.rowPixelSpacing || 1);
   return {
     area: area || 0,
+    perimeter: perimeter,
     count: roiMeanStdDev.count || 0,
     mean: roiMeanStdDev.mean || 0,
     variance: roiMeanStdDev.variance || 0,
@@ -25796,13 +26881,23 @@ function _getUnit(modality, showHounsfieldUnits) {
  */
 
 
-function _createTextBoxContent(context, isColorImage, _ref, modality, hasPixelSpacing) {
-  var area = _ref.area,
-      mean = _ref.mean,
-      stdDev = _ref.stdDev,
-      min = _ref.min,
-      max = _ref.max,
-      meanStdDevSUV = _ref.meanStdDevSUV;
+function _createTextBoxContent(context, isColorImage) {
+  var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref$area = _ref.area,
+      area = _ref$area === void 0 ? 0 : _ref$area,
+      _ref$mean = _ref.mean,
+      mean = _ref$mean === void 0 ? 0 : _ref$mean,
+      _ref$stdDev = _ref.stdDev,
+      stdDev = _ref$stdDev === void 0 ? 0 : _ref$stdDev,
+      _ref$min = _ref.min,
+      min = _ref$min === void 0 ? 0 : _ref$min,
+      _ref$max = _ref.max,
+      max = _ref$max === void 0 ? 0 : _ref$max,
+      _ref$meanStdDevSUV = _ref.meanStdDevSUV,
+      meanStdDevSUV = _ref$meanStdDevSUV === void 0 ? 0 : _ref$meanStdDevSUV;
+
+  var modality = arguments.length > 3 ? arguments[3] : undefined;
+  var hasPixelSpacing = arguments.length > 4 ? arguments[4] : undefined;
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
   var showMinMax = options.showMinMax || false;
   var textLines = [];
@@ -25829,7 +26924,8 @@ function _createTextBoxContent(context, isColorImage, _ref, modality, hasPixelSp
       otherLines.push("".concat(meanString).concat(meanSuvString));
       otherLines.push("".concat(stdDevString, "     ").concat(stdDevSuvString));
     } else {
-      otherLines.push("".concat(meanString, "     ").concat(stdDevString));
+      otherLines.push("".concat(meanString));
+      otherLines.push("".concat(stdDevString));
     }
 
     if (showMinMax) {
@@ -26139,7 +27235,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
 /* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../util/triggerEvent.js */ "./util/triggerEvent.js");
 /* harmony import */ var _util_getActiveTool__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../util/getActiveTool */ "./util/getActiveTool.js");
-/* harmony import */ var _base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../base/BaseAnnotationTool */ "./tools/base/BaseAnnotationTool.js");
+/* harmony import */ var _BidirectionalTool__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../BidirectionalTool */ "./tools/annotation/BidirectionalTool.js");
+/* harmony import */ var _utils_updatePerpendicularLineHandles_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/updatePerpendicularLineHandles.js */ "./tools/annotation/bidirectionalTool/utils/updatePerpendicularLineHandles.js");
+
 
 
 
@@ -26175,7 +27273,12 @@ __webpack_require__.r(__webpack_exports__);
   var _measurementData$hand = measurementData.handles,
       end = _measurementData$hand.end,
       perpendicularStart = _measurementData$hand.perpendicularStart;
-  Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_2__["moveNewHandle"])(eventData, this.name, measurementData, end, {}, interactionType, function () {
+  Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_2__["moveNewHandle"])(eventData, this.name, measurementData, end, {}, interactionType, function (success) {
+    if (!success) {
+      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__["removeToolState"])(element, _this.name, measurementData);
+      return;
+    }
+
     var handles = measurementData.handles,
         longestDiameter = measurementData.longestDiameter,
         shortestDiameter = measurementData.shortestDiameter;
@@ -26192,20 +27295,23 @@ __webpack_require__.r(__webpack_exports__);
     } else {
       // Set lesionMeasurementData Session
       config.getMeasurementLocationCallback(measurementData, eventData, doneCallback);
-    } // Perpendicular line is not connected to long-line
+    } // Update perpendicular line and disconnect it from the long-line
 
 
+    Object(_utils_updatePerpendicularLineHandles_js__WEBPACK_IMPORTED_MODULE_8__["default"])(eventData, measurementData);
     perpendicularStart.locked = false;
     measurementData.invalidated = true;
     _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstone.updateImage(element);
     var activeTool = Object(_util_getActiveTool__WEBPACK_IMPORTED_MODULE_6__["default"])(element, buttons, interactionType);
 
-    if (activeTool instanceof _base_BaseAnnotationTool__WEBPACK_IMPORTED_MODULE_7__["default"]) {
+    if (activeTool instanceof _BidirectionalTool__WEBPACK_IMPORTED_MODULE_7__["default"]) {
       activeTool.updateCachedStats(image, element, measurementData);
     }
 
     var modifiedEventData = {
+      toolName: _this.name,
       toolType: _this.name,
+      // Deprecation notice: toolType will be replaced by toolName
       element: element,
       measurementData: measurementData
     };
@@ -26258,7 +27364,9 @@ var getHandle = function getHandle(x, y, index) {
       y = _mouseEventData$curre.y; // Create the measurement data for this tool with the end handle activated
 
   var measurementData = {
+    toolName: this.name,
     toolType: this.name,
+    // Deprecation notice: toolType will be replaced by toolName
     isCreating: true,
     visible: true,
     active: true,
@@ -26323,15 +27431,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "../node_modules/@babel/runtime/helpers/typeof.js");
 /* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../../../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../store/index.js */ "./store/index.js");
-/* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../../../events.js */ "./events.js");
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _manipulators_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../../manipulators/anyHandlesOutsideImage.js */ "./manipulators/anyHandlesOutsideImage.js");
-/* harmony import */ var _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../../../manipulators/getHandleNearImagePoint.js */ "./manipulators/getHandleNearImagePoint.js");
-/* harmony import */ var _manipulators_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../../manipulators/index.js */ "./manipulators/index.js");
-/* harmony import */ var _moveHandle_moveHandle_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./moveHandle/moveHandle.js */ "./tools/annotation/bidirectionalTool/moveHandle/moveHandle.js");
-/* harmony import */ var _invertHandles_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./invertHandles.js */ "./tools/annotation/bidirectionalTool/invertHandles.js");
-/* harmony import */ var _store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../../store/setToolCursor.js */ "./store/setToolCursor.js");
+/* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../../../events.js */ "./events.js");
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony import */ var _manipulators_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../../../manipulators/anyHandlesOutsideImage.js */ "./manipulators/anyHandlesOutsideImage.js");
+/* harmony import */ var _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../../manipulators/getHandleNearImagePoint.js */ "./manipulators/getHandleNearImagePoint.js");
+/* harmony import */ var _manipulators_index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../../../manipulators/index.js */ "./manipulators/index.js");
+/* harmony import */ var _moveHandle_moveHandle_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./moveHandle/moveHandle.js */ "./tools/annotation/bidirectionalTool/moveHandle/moveHandle.js");
+/* harmony import */ var _invertHandles_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./invertHandles.js */ "./tools/annotation/bidirectionalTool/invertHandles.js");
+/* harmony import */ var _store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../../store/setToolCursor.js */ "./store/setToolCursor.js");
+/* harmony import */ var _util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../../util/getProximityThreshold.js */ "./util/getProximityThreshold.js");
 
 
 /* jshint -W083 */
@@ -26351,14 +27459,14 @@ __webpack_require__.r(__webpack_exports__);
   var eventData = evt.detail;
   var element = eventData.element;
   var data;
-  var distanceThreshold = _store_index_js__WEBPACK_IMPORTED_MODULE_2__["state"].clickProximity;
+  var distanceThreshold = Object(_util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_10__["default"])('mouse', this.name);
 
   var handleDoneMove = function handleDoneMove(handle) {
     data.invalidated = true;
 
-    if (Object(_manipulators_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_5__["default"])(eventData, data.handles)) {
+    if (Object(_manipulators_anyHandlesOutsideImage_js__WEBPACK_IMPORTED_MODULE_4__["default"])(eventData, data.handles)) {
       // Delete the measurement
-      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__["removeToolState"])(element, _this.name, data);
+      Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["removeToolState"])(element, _this.name, data);
     } // Update the handles to keep selected state
 
 
@@ -26367,14 +27475,14 @@ __webpack_require__.r(__webpack_exports__);
       handle.selected = true;
     }
 
-    Object(_store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_10__["setToolCursor"])(_this.element, _this.svgCursor);
+    Object(_store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_9__["setToolCursor"])(_this.element, _this.svgCursor);
     _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.updateImage(element);
-    element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_3__["default"].MOUSE_MOVE, _this._moveCallback);
-    element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_3__["default"].TOUCH_START, _this._moveCallback);
+    element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].MOUSE_MOVE, _this._moveCallback);
+    element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_START, _this._moveCallback);
   };
 
   var coords = eventData.startPoints.canvas;
-  var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_4__["getToolState"])(evt.currentTarget, this.name);
+  var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_3__["getToolState"])(evt.currentTarget, this.name);
 
   if (!toolData) {
     return;
@@ -26384,25 +27492,25 @@ __webpack_require__.r(__webpack_exports__);
   var _loop = function _loop(i) {
     data = toolData.data[i];
     var handleParams = [element, data.handles, coords, distanceThreshold];
-    var handle = _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_6__["default"].apply(void 0, handleParams);
+    var handle = _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_5__["default"].apply(void 0, handleParams);
 
     if (handle) {
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_3__["default"].MOUSE_MOVE, _this._moveCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_3__["default"].TOUCH_START, _this._moveCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].MOUSE_MOVE, _this._moveCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_START, _this._moveCallback);
       data.active = true;
       unselectAllHandles(data.handles);
       handle.moving = true; // Invert handles if needed
 
-      handle = Object(_invertHandles_js__WEBPACK_IMPORTED_MODULE_9__["default"])(eventData, data, handle);
+      handle = Object(_invertHandles_js__WEBPACK_IMPORTED_MODULE_8__["default"])(eventData, data, handle);
       /* Hide the cursor to improve precision while resizing the line or set to move
          if dragging text box
       */
 
       if (!handle.hasBoundingBox) {
-        Object(_store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_10__["hideToolCursor"])(_this.element);
+        Object(_store_setToolCursor_js__WEBPACK_IMPORTED_MODULE_9__["hideToolCursor"])(_this.element);
       }
 
-      Object(_moveHandle_moveHandle_js__WEBPACK_IMPORTED_MODULE_8__["default"])(eventData, _this.name, data, handle, function () {
+      Object(_moveHandle_moveHandle_js__WEBPACK_IMPORTED_MODULE_7__["default"])(eventData, _this.name, data, handle, function () {
         return handleDoneMove(handle);
       });
       preventPropagation(evt);
@@ -26429,13 +27537,13 @@ __webpack_require__.r(__webpack_exports__);
     data = toolData.data[i];
 
     if (this.pointNearTool(element, data, coords, 'mouse')) {
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_3__["default"].MOUSE_MOVE, this._moveCallback);
-      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_3__["default"].TOUCH_START, this._moveCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].MOUSE_MOVE, this._moveCallback);
+      element.removeEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_START, this._moveCallback);
       data.active = true;
       unselectAllHandles(data.handles);
       setHandlesMovingState(data.handles, true);
       var doneMovingCallback = getDoneMovingCallback(data.handles);
-      Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_7__["moveAllHandles"])(eventData, this.name, data, null, {
+      Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_6__["moveAllHandles"])(eventData, this.name, data, null, {
         deleteIfHandleOutsideImage: true,
         preventHandleOutsideImage: false
       }, 'mouse', doneMovingCallback);
@@ -26780,6 +27888,81 @@ var handleActivator = function handleActivator(element, handles, canvasPoint) {
 
 /***/ }),
 
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/getBaseData.js":
+/*!**********************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/getBaseData.js ***!
+  \**********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getBaseData; });
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _utils_getDistanceWithPixelSpacing_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/getDistanceWithPixelSpacing.js */ "./tools/annotation/bidirectionalTool/utils/getDistanceWithPixelSpacing.js");
+
+
+
+function createLine(startPoint, endPoint) {
+  return {
+    start: startPoint,
+    end: endPoint
+  };
+}
+/**
+ * Extract and group the base data to be used on bidirectional tool lines
+ * moving.
+ *
+ * @param {*} measurementData Data from current bidirectional tool measurement
+ * @param {*} eventData Data object associated with the event
+ * @param {*} fixedPoint Point that is not being moved in line
+ *
+ * @returns {*} Grouped that needed for lines moving
+ */
+
+
+function getBaseData(measurementData, eventData, fixedPoint) {
+  var lineSegment = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment;
+  var _measurementData$hand = measurementData.handles,
+      start = _measurementData$hand.start,
+      end = _measurementData$hand.end,
+      perpendicularStart = _measurementData$hand.perpendicularStart,
+      perpendicularEnd = _measurementData$hand.perpendicularEnd;
+  var _eventData$image = eventData.image,
+      _eventData$image$colu = _eventData$image.columnPixelSpacing,
+      columnPixelSpacing = _eventData$image$colu === void 0 ? 1 : _eventData$image$colu,
+      _eventData$image$rowP = _eventData$image.rowPixelSpacing,
+      rowPixelSpacing = _eventData$image$rowP === void 0 ? 1 : _eventData$image$rowP;
+  var longLine = createLine(start, end);
+  var perpendicularLine = createLine(perpendicularStart, perpendicularEnd);
+  var intersection = lineSegment.intersectLine(longLine, perpendicularLine);
+  var distanceToFixed = Object(_utils_getDistanceWithPixelSpacing_js__WEBPACK_IMPORTED_MODULE_1__["default"])(columnPixelSpacing, rowPixelSpacing, fixedPoint, intersection);
+  return {
+    columnPixelSpacing: columnPixelSpacing,
+    // Width that a pixel represents in mm
+    rowPixelSpacing: rowPixelSpacing,
+    // Height that a pixel represents in mm
+    start: start,
+    // Start point of the long line
+    end: end,
+    // End point of the long line
+    perpendicularStart: perpendicularStart,
+    // Start point of the perpendicular line
+    perpendicularEnd: perpendicularEnd,
+    // End point of the perpendicular line
+    longLine: longLine,
+    // Long line object containing the start and end points
+    intersection: intersection,
+    // Intersection point between long and perpendicular lines
+    distanceToFixed: distanceToFixed,
+    // Distance from intersection to the fixed point
+    fixedPoint: fixedPoint // Opposite point from the handle that is being moved
+
+  };
+}
+
+/***/ }),
+
 /***/ "./tools/annotation/bidirectionalTool/moveHandle/moveHandle.js":
 /*!*********************************************************************!*\
   !*** ./tools/annotation/bidirectionalTool/moveHandle/moveHandle.js ***!
@@ -26801,7 +27984,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/* harmony default export */ __webpack_exports__["default"] = (function (mouseEventData, toolType, data, handle, doneMovingCallback, preventHandleOutsideImage) {
+/* harmony default export */ __webpack_exports__["default"] = (function (mouseEventData, toolName, data, handle, doneMovingCallback, preventHandleOutsideImage) {
   var element = mouseEventData.element,
       image = mouseEventData.image,
       buttons = mouseEventData.buttons;
@@ -26837,7 +28020,9 @@ __webpack_require__.r(__webpack_exports__);
     }
 
     var modifiedEventData = {
-      toolType: toolType,
+      toolName: toolName,
+      toolType: toolName,
+      // Deprecation notice: toolType will be replaced by toolName
       element: element,
       measurementData: data
     };
@@ -26845,6 +28030,7 @@ __webpack_require__.r(__webpack_exports__);
   };
 
   handle.active = true;
+  handle.moving = true;
   _store_index_js__WEBPACK_IMPORTED_MODULE_1__["state"].isToolLocked = true;
   element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].MOUSE_DRAG, _dragCallback);
   element.addEventListener(_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_DRAG, _dragCallback);
@@ -26886,312 +28072,407 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularBothFixedLeft.js":
-/*!*************************************************************************************!*\
-  !*** ./tools/annotation/bidirectionalTool/moveHandle/perpendicularBothFixedLeft.js ***!
-  \*************************************************************************************/
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/moveLongLine/moveLongLine.js":
+/*!************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/moveLongLine/moveLongLine.js ***!
+  \************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../../../externalModules.js */ "./externalModules.js");
- // Move long-axis start point
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return moveLongLine; });
+/* harmony import */ var _utils_getDistanceWithPixelSpacing_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../utils/getDistanceWithPixelSpacing.js */ "./tools/annotation/bidirectionalTool/utils/getDistanceWithPixelSpacing.js");
+/* harmony import */ var _getBaseData_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../getBaseData.js */ "./tools/annotation/bidirectionalTool/moveHandle/getBaseData.js");
+/* harmony import */ var _updatePerpendicularLine_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./updatePerpendicularLine.js */ "./tools/annotation/bidirectionalTool/moveHandle/moveLongLine/updatePerpendicularLine.js");
 
-/* harmony default export */ __webpack_exports__["default"] = (function (proposedPoint, data) {
-  var distance = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.point.distance;
-  var _data$handles = data.handles,
-      start = _data$handles.start,
-      end = _data$handles.end,
-      perpendicularStart = _data$handles.perpendicularStart,
-      perpendicularEnd = _data$handles.perpendicularEnd;
-  var longLine = {
-    start: {
-      x: start.x,
-      y: start.y
-    },
-    end: {
-      x: end.x,
-      y: end.y
-    }
-  };
-  var perpendicularLine = {
-    start: {
-      x: perpendicularStart.x,
-      y: perpendicularStart.y
-    },
-    end: {
-      x: perpendicularEnd.x,
-      y: perpendicularEnd.y
-    }
-  };
-  var intersection = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.intersectLine(longLine, perpendicularLine);
-  var distanceFromPerpendicularP1 = distance(perpendicularStart, intersection);
-  var distanceFromPerpendicularP2 = distance(perpendicularEnd, intersection);
-  var distanceToLineP2 = distance(end, intersection);
-  var newLineLength = distance(end, proposedPoint);
 
-  if (newLineLength <= distanceToLineP2) {
+
+/**
+ * Move the long line updating the perpendicular line handles position.
+ *
+ * @param {*} proposedPoint Point that was moved in bidirectional tool
+ * @param {*} measurementData Data from current bidirectional tool measurement
+ * @param {*} eventData Data object associated with the event
+ * @param {*} fixedPoint Point that is not being moved in long line
+ *
+ * @returns {boolean} True if perpendicular handles were updated, false if not
+ */
+
+function moveLongLine(proposedPoint, measurementData, eventData, fixedPoint) {
+  var baseData = Object(_getBaseData_js__WEBPACK_IMPORTED_MODULE_1__["default"])(measurementData, eventData, fixedPoint);
+  var columnPixelSpacing = baseData.columnPixelSpacing,
+      rowPixelSpacing = baseData.rowPixelSpacing,
+      distanceToFixed = baseData.distanceToFixed; // Calculate the length of the new line, considering the proposed point
+
+  var newLineLength = Object(_utils_getDistanceWithPixelSpacing_js__WEBPACK_IMPORTED_MODULE_0__["default"])(columnPixelSpacing, rowPixelSpacing, fixedPoint, proposedPoint); // Stop here if the handle tries to move before the intersection point
+
+  if (newLineLength <= distanceToFixed) {
     return false;
-  }
+  } // Calculate the new intersection point
 
-  var dx = (end.x - proposedPoint.x) / newLineLength;
-  var dy = (end.y - proposedPoint.y) / newLineLength;
-  var k = distanceToLineP2 / newLineLength;
+
+  var distanceRatio = distanceToFixed / newLineLength;
   var newIntersection = {
-    x: end.x + (proposedPoint.x - end.x) * k,
-    y: end.y + (proposedPoint.y - end.y) * k
-  };
-  perpendicularStart.x = newIntersection.x - distanceFromPerpendicularP1 * dy;
-  perpendicularStart.y = newIntersection.y + distanceFromPerpendicularP1 * dx;
-  perpendicularEnd.x = newIntersection.x + distanceFromPerpendicularP2 * dy;
-  perpendicularEnd.y = newIntersection.y - distanceFromPerpendicularP2 * dx;
+    x: fixedPoint.x + (proposedPoint.x - fixedPoint.x) * distanceRatio,
+    y: fixedPoint.y + (proposedPoint.y - fixedPoint.y) * distanceRatio
+  }; // Calculate and the new position of the perpendicular handles
+
+  var newLine = Object(_updatePerpendicularLine_js__WEBPACK_IMPORTED_MODULE_2__["default"])(baseData, newIntersection); // Update the perpendicular line handles
+
+  measurementData.handles.perpendicularStart.x = newLine.start.x;
+  measurementData.handles.perpendicularStart.y = newLine.start.y;
+  measurementData.handles.perpendicularEnd.x = newLine.end.x;
+  measurementData.handles.perpendicularEnd.y = newLine.end.y;
   return true;
-});
+}
 
 /***/ }),
 
-/***/ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularBothFixedRight.js":
-/*!**************************************************************************************!*\
-  !*** ./tools/annotation/bidirectionalTool/moveHandle/perpendicularBothFixedRight.js ***!
-  \**************************************************************************************/
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/moveLongLine/updatePerpendicularLine.js":
+/*!***********************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/moveLongLine/updatePerpendicularLine.js ***!
+  \***********************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../../../externalModules.js */ "./externalModules.js");
- // Move long-axis end point
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return updatePerpendicularLine; });
+/* harmony import */ var _utils_getLineVector__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../utils/getLineVector */ "./tools/annotation/bidirectionalTool/utils/getLineVector.js");
+/* harmony import */ var _utils_getDistanceWithPixelSpacing__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../utils/getDistanceWithPixelSpacing */ "./tools/annotation/bidirectionalTool/utils/getDistanceWithPixelSpacing.js");
 
-/* harmony default export */ __webpack_exports__["default"] = (function (proposedPoint, data) {
-  var distance = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.point.distance;
-  var _data$handles = data.handles,
-      start = _data$handles.start,
-      end = _data$handles.end,
-      perpendicularStart = _data$handles.perpendicularStart,
-      perpendicularEnd = _data$handles.perpendicularEnd;
-  var longLine = {
+
+/**
+ * Returns the updated line object that will be used to change the position of
+ * the perpendicular line handles.
+ *
+ * @param {*} baseData Base data for bidirectional line moving
+ * @param {*} mid Middle point considering the proposed point
+ *
+ * @returns {*} Returns a line object with the updated handles position
+ */
+
+function updatePerpendicularLine(baseData, mid) {
+  var columnPixelSpacing = baseData.columnPixelSpacing,
+      rowPixelSpacing = baseData.rowPixelSpacing,
+      start = baseData.start,
+      perpendicularStart = baseData.perpendicularStart,
+      perpendicularEnd = baseData.perpendicularEnd,
+      intersection = baseData.intersection,
+      fixedPoint = baseData.fixedPoint; // Get the original distance from perpendicular start handle to intersection
+
+  var distancePS = Object(_utils_getDistanceWithPixelSpacing__WEBPACK_IMPORTED_MODULE_1__["default"])(columnPixelSpacing, rowPixelSpacing, perpendicularStart, intersection); // Get the original distance from perpendicular end handle to intersection
+
+  var distancePE = Object(_utils_getDistanceWithPixelSpacing__WEBPACK_IMPORTED_MODULE_1__["default"])(columnPixelSpacing, rowPixelSpacing, perpendicularEnd, intersection); // Inclination of the perpendicular line
+
+  var vector = Object(_utils_getLineVector__WEBPACK_IMPORTED_MODULE_0__["default"])(columnPixelSpacing, rowPixelSpacing, fixedPoint, mid); // Define the multiplier
+
+  var multiplier = fixedPoint === start ? 1 : -1;
+  var rowMultiplier = multiplier * rowPixelSpacing;
+  var columnMultiplier = multiplier * columnPixelSpacing; // Calculate and return the new position of the perpendicular handles
+
+  return {
     start: {
-      x: start.x,
-      y: start.y
+      x: mid.x + vector.y * distancePS * rowMultiplier,
+      y: mid.y + vector.x * distancePS * columnMultiplier * -1
     },
     end: {
-      x: end.x,
-      y: end.y
+      x: mid.x + vector.y * distancePE * rowMultiplier * -1,
+      y: mid.y + vector.x * distancePE * columnMultiplier
     }
   };
-  var perpendicularLine = {
-    start: {
-      x: perpendicularStart.x,
-      y: perpendicularStart.y
-    },
-    end: {
-      x: perpendicularEnd.x,
-      y: perpendicularEnd.y
-    }
-  };
-  var intersection = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.intersectLine(longLine, perpendicularLine);
-  var distanceFromPerpendicularP1 = distance(perpendicularStart, intersection);
-  var distanceFromPerpendicularP2 = distance(perpendicularEnd, intersection);
-  var distanceToLineP2 = distance(start, intersection);
-  var newLineLength = distance(start, proposedPoint);
-
-  if (newLineLength <= distanceToLineP2) {
-    return false;
-  }
-
-  var dx = (start.x - proposedPoint.x) / newLineLength;
-  var dy = (start.y - proposedPoint.y) / newLineLength;
-  var k = distanceToLineP2 / newLineLength;
-  var newIntersection = {
-    x: start.x + (proposedPoint.x - start.x) * k,
-    y: start.y + (proposedPoint.y - start.y) * k
-  };
-  perpendicularStart.x = newIntersection.x + distanceFromPerpendicularP1 * dy;
-  perpendicularStart.y = newIntersection.y - distanceFromPerpendicularP1 * dx;
-  perpendicularEnd.x = newIntersection.x - distanceFromPerpendicularP2 * dy;
-  perpendicularEnd.y = newIntersection.y + distanceFromPerpendicularP2 * dx;
-  return true;
-});
+}
 
 /***/ }),
 
-/***/ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularLeftFixedPoint.js":
-/*!**************************************************************************************!*\
-  !*** ./tools/annotation/bidirectionalTool/moveHandle/perpendicularLeftFixedPoint.js ***!
-  \**************************************************************************************/
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getDirectionMultiplier.js":
+/*!*******************************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getDirectionMultiplier.js ***!
+  \*******************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../../../externalModules.js */ "./externalModules.js");
- // Move perpendicular line start point
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getDirectionMultiplier; });
+/* harmony import */ var _isPerpendicularEndFixed_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./isPerpendicularEndFixed.js */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/isPerpendicularEndFixed.js");
 
-/* harmony default export */ __webpack_exports__["default"] = (function (movedPoint, data) {
-  var distance = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.point.distance;
-  var _data$handles = data.handles,
-      start = _data$handles.start,
-      end = _data$handles.end,
-      perpendicularStart = _data$handles.perpendicularStart,
-      perpendicularEnd = _data$handles.perpendicularEnd;
-  var fudgeFactor = 1;
-  var fixedPoint = perpendicularEnd;
-  var distanceFromFixed = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.distanceToPoint(data.handles, fixedPoint);
-  var distanceFromMoved = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.distanceToPoint(data.handles, movedPoint);
-  var distanceBetweenPoints = distance(fixedPoint, movedPoint);
-  var total = distanceFromFixed + distanceFromMoved;
+/**
+ * Return the direction multiplier based on the perpendicular fixed point and
+ * the end point.
+ *
+ * @param {*} fixedPoint Point that is not being moved in perpendicular line
+ * @param {*} perpendicularEnd The end point of the perpencular line
+ *
+ * @returns {number} Returns -1 if end point is not being moved or 1 if it is
+ */
 
-  if (distanceBetweenPoints <= distanceFromFixed) {
-    return false;
-  }
-
-  var length = distance(start, end);
-
-  if (length === 0) {
-    return false;
-  }
-
-  var dx = (start.x - end.x) / length;
-  var dy = (start.y - end.y) / length;
-  var adjustedLineP1 = {
-    x: start.x - fudgeFactor * dx,
-    y: start.y - fudgeFactor * dy
-  };
-  var adjustedLineP2 = {
-    x: end.x + fudgeFactor * dx,
-    y: end.y + fudgeFactor * dy
-  };
-  perpendicularStart.x = movedPoint.x;
-  perpendicularStart.y = movedPoint.y;
-  perpendicularEnd.x = movedPoint.x - total * dy;
-  perpendicularEnd.y = movedPoint.y + total * dx;
-  var longLine = {
-    start: {
-      x: start.x,
-      y: start.y
-    },
-    end: {
-      x: end.x,
-      y: end.y
-    }
-  };
-  var perpendicularLine = {
-    start: {
-      x: perpendicularStart.x,
-      y: perpendicularStart.y
-    },
-    end: {
-      x: perpendicularEnd.x,
-      y: perpendicularEnd.y
-    }
-  };
-  var intersection = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.intersectLine(longLine, perpendicularLine);
-
-  if (!intersection) {
-    if (distance(movedPoint, start) > distance(movedPoint, end)) {
-      perpendicularStart.x = adjustedLineP2.x + distanceFromMoved * dy;
-      perpendicularStart.y = adjustedLineP2.y - distanceFromMoved * dx;
-      perpendicularEnd.x = perpendicularStart.x - total * dy;
-      perpendicularEnd.y = perpendicularStart.y + total * dx;
-    } else {
-      perpendicularStart.x = adjustedLineP1.x + distanceFromMoved * dy;
-      perpendicularStart.y = adjustedLineP1.y - distanceFromMoved * dx;
-      perpendicularEnd.x = perpendicularStart.x - total * dy;
-      perpendicularEnd.y = perpendicularStart.y + total * dx;
-    }
-  }
-
-  return true;
-});
+function getDirectionMultiplier(fixedPoint, perpendicularEnd) {
+  return Object(_isPerpendicularEndFixed_js__WEBPACK_IMPORTED_MODULE_0__["default"])(fixedPoint, perpendicularEnd) ? -1 : 1;
+}
 
 /***/ }),
 
-/***/ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularRightFixedPoint.js":
-/*!***************************************************************************************!*\
-  !*** ./tools/annotation/bidirectionalTool/moveHandle/perpendicularRightFixedPoint.js ***!
-  \***************************************************************************************/
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getHelperLine.js":
+/*!**********************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getHelperLine.js ***!
+  \**********************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../../../externalModules.js */ "./externalModules.js");
- // Move perpendicular line end point
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getHelperLine; });
+/* harmony import */ var _getDirectionMultiplier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./getDirectionMultiplier */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getDirectionMultiplier.js");
 
-/* harmony default export */ __webpack_exports__["default"] = (function (movedPoint, data) {
-  var distance = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.point.distance;
-  var _data$handles = data.handles,
-      start = _data$handles.start,
-      end = _data$handles.end,
-      perpendicularStart = _data$handles.perpendicularStart,
-      perpendicularEnd = _data$handles.perpendicularEnd;
-  var fudgeFactor = 1;
-  var fixedPoint = perpendicularStart;
-  var distanceFromFixed = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.distanceToPoint(data.handles, fixedPoint);
-  var distanceFromMoved = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.distanceToPoint(data.handles, movedPoint);
-  var distanceBetweenPoints = distance(fixedPoint, movedPoint);
-  var total = distanceFromFixed + distanceFromMoved;
+/**
+ * Creates a helper line with the same inclination as the perpendicular line
+ * but having the start point as the proposed point.
+ * This line will start in the proposed point and will grow in the long line
+ * direction trying to cross it to enable finding the intersection point
+ * between the long line and this new perpendicular line.
+ *
+ * @param {*} baseData Base data for bidirectional line moving
+ * @param {*} proposedPoint Point that was moved in bidirectional tool
+ * @param {*} vector Vector with the perpendicular line inclination
+ *
+ * @returns {*} Returns the helper line containing the start and end points
+ */
 
-  if (distanceBetweenPoints <= distanceFromFixed) {
+function getHelperLine(baseData, proposedPoint, vector) {
+  var columnPixelSpacing = baseData.columnPixelSpacing,
+      rowPixelSpacing = baseData.rowPixelSpacing,
+      perpendicularEnd = baseData.perpendicularEnd,
+      fixedPoint = baseData.fixedPoint; // Create a helper line to find the intesection point in the long line
+
+  var highNumber = Number.MAX_SAFE_INTEGER; // Get the multiplier
+
+  var multiplier = Object(_getDirectionMultiplier__WEBPACK_IMPORTED_MODULE_0__["default"])(fixedPoint, perpendicularEnd) * highNumber;
+  return {
+    start: proposedPoint,
+    end: {
+      x: proposedPoint.x + vector.y * rowPixelSpacing * multiplier,
+      y: proposedPoint.y + vector.x * columnPixelSpacing * multiplier * -1
+    }
+  };
+}
+
+/***/ }),
+
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getMovingPoint.js":
+/*!***********************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getMovingPoint.js ***!
+  \***********************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getMovingPoint; });
+/* harmony import */ var _isPerpendicularEndFixed_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./isPerpendicularEndFixed.js */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/isPerpendicularEndFixed.js");
+
+/**
+ * Utility function to return the point that is the opposite of the fixed
+ * point (the point not being moved in the bidirectional tool's perpendicular
+ * line).
+ *
+ * @param {*} fixedPoint Point that is not being moved in perpendicular line
+ * @param {*} perpendicularStart The start point of the perpencular line
+ * @param {*} perpendicularEnd The end point of the perpencular line
+ *
+ * @returns {*} Point that is being moved in perpendicular line
+ */
+
+function getMovingPoint(fixedPoint, perpendicularStart, perpendicularEnd) {
+  if (Object(_isPerpendicularEndFixed_js__WEBPACK_IMPORTED_MODULE_0__["default"])(fixedPoint, perpendicularEnd)) {
+    return perpendicularStart;
+  }
+
+  return perpendicularEnd;
+}
+
+/***/ }),
+
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/isPerpendicularEndFixed.js":
+/*!********************************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/isPerpendicularEndFixed.js ***!
+  \********************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return isPerpendicularEndFixed; });
+/**
+ * Returns true if the end point is the point that is not being moved in the
+ * perpendicular line.
+ *
+ * @param {*} fixedPoint Point that is not being moved in perpendicular line
+ * @param {*} perpendicularEnd The end point of the perpencular line
+ *
+ * @returns {boolean} Returns true if the fixed point is the end point
+ */
+function isPerpendicularEndFixed(fixedPoint, perpendicularEnd) {
+  return fixedPoint === perpendicularEnd;
+}
+
+/***/ }),
+
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/lineHasLength.js":
+/*!**********************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/lineHasLength.js ***!
+  \**********************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return lineHasLength; });
+/* harmony import */ var _utils_getDistanceWithPixelSpacing__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../utils/getDistanceWithPixelSpacing */ "./tools/annotation/bidirectionalTool/utils/getDistanceWithPixelSpacing.js");
+
+/**
+ * Returns true if the given line object has its length different from zero,
+ * considering the column and row pixel spacings.
+ *
+ * @param {number} columnPixelSpacing Width that a pixel represents in mm
+ * @param {number} rowPixelSpacing Height that a pixel represents in mm
+ * @param {*} line Line object that will have its length calculated
+ *
+ * @returns {boolean} Returns true if line has any length
+ */
+
+function lineHasLength(columnPixelSpacing, rowPixelSpacing, line) {
+  var lineLength = Object(_utils_getDistanceWithPixelSpacing__WEBPACK_IMPORTED_MODULE_0__["default"])(columnPixelSpacing, rowPixelSpacing, line.start, line.end);
+  return lineLength !== 0;
+}
+
+/***/ }),
+
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/movePerpendicularLine.js":
+/*!******************************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/movePerpendicularLine.js ***!
+  \******************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return movePerpendicularLine; });
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../../../../externalModules.js */ "./externalModules.js");
+/* harmony import */ var _utils_getLineVector_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../utils/getLineVector.js */ "./tools/annotation/bidirectionalTool/utils/getLineVector.js");
+/* harmony import */ var _getBaseData_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../getBaseData.js */ "./tools/annotation/bidirectionalTool/moveHandle/getBaseData.js");
+/* harmony import */ var _lineHasLength_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./lineHasLength.js */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/lineHasLength.js");
+/* harmony import */ var _getHelperLine_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./getHelperLine.js */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getHelperLine.js");
+/* harmony import */ var _updatePerpendicularLine_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./updatePerpendicularLine.js */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/updatePerpendicularLine.js");
+
+
+
+
+
+
+/**
+ * Move the perpendicular line updating the opposite handle position.
+ *
+ * @param {*} proposedPoint Point that was moved in bidirectional tool
+ * @param {*} measurementData Data from current bidirectional tool measurement
+ * @param {*} eventData Data object associated with the event
+ * @param {*} fixedPoint Point that is not being moved in long line
+ *
+ * @returns {boolean} True if perpendicular handles were updated, false if not
+ */
+
+function movePerpendicularLine(proposedPoint, measurementData, eventData, fixedPoint) {
+  var lineSegment = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment;
+  var baseData = Object(_getBaseData_js__WEBPACK_IMPORTED_MODULE_2__["default"])(measurementData, eventData, fixedPoint);
+  var columnPixelSpacing = baseData.columnPixelSpacing,
+      rowPixelSpacing = baseData.rowPixelSpacing,
+      start = baseData.start,
+      longLine = baseData.longLine,
+      intersection = baseData.intersection; // Stop here if the long line has no length
+
+  if (!Object(_lineHasLength_js__WEBPACK_IMPORTED_MODULE_3__["default"])(columnPixelSpacing, rowPixelSpacing, longLine)) {
     return false;
-  }
+  } // Inclination of the perpendicular line
 
-  var length = distance(start, end);
-  var dx = (start.x - end.x) / length;
-  var dy = (start.y - end.y) / length;
-  var adjustedLineP1 = {
-    x: start.x - fudgeFactor * dx,
-    y: start.y - fudgeFactor * dy
-  };
-  var adjustedLineP2 = {
-    x: end.x + fudgeFactor * dx,
-    y: end.y + fudgeFactor * dy
-  };
-  perpendicularStart.x = movedPoint.x + total * dy;
-  perpendicularStart.y = movedPoint.y - total * dx;
-  perpendicularEnd.x = movedPoint.x;
-  perpendicularEnd.y = movedPoint.y;
-  perpendicularEnd.locked = false;
-  perpendicularStart.locked = false;
-  var longLine = {
-    start: {
-      x: start.x,
-      y: start.y
-    },
-    end: {
-      x: end.x,
-      y: end.y
-    }
-  };
-  var perpendicularLine = {
-    start: {
-      x: perpendicularStart.x,
-      y: perpendicularStart.y
-    },
-    end: {
-      x: perpendicularEnd.x,
-      y: perpendicularEnd.y
-    }
-  };
-  var intersection = _externalModules_js__WEBPACK_IMPORTED_MODULE_0__["default"].cornerstoneMath.lineSegment.intersectLine(longLine, perpendicularLine);
 
-  if (!intersection) {
-    if (distance(movedPoint, start) > distance(movedPoint, end)) {
-      perpendicularEnd.x = adjustedLineP2.x - distanceFromMoved * dy;
-      perpendicularEnd.y = adjustedLineP2.y + distanceFromMoved * dx;
-      perpendicularStart.x = perpendicularEnd.x + total * dy;
-      perpendicularStart.y = perpendicularEnd.y - total * dx;
-    } else {
-      perpendicularEnd.x = adjustedLineP1.x - distanceFromMoved * dy;
-      perpendicularEnd.y = adjustedLineP1.y + distanceFromMoved * dx;
-      perpendicularStart.x = perpendicularEnd.x + total * dy;
-      perpendicularStart.y = perpendicularEnd.y - total * dx;
-    }
-  }
+  var vector = Object(_utils_getLineVector_js__WEBPACK_IMPORTED_MODULE_1__["default"])(columnPixelSpacing, rowPixelSpacing, start, intersection); // Get a helper line to calculate the intersection
 
+  var helperLine = Object(_getHelperLine_js__WEBPACK_IMPORTED_MODULE_4__["default"])(baseData, proposedPoint, vector); // Find the new intersection in the long line
+
+  var newIntersection = lineSegment.intersectLine(longLine, helperLine); // Stop the flow here if there's no intersection point between lines
+
+  if (!newIntersection) {
+    return false;
+  } // Calculate and the new position of the perpendicular handles
+
+
+  var newLine = Object(_updatePerpendicularLine_js__WEBPACK_IMPORTED_MODULE_5__["default"])(baseData, newIntersection, helperLine, vector); // Change the position of the perpendicular line handles
+
+  measurementData.handles.perpendicularStart.x = newLine.start.x;
+  measurementData.handles.perpendicularStart.y = newLine.start.y;
+  measurementData.handles.perpendicularEnd.x = newLine.end.x;
+  measurementData.handles.perpendicularEnd.y = newLine.end.y;
   return true;
-});
+}
+
+/***/ }),
+
+/***/ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/updatePerpendicularLine.js":
+/*!********************************************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/updatePerpendicularLine.js ***!
+  \********************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return updatePerpendicularLine; });
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "../node_modules/@babel/runtime/helpers/defineProperty.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _getDirectionMultiplier__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./getDirectionMultiplier */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getDirectionMultiplier.js");
+/* harmony import */ var _getMovingPoint__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./getMovingPoint */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/getMovingPoint.js");
+
+
+
+/**
+ * Returns the updated line object that will be used to change the position of
+ * the perpendicular line handles.
+ *
+ * @param {*} baseData Base data for bidirectional line moving
+ * @param {*} mid Middle point considering the proposed point
+ * @param {*} helperLine Line based on proposed point that crosses long line
+ * @param {*} vector Vector with the perpendicular line inclination
+ *
+ * @returns {*} Returns a line object with the updated handles position
+ */
+
+function updatePerpendicularLine(baseData, mid, helperLine, vector) {
+  var _ref;
+
+  var columnPixelSpacing = baseData.columnPixelSpacing,
+      rowPixelSpacing = baseData.rowPixelSpacing,
+      fixedPoint = baseData.fixedPoint,
+      perpendicularStart = baseData.perpendicularStart,
+      perpendicularEnd = baseData.perpendicularEnd,
+      distanceToFixed = baseData.distanceToFixed; // Get the multiplier
+
+  var multiplier = Object(_getDirectionMultiplier__WEBPACK_IMPORTED_MODULE_1__["default"])(fixedPoint, perpendicularEnd) * distanceToFixed; // Define the moving point
+
+  var movingPoint = Object(_getMovingPoint__WEBPACK_IMPORTED_MODULE_2__["default"])(fixedPoint, perpendicularStart, perpendicularEnd); // Get the object keys for moving and fixed points
+
+  var isMovingStart = movingPoint === perpendicularStart;
+  var movingKey = isMovingStart ? 'start' : 'end';
+  var fixedKey = isMovingStart ? 'end' : 'start'; // Calculate and return the new position of the perpendicular handles
+
+  return _ref = {}, _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(_ref, movingKey, {
+    x: helperLine.start.x,
+    y: helperLine.start.y
+  }), _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(_ref, fixedKey, {
+    x: mid.x + vector.y * rowPixelSpacing * multiplier,
+    y: mid.y + vector.x * columnPixelSpacing * multiplier * -1
+  }), _ref;
+}
 
 /***/ }),
 
@@ -27205,12 +28486,8 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../../../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _perpendicularBothFixedLeft_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./perpendicularBothFixedLeft.js */ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularBothFixedLeft.js");
-/* harmony import */ var _perpendicularBothFixedRight_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./perpendicularBothFixedRight.js */ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularBothFixedRight.js");
-/* harmony import */ var _perpendicularLeftFixedPoint_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./perpendicularLeftFixedPoint.js */ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularLeftFixedPoint.js");
-/* harmony import */ var _perpendicularRightFixedPoint_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./perpendicularRightFixedPoint.js */ "./tools/annotation/bidirectionalTool/moveHandle/perpendicularRightFixedPoint.js");
-
-
+/* harmony import */ var _moveLongLine_moveLongLine_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./moveLongLine/moveLongLine.js */ "./tools/annotation/bidirectionalTool/moveHandle/moveLongLine/moveLongLine.js");
+/* harmony import */ var _movePerpendicularLine_movePerpendicularLine_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./movePerpendicularLine/movePerpendicularLine.js */ "./tools/annotation/bidirectionalTool/moveHandle/movePerpendicularLine/movePerpendicularLine.js");
 
 
  // Sets position of handles(start, end, perpendicularStart, perpendicularEnd)
@@ -27231,7 +28508,7 @@ __webpack_require__.r(__webpack_exports__);
 
   if (handle.index === 0) {
     // If long-axis start point is moved
-    result = Object(_perpendicularBothFixedLeft_js__WEBPACK_IMPORTED_MODULE_1__["default"])(proposedPoint, data);
+    result = Object(_moveLongLine_moveLongLine_js__WEBPACK_IMPORTED_MODULE_1__["default"])(proposedPoint, data, eventData, data.handles.end);
 
     if (result) {
       handle.x = proposedPoint.x;
@@ -27242,7 +28519,7 @@ __webpack_require__.r(__webpack_exports__);
     }
   } else if (handle.index === 1) {
     // If long-axis end point is moved
-    result = Object(_perpendicularBothFixedRight_js__WEBPACK_IMPORTED_MODULE_2__["default"])(proposedPoint, data);
+    result = Object(_moveLongLine_moveLongLine_js__WEBPACK_IMPORTED_MODULE_1__["default"])(proposedPoint, data, eventData, data.handles.start);
 
     if (result) {
       handle.x = proposedPoint.x;
@@ -27289,7 +28566,7 @@ __webpack_require__.r(__webpack_exports__);
     movedPoint = false;
 
     if (!outOfBounds) {
-      movedPoint = Object(_perpendicularLeftFixedPoint_js__WEBPACK_IMPORTED_MODULE_3__["default"])(proposedPoint, data);
+      movedPoint = Object(_movePerpendicularLine_movePerpendicularLine_js__WEBPACK_IMPORTED_MODULE_2__["default"])(proposedPoint, data, eventData, data.handles.perpendicularEnd);
 
       if (!movedPoint) {
         eventData.currentPoints.image.x = data.handles.perpendicularStart.x;
@@ -27334,7 +28611,7 @@ __webpack_require__.r(__webpack_exports__);
     movedPoint = false;
 
     if (!outOfBounds) {
-      movedPoint = Object(_perpendicularRightFixedPoint_js__WEBPACK_IMPORTED_MODULE_4__["default"])(proposedPoint, data);
+      movedPoint = Object(_movePerpendicularLine_movePerpendicularLine_js__WEBPACK_IMPORTED_MODULE_2__["default"])(proposedPoint, data, eventData, data.handles.perpendicularStart);
 
       if (!movedPoint) {
         eventData.currentPoints.image.x = data.handles.perpendicularEnd.x;
@@ -27368,7 +28645,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var touchEndEvents = [_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_END, _events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_DRAG_END, _events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_PINCH, _events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_PRESS, _events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TAP];
-/* harmony default export */ __webpack_exports__["default"] = (function (mouseEventData, toolType, data, handle, doneMovingCallback, preventHandleOutsideImage) {
+/* harmony default export */ __webpack_exports__["default"] = (function (mouseEventData, toolName, data, handle, doneMovingCallback, preventHandleOutsideImage) {
   var element = mouseEventData.element,
       image = mouseEventData.image,
       buttons = mouseEventData.buttons;
@@ -27404,7 +28681,9 @@ var touchEndEvents = [_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_E
     }
 
     var modifiedEventData = {
-      toolType: toolType,
+      toolName: toolName,
+      toolType: toolName,
+      // Deprecation notice: toolType will be replaced by toolName
       element: element,
       measurementData: data
     };
@@ -27445,7 +28724,7 @@ var touchEndEvents = [_events_js__WEBPACK_IMPORTED_MODULE_2__["default"].TOUCH_E
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../store/index.js */ "./store/index.js");
+/* harmony import */ var _util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../util/getProximityThreshold.js */ "./util/getProximityThreshold.js");
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../../../externalModules.js */ "./externalModules.js");
 /* harmony import */ var _util_pointInsideBoundingBox_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../../../util/pointInsideBoundingBox.js */ "./util/pointInsideBoundingBox.js");
 
@@ -27478,7 +28757,7 @@ var pointNearPerpendicular = function pointNearPerpendicular(element, handles, c
     return true;
   }
 
-  var distanceThreshold = interactionType === 'mouse' ? _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].clickProximity : _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].touchProximity;
+  var distanceThreshold = Object(_util_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_0__["default"])(interactionType, 'Bidirectional');
 
   if (pointNearPerpendicular(element, handles, coords, distanceThreshold)) {
     return true;
@@ -27502,16 +28781,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../../../drawing/drawHandles.js */ "./drawing/drawHandles.js");
 /* harmony import */ var _utils_updatePerpendicularLineHandles_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/updatePerpendicularLineHandles.js */ "./tools/annotation/bidirectionalTool/utils/updatePerpendicularLineHandles.js");
-/* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../../../stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
-/* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../../../stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
-/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../../../drawing/index.js */ "./drawing/index.js");
-/* harmony import */ var _drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../../drawing/drawLinkedTextBox.js */ "./drawing/drawLinkedTextBox.js");
-/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
+/* harmony import */ var _store_index__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../store/index */ "./store/index.js");
+/* harmony import */ var _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../../../stateManagement/toolStyle.js */ "./stateManagement/toolStyle.js");
+/* harmony import */ var _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../../stateManagement/toolColors.js */ "./stateManagement/toolColors.js");
+/* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
+/* harmony import */ var _drawing_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../../drawing/index.js */ "./drawing/index.js");
+/* harmony import */ var _drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./../../../drawing/drawLinkedTextBox.js */ "./drawing/drawLinkedTextBox.js");
+/* harmony import */ var _util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../../util/getPixelSpacing */ "./util/getPixelSpacing.js");
 
 
 /* eslint no-loop-func: 0 */
 // --> OFF
+
 
 
 
@@ -27529,15 +28810,18 @@ __webpack_require__.r(__webpack_exports__);
       image = eventData.image;
   var _this$configuration = this.configuration,
       handleRadius = _this$configuration.handleRadius,
-      drawHandlesOnHover = _this$configuration.drawHandlesOnHover; // If we have no toolData for this element, return immediately as there is nothing to do
+      drawHandlesOnHover = _this$configuration.drawHandlesOnHover,
+      hideHandlesIfMoving = _this$configuration.hideHandlesIfMoving,
+      renderDashed = _this$configuration.renderDashed;
+  var lineDash = Object(_store_index__WEBPACK_IMPORTED_MODULE_3__["getModule"])('globalConfiguration').configuration.lineDash; // If we have no toolData for this element, return immediately as there is nothing to do
 
-  var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_5__["getToolState"])(element, this.name);
+  var toolData = Object(_stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_6__["getToolState"])(element, this.name);
 
   if (!toolData) {
     return;
   }
 
-  var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_8__["default"])(image),
+  var _getPixelSpacing = Object(_util_getPixelSpacing__WEBPACK_IMPORTED_MODULE_9__["default"])(image),
       rowPixelSpacing = _getPixelSpacing.rowPixelSpacing,
       colPixelSpacing = _getPixelSpacing.colPixelSpacing; // LT-29 Disable Target Measurements when pixel spacing is not available
 
@@ -27547,10 +28831,9 @@ __webpack_require__.r(__webpack_exports__);
   } // We have tool data for this element - iterate over each one and draw it
 
 
-  var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_6__["getNewContext"])(canvasContext.canvas);
+  var context = Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["getNewContext"])(canvasContext.canvas);
   var color;
-  var activeColor = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_4__["default"].getActiveColor();
-  var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_3__["default"].getToolWidth();
+  var lineWidth = _stateManagement_toolStyle_js__WEBPACK_IMPORTED_MODULE_4__["default"].getToolWidth();
 
   var _loop = function _loop(i) {
     var data = toolData.data[i];
@@ -27559,7 +28842,7 @@ __webpack_require__.r(__webpack_exports__);
       return "continue";
     }
 
-    color = data.active ? activeColor : _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_4__["default"].getToolColor(); // Calculate the data measurements
+    color = _stateManagement_toolColors_js__WEBPACK_IMPORTED_MODULE_5__["default"].getColorIfActive(data); // Calculate the data measurements
 
     if (data.invalidated === true) {
       if (data.longestDiameter && data.shortestDiameter) {
@@ -27569,36 +28852,48 @@ __webpack_require__.r(__webpack_exports__);
       }
     }
 
-    Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_6__["draw"])(context, function (context) {
+    Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["draw"])(context, function (context) {
       // Configurable shadow
-      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_6__["setShadow"])(context, _this.configuration);
+      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["setShadow"])(context, _this.configuration);
       var _data$handles = data.handles,
           start = _data$handles.start,
           end = _data$handles.end,
           perpendicularStart = _data$handles.perpendicularStart,
           perpendicularEnd = _data$handles.perpendicularEnd,
-          textBox = _data$handles.textBox; // Draw the measurement line
-
-      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_6__["drawLine"])(context, element, start, end, {
+          textBox = _data$handles.textBox;
+      var lineOptions = {
         color: color
-      }); // Draw perpendicular line
+      };
+      var perpendicularLineOptions = {
+        color: color,
+        strokeWidth: strokeWidth
+      };
+
+      if (renderDashed) {
+        lineOptions.lineDash = lineDash;
+        perpendicularLineOptions.lineDash = lineDash;
+      } // Draw the measurement line
+
+
+      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["drawLine"])(context, element, start, end, lineOptions); // Draw perpendicular line
 
       var strokeWidth = lineWidth;
       Object(_utils_updatePerpendicularLineHandles_js__WEBPACK_IMPORTED_MODULE_2__["default"])(eventData, data);
-      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_6__["drawLine"])(context, element, perpendicularStart, perpendicularEnd, {
-        color: color,
-        strokeWidth: strokeWidth
-      }); // Draw the handles
+      Object(_drawing_index_js__WEBPACK_IMPORTED_MODULE_7__["drawLine"])(context, element, perpendicularStart, perpendicularEnd, perpendicularLineOptions); // Draw the handles
 
       var handleOptions = {
         color: color,
         handleRadius: handleRadius,
-        drawHandlesIfActive: drawHandlesOnHover
+        drawHandlesIfActive: drawHandlesOnHover,
+        hideHandlesIfMoving: hideHandlesIfMoving
       }; // Draw the handles
 
-      Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_1__["default"])(context, eventData, data.handles, handleOptions); // Draw the textbox
+      if (_this.configuration.drawHandles) {
+        Object(_drawing_drawHandles_js__WEBPACK_IMPORTED_MODULE_1__["default"])(context, eventData, data.handles, handleOptions);
+      } // Draw the textbox
       // Move the textbox slightly to the right and upwards
       // So that it sits beside the length tool handle
+
 
       var xOffset = 10;
 
@@ -27607,7 +28902,7 @@ __webpack_require__.r(__webpack_exports__);
       };
 
       var textLines = getTextBoxText(data, rowPixelSpacing, colPixelSpacing);
-      Object(_drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_7__["default"])(context, element, textBox, textLines, data.handles, textBoxAnchorPoints, color, lineWidth, xOffset, true);
+      Object(_drawing_drawLinkedTextBox_js__WEBPACK_IMPORTED_MODULE_8__["default"])(context, element, textBox, textLines, data.handles, textBoxAnchorPoints, color, lineWidth, xOffset, true);
     });
   };
 
@@ -27692,6 +28987,69 @@ function calculateLongestAndShortestDiameters(measurementData, pixelSpacing) {
 
 /***/ }),
 
+/***/ "./tools/annotation/bidirectionalTool/utils/getDistanceWithPixelSpacing.js":
+/*!*********************************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/utils/getDistanceWithPixelSpacing.js ***!
+  \*********************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getDistanceWithPixelSpacing; });
+/**
+ * Return the distance between 2 points considering the pixel spacing
+ *
+ * @param {number} columnPixelSpacing Width that a pixel represents in mm
+ * @param {number} rowPixelSpacing Height that a pixel represents in mm
+ * @param {*} startPoint Start point of the line
+ * @param {*} endPoint End point of the line
+ *
+ * @returns {number} Distance between the 2 given points considering the pixel spacing
+ */
+function getDistanceWithPixelSpacing(columnPixelSpacing, rowPixelSpacing, startPoint, endPoint) {
+  var calcX = (startPoint.x - endPoint.x) / rowPixelSpacing;
+  var calcY = (startPoint.y - endPoint.y) / columnPixelSpacing;
+  return Math.sqrt(calcX * calcX + calcY * calcY);
+}
+
+/***/ }),
+
+/***/ "./tools/annotation/bidirectionalTool/utils/getLineVector.js":
+/*!*******************************************************************!*\
+  !*** ./tools/annotation/bidirectionalTool/utils/getLineVector.js ***!
+  \*******************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getLineVector; });
+/**
+ * Return the Vector of a line which determines its inclination and length
+ *
+ * @param {number} columnPixelSpacing Width that a pixel represents in mm
+ * @param {number} rowPixelSpacing Height that a pixel represents in mm
+ * @param {*} startPoint Start point of the line
+ * @param {*} endPoint End point of the line
+ *
+ * @returns {*} Resulting line inclination vector
+ */
+function getLineVector(columnPixelSpacing, rowPixelSpacing, startPoint, endPoint) {
+  var dx = (startPoint.x - endPoint.x) * columnPixelSpacing;
+  var dy = (startPoint.y - endPoint.y) * rowPixelSpacing;
+  var length = Math.sqrt(dx * dx + dy * dy);
+  var vectorX = dx / length;
+  var vectorY = dy / length;
+  return {
+    x: vectorX,
+    y: vectorY,
+    length: length
+  };
+}
+
+/***/ }),
+
 /***/ "./tools/annotation/bidirectionalTool/utils/updatePerpendicularLineHandles.js":
 /*!************************************************************************************!*\
   !*** ./tools/annotation/bidirectionalTool/utils/updatePerpendicularLineHandles.js ***!
@@ -27701,16 +29059,34 @@ function calculateLongestAndShortestDiameters(measurementData, pixelSpacing) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-// Update the  perpendicular line handles
-/* harmony default export */ __webpack_exports__["default"] = (function (eventData, data) {
-  if (!data.handles.perpendicularStart.locked) {
-    return;
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return updatePerpendicularLineHandles; });
+/* harmony import */ var _getLineVector__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./getLineVector */ "./tools/annotation/bidirectionalTool/utils/getLineVector.js");
+
+/**
+ * Update the perpendicular line handles when the measurement is being created.
+ * This method will make the perpendicular line intersect in the middle of the
+ * long line and assume half the size of the long line.
+ *
+ * @param {*} eventData Data object associated with the event
+ * @param {*} measurementData Data from current bidirectional tool measurement
+ *
+ * @returns {boolean} False in case the handle is not locked or true when moved
+ */
+
+function updatePerpendicularLineHandles(eventData, measurementData) {
+  if (!measurementData.handles.perpendicularStart.locked) {
+    return false;
   }
 
   var startX, startY, endX, endY;
-  var _data$handles = data.handles,
-      start = _data$handles.start,
-      end = _data$handles.end;
+  var _measurementData$hand = measurementData.handles,
+      start = _measurementData$hand.start,
+      end = _measurementData$hand.end;
+  var _eventData$image = eventData.image,
+      _eventData$image$colu = _eventData$image.columnPixelSpacing,
+      columnPixelSpacing = _eventData$image$colu === void 0 ? 1 : _eventData$image$colu,
+      _eventData$image$rowP = _eventData$image.rowPixelSpacing,
+      rowPixelSpacing = _eventData$image$rowP === void 0 ? 1 : _eventData$image$rowP;
 
   if (start.x === end.x && start.y === end.y) {
     startX = start.x;
@@ -27722,25 +29098,24 @@ __webpack_require__.r(__webpack_exports__);
     var mid = {
       x: (start.x + end.x) / 2,
       y: (start.y + end.y) / 2
-    }; // Length of long-axis
+    }; // Inclination of the perpendicular line
 
-    var dx = (start.x - end.x) * (eventData.image.columnPixelSpacing || 1);
-    var dy = (start.y - end.y) * (eventData.image.rowPixelSpacing || 1);
-    var length = Math.sqrt(dx * dx + dy * dy);
-    var vectorX = (start.x - end.x) / length;
-    var vectorY = (start.y - end.y) / length;
-    var perpendicularLineLength = length / 2;
-    startX = mid.x + perpendicularLineLength / 2 * vectorY;
-    startY = mid.y - perpendicularLineLength / 2 * vectorX;
-    endX = mid.x - perpendicularLineLength / 2 * vectorY;
-    endY = mid.y + perpendicularLineLength / 2 * vectorX;
+    var vector = Object(_getLineVector__WEBPACK_IMPORTED_MODULE_0__["default"])(columnPixelSpacing, rowPixelSpacing, start, end);
+    var perpendicularLineLength = vector.length / 2;
+    var rowMultiplier = perpendicularLineLength / (2 * rowPixelSpacing);
+    var columnMultiplier = perpendicularLineLength / (2 * columnPixelSpacing);
+    startX = mid.x + columnMultiplier * vector.y;
+    startY = mid.y - rowMultiplier * vector.x;
+    endX = mid.x - columnMultiplier * vector.y;
+    endY = mid.y + rowMultiplier * vector.x;
   }
 
-  data.handles.perpendicularStart.x = startX;
-  data.handles.perpendicularStart.y = startY;
-  data.handles.perpendicularEnd.x = endX;
-  data.handles.perpendicularEnd.y = endY;
-});
+  measurementData.handles.perpendicularStart.x = startX;
+  measurementData.handles.perpendicularStart.y = startY;
+  measurementData.handles.perpendicularEnd.x = endX;
+  measurementData.handles.perpendicularEnd.y = endY;
+  return true;
+}
 
 /***/ }),
 
@@ -28079,7 +29454,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _BaseTool_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./BaseTool.js */ "./tools/base/BaseTool.js");
 /* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../../events.js */ "./events.js");
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./../../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _store_isToolActive_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../../store/isToolActive.js */ "./store/isToolActive.js");
+/* harmony import */ var _store_isToolActiveForElement_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../../store/isToolActiveForElement.js */ "./store/isToolActiveForElement.js");
 /* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./../../store/index.js */ "./store/index.js");
 /* harmony import */ var _util_segmentation__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../util/segmentation */ "./util/segmentation/index.js");
 
@@ -28094,11 +29469,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_10__["getModule"])('segmentation'),
-    configuration = _getModule.configuration,
-    getters = _getModule.getters,
-    setters = _getModule.setters;
+var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_10__["getModule"])('segmentation');
 /**
  * @abstract
  * @memberof Tools.Base
@@ -28106,7 +29477,6 @@ var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_10__["getModule
  * the cornerstone canvas.
  * @extends Tools.Base.BaseTool
  */
-
 
 var BaseBrushTool =
 /*#__PURE__*/
@@ -28219,7 +29589,7 @@ function (_BaseTool) {
     /**
      * Initialise painting with BaseBrushTool.
      *
-     * @virtual
+     * @abstract
      * @event
      * @param {Object} evt - The event.
      * @returns {void}
@@ -28230,6 +29600,8 @@ function (_BaseTool) {
     value: function _startPainting(evt) {
       var eventData = evt.detail;
       var element = eventData.element;
+      var configuration = segmentationModule.configuration,
+          getters = segmentationModule.getters;
 
       var _getters$labelmap2D = getters.labelmap2D(element),
           labelmap2D = _getters$labelmap2D.labelmap2D,
@@ -28254,7 +29626,7 @@ function (_BaseTool) {
     /**
      * End painting with BaseBrushTool.
      *
-     * @virtual
+     * @abstract
      * @event
      * @param {Object} evt - The event.
      * @returns {void}
@@ -28263,6 +29635,8 @@ function (_BaseTool) {
   }, {
     key: "_endPainting",
     value: function _endPainting(evt) {
+      var configuration = segmentationModule.configuration,
+          setters = segmentationModule.setters;
       var _this$paintEventData = this.paintEventData,
           labelmap2D = _this$paintEventData.labelmap2D,
           currentImageIdIndex = _this$paintEventData.currentImageIdIndex; // Grab the labels on the slice.
@@ -28292,6 +29666,8 @@ function (_BaseTool) {
         };
         setters.pushState(this.element, [operation]);
       }
+
+      Object(_util_segmentation__WEBPACK_IMPORTED_MODULE_11__["triggerLabelmapModifiedEvent"])(this.element);
     } // ===================================================================
     // Implementation interface
     // ===================================================================
@@ -28324,7 +29700,7 @@ function (_BaseTool) {
       var eventData = evt.detail;
       var element = eventData.element; // Only brush needs to render.
 
-      if (Object(_store_isToolActive_js__WEBPACK_IMPORTED_MODULE_9__["default"])(element, this.name)) {
+      if (Object(_store_isToolActiveForElement_js__WEBPACK_IMPORTED_MODULE_9__["default"])(element, this.name)) {
         // Call the hover event for the brush
         this.renderBrush(evt);
       }
@@ -28429,6 +29805,8 @@ function (_BaseTool) {
   }, {
     key: "increaseBrushSize",
     value: function increaseBrushSize() {
+      var configuration = segmentationModule.configuration,
+          setters = segmentationModule.setters;
       var oldRadius = configuration.radius;
       var newRadius = Math.floor(oldRadius * 1.2); // If e.g. only 2 pixels big. Math.floor(2*1.2) = 2.
       // Hence, have minimum increment of 1 pixel.
@@ -28450,6 +29828,8 @@ function (_BaseTool) {
   }, {
     key: "decreaseBrushSize",
     value: function decreaseBrushSize() {
+      var configuration = segmentationModule.configuration,
+          setters = segmentationModule.setters;
       var oldRadius = configuration.radius;
       var newRadius = Math.floor(oldRadius * 0.8);
       setters.radius(newRadius);
@@ -28961,7 +30341,7 @@ function () {
       return this._generateIconWithPointerSVGString(options);
     }
     /**
-     * Returns the mousePoint as a space seperated string.
+     * Returns the mousePoint as a space separated string.
      *
      * @returns {string} The mousePoint.
      */
@@ -29277,7 +30657,7 @@ var segCircleFillOutsideCursor = new _MouseCursor_js__WEBPACK_IMPORTED_MODULE_0_
 /*!************************!*\
   !*** ./tools/index.js ***!
   \************************/
-/*! exports provided: CrosshairsTool, DoubleTapFitToWindowTool, DragProbeTool, EraserTool, FreehandRoiSculptorTool, MagnifyTool, PanMultiTouchTool, PanTool, ReferenceLinesTool, RotateTool, RotateTouchTool, ScaleOverlayTool, StackScrollMouseWheelTool, StackScrollMultiTouchTool, StackScrollTool, WwwcRegionTool, WwwcTool, ZoomMouseWheelTool, ZoomTool, ZoomTouchPinchTool, default */
+/*! exports provided: CrosshairsTool, DoubleTapFitToWindowTool, DragProbeTool, EraserTool, FreehandRoiSculptorTool, MagnifyTool, OverlayTool, OrientationMarkersTool, PanMultiTouchTool, PanTool, ReferenceLinesTool, RotateTool, RotateTouchTool, ScaleOverlayTool, StackScrollMouseWheelTool, StackScrollMultiTouchTool, StackScrollTool, WwwcRegionTool, WwwcTool, ZoomMouseWheelTool, ZoomTool, ZoomTouchPinchTool, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -29300,47 +30680,55 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MagnifyTool_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MagnifyTool.js */ "./tools/MagnifyTool.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagnifyTool", function() { return _MagnifyTool_js__WEBPACK_IMPORTED_MODULE_5__["default"]; });
 
-/* harmony import */ var _PanMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PanMultiTouchTool.js */ "./tools/PanMultiTouchTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PanMultiTouchTool", function() { return _PanMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_6__["default"]; });
+/* harmony import */ var _OverlayTool_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./OverlayTool.js */ "./tools/OverlayTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "OverlayTool", function() { return _OverlayTool_js__WEBPACK_IMPORTED_MODULE_6__["default"]; });
 
-/* harmony import */ var _PanTool_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PanTool.js */ "./tools/PanTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PanTool", function() { return _PanTool_js__WEBPACK_IMPORTED_MODULE_7__["default"]; });
+/* harmony import */ var _OrientationMarkersTool_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./OrientationMarkersTool.js */ "./tools/OrientationMarkersTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "OrientationMarkersTool", function() { return _OrientationMarkersTool_js__WEBPACK_IMPORTED_MODULE_7__["default"]; });
 
-/* harmony import */ var _ReferenceLinesTool_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ReferenceLinesTool.js */ "./tools/ReferenceLinesTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ReferenceLinesTool", function() { return _ReferenceLinesTool_js__WEBPACK_IMPORTED_MODULE_8__["default"]; });
+/* harmony import */ var _PanMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PanMultiTouchTool.js */ "./tools/PanMultiTouchTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PanMultiTouchTool", function() { return _PanMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_8__["default"]; });
 
-/* harmony import */ var _RotateTool_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./RotateTool.js */ "./tools/RotateTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RotateTool", function() { return _RotateTool_js__WEBPACK_IMPORTED_MODULE_9__["default"]; });
+/* harmony import */ var _PanTool_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./PanTool.js */ "./tools/PanTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PanTool", function() { return _PanTool_js__WEBPACK_IMPORTED_MODULE_9__["default"]; });
 
-/* harmony import */ var _RotateTouchTool_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./RotateTouchTool.js */ "./tools/RotateTouchTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RotateTouchTool", function() { return _RotateTouchTool_js__WEBPACK_IMPORTED_MODULE_10__["default"]; });
+/* harmony import */ var _ReferenceLinesTool_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ReferenceLinesTool.js */ "./tools/ReferenceLinesTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ReferenceLinesTool", function() { return _ReferenceLinesTool_js__WEBPACK_IMPORTED_MODULE_10__["default"]; });
 
-/* harmony import */ var _ScaleOverlayTool_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ScaleOverlayTool.js */ "./tools/ScaleOverlayTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ScaleOverlayTool", function() { return _ScaleOverlayTool_js__WEBPACK_IMPORTED_MODULE_11__["default"]; });
+/* harmony import */ var _RotateTool_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./RotateTool.js */ "./tools/RotateTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RotateTool", function() { return _RotateTool_js__WEBPACK_IMPORTED_MODULE_11__["default"]; });
 
-/* harmony import */ var _StackScrollMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./StackScrollMouseWheelTool.js */ "./tools/StackScrollMouseWheelTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackScrollMouseWheelTool", function() { return _StackScrollMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_12__["default"]; });
+/* harmony import */ var _RotateTouchTool_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./RotateTouchTool.js */ "./tools/RotateTouchTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RotateTouchTool", function() { return _RotateTouchTool_js__WEBPACK_IMPORTED_MODULE_12__["default"]; });
 
-/* harmony import */ var _StackScrollMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./StackScrollMultiTouchTool.js */ "./tools/StackScrollMultiTouchTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackScrollMultiTouchTool", function() { return _StackScrollMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_13__["default"]; });
+/* harmony import */ var _ScaleOverlayTool_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ScaleOverlayTool.js */ "./tools/ScaleOverlayTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ScaleOverlayTool", function() { return _ScaleOverlayTool_js__WEBPACK_IMPORTED_MODULE_13__["default"]; });
 
-/* harmony import */ var _StackScrollTool_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./StackScrollTool.js */ "./tools/StackScrollTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackScrollTool", function() { return _StackScrollTool_js__WEBPACK_IMPORTED_MODULE_14__["default"]; });
+/* harmony import */ var _StackScrollMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./StackScrollMouseWheelTool.js */ "./tools/StackScrollMouseWheelTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackScrollMouseWheelTool", function() { return _StackScrollMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_14__["default"]; });
 
-/* harmony import */ var _WwwcRegionTool_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./WwwcRegionTool.js */ "./tools/WwwcRegionTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WwwcRegionTool", function() { return _WwwcRegionTool_js__WEBPACK_IMPORTED_MODULE_15__["default"]; });
+/* harmony import */ var _StackScrollMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./StackScrollMultiTouchTool.js */ "./tools/StackScrollMultiTouchTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackScrollMultiTouchTool", function() { return _StackScrollMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_15__["default"]; });
 
-/* harmony import */ var _WwwcTool_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./WwwcTool.js */ "./tools/WwwcTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WwwcTool", function() { return _WwwcTool_js__WEBPACK_IMPORTED_MODULE_16__["default"]; });
+/* harmony import */ var _StackScrollTool_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./StackScrollTool.js */ "./tools/StackScrollTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackScrollTool", function() { return _StackScrollTool_js__WEBPACK_IMPORTED_MODULE_16__["default"]; });
 
-/* harmony import */ var _ZoomMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ZoomMouseWheelTool.js */ "./tools/ZoomMouseWheelTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ZoomMouseWheelTool", function() { return _ZoomMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_17__["default"]; });
+/* harmony import */ var _WwwcRegionTool_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./WwwcRegionTool.js */ "./tools/WwwcRegionTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WwwcRegionTool", function() { return _WwwcRegionTool_js__WEBPACK_IMPORTED_MODULE_17__["default"]; });
 
-/* harmony import */ var _ZoomTool_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ZoomTool.js */ "./tools/ZoomTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ZoomTool", function() { return _ZoomTool_js__WEBPACK_IMPORTED_MODULE_18__["default"]; });
+/* harmony import */ var _WwwcTool_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./WwwcTool.js */ "./tools/WwwcTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WwwcTool", function() { return _WwwcTool_js__WEBPACK_IMPORTED_MODULE_18__["default"]; });
 
-/* harmony import */ var _ZoomTouchPinchTool_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ZoomTouchPinchTool.js */ "./tools/ZoomTouchPinchTool.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ZoomTouchPinchTool", function() { return _ZoomTouchPinchTool_js__WEBPACK_IMPORTED_MODULE_19__["default"]; });
+/* harmony import */ var _ZoomMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ZoomMouseWheelTool.js */ "./tools/ZoomMouseWheelTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ZoomMouseWheelTool", function() { return _ZoomMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_19__["default"]; });
+
+/* harmony import */ var _ZoomTool_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ZoomTool.js */ "./tools/ZoomTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ZoomTool", function() { return _ZoomTool_js__WEBPACK_IMPORTED_MODULE_20__["default"]; });
+
+/* harmony import */ var _ZoomTouchPinchTool_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./ZoomTouchPinchTool.js */ "./tools/ZoomTouchPinchTool.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ZoomTouchPinchTool", function() { return _ZoomTouchPinchTool_js__WEBPACK_IMPORTED_MODULE_21__["default"]; });
+
+
 
 
 
@@ -29372,20 +30760,22 @@ __webpack_require__.r(__webpack_exports__);
   EraserTool: _EraserTool_js__WEBPACK_IMPORTED_MODULE_3__["default"],
   FreehandRoiSculptorTool: _FreehandRoiSculptorTool_js__WEBPACK_IMPORTED_MODULE_4__["default"],
   MagnifyTool: _MagnifyTool_js__WEBPACK_IMPORTED_MODULE_5__["default"],
-  PanMultiTouchTool: _PanMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_6__["default"],
-  PanTool: _PanTool_js__WEBPACK_IMPORTED_MODULE_7__["default"],
-  ReferenceLinesTool: _ReferenceLinesTool_js__WEBPACK_IMPORTED_MODULE_8__["default"],
-  RotateTool: _RotateTool_js__WEBPACK_IMPORTED_MODULE_9__["default"],
-  RotateTouchTool: _RotateTouchTool_js__WEBPACK_IMPORTED_MODULE_10__["default"],
-  ScaleOverlayTool: _ScaleOverlayTool_js__WEBPACK_IMPORTED_MODULE_11__["default"],
-  StackScrollMouseWheelTool: _StackScrollMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_12__["default"],
-  StackScrollMultiTouchTool: _StackScrollMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_13__["default"],
-  StackScrollTool: _StackScrollTool_js__WEBPACK_IMPORTED_MODULE_14__["default"],
-  WwwcRegionTool: _WwwcRegionTool_js__WEBPACK_IMPORTED_MODULE_15__["default"],
-  WwwcTool: _WwwcTool_js__WEBPACK_IMPORTED_MODULE_16__["default"],
-  ZoomMouseWheelTool: _ZoomMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_17__["default"],
-  ZoomTool: _ZoomTool_js__WEBPACK_IMPORTED_MODULE_18__["default"],
-  ZoomTouchPinchTool: _ZoomTouchPinchTool_js__WEBPACK_IMPORTED_MODULE_19__["default"]
+  OverlayTool: _OverlayTool_js__WEBPACK_IMPORTED_MODULE_6__["default"],
+  OrientationMarkersTool: _OrientationMarkersTool_js__WEBPACK_IMPORTED_MODULE_7__["default"],
+  PanMultiTouchTool: _PanMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_8__["default"],
+  PanTool: _PanTool_js__WEBPACK_IMPORTED_MODULE_9__["default"],
+  ReferenceLinesTool: _ReferenceLinesTool_js__WEBPACK_IMPORTED_MODULE_10__["default"],
+  RotateTool: _RotateTool_js__WEBPACK_IMPORTED_MODULE_11__["default"],
+  RotateTouchTool: _RotateTouchTool_js__WEBPACK_IMPORTED_MODULE_12__["default"],
+  ScaleOverlayTool: _ScaleOverlayTool_js__WEBPACK_IMPORTED_MODULE_13__["default"],
+  StackScrollMouseWheelTool: _StackScrollMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_14__["default"],
+  StackScrollMultiTouchTool: _StackScrollMultiTouchTool_js__WEBPACK_IMPORTED_MODULE_15__["default"],
+  StackScrollTool: _StackScrollTool_js__WEBPACK_IMPORTED_MODULE_16__["default"],
+  WwwcRegionTool: _WwwcRegionTool_js__WEBPACK_IMPORTED_MODULE_17__["default"],
+  WwwcTool: _WwwcTool_js__WEBPACK_IMPORTED_MODULE_18__["default"],
+  ZoomMouseWheelTool: _ZoomMouseWheelTool_js__WEBPACK_IMPORTED_MODULE_19__["default"],
+  ZoomTool: _ZoomTool_js__WEBPACK_IMPORTED_MODULE_20__["default"],
+  ZoomTouchPinchTool: _ZoomTouchPinchTool_js__WEBPACK_IMPORTED_MODULE_21__["default"]
 });
 
 /***/ }),
@@ -29556,11 +30946,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_10__["getLogger"])('tools:BrushTool');
-
-var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_8__["getModule"])('segmentation'),
-    getters = _getModule.getters,
-    configuration = _getModule.configuration,
-    state = _getModule.state;
+var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_8__["getModule"])('segmentation');
 /**
  * @public
  * @class BrushTool
@@ -29568,7 +30954,6 @@ var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_8__["getModule"
  * @classdesc Tool for drawing segmentations on an image.
  * @extends Tools.Base.BaseBrushTool
  */
-
 
 var BrushTool =
 /*#__PURE__*/
@@ -29585,81 +30970,31 @@ function (_BaseBrushTool) {
     var defaultProps = {
       name: 'Brush',
       supportedInteractionTypes: ['Mouse', 'Touch'],
-      configuration: {}
+      configuration: {},
+      mixins: ['renderBrushMixin']
     };
     _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(BrushTool).call(this, props, defaultProps));
     _this.touchDragCallback = _this._paint.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
     return _this;
   }
   /**
-   * Called by the event dispatcher to render the image.
+   * Paints the data to the labelmap.
    *
-   * @param {Object} evt - The event.
+   * @protected
+   * @param  {Object} evt The data object associated with the event.
    * @returns {void}
    */
 
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(BrushTool, [{
-    key: "renderBrush",
-    value: function renderBrush(evt) {
+    key: "_paint",
+    value: function _paint(evt) {
+      var configuration = segmentationModule.configuration;
       var eventData = evt.detail;
-      var viewport = eventData.viewport;
-      var mousePosition;
-
-      if (this._drawing) {
-        mousePosition = this._lastImageCoords;
-      } else if (this._mouseUpRender) {
-        mousePosition = this._lastImageCoords;
-        this._mouseUpRender = false;
-      } else {
-        mousePosition = _store_index_js__WEBPACK_IMPORTED_MODULE_8__["default"].state.mousePositionImage;
-      }
-
-      if (!mousePosition) {
-        return;
-      }
-
+      var element = eventData.element;
       var _eventData$image = eventData.image,
           rows = _eventData$image.rows,
           columns = _eventData$image.columns;
-      var _mousePosition = mousePosition,
-          x = _mousePosition.x,
-          y = _mousePosition.y;
-
-      if (x < 0 || x > columns || y < 0 || y > rows) {
-        return;
-      } // Draw the hover overlay on top of the pixel data
-
-
-      var radius = configuration.radius;
-      var context = eventData.canvasContext;
-      var element = eventData.element;
-      var color = getters.brushColor(element, this._drawing);
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      var cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone;
-      var circleRadius = radius * viewport.scale;
-      var mouseCoordsCanvas = cornerstone.pixelToCanvas(element, mousePosition);
-      context.beginPath();
-      context.strokeStyle = color;
-      context.ellipse(mouseCoordsCanvas.x, mouseCoordsCanvas.y, circleRadius, circleRadius, 0, 0, 2 * Math.PI);
-      context.stroke();
-    }
-    /**
-     * Paints the data to the labelmap.
-     *
-     * @protected
-     * @param  {Object} evt The data object associated with the event.
-     * @returns {void}
-     */
-
-  }, {
-    key: "_paint",
-    value: function _paint(evt) {
-      var eventData = evt.detail;
-      var element = eventData.element;
-      var _eventData$image2 = eventData.image,
-          rows = _eventData$image2.rows,
-          columns = _eventData$image2.columns;
       var _eventData$currentPoi = eventData.currentPoints.image,
           x = _eventData$currentPoi.x,
           y = _eventData$currentPoi.y;
@@ -29676,7 +31011,6 @@ function (_BaseBrushTool) {
           shouldErase = _this$paintEventData.shouldErase; // Draw / Erase the active color.
 
       Object(_util_segmentation_index_js__WEBPACK_IMPORTED_MODULE_9__["drawBrushPixels"])(pointerArray, labelmap2D.pixelData, labelmap3D.activeSegmentIndex, columns, shouldErase);
-      Object(_util_segmentation_index_js__WEBPACK_IMPORTED_MODULE_9__["triggerLabelmapModifiedEvent"])(element);
       _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.updateImage(evt.detail.element);
     }
   }]);
@@ -30008,7 +31342,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "../node_modules/@babel/runtime/helpers/inherits.js");
 /* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../../externalModules.js */ "./externalModules.js");
-/* harmony import */ var _BrushTool_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./BrushTool.js */ "./tools/segmentation/BrushTool.js");
+/* harmony import */ var _base_BaseBrushTool_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../base/BaseBrushTool.js */ "./tools/base/BaseBrushTool.js");
 /* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./../../store/index.js */ "./store/index.js");
 /* harmony import */ var _util_segmentation__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../../util/segmentation */ "./util/segmentation/index.js");
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../stateManagement/toolState.js */ "./stateManagement/toolState.js");
@@ -30027,11 +31361,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var logger = Object(_util_logger_js__WEBPACK_IMPORTED_MODULE_11__["getLogger"])('tools:SphericalBrushTool');
-
-var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_8__["getModule"])('segmentation'),
-    getters = _getModule.getters,
-    setters = _getModule.setters,
-    configuration = _getModule.configuration;
+var segmentationModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_8__["getModule"])('segmentation');
 /**
  * @public
  * @class BrushTool
@@ -30040,11 +31370,10 @@ var _getModule = Object(_store_index_js__WEBPACK_IMPORTED_MODULE_8__["getModule"
  * @extends Tools.Base.BaseBrushTool
  */
 
-
 var SphericalBrushTool =
 /*#__PURE__*/
-function (_BrushTool) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(SphericalBrushTool, _BrushTool);
+function (_BaseBrushTool) {
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(SphericalBrushTool, _BaseBrushTool);
 
   function SphericalBrushTool() {
     var _this;
@@ -30058,9 +31387,10 @@ function (_BrushTool) {
       supportedInteractionTypes: ['Mouse', 'Touch'],
       configuration: {
         alwaysEraseOnClick: false
-      }
+      },
+      mixins: ['renderBrushMixin']
     };
-    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(SphericalBrushTool).call(this, defaultProps));
+    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(SphericalBrushTool).call(this, props, defaultProps));
     _this.touchDragCallback = _this._paint.bind(_babel_runtime_helpers_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4___default()(_this));
     return _this;
   }
@@ -30077,6 +31407,8 @@ function (_BrushTool) {
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(SphericalBrushTool, [{
     key: "_startPainting",
     value: function _startPainting(evt) {
+      var configuration = segmentationModule.configuration,
+          getters = segmentationModule.getters;
       var eventData = evt.detail;
       var element = eventData.element,
           image = eventData.image;
@@ -30144,6 +31476,7 @@ function (_BrushTool) {
   }, {
     key: "_paint",
     value: function _paint(evt) {
+      var getters = segmentationModule.getters;
       var eventData = evt.detail;
       var element = eventData.element;
       var image = eventData.image;
@@ -30173,7 +31506,6 @@ function (_BrushTool) {
         Object(_util_segmentation__WEBPACK_IMPORTED_MODULE_9__["drawBrushPixels"])(pointerArray, labelmap2DForImageIdIndex.pixelData, labelmap3D.activeSegmentIndex, columns, shouldErase);
       }
 
-      Object(_util_segmentation__WEBPACK_IMPORTED_MODULE_9__["triggerLabelmapModifiedEvent"])(element);
       _externalModules_js__WEBPACK_IMPORTED_MODULE_6__["default"].cornerstone.updateImage(evt.detail.element);
     }
     /**
@@ -30268,6 +31600,8 @@ function (_BrushTool) {
           labelmap3D = _this$paintEventData2.labelmap3D,
           imagesInRange = _this$paintEventData2.imagesInRange;
       var operations = [];
+      var configuration = segmentationModule.configuration,
+          setters = segmentationModule.setters;
 
       for (var i = 0; i < imagesInRange.length; i++) {
         var imageIdIndex = imagesInRange[i].imageIdIndex;
@@ -30301,12 +31635,16 @@ function (_BrushTool) {
         }
       }
 
-      setters.pushState(this.element, operations);
+      if (configuration.storeHistory) {
+        setters.pushState(this.element, operations);
+      }
+
+      Object(_util_segmentation__WEBPACK_IMPORTED_MODULE_9__["triggerLabelmapModifiedEvent"])(this.element);
     }
   }]);
 
   return SphericalBrushTool;
-}(_BrushTool_js__WEBPACK_IMPORTED_MODULE_7__["default"]);
+}(_base_BaseBrushTool_js__WEBPACK_IMPORTED_MODULE_7__["default"]);
 
 
 
@@ -30396,7 +31734,7 @@ var logger = Object(_util_logger__WEBPACK_IMPORTED_MODULE_5__["getLogger"])('uti
  * - Stroke in-out-in: Section is added.
  *
  * @param  {Object} evt The cornerstone event.
- * @param  {} operationData An object containing the `pixelData` to
+ * @param  {Object} operationData An object containing the `pixelData` to
  *                          modify, the `segmentIndex` and the `points` array.
  *
  * @returns {null}
@@ -30438,7 +31776,7 @@ function correction(evt, operationData) {
  * Snap the freehand points to the labelmap grid and attach a label for each node.
  *
  * @param  {Object[]} points An array of points drawn by the user.
- * @param  {UInt16Array} pixelData The 2D labelmap.
+ * @param  {UInt16Array|Float32Array} pixelData The 2D labelmap.
  * @param  {Object} evt The cornerstone event.
  * @returns {Object[]}
  */
@@ -30522,8 +31860,8 @@ function checkIfSimpleScissorOperation(nodes, segmentIndex) {
  * The algorithm is described in full length in Tobias Heimann's diploma thesis (MBI Technical Report 145, p. 37 - 40).
  *
  * @param  {Object} operation The operation.
- * @param  {UInt16Array} pixelData The 2D labelmap.
- * @param  {UInt16Array} workingLabelMap A copy of the labelmap for processing purposes.
+ * @param  {UInt16Array|Float32Array} pixelData The 2D labelmap.
+ * @param  {UInt16Array|Float32Array} workingLabelMap A copy of the labelmap for processing purposes.
  * @param  {number} segmentIndex The label of the tool being used.
  * @param  {Object} evt The cornerstone event.
  */
@@ -30885,13 +32223,26 @@ function getNodesPerpendicularToPathPixel(pathPixel, nextPathPixel) {
   logger.error("Unable to find left and right paths for flood fill ", pathPixel, nextPathPixel, direction);
 }
 /**
- * Splits the path of nodes into seperate add/remove operations.
+ * @typedef {Object} Node
+ * @property {number} x - the X position
+ * @property {number} y - the Y position
+ * @property {number} segment - The segment index
+ */
+
+/**
+ * @typedef {Object} SegmentationOperations
+ * @property {boolean} additive - Whether the operation is additive or not
+ * @property {Node[]} nodes - The array of nodes
+ */
+
+/**
+ * Splits the path of nodes into separate add/remove operations.
  *
  * @param  {Object[]} nodes The array of nodes.
  * @param  {number} segmentIndex The label value to replace.
- * @returns {{additive: boolean, nodes: []}[]} An array of operations to perform,
- *                                             whether they are `additive` and the
- *                                             corresponding `nodes` of the operation.
+ * @returns {SegmentationOperations[]} An array of operations to perform,
+ *                       whether they are `additive` and the
+ *                       corresponding `nodes` of the operation.
  */
 
 
@@ -31632,7 +32983,7 @@ __webpack_require__.r(__webpack_exports__);
   }
 
   var acquisitionTimeInSeconds = fracToDec(seriesAcquisitionTime.fractionalSeconds || 0) + seriesAcquisitionTime.seconds + seriesAcquisitionTime.minutes * 60 + seriesAcquisitionTime.hours * 60 * 60;
-  var injectionStartTimeInSeconds = fracToDec(startTime.fractionalSeconds) + startTime.seconds + startTime.minutes * 60 + startTime.hours * 60 * 60;
+  var injectionStartTimeInSeconds = fracToDec(startTime.fractionalSeconds || 0) + startTime.seconds + startTime.minutes * 60 + startTime.hours * 60 * 60;
   var durationInSeconds = acquisitionTimeInSeconds - injectionStartTimeInSeconds;
   var correctedDose = totalDose * Math.exp(-durationInSeconds * Math.log(2) / halfLife);
   var suv = modalityPixelValue * patientWeight / correctedDose * 1000;
@@ -31658,13 +33009,19 @@ function fracToDec(fractionalValue) {
 /*!**********************!*\
   !*** ./util/clip.js ***!
   \**********************/
-/*! exports provided: default, clipToBox */
+/*! exports provided: clip, clipToBox, clipBoxToDisplayedArea, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return clip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clip", function() { return clip; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clipToBox", function() { return clipToBox; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clipBoxToDisplayedArea", function() { return clipBoxToDisplayedArea; });
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "../node_modules/@babel/runtime/helpers/toConsumableArray.js");
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
+
+
 /**
  * Clips a value to an upper and lower bound.
  * @export @public @method
@@ -31675,6 +33032,7 @@ __webpack_require__.r(__webpack_exports__);
  * @param  {number} high The upper bound.
  * @returns {number}      The clipped value.
  */
+
 function clip(val, low, high) {
   return Math.min(Math.max(low, val), high);
 }
@@ -31685,14 +33043,149 @@ function clip(val, low, high) {
  *
  * @param  {Object} point The point to clip
  * @param  {Object} box   The bounding box to clip to.
- * @returns {Object}       The clipped point.
+ * @returns {void}
  */
 
 function clipToBox(point, box) {
-  // Clip an {x, y} point to a box of size {width, height}
-  point.x = clip(point.x, 0, box.width);
-  point.y = clip(point.y, 0, box.height);
+  // Clip an {x, y} point to a box {top, left, width, height}
+  var left = box.left || 0;
+  var top = box.top || 0;
+  point.x = clip(point.x, left, left + box.width);
+  point.y = clip(point.y, top, top + box.height);
 }
+/**
+ * Returns a new bounding box of rotated text box, relative to the pixel
+ * coordinate system. It will get the coordinate of the 4 points of the rotated
+ * text box and calculate the AABB (axis-aligned bounding box - lower and upper
+ * boundaries for `x` and `y` axes).
+ *
+ * @param {HTMLElement} element The element to manipulate pixel positioning
+ * @param {Object} box - `{ left, top, width, height }` in canvas coordinates
+ * @returns {Object} - `{ minX, minY, maxX, maxY }` boundaries of the box
+ */
+
+var getBoxPixelBoundaries = function getBoxPixelBoundaries(element, box) {
+  var toPixel = function toPixel(point) {
+    return _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone.canvasToPixel(element, point);
+  };
+
+  var top = box.top,
+      left = box.left,
+      width = box.width,
+      height = box.height;
+  var topLeft = toPixel({
+    x: left,
+    y: top
+  });
+  var topRight = toPixel({
+    x: left + width,
+    y: top
+  });
+  var bottomLeft = toPixel({
+    x: left,
+    y: top + height
+  });
+  var bottomRight = toPixel({
+    x: left + width,
+    y: top + height
+  });
+  var points = [topLeft, topRight, bottomLeft, bottomRight];
+  var xArray = points.map(function (p) {
+    return p.x;
+  });
+  var yArray = points.map(function (p) {
+    return p.y;
+  });
+  return {
+    minX: Math.min.apply(Math, _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(xArray)),
+    minY: Math.min.apply(Math, _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(yArray)),
+    maxX: Math.max.apply(Math, _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(xArray)),
+    maxY: Math.max.apply(Math, _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(yArray))
+  };
+};
+/**
+ * Reposition a box point coordinates in the given axis' upper/lower limits
+ *
+ * @param {Object} point `{ x, y }` The coordinate point of the box
+ * @param {string} axis The axis to be manipulated: `x` or `y`
+ * @param {number} boxMin The box position's lower value on axis
+ * @param {number} boxMax The box position's upper value on axis
+ * @param {number} lowerLimit The lower limit of allowed box position on axis
+ * @param {number} upperLimit The upper limit of allowed box position on axis
+ * @returns {void}
+ */
+
+
+var clipBoxOnAxis = function clipBoxOnAxis(point, axis, boxMin, boxMax, lowerLimit, upperLimit) {
+  if (upperLimit - lowerLimit < boxMax - boxMin) {
+    // Box is bigger than allowed range, leaking both lower/upper boundaries
+    point[axis] += lowerLimit - boxMin; // Stick to the lower boundary
+
+    point[axis] += (upperLimit - lowerLimit) / 2; // Centralize in range
+
+    point[axis] -= (boxMax - boxMin) / 2; // Translate -1/2 of box's size
+  } else if (boxMin < lowerLimit) {
+    // Box leaked lower boundary
+    point[axis] += lowerLimit - boxMin; // Stick to the lower boundary
+  } else if (boxMax > upperLimit) {
+    // Box leaked upper boundary
+    point[axis] -= boxMax - upperLimit; // Stick to the upper boundary
+  }
+};
+/**
+ * Clips a box to the viewport's displayed area
+ * @export @public @method
+ * @name clipBoxToDisplayedArea
+ *
+ * @param {HTMLElement} element The element to manipulate pixel positioning
+ * @param {Object} box - `{ left, top, width, height }` in canvas coordinates
+ * @returns {void}
+ */
+
+
+function clipBoxToDisplayedArea(element, box) {
+  var _external$cornerstone = _externalModules_js__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone,
+      pixelToCanvas = _external$cornerstone.pixelToCanvas,
+      canvasToPixel = _external$cornerstone.canvasToPixel,
+      getViewport = _external$cornerstone.getViewport,
+      getEnabledElement = _external$cornerstone.getEnabledElement,
+      getDisplayedArea = _external$cornerstone.getDisplayedArea; // Transform the position of given box from canvas to pixel coordinates
+
+  var pixelPosition = canvasToPixel(element, {
+    x: box.left,
+    y: box.top
+  }); // Get the rotated corners' position for the box in pixel coordinate system
+
+  var _getBoxPixelBoundarie = getBoxPixelBoundaries(element, box),
+      minX = _getBoxPixelBoundarie.minX,
+      minY = _getBoxPixelBoundarie.minY,
+      maxX = _getBoxPixelBoundarie.maxX,
+      maxY = _getBoxPixelBoundarie.maxY; // Get the displayed area's top, left, bottom and right boundaries
+
+
+  var viewport = getViewport(element);
+  var enabledElement = getEnabledElement(element);
+  var defaultDisplayedArea = getDisplayedArea(enabledElement.image, viewport);
+
+  var _ref = viewport.displayedArea ? viewport.displayedArea : defaultDisplayedArea,
+      tlhc = _ref.tlhc,
+      brhc = _ref.brhc;
+
+  var top = tlhc.y - 1;
+  var left = tlhc.x - 1;
+  var bottom = brhc.y;
+  var right = brhc.x; // Clip the box on vertical axis
+
+  clipBoxOnAxis(pixelPosition, 'y', minY, maxY, top, bottom); // Clip the box on horizontal axis
+
+  clipBoxOnAxis(pixelPosition, 'x', minX, maxX, left, right); // Transform the box coordinate system back to canvas
+
+  var newCanvasPosition = pixelToCanvas(element, pixelPosition); // Update the box with the new coordinates
+
+  box.top = newCanvasPosition.y;
+  box.left = newCanvasPosition.x;
+}
+/* harmony default export */ __webpack_exports__["default"] = (clip);
 
 /***/ }),
 
@@ -31722,6 +33215,12 @@ function convertToVector3(arrayOrVector3) {
 
   if (arrayOrVector3 instanceof cornerstoneMath.Vector3) {
     return arrayOrVector3;
+  }
+
+  var keys = Object.keys(arrayOrVector3);
+
+  if (keys.includes('x') && keys.includes('y') && keys.includes('z')) {
+    return new cornerstoneMath.Vector3(arrayOrVector3.x, arrayOrVector3.y, arrayOrVector3.z);
   }
 
   return new cornerstoneMath.Vector3(arrayOrVector3[0], arrayOrVector3[1], arrayOrVector3[2]);
@@ -32011,6 +33510,479 @@ function debounce(func, wait, options) {
 
 /***/ }),
 
+/***/ "./util/debugLib/common.js":
+/*!*********************************!*\
+  !*** ./util/debugLib/common.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "../node_modules/@babel/runtime/helpers/toConsumableArray.js");
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
+
+
+/**
+ * This is the common logic for both the Node.js and web browser
+ * implementations of `debug()`.
+ */
+function setup(env) {
+  createDebug.debug = createDebug;
+  createDebug.default = createDebug;
+  createDebug.coerce = coerce;
+  createDebug.disable = disable;
+  createDebug.enable = enable;
+  createDebug.enabled = enabled;
+  createDebug.humanize = __webpack_require__(/*! ms */ "../node_modules/ms/index.js");
+  Object.keys(env).forEach(function (key) {
+    createDebug[key] = env[key];
+  });
+  /**
+   * Active `debug` instances.
+   */
+
+  createDebug.instances = [];
+  /**
+   * The currently active debug mode names, and names to skip.
+   */
+
+  createDebug.names = [];
+  createDebug.skips = [];
+  /**
+   * Map of special "%n" handling functions, for the debug "format" argument.
+   *
+   * Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
+   */
+
+  createDebug.formatters = {};
+  /**
+   * Selects a color for a debug namespace
+   * @param {String} namespace The namespace string for the for the debug instance to be colored
+   * @returns {Number|String} An ANSI color code for the given namespace
+   * @api private
+   */
+
+  function selectColor(namespace) {
+    var hash = 0;
+
+    for (var i = 0; i < namespace.length; i++) {
+      hash = (hash << 5) - hash + namespace.charCodeAt(i);
+      hash |= 0; // Convert to 32bit integer
+    }
+
+    return createDebug.colors[Math.abs(hash) % createDebug.colors.length];
+  }
+
+  createDebug.selectColor = selectColor;
+  /**
+   * Create a debugger with the given `namespace`.
+   *
+   * @param {String} namespace
+   * @returns {Function}
+   * @api public
+   */
+
+  function createDebug(namespace) {
+    var prevTime;
+
+    function debug() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      // Disabled?
+      if (!debug.enabled) {
+        return;
+      }
+
+      var self = debug; // Set `diff` timestamp
+
+      var curr = Number(new Date());
+      var ms = curr - (prevTime || curr);
+      self.diff = ms;
+      self.prev = prevTime;
+      self.curr = curr;
+      prevTime = curr;
+      args[0] = createDebug.coerce(args[0]);
+
+      if (typeof args[0] !== 'string') {
+        // Anything else let's inspect with %O
+        args.unshift('%O');
+      } // Apply any `formatters` transformations
+
+
+      var index = 0;
+      args[0] = args[0].replace(/%([a-zA-Z%])/g, function (match, format) {
+        // If we encounter an escaped % then don't increase the array index
+        if (match === '%%') {
+          return match;
+        }
+
+        index++;
+        var formatter = createDebug.formatters[format];
+
+        if (typeof formatter === 'function') {
+          var val = args[index];
+          match = formatter.call(self, val); // Now we need to remove `args[index]` since it's inlined in the `format`
+
+          args.splice(index, 1);
+          index--;
+        }
+
+        return match;
+      }); // Apply env-specific formatting (colors, etc.)
+
+      createDebug.formatArgs.call(self, args);
+      var logFn = self.log || createDebug.log;
+      logFn.apply(self, args);
+    }
+
+    debug.namespace = namespace;
+    debug.enabled = createDebug.enabled(namespace);
+    debug.useColors = createDebug.useColors();
+    debug.color = selectColor(namespace);
+    debug.destroy = destroy;
+    debug.extend = extend; // Debug.formatArgs = formatArgs;
+    // debug.rawLog = rawLog;
+    // env-specific initialization logic for debug instances
+
+    if (typeof createDebug.init === 'function') {
+      createDebug.init(debug);
+    }
+
+    createDebug.instances.push(debug);
+    return debug;
+  }
+
+  function destroy() {
+    var index = createDebug.instances.indexOf(this);
+
+    if (index !== -1) {
+      createDebug.instances.splice(index, 1);
+      return true;
+    }
+
+    return false;
+  }
+
+  function extend(namespace, delimiter) {
+    var newDebug = createDebug(this.namespace + (typeof delimiter === 'undefined' ? ':' : delimiter) + namespace);
+    newDebug.log = this.log;
+    return newDebug;
+  }
+  /**
+   * Enables a debug mode by namespaces. This can include modes
+   * separated by a colon and wildcards.
+   *
+   * @param {String} namespaces
+   * @api public
+   */
+
+
+  function enable(namespaces) {
+    createDebug.save(namespaces);
+    createDebug.names = [];
+    createDebug.skips = [];
+    var i;
+    var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
+    var len = split.length;
+
+    for (i = 0; i < len; i++) {
+      if (!split[i]) {
+        // Ignore empty strings
+        continue;
+      }
+
+      namespaces = split[i].replace(/\*/g, '.*?');
+
+      if (namespaces[0] === '-') {
+        createDebug.skips.push(new RegExp("^".concat(namespaces.substr(1), "$")));
+      } else {
+        createDebug.names.push(new RegExp("^".concat(namespaces, "$")));
+      }
+    }
+
+    for (i = 0; i < createDebug.instances.length; i++) {
+      var instance = createDebug.instances[i];
+      instance.enabled = createDebug.enabled(instance.namespace);
+    }
+  }
+  /**
+   * Disable debug output.
+   *
+   * @returns {String} namespaces
+   * @api public
+   */
+
+
+  function disable() {
+    var namespaces = [].concat(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(createDebug.names.map(toNamespace)), _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(createDebug.skips.map(toNamespace).map(function (namespace) {
+      return "-".concat(namespace);
+    }))).join(',');
+    createDebug.enable('');
+    return namespaces;
+  }
+  /**
+   * Returns true if the given mode name is enabled, false otherwise.
+   *
+   * @param {String} name
+   * @returns {Boolean}
+   * @api public
+   */
+
+
+  function enabled(name) {
+    if (name[name.length - 1] === '*') {
+      return true;
+    }
+
+    var i;
+    var len;
+
+    for (i = 0, len = createDebug.skips.length; i < len; i++) {
+      if (createDebug.skips[i].test(name)) {
+        return false;
+      }
+    }
+
+    for (i = 0, len = createDebug.names.length; i < len; i++) {
+      if (createDebug.names[i].test(name)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+  /**
+   * Convert regexp to namespace
+   *
+   * @param {RegExp} regxep
+   * @returns {String} namespace
+   * @api private
+   */
+
+
+  function toNamespace(regexp) {
+    return regexp.toString().substring(2, regexp.toString().length - 2).replace(/\.\*\?$/, '*');
+  }
+  /**
+   * Coerce `val`.
+   *
+   * @param {Mixed} val
+   * @returns {Mixed}
+   * @api private
+   */
+
+
+  function coerce(val) {
+    if (val instanceof Error) {
+      return val.stack || val.message;
+    }
+
+    return val;
+  }
+
+  createDebug.enable(createDebug.load());
+  return createDebug;
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (setup);
+
+/***/ }),
+
+/***/ "./util/debugLib/index.js":
+/*!********************************!*\
+  !*** ./util/debugLib/index.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./common.js */ "./util/debugLib/common.js");
+/* eslint-env browser */
+
+/**
+ * This is the web browser implementation of `debug()`.
+ */
+
+var storage = localstorage();
+var debugLib = {
+  formatArgs: formatArgs,
+  save: save,
+  load: load,
+  useColors: useColors,
+  storage: storage
+};
+/**
+ * Colors.
+ */
+
+debugLib.colors = ['#0000CC', '#0000FF', '#0033CC', '#0033FF', '#0066CC', '#0066FF', '#0099CC', '#0099FF', '#00CC00', '#00CC33', '#00CC66', '#00CC99', '#00CCCC', '#00CCFF', '#3300CC', '#3300FF', '#3333CC', '#3333FF', '#3366CC', '#3366FF', '#3399CC', '#3399FF', '#33CC00', '#33CC33', '#33CC66', '#33CC99', '#33CCCC', '#33CCFF', '#6600CC', '#6600FF', '#6633CC', '#6633FF', '#66CC00', '#66CC33', '#9900CC', '#9900FF', '#9933CC', '#9933FF', '#99CC00', '#99CC33', '#CC0000', '#CC0033', '#CC0066', '#CC0099', '#CC00CC', '#CC00FF', '#CC3300', '#CC3333', '#CC3366', '#CC3399', '#CC33CC', '#CC33FF', '#CC6600', '#CC6633', '#CC9900', '#CC9933', '#CCCC00', '#CCCC33', '#FF0000', '#FF0033', '#FF0066', '#FF0099', '#FF00CC', '#FF00FF', '#FF3300', '#FF3333', '#FF3366', '#FF3399', '#FF33CC', '#FF33FF', '#FF6600', '#FF6633', '#FF9900', '#FF9933', '#FFCC00', '#FFCC33'];
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+// eslint-disable-next-line complexity
+
+function useColors() {
+  // NB: In an Electron preload script, document will be defined but not fully
+  // initialized. Since we know we're in Chrome, we'll just detect this case
+  // explicitly
+  if (typeof window !== 'undefined' && window.process && (window.process.type === 'renderer' || window.process.__nwjs)) {
+    return true;
+  } // Internet Explorer and Edge do not support colors.
+
+
+  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
+    return false;
+  } // Is webkit? http://stackoverflow.com/a/16459606/376773
+  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+
+
+  return typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || // Is firebug? http://stackoverflow.com/a/398120/376773
+  typeof window !== 'undefined' && window.console && (window.console.firebug || window.console.exception && window.console.table) || // Is firefox >= v31?
+  // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+  typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || // Double check webkit in userAgent just in case we are in a worker
+  typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
+}
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
+
+
+function formatArgs(args) {
+  args[0] = "".concat((this.useColors ? '%c' : '') + this.namespace + (this.useColors ? ' %c' : ' ') + args[0] + (this.useColors ? '%c ' : ' '), "+").concat(setupDebug.humanize(this.diff));
+
+  if (!this.useColors) {
+    return;
+  }
+
+  var c = "color: ".concat(this.color);
+  args.splice(1, 0, c, 'color: inherit'); // The final "%c" is somewhat tricky, because there could be other
+  // arguments passed either before or after the %c, so we need to
+  // figure out the correct index to insert the CSS into
+
+  var index = 0;
+  var lastC = 0;
+  args[0].replace(/%[a-zA-Z%]/g, function (match) {
+    if (match === '%%') {
+      return;
+    }
+
+    index++;
+
+    if (match === '%c') {
+      // We only are interested in the *last* %c
+      // (the user may have provided their own)
+      lastC = index;
+    }
+  });
+  args.splice(lastC, 0, c);
+}
+/**
+ * Invokes `console.debug()` when available.
+ * No-op when `console.debug` is not a "function".
+ * If `console.debug` is not available, falls back
+ * to `console.log`.
+ *
+ * @api public
+ */
+
+
+debugLib.log = console.debug || console.log || function () {};
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+
+function save(namespaces) {
+  try {
+    if (namespaces) {
+      debugLib.storage.setItem('debug', namespaces);
+    } else {
+      debugLib.storage.removeItem('debug');
+    }
+  } catch (error) {// Swallow
+    // XXX (@Qix-) should we be logging these?
+  }
+}
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+
+function load() {
+  var r;
+
+  try {
+    r = debugLib.storage.getItem('debug');
+  } catch (error) {
+    console.warn(error);
+  } // Swallow
+  // XXX (@Qix-) should we be logging these?
+  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+
+
+  if (!r && typeof process !== 'undefined' && 'env' in process) {
+    r = process.env.DEBUG;
+  }
+
+  return r;
+}
+/**
+ * Localstorage attempts to return the localstorage.
+ *
+ * This is necessary because safari throws
+ * when a user disables cookies/localstorage
+ * and you attempt to access it.
+ *
+ * @return {LocalStorage}
+ * @api private
+ */
+
+
+function localstorage() {
+  try {
+    // TVMLKit (Apple TV JS Runtime) does not have a window object, just localStorage in the global context
+    // The Browser also has localStorage in the global context.
+    return localStorage;
+  } catch (error) {// Swallow
+    // XXX (@Qix-) should we be logging these?
+  }
+}
+
+var setupDebug = Object(_common_js__WEBPACK_IMPORTED_MODULE_0__["default"])(debugLib);
+var formatters = setupDebug.formatters;
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
+
+formatters.j = function (v) {
+  try {
+    return JSON.stringify(v);
+  } catch (error) {
+    return "[UnexpectedJSONParseError]: ".concat(error.message);
+  }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (setupDebug);
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../node_modules/process/browser.js */ "../node_modules/process/browser.js")))
+
+/***/ }),
+
 /***/ "./util/deepmerge.js":
 /*!***************************!*\
   !*** ./util/deepmerge.js ***!
@@ -32086,7 +34058,13 @@ var deepmerge = function deepmerge() {
     return Array.isArray(target) ? arrayMerge(target, source, optionsArgument) : cloneIfNecessary(source, optionsArgument);
   }
 
-  return mergeObject(target, source, optionsArgument);
+  var mergedObject = mergeObject(target, source, optionsArgument);
+
+  if (Object.getPrototypeOf(target) !== Object.prototype) {
+    Object.setPrototypeOf(mergedObject, Object.getPrototypeOf(target));
+  }
+
+  return mergedObject;
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (deepmerge);
@@ -32256,9 +34234,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveHandleNearImagePoint", function() { return moveHandleNearImagePoint; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findHandleDataNearImagePoint", function() { return findHandleDataNearImagePoint; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveAnnotation", function() { return moveAnnotation; });
-/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/index.js */ "./store/index.js");
-/* harmony import */ var _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../manipulators/getHandleNearImagePoint.js */ "./manipulators/getHandleNearImagePoint.js");
-/* harmony import */ var _manipulators_index_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../manipulators/index.js */ "./manipulators/index.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "../node_modules/@babel/runtime/helpers/defineProperty.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _store_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/index.js */ "./store/index.js");
+/* harmony import */ var _manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../manipulators/getHandleNearImagePoint.js */ "./manipulators/getHandleNearImagePoint.js");
+/* harmony import */ var _manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../manipulators/index.js */ "./manipulators/index.js");
+/* harmony import */ var _getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./getProximityThreshold.js */ "./util/getProximityThreshold.js");
+/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../events */ "./events.js");
+/* harmony import */ var _triggerEvent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./triggerEvent */ "./util/triggerEvent.js");
+
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+
+
+
 
 
  // TODO this should just be in manipulators? They are just manipulator wrappers anyway.
@@ -32279,8 +34271,24 @@ __webpack_require__.r(__webpack_exports__);
 
 var moveHandleNearImagePoint = function moveHandleNearImagePoint(evt, tool, toolData, handle, interactionType) {
   toolData.active = true;
-  _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].isToolLocked = true;
-  Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_2__["moveHandle"])(evt.detail, tool.name, toolData, handle, tool.options, interactionType);
+  _store_index_js__WEBPACK_IMPORTED_MODULE_1__["state"].isToolLocked = true;
+
+  var doneHandler = function doneHandler(success) {
+    var element = evt.detail.element;
+    var toolName = toolData.toolType || toolData.toolName;
+    var modifiedEventData = {
+      toolName: toolName,
+      toolType: toolName,
+      // Deprecation notice: toolType will be replaced by toolName
+      element: element,
+      measurementData: _objectSpread({}, toolData, {
+        active: false
+      })
+    };
+    Object(_triggerEvent__WEBPACK_IMPORTED_MODULE_6__["default"])(element, _events__WEBPACK_IMPORTED_MODULE_5__["default"].MEASUREMENT_COMPLETED, modifiedEventData);
+  };
+
+  Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["moveHandle"])(evt.detail, tool.name, toolData, handle, tool.options, interactionType, doneHandler);
   evt.stopImmediatePropagation();
   evt.stopPropagation();
   evt.preventDefault();
@@ -32307,7 +34315,7 @@ var findHandleDataNearImagePoint = function findHandleDataNearImagePoint(element
 
   for (var i = 0; i < toolState.data.length; i++) {
     var data = toolState.data[i];
-    var handle = Object(_manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_1__["default"])(element, data.handles, coords, interactionType === 'mouse' ? _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].clickProximity : _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].touchProximity);
+    var handle = Object(_manipulators_getHandleNearImagePoint_js__WEBPACK_IMPORTED_MODULE_2__["default"])(element, data.handles, coords, Object(_getProximityThreshold_js__WEBPACK_IMPORTED_MODULE_4__["default"])(interactionType, toolName));
 
     if (handle) {
       return {
@@ -32339,10 +34347,10 @@ var findHandleDataNearImagePoint = function findHandleDataNearImagePoint(element
 var moveAnnotation = function moveAnnotation(evt, tool, annotation) {
   var interactionType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'mouse';
   annotation.active = true;
-  _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].isToolLocked = true;
-  Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_2__["moveAllHandles"])(evt.detail, tool.name, annotation, null, tool.options, interactionType, function () {
+  _store_index_js__WEBPACK_IMPORTED_MODULE_1__["state"].isToolLocked = true;
+  Object(_manipulators_index_js__WEBPACK_IMPORTED_MODULE_3__["moveAllHandles"])(evt.detail, tool.name, annotation, null, tool.options, interactionType, function () {
     annotation.active = false;
-    _store_index_js__WEBPACK_IMPORTED_MODULE_0__["state"].isToolLocked = false;
+    _store_index_js__WEBPACK_IMPORTED_MODULE_1__["state"].isToolLocked = false;
   });
   evt.stopImmediatePropagation();
   evt.stopPropagation();
@@ -33504,7 +35512,7 @@ function isLineRightOfPoint(point, lp1, lp2) {
   var lPointY = lineSegmentAtPoint(point, lp1, lp2); // If the lp1.x and lp2.x enclose point.x check gradient of line and see if
   // Point is above or below the line to calculate if it inside.
 
-  if (Math.sign(lPointY.gradient) * point.y > lPointY.value) {
+  if (Math.sign(lPointY.gradient) * point.y > Math.sign(lPointY.gradient) * lPointY.value) {
     return true;
   }
 
@@ -33526,7 +35534,7 @@ function isLineRightOfPoint(point, lp1, lp2) {
 function lineSegmentAtPoint(point, lp1, lp2) {
   var dydx = (lp2.y - lp1.y) / (lp2.x - lp1.x);
   var fx = {
-    value: lp1.x + dydx * (point.x - lp1.x),
+    value: lp1.y + dydx * (point.x - lp1.x),
     gradient: dydx
   };
   return fx;
@@ -33658,106 +35666,44 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./util/getKeyFromKeyCode.js":
-/*!***********************************!*\
-  !*** ./util/getKeyFromKeyCode.js ***!
-  \***********************************/
+/***/ "./util/getKeyPressData.js":
+/*!*********************************!*\
+  !*** ./util/getKeyPressData.js ***!
+  \*********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/**
- * Returns a string representation of the a key, given a keycode. Useful for
- * hooking up api calls to buttons using external libraries.
- * @export @public @method
- * @name getKeyFromKeyCode
- *
- * @param  {number} keyCode The keycode to look up.
- * @returns {string} The corresponding character.
- */
-/* harmony default export */ __webpack_exports__["default"] = (function (keyCode) {
-  return KEY_CODES[keyCode];
-});
-var KEY_CODES = {
-  // Numbers - above letter keys
-  48: '0',
-  49: '1',
-  50: '2',
-  51: '3',
-  52: '4',
-  53: '5',
-  54: '6',
-  55: '7',
-  56: '8',
-  57: '9',
-  // Numbers - numpad
-  96: '0',
-  97: '1',
-  98: '2',
-  99: '3',
-  100: '4',
-  101: '5',
-  102: '6',
-  103: '7',
-  104: '8',
-  105: '9',
-  // Letters
-  65: 'a',
-  66: 'b',
-  67: 'c',
-  68: 'd',
-  69: 'e',
-  70: 'f',
-  71: 'g',
-  72: 'h',
-  73: 'i',
-  74: 'j',
-  75: 'k',
-  76: 'l',
-  77: 'm',
-  78: 'n',
-  79: 'o',
-  80: 'p',
-  81: 'q',
-  82: 'r',
-  83: 's',
-  84: 't',
-  85: 'u',
-  86: 'v',
-  87: 'w',
-  88: 'x',
-  89: 'y',
-  90: 'z',
-  // Function keys
-  112: 'F1',
-  113: 'F2',
-  114: 'F3',
-  115: 'F4',
-  116: 'F5',
-  // Command keys
-  13: 'RETURN',
-  8: 'BACKSPACE',
-  9: 'TAB',
-  46: 'DELETE',
-  12: 'DELETE',
-  27: 'ESCAPE',
-  20: 'CAPSLOCK',
-  // Misc - NOTE: There are multiple keycodes for certain characters due to browsers having different mappings.
-  173: '-',
-  189: '-',
-  109: '-',
-  61: '+',
-  187: '+',
-  107: '+',
-  219: '[',
-  221: ']',
-  59: ';',
-  186: ';',
-  188: ',',
-  190: '.',
-  199: '/'
-};
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getKeyPressData; });
+/* harmony import */ var _store___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/ */ "./store/index.js");
+/* harmony import */ var _externalModules__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../externalModules */ "./externalModules.js");
+
+
+function getKeyPressData(e) {
+  var cornerstone = _externalModules__WEBPACK_IMPORTED_MODULE_1__["default"].cornerstone;
+  var element = e.currentTarget;
+  var enabledElement = cornerstone.getEnabledElement(element);
+
+  if (!enabledElement || !enabledElement.image) {
+    return;
+  }
+
+  var currentPointsImage = _store___WEBPACK_IMPORTED_MODULE_0__["default"].state.mousePositionImage;
+  return {
+    event: window.event || e,
+    // Old IE support
+    element: element,
+    viewport: cornerstone.getViewport(element),
+    image: enabledElement.image,
+    currentPoints: {
+      image: currentPointsImage,
+      canvas: cornerstone.pixelToCanvas(element, currentPointsImage)
+    },
+    keyCode: e.keyCode,
+    which: e.which
+  };
+}
 
 /***/ }),
 
@@ -34000,6 +35946,48 @@ function getPixelSpacing(image) {
     rowPixelSpacing: image.rowPixelSpacing,
     colPixelSpacing: image.columnPixelSpacing
   };
+}
+
+/***/ }),
+
+/***/ "./util/getProximityThreshold.js":
+/*!***************************************!*\
+  !*** ./util/getProximityThreshold.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return getProximityThreshold; });
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store */ "./store/index.js");
+
+/**
+ * Returns the proximity threshold for the given interaction type, looking first
+ * at the tool configuration and then at global configuration.
+ *
+ * @public
+ * @function getProximityThreshold
+ *
+ * @param {string} interactionType The interaction type (mouse or touch)
+ * @param {string} toolName The name of the tool
+ * @returns {Number} The proximity threshold based on the tool
+ */
+
+function getProximityThreshold(interactionType, toolName) {
+  var clickProximity = _store__WEBPACK_IMPORTED_MODULE_0__["state"].clickProximity,
+      touchProximity = _store__WEBPACK_IMPORTED_MODULE_0__["state"].touchProximity;
+  var tool = _store__WEBPACK_IMPORTED_MODULE_0__["state"].tools.find(function (_ref) {
+    var name = _ref.name;
+    return name === toolName;
+  });
+
+  if (tool && tool.configuration) {
+    clickProximity = tool.configuration.clickProximity || clickProximity;
+    touchProximity = tool.configuration.touchProximity || touchProximity;
+  }
+
+  return interactionType === 'mouse' ? clickProximity : touchProximity;
 }
 
 /***/ }),
@@ -34326,11 +36314,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLogger", function() { return getLogger; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "enable", function() { return enable; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "disable", function() { return disable; });
-/* harmony import */ var debug__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! debug */ "../node_modules/debug/src/browser.js");
-/* harmony import */ var debug__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(debug__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _debugLib_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./debugLib/index.js */ "./util/debugLib/index.js");
 
 var BASE_SCOPE = 'cornerstoneTools';
-var baseLogger = debug__WEBPACK_IMPORTED_MODULE_0___default()(BASE_SCOPE); // eslint-disable-next-line no-process-env
+var baseLogger = Object(_debugLib_index_js__WEBPACK_IMPORTED_MODULE_0__["default"])(BASE_SCOPE); // eslint-disable-next-line no-process-env
 
 var devMode = "development" === 'development'; // If we're in dev-mode, tell the user how to get logs
 
@@ -34364,7 +36351,7 @@ var getLogger = function getLogger(scope) {
 
 var enable = function enable() {
   var scope = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "".concat(BASE_SCOPE, ":*");
-  return debug__WEBPACK_IMPORTED_MODULE_0___default.a.enable(scope);
+  return _debugLib_index_js__WEBPACK_IMPORTED_MODULE_0__["default"].enable(scope);
 };
 /**
  * @method disable
@@ -34373,7 +36360,7 @@ var enable = function enable() {
  */
 
 var disable = function disable() {
-  return debug__WEBPACK_IMPORTED_MODULE_0___default.a.disable();
+  return _debugLib_index_js__WEBPACK_IMPORTED_MODULE_0__["default"].disable();
 };
 
 /***/ }),
@@ -34817,10 +36804,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../events.js */ "./events.js");
 /* harmony import */ var _externalModules_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../externalModules.js */ "./externalModules.js");
 /* harmony import */ var _stateManagement_toolState_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../stateManagement/toolState.js */ "./stateManagement/toolState.js");
-/* harmony import */ var _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../requestPool/requestPoolManager.js */ "./requestPool/requestPoolManager.js");
-/* harmony import */ var _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../stateManagement/loadHandlerManager.js */ "./stateManagement/loadHandlerManager.js");
-/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../util/triggerEvent.js */ "./util/triggerEvent.js");
-
+/* harmony import */ var _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../stateManagement/loadHandlerManager.js */ "./stateManagement/loadHandlerManager.js");
+/* harmony import */ var _util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/triggerEvent.js */ "./util/triggerEvent.js");
 
 
 
@@ -34861,9 +36846,9 @@ __webpack_require__.r(__webpack_exports__);
     newImageIdIndex += stackData.imageIds.length;
   }
 
-  var startLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_4__["default"].getStartLoadHandler(element);
-  var endLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_4__["default"].getEndLoadHandler(element);
-  var errorLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_4__["default"].getErrorLoadingHandler(element);
+  var startLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_3__["default"].getStartLoadHandler(element);
+  var endLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_3__["default"].getEndLoadHandler(element);
+  var errorLoadingHandler = _stateManagement_loadHandlerManager_js__WEBPACK_IMPORTED_MODULE_3__["default"].getErrorLoadingHandler(element);
 
   function doneCallback(image) {
     if (stackData.currentImageIdIndex !== newImageIdIndex) {
@@ -34934,10 +36919,8 @@ __webpack_require__.r(__webpack_exports__);
     imagePromise = cornerstone.loadAndCacheImage(newImageId);
   }
 
-  imagePromise.then(doneCallback, failCallback); // Make sure we kick off any changed download request pools
-
-  _requestPool_requestPoolManager_js__WEBPACK_IMPORTED_MODULE_3__["default"].startGrabbing();
-  Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_5__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].STACK_SCROLL, eventData);
+  imagePromise.then(doneCallback, failCallback);
+  Object(_util_triggerEvent_js__WEBPACK_IMPORTED_MODULE_4__["default"])(element, _events_js__WEBPACK_IMPORTED_MODULE_0__["default"].STACK_SCROLL, eventData);
 });
 
 /***/ }),
@@ -36244,6 +38227,28 @@ function triggerEvent(el, type) {
 
 /***/ }),
 
+/***/ "./util/uuidv4.js":
+/*!************************!*\
+  !*** ./util/uuidv4.js ***!
+  \************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return uuidv4; });
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0; // eslint-disable-line no-bitwise
+
+    var v = c === 'x' ? r : r & 0x3 | 0x8; // eslint-disable-line no-bitwise
+
+    return v.toString(16);
+  });
+}
+
+/***/ }),
+
 /***/ "./util/wait.js":
 /*!**********************!*\
   !*** ./util/wait.js ***!
@@ -36421,7 +38426,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ('4.0.0-beta6');
+/* harmony default export */ __webpack_exports__["default"] = ('6.0.9');
 
 /***/ })
 
