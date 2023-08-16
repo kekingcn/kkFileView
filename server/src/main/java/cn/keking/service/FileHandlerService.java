@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -49,6 +50,7 @@ import java.util.stream.IntStream;
  * @date 2017/11/13
  */
 @Component
+@DependsOn(ConfigConstants.BEAN_NAME)
 public class FileHandlerService implements InitializingBean {
 
     private static final String PDF2JPG_IMAGE_FORMAT = ".jpg";
