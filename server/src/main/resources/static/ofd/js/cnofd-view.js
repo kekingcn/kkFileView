@@ -53,6 +53,36 @@ window.onresize = function() {
     } ();
 };
 
+ //监听整个页面的 copy 事件
+document.addEventListener('copy',function(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if(!clipboardData) return;
+    
+    let text = window.getSelection().toString();
+    
+    if(text){
+        var copytext = text.replace(/\n|\r/g, "");     //去除换行符
+        
+        if (window.clipboardData) {     // Internet Explorer
+            window.clipboardData.setData ("Text", copytext);
+        } else {
+            var newdiv = document.createElement('div');
+            newdiv.style.position='absolute';
+            newdiv.style.left='-99999px';
+            
+            var body_element = document.getElementsByTagName('body')[0]; 
+            body_element.appendChild(newdiv);
+            newdiv.innerHTML = copytext;
+            
+            window.getSelection().selectAllChildren(newdiv);
+            
+            window.setTimeout(function() {            
+                body_element.removeChild(newdiv);            
+            },0);
+        }
+    }
+});
+
 // 手机端，隐藏缩放比例选择框，打开文件和打印按钮
 if (this.isMobile()) {
     if (document.getElementById("zoomSelect")) document.getElementById("zoomSelect").style.display = "none";
