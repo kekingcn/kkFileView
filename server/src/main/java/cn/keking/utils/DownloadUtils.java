@@ -49,7 +49,7 @@ public class DownloadUtils {
         }
         ReturnResponse<String> response = new ReturnResponse<>(0, "下载成功!!!", "");
         String realPath = getRelFilePath(fileName, fileAttribute);
-        if (!KkFileUtils.isAllowedUpload(realPath)) {
+        if (null == realPath || !KkFileUtils.isAllowedUpload(realPath)) {
             response.setCode(1);
             response.setContent(null);
             response.setMsg("下载失败:不支持的类型!" + urlStr);
