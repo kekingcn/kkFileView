@@ -21,40 +21,44 @@
         .alert {
             width: 50%;
         }
-    </style>
- <#--  删除吗CSS样式 -->
-<#if deleteCaptcha >
-    <style>
-        .code{
-            position: fixed;
-            width: 300px;
-            height: 200px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%,-50%);
-            background-color: #F0FFF0;
-            text-align: center;
-            padding: 20px;
-            z-index: 100002;
-        }
-        .close{
-            margin-top: 20px;
-        }
-        .code-input{
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            width: 110px;
-            height: 40px;
-        }
-        .code-input:focus{
-            border-color: #66afe9;
-            outline: 0;
-            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
-            box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
-        }
+        #size{
+            float:left;
 
+        }
     </style>
-</#if>
+    <#--  删除吗CSS样式 -->
+    <#if deleteCaptcha >
+        <style>
+            .code{
+                position: fixed;
+                width: 300px;
+                height: 200px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+                background-color: #F0FFF0;
+                text-align: center;
+                padding: 20px;
+                z-index: 100002;
+            }
+            .close{
+                margin-top: 20px;
+            }
+            .code-input{
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                width: 110px;
+                height: 40px;
+            }
+            .code-input:focus{
+                border-color: #66afe9;
+                outline: 0;
+                -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+                box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+            }
+
+        </style>
+    </#if>
 </head>
 
 <body>
@@ -155,16 +159,11 @@
         </div>
         <div class="panel-body">
             <#if fileUploadDisable == false>
-                <div style="padding: 10px" >
-                    <form enctype="multipart/form-data" id="fileUpload">
-                        <input type="file" id="size" name="file"/>
-                        <input type="button" id="btnSubmit" value=" 上 传 "/>
-                    </form>
-                </div>
+                <form enctype="multipart/form-data" id="fileUpload">
+                    <input type="file" id="size" name="file"/> <input class="btn btn-success" type="button" id="btnSubmit" value=" 上 传 "/>
+                </form>
             </#if>
-            <div>
-                <table id="table" data-pagination="true"></table>
-            </div>
+            <table id="table" data-pagination="true"></table>
         </div>
     </div>
 </div>
@@ -201,7 +200,7 @@
 <script>
     <#if deleteCaptcha >
     function deleteFile(fileName) {
-        var codename =`<div class="code"><h4>请输入下面删除码!</h4><div><img id="verImg" width="130px" height="48px" src="/deleteFile/captcha"></div><form><input type="type" oninput="if(value.length>5)value=value.slice(0,5);" class="code-input"  id="_code" placeholder="请输入验证码"><button id="deleteFile1" type="button" class="btn btn-success">提交</button></form><button id="close" type="button"class="btn btn-danger">关闭</button></div>`;
+        var codename =`<div class="code"><h4>请输入下面删除码!</h4><div><img id="verImg" width="130px" height="48px" src="/deleteFile/captcha"></div><form><input type="type" oninput="if(value.length>5)value=value.slice(0,5);" class="code-input"  id="_code" placeholder="请输入验证码"><button id="deleteFile1" type="button" class="btn btn-success">提交</button></form><button id="close" type="button" class="btn btn-danger">关闭</button></div>`;
         $('#codeContent').html(codename);
         var code = document.querySelector('.code');
         var closeBtn = document.getElementById("close");
@@ -214,7 +213,7 @@
         function deleteFile1(){
             var password = $("#_code").val();
             $.ajax({
-                    url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
+                url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
                 success: function (data) {
                     if ("删除文件失败，密码错误！" === data.msg) {
                         alert(data.msg);
@@ -324,6 +323,11 @@
     $(function () {
         $('#table').bootstrapTable({
             url: 'listFiles',
+            pageNumber: ${homePpageNumber},//初始化加载第一页
+            pageSize:${homePageSize}, //初始化单页记录数
+            pagination: ${homePagination}, //是否分页
+            pageList: [5, 10, 20, 30, 50, 100, 200, 500],
+            search: ${homeSearch}, //显示查询框
             columns: [{
                 field: 'fileName',
                 title: '文件名'
@@ -335,7 +339,7 @@
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
                 item.action = "<a class='btn btn-success' target='_blank' href='${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "'>预览</a>" +
-                "<a class='btn btn-danger' style='margin-left:10px;' href='javascript:void(0);' onclick='deleteFile(\"" +  encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "\")'>删除</a>";
+                    "<a class='btn btn-danger' style='margin-left:10px;' href='javascript:void(0);' onclick='deleteFile(\"" +  encodeURIComponent(Base64.encode('${baseUrl}' + item.fileName)) + "\")'>删除</a>";
             });
             return data;
         }).on('post-body.bs.table', function (e, data) {

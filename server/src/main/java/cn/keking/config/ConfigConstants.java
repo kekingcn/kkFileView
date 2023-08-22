@@ -61,6 +61,10 @@ public class ConfigConstants {
     private static Boolean officeDocumentOpenPasswords;
     private static String cadTimeout;
     private static int cadThread;
+    private static String homePpageNumber;
+    private static String homePagination;
+    private static String homePageSize;
+    private static String homeSearch;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd,xbrl";
@@ -91,11 +95,8 @@ public class ConfigConstants {
     public static final String DEFAULT_OFFICE_TYPE_WEB = "web";
     public static final String DEFAULT_DELETE_SOURCE_FILE = "true";
     public static final String DEFAULT_DELETE_CAPTCHA = "false";
-
-
     public static final String DEFAULT_CAD_TIMEOUT = "90";
     public static final String DEFAULT_CAD_THREAD = "5";
-
     public static final String DEFAULT_OFFICE_PAQERANQE = "false";
     public static final String DEFAULT_OFFICE_WATERMARK = "false";
     public static final String DEFAULT_OFFICE_QUALITY = "80";
@@ -103,7 +104,10 @@ public class ConfigConstants {
     public static final String DEFAULT_OFFICE_EXPORTBOOKMARKS = "true";
     public static final String DEFAULT_OFFICE_EXPORTNOTES = "true";
     public static final String DEFAULT_OFFICE_EOCUMENTOPENPASSWORDS = "true";
-
+    public static final String DEFAULT_HOME_PAGENUMBER = "1";
+    public static final String DEFAULT_HOME_PAGINATION = "true";
+    public static final String DEFAULT_HOME_PAGSIZE = "15";
+    public static final String DEFAULT_HOME_SEARCH = "true";
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
     }
@@ -407,16 +411,6 @@ public class ConfigConstants {
         ConfigConstants.tifPreviewType = tifPreviewType;
     }
 
-    public static String getBeian() {
-        return beian;
-    }
-    @Value("${beian:default}")
-    public void setBeian(String beian) {
-        setBeianValue(beian);
-    }
-    public static void setBeianValue(String beian) {
-        ConfigConstants.beian = beian;
-    }
     public static String[] getProhibit() {
         return prohibit;
     }
@@ -625,6 +619,66 @@ public class ConfigConstants {
     }
     public static void setOfficeDocumentOpenPasswordsValue(Boolean officeDocumentOpenPasswords) {
         ConfigConstants.officeDocumentOpenPasswords = officeDocumentOpenPasswords;
+    }
+
+    /**
+     * 以下为首页显示
+     */
+
+    public static String getBeian() {
+        return beian;
+    }
+    @Value("${beian:default}")
+    public void setBeian(String beian) {
+        setBeianValue(beian);
+    }
+    public static void setBeianValue(String beian) {
+        ConfigConstants.beian = beian;
+    }
+
+
+    public static String gethomePpageNumber() {
+        return homePpageNumber;
+    }
+    @Value("${home.pagenumber:1}")
+    public void sethomePpageNumber(String homePpageNumber) {
+        sethomePpageNumberValue(homePpageNumber);
+    }
+    public static void sethomePpageNumberValue(String homePpageNumber) {
+        ConfigConstants.homePpageNumber = homePpageNumber;
+    }
+
+    public static String gethomePagination() {
+        return homePagination;
+    }
+    @Value("${home.pagination:true}")
+    public void sethomePagination(String homePagination) {
+        sethomePaginationValue(homePagination);
+    }
+    public static void sethomePaginationValue(String homePagination) {
+        ConfigConstants.homePagination = homePagination;
+    }
+
+    public static String gethomePageSize() {
+        return homePageSize;
+    }
+    @Value("${home.pagesize:15}")
+    public void sethomePagesize(String homePageSize) {
+        sethomePageSizeValue(homePageSize);
+    }
+    public static void sethomePageSizeValue(String homePageSize) {
+        ConfigConstants.homePageSize = homePageSize;
+    }
+
+    public static String gethomeSearch() {
+        return homeSearch;
+    }
+    @Value("${home.search:1}")
+    public void sethomeSearch(String homeSearch) {
+        sethomeSearchValue(homeSearch);
+    }
+    public static void sethomeSearchValue(String homeSearch) {
+        ConfigConstants.homeSearch = homeSearch;
     }
 
 }
