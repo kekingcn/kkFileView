@@ -73,6 +73,10 @@ public class ConfigRefreshComponent {
                 boolean officeDocumentOpenPasswords;
                 String cadTimeout;
                 int cadThread;
+                String homePpageNumber;
+                String homePagination;
+                String homePageSize;
+                String homeSearch;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -115,6 +119,10 @@ public class ConfigRefreshComponent {
                     officeExportNotes = Boolean.parseBoolean(properties.getProperty("office.exportnotes", ConfigConstants.DEFAULT_OFFICE_EXPORTNOTES));
                     officeDocumentOpenPasswords =  Boolean.parseBoolean(properties.getProperty("office.documentopenpasswords", ConfigConstants.DEFAULT_OFFICE_EOCUMENTOPENPASSWORDS));
                     cadTimeout = properties.getProperty("cad.timeout", ConfigConstants.DEFAULT_CAD_TIMEOUT);
+                    homePpageNumber = properties.getProperty("home.pagenumber", ConfigConstants.DEFAULT_HOME_PAGENUMBER);
+                    homePagination = properties.getProperty("home.pagination", ConfigConstants.DEFAULT_HOME_PAGINATION);
+                    homePageSize = properties.getProperty("home.pagesize", ConfigConstants.DEFAULT_HOME_PAGSIZE);
+                    homeSearch = properties.getProperty("home.search", ConfigConstants.DEFAULT_HOME_SEARCH);
                     cadThread = Integer.parseInt(properties.getProperty("cad.thread", ConfigConstants.DEFAULT_CAD_THREAD));
                     prohibitArray = prohibit.split(",");
 
@@ -154,6 +162,10 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setDeleteCaptchaValue(deleteCaptcha);
                     ConfigConstants.setCadTimeoutValue(cadTimeout);
                     ConfigConstants.setCadThreadValue(cadThread);
+                    ConfigConstants.sethomePpageNumberValue(homePpageNumber);
+                    ConfigConstants.sethomePaginationValue(homePagination);
+                    ConfigConstants.sethomePageSizeValue(homePageSize);
+                    ConfigConstants.sethomeSearchValue(homeSearch);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();

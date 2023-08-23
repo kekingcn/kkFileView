@@ -44,6 +44,10 @@ public class AttributeSetFilter implements Filter {
         request.setAttribute("beian", ConfigConstants.getBeian());
         request.setAttribute("size", ConfigConstants.maxSize());
         request.setAttribute("deleteCaptcha", ConfigConstants.getDeleteCaptcha());
+        request.setAttribute("homePpageNumber", ConfigConstants.gethomePpageNumber());
+        request.setAttribute("homePagination", ConfigConstants.gethomePagination());
+        request.setAttribute("homePageSize", ConfigConstants.gethomePageSize());
+        request.setAttribute("homeSearch", ConfigConstants.gethomeSearch());
     }
 
     /**
