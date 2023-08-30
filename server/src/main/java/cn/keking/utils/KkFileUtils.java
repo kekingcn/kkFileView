@@ -34,29 +34,33 @@ public class KkFileUtils {
 
     /**
      * 检查文件名是否合规
+     *
      * @param fileName 文件名
-     * @return 合规结果,true:不合规，false:合规
+     * @return 合规结果, true:不合规，false:合规
      */
-    public static boolean isIllegalFileName(String fileName){
-        for (String str: illegalFileStrList){
-            if(fileName.contains(str)){
+    public static boolean isIllegalFileName(String fileName) {
+        for (String str : illegalFileStrList) {
+            if (fileName.contains(str)) {
                 return true;
             }
         }
         return false;
     }
+
     /**
      * 检查是否是数字
+     *
      * @param str 文件名
-     * @return 合规结果,true:不合规，false:合规
+     * @return 合规结果, true:不合规，false:合规
      */
     public static boolean isInteger(String str) {
-        if(StringUtils.hasText(str)){
+        if (StringUtils.hasText(str)) {
             boolean strResult = str.matches("-?[0-9]+.?[0-9]*");
-            return strResult ;
+            return strResult;
         }
         return false;
     }
+
     /**
      * 判断url是否是http资源
      *
@@ -102,7 +106,7 @@ public class KkFileUtils {
 
 
     public static String htmlEscape(String input) {
-        if(StringUtils.hasText(input)){
+        if (StringUtils.hasText(input)) {
             //input = input.replaceAll("\\{", "%7B").replaceAll("}", "%7D").replaceAll("\\\\", "%5C");
             String htmlStr = HtmlUtils.htmlEscape(input, "UTF-8");
             //& -> &amp;
@@ -186,11 +190,23 @@ public class KkFileUtils {
      */
     public static boolean isAllowedUpload(String file) {
         String fileType = suffixFromFileName(file);
-            for (String type : ConfigConstants.getProhibit()) {
-            if (type.equals(fileType))
+        for (String type : ConfigConstants.getProhibit()) {
+            if (type.equals(fileType)){
                 return false;
+            }
         }
         return !ObjectUtils.isEmpty(fileType);
+    }
+
+    /**
+     * 判断文件是否存在
+     *
+     * @param filePath 文件路径
+     * @return 是否存在 true:存在，false:不存在
+     */
+    public static boolean isExist(String filePath) {
+        File file = new File(filePath);
+        return file.exists();
     }
 
 }
