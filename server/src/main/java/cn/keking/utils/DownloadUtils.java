@@ -46,7 +46,7 @@ public class DownloadUtils {
         String realPath = getRelFilePath(fileName, fileAttribute);
 
         // 判断是否非法地址
-        if (KkFileUtils.isIllegalFileName(fileName)) {
+        if (KkFileUtils.isIllegalFileName(realPath)) {
             response.setCode(1);
             response.setContent(null);
             response.setMsg("下载失败:文件名不合法!" + urlStr);
