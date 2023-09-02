@@ -1,0 +1,1707 @@
+.ckplayer-error{
+	position: fixed;
+	z-index: 9999999;
+	left: 10px;
+	bottom: 10px;
+	width: auto;
+	height: 38px;
+	line-height: 38px;
+	padding: 0 .85rem;
+	background: rgb(0,0,0,.9);
+	border-radius: .25rem;
+	color: #FFF;
+	font-size: 14px;
+	white-space: nowrap;
+}
+.ckplayer-ckplayer{
+	width: 100%;
+	height: 100%;
+	float: left;
+	background: #000;
+	overflow: hidden;
+}
+.ckplayer-ckplayer .ck-main.ck-nocursor{
+	cursor: none;
+}
+.ckplayer-ckplayer-smallwindow{
+	position: fixed;
+	z-index: 9999999;
+	width: 420px;
+	max-width: 100%;
+	height: 266px;
+	right: 10px;
+	bottom: 10px;
+}
+.ckplayer-ckplayer .ck-main{
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: #000;
+	position: relative;
+}
+.ckplayer-ckplayer .ck-main .ck-video{
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	position:absolute;
+	z-index: 1;
+	top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+.ckplayer-ckplayer .ck-main .ck-video video,.ckplayer-ckplayer .ck-main .ck-video canvas{
+	width: 100%;
+	height: 100%;
+}
+.ckplayer-ckplayer .ck-main .ck-error{
+	width: 100%;
+	height: 80px;
+	line-height: 35px;
+    text-align: center;
+    color: #FFF;
+    position:absolute;
+    z-index: 70;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    overflow: hidden;
+}
+.ckplayer-ckplayer .ck-main .ck-logo{
+    position:absolute;
+    right: 20px;
+    top:20px;
+    z-index: 400;
+}
+.ckplayer-ckplayer .ck-main .ck-loading{
+	position:absolute;
+	top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    z-index: 80;
+	width: 80px;
+	height: 80px;
+    border-radius: 50%;
+    background: url(images/loading.png) no-repeat center center;
+    background-size: 100% 100%;
+    animation: ck-Circle 1.5s linear infinite;
+	-webkit-animation: ck-Circle 1.5s linear infinite
+}
+.ckplayer-ckplayer .ck-main .ck-center-play{
+	background: url(images/play.png) no-repeat 70% center;
+	background-size:60% 60%;
+	border: 8px solid rgba(255,255,255,.3);
+	border-radius: 50%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */	
+	width: 80px;
+	height: 80px;
+	position: absolute;
+	display: none;
+    z-index: 90;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    cursor: pointer;
+    transition: .2s;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-center-play{
+	width: 100px;
+	height: 100px;
+}
+.ckplayer-ckplayer .ck-main .ck-center-play:hover{
+	width: 100px;
+	height: 100px;
+    transition: 0.2s;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-center-play:hover{
+	width: 120px;
+	height: 120px;
+}
+.ckplayer-ckplayer .ck-main .ck-buffer{
+	background: url(images/buffer.png) no-repeat center center;
+	background-size:100% 100%;
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	position: absolute;
+    z-index: 100;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: none;
+    animation: ck-Circle 1s linear infinite;
+	-webkit-animation: ck-Circle 1s linear infinite
+}
+.ckplayer-ckplayer .ck-main .ck-message{
+    position: absolute;
+    z-index: 240;
+    left:5px;
+    bottom: 78px;
+    padding: 0 1rem;
+    line-height: 30px;
+    height: 30px;
+    width: auto;
+    min-width: 1px;
+    border-radius: .25rem;
+    background: rgba(0,0,0,.6);
+    font-size: 14px;
+    color: #FFF;
+    display: none;
+    white-space:nowrap;
+}
+.ckplayer-ckplayer .ck-main .ck-message-right{
+	left:auto;
+	right: 5px;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-message{
+    font-size: 18px;
+    bottom: 100px;
+}
+.ckplayer-ckplayer .ck-main .ck-tip{
+    width: auto;
+    height: auto;
+    position: absolute;
+    z-index: 230;
+    display: none;
+    margin-bottom: 1px;
+}
+.ckplayer-ckplayer .ck-main .ck-tip .ck-content{
+    width: auto;
+    height: auto;
+    white-space: nowrap;
+    min-width: 1px;
+    background: rgba(0,0,0,.6);
+    font-size: 14px;
+    color: #FFF;
+    line-height: 32px;
+    height: 32px;
+    padding: 0 15px;
+}
+.ckplayer-ckplayer .ck-main .ck-tip .ck-content-float-auto{
+	border-radius: 5px;
+	margin: auto;
+}
+.ckplayer-ckplayer .ck-main .ck-tip .ck-content-float-left{
+	border-radius: 5px;
+	float: left;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-tip .ck-content{
+    font-size: 18px;
+}
+.ckplayer-ckplayer .ck-main .ck-tip .ck-triangle{
+	width: 0px;
+	height: 0px;
+}
+.ckplayer-ckplayer .ck-main .ck-tip .ck-triangle-auto{
+	border-left: 8px solid transparent;
+    border-top: 8px solid rgba(0, 0, 0,.6);
+    border-right: 8px solid transparent;
+    margin: auto;
+}
+.ckplayer-ckplayer .ck-main .ck-tip .ck-triangle-left{
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+	border-left: 8px solid rgba(0, 0, 0,.6);
+    float: left;
+    margin-top: 10px;
+}
+.ckplayer-ckplayer .ck-main .ck-preview{
+	position: absolute;
+    z-index: 210;
+    width: 100%;
+    left:0;
+    bottom: 64px;
+    overflow: hidden;
+    display: none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-preview{
+    bottom: 86px;
+}
+.ckplayer-ckplayer .ck-main .ck-preview-load-img{
+	position: absolute;
+    z-index: 210;
+    top:110%;
+}
+.ckplayer-ckplayer .ck-main .ck-preview .ck-preview-bg{
+	position: absolute;
+    z-index: 1;
+    top:0;
+	float: left;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-preview .ck-preview-bg .ck-preview-img{
+	background-repeat: no-repeat ;
+	float: left;
+}
+.ckplayer-ckplayer .ck-main .ck-preview .ck-preview-frame{
+	position: absolute;
+    z-index: 2;
+    top:0;
+    left:-1000px;
+	border:4px solid #0078ff;
+	box-sizing:content-box;
+	-moz-box-sizing:content-box; /* Firefox */
+	-webkit-box-sizing:content-box; /* Safari */	
+}
+.ckplayer-ckplayer .ck-main .ck-prompt-words{
+	position: absolute;
+    z-index: 220;
+    width: 213px;
+    line-height: 23px;
+    font-size: 14px;
+    color: #FFF;
+    background: rgba(0, 0, 0,.6);
+    overflow: hidden;
+    display: none;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    -webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .2s;
+	animation-duration: .2s;
+	-webkit-animation-name: ck-bounceIn;
+	animation-name: ck-bounceIn;
+}
+.ckplayer-ckplayer .ck-main .ck-prompt-words .ck-prompt-content{
+	padding: 5px;
+}
+.ckplayer-ckplayer .ck-main .ck-layer{
+	position: absolute;
+	z-index: 101;
+}
+.ckplayer-ckplayer .ck-main .ck-tempTime{
+	position: absolute;
+	z-index: 20;
+	left:10px;
+	bottom: 5px;
+	display: none;
+	font-size: 14px;
+	line-height: 28px;
+	color: #FFF;
+}
+/*关于*/
+.ckplayer-ckplayer .ck-main .ck-about{
+	position: absolute;
+	z-index: 200;
+	width: 50%;
+	max-width: 600px;
+	min-width: 400px;
+	left: 1rem;
+	top: 1rem;
+	background: rgba(0,0,0,.6);
+	padding: 1rem 0;
+	display: none;
+}
+.ckplayer-ckplayer .ck-main .ck-about ul{
+	padding: 0;
+	margin: 0;
+}
+.ckplayer-ckplayer .ck-main .ck-about ul li{
+	list-style:none;
+	color: #FFF;
+	font-size: 12px;
+	line-height: 18px;
+	height: 18px;
+	padding: 0;
+	margin: 0;
+}
+.ckplayer-ckplayer .ck-main .ck-about ul li .ck-about-title{
+	width: 100px;
+	text-align: right;
+	float: left;
+	padding-right: .5rem;
+}
+.ckplayer-ckplayer .ck-main .ck-about ul li .ck-about-content{
+	width: auto;
+	float: left;
+}
+.ckplayer-ckplayer .ck-main .ck-about .ck-about-bar{
+	position: absolute;
+	z-index: 1;
+	top: 0;
+    right: 0;
+    width: 96px;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-about .ck-about-bar{
+    width: 140px;
+}
+.ckplayer-ckplayer .ck-main .ck-about .ck-about-bar .ck-btn-about-copy{
+	background-position:-1632px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-about .ck-about-bar .ck-btn-about-copy:hover{
+	background-position:-1680px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-about .ck-about-bar .ck-btn-about-copy{
+	background-position:-2380px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-about .ck-about-bar .ck-btn-about-copy:hover{
+	background-position:-2450px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-about .ck-about-bar .ck-btn-about-close{
+	background-position:-1728px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-about .ck-about-bar .ck-btn-about-close:hover{
+	background-position:-1776px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-about .ck-about-bar .ck-btn-about-close{
+	background-position:-2520px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-about .ck-about-bar .ck-btn-about-close:hover{
+	background-position:-2590px 0;
+}
+/*截图显示容器*/
+.ckplayer-ckplayer .ck-main .ck-screenshot{
+	position: absolute;
+	z-index: 220;
+	width: auto;
+	height: 144px;
+	margin: auto !important;
+	top: 0;
+	bottom: 0;
+	right: 55px;
+	display: none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-screenshot{
+	height: 210px;
+	right: 77px;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-img{
+	position: absolute;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-img img{
+	height: 100%;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-bar{
+	position: absolute;
+	z-index: 1;
+	width: 100%;
+	height: 36px;
+	bottom: 5px;
+	text-align: center;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-bar .ck-screenshot-btn{
+	display: inline-block;
+    overflow: hidden;
+    border: 0px solid transparent;
+    border-radius: 5px;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 30px;
+    padding: 0px 15px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color: #fff;
+    margin: 0 5px;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-bar .ck-screenshot-btn:hover{
+	color: #FFFF00;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-bar .ck-screenshot-btn:focus{
+	outline:0;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-bar .ck-screenshot-down{
+    background-color: #007bff;
+}
+.ckplayer-ckplayer .ck-main .ck-screenshot .ck-screenshot-bar .ck-screenshot-close{
+    background-color: #505050;
+    color: #fff;
+}
+/*广告*/
+.ckplayer-ckplayer .ck-main .ck-yytf{
+	position: absolute;
+	z-index: 800;
+	width: 100%;
+	height: 100%;
+	left: 0px;
+	top: 0px;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-front-link{
+	width: 100%;
+	height: 100%;
+	display: none;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-front-picture{
+	width: 100%;
+	height: 100%;
+	background: #000;
+	display: none;
+	text-align: center;
+	line-height: 100%;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-front-picture img{
+	max-width: 100%;
+	max-height: 100%;
+	position: absolute;
+	top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-top{
+	position: absolute;
+	z-index: 3;
+	top: 10px;
+	right: 10px;
+}
+
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-top div{
+	float: right;
+	margin-left: 10px;
+	font-size: 14px;
+	border-radius: 15px;
+	background: rgba(0,0,0,.6);
+	padding: 0px 10px;
+	line-height: 30px;
+	height: 30px;
+	color: #FFF;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-top div{
+	font-size: 18px;
+	border-radius: 20px;
+	line-height: 40px;
+	height: 40px;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-top .ck-yytf-closetime{
+	display: none;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-top .ck-yytf-closead{
+	cursor: pointer;
+	display: none;
+}
+
+/*显示广告时的底部内容*/
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom{
+	position: absolute;
+	z-index: 3;
+	bottom: 10px;
+	right: 10px;
+}
+/*显示广告时的底部按钮-共用*/
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-btn{
+	background-color: rgba(0,0,0,.6);
+	background-image: url(images/ckplayer_ixigua.png);
+	background-size: auto 100%;
+	border: none;
+	outline: none;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	background-repeat: no-repeat;
+	border-radius: 50%;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-btn{
+	width: 40px;
+	height: 40px;	
+}
+/*显示广告时的静音按钮*/
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit{
+	float: right;
+	width: 30px;
+	height: 30px;
+	margin-left: 10px;
+	overflow: hidden;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit{
+	width: 40px;
+	height: 40px;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-muted{
+	background-position:-180px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-muted:hover{
+	background-position:-210px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-exitmuted{
+	background-position:-240px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-exitmuted:hover{
+	background-position:-270px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-muted{
+	background-position:-240px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-muted:hover{
+	background-position:-280px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-exitmuted{
+	background-position:-320px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-mutedandexit .ck-yytf-mutedandexit-exitmuted:hover{
+	background-position:-360px 0;
+}
+/*显示广告时的全屏按钮*/
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit{
+	float: right;
+	width: 30px;
+	height: 30px;
+	margin-left: 10px;
+	overflow: hidden;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit{
+	width: 40px;
+	height: 40px;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-full{
+	background-position:-300px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-full:hover{
+	background-position:-330px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-exitfull{
+	background-position:-360px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-exitfull:hover{
+	background-position:-390px 0;
+}
+
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-full{
+	background-position:-400px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-full:hover{
+	background-position:-440px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-exitfull{
+	background-position:-480px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-fullandexit .ck-yytf-fullandexit-exitfull:hover{
+	background-position:-520px 0;
+}
+/*广告查看详情按钮*/
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-details{
+	float: right;
+	font-size: 14px;
+	border-radius: 15px;
+	background: rgba(0,0,0,.6);
+	padding: 0 10px;
+	color: #FFF;
+	line-height: 30px;
+	height: 30px;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-yytf .ck-yytf-bottom .ck-yytf-details{
+	font-size: 18px;
+	border-radius: 20px;
+	line-height: 40px;
+	height: 40px;
+}
+.ckplayer-ckplayer .ck-main .ck-yytf .ck-yytf-bottom .ck-yytf-details a{
+	color: #FFF;
+	text-decoration: none;
+}
+/*暂停广告容器*/
+.ckplayer-ckplayer .ck-main .ck-pause-yytf{
+	display: none;
+	position:absolute;
+	z-index: 800;
+	max-width: 100%;
+	max-height: 100%;
+	top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto; 
+}
+.ckplayer-ckplayer .ck-main .ck-pause-yytf img{
+	max-width: 100%;
+	max-height: 100%;
+}
+.ckplayer-ckplayer .ck-main .ck-pause-close{
+	position:absolute;
+	z-index: 1;
+	right: -15px;
+	top:-15px;
+	width: 30px;
+	height: 30px;
+	background-color: transparent;
+	background-image: url(images/adclose.png);
+	border: none;
+	outline: none;
+	cursor: pointer;
+	background-repeat: no-repeat ;
+}
+.ckplayer-ckplayer .ck-main .ck-pause-close:hover{
+	background-position:-30px 0;
+}
+/*右键菜单*/
+.ckplayer-ckplayer-menu{
+	width:120px;
+	background: rgba(0,0,0,.8);
+	position: absolute;
+	z-index: 9000;
+	font-size:14px ;
+	border: 1px #000 solid;
+	display: none;
+	border-radius: 5px;
+}
+.ckplayer-ckplayer-menu .ck-li{
+	color: #adadad;
+	line-height: 35px;
+	padding: 0 0 0 5px;
+}
+.ckplayer-ckplayer-menu .ck-li a{
+	color: #FFF;
+	text-decoration: none;
+}
+.ckplayer-ckplayer-menu .ck-underline{
+	border-bottom: 1px #000 solid;
+} 
+/*控制栏*/
+.ckplayer-ckplayer .ck-main .ck-bar{
+	position:absolute;
+	z-index: 260;
+	left:0px;
+	bottom:0px;
+	width: 100%;
+	height: 48px;
+	background: rgba(0,0,0,.3);
+	transition: 0.2s;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar{
+	height: 70px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar.ck-bar-out{
+	bottom: -50px;
+	transition: 0.2s;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar.ck-bar-out{
+	bottom: -80px;
+	transition: 0.2s;
+}
+
+/*按钮公用样式*/
+.ckplayer-ckplayer .ck-main .ck-bar-btn{
+	background-color: transparent;
+	background-image: url(images/ckplayer_ixigua.48.png);
+	background-size: auto 100%;
+	border: none;
+	outline: none;
+	width: 48px;
+	height: 48px;
+	cursor: pointer;
+	background-repeat: no-repeat ;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar-btn{
+	background-image: url(images/ckplayer_ixigua.png);
+	width: 70px;
+	height: 70px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-btn:hover{
+	background-size:auto 100%;
+}
+
+/*播放暂停按钮组*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playandpause{
+	float: left;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playandpause .ck-btn-play{
+	background-position:0px top;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playandpause .ck-btn-play:hover{
+	background-position:-48px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-playandpause .ck-btn-play:hover{
+	background-position:-70px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playandpause .ck-btn-pause{
+	background-position:-96px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-playandpause .ck-btn-pause{
+	background-position:-140px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playandpause .ck-btn-pause:hover{
+	background-position:-144px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-playandpause .ck-btn-pause:hover{
+	background-position:-210px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playandpause .ck-btn-refresh{
+	background-position:-192px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-playandpause .ck-btn-refresh{
+	background-position:-280px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playandpause .ck-btn-refresh:hover{
+	background-position:-240px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-playandpause .ck-btn-refresh:hover{
+	background-position:-350px 0;
+}
+
+/*返回播放按钮*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-btn-backlive{
+	float: left;
+	font-size: 16px;
+	line-height: 28px;
+	border-radius: 3px;
+	margin: 10px;
+	border: 0px;
+	background: rgba(3,60,146,.5);
+	color: #FFF;
+	cursor: pointer;
+	padding: 0 8px;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-btn-backlive{
+	font-size: 18px;
+	line-height: 36px;
+	margin: 17px 10px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-btn-backlive:hover{
+	background: rgba(3,60,146,.9);
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-btn-backlive:focus{
+	outline:0;
+	background: rgba(3,60,146,.6);
+}
+/*静音取消静音按钮组*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-btn-muted{
+	background-position:-288px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-volumebox .ck-btn-muted{
+	background-position:-420px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-btn-muted:hover{
+	background-position:-336px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-volumebox .ck-btn-muted:hover{
+	background-position:-490px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-btn-exitmuted{
+	background-position:-384px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-volumebox .ck-btn-exitmuted{
+	background-position:-560px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-btn-exitmuted:hover{
+	background-position:-432px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-volumebox .ck-btn-exitmuted:hover{
+	background-position:-630px 0;
+}
+
+/*全屏按钮组*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-fullandexit{
+	float: right;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-fullandexit .ck-btn-full{
+	background-position:-480px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-fullandexit .ck-btn-full{
+	background-position:-700px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-fullandexit .ck-btn-full:hover{
+	background-position:-528px 0;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-name: ck-button-hover;
+	animation-name: ck-button-hover;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-fullandexit .ck-btn-full:hover{
+	background-position:-770px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-fullandexit .ck-btn-exitfull{
+	background-position:-672px 0;
+	display: none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-fullandexit .ck-btn-exitfull{
+	background-position:-840px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-fullandexit .ck-btn-exitfull:hover{
+	background-position:-720px 0;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-name: ck-button-hover;
+	animation-name: ck-button-hover;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-fullandexit .ck-btn-exitfull:hover{
+	background-position:-910px 0;
+}
+
+/*网页全屏按钮组*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-webfullandexit{
+	float: right;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-webfullandexit .ck-btn-webfull{
+	background-position:-768px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-webfullandexit .ck-btn-webfull{
+	background-position:-1120px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-webfullandexit .ck-btn-webfull:hover{
+	background-position:-816px 0;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-name: ck-button-hover;
+	animation-name: ck-button-hover;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-webfullandexit .ck-btn-webfull:hover{
+	background-position:-1190px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-webfullandexit .ck-btn-exitwebfull{
+	background-position:-864px 0;
+	display: none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-webfullandexit .ck-btn-exitwebfull{
+	background-position:-1260px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-webfullandexit .ck-btn-exitwebfull:hover{
+	background-position:-912px 0;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-name: ck-button-hover;
+	animation-name: ck-button-hover;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-webfullandexit .ck-btn-exitwebfull:hover{
+	background-position:-1330px 0;
+}
+
+/*剧场模式按钮组*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-theatreandexit{
+	float: right;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-theatreandexit .ck-btn-theatre{
+	background-position:-960px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-theatreandexit .ck-btn-theatre{
+	background-position:-1400px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-theatreandexit .ck-btn-theatre:hover{
+	background-position:-1008px 0;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-name: ck-button-hover-x;
+	animation-name: ck-button-hover-x;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-theatreandexit .ck-btn-theatre:hover{
+	background-position:-1470px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-theatreandexit .ck-btn-exittheatre{
+	background-position:-1056px 0;
+	display: none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-theatreandexit .ck-btn-exittheatre{
+	background-position:-1540px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-theatreandexit .ck-btn-exittheatre:hover{
+	background-position:-1104px 0;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-name: ck-button-hover-x;
+	animation-name: ck-button-hover-x;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-theatreandexit .ck-btn-exittheatre:hover{
+	background-position:-1610px 0;
+}
+/*播放速度*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playbackrate-box{
+	float: right;
+	height: 48px;
+	line-height: 48px;
+	position: relative;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-playbackrate-box{
+	height: 70px;
+	line-height: 70px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playbackrate-box .ck-bar-playbackrate{
+	height: 100%;
+	padding: 0 10px;
+	white-space:nowrap;
+	font-size: 16px;
+	color: #cfcccc;
+	-moz-user-select:none; /*火狐*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -ms-user-select:none; /*IE10*/
+    -khtml-user-select:none; /*早期浏览器*/
+    user-select:none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-playbackrate-box .ck-bar-playbackrate{
+	font-size: 18px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playbackrate-box .ck-bar-playbackrate:hover{
+	color: #FFF;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playbackrate-box .ck-bar-playbackrate-bg-box {
+	width: auto;
+	height: auto;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-playbackrate-box:hover .ck-bar-playbackrate-bg-box {
+	display: block;
+}
+/*字幕*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-track-box{
+	float: right;
+	height: 48px;
+	line-height: 48px;
+	position: relative;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-track-box{
+	height: 70px;
+	line-height: 70px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-track-box .ck-bar-track{
+	height: 100%;
+	padding: 0 10px;
+	white-space:nowrap;
+	font-size: 16px;
+	color: #cfcccc;
+	-moz-user-select:none; /*火狐*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -ms-user-select:none; /*IE10*/
+    -khtml-user-select:none; /*早期浏览器*/
+    user-select:none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-track-box .ck-bar-track{
+	font-size: 18px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-track-box .ck-bar-track:hover{
+	color: #FFF;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-track-box .ck-bar-track-bg-box {
+	width: auto;
+	height: auto;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-track-box:hover .ck-bar-track-bg-box {
+	display: block;
+}
+/*清晰度*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-definition-box{
+	float: right;
+	height: 48px;
+	line-height: 48px;
+	position: relative;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-definition-box{
+	height: 70px;
+	line-height: 70px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-definition-box .ck-bar-definition{
+	height: 100%;
+	padding: 0 10px;
+	white-space:nowrap;
+	font-size: 16px;
+	color: #cfcccc;
+	-moz-user-select:none; /*火狐*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -ms-user-select:none; /*IE10*/
+    -khtml-user-select:none; /*早期浏览器*/
+    user-select:none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-definition-box .ck-bar-definition{
+	font-size: 18px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-definition-box .ck-bar-definition:hover{
+	color: #FFF;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-definition-box .ck-bar-definition-bg-box {
+	width: auto;
+	height: auto;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-definition-box:hover .ck-bar-definition-bg-box {
+	display: block;
+}
+/*列表切换*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-list-bg-box {
+	background: rgba(0,0,0,.001);
+	position: absolute;
+	z-index: 1;
+	bottom: 46px;
+	display: none;
+	-webkit-animation-duration: .2s;
+	animation-duration: .2s;
+	-webkit-animation-name: ck-bounceIn;
+	animation-name: ck-bounceIn;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-list-bg-box {
+	bottom: 68px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-list-bg-box .ck-list-bg{
+	background: rgba(0,0,0,.6);
+	float: left;
+	border-radius: 5px;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-list-bg-box .ck-list-bg .ck-list-p{
+	width: 100%;
+	float: left;
+	line-height: 35px;
+	color: #cfcccc;
+	text-align: center;
+	font-size: 14px;
+	background-color: rgba(0,0,0,0);
+	border: 0px;
+	white-space:nowrap;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-list-bg-box .ck-list-bg .ck-list-p:hover{
+	color: #FFF;
+	font-size: 16px;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-list-bg-box .ck-list-bg .ck-list-p:hover{
+	font-size: 20px;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-list-bg-box .ck-list-bg .ck-list-p{
+	font-size: 18px;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-list-bg-box .ck-list-bg .ck-list-p-focus{
+	color: #FF0302;
+}
+/*下一集按钮*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-next{
+	float: left;
+	background-position:-672px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-next{
+	background-position:-980px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-next:hover{
+	background-position:-720px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-next:hover{
+	background-position:-1050px 0;
+}
+/*进度栏*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress{
+	width: 100%;
+	position:absolute;
+	z-index: 1;
+	height: 12px;
+	top:-11px;
+	transition: 0.2s;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-bg{
+	width: 100%;
+	background: rgba(255,255,255,.3);
+	margin-top: 2px;
+	overflow: hidden;
+	height: 10px;
+	transition: .2s;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-bg .ck-bar-progress-load{
+	float: left;
+	width: 0px;
+	background: rgba(169,169,169,.7);
+	height: 10px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-bg .ck-bar-progress-play{
+	width: 0px;
+	background: #e80101;
+	position: absolute;
+	z-index: 1;
+	height: 10px;
+	transition: .2s;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-bg .ck-bar-progress-mouseline{
+	width: 3px;
+	background: rgba(255,255,255,.6);
+	position: absolute;
+	z-index: 2;
+	display: none;
+	height: 10px;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-bg .ck-bar-progress-prompt{
+	background: #FFF;
+	position: absolute;
+	z-index: 3;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	top:2px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-slider{
+	border-radius: 50%;
+	overflow: hidden;
+	position: relative;
+	float: left;
+	z-index: 4;
+    left: 0px;
+    cursor: pointer;
+	width: 12px;
+	height: 12px;
+	top: -11px;
+	background: #FFF;
+	box-shadow: 0px 0px 0px 4px rgba(255,255,255,.5);	
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-slider:hover{
+	background: #e80101;	
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress .ck-bar-progress-bg:hover .ck-bar-progress-mouseline{
+	display: block;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-out{
+	height: 2px;
+	top:-2px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-out .ck-bar-progress-bg,.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-out .ck-bar-progress-load,.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-out .ck-bar-progress-bg .ck-bar-progress-play{
+	height: 2px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-out .ck-bar-progress-slider{
+	width: 12px;
+	height: 2px;
+	top: -2px;
+	box-shadow: 0px 0px 0px 0px rgba(255,255,255,0);
+	background: rgba(232,1,1,0);
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-out .ck-bar-progress-bg .ck-bar-progress-prompt{
+	height: 2px;
+	border-radius: 0;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-slider-move .ck-bar-progress-play,.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-progress.ck-bar-progress-slider-move .ck-bar-progress-slider{
+	transition: 0s;
+}
+
+/*音量调节栏*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox{
+	float: right;
+	width: 48px;
+	overflow-x: hidden;
+}
+/*音量调节栏*/
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-volumebox{
+	width: 70px;
+}
+/*默认状态-音量调节总外框*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-bar-volume{
+	width: 48px;
+	height: 215px;
+	background: rgba(0,0,0,.01);
+	position: absolute;
+	z-index: 1;
+	bottom: 46px;
+	display: none;
+	overflow: hidden;
+}
+/*全屏状态-音量调节总外框*/
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-volumebox .ck-bar-volume{
+	width: 70px;
+	bottom: 68px;
+}
+/*默认状态-音量调节总外框-鼠标经过时样式*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox:hover .ck-bar-volume{
+	display: block;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .1s;
+	animation-duration: .1s;
+	-webkit-animation-name: ck-bounceIn;
+	animation-name: ck-bounceIn;
+}
+/*共用状态-音量调节内部外框*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-bar-volumex{
+	width: 100%;
+	height: 200px;
+	float: left;
+	background: rgba(0,0,0,.8);
+	border-radius: 5px;
+}
+/*共用状态-音量调节顶部文字*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-bar-volume .ck-bar-volume-txt{
+	width: 100%;
+	height: 40px;
+	line-height: 40px;
+	color: #FFF;
+	text-align: center;
+	font-size: 1rem;
+	float: left;
+	overflow: hidden;
+	-moz-user-select:none; /*火狐*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -ms-user-select:none; /*IE10*/
+    -khtml-user-select:none; /*早期浏览器*/
+    user-select:none;
+}
+/*共用状态-音量调节背景色*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-bar-volume .ck-bar-volume-bg{
+	width: 8px;
+	height: 140px;
+	background: #808080;
+	border-radius: 3px;
+	overflow: hidden;
+	cursor: pointer;
+	margin: auto;
+}
+/*共用状态-音量调节前景色*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-bar-volume .ck-bar-volume-bg .ck-bar-volume-pp{
+	width: 8px;
+	height: 140px;
+	background: #e80101;
+	margin-top: 140px;
+}
+/*共用状态-音量调节拖动小按钮*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-volumebox .ck-bar-volume .ck-bar-volume-slider{
+	width: 10px;
+	height: 10px;
+	background: #FFF;
+	border-radius: 50%;
+	overflow: hidden;
+	box-shadow: 0px 0px 0px 8px rgba(255,255,255,.5);
+	position: absolute;
+	z-index: 1;
+	top: 0px;
+    left: 19px;
+    cursor: pointer;
+}
+/*全屏状态-音量调节拖动小按钮*/
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-volumebox .ck-bar-volume .ck-bar-volume-slider{
+    left: 30px;
+}
+/*默认状态-显示时间*/
+.ckplayer-ckplayer .ck-main .ck-bar .ck-bar-time{
+	float: left;
+	line-height: 48px;
+	font-size: 16px;
+	color: #cfcccc;
+	-moz-user-select:none; /*火狐*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -ms-user-select:none; /*IE10*/
+    -khtml-user-select:none; /*早期浏览器*/
+    user-select:none;
+}
+/*全屏状态-显示时间*/
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-bar .ck-bar-time{
+	float: left;
+	line-height: 70px;
+	font-size: 18px;
+	color: #cfcccc;
+}
+/*右侧控制栏*/
+.ckplayer-ckplayer .ck-main .ck-right-bar{
+	position: absolute;
+	z-index: 260;
+	top: 0;
+    right: 2px;
+    bottom: 0;
+    margin: auto !important;
+	width: 48px;
+	height: 144px;
+	background: rgba(0,0,0,.3);
+	border-radius: 5px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar-hide{
+	right: -48px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar{
+	width: 70px;
+	height: 210px;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar-hide{
+	right: -70px;
+	transition: .2s;
+}
+/*截图按钮*/
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-btn-screenshot{
+	float: left;
+	background-position:-1536px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-btn-screenshot{
+	background-position:-2240px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-btn-screenshot:hover{
+	background-position:-1584px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-btn-screenshot:hover{
+	background-position:-2310px 0;
+}
+/*小窗口按钮组*/
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-smallwindows{
+	float: left;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-smallwindows button{
+	float: left;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-open{
+	background-position:-1248px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-open{
+	background-position:-1820px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-open:hover{
+	background-position:-1296px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-open:hover{
+	background-position:-1890px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-close{
+	background-position:-1152px 0;
+	display: none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-close{
+	background-position:-1680px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-close:hover{
+	background-position:-1200px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-smallwindows .ck-btn-smallwindows-close:hover{
+	background-position:-1750px 0;
+}
+/*循环按钮组*/
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-loop{
+	float: left;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-loop .ck-btn-loop-open{
+	background-position:-1440px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-loop .ck-btn-loop-open{
+	background-position:-2100px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-loop .ck-btn-loop-open:hover{
+	background-position:-1488px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-loop .ck-btn-loop-open:hover{
+	background-position:-2170px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-loop .ck-btn-loop-close{
+	background-position:-1344px 0;
+	display: none;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-loop .ck-btn-loop-close{
+	background-position:-1960px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-right-bar .ck-right-bar-loop .ck-btn-loop-close:hover{
+	background-position:-1392px 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-right-bar .ck-right-bar-loop .ck-btn-loop-close:hover{
+	background-position:-2030px 0;
+}
+/*顶部显示栏*/
+.ckplayer-ckplayer .ck-main .ck-top-bar{
+	position: absolute;
+	z-index: 260;
+	top: -36px;
+	width: 100%;
+	height: 36px;
+	background: rgba(0,0,0,.3);
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar-hide{
+	top: -36px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-top-bar{
+	top: 0;
+}
+.ckplayer-ckplayer .ck-main.ck-main-full .ck-top-bar-hide{
+	top: -36px;
+	transition: .2s;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom{
+	position: absolute;
+	z-index: 260;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container{
+	float: left;
+	margin-left: 10px;
+	margin-top: 9px;
+	cursor: pointer;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container .ck-top-bar-zoom-left{
+	float: left;
+	width: 20px;
+	height: 18px;
+	border: 1px solid #FFF;
+	box-sizing:content-box;
+	-moz-box-sizing:content-box; /* Firefox */
+	-webkit-box-sizing:content-box; /* Safari */	
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container:hover .ck-top-bar-zoom-left,
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container.ck-top-bar-zoom-container-focus .ck-top-bar-zoom-left{
+	border-color: #e80101;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container:hover .ck-top-bar-zoom-left div,
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container.ck-top-bar-zoom-container-focus .ck-top-bar-zoom-left div{
+	background: #e80101;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container .ck-top-bar-zoom-right{
+	float: left;
+	font-size: 14px;
+	color: #FFF;
+	padding-left: 5px;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container:hover .ck-top-bar-zoom-right,
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container.ck-top-bar-zoom-container-focus .ck-top-bar-zoom-right{
+	color: #e80101;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container .ck-top-bar-zoom-left .ck-top-bar-zoom-button-50{
+	width: 50%;
+	height: 50%;
+	background: #FFF;
+	margin: 4.5px 25%;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container .ck-top-bar-zoom-left .ck-top-bar-zoom-button-75{
+	width: 75%;
+	height: 50%;
+	background: #FFF;
+	margin: 4.5px 12.5%;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-zoom .ck-top-bar-zoom-container .ck-top-bar-zoom-left .ck-top-bar-zoom-button-100{
+	width: 100%;
+	height: 50%;
+	background: #FFF;
+	margin: 4.5px 0;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-title{
+	position: absolute;
+	z-index: 1;
+	top: 0px;
+	width: 100%;
+	height: 36px;
+	line-height: 36px;
+	text-align: center;
+	font-size: 18px;
+	color: #FFF;
+	-moz-user-select:none; /*火狐*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -ms-user-select:none; /*IE10*/
+    -khtml-user-select:none; /*早期浏览器*/
+    user-select:none;
+}
+.ckplayer-ckplayer .ck-main .ck-top-bar .ck-top-bar-time{
+	float: right;
+	height: 36px;
+	line-height: 36px;
+	font-size: 14px;
+	color: #FFF;
+	padding: 0 1rem 0;
+	-moz-user-select:none; /*火狐*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -ms-user-select:none; /*IE10*/
+    -khtml-user-select:none; /*早期浏览器*/
+    user-select:none;
+}
+/*以下为缓动效果样式*/
+.ck-animate {
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+	-webkit-animation-duration: .3s;
+	animation-duration: .3s;
+}
+.ck-animate-bouncein {
+	-webkit-animation-name: ck-bounceIn;
+	animation-name: ck-bounceIn;
+}
+
+@-webkit-keyframes ck-bounceIn {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale(.5);
+		transform: scale(.5)
+	}
+	100% {
+		opacity: 1;
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@keyframes ck-bounceIn {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale(.5);
+		-ms-transform: scale(.5);
+		transform: scale(.5);
+	}
+	100% {
+		opacity: 1;
+		-webkit-transform: scale(1);
+		-ms-transform: scale(1);
+		transform: scale(1);
+	}
+}
+.ck-animate-bounceout {
+	-webkit-animation-name: ck-bounceOut;
+	animation-name: ck-bounceOut;
+}
+
+@-webkit-keyframes ck-bounceOut {
+	0% {
+		opacity: 1;
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: scale(.5);
+		transform: scale(.5);
+	}
+}
+
+@keyframes ck-bounceOut {
+	0% {
+		opacity: 1;
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: scale(.5);
+		transform: scale(.5);
+	}
+}
+
+.ck-animate-circle {
+	animation: ck-Circle 1s linear infinite;
+	-webkit-animation: ck-Circle 1s linear infinite
+}
+
+@-webkit-keyframes ck-Circle {
+	0% {
+		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+		-ms-transform: rotate(0deg)
+	}
+	25% {
+		transform: rotate(90deg);
+		-webkit-transform: rotate(90deg);
+		-ms-transform: rotate(90deg)
+	}
+	50% {
+		transform: rotate(180deg);
+		-webkit-transform: rotate(180deg);
+		-ms-transform: rotate(180deg)
+	}
+	75% {
+		transform: rotate(270deg);
+		-webkit-transform: rotate(270deg);
+		-ms-transform: rotate(270deg)
+	}
+	100% {
+		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg);
+		-ms-transform: rotate(360deg)
+	}
+}
+
+@keyframes ck-Circle {
+	0% {
+		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+		-ms-transform: rotate(0deg)
+	}
+	25% {
+		transform: rotate(90deg);
+		-webkit-transform: rotate(90deg);
+		-ms-transform: rotate(90deg)
+	}
+	50% {
+		transform: rotate(180deg);
+		-webkit-transform: rotate(180deg);
+		-ms-transform: rotate(180deg)
+	}
+	75% {
+		transform: rotate(270deg);
+		-webkit-transform: rotate(270deg);
+		-ms-transform: rotate(270deg)
+	}
+	100% {
+		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg);
+		-ms-transform: rotate(360deg)
+	}
+}
+
+@-webkit-keyframes ck-button-hover {
+	0% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+	50% {
+		-webkit-transform: scale(1.2);
+		transform: scale(1.2);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@keyframes ck-button-hover {
+	0% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+	50% {
+		-webkit-transform: scale(1.2);
+		transform: scale(1.2);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@-webkit-keyframes ck-button-hover-x {
+	0% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+	50% {
+		-webkit-transform: scale(1.2,1);
+		transform: scale(1.2,1);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@keyframes ck-button-hover-x {
+	0% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+	50% {
+		-webkit-transform: scale(1.2,1);
+		transform: scale(1.2,1);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}

@@ -21,7 +21,6 @@ public enum FileType {
     MEDIA("mediaFilePreviewImpl"),
     MARKDOWN("markdownFilePreviewImpl"),
     XML("xmlFilePreviewImpl"),
-    FLV("flvFilePreviewImpl"),
     CAD("cadFilePreviewImpl"),
     TIFF("tiffFilePreviewImpl"),
     OFD("ofdFilePreviewImpl"),
@@ -111,7 +110,6 @@ public enum FileType {
         }
         FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
         FILE_TYPE_MAPPER.put("pdf", FileType.PDF);
-        FILE_TYPE_MAPPER.put("flv", FileType.FLV);
         FILE_TYPE_MAPPER.put("bpmn", FileType.BPMN);
     }
 
