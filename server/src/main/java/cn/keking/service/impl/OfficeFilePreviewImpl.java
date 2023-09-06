@@ -60,8 +60,12 @@ public class OfficeFilePreviewImpl implements FilePreview {
         if (!officePreviewType.equalsIgnoreCase("html")) {
             if (ConfigConstants.getOfficeTypeWeb() .equalsIgnoreCase("web")) {
                 if (suffix.equalsIgnoreCase("xlsx")) {
-                    model.addAttribute("pdfUrl", url);
+                    model.addAttribute("pdfUrl", KkFileUtils.htmlEscape(url)); //特殊符号处理
                     return XLSX_FILE_PREVIEW_PAGE;
+                }
+                if (suffix.equalsIgnoreCase("csv")) {
+                    model.addAttribute("pdfUrl", KkFileUtils.htmlEscape(url));
+                    return CSV_FILE_PREVIEW_PAGE;
                 }
             }
         }
