@@ -38,7 +38,13 @@
         canvas.width = pages[p].width;
         canvas.height = pages[p].height;
         const ctx = canvas.getContext('2d');
-        const imageData = ctx.createImageData(canvas.width, canvas.height);
+       var  imageData = null;
+     try{
+    imageData = ctx.createImageData(canvas.width, canvas.height);
+} catch(e){
+    console.log("错误:" + e);
+     alert("文件错误/或文件类型不正确,修改正确的文件类型比如后缀名为JPG!");
+}
         for (let i = 0; i < rgba.length; i++) {
             imageData.data[i] = rgba[i];
         }
