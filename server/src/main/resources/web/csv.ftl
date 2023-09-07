@@ -13,12 +13,12 @@
 <script src="xspreadsheet/zh-cn.js"></script>
 <script src="js/base64.min.js" type="text/javascript"></script>
 </head>
-	<#if pdfUrl?contains("http://") || pdfUrl?contains("https://")>
-    <#assign finalUrl="${pdfUrl}">
-    <#elseif pdfUrl?contains("ftp://") >
-  <#assign finalUrl="${pdfUrl}">
+	<#if csvUrl?contains("http://") || csvUrl?contains("https://")>
+    <#assign finalUrl="${csvUrl}">
+    <#elseif csvUrl?contains("ftp://") >
+  <#assign finalUrl="${csvUrl}">
 <#else>
-    <#assign finalUrl="${baseUrl}${pdfUrl}">
+    <#assign finalUrl="${baseUrl}${csvUrl}">
 </#if>
 <body>
 <div id="htmlout"></div>
