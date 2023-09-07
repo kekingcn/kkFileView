@@ -86,8 +86,9 @@ html += "    <p>有任何疑问，请加入kk开源社区知识星球咨询：<a
 html += "</div>";
 html += "</body>";
 html += "</html>";
-   document.write(html);
-	document.close();
+document.write(html);
+document.close();
+return;
 }
         for (let i = 0; i < rgba.length; i++) {
             imageData.data[i] = rgba[i];
