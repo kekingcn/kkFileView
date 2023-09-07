@@ -32,7 +32,7 @@ public interface FilePreview {
     String DRAWUI_FILE_PREVIEW_PAGE = "drawio";
     String NOT_SUPPORTED_FILE_PAGE = "fileNotSupported";
     String XLSX_FILE_PREVIEW_PAGE = "officeweb";
-    String CSV_FILE_PREVIEW_PAGE = "officecsv";
+    String CSV_FILE_PREVIEW_PAGE = "csv";
 
     String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);
 }
