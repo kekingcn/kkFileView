@@ -38,7 +38,58 @@
         canvas.width = pages[p].width;
         canvas.height = pages[p].height;
         const ctx = canvas.getContext('2d');
-        const imageData = ctx.createImageData(canvas.width, canvas.height);
+       var  imageData = null;
+     try{
+    imageData = ctx.createImageData(canvas.width, canvas.height);
+} catch(e){
+    console.log("错误:" + e);
+var html = "";
+html += "<head>";
+html += "    <meta charset=\"utf-8\"/>";
+html += "    <style type=\"text/css\">";
+html += "        body {";
+html += "            margin: 0 auto;";
+html += "            width: 900px;";
+html += "            background-color: #CCB;";
+html += "        }";
+html += "";
+html += "        .container {";
+html += "            width: 700px;";
+html += "            height: 700px;";
+html += "            margin: 0 auto;";
+html += "        }";
+html += "";
+html += "        img {";
+html += "            width: auto;";
+html += "            height: auto;";
+html += "            max-width: 100%;";
+html += "            max-height: 100%;";
+html += "            padding-bottom: 36px;";
+html += "        }";
+html += "";
+html += "        span {";
+html += "            display: block;";
+html += "            font-size: 20px;";
+html += "            color: blue;";
+html += "        }";
+html += "    </style>";
+html += "</head>";
+html += "";
+html += "<body>";
+html += "<div class=\"container\">";
+html += "    <img src=\"images/sorry.jpg\"/>";
+html += "    <span>";
+html += "        该(tif)文件，系统解析错误，具体原因如下：";
+html += "        <p style=\"color: red;\">文件[${file.name}]解析失败，请联系系统管理员</p>";
+html += "    </span>";
+html += "    <p>有任何疑问，请加入kk开源社区知识星球咨询：<a href=\"https://t.zsxq.com/09ZHSXbsQ\">https://t.zsxq.com/09ZHSXbsQ</a><br></p>";
+html += "</div>";
+html += "</body>";
+html += "</html>";
+document.write(html);
+document.close();
+return;
+}
         for (let i = 0; i < rgba.length; i++) {
             imageData.data[i] = rgba[i];
         }
