@@ -14,7 +14,7 @@
 <input hidden id="textData" value="${textData}"/>
 <#if "${file.suffix?html}" == "txt" || "${file.suffix?html}" == "log"  || "${file.suffix?html}" == "TXT"  || "${file.suffix?html}" == "LOG">
   <style type="text/css">
-DIV.black{line-height:25px;PADDING-RIGHT:1px;PADDING-LEFT:1px;FONT-SIZE:100%;MARGIN:1px;COLOR:#fff;BACKGROUND-COLOR:#000;TEXT-ALIGN:left}
+DIV.black{line-height:25px;PADDING-RIGHT:1px;PADDING-LEFT:1px;FONT-SIZE:100%;MARGIN:1px;COLOR:#909090;BACKGROUND-COLOR:#000;TEXT-ALIGN:left}
 DIV.black A{BORDER-RIGHT:#909090 1px solid;PADDING-RIGHT:5px;BACKGROUND-POSITION:50% bottom;BORDER-TOP:#909090 1px solid;PADDING-LEFT:5px;BACKGROUND-IMAGE:url();PADDING-BOTTOM:2px;BORDER-LEFT:#909090 1px solid;COLOR:#fff;MARGIN-RIGHT:3px;PADDING-TOP:2px;BORDER-BOTTOM:#909090 1px solid;TEXT-DECORATION:none}
 DIV.black A:hover{BORDER-RIGHT:#f0f0f0 1px solid;BORDER-TOP:#f0f0f0 1px solid;BACKGROUND-IMAGE:BORDER-LEFT:#f0f0f0 1px solid;COLOR:#ffffff;BORDER-BOTTOM:#f0f0f0 1px solid;BACKGROUND-COLOR:#404040}
 DIV.black A:active{BORDER-RIGHT:#f0f0f0 1px solid;BORDER-TOP:#f0f0f0 1px solid;BACKGROUND-IMAGE:BORDER-LEFT:#f0f0f0 1px solid;COLOR:#ffffff;BORDER-BOTTOM:#f0f0f0 1px solid;BACKGROUND-COLOR:#404040}
@@ -47,14 +47,9 @@ background-color:#000000
         </div>
     </div>
 </div>
-
-
  <script type="text/javascript">
         var base64data = $("#textData").val()
         var s = Base64.decode(base64data);
-	  // s=s.replace(/。/g,"。<br>");
-           // $("#xml").hide()
-         //对img标签进行匹配
          var imgReg = /(<img\s+src='\S+'\s*(\/)?>)/gi;
          matchContent = s.match(imgReg);
          imgContent = s;
@@ -63,18 +58,16 @@ background-color:#000000
             //将img标签替换为❈
             imgContent =  s.replace(imgReg,"❈");
          }
-
+        var Length= 20000;
         // 封装DHTMLpagenation
         function DHTMLpagenation(content)
         {
             this.content=content; // 内容
             this.contentLength=imgContent.length; // 内容长度
             this.pageSizeCount; // 总页数
-            this.perpageLength= 20000; //default perpage byte length.
+            this.perpageLength= Length; //default perpage byte length.
             this.currentPage=1; // 起始页为第1页
-            //this.regularExp=/.+[\?\&]{1}page=(\d+)/;
             this.regularExp=/\d+/; // 建立正则表达式，匹配数字型字符串。
-
             this.divDisplayContent;
             this.contentStyle=null;
             this.strDisplayContent="";
@@ -132,7 +125,6 @@ background-color:#000000
                     return false;
                 }
             }
-
             DHTMLpagenation.initialize();
             return this;
 
@@ -142,7 +134,6 @@ background-color:#000000
         //包括把加入CSS，检查是否需要分页
         DHTMLpagenation.initialize=function()
         {
-
             divDisplayContent.className= contentStyle != null ? contentStyle : "divContent";
 
             if(contentLength<=perpageLength)
@@ -159,15 +150,14 @@ background-color:#000000
             DHTMLpagenation.displayContent();
         };
 
-        //显示分页栏
+       //显示分页栏
         DHTMLpagenation.displayPage=function()
         {
-
             strDisplayPagenation="";
-
             if(currentPage && currentPage !=1)
             {
-                strDisplayPagenation+='<a href="javascript:void(0)" onclick="DHTMLpagenation.previous()">上一页</a>  ';
+             
+                 strDisplayPagenation+='<button  onclick="DHTMLpagenation.previous()">上一页</button>';
             }
             else
             {
@@ -178,7 +168,8 @@ background-color:#000000
             {
                 if(i!=currentPage)
                 {
-                    strDisplayPagenation+='<a href="javascript:void(0)" onclick="DHTMLpagenation.goto('+i+');">'+i+'</a>  ';
+                  
+                     strDisplayPagenation+='<button onclick="DHTMLpagenation.goto('+i+');">'+i+'</button>';
                 }
                 else
                 {
@@ -188,18 +179,14 @@ background-color:#000000
 
             if(currentPage && currentPage!=pageSizeCount)
             {
-                strDisplayPagenation+='<a href="javascript:void(0)" onclick="DHTMLpagenation.next()">下一页</a>  ';
+             strDisplayPagenation+='<button  onclick="DHTMLpagenation.next()">下一页</button>';
             }
             else
             {
                 strDisplayPagenation+="下一页  ";
             }
-
-            strDisplayPagenation+="共 " + pageSizeCount + " 页。<br>每页" + perpageLength + " 字符，调整字符数：<input type='text' value='"+perpageLength+"' id='ctlPerpageLength' /><input type='button' value='确定' onclick='DHTMLpagenation.change()' />";
-
-            divDisplayPagenation.innerHTML=strDisplayPagenation;
-
-
+           strDisplayPagenation+="共 " + pageSizeCount + " 页。<br>每页" + perpageLength + " 字符，调整字符数：<input type='text' value='"+perpageLength+"' id='ctlPerpageLength' /><input type='button' value='确定' onclick='DHTMLpagenation.change()' />";
+          divDisplayPagenation.innerHTML=strDisplayPagenation;
          };
 
         //上一页
@@ -218,21 +205,16 @@ background-color:#000000
         //跳转至某一页
         DHTMLpagenation.goto=function(iCurrentPage)
         {
-            startime=new Date();
             if(regularExp.test(iCurrentPage))
             {
                 currentPage=iCurrentPage;
 
                 var tempContent = "";
-
                 //获取当前的内容 里面包含 ❈
                 var currentContent = imgContent.substr((currentPage-1)*perpageLength,perpageLength);
-
                 tempContent = currentContent;
-
                 //当前页是否有 ❈ 获取最后一个 ❈ 的位置
                 var indexOf = currentContent.indexOf("❈");
-
                 if(indexOf >= 0)
                 {
                       //获取从开始位置到当前页位置的内容
@@ -246,10 +228,6 @@ background-color:#000000
                       tempContent = replaceStr(contentArray,reCount,matchContent);
 
                 }
-//                else
-//                {
-//                    tempContent=imgContent.substr((currentPage-1)*perpageLength,perpageLength);
-//                }
 
                 strDisplayContent=tempContent;
             }
@@ -274,10 +252,6 @@ background-color:#000000
             if(regularExp.test(iPerpageLength))
             {
 
-//                DHTMLpagenation.perpageLength=iPerpageLength;
-//                DHTMLpagenation.currentPage=1;
-//                DHTMLpagenation.initialize();
-
                 DHTMLpagenation(s,iPerpageLength);
             }
             else
@@ -292,7 +266,6 @@ background-color:#000000
         */
         function replaceStr(currentArray,replaceCount,matchArray)
         {
-
             var result = "";
             for(var i=currentArray.length -1,j = replaceCount-1 ;i>=1; i--)
             {
@@ -308,10 +281,8 @@ background-color:#000000
 
             return result;
         }
-
-
-        DHTMLpagenation(s,20000);
-
+       
+         DHTMLpagenation(s,Length);
 
 		   /**
      * 初始化
@@ -319,11 +290,8 @@ background-color:#000000
     window.onload = function () {
         initWaterMark();
     }
-    </script>
-
-
+</script>
  <#else/>
-
 <div class="container">
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -359,8 +327,5 @@ background-color:#000000
     }
 </script>
 	 </#if>
-
-
 </body>
-
 </html>
