@@ -469,7 +469,7 @@ public class FileHandlerService implements InitializingBean {
             if (StringUtils.hasText(userToken)) {
                 attribute.setUserToken(userToken);
             }
-            String kkProxyAuthorization = req.getParameter( "kk-proxy-authorization");
+            String kkProxyAuthorization = req.getHeader( "kk-proxy-authorization");
             attribute.setKkProxyAuthorization(kkProxyAuthorization);
 
         }
