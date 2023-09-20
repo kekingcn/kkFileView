@@ -75,12 +75,21 @@
                 <th>赞助人</th>
                 <th>赞助金额</th>
                 <th>赞助时间</th>
+                <th>备注</th>
             </tr>
 
             <tr>
                 <td>陈**</td>
                 <td>99</td>
                 <td>2023-03-14</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td>微宏科技</td>
+                <td>99</td>
+                <td>2023-09-20</td>
+                <td>支持开源</td>
             </tr>
         </table>
     </div>
