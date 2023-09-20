@@ -3,6 +3,7 @@ package cn.keking.utils;
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.ReturnResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -12,11 +13,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 import static cn.keking.utils.KkFileUtils.isFtpUrl;
 import static cn.keking.utils.KkFileUtils.isHttpUrl;
-
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.RestTemplate;
 /**
  * @author yudian-it
  */
@@ -27,6 +36,9 @@ public class DownloadUtils {
     private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
     private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
+    private static final RestTemplate restTemplate = new RestTemplate();
+    private static final ObjectMapper mapper = new ObjectMapper();
+
 
     /**
      * @param fileAttribute fileAttribute
@@ -75,7 +87,20 @@ public class DownloadUtils {
             if (!fileAttribute.getSkipDownLoad()) {
                 if (isHttpUrl(url)) {
                     File realFile = new File(realPath);
-                    FileUtils.copyURLToFile(url, realFile);
+                    RequestCallback requestCallback = request -> {
+                        request.getHeaders()
+                                .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
+                       String proxyAuthorization = fileAttribute.getKkProxyAuthorization();
+                        if(StringUtils.hasText(proxyAuthorization)){
+                          Map<String,String>  proxyAuthorizationMap = mapper.readValue(proxyAuthorization, Map.class);
+                          proxyAuthorizationMap.entrySet().forEach(entry-> request.getHeaders().set(entry.getKey(), entry.getValue()));
+                        }
+                    };
+                    urlStr = URLDecoder.decode(urlStr, StandardCharsets.UTF_8.name());
+                    restTemplate.execute(urlStr, HttpMethod.GET, requestCallback, fileResponse -> {
+                        FileUtils.copyToFile(fileResponse.getBody(), realFile);
+                        return null;
+                    });
                 } else if (isFtpUrl(url)) {
                     String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                     String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
