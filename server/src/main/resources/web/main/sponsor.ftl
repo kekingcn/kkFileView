@@ -85,12 +85,6 @@
                 <td></td>
             </tr>
 
-            <tr>
-                <td>微宏科技</td>
-                <td>99</td>
-                <td>2023-09-20</td>
-                <td>支持开源</td>
-            </tr>
         </table>
     </div>
 </div>
