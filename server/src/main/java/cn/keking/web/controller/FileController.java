@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static cn.keking.utils.CaptchaUtil.captcha_code;
-import static cn.keking.utils.CaptchaUtil.captcha_generate_time;
+import static cn.keking.utils.CaptchaUtil.CAPTCHA_CODE;
+import static cn.keking.utils.CaptchaUtil.CAPTCHA_GENERATE_TIME;
 
 /**
  * @author yudian-it
@@ -88,7 +88,7 @@ public class FileController {
             logger.error(msg);
             return ReturnResponse.failure(msg);
         }
-        WebUtils.removeSessionAttr(request, captcha_code); //删除缓存验证码
+        WebUtils.removeSessionAttr(request, CAPTCHA_CODE); //删除缓存验证码
         return ReturnResponse.success();
     }
 
@@ -105,16 +105,16 @@ public class FileController {
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
         response.setDateHeader("Expires", -1);
-        String captchaCode = WebUtils.getSessionAttr(request, captcha_code);
-        long captchaGenerateTime = WebUtils.getLongSessionAttr(request, captcha_generate_time);
+        String captchaCode = WebUtils.getSessionAttr(request, CAPTCHA_CODE);
+        long captchaGenerateTime = WebUtils.getLongSessionAttr(request, CAPTCHA_GENERATE_TIME);
         long timeDifference = DateUtils.calculateCurrentTimeDifference(captchaGenerateTime);
 
         // 验证码为空，且生成验证码超过50秒，重新生成验证码
         if (timeDifference > 50 && ObjectUtils.isEmpty(captchaCode)) {
             captchaCode = CaptchaUtil.generateCaptchaCode();
             // 更新验证码
-            WebUtils.setSessionAttr(request, captcha_code, captchaCode);
-            WebUtils.setSessionAttr(request, captcha_generate_time, DateUtils.getCurrentSecond());
+            WebUtils.setSessionAttr(request, CAPTCHA_CODE, captchaCode);
+            WebUtils.setSessionAttr(request, CAPTCHA_GENERATE_TIME, DateUtils.getCurrentSecond());
         } else {
             captchaCode = ObjectUtils.isEmpty(captchaCode) ? "wait" : captchaCode;
         }
@@ -195,7 +195,7 @@ public class FileController {
             return ReturnResponse.failure("密码 or 验证码为空，删除失败！");
         }
 
-        String expectedPassword = ConfigConstants.getDeleteCaptcha() ? WebUtils.getSessionAttr(request, captcha_code) : ConfigConstants.getPassword();
+        String expectedPassword = ConfigConstants.getDeleteCaptcha() ? WebUtils.getSessionAttr(request, CAPTCHA_CODE) : ConfigConstants.getPassword();
 
         if (!password.equalsIgnoreCase(expectedPassword)) {
             logger.error("删除文件【{}】失败，密码错误！", fileName);
