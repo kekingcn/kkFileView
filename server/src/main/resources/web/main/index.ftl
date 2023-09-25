@@ -8,7 +8,6 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/loading.css"/>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css"/>
     <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css"/>
     <link rel="stylesheet" href="css/theme.css"/>
     <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
@@ -35,11 +34,12 @@
                 <h4 class="modal-title">删除文件</h4>
             </div>
             <br>
+            <input type="text" id="deleteCaptchaFileName" style="display: none">
             <div class="modal-body input-group">
-                    <span style="display: table-cell; vertical-align: middle;">
-                        <img id="deleteCaptchaImg" alt="deleteCaptchaImg" src="${baseUrl}deleteFile/captcha">
-                        &nbsp;&nbsp;&nbsp;&nbsp;
-                    </span>
+                <span style="display: table-cell; vertical-align: middle;">
+                    <img id="deleteCaptchaImg" alt="deleteCaptchaImg" src="">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                </span>
                 <input type="text" id="deleteCaptchaText" class="form-control" placeholder="请输入验证码">
             </div>
             <div class="modal-footer" style="text-align: center">
@@ -145,7 +145,7 @@
     </div>
 </div>
 
-<div class="loading_container">
+<div class="loading_container" style="position: fixed;">
     <div class="spinner">
         <div class="spinner-container container1">
             <div class="circle1"></div>
@@ -179,25 +179,24 @@
         $("#deleteCaptchaImg").click(function() {
             $("#deleteCaptchaImg").attr("src","${baseUrl}deleteFile/captcha?timestamp=" + new Date().getTime());
         });
-        function deleteFile(fileName) {
-            $("#deleteCaptchaModal").modal("show");
-            $("#deleteCaptchaConfirmBtn").click(function() {
-                var deleteCaptchaText = $("#deleteCaptchaText").val();
-                $.ajax({
-                    url: '${baseUrl}deleteFile?fileName=' + fileName +'&password=' + deleteCaptchaText,
-                    success: function(data) {
-                        if ("删除文件失败，密码错误！" === data.msg) {
-                            alert(data.msg);
-                        } else {
-                            //刷新验证码
-                            $("#deleteCaptchaImg").click();
-                            $('#table').bootstrapTable("refresh", {});
-                            $("#deleteCaptchaText").val("")
-                            $("#deleteCaptchaModal").modal("hide");
-                        }
-                    }
-                })
+        $("#deleteCaptchaConfirmBtn").click(function() {
+            var fileName = $("#deleteCaptchaFileName").val();
+            var deleteCaptchaText = $("#deleteCaptchaText").val();
+            $.get('${baseUrl}deleteFile?fileName=' + fileName +'&password=' + deleteCaptchaText, function(data){
+                if ("删除文件失败，密码错误！" === data.msg) {
+                    alert(data.msg);
+                } else {
+                    $('#table').bootstrapTable("refresh", {});
+                    $("#deleteCaptchaText").val("");
+                    $("#deleteCaptchaModal").modal("hide");
+                }
             });
+        });
+        function deleteFile(fileName) {
+            $("#deleteCaptchaImg").click();
+            $("#deleteCaptchaFileName").val(fileName);
+            $("#deleteCaptchaText").val("");
+            $("#deleteCaptchaModal").modal("show");
         }
     <#else>
         function deleteFile(fileName) {
