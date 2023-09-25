@@ -3,50 +3,28 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>接入说明</title>
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/viewer.min.css"/>
-    <link rel="stylesheet" href="css/loading.css"/>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css"/>
-    <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css"/>
     <link rel="stylesheet" href="css/theme.css"/>
     <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
-    <script type="text/javascript" src="js/jquery.form.min.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="bootstrap-table/bootstrap-table.min.js"></script>
-    <script type="text/javascript" src="js/base64.min.js"></script>
-    <style>
-        .alert {
-            width: 50%;
-        }
-    </style>
 </head>
 
 <body>
 
-<!-- Fixed navbar -->
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
             <a class="navbar-brand" href="https://kkview.cn" target='_blank'>kkFileView</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="./index">首页</a></li>
-                <li class="active"><a href="./integrated">接入说明</a></li>
-                <li><a href="./record">版本发布记录</a></li>
-                <li><a href="./sponsor">赞助开源</a></li>
-            </ul>
-        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="./index">首页</a></li>
+            <li class="active"><a href="./integrated">接入说明</a></li>
+            <li><a href="./record">版本发布记录</a></li>
+            <li><a href="./sponsor">赞助开源</a></li>
+        </ul>
     </div>
 </nav>
 

@@ -8,16 +8,14 @@ import java.util.Random;
 
 public class CaptchaUtil {
 
-    public static final String captcha_code = "captchaCode";
-    public static final String captcha_generate_time = "captchaTime";
+    public static final String CAPTCHA_CODE = "captchaCode";
+    public static final String CAPTCHA_GENERATE_TIME = "captchaTime";
 
-    private static final int width = 100;// 定义图片的width
-    private static final int height = 30;// 定义图片的height
-    private static final int codeLength = 4;// 定义图片上显示验证码的个数
-    private static final int xx = 18;
-    private static final int fontHeight = 28;
-    private static final int codeY = 27;
-    private static final char[] codeSequence = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    private static final int WIDTH = 100;// 定义图片的width
+    private static final int HEIGHT = 30;// 定义图片的height
+    private static final int CODE_LENGTH = 4;// 定义图片上显示验证码的个数
+    private static final int FONT_HEIGHT = 28;
+    private static final char[] CODE_SEQUENCE = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', '2', '3', '4', '5', '6', '7', '8', '9'};
 
     /**
@@ -28,23 +26,23 @@ public class CaptchaUtil {
     public static BufferedImage generateCaptchaPic(final String captchaCode) {
         Assert.notNull(captchaCode, "captchaCode must not be null");
         // 定义图像buffer
-        BufferedImage buffImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage buffImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics gd = buffImg.getGraphics();
         Random random = new Random();
         // 将图像填充为白色
         gd.setColor(Color.WHITE);
-        gd.fillRect(0, 0, width, height);
-        Font font = new Font("Times New Roman", Font.BOLD, fontHeight);
+        gd.fillRect(0, 0, WIDTH, HEIGHT);
+        Font font = new Font("Times New Roman", Font.BOLD, FONT_HEIGHT);
         gd.setFont(font);
         // 画边框。
         gd.setColor(Color.BLACK);
-        gd.drawRect(0, 0, width - 1, height - 1);
+        gd.drawRect(0, 0, WIDTH - 1, HEIGHT - 1);
 
         // 随机产生40条干扰线，使图象中的认证码不易被其它程序探测到。
         gd.setColor(Color.BLACK);
         for (int i = 0; i < 30; i++) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
+            int x = random.nextInt(WIDTH);
+            int y = random.nextInt(HEIGHT);
             int xl = random.nextInt(12);
             int yl = random.nextInt(12);
             gd.drawLine(x, y, x + xl, y + yl);
@@ -57,7 +55,7 @@ public class CaptchaUtil {
         blue = random.nextInt(255);
         // 用随机产生的颜色将验证码绘制到图像中。
         gd.setColor(new Color(red, green, blue));
-        gd.drawString(captchaCode, 18, codeY);
+        gd.drawString(captchaCode, 18, 27);
         return buffImg;
     }
 
@@ -68,8 +66,8 @@ public class CaptchaUtil {
     public static String generateCaptchaCode() {
         Random random = new Random();
         StringBuilder randomCode = new StringBuilder();
-        for (int i = 0; i < codeLength; i++) {
-            randomCode.append(codeSequence[random.nextInt(52)]);
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            randomCode.append(CODE_SEQUENCE[random.nextInt(52)]);
         }
         return randomCode.toString();
     }

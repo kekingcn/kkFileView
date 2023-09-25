@@ -3,41 +3,28 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>kkFileView版本记录</title>
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/viewer.min.css"/>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css"/>
     <link rel="stylesheet" href="css/theme.css"/>
     <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
-    <script type="text/javascript" src="js/jquery.form.min.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
 </head>
 
 <body>
 
-<!-- Fixed navbar -->
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
             <a class="navbar-brand" href="https://kkview.cn" target='_blank'>kkFileView</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="./index">首页</a></li>
-                <li><a href="./integrated">接入说明</a></li>
-                <li class="active"><a href="./record">版本发布记录</a></li>
-                <li><a href="./sponsor">赞助开源</a></li>
-            </ul>
-        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="./index">首页</a></li>
+            <li><a href="./integrated">接入说明</a></li>
+            <li class="active"><a href="./record">版本发布记录</a></li>
+            <li><a href="./sponsor">赞助开源</a></li>
+        </ul>
     </div>
 </nav>
 
@@ -67,6 +54,7 @@
                 13.其他功能优化及已知问题修复 <br>
             </div>
         </div>
+    </div>
     <div class="panel panel-success">
         <div class="panel-heading">
             <h3 class="panel-title">2023年07月04日，v4.3.0版本</h3>
@@ -95,9 +83,10 @@
                 20. 其他功能优化及已知问题修复 <br>
             </div>
         </div>
+    </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2023年04月18日，v4.2.1 版本</h3>
+            <h3 class="panel-title">2023年04月18日，v4.2.1版本</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -107,7 +96,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2023年04月13日，v4.2.0 版本</h3>
+            <h3 class="panel-title">2023年04月13日，v4.2.0版本</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -148,7 +137,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2022年12月14日，v4.1.0 版本</h3>
+            <h3 class="panel-title">2022年12月14日，v4.1.0版本</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -167,7 +156,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2021年7月6日，v4.0.0 版本</h3>
+            <h3 class="panel-title">2021年7月6日，v4.0.0版本</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -184,12 +173,11 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2021年6月17日，v3.6.0版本</h3>
+            <h3 class="panel-title">2021年06月17日，v3.6.0版本</h3>
         </div>
         <div class="panel-body">
             <div>
-                ** ofd 类型文件支持版本，本次版本重要功能均由社区开发贡献，感谢 @gaoxingzaq、@zhangxiaoxiao9527 的代码贡献
-                **<br>
+                ** ofd 类型文件支持版本，本次版本重要功能均由社区开发贡献，感谢 @gaoxingzaq、@zhangxiaoxiao9527 的代码贡献 ** <br>
                 1. 新增 ofd 类型文件预览支持，ofd 是国产的类似 pdf 格式的文件<br>
                 2. 新增了 ffmpeg 视频文件转码预览支持，打开转码功能后，理论上支持所有主流视频的预览，如 rm、rmvb、flv 等<br>
                 3. 美化了 ppt、pptx 类型文件预览效果，比之前版本好看太多<br>
@@ -199,7 +187,43 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2021年1月28日</h3>
+            <h3 class="panel-title">2021年04月06日，v3.5.1版本</h3>
+        </div>
+        <div class="panel-body">
+            <div>
+                3.5.1版本发布，修复已知问题<br>
+                1. 修复 tif、tiff 文件预览初始内存太小预览失败的问题<br>
+                2. 修复PDF预览模式跨域问题<br>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">2021年03月17日，v3.5.0版本</h3>
+        </div>
+        <div class="panel-body">
+            <div>
+                2021 一季度 v3.5 性能升级版发布<br>
+                1.  新增 office-plugin 转换进程、任务超时可配置<br>
+                2.  更新 spring-boot 到最新的 v2.4.2 版本<br>
+                3.  新增 tiff 、tif 图像文件格式预览支持<br>
+                4.  新增依赖 highlightjs 代码文件预览高亮支持<br>
+                5.  新增 wps 文档预览支持<br>
+                6.  新增 stars 增长趋势图<br>
+                7.  新增启动完成，打印启动耗时、演示页访问地址<br>
+                8.  新增 kkFIleView 的 banner 信息<br>
+                9.  优化启动脚本<br>
+                10. 优化项目结构、优化 maven 结构<br>
+                11. 移除多余的 repositories 配置，移除针对 tomcat 的配置<br>
+                12. 优化下载文件 io 操作<br>
+                13. 修复：优化项目目录结构之后，windows下启动报错“找不到office组件”<br>
+                14. 修复：jodd.io.NetUtil.downloadFile下载大于16M文件报错问题<br>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">2021年1月28日，v3.3.1版本</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -228,7 +252,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2020年12月27日</h3>
+            <h3 class="panel-title">2020年12月27日，v3.3.0版本</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -254,7 +278,21 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2020年05月20日</h3>
+            <h3 class="panel-title">2020年08月12日，v2.2.1版本</h3>
+        </div>
+        <div class="panel-body">
+            <div>
+                1. 支持纯文本预览原样格式输出<br>
+                2. 修复PDF预览出现文字缺失异常，升级pdf.js组件<br>
+                3. docker镜像底层使用ubuntu，镜像体积更小、构建更快<br>
+                4. 预览接口同时支持get和post请求<br>
+                5. 修复上传到demo中的压缩文件预览异常<br>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">2020年05月20日，v2.2.0版本</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -279,7 +317,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading">
-            <h3 class="panel-title">2019年06月18日</h3>
+            <h3 class="panel-title">2019年06月20日</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -358,7 +396,6 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 </body>
 </html>
