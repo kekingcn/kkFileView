@@ -16,8 +16,17 @@
     <script type="text/javascript" src="bootstrap-table/bootstrap-table.min.js"></script>
     <script type="text/javascript" src="js/base64.min.js"></script>
     <style>
+        <#-- 删除文件密码弹窗居中 -->
         .alert {
             width: 50%;
+        }
+        <#-- 删除文件验证码弹窗居中 -->
+        .modal {
+            width:100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
         }
     </style>
 </head>
