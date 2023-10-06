@@ -18,6 +18,7 @@ import java.nio.file.Files;
 public class EncodingDetects {
     private static UniversalDetector detector = new UniversalDetector(null);
     private static final int DEFAULT_LENGTH = 4096;
+    private static final int LIMIT = 50;
     private static final Logger logger = LoggerFactory.getLogger(EncodingDetects.class);
 
     public static String getJavaEncode(String filePath) {
@@ -36,10 +37,16 @@ public class EncodingDetects {
     }
 
     public static String getJavaEncode(byte[] content) {
-        detector.reset();
-        detector.handleData(content, 0, content.length);
-        detector.dataEnd();
-        String charsetName = detector.getDetectedCharset();
+        if (content != null && content.length <= LIMIT) {
+            return SimpleEncodingDetects.getJavaEncode(content);
+        }
+        String charsetName;
+        synchronized (EncodingDetects.class) {
+            detector.reset();
+            detector.handleData(content, 0, content.length);
+            detector.dataEnd();
+            charsetName = detector.getDetectedCharset();
+        }
         if (charsetName == null) {
             charsetName = Charset.defaultCharset().name();
         }
