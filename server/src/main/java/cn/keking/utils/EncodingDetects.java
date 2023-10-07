@@ -16,7 +16,6 @@ import java.nio.file.Files;
  * @description: 自动获取文件的编码
  */
 public class EncodingDetects {
-    private static UniversalDetector detector = new UniversalDetector(null);
     private static final int DEFAULT_LENGTH = 4096;
     private static final int LIMIT = 50;
     private static final Logger logger = LoggerFactory.getLogger(EncodingDetects.class);
@@ -40,13 +39,10 @@ public class EncodingDetects {
         if (content != null && content.length <= LIMIT) {
             return SimpleEncodingDetects.getJavaEncode(content);
         }
-        String charsetName;
-        synchronized (EncodingDetects.class) {
-            detector.reset();
-            detector.handleData(content, 0, content.length);
-            detector.dataEnd();
-            charsetName = detector.getDetectedCharset();
-        }
+        UniversalDetector detector = new UniversalDetector(null);
+        detector.handleData(content, 0, content.length);
+        detector.dataEnd();
+        String charsetName = detector.getDetectedCharset();
         if (charsetName == null) {
             charsetName = Charset.defaultCharset().name();
         }
