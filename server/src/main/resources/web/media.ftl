@@ -64,7 +64,7 @@
 				container: '.video', //视频容器
 				//autoplay:true,//自动播放
                // live:true,//指定为直播
-                crossOrigin:'Anonymous',//发送跨域信息，示例：Anonymous
+               //  crossOrigin:'Anonymous',//发送跨域信息，示例：Anonymous
 			    plug:<#if "${file.suffix?lower_case}" == "m3u8" >'hls.js'<#elseif "${file.suffix?lower_case}" == "ts" >'mpegts.js'<#elseif "${file.suffix?lower_case}" == "flv" >'flv.js'<#elseif "${file.suffix?lower_case}" == "mpd" >dashPlayer<#else>''</#if>,//设置使用插件
                 loop: false,//是否需要循环播放
                 rightBar:true,
