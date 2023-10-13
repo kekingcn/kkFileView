@@ -107,6 +107,7 @@ public class CacheServiceRedisImpl implements CacheService {
         cleanPdfCache();
         cleanImgCache();
         cleanPdfImgCache();
+        cleanMediaConvertCache();
     }
 
     @Override
@@ -134,5 +135,10 @@ public class CacheServiceRedisImpl implements CacheService {
     private void cleanPdfImgCache() {
         RMapCache<String, Integer> pdfImg = redissonClient.getMapCache(FILE_PREVIEW_PDF_IMGS_KEY);
         pdfImg.clear();
+    }
+
+    private void cleanMediaConvertCache() {
+        RMapCache<String, Integer> mediaConvertCache = redissonClient.getMapCache(FILE_PREVIEW_MEDIA_CONVERT_KEY);
+        mediaConvertCache.clear();
     }
 }

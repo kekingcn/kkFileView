@@ -101,6 +101,7 @@ public class CacheServiceJDKImpl implements CacheService {
         initPDFCachePool(CacheService.DEFAULT_PDF_CAPACITY);
         initIMGCachePool(CacheService.DEFAULT_IMG_CAPACITY);
         initPdfImagesCachePool(CacheService.DEFAULT_PDFIMG_CAPACITY);
+        initMediaConvertCachePool(CacheService.DEFAULT_MEDIACONVERT_CAPACITY);
     }
 
     @Override
