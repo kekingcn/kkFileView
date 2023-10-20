@@ -1217,7 +1217,8 @@ window.sheetChart = {
 			"vt": 1
 		}
 	}],
-	"row": 84,
+	// "row": 84,
+	"row":100,
 	"column": 60,
 	"config": {
 		"merge": {},

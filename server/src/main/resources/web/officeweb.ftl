@@ -88,7 +88,7 @@
             return;
         }
         // mask.style.display = "flex";
-        LuckyExcel.transformExcelToLuckyByUrl(value, name, function(exportJson, luckysheetfile){
+         LuckyExcel.transformExcelToLuckyByUrl(value, name, function(exportJson, luckysheetfile){
             if(exportJson.sheets==null || exportJson.sheets.length==0){
                 alert("读取excel文件内容失败!");
                 return;
@@ -100,10 +100,9 @@
                 lang: "zh",
                 showtoolbarConfig:{
                     image: true,
-                    print: false, //关闭打印按钮  启用也不能用 等以后看情况而定
-                    exportXlsx: false, //关闭导出按钮  启用也不能用  等以后看情况而定
+                    print: true, //关闭打印按钮  启用也不能用 等以后看情况而定
+                    exportXlsx: true, //关闭导出按钮  启用也不能用  等以后看情况而定
                 },
-
                 allowCopy: true, // 是否允许拷贝
                 showtoolbar: true, // 是否显示工具栏
                 showinfobar: false, // 是否显示顶部信息栏
@@ -120,15 +119,9 @@
                 sheetFormulaBar: false, // 是否显示公式栏
                 enableAddBackTop: true,//返回头部按钮
                 forceCalculation: false, //下面是导出插件 默认关闭
-                enableAddRow: false, // 允许增加行
-                plugins: [{ name: 'chart' }, { name: 'exportXlsx', config: { url: 'luckyToXlsx' } }, {
-                    name: 'print', config: {
-                        license: ''
-                    }
-                }],
-                data:exportJson.sheets,
-                title:exportJson.info.name,
-                userInfo:exportJson.info.name.creator
+                        data: exportJson.sheets,
+                        title: exportJson.info.name,
+                        userInfo: exportJson.info.name.creator,
             });
         });
     }
