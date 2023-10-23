@@ -24,37 +24,34 @@ public class PdfFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
-    private static final String FILE_DIR = ConfigConstants.getFileDir();
     private static final String PDF_PASSWORD_MSG = "password";
-
     public PdfFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
     }
-
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String fileName = fileAttribute.getName();
-        String officePreviewType = fileAttribute.getOfficePreviewType();
-        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
-        String pdfName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "pdf";
-        String outFilePath = FILE_DIR + pdfName;
+        String pdfName = fileAttribute.getName();  //获取原始文件名
+        String officePreviewType = fileAttribute.getOfficePreviewType(); //转换类型
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();  //是否启用强制更新命令
+        String outFilePath = fileAttribute.getoutFilePath();  //生成的文件路径
+        String fileNameFilePath = fileAttribute.getfileNameFilePath();  //原始文件路径
         if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType)) {
             //当文件不存在时，就去下载
             if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
-                ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
+                ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, pdfName);
                 if (response.isFailure()) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                 }
-                outFilePath = response.getContent();
+                fileNameFilePath = response.getContent();
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
-                    fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
+                    fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(fileNameFilePath));
                 }
             }
             List<String> imageUrls;
             try {
-                imageUrls = fileHandlerService.pdf2jpg(outFilePath, pdfName, fileAttribute);
+                imageUrls = fileHandlerService.pdf2jpg(fileNameFilePath,outFilePath, pdfName, fileAttribute);
             } catch (Exception e) {
                 Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
                 for (Throwable throwable : throwableArray) {
@@ -91,7 +88,6 @@ public class PdfFilePreviewImpl implements FilePreview {
                         fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(outFilePath));
                     }
                 } else {
-                    pdfName =   URLEncoder.encode(pdfName).replaceAll("\\+", "%20");
                     model.addAttribute("pdfUrl", pdfName);
                 }
             } else {

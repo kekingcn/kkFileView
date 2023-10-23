@@ -52,7 +52,7 @@
 
     function chooseNode(event, treeId, treeNode) {
         if (!treeNode.isParent) {
-            var path = '${baseUrl}' + treeNode.id + "?fileKey=" + '${fileName}';
+            var path = '${baseUrl}' + treeNode.id + "?kkCompressfileKey=" + '${fileName}';
             location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
         }
     }

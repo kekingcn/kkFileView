@@ -14,11 +14,16 @@ public class FileAttribute {
     private String url;
     private String fileKey;
     private String filePassword;
-    private String userToken;
+    private boolean userToken;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
     private String tifPreviewType;
     private Boolean skipDownLoad = false;
     private Boolean forceUpdatedCache = false;
+    private String cacheName;
+    private String outFilePath;
+    private String fileNameFilePath;
+    private String cacheListName;
+    private boolean isHtml;
 
     /**
      * 代理请求到文件服务器的认证请求头，格式如下：
@@ -61,11 +66,11 @@ public class FileAttribute {
         this.filePassword = filePassword;
     }
 
-    public String getUserToken() {
+    public boolean getUserToken() {
         return userToken;
     }
 
-    public void setUserToken(String userToken) {
+    public void setUserToken(boolean userToken) {
         this.userToken = userToken;
     }
 
@@ -96,7 +101,37 @@ public class FileAttribute {
     public String getName() {
         return name;
     }
+    public String getcacheName() {
+        return cacheName;
+    }
+    public String getcacheListName() {
+        return cacheListName;
+    }
+    public String getoutFilePath() {
+        return outFilePath;
+    }
+    public String getfileNameFilePath() {
+        return fileNameFilePath;
+    }
+    public boolean getisHtml() {
+        return isHtml;
+    }
 
+    public void setcacheName(String cacheName) {
+        this.cacheName = cacheName;
+    }
+    public void setcacheListName(String cacheListName) {
+        this.cacheListName = cacheListName;
+    }
+    public void setoutFilePath(String outFilePath) {
+        this.outFilePath = outFilePath;
+    }
+    public void setfileNameFilePath(String fileNameFilePath) {
+        this.fileNameFilePath = fileNameFilePath;
+    }
+    public void setisHtml(boolean isHtml) {
+        this.isHtml = isHtml;
+    }
     public void setName(String name) {
         this.name = name;
     }
