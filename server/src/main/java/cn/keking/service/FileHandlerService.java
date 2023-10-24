@@ -207,7 +207,7 @@ public class FileHandlerService implements InitializingBean {
         String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
         String urlPrefix;
         try {
-            urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
+            urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%2B");
         } catch (UnsupportedEncodingException e) {
             logger.error("UnsupportedEncodingException", e);
             urlPrefix = baseUrl + pdfFolder;
@@ -464,7 +464,7 @@ public class FileHandlerService implements InitializingBean {
         url = WebUtils.encodeUrlFileName(url);
         if(UrlEncoderUtils.hasUrlEncoded(fileName) && UrlEncoderUtils.hasUrlEncoded(suffix)){  //判断文件名是否转义
             try {
-                fileName = URLDecoder.decode(fileName, "UTF-8").replaceAll("\\+", "%20");
+                fileName = URLDecoder.decode(fileName, "UTF-8").replaceAll("\\+", "%2B").replaceAll(" ", "%20");
                 suffix = URLDecoder.decode(suffix, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();

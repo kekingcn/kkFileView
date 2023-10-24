@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +55,7 @@ public class DownloadUtils {
         String urlStr = null;
         try {
             SslUtils.ignoreSsl();
-            urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
+            urlStr = fileAttribute.getUrl().replaceAll("\\+", "%2B").replaceAll(" ", "%20");
         } catch (Exception e) {
             logger.error("忽略SSL证书异常:", e);
         }
@@ -110,16 +111,11 @@ public class DownloadUtils {
                             FileUtils.copyToFile(fileResponse.getBody(), realFile);
                             return null;
                         });
-                    }  catch (RestClientException e) {
-                        if (e.getMessage().contains("404 Not Found") || e.getMessage().contains("403 Not Found") || e.getMessage().contains("500 Not Found") ){
+                    }  catch (Exception e) {
                             response.setCode(1);
                             response.setContent(null);
                             response.setMsg("下载失败:" + e);
                             return response;
-                        }else {
-                            e.printStackTrace();
-                        }
-
                     }
                 } else if (isFtpUrl(url)) {
                     String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
