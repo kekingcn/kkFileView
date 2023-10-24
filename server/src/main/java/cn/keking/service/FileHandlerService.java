@@ -195,16 +195,14 @@ public class FileHandlerService implements InitializingBean {
 
     /**
      * 获取本地 pdf 转 image 后的 web 访问地址
-     * @param pdfName pdf文件名
+     * @param pdfFilePath pdf文件名
      * @param index 图片索引
      * @return 图片访问地址
      */
-    private String getPdf2jpgUrl(String pdfName, int index,String fileKey) {
+    private String getPdf2jpgUrl(String pdfFilePath, int index) {
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        if (!ObjectUtils.isEmpty(fileKey)) { // 是压缩包文件 改变PDF生成图片的路径
-                pdfName = "_decompression"+ pdfName;
-        }
-        String pdfFolder = pdfName.substring(0, pdfName.length() - 4);
+        pdfFilePath = pdfFilePath.replace(fileDir, "");
+        String pdfFolder = pdfFilePath.substring(0, pdfFilePath.length() - 4);
         String urlPrefix;
         try {
             urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%2B");
@@ -228,7 +226,7 @@ public class FileHandlerService implements InitializingBean {
             return imageUrls;
         }
         IntStream.range(0, imageCount).forEach(i -> {
-            String imageUrl = this.getPdf2jpgUrl(pdfName, i,fileKey);
+            String imageUrl = this.getPdf2jpgUrl(pdfFilePath, i);
             imageUrls.add(imageUrl);
         });
         return imageUrls;
@@ -276,7 +274,7 @@ public class FileHandlerService implements InitializingBean {
                 imageFilePath = folder + File.separator + pageIndex + PDF2JPG_IMAGE_FORMAT;
                 BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, ConfigConstants.getPdf2JpgDpi(), ImageType.RGB);
                 ImageIOUtil.writeImage(image, imageFilePath, ConfigConstants.getPdf2JpgDpi());
-                String imageUrl = this.getPdf2jpgUrl(pdfName, pageIndex,fileKey);
+                String imageUrl = this.getPdf2jpgUrl(pdfFilePath, pageIndex);
                 imageUrls.add(imageUrl);
             }
             try {
