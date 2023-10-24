@@ -38,6 +38,7 @@ public class MediaFilePreviewImpl implements FilePreview {
         String cacheName =  fileAttribute.getcacheName();
         String outFilePath = fileAttribute.getoutFilePath();
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
+        String type = fileAttribute.getSuffix();
         String[] mediaTypesConvert = FileType.MEDIA_TYPES_CONVERT;  //获取支持的转换格式
         boolean  mediaTypes = false;
         for(String temp : mediaTypesConvert){
@@ -58,13 +59,12 @@ public class MediaFilePreviewImpl implements FilePreview {
                     if(mediaTypes){
                         convertedUrl=convertToMp4(filePath,outFilePath);
                     }else {
-                        convertedUrl =outFilePath;  //不是http协议的  但是不是转换格式的直接输出
+                        convertedUrl =outFilePath;  //其他协议的  不需要转换方式的文件 支持输出
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 if (convertedUrl == null ) {
-                    fileHandlerService.addConvertedFile(cacheName, "error");  //失败加入缓存
                     return otherFilePreview.notSupportedFile(model, fileAttribute, "视频转换异常，请联系管理员");
                 }
                 if (ConfigConstants.isCacheEnabled()) {
@@ -77,8 +77,11 @@ public class MediaFilePreviewImpl implements FilePreview {
             }
             return MEDIA_FILE_PREVIEW_PAGE;
         }
-        model.addAttribute("mediaUrl", url);
-        return MEDIA_FILE_PREVIEW_PAGE;
+        if(type.equals(FileType.MEDIA)){  // 支持输出 只限默认格式
+            model.addAttribute("mediaUrl", url);
+            return MEDIA_FILE_PREVIEW_PAGE;
+        }
+        return otherFilePreview.notSupportedFile(model, fileAttribute, "系统还不支持该格式文件的在线预览");
     }
     /**
      * 检查视频文件转换是否已开启，以及当前文件是否需要转换
@@ -100,6 +103,13 @@ public class MediaFilePreviewImpl implements FilePreview {
             //判断一下防止重复转换
             if(desFile.exists()){
                 return outFilePath;
+            }
+            int index = outFilePath.lastIndexOf(".");
+            String folder = outFilePath.substring(0, index);
+            File path = new File(folder);
+            //目录不存在 创建新的目录
+            if (!path.exists()) {
+                path.mkdirs();
             }
             frameGrabber.start();
             recorder = new FFmpegFrameRecorder(outFilePath, frameGrabber.getImageWidth(), frameGrabber.getImageHeight(), frameGrabber.getAudioChannels());
