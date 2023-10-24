@@ -38,7 +38,7 @@ public class MediaFilePreviewImpl implements FilePreview {
         String cacheName =  fileAttribute.getcacheName();
         String outFilePath = fileAttribute.getoutFilePath();
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
-        String type = fileAttribute.getSuffix();
+        FileType type = fileAttribute.getType();
         String[] mediaTypesConvert = FileType.MEDIA_TYPES_CONVERT;  //获取支持的转换格式
         boolean  mediaTypes = false;
         for(String temp : mediaTypesConvert){
@@ -59,7 +59,7 @@ public class MediaFilePreviewImpl implements FilePreview {
                     if(mediaTypes){
                         convertedUrl=convertToMp4(filePath,outFilePath);
                     }else {
-                        convertedUrl =outFilePath;  //其他协议的  不需要转换方式的文件 支持输出
+                        convertedUrl =outFilePath;  //其他协议的  不需要转换方式的文件 直接输出
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
