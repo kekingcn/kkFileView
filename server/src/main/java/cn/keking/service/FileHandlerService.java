@@ -327,6 +327,13 @@ public class FileHandlerService implements InitializingBean {
      */
     public String cadToPdf(String inputFilePath, String outputFilePath ,String  cadPreviewType)  throws Exception  {
         final InterruptionTokenSource source = new InterruptionTokenSource();//CAD延时
+        int index = outputFilePath.lastIndexOf(".");
+        String folder = outputFilePath.substring(0, index);
+        File path = new File(folder);
+        //目录不存在 创建新的目录
+        if (!path.exists()) {
+            path.mkdirs();
+        }
         Callable<String> call = () -> {
             File outputFile = new File(outputFilePath);
             LoadOptions opts = new LoadOptions();
