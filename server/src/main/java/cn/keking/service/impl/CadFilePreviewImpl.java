@@ -54,7 +54,7 @@ public class CadFilePreviewImpl implements FilePreview {
             String imageUrls = null;
             if (StringUtils.hasText(outFilePath)) {
                 try {
-                    imageUrls =  fileHandlerService.cadToPdf(filePath, outFilePath,cadPreviewType);
+                    imageUrls =  fileHandlerService.cadToPdf(filePath, outFilePath,cadPreviewType,fileKey);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

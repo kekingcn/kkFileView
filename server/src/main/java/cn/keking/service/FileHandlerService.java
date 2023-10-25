@@ -323,14 +323,16 @@ public class FileHandlerService implements InitializingBean {
      * @param outputFilePath pdf输出文件路径
      * @return 转换是否成功
      */
-    public String cadToPdf(String inputFilePath, String outputFilePath ,String  cadPreviewType)  throws Exception  {
+    public String cadToPdf(String inputFilePath, String outputFilePath ,String  cadPreviewType ,String  fileKey)  throws Exception  {
         final InterruptionTokenSource source = new InterruptionTokenSource();//CAD延时
-        int index = outputFilePath.lastIndexOf(".");
-        String folder = outputFilePath.substring(0, index);
-        File path = new File(folder);
-        //目录不存在 创建新的目录
-        if (!path.exists()) {
-            path.mkdirs();
+        if (!ObjectUtils.isEmpty(fileKey)) { //判断 是压缩包的创建新的目录
+            int index = outputFilePath.lastIndexOf("/");  //截取最后一个斜杠的前面的内容
+            String folder = outputFilePath.substring(0, index);
+            File path = new File(folder);
+            //目录不存在 创建新的目录
+            if (!path.exists()) {
+                path.mkdirs();
+            }
         }
         Callable<String> call = () -> {
             File outputFile = new File(outputFilePath);
