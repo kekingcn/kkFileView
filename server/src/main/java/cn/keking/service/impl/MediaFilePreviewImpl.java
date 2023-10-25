@@ -12,6 +12,7 @@ import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 
 import java.io.File;
 
@@ -38,8 +39,9 @@ public class MediaFilePreviewImpl implements FilePreview {
         String cacheName =  fileAttribute.getcacheName();
         String outFilePath = fileAttribute.getoutFilePath();
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
+        String fileKey = fileAttribute.getFileKey();
         FileType type = fileAttribute.getType();
-        String[] mediaTypesConvert = FileType.MEDIA_TYPES_CONVERT;  //获取支持的转换格式
+        String[] mediaTypesConvert = FileType.MEDIACONVERT_TYPES_CONVERT;  //获取支持的转换格式
         boolean  mediaTypes = false;
         for(String temp : mediaTypesConvert){
             if (suffix.equals(temp)) {
@@ -57,7 +59,7 @@ public class MediaFilePreviewImpl implements FilePreview {
                 String convertedUrl = null;
                 try {
                     if(mediaTypes){
-                        convertedUrl=convertToMp4(filePath,outFilePath);
+                        convertedUrl=convertToMp4(filePath,outFilePath,fileKey);
                     }else {
                         convertedUrl =outFilePath;  //其他协议的  不需要转换方式的文件 直接输出
                     }
@@ -94,7 +96,7 @@ public class MediaFilePreviewImpl implements FilePreview {
         }
         return false;
     }
-    private static String convertToMp4(String filePath,String outFilePath)throws Exception {
+    private static String convertToMp4(String filePath,String outFilePath,String fileKey)throws Exception {
         FFmpegFrameGrabber frameGrabber = FFmpegFrameGrabber.createDefault(filePath);
         Frame captured_frame;
         FFmpegFrameRecorder recorder = null;
@@ -104,12 +106,14 @@ public class MediaFilePreviewImpl implements FilePreview {
             if(desFile.exists()){
                 return outFilePath;
             }
-            int index = outFilePath.lastIndexOf(".");
-            String folder = outFilePath.substring(0, index);
-            File path = new File(folder);
-            //目录不存在 创建新的目录
-            if (!path.exists()) {
-                path.mkdirs();
+            if (!ObjectUtils.isEmpty(fileKey)) { //判断 是压缩包的创建新的目录
+                int index = outFilePath.lastIndexOf("/");  //截取最后一个斜杠的前面的内容
+                String folder = outFilePath.substring(0, index);
+                File path = new File(folder);
+                //目录不存在 创建新的目录
+                if (!path.exists()) {
+                    path.mkdirs();
+                }
             }
             frameGrabber.start();
             recorder = new FFmpegFrameRecorder(outFilePath, frameGrabber.getImageWidth(), frameGrabber.getImageHeight(), frameGrabber.getAudioChannels());

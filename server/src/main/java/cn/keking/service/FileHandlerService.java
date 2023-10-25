@@ -475,7 +475,7 @@ public class FileHandlerService implements InitializingBean {
             cacheName = cacheUnifyName +(isHtml ? "html" : "pdf"); //生成文件添加类型后缀 防止同名文件
         }else if(type.equals(FileType.PDF)){
             cacheName = fileName;
-        }else if(type.equals(FileType.MEDIA)){
+        }else if(type.equals(FileType.MEDIACONVERT)){
             cacheName = cacheUnifyName +"mp4" ;
         }else if(type.equals(FileType.CAD)){
             String cadPreviewType = ConfigConstants.getCadPreviewType();
