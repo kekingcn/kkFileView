@@ -28,6 +28,21 @@
 </#if>
 <div id="tiff"></div>
 <script>
+    String.prototype.startsWithh = function(str) {
+        var reg = new RegExp("^" + str);
+        return reg.test(this);
+    }
+
+    String.prototype.endsWithh = function(str) {
+        var reg = new RegExp(str + "$");
+        return reg.test(this);
+    }
+    var url = '${finalUrl}';
+    var baseUrl = '${baseUrl}'.endsWithh('/') ? '${baseUrl}' : '${baseUrl}' + '/';
+    if (!url.startsWithh(baseUrl)) {
+        url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url));
+    }
+    var myp = document.getElementById('tiff');
     let pages;
     let p;
     let resp;
@@ -42,6 +57,14 @@
      try{
     imageData = ctx.createImageData(canvas.width, canvas.height);
 } catch(e){
+  if (e.message.indexOf("CanvasRenderingContext2D")) 
+{ 
+       var imgObjj = new Image();
+             imgObjj.src = url;
+             myp.appendChild(imgObjj);
+             console.log("错误:" + e);
+    return;
+ }
     console.log("错误:" + e);
 var html = "";
 html += "<head>";
@@ -86,9 +109,9 @@ html += "    <p>有任何疑问，请加入kk开源社区知识星球咨询：<a
 html += "</div>";
 html += "</body>";
 html += "</html>";
-document.write(html);
-document.close();
-return;
+   document.write(html);
+	document.close();
+    return;
 }
         for (let i = 0; i < rgba.length; i++) {
             imageData.data[i] = rgba[i];
@@ -99,7 +122,6 @@ return;
         if (++p < pages.length) {
             imgObj.onload = loadOne;
         }
-        var myp = document.getElementById('tiff');
         myp.appendChild(imgObj);
     }
 
@@ -108,22 +130,6 @@ return;
         pages = UTIF.decode(resp);
         p = 0;
         loadOne();
-    }
-
-    String.prototype.startsWithh = function(str) {
-        var reg = new RegExp("^" + str);
-        return reg.test(this);
-    }
-
-    String.prototype.endsWithh = function(str) {
-        var reg = new RegExp(str + "$");
-        return reg.test(this);
-    }
-
-    var url = '${finalUrl}';
-    var baseUrl = '${baseUrl}'.endsWithh('/') ? '${baseUrl}' : '${baseUrl}' + '/';
-    if (!url.startsWithh(baseUrl)) {
-        url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url));
     }
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url);
