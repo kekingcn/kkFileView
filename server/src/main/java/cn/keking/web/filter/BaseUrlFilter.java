@@ -43,11 +43,14 @@ public class BaseUrlFilter implements Filter {
         final String urlInHeader = servletRequest.getHeader("X-Base-Url");
         if (StringUtils.isNotEmpty(urlInHeader)) {
             baseUrl = urlInHeader;
+        } else if (servletRequest.getParameterMap().containsKey("baseUrl")) {
+            //2、支持通过http query参数 baseUrl 来动态设置 baseUrl 以支持多个域名/项目的共享使用
+            baseUrl = servletRequest.getParameter("baseUrl");
         } else if (configBaseUrl != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(configBaseUrl)) {
-            //2、如果配置文件中配置了 baseUrl 且不为 default 则以配置文件为准
+            //3、如果配置文件中配置了 baseUrl 且不为 default 则以配置文件为准
             baseUrl = configBaseUrl;
         } else {
-            //3、默认动态拼接 baseUrl
+            //4、默认动态拼接 baseUrl
             baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
                     + servletRequest.getContextPath() + "/";
         }
