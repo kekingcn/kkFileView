@@ -1,10 +1,7 @@
 package cn.keking.service.impl;
 
 import cn.keking.model.FileAttribute;
-import cn.keking.model.ReturnResponse;
 import cn.keking.service.FileHandlerService;
-import cn.keking.service.FilePreview;
-import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.KkFileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -21,12 +18,10 @@ import java.util.List;
 public class PictureFilePreviewImpl extends CommonPreviewImpl {
 
     private final FileHandlerService fileHandlerService;
-    private final OtherFilePreviewImpl otherFilePreview;
 
     public PictureFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         super(fileHandlerService, otherFilePreview);
         this.fileHandlerService = fileHandlerService;
-        this.otherFilePreview = otherFilePreview;
     }
 
     @Override

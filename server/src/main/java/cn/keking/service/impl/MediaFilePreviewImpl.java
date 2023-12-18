@@ -1,20 +1,19 @@
 package cn.keking.service.impl;
-
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
-import cn.keking.service.FilePreview;
-import cn.keking.utils.ConfigUtils;
-import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
-import cn.keking.web.filter.BaseUrlFilter;
+import cn.keking.service.FilePreview;
+import cn.keking.utils.DownloadUtils;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
+
 import java.io.File;
 
 /**
@@ -28,139 +27,133 @@ public class MediaFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
-
-    private static Object LOCK=new Object();
-
+    private static final String mp4 = "mp4";
     public MediaFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
     }
-
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        // 不是http开头，浏览器不能直接访问，需下载到本地
-        if (url != null && !url.toLowerCase().startsWith("http")) {
-            ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileAttribute.getName());
-            if (response.isFailure()) {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
-            } else {
-                url=BaseUrlFilter.getBaseUrl() + fileHandlerService.getRelativePath(response.getContent());
-                fileAttribute.setUrl(url);
+        String fileName = fileAttribute.getName();
+        String suffix = fileAttribute.getSuffix();
+        String cacheName =  fileAttribute.getcacheName();
+        String outFilePath = fileAttribute.getoutFilePath();
+        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
+        String fileKey = fileAttribute.getFileKey();
+        FileType type = fileAttribute.getType();
+        String[] mediaTypesConvert = FileType.MEDIACONVERT_TYPES_CONVERT;  //获取支持的转换格式
+        boolean  mediaTypes = false;
+        for(String temp : mediaTypesConvert){
+            if (suffix.equals(temp)) {
+                mediaTypes = true;
+                break;
             }
         }
-
-        if(checkNeedConvert(fileAttribute.getSuffix())){
-            url=convertUrl(fileAttribute);
-        }else{
-            //正常media类型
-            String[] medias = ConfigConstants.getMedia();
-            for(String media:medias){
-                if(media.equals(fileAttribute.getSuffix())){
-                    model.addAttribute("mediaUrl", url);
-                    return MEDIA_FILE_PREVIEW_PAGE;
+        if(!url.toLowerCase().startsWith("http") || checkNeedConvert(mediaTypes)){  //不是http协议的 //   开启转换方式并是支持转换格式的
+            if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(cacheName) || !ConfigConstants.isCacheEnabled()) {  //查询是否开启缓存
+                ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
+                if (response.isFailure()) {
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                 }
-            }
-            return otherFilePreview.notSupportedFile(model, fileAttribute, "暂不支持");
-        }
-        model.addAttribute("mediaUrl", url);
-        return MEDIA_FILE_PREVIEW_PAGE;
-    }
-
-    /**
-     * 检查视频文件处理逻辑
-     * 返回处理过后的url
-     * @return url
-     */
-    private String convertUrl(FileAttribute fileAttribute) {
-        String url = fileAttribute.getUrl();
-        if(fileHandlerService.listConvertedMedias().containsKey(url)){
-            url= fileHandlerService.getConvertedMedias(url);
-        }else{
-            if(!fileHandlerService.listConvertedMedias().containsKey(url)){
-                synchronized(LOCK){
-                    if(!fileHandlerService.listConvertedMedias().containsKey(url)){
-                        String convertedUrl=convertToMp4(fileAttribute);
-                        //加入缓存
-                        fileHandlerService.addConvertedMedias(url,convertedUrl);
-                        url=convertedUrl;
+                String filePath = response.getContent();
+                String convertedUrl = null;
+                try {
+                    if(mediaTypes){
+                        convertedUrl=convertToMp4(filePath,outFilePath,fileKey);
+                    }else {
+                        convertedUrl =outFilePath;  //其他协议的  不需要转换方式的文件 直接输出
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                if (convertedUrl == null ) {
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, "视频转换异常，请联系管理员");
+                }
+                if (ConfigConstants.isCacheEnabled()) {
+                    // 加入缓存
+                    fileHandlerService.addConvertedFile(cacheName, fileHandlerService.getRelativePath(outFilePath));
+                }
+                model.addAttribute("mediaUrl", fileHandlerService.getRelativePath(outFilePath));
+            }else{
+                model.addAttribute("mediaUrl", fileHandlerService.listConvertedFiles().get(cacheName));
             }
+            return MEDIA_FILE_PREVIEW_PAGE;
         }
-        return url;
+        if(type.equals(FileType.MEDIA)){  // 支持输出 只限默认格式
+            model.addAttribute("mediaUrl", url);
+            return MEDIA_FILE_PREVIEW_PAGE;
+        }
+        return otherFilePreview.notSupportedFile(model, fileAttribute, "系统还不支持该格式文件的在线预览");
     }
-
     /**
      * 检查视频文件转换是否已开启，以及当前文件是否需要转换
      * @return
      */
-    private boolean checkNeedConvert(String suffix) {
+    private boolean checkNeedConvert(boolean mediaTypes) {
         //1.检查开关是否开启
-        if("false".equals(ConfigConstants.getMediaConvertDisable())){
-            return false;
-        }
-        //2.检查当前文件是否需要转换
-        String[] mediaTypesConvert = FileType.MEDIA_TYPES_CONVERT;
-        String type = suffix;
-        for(String temp : mediaTypesConvert){
-            if(type.equals(temp)){
-                return true;
-            }
+        if("true".equals(ConfigConstants.getMediaConvertDisable())){
+            return mediaTypes;
         }
         return false;
     }
-
-    /**
-     * 将浏览器不兼容视频格式转换成MP4
-     * @param fileAttribute
-     * @return
-     */
-    private static String convertToMp4(FileAttribute fileAttribute) {
-
-        //说明：这里做临时处理，取上传文件的目录
-        String homePath = ConfigUtils.getHomePath();
-        String filePath = homePath+File.separator+"file"+File.separator+"demo"+File.separator+fileAttribute.getName();
-        String convertFileName=fileAttribute.getUrl().replace(fileAttribute.getSuffix(),"mp4");
-
-        File file=new File(filePath);
-        FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(file);
-        String fileName = null;
-        Frame captured_frame = null;
+    private static String convertToMp4(String filePath,String outFilePath,String fileKey)throws Exception {
+        FFmpegFrameGrabber frameGrabber = FFmpegFrameGrabber.createDefault(filePath);
+        Frame captured_frame;
         FFmpegFrameRecorder recorder = null;
         try {
-            fileName = file.getAbsolutePath().replace(fileAttribute.getSuffix(),"mp4");
-            File desFile=new File(fileName);
-            //判断一下防止穿透缓存
+            File desFile=new File(outFilePath);
+            //判断一下防止重复转换
             if(desFile.exists()){
-                return fileName;
+                return outFilePath;
             }
-
-            frameGrabber.start();
-            recorder = new FFmpegFrameRecorder(fileName, frameGrabber.getImageWidth(), frameGrabber.getImageHeight(), frameGrabber.getAudioChannels());
-            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264); //avcodec.AV_CODEC_ID_H264  //AV_CODEC_ID_MPEG4
-            recorder.setFormat("mp4");
-            recorder.setFrameRate(frameGrabber.getFrameRate());
-            //recorder.setSampleFormat(frameGrabber.getSampleFormat()); //
-            recorder.setSampleRate(frameGrabber.getSampleRate());
-
-            recorder.setAudioChannels(frameGrabber.getAudioChannels());
-            recorder.setFrameRate(frameGrabber.getFrameRate());
-            recorder.start();
-            while ((captured_frame = frameGrabber.grabFrame()) != null) {
-                try {
-                    recorder.setTimestamp(frameGrabber.getTimestamp());
-                    recorder.record(captured_frame);
-                } catch (Exception e) {
+            if (!ObjectUtils.isEmpty(fileKey)) { //判断 是压缩包的创建新的目录
+                int index = outFilePath.lastIndexOf("/");  //截取最后一个斜杠的前面的内容
+                String folder = outFilePath.substring(0, index);
+                File path = new File(folder);
+                //目录不存在 创建新的目录
+                if (!path.exists()) {
+                    path.mkdirs();
                 }
             }
-            recorder.stop();
-            recorder.release();
-            frameGrabber.stop();
+            frameGrabber.start();
+            recorder = new FFmpegFrameRecorder(outFilePath, frameGrabber.getImageWidth(), frameGrabber.getImageHeight(), frameGrabber.getAudioChannels());
+            // recorder.setImageHeight(640);
+            // recorder.setImageWidth(480);
+            recorder.setFormat(mp4);
+            recorder.setFrameRate(frameGrabber.getFrameRate());
+            recorder.setSampleRate(frameGrabber.getSampleRate());
+            //视频编码属性配置 H.264 H.265 MPEG
+            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            //设置视频比特率,单位:b
+            recorder.setVideoBitrate(frameGrabber.getVideoBitrate());
+            recorder.setAspectRatio(frameGrabber.getAspectRatio());
+            // 设置音频通用编码格式
+            recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
+            //设置音频比特率,单位:b (比特率越高，清晰度/音质越好，当然文件也就越大 128000 = 182kb)
+            recorder.setAudioBitrate(frameGrabber.getAudioBitrate());
+            recorder.setAudioOptions(frameGrabber.getAudioOptions());
+            recorder.setAudioChannels(frameGrabber.getAudioChannels());
+            recorder.start();
+            while (true) {
+                captured_frame = frameGrabber.grabFrame();
+                if (captured_frame == null) {
+                    System.out.println("转码完成:"+filePath);
+                    break;
+                }
+                recorder.record(captured_frame);
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
+        }finally {
+            if (recorder != null) {   //关闭
+                recorder.stop();
+                recorder.close();
+            }
+            frameGrabber.stop();
+            frameGrabber.close();
         }
-        //是否删除源文件
-        //file.delete();
-        return convertFileName;
+        return outFilePath;
     }
+
 }

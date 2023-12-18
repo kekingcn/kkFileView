@@ -8,24 +8,28 @@ import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
 import static cn.keking.utils.KkFileUtils.isFtpUrl;
 import static cn.keking.utils.KkFileUtils.isHttpUrl;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RequestCallback;
-import org.springframework.web.client.RestTemplate;
+
 /**
  * @author yudian-it
  */
@@ -46,11 +50,12 @@ public class DownloadUtils {
      * @return 本地文件绝对路径
      */
     public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
+        String fileKey = fileAttribute.getFileKey();
         // 忽略ssl证书
         String urlStr = null;
         try {
             SslUtils.ignoreSsl();
-            urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20");
+            urlStr = fileAttribute.getUrl().replaceAll("\\+", "%20").replaceAll(" ", "%20");
         } catch (Exception e) {
             logger.error("忽略SSL证书异常:", e);
         }
@@ -70,8 +75,7 @@ public class DownloadUtils {
             response.setMsg("下载失败:不支持的类型!" + urlStr);
             return response;
         }
-        assert urlStr != null;
-        if (urlStr.contains("?fileKey=")) {
+        if (!ObjectUtils.isEmpty(fileKey)) { //压缩包文件 直接赋予路径 不予下载
             response.setContent(fileDir + fileName);
             response.setMsg(fileName);
             return response;
@@ -87,20 +91,32 @@ public class DownloadUtils {
             if (!fileAttribute.getSkipDownLoad()) {
                 if (isHttpUrl(url)) {
                     File realFile = new File(realPath);
+                    SimpleClientHttpRequestFactory httpFactory = new SimpleClientHttpRequestFactory();
+                    //连接超时10秒，默认无限制，单位：毫秒
+                    httpFactory.setConnectTimeout(60 * 1000);
+                    //读取超时5秒,默认无限限制,单位：毫秒
+                    httpFactory.setReadTimeout(60 * 1000);
+                    restTemplate.setRequestFactory(httpFactory);
                     RequestCallback requestCallback = request -> {
-                        request.getHeaders()
-                                .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
-                       String proxyAuthorization = fileAttribute.getKkProxyAuthorization();
+                        request.getHeaders().setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
+                        String proxyAuthorization = fileAttribute.getKkProxyAuthorization();
                         if(StringUtils.hasText(proxyAuthorization)){
-                          Map<String,String>  proxyAuthorizationMap = mapper.readValue(proxyAuthorization, Map.class);
-                          proxyAuthorizationMap.entrySet().forEach(entry-> request.getHeaders().set(entry.getKey(), entry.getValue()));
+                            Map<String,String>  proxyAuthorizationMap = mapper.readValue(proxyAuthorization, Map.class);
+                            proxyAuthorizationMap.forEach((key, value) -> request.getHeaders().set(key, value));
                         }
                     };
-                    urlStr = URLDecoder.decode(urlStr, StandardCharsets.UTF_8.name());
-                    restTemplate.execute(urlStr, HttpMethod.GET, requestCallback, fileResponse -> {
-                        FileUtils.copyToFile(fileResponse.getBody(), realFile);
-                        return null;
-                    });
+                    try {
+                        URI uri = URI.create(urlStr);
+                        restTemplate.execute(uri, HttpMethod.GET, requestCallback, fileResponse -> {
+                            FileUtils.copyToFile(fileResponse.getBody(), realFile);
+                            return null;
+                        });
+                    }  catch (Exception e) {
+                            response.setCode(1);
+                            response.setContent(null);
+                            response.setMsg("下载失败:" + e);
+                            return response;
+                    }
                 } else if (isFtpUrl(url)) {
                     String ftpUsername = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_USERNAME);
                     String ftpPassword = WebUtils.getUrlParameterReg(fileAttribute.getUrl(), URL_PARAM_FTP_PASSWORD);
