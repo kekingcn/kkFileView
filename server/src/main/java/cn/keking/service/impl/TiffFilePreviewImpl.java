@@ -34,8 +34,8 @@ public class TiffFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
         String tifPreviewType = ConfigConstants.getTifPreviewType();
-        String cacheName =  fileAttribute.getcacheName();
-        String outFilePath = fileAttribute.getoutFilePath();
+        String cacheName =  fileAttribute.getCacheName();
+        String outFilePath = fileAttribute.getOutFilePath();
         String fileKey = fileAttribute.getFileKey(); //判断是否压缩包
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         if ("jpg".equalsIgnoreCase(tifPreviewType) || "pdf".equalsIgnoreCase(tifPreviewType)) {

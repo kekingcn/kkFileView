@@ -36,12 +36,12 @@ public class MediaFilePreviewImpl implements FilePreview {
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
         String suffix = fileAttribute.getSuffix();
-        String cacheName =  fileAttribute.getcacheName();
-        String outFilePath = fileAttribute.getoutFilePath();
+        String cacheName =  fileAttribute.getCacheName();
+        String outFilePath = fileAttribute.getOutFilePath();
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         String fileKey = fileAttribute.getFileKey();
         FileType type = fileAttribute.getType();
-        String[] mediaTypesConvert = FileType.MEDIACONVERT_TYPES_CONVERT;  //获取支持的转换格式
+        String[] mediaTypesConvert = FileType.MEDIA_CONVERT_TYPES;  //获取支持的转换格式
         boolean  mediaTypes = false;
         for(String temp : mediaTypesConvert){
             if (suffix.equals(temp)) {
