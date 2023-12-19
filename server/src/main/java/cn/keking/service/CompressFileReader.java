@@ -75,7 +75,7 @@ public class CompressFileReader {
                         if (type.equals(FileType.PICTURE)) {
                             imgUrls.add(baseUrl +folderName + "_/" + str[0].replace("\\", "/"));
                         }
-                        fileHandlerService.putImgCache(fileName, imgUrls);
+                        fileHandlerService.putImgCache(fileName+ "_", imgUrls);
                     } else {
                         return null;
                     }
