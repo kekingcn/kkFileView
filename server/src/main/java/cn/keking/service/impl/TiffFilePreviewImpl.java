@@ -36,7 +36,6 @@ public class TiffFilePreviewImpl implements FilePreview {
         String tifPreviewType = ConfigConstants.getTifPreviewType();
         String cacheName =  fileAttribute.getCacheName();
         String outFilePath = fileAttribute.getOutFilePath();
-        String fileKey = fileAttribute.getFileKey(); //判断是否压缩包
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         if ("jpg".equalsIgnoreCase(tifPreviewType) || "pdf".equalsIgnoreCase(tifPreviewType)) {
             if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(cacheName) || !ConfigConstants.isCacheEnabled()) {
@@ -58,7 +57,7 @@ public class TiffFilePreviewImpl implements FilePreview {
                         }
                     }
                     //是否保留TIFF源文件
-                    if (ObjectUtils.isEmpty(fileKey) && ConfigConstants.getDeleteSourceFile()) {
+                    if (!fileAttribute.isCompressFile() && ConfigConstants.getDeleteSourceFile()) {
                       //  KkFileUtils.deleteFileByPath(filePath);
                     }
                     if (ConfigConstants.isCacheEnabled()) {
@@ -82,7 +81,7 @@ public class TiffFilePreviewImpl implements FilePreview {
                         }
                     }
                     //是否保留源文件,转换失败保留源文件,转换成功删除源文件
-                    if(ObjectUtils.isEmpty(fileKey) &&  ConfigConstants.getDeleteSourceFile()) {
+                    if(!fileAttribute.isCompressFile() &&  ConfigConstants.getDeleteSourceFile()) {
                         KkFileUtils.deleteFileByPath(filePath);
                     }
                     if (ConfigConstants.isCacheEnabled()) {

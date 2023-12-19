@@ -38,12 +38,11 @@ public class CadFilePreviewImpl implements FilePreview {
         // 预览Type，参数传了就取参数的，没传取系统默认
         String officePreviewType = fileAttribute.getOfficePreviewType() == null ? ConfigConstants.getOfficePreviewType() : fileAttribute.getOfficePreviewType();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
+        boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
         String fileName = fileAttribute.getName();
         String cadPreviewType = ConfigConstants.getCadPreviewType();
-        String cacheName =  fileAttribute.getCacheName();
+        String cacheName = fileAttribute.getCacheName();
         String outFilePath = fileAttribute.getOutFilePath();
-        String fileKey = fileAttribute.getFileKey(); //判断是否压缩包
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(cacheName) || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
@@ -54,15 +53,15 @@ public class CadFilePreviewImpl implements FilePreview {
             String imageUrls = null;
             if (StringUtils.hasText(outFilePath)) {
                 try {
-                    imageUrls =  fileHandlerService.cadToPdf(filePath, outFilePath,cadPreviewType,fileKey);
+                    imageUrls = fileHandlerService.cadToPdf(filePath, outFilePath, cadPreviewType, fileAttribute);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (imageUrls == null ) {
+                if (imageUrls == null) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
                 }
                 //是否保留CAD源文件
-                if(ObjectUtils.isEmpty(fileKey) && ConfigConstants.getDeleteSourceFile()) {
+                if (!fileAttribute.isCompressFile() && ConfigConstants.getDeleteSourceFile()) {
                     KkFileUtils.deleteFileByPath(filePath);
                 }
                 if (ConfigConstants.isCacheEnabled()) {
@@ -71,15 +70,15 @@ public class CadFilePreviewImpl implements FilePreview {
                 }
             }
         }
-        if("tif".equalsIgnoreCase(cadPreviewType)){
+        if ("tif".equalsIgnoreCase(cadPreviewType)) {
             model.addAttribute("currentUrl", cacheName);
             return TIFF_FILE_PREVIEW_PAGE;
-        }else if("svg".equalsIgnoreCase(cadPreviewType)){
+        } else if ("svg".equalsIgnoreCase(cadPreviewType)) {
             model.addAttribute("currentUrl", cacheName);
             return SVG_FILE_PREVIEW_PAGE;
         }
         if (baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
-            return getPreviewType(model, fileAttribute, officePreviewType, cacheName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE,otherFilePreview);
+            return getPreviewType(model, fileAttribute, officePreviewType, cacheName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE, otherFilePreview);
         }
         model.addAttribute("pdfUrl", cacheName);
         return PDF_FILE_PREVIEW_PAGE;

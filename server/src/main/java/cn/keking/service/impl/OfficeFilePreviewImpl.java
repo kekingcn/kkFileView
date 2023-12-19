@@ -52,10 +52,9 @@ public class OfficeFilePreviewImpl implements FilePreview {
         String fileName = fileAttribute.getName(); //获取文件原始名称
         String filePassword = fileAttribute.getFilePassword(); //获取密码
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();  //是否启用强制更新命令
-        boolean isHtml =fileAttribute.getIsHtml();  //xlsx  转换成html
+        boolean isHtmlView = fileAttribute.isHtmlView();  //xlsx  转换成html
         String cacheName = fileAttribute.getCacheName();  //转换后的文件名
         String outFilePath = fileAttribute.getOutFilePath();  //转换后生成文件的路径
-        String fileKey = fileAttribute.getFileKey(); //判断是否压缩包
         if (!officePreviewType.equalsIgnoreCase("html")) {
             if (ConfigConstants.getOfficeTypeWeb() .equalsIgnoreCase("web")) {
                 if (suffix.equalsIgnoreCase("xlsx")) {
@@ -93,12 +92,12 @@ public class OfficeFilePreviewImpl implements FilePreview {
                         }
                         return otherFilePreview.notSupportedFile(model, fileAttribute, "抱歉，该文件版本不兼容，文件版本错误。");
                     }
-                    if (isHtml) {
+                    if (isHtmlView) {
                         // 对转换后的文件进行操作(改变编码方式)
                         fileHandlerService.doActionConvertedFile(outFilePath);
                     }
                     //是否保留OFFICE源文件
-                    if (ObjectUtils.isEmpty(fileKey) && ConfigConstants.getDeleteSourceFile()) {
+                    if (!fileAttribute.isCompressFile() && ConfigConstants.getDeleteSourceFile()) {
                         KkFileUtils.deleteFileByPath(filePath);
                     }
                     if (userToken || !isPwdProtectedOffice) {
@@ -109,11 +108,11 @@ public class OfficeFilePreviewImpl implements FilePreview {
             }
 
         }
-        if (!isHtml && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
+        if (!isHtmlView && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
             return getPreviewType(model, fileAttribute, officePreviewType, cacheName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE, otherFilePreview);
         }
         model.addAttribute("pdfUrl", cacheName);
-        return isHtml ? EXEL_FILE_PREVIEW_PAGE : PDF_FILE_PREVIEW_PAGE;
+        return isHtmlView ? EXEL_FILE_PREVIEW_PAGE : PDF_FILE_PREVIEW_PAGE;
     }
 
     static String getPreviewType(Model model, FileAttribute fileAttribute, String officePreviewType, String pdfName, String outFilePath, FileHandlerService fileHandlerService, String officePreviewTypeImage, OtherFilePreviewImpl otherFilePreview) {

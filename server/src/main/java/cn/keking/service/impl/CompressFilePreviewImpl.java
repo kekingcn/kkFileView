@@ -39,7 +39,6 @@ public class CompressFilePreviewImpl implements FilePreview {
         String fileName=fileAttribute.getName();
         String filePassword = fileAttribute.getFilePassword();
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
-        String fileKey = fileAttribute.getFileKey(); //判断是否压缩包
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
         if (forceUpdatedCache || !StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
@@ -49,7 +48,7 @@ public class CompressFilePreviewImpl implements FilePreview {
             }
             String filePath = response.getContent();
             try {
-                fileTree = compressFileReader.unRar(filePath, filePassword,fileName,fileKey);
+                fileTree = compressFileReader.unRar(filePath, filePassword,fileName, fileAttribute);
             } catch (Exception e) {
                 Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
                 for (Throwable throwable : throwableArray) {
@@ -63,7 +62,7 @@ public class CompressFilePreviewImpl implements FilePreview {
             }
             if (!ObjectUtils.isEmpty(fileTree)) {
                 //是否保留压缩包源文件
-                if (ObjectUtils.isEmpty(fileKey) && ConfigConstants.getDeleteSourceFile()) {
+                if (!fileAttribute.isCompressFile() && ConfigConstants.getDeleteSourceFile()) {
                     KkFileUtils.deleteFileByPath(filePath);
                 }
                 if (ConfigConstants.isCacheEnabled()) {
