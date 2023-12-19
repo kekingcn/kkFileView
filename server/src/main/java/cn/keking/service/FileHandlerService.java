@@ -241,7 +241,7 @@ public class FileHandlerService implements InitializingBean {
      */
     public List<String> pdf2jpg(String fileNameFilePath,String pdfFilePath, String pdfName, FileAttribute fileAttribute) throws Exception {
         boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
-        boolean UsePasswordCache = fileAttribute.getUsePasswordCache();
+        boolean usePasswordCache = fileAttribute.getUsePasswordCache();
         String filePassword = fileAttribute.getFilePassword();
         String fileKey = fileAttribute.getFileKey();
         String pdfPassword = null;
@@ -300,7 +300,7 @@ public class FileHandlerService implements InitializingBean {
                 }
             }
 
-            if (UsePasswordCache || !PDF_PASSWORD_MSG.equals(pdfPassword)) {   //加密文件  判断是否启用缓存命令
+            if (usePasswordCache || !PDF_PASSWORD_MSG.equals(pdfPassword)) {   //加密文件  判断是否启用缓存命令
                 this.addPdf2jpgCache(pdfFilePath, pageCount);
             }
         } catch (IOException e) {
