@@ -41,8 +41,8 @@ public class CadFilePreviewImpl implements FilePreview {
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
         String fileName = fileAttribute.getName();
         String cadPreviewType = ConfigConstants.getCadPreviewType();
-        String cacheName =  fileAttribute.getcacheName();
-        String outFilePath = fileAttribute.getoutFilePath();
+        String cacheName =  fileAttribute.getCacheName();
+        String outFilePath = fileAttribute.getOutFilePath();
         String fileKey = fileAttribute.getFileKey(); //判断是否压缩包
         // 判断之前是否已转换过，如果转换过，直接返回，否则执行转换
         if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(cacheName) || !ConfigConstants.isCacheEnabled()) {

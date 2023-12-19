@@ -34,8 +34,8 @@ public class PdfFilePreviewImpl implements FilePreview {
         String pdfName = fileAttribute.getName();  //获取原始文件名
         String officePreviewType = fileAttribute.getOfficePreviewType(); //转换类型
         boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();  //是否启用强制更新命令
-        String outFilePath = fileAttribute.getoutFilePath();  //生成的文件路径
-        String fileNameFilePath = fileAttribute.getfileNameFilePath();  //原始文件路径
+        String outFilePath = fileAttribute.getOutFilePath();  //生成的文件路径
+        String originFilePath = fileAttribute.getOriginFilePath();  //原始文件路径
         if (OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType)) {
             //当文件不存在时，就去下载
             if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(pdfName) || !ConfigConstants.isCacheEnabled()) {
@@ -43,15 +43,15 @@ public class PdfFilePreviewImpl implements FilePreview {
                 if (response.isFailure()) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
                 }
-                fileNameFilePath = response.getContent();
+                originFilePath = response.getContent();
                 if (ConfigConstants.isCacheEnabled()) {
                     // 加入缓存
-                    fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(fileNameFilePath));
+                    fileHandlerService.addConvertedFile(pdfName, fileHandlerService.getRelativePath(originFilePath));
                 }
             }
             List<String> imageUrls;
             try {
-                imageUrls = fileHandlerService.pdf2jpg(fileNameFilePath,outFilePath, pdfName, fileAttribute);
+                imageUrls = fileHandlerService.pdf2jpg(originFilePath,outFilePath, pdfName, fileAttribute);
             } catch (Exception e) {
                 Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
                 for (Throwable throwable : throwableArray) {

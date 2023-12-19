@@ -14,14 +14,14 @@ public class FileAttribute {
     private String url;
     private String fileKey;
     private String filePassword;
-    private boolean userToken;
+    private boolean usePasswordCache;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
     private String tifPreviewType;
     private Boolean skipDownLoad = false;
     private Boolean forceUpdatedCache = false;
     private String cacheName;
     private String outFilePath;
-    private String fileNameFilePath;
+    private String originFilePath;
     private String cacheListName;
     private boolean isHtml;
 
@@ -66,12 +66,12 @@ public class FileAttribute {
         this.filePassword = filePassword;
     }
 
-    public boolean getUserToken() {
-        return userToken;
+    public boolean getUsePasswordCache() {
+        return usePasswordCache;
     }
 
-    public void setUserToken(boolean userToken) {
-        this.userToken = userToken;
+    public void setUsePasswordCache(boolean usePasswordCache) {
+        this.usePasswordCache = usePasswordCache;
     }
 
     public String getOfficePreviewType() {
@@ -101,35 +101,35 @@ public class FileAttribute {
     public String getName() {
         return name;
     }
-    public String getcacheName() {
+    public String getCacheName() {
         return cacheName;
     }
-    public String getcacheListName() {
+    public String getCacheListName() {
         return cacheListName;
     }
-    public String getoutFilePath() {
+    public String getOutFilePath() {
         return outFilePath;
     }
-    public String getfileNameFilePath() {
-        return fileNameFilePath;
+    public String getOriginFilePath() {
+        return originFilePath;
     }
-    public boolean getisHtml() {
+    public boolean getIsHtml() {
         return isHtml;
     }
 
-    public void setcacheName(String cacheName) {
+    public void setCacheName(String cacheName) {
         this.cacheName = cacheName;
     }
-    public void setcacheListName(String cacheListName) {
+    public void setCacheListName(String cacheListName) {
         this.cacheListName = cacheListName;
     }
-    public void setoutFilePath(String outFilePath) {
+    public void setOutFilePath(String outFilePath) {
         this.outFilePath = outFilePath;
     }
-    public void setfileNameFilePath(String fileNameFilePath) {
-        this.fileNameFilePath = fileNameFilePath;
+    public void setOriginFilePath(String originFilePath) {
+        this.originFilePath = originFilePath;
     }
-    public void setisHtml(boolean isHtml) {
+    public void setIsHtml(boolean isHtml) {
         this.isHtml = isHtml;
     }
     public void setName(String name) {

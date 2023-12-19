@@ -241,7 +241,7 @@ public class FileHandlerService implements InitializingBean {
      */
     public List<String> pdf2jpg(String fileNameFilePath,String pdfFilePath, String pdfName, FileAttribute fileAttribute) throws Exception {
         boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
-        boolean userToken = fileAttribute.getUserToken();
+        boolean usePasswordCache = fileAttribute.getUsePasswordCache();
         String filePassword = fileAttribute.getFilePassword();
         String fileKey = fileAttribute.getFileKey();
         String pdfPassword = null;
@@ -300,7 +300,7 @@ public class FileHandlerService implements InitializingBean {
                 }
             }
 
-            if (userToken || !PDF_PASSWORD_MSG.equals(pdfPassword)) {   //加密文件  判断是否启用缓存命令
+            if (usePasswordCache || !PDF_PASSWORD_MSG.equals(pdfPassword)) {   //加密文件  判断是否启用缓存命令
                 this.addPdf2jpgCache(pdfFilePath, pageCount);
             }
         } catch (IOException e) {
@@ -431,10 +431,10 @@ public class FileHandlerService implements InitializingBean {
         FileType type;
         String fileName; //原始文件名
         String cacheName;  //缓存文件名
-        String cacheUnifyName;  //缓存文件名统一去除文件后缀名
+        String cachePrefixName;  //缓存文件名统一去除文件后缀名
         String cacheListName;  //缓存列表文件名称
         String outFilePath; //生成文件的路径
-        String fileNameFilePath; //原始文件路径
+        String originFilePath; //原始文件路径
         String fullFileName = WebUtils.getUrlParameterReg(url, "fullfilename");
         String fileKey = WebUtils.getUrlParameterReg(url, "kkCompressfileKey"); //压缩包指定特殊符号
         if (StringUtils.hasText(fullFileName)) {
@@ -472,20 +472,20 @@ public class FileHandlerService implements InitializingBean {
         }
         fileName = KkFileUtils.htmlEscape(fileName);  //文件名处理
         boolean isHtml = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
-        cacheUnifyName = fileName.substring(0, fileName.lastIndexOf(".") ) + suffix+"."; //这里统一文件名处理 下面更具类型 各自添加后缀
+        cachePrefixName = fileName.substring(0, fileName.lastIndexOf(".") ) + suffix+"."; //这里统一文件名处理 下面更具类型 各自添加后缀
         if(type.equals(FileType.OFFICE)){
-            cacheName = cacheUnifyName +(isHtml ? "html" : "pdf"); //生成文件添加类型后缀 防止同名文件
+            cacheName = cachePrefixName +(isHtml ? "html" : "pdf"); //生成文件添加类型后缀 防止同名文件
         }else if(type.equals(FileType.PDF)){
             cacheName = fileName;
         }else if(type.equals(FileType.MEDIACONVERT)){
-            cacheName = cacheUnifyName +"mp4" ;
+            cacheName = cachePrefixName +"mp4" ;
         }else if(type.equals(FileType.CAD)){
             String cadPreviewType = ConfigConstants.getCadPreviewType();
-            cacheName = cacheUnifyName + cadPreviewType ; //生成文件添加类型后缀 防止同名文件
+            cacheName = cachePrefixName + cadPreviewType ; //生成文件添加类型后缀 防止同名文件
         }else if(type.equals(FileType.COMPRESS)){
             cacheName = fileName;
         }else if(type.equals(FileType.TIFF)){
-            cacheName = cacheUnifyName + ConfigConstants.getTifPreviewType();
+            cacheName = cachePrefixName + ConfigConstants.getTifPreviewType();
         }else {
             cacheName = fileName;
         }
@@ -493,21 +493,21 @@ public class FileHandlerService implements InitializingBean {
             cacheName = "_decompression"+ cacheName;
         }
         outFilePath = fileDir + cacheName;
-        fileNameFilePath = fileDir + fileName;
-        cacheListName = cacheUnifyName+"ListName";  //文件列表缓存文件名
+        originFilePath = fileDir + fileName;
+        cacheListName = cachePrefixName+"ListName";  //文件列表缓存文件名
         attribute.setType(type);
         attribute.setName(fileName);
-        attribute.setcacheName(cacheName);
-        attribute.setcacheListName(cacheListName);
-        attribute.setisHtml(isHtml);
-        attribute.setoutFilePath(outFilePath);
-        attribute.setfileNameFilePath(fileNameFilePath);
+        attribute.setCacheName(cacheName);
+        attribute.setCacheListName(cacheListName);
+        attribute.setIsHtml(isHtml);
+        attribute.setOutFilePath(outFilePath);
+        attribute.setOriginFilePath(originFilePath);
         attribute.setSuffix(suffix);
         attribute.setUrl(url);
         if (req != null) {
             String officePreviewType = req.getParameter("officePreviewType");
             String forceUpdatedCache = req.getParameter("forceUpdatedCache");
-            String userToken =req.getParameter("userToken");
+            String usePasswordCache =req.getParameter("usePasswordCache");
             if (StringUtils.hasText(officePreviewType)) {
                 attribute.setOfficePreviewType(officePreviewType);
             }
@@ -527,8 +527,8 @@ public class FileHandlerService implements InitializingBean {
             if (StringUtils.hasText(filePassword)) {
                 attribute.setFilePassword(filePassword);
             }
-            if ("true".equalsIgnoreCase(userToken)) {
-                attribute.setUserToken(true);
+            if ("true".equalsIgnoreCase(usePasswordCache)) {
+                attribute.setUsePasswordCache(true);
             }
             String kkProxyAuthorization = req.getHeader( "kk-proxy-authorization");
             attribute.setKkProxyAuthorization(kkProxyAuthorization);
