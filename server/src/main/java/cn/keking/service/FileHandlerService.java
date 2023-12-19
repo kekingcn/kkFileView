@@ -454,18 +454,21 @@ public class FileHandlerService implements InitializingBean {
         }
         if (!ObjectUtils.isEmpty(fileKey)) {  //判断是否使用特定压缩包符号
             try {
+                // http://127.0.0.1:8012/各类型文件1 - 副本.zip_/各类型文件/正常预览/PPT转的PDF.pdf?kkCompressfileKey=各类型文件1 - 副本.zip_
+                // http://127.0.0.1:8012/preview/各类型文件1 - 副本.zip_/各类型文件/正常预览/PPT转的PDF.pdf?kkCompressfileKey=各类型文件1 - 副本.zip_ 获取路径就会错误 需要下面的方法
                 URL urll = new URL(url);
-                fileName = urll.getPath(); //压缩包类型文件 获取解压后的绝对地址 不在执行重复下载方法
+                String _Path = urll.getPath(); //获取url路径
+                String urlStrr = getSubString(_Path, fileKey); //反代情况下添加前缀,只获取有压缩包字符的路径
+                fileName = fileKey + urlStrr.trim(); //拼接完整路径
                 attribute.setSkipDownLoad(true);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
         }
         url = WebUtils.encodeUrlFileName(url);
-        if(UrlEncoderUtils.hasUrlEncoded(fileName) && UrlEncoderUtils.hasUrlEncoded(suffix)){  //判断文件名是否转义
+        if(UrlEncoderUtils.hasUrlEncoded(fileName)){  //判断文件名是否转义
             try {
-                fileName = URLDecoder.decode(fileName, "UTF-8").replaceAll("\\+", "%20").replaceAll(" ", "%20");
-                suffix = URLDecoder.decode(suffix, "UTF-8");
+                fileName = URLDecoder.decode(fileName, uriEncoding).replaceAll("\\+", "%20");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

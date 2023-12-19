@@ -34,9 +34,10 @@ public class CompressFileReader {
     public String unRar(String filePath, String filePassword, String fileName, String fileKey) throws Exception {
         List<String> imgUrls = new ArrayList<>();
         String baseUrl = BaseUrlFilter.getBaseUrl();
+        String packagePath = "_"; //防止文件名重复 压缩包统一生成文件添加_符号
         String folderName =  filePath.replace(fileDir, ""); //修复压缩包 多重目录获取路径错误
         if (!ObjectUtils.isEmpty(fileKey)) { //压缩包文件 直接赋予路径 不予下载
-              folderName = "_decompression"+folderName;
+              folderName = "_decompression"+folderName;  //重新修改多重压缩包 生成文件路径
         }
         RandomAccessFile randomAccessFile = null;
         IInArchive inArchive = null;
@@ -57,11 +58,11 @@ public class CompressFileReader {
                             }
                             str[0] = str[0].replace("\\",  File.separator); //Linux 下路径错误
                             String  str1 = str[0].substring(0, str[0].lastIndexOf(File.separator)+ 1);
-                            File file = new File(fileDir, finalFolderName + "_" + File.separator + str1);
+                            File file = new File(fileDir, finalFolderName + packagePath + File.separator + str1);
                             if (!file.exists()) {
                                 file.mkdirs();
                             }
-                            OutputStream out = new FileOutputStream( fileDir+ finalFolderName + "_" + File.separator + str[0], true);
+                            OutputStream out = new FileOutputStream( fileDir+ finalFolderName + packagePath + File.separator + str[0], true);
                             IOUtils.write(data, out);
                             out.close();
                         } catch (Exception e) {
@@ -73,15 +74,15 @@ public class CompressFileReader {
                     if (result == ExtractOperationResult.OK) {
                         FileType type = FileType.typeFromUrl(str[0]);
                         if (type.equals(FileType.PICTURE)) {
-                            imgUrls.add(baseUrl +folderName + "_/" + str[0].replace("\\", "/"));
+                            imgUrls.add(baseUrl +folderName + packagePath +"/" + str[0].replace("\\", "/"));
                         }
-                        fileHandlerService.putImgCache(fileName, imgUrls);
+                        fileHandlerService.putImgCache(fileName+ packagePath, imgUrls);
                     } else {
                         return null;
                     }
                 }
             }
-            return folderName + "_";
+            return folderName + packagePath;
         } catch (Exception e) {
             throw new Exception(e);
         } finally {
