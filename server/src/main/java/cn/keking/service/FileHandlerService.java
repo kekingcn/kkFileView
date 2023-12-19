@@ -205,7 +205,7 @@ public class FileHandlerService implements InitializingBean {
         String pdfFolder = pdfFilePath.substring(0, pdfFilePath.length() - 4);
         String urlPrefix;
         try {
-            urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%2B");
+            urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException e) {
             logger.error("UnsupportedEncodingException", e);
             urlPrefix = baseUrl + pdfFolder;
