@@ -1,4 +1,5 @@
 package cn.keking.service.impl;
+
 import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
@@ -28,28 +29,29 @@ public class MediaFilePreviewImpl implements FilePreview {
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
     private static final String mp4 = "mp4";
+
     public MediaFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.otherFilePreview = otherFilePreview;
     }
+
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
         String fileName = fileAttribute.getName();
         String suffix = fileAttribute.getSuffix();
-        String cacheName =  fileAttribute.getCacheName();
+        String cacheName = fileAttribute.getCacheName();
         String outFilePath = fileAttribute.getOutFilePath();
-        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
-        String fileKey = fileAttribute.getFileKey();
+        boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
         FileType type = fileAttribute.getType();
         String[] mediaTypesConvert = FileType.MEDIA_CONVERT_TYPES;  //获取支持的转换格式
-        boolean  mediaTypes = false;
-        for(String temp : mediaTypesConvert){
+        boolean mediaTypes = false;
+        for (String temp : mediaTypesConvert) {
             if (suffix.equals(temp)) {
                 mediaTypes = true;
                 break;
             }
         }
-        if(!url.toLowerCase().startsWith("http") || checkNeedConvert(mediaTypes)){  //不是http协议的 //   开启转换方式并是支持转换格式的
+        if (!url.toLowerCase().startsWith("http") || checkNeedConvert(mediaTypes)) {  //不是http协议的 //   开启转换方式并是支持转换格式的
             if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(cacheName) || !ConfigConstants.isCacheEnabled()) {  //查询是否开启缓存
                 ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
                 if (response.isFailure()) {
@@ -58,15 +60,15 @@ public class MediaFilePreviewImpl implements FilePreview {
                 String filePath = response.getContent();
                 String convertedUrl = null;
                 try {
-                    if(mediaTypes){
-                        convertedUrl=convertToMp4(filePath,outFilePath,fileKey);
-                    }else {
-                        convertedUrl =outFilePath;  //其他协议的  不需要转换方式的文件 直接输出
+                    if (mediaTypes) {
+                        convertedUrl = convertToMp4(filePath, outFilePath, fileAttribute);
+                    } else {
+                        convertedUrl = outFilePath;  //其他协议的  不需要转换方式的文件 直接输出
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (convertedUrl == null ) {
+                if (convertedUrl == null) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, "视频转换异常，请联系管理员");
                 }
                 if (ConfigConstants.isCacheEnabled()) {
@@ -74,39 +76,42 @@ public class MediaFilePreviewImpl implements FilePreview {
                     fileHandlerService.addConvertedFile(cacheName, fileHandlerService.getRelativePath(outFilePath));
                 }
                 model.addAttribute("mediaUrl", fileHandlerService.getRelativePath(outFilePath));
-            }else{
+            } else {
                 model.addAttribute("mediaUrl", fileHandlerService.listConvertedFiles().get(cacheName));
             }
             return MEDIA_FILE_PREVIEW_PAGE;
         }
-        if(type.equals(FileType.MEDIA)){  // 支持输出 只限默认格式
+        if (type.equals(FileType.MEDIA)) {  // 支持输出 只限默认格式
             model.addAttribute("mediaUrl", url);
             return MEDIA_FILE_PREVIEW_PAGE;
         }
         return otherFilePreview.notSupportedFile(model, fileAttribute, "系统还不支持该格式文件的在线预览");
     }
+
     /**
      * 检查视频文件转换是否已开启，以及当前文件是否需要转换
+     *
      * @return
      */
     private boolean checkNeedConvert(boolean mediaTypes) {
         //1.检查开关是否开启
-        if("true".equals(ConfigConstants.getMediaConvertDisable())){
+        if ("true".equals(ConfigConstants.getMediaConvertDisable())) {
             return mediaTypes;
         }
         return false;
     }
-    private static String convertToMp4(String filePath,String outFilePath,String fileKey)throws Exception {
+
+    private static String convertToMp4(String filePath, String outFilePath, FileAttribute fileAttribute) throws Exception {
         FFmpegFrameGrabber frameGrabber = FFmpegFrameGrabber.createDefault(filePath);
         Frame captured_frame;
         FFmpegFrameRecorder recorder = null;
         try {
-            File desFile=new File(outFilePath);
+            File desFile = new File(outFilePath);
             //判断一下防止重复转换
-            if(desFile.exists()){
+            if (desFile.exists()) {
                 return outFilePath;
             }
-            if (!ObjectUtils.isEmpty(fileKey)) { //判断 是压缩包的创建新的目录
+            if (fileAttribute.isCompressFile()) { //判断 是压缩包的创建新的目录
                 int index = outFilePath.lastIndexOf("/");  //截取最后一个斜杠的前面的内容
                 String folder = outFilePath.substring(0, index);
                 File path = new File(folder);
@@ -137,7 +142,7 @@ public class MediaFilePreviewImpl implements FilePreview {
             while (true) {
                 captured_frame = frameGrabber.grabFrame();
                 if (captured_frame == null) {
-                    System.out.println("转码完成:"+filePath);
+                    System.out.println("转码完成:" + filePath);
                     break;
                 }
                 recorder.record(captured_frame);
@@ -145,7 +150,7 @@ public class MediaFilePreviewImpl implements FilePreview {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        }finally {
+        } finally {
             if (recorder != null) {   //关闭
                 recorder.stop();
                 recorder.close();

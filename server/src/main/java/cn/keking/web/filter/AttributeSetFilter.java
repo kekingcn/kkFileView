@@ -38,7 +38,6 @@ public class AttributeSetFilter implements Filter {
         request.setAttribute("pdfDownloadDisable", ConfigConstants.getPdfDownloadDisable());
         request.setAttribute("pdfBookmarkDisable", ConfigConstants.getPdfBookmarkDisable());
         request.setAttribute("pdfDisableEditing", ConfigConstants.getPdfDisableEditing());
-        request.setAttribute("fileKey", httpRequest.getParameter("fileKey"));
         request.setAttribute("switchDisabled", ConfigConstants.getOfficePreviewSwitchDisabled());
         request.setAttribute("fileUploadDisable", ConfigConstants.getFileUploadDisable());
         request.setAttribute("beian", ConfigConstants.getBeian());

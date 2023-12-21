@@ -50,7 +50,6 @@ public class DownloadUtils {
      * @return 本地文件绝对路径
      */
     public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
-        String fileKey = fileAttribute.getFileKey();
         // 忽略ssl证书
         String urlStr = null;
         try {
@@ -75,7 +74,7 @@ public class DownloadUtils {
             response.setMsg("下载失败:不支持的类型!" + urlStr);
             return response;
         }
-        if (!ObjectUtils.isEmpty(fileKey)) { //压缩包文件 直接赋予路径 不予下载
+        if (fileAttribute.isCompressFile()) { //压缩包文件 直接赋予路径 不予下载
             response.setContent(fileDir + fileName);
             response.setMsg(fileName);
             return response;

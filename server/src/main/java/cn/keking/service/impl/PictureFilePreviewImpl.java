@@ -29,8 +29,8 @@ public class PictureFilePreviewImpl extends CommonPreviewImpl {
         url= KkFileUtils.htmlEscape(url);
         List<String> imgUrls = new ArrayList<>();
         imgUrls.add(url);
-        String fileKey = fileAttribute.getFileKey();
-        List<String> zipImgUrls = fileHandlerService.getImgCache(fileKey);
+        String compressFileKey = fileAttribute.getCompressFileKey();
+        List<String> zipImgUrls = fileHandlerService.getImgCache(compressFileKey);
         if (!CollectionUtils.isEmpty(zipImgUrls)) {
             imgUrls.addAll(zipImgUrls);
         }
