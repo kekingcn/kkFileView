@@ -21,7 +21,7 @@
     if (!url.startsWith(baseUrl)) {
         url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url));
     }
-      document.getElementsByTagName('iframe')[0].src = "${baseUrl}drawio/index.html?src=about#U"+ encodeURIComponent(url)+"";
+      document.getElementsByTagName('iframe')[0].src = "${baseUrl}drawio/index.html?lightbox=1&gapi=0&db=0&od=0&tr=0&gh=0&gl=0&edit=_blank&lang=zh#U"+ encodeURIComponent(url)+"";
     document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight - 10;
     /**
      * 页面变化调整高度
