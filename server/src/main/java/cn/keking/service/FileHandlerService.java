@@ -457,8 +457,11 @@ public class FileHandlerService implements InitializingBean {
                 String _Path = urll.getPath(); //获取url路径
                 String urlStrr = getSubString(_Path, compressFileKey); //反代情况下添加前缀,只获取有压缩包字符的路径
                 originFileName = compressFileKey + urlStrr.trim(); //拼接完整路径
+                originFileName = URLDecoder.decode(originFileName, uriEncoding); //压缩包文件中文编码问题
                 attribute.setSkipDownLoad(true);
             } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
