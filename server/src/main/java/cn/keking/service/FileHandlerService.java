@@ -204,13 +204,14 @@ public class FileHandlerService implements InitializingBean {
         String baseUrl = BaseUrlFilter.getBaseUrl();
         pdfFilePath = pdfFilePath.replace(fileDir, "");
         String pdfFolder = pdfFilePath.substring(0, pdfFilePath.length() - 4);
-        String urlPrefix;
-        try {
-            urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            logger.error("UnsupportedEncodingException", e);
-            urlPrefix = baseUrl + pdfFolder;
-        }
+        // 移除多余的转义（压缩包中的文件路径/会被转义，导致无法正常预览）
+        String urlPrefix = baseUrl + pdfFolder;
+        // try {
+        //     urlPrefix = baseUrl + URLEncoder.encode(pdfFolder, uriEncoding).replaceAll("\\+", "%20");
+        // } catch (UnsupportedEncodingException e) {
+        //     logger.error("UnsupportedEncodingException", e);
+        //     urlPrefix = baseUrl + pdfFolder;
+        // }
         return urlPrefix + "/" + index + PDF2JPG_IMAGE_FORMAT;
     }
 
@@ -468,7 +469,8 @@ public class FileHandlerService implements InitializingBean {
         url = WebUtils.encodeUrlFileName(url);
         if (UrlEncoderUtils.hasUrlEncoded(originFileName)) {  //判断文件名是否转义
             try {
-                originFileName = URLDecoder.decode(originFileName, uriEncoding).replaceAll("\\+", "%20");
+                // 无需转义+号，否则文件名包含+号将无法正常下载资源
+                originFileName = URLDecoder.decode(originFileName, uriEncoding);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

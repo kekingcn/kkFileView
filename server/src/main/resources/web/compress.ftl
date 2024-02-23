@@ -52,7 +52,8 @@
 
     function chooseNode(event, treeId, treeNode) {
         if (!treeNode.isParent) {
-            var path = '${baseUrl}' + treeNode.id + "?kkCompressfileKey=" + '${fileTree}';
+            // 转义特殊字符，解决压缩包内特殊文件名无法预览问题
+            var path = '${baseUrl}' + treeNode.id.split("/").map(name=>encodeURIComponent(name)).join("/") + "?kkCompressfileKey=" + encodeURIComponent('${fileTree}');
             location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
         }
     }
