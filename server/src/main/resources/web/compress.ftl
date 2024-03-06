@@ -49,17 +49,15 @@
             onClick: chooseNode,
         }
     };
-
     function chooseNode(event, treeId, treeNode) {
         if (!treeNode.isParent) {
-            var path = '${baseUrl}' + treeNode.id + "?kkCompressfileKey=" + '${fileTree}';
+            var path = '${baseUrl}' + treeNode.id + "?kkCompressfileKey=" + '${fileTree}'+"&kkCompressfilepath=" + treeNode.id+"&fullfilename="+treeNode.name;
             location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
         }
     }
-
     $(document).ready(function () {
     var url = '${fileTree}';
-        $.ajax({
+       $.ajax({
             type: "get",
             url: "${baseUrl}directory?urls="+encodeURIComponent(Base64.encode(url)),
             success: function (res) {
