@@ -258,7 +258,7 @@
     $(function () {
         $('#table').bootstrapTable({
             url: 'listFiles',
-            pageNumber: ${homePpageNumber},//初始化加载第一页
+            pageNumber: ${homePageNumber},//初始化加载第一页
             pageSize:${homePageSize}, //初始化单页记录数
             pagination: ${homePagination}, //是否分页
             pageList: [5, 10, 20, 30, 50, 100, 200, 500],

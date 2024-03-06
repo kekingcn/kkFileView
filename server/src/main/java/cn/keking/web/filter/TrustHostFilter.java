@@ -19,7 +19,7 @@ import org.springframework.util.FileCopyUtils;
  */
 public class TrustHostFilter implements Filter {
 
-    private String notTrustHost;
+    private String notTrustHostHtmlView;
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -27,7 +27,7 @@ public class TrustHostFilter implements Filter {
         try {
             classPathResource.getInputStream();
             byte[] bytes = FileCopyUtils.copyToByteArray(classPathResource.getInputStream());
-            this.notTrustHost = new String(bytes, StandardCharsets.UTF_8);
+            this.notTrustHostHtmlView = new String(bytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,14 +37,22 @@ public class TrustHostFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String url = WebUtils.getSourceUrl(request);
         String host = WebUtils.getHost(url);
-        if (host != null &&!ConfigConstants.getTrustHostSet().isEmpty() && !ConfigConstants.getTrustHostSet().contains(host)) {
-            String html = this.notTrustHost.replace("${current_host}", host);
+        assert host != null;
+        if (!isTrustHost(host) || isNotTrustHost(host)) {
+            String html = this.notTrustHostHtmlView.replace("${current_host}", host);
             response.getWriter().write(html);
             response.getWriter().close();
-        }
-        else {
+        } else {
             chain.doFilter(request, response);
         }
+    }
+
+    public boolean isTrustHost(String host) {
+        return !ConfigConstants.getTrustHostSet().isEmpty() && ConfigConstants.getTrustHostSet().contains(host);
+    }
+
+    public boolean isNotTrustHost(String host) {
+        return !ConfigConstants.getNotTrustHostSet().isEmpty() && ConfigConstants.getNotTrustHostSet().contains(host);
     }
 
     @Override

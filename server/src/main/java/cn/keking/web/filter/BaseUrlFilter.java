@@ -43,7 +43,7 @@ public class BaseUrlFilter implements Filter {
         final String urlInHeader = servletRequest.getHeader("X-Base-Url");
         if (StringUtils.isNotEmpty(urlInHeader)) {
             baseUrl = urlInHeader;
-        } else if (configBaseUrl != null && !ConfigConstants.DEFAULT_BASE_URL.equalsIgnoreCase(configBaseUrl)) {
+        } else if (configBaseUrl != null && !ConfigConstants.DEFAULT_VALUE.equalsIgnoreCase(configBaseUrl)) {
             //2、如果配置文件中配置了 baseUrl 且不为 default 则以配置文件为准
             baseUrl = configBaseUrl;
         } else {
