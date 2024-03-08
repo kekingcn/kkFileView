@@ -2,6 +2,7 @@ package cn.keking.web.filter;
 
 import cn.keking.config.ConfigConstants;
 import cn.keking.utils.WebUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.Filter;
@@ -10,6 +11,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
 
@@ -38,7 +41,7 @@ public class TrustHostFilter implements Filter {
         String url = WebUtils.getSourceUrl(request);
         String host = WebUtils.getHost(url);
         assert host != null;
-        if (!isTrustHost(host) || isNotTrustHost(host)) {
+        if (isNotTrustHost(host)) {
             String html = this.notTrustHostHtmlView.replace("${current_host}", host);
             response.getWriter().write(html);
             response.getWriter().close();
@@ -47,12 +50,14 @@ public class TrustHostFilter implements Filter {
         }
     }
 
-    public boolean isTrustHost(String host) {
-        return !ConfigConstants.getTrustHostSet().isEmpty() && ConfigConstants.getTrustHostSet().contains(host);
-    }
-
     public boolean isNotTrustHost(String host) {
-        return !ConfigConstants.getNotTrustHostSet().isEmpty() && ConfigConstants.getNotTrustHostSet().contains(host);
+        if (CollectionUtils.isNotEmpty(ConfigConstants.getNotTrustHostSet())) {
+            return ConfigConstants.getNotTrustHostSet().contains(host);
+        }
+        if (CollectionUtils.isNotEmpty(ConfigConstants.getTrustHostSet())) {
+            return !ConfigConstants.getTrustHostSet().contains(host);
+        }
+        return false;
     }
 
     @Override
