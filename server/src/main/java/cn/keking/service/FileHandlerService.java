@@ -437,11 +437,7 @@ public class FileHandlerService implements InitializingBean {
             type = FileType.typeFromFileName(fullFileName);
             suffix = KkFileUtils.suffixFromFileName(fullFileName);
             // 移除fullfilename参数
-            if (url.indexOf("fullfilename=" + fullFileName + "&") > 0) {
-                url = url.replace("fullfilename=" + fullFileName + "&", "");
-            } else {
-                url = url.replace("fullfilename=" + fullFileName, "");
-            }
+            url = WebUtils.clearFullfilenameParam(url);
         } else {
             originFileName = WebUtils.getFileNameFromURL(url);
             type = FileType.typeFromUrl(url);
@@ -460,13 +456,14 @@ public class FileHandlerService implements InitializingBean {
                 e.printStackTrace();
             }
         }
-        url = WebUtils.encodeUrlFileName(url);
         if (UrlEncoderUtils.hasUrlEncoded(originFileName)) {  //判断文件名是否转义
             try {
-                originFileName = URLDecoder.decode(originFileName, uriEncoding).replaceAll("\\+", "%20");
+                originFileName = URLDecoder.decode(originFileName, uriEncoding);  //转义的文件名 解下出原始文件名
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+        }else {
+            url = WebUtils.encodeUrlFileName(url); //对未转义的url进行转义
         }
         originFileName = KkFileUtils.htmlEscape(originFileName);  //文件名处理
         boolean isHtmlView = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
