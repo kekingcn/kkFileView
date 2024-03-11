@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
@@ -38,6 +39,52 @@ public class WebUtils {
      */
     public static URL normalizedURL(String urlStr) throws GalimatiasParseException, MalformedURLException {
         return io.mola.galimatias.URL.parse(urlStr).toJavaURL();
+    }
+
+
+    /**
+     * 对文件名进行编码
+     *
+     */
+    public static String encodeFileName(String name) {
+        try {
+            name = URLEncoder.encode(name, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+        return name;
+    }
+
+
+    /**
+     * 去除fullfilename参数
+     *
+     * @param urlStr
+     * @return
+     */
+    public static String clearFullfilenameParam(String urlStr) {
+        // 去除特定参数字段
+        Pattern pattern = Pattern.compile("(&fullfilename=[^&]*)");
+        Matcher matcher = pattern.matcher(urlStr);
+        return matcher.replaceAll("");
+    }
+
+    /**
+     * 对URL进行编码
+     */
+    public static String  urlEncoderencode(String urlStr) {
+
+        String fullFileName = getUrlParameterReg(urlStr, "fullfilename");  //获取文件名
+        if (!ObjectUtils.isEmpty(fullFileName)) {  //判断是否启用了 流接入方法
+            urlStr = clearFullfilenameParam(urlStr);   //去掉流接入 拼接命令
+        }
+        try {
+            urlStr = URLEncoder.encode(urlStr, "UTF-8").replaceAll("\\+", "%20");
+            urlStr = urlStr.replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%26", "&");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return urlStr;
     }
 
     /**

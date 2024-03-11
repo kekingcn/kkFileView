@@ -9,13 +9,13 @@ import cn.keking.service.OfficeToPdfService;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.OfficeUtils;
+import cn.keking.utils.WebUtils;
 import cn.keking.web.filter.BaseUrlFilter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.jodconverter.core.office.OfficeException;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -111,7 +111,7 @@ public class OfficeFilePreviewImpl implements FilePreview {
         if (!isHtmlView && baseUrl != null && (OFFICE_PREVIEW_TYPE_IMAGE.equals(officePreviewType) || OFFICE_PREVIEW_TYPE_ALL_IMAGES.equals(officePreviewType))) {
             return getPreviewType(model, fileAttribute, officePreviewType, cacheName, outFilePath, fileHandlerService, OFFICE_PREVIEW_TYPE_IMAGE, otherFilePreview);
         }
-        model.addAttribute("pdfUrl", cacheName);
+        model.addAttribute("pdfUrl", WebUtils.encodeFileName(cacheName));  //输出转义文件名 方便url识别
         return isHtmlView ? EXEL_FILE_PREVIEW_PAGE : PDF_FILE_PREVIEW_PAGE;
     }
 

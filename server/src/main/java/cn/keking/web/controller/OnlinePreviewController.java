@@ -64,11 +64,11 @@ public class OnlinePreviewController {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return otherFilePreview.notSupportedFile(model, errorMsg);
         }
-        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);
+        FileAttribute fileAttribute = fileHandlerService.getFileAttribute(fileUrl, req);  //这里不在进行URL 处理了
         model.addAttribute("file", fileAttribute);
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
-        return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);
+        return filePreview.filePreviewHandle(WebUtils.urlEncoderencode(fileUrl), model, fileAttribute);  //统一在这里处理 url
     }
 
     @GetMapping( "/picturesPreview")

@@ -105,8 +105,7 @@ public class DownloadUtils {
                         }
                     };
                     try {
-                        URI uri = URI.create(urlStr);
-                        restTemplate.execute(uri, HttpMethod.GET, requestCallback, fileResponse -> {
+                        restTemplate.execute(url.toURI(), HttpMethod.GET, requestCallback, fileResponse -> {
                             FileUtils.copyToFile(fileResponse.getBody(), realFile);
                             return null;
                         });

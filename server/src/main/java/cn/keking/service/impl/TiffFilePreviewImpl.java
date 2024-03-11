@@ -8,11 +8,10 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.ConvertPicUtil;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.KkFileUtils;
+import cn.keking.utils.WebUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.util.ObjectUtils;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -64,7 +63,7 @@ public class TiffFilePreviewImpl implements FilePreview {
                         // 加入缓存
                         fileHandlerService.addConvertedFile(cacheName, fileHandlerService.getRelativePath(outFilePath));
                     }
-                    model.addAttribute("pdfUrl", cacheName);
+                    model.addAttribute("pdfUrl", WebUtils.encodeFileName(cacheName));
                     return PDF_FILE_PREVIEW_PAGE;
                 }else {
                     // 将tif转换为jpg，返回转换后的文件路径、文件名的list
@@ -95,7 +94,7 @@ public class TiffFilePreviewImpl implements FilePreview {
                 }
             }
             if ("pdf".equalsIgnoreCase(tifPreviewType)) {
-                model.addAttribute("pdfUrl", fileHandlerService.listConvertedFiles().get(cacheName));
+                model.addAttribute("pdfUrl", WebUtils.encodeFileName(cacheName));
                 return PDF_FILE_PREVIEW_PAGE;
             }
             else if ("jpg".equalsIgnoreCase(tifPreviewType)) {
@@ -117,7 +116,7 @@ public class TiffFilePreviewImpl implements FilePreview {
                     fileHandlerService.addConvertedFile(fileName, fileHandlerService.getRelativePath(outFilePath));
                 }
             } else {
-                model.addAttribute("currentUrl",  fileName);
+                model.addAttribute("currentUrl",  WebUtils.encodeFileName(fileName));
             }
             return TIFF_FILE_PREVIEW_PAGE;
         }
