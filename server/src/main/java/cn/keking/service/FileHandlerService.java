@@ -421,7 +421,7 @@ public class FileHandlerService implements InitializingBean {
     public static String getSubString(String str, String posStr) {
         return str.substring(str.indexOf(posStr) + posStr.length());
     }
-    
+
     /**
      * 获取文件属性
      *

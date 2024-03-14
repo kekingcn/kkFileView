@@ -6,23 +6,22 @@ import cn.keking.model.ReturnResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.util.ObjectUtils;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RequestCallback;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +40,7 @@ public class DownloadUtils {
     private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
     private static final RestTemplate restTemplate = new RestTemplate();
+    private static  final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
     private static final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -90,12 +90,12 @@ public class DownloadUtils {
             if (!fileAttribute.getSkipDownLoad()) {
                 if (isHttpUrl(url)) {
                     File realFile = new File(realPath);
-                    SimpleClientHttpRequestFactory httpFactory = new SimpleClientHttpRequestFactory();
-                    //连接超时10秒，默认无限制，单位：毫秒
-                    httpFactory.setConnectTimeout(60 * 1000);
-                    //读取超时5秒,默认无限限制,单位：毫秒
-                    httpFactory.setReadTimeout(60 * 1000);
-                    restTemplate.setRequestFactory(httpFactory);
+                    factory.setConnectionRequestTimeout(2000);  //设置超时时间
+                    factory.setConnectTimeout(10000);
+                    factory.setReadTimeout(72000);
+                    HttpClient httpClient = HttpClientBuilder.create().setRedirectStrategy(new DefaultRedirectStrategy()).build();
+                    factory.setHttpClient(httpClient);  //加入重定向方法
+                    restTemplate.setRequestFactory(factory);
                     RequestCallback requestCallback = request -> {
                         request.getHeaders().setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
                         String proxyAuthorization = fileAttribute.getKkProxyAuthorization();

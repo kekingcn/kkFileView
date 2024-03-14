@@ -75,15 +75,20 @@ public class RarUtils {
     public static boolean judge(char c){
         return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
     }
+    public static String specialSymbols(String str) {
+        //去除压缩包文件字符串中特殊符号
+        // Pattern p = Pattern.compile("\\s|\\+|#|&|=|\\p{P}");
+        String regEx="[`+=~&']";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(str);
+        return m.replaceAll("");
+    }
+
     public static boolean isMessyCode(String strName) {
         //去除字符串中的空格 制表符 换行 回车
-        Pattern p = Pattern.compile("\\s*|\t*|\r*|\n*");
-        Matcher m = p.matcher(strName);
-        String after = m.replaceAll("").replaceAll("\\+", "").replaceAll("#", "").replaceAll("&", "");
-        //去除字符串中的标点符号
-        String temp = after.replaceAll("\\p{P}", "");
+        strName = specialSymbols(strName).replaceAll("\\p{P}", "");
         //处理之后转换成字符数组
-        char[] ch = temp.trim().toCharArray();
+        char[] ch = strName.trim().toCharArray();
         for (char c : ch) {
             //判断是否是数字或者英文字符
             if (!judge(c)) {

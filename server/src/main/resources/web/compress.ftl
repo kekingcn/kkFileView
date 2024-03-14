@@ -51,7 +51,7 @@
     };
     function chooseNode(event, treeId, treeNode) {
         if (!treeNode.isParent) {
-            var path = '${baseUrl}' + treeNode.id + "?kkCompressfileKey=" + '${fileTree}'+"&kkCompressfilepath=" + treeNode.id+"&fullfilename="+treeNode.name;
+            var path = '${baseUrl}'+ treeNode.id.split("/").map(name=>encodeURIComponent(name)).join("/") +  "?kkCompressfileKey=" + encodeURIComponent('${fileTree}')+"&kkCompressfilepath=" + encodeURIComponent(treeNode.id)+"&fullfilename="+encodeURIComponent(treeNode.name);
             location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
         }
     }
