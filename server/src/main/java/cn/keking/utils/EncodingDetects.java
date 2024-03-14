@@ -1,5 +1,7 @@
 package cn.keking.utils;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +46,14 @@ public class EncodingDetects {
         detector.dataEnd();
         String charsetName = detector.getDetectedCharset();
         if (charsetName == null) {
-            charsetName = Charset.defaultCharset().name();
+            CharsetDetector cd = new CharsetDetector();
+            cd.setText(content);
+            CharsetMatch cm = cd.detect();
+            if (cm != null) {
+                charsetName = cm.getName();
+            } else {
+                charsetName = Charset.defaultCharset().name();
+            }
         }
         return charsetName;
     }
