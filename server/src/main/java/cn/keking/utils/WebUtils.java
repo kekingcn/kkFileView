@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Base64Utils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
@@ -74,15 +73,20 @@ public class WebUtils {
      */
     public static String  urlEncoderencode(String urlStr) {
 
-        String fullFileName = getUrlParameterReg(urlStr, "fullfilename");  //获取文件名
-        if (!ObjectUtils.isEmpty(fullFileName)) {  //判断是否启用了 流接入方法
-            urlStr = clearFullfilenameParam(urlStr);   //去掉流接入 拼接命令
+        String fullFileName = getUrlParameterReg(urlStr, "fullfilename");  //获取流文件名
+        if (org.springframework.util.StringUtils.hasText(fullFileName)) {
+            // 移除fullfilename参数
+            urlStr = clearFullfilenameParam(urlStr);
+        } else {
+            fullFileName = getFileNameFromURL(urlStr); //获取文件名
+
         }
-        try {
-            urlStr = URLEncoder.encode(urlStr, "UTF-8").replaceAll("\\+", "%20");
-            urlStr = urlStr.replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%26", "&");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        if (!UrlEncoderUtils.hasUrlEncoded(fullFileName)) {  //判断文件名是否转义
+            try {
+                urlStr = URLEncoder.encode(urlStr, "UTF-8").replaceAll("\\+", "%20").replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%26", "&");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
         return urlStr;
     }

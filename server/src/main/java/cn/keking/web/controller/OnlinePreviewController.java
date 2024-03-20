@@ -8,28 +8,33 @@ import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.opensagres.xdocreport.core.io.IOUtils;
-import io.mola.galimatias.GalimatiasParseException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static cn.keking.service.FilePreview.PICTURE_FILE_PREVIEW_PAGE;
 
@@ -46,6 +51,9 @@ public class OnlinePreviewController {
     private final CacheService cacheService;
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
+    private static final RestTemplate restTemplate = new RestTemplate();
+    private static  final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     public OnlinePreviewController(FilePreviewFactory filePreviewFactory, FileHandlerService fileHandlerService, CacheService cacheService, OtherFilePreviewImpl otherFilePreview) {
         this.previewFactory = filePreviewFactory;
@@ -106,83 +114,53 @@ public class OnlinePreviewController {
      * @param response response
      */
     @GetMapping("/getCorsFile")
-    public void getCorsFile(String urlPath, HttpServletResponse response) throws IOException {
+    public void getCorsFile(String urlPath, HttpServletResponse response,FileAttribute fileAttribute) throws IOException {
+        URL url;
         try {
             urlPath = WebUtils.decodeUrl(urlPath);
+            url = WebUtils.normalizedURL(urlPath);
         } catch (Exception ex) {
             logger.error(String.format(BASE64_DECODE_ERROR_MSG, urlPath),ex);
             return;
         }
-        HttpURLConnection urlcon = null;
-        InputStream inputStream = null;
-        String urlStr;
         assert urlPath != null;
         if (!urlPath.toLowerCase().startsWith("http") && !urlPath.toLowerCase().startsWith("https") && !urlPath.toLowerCase().startsWith("ftp")) {
             logger.info("读取跨域文件异常，可能存在非法访问，urlPath：{}", urlPath);
             return;
         }
-        logger.info("下载跨域pdf文件url：{}", urlPath);
-        if (!urlPath.toLowerCase().startsWith("ftp:")){
+        InputStream inputStream = null;
+        logger.info("读取跨域pdf文件url：{}", urlPath);
+        if (!urlPath.toLowerCase().startsWith("ftp:")) {
+            factory.setConnectionRequestTimeout(2000);
+            factory.setConnectTimeout(10000);
+            factory.setReadTimeout(72000);
+            HttpClient httpClient = HttpClientBuilder.create().setRedirectStrategy(new DefaultRedirectStrategy()).build();
+            factory.setHttpClient(httpClient);
+            restTemplate.setRequestFactory(factory);
+            RequestCallback requestCallback = request -> {
+                request.getHeaders().setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
+                String proxyAuthorization = fileAttribute.getKkProxyAuthorization();
+                if(StringUtils.hasText(proxyAuthorization)){
+                    Map<String,String> proxyAuthorizationMap = mapper.readValue(proxyAuthorization, Map.class);
+                    proxyAuthorizationMap.forEach((key, value) -> request.getHeaders().set(key, value));
+                }
+            };
             try {
-                URL url = WebUtils.normalizedURL(urlPath);
-                urlcon=(HttpURLConnection)url.openConnection();
-                urlcon.setConnectTimeout(30000);
-                urlcon.setReadTimeout(30000);
-                urlcon.setInstanceFollowRedirects(false);
-                int responseCode = urlcon.getResponseCode();
-                if ( responseCode == 403  || responseCode == 500) { //403  500
-                    logger.error("读取跨域文件异常，url：{}，错误：{}", urlPath,responseCode);
-                    return ;
-                }
-                if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) { //301 302
-                    url =new URL(urlcon.getHeaderField("Location"));
-                    urlcon=(HttpURLConnection)url.openConnection();
-                } if (responseCode  == 404 ) {  //404
-                    try {
-                        urlStr = URLDecoder.decode(urlPath, StandardCharsets.UTF_8.name());
-                        urlStr = URLDecoder.decode(urlStr, StandardCharsets.UTF_8.name());
-                        url = WebUtils.normalizedURL(urlStr);
-                        urlcon=(HttpURLConnection)url.openConnection();
-                        urlcon.setConnectTimeout(30000);
-                        urlcon.setReadTimeout(30000);
-                        urlcon.setInstanceFollowRedirects(false);
-                        responseCode = urlcon.getResponseCode();
-                        if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) { //301 302
-                            url =new URL(urlcon.getHeaderField("Location"));
-                        }
-                        if(responseCode == 404 ||responseCode  == 403  || responseCode == 500 ){
-                            logger.error("读取跨域文件异常，url：{}，错误：{}", urlPath,responseCode);
-                            return ;
-                        }
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }finally {
-                        assert urlcon != null;
-                        urlcon.disconnect();
-                    }
-                }
-                    if(urlPath.contains( ".svg")) {
-                        response.setContentType("image/svg+xml");
-                    }
-                    inputStream=(url).openStream();
-                    IOUtils.copy(inputStream, response.getOutputStream());
-
-            } catch (IOException | GalimatiasParseException e) {
-                logger.error("读取跨域文件异常，url：{}", urlPath);
-            } finally {
-                assert urlcon != null;
-                urlcon.disconnect();
-                IOUtils.closeQuietly(inputStream);
+                restTemplate.execute(url.toURI(), HttpMethod.GET, requestCallback, fileResponse -> {
+                    IOUtils.copy(fileResponse.getBody(), response.getOutputStream());
+                    return null;
+                });
+            }  catch (Exception e) {
+                System.out.println(e);
             }
-        } else {
+        }else{
             try {
-                URL url = WebUtils.normalizedURL(urlPath);
                 if(urlPath.contains(".svg")) {
                     response.setContentType("image/svg+xml");
                 }
                 inputStream = (url).openStream();
                 IOUtils.copy(inputStream, response.getOutputStream());
-            } catch (IOException | GalimatiasParseException e) {
+            } catch (IOException e) {
                 logger.error("读取跨域文件异常，url：{}", urlPath);
             } finally {
                 IOUtils.closeQuietly(inputStream);
