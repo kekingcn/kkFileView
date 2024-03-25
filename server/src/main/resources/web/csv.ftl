@@ -9,7 +9,6 @@
 <script src="xspreadsheet/is-utf8.js"></script>
 <script src="xspreadsheet/xlsx.full.min.js"></script>
 <script src="xspreadsheet/xlsxspread.min.js"></script>
-<script src="xspreadsheet/cptable.full.js"></script>
 <script src="xspreadsheet/zh-cn.js"></script>
 <script src="js/base64.min.js" type="text/javascript"></script>
 </head>
@@ -55,12 +54,20 @@ reader.onload = function(e) {
           data = new Uint8Array(data);
           let f = isUTF8(data);
             if (f) {
-              var str = cptable.utils.decode(65001, data);
-              process_wb(XLSX.read(str, { type: "string" }));
-                    } else {
-          var str = cptable.utils.decode(936, data);
+             try {
+         var str = cptable.utils.decode(65001, data);
           process_wb(XLSX.read(str, { type: "string" }));
-                    }
+        } catch (error) {
+       process_wb(XLSX.read(data));
+          }
+              } else {
+              try {
+         var str = cptable.utils.decode(936, data);
+          process_wb(XLSX.read(str, { type: "string" }));
+        } catch (error) {
+       process_wb(XLSX.read(data));
+          }
+           }
 };
 reader.readAsArrayBuffer(file);
         }
