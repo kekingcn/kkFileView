@@ -58,7 +58,7 @@ public class CadFilePreviewImpl implements FilePreview {
                     e.printStackTrace();
                 }
                 if (imageUrls == null) {
-                    return otherFilePreview.notSupportedFile(model, fileAttribute, "office转图片异常，请联系管理员");
+                    return otherFilePreview.notSupportedFile(model, fileAttribute, "CAD转换异常，请联系管理员");
                 }
                 //是否保留CAD源文件
                 if (!fileAttribute.isCompressFile() && ConfigConstants.getDeleteSourceFile()) {

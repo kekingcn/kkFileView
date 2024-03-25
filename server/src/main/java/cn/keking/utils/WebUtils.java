@@ -83,7 +83,7 @@ public class WebUtils {
         }
         if (!UrlEncoderUtils.hasUrlEncoded(fullFileName)) {  //判断文件名是否转义
             try {
-                urlStr = URLEncoder.encode(urlStr, "UTF-8").replaceAll("\\+", "%20").replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%26", "&");
+                urlStr = URLEncoder.encode(urlStr, "UTF-8").replaceAll("\\+", "%20").replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%26", "&").replaceAll("%3D", "=");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -290,14 +290,14 @@ public class WebUtils {
         try {
             return new String(Base64Utils.decodeFromString(source.replaceAll(" ", "+").replaceAll("\n", "")), charsets);
         } catch (Exception e) {
-           if (e.getMessage().toLowerCase().contains(BASE64_MSG)) {
-         LOGGER.error("url解码异常，接入方法错误未使用BASE64");
-        }else {
-        LOGGER.error("url解码异常，其他错误", e);
-          }
+            if (e.getMessage().toLowerCase().contains(BASE64_MSG)) {
+                LOGGER.error("url解码异常，接入方法错误未使用BASE64");
+            }else {
+                LOGGER.error("url解码异常，其他错误", e);
+            }
             return null;
         }
-        }
+    }
 
     /**
      * 获取 url 的 host
