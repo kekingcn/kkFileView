@@ -4,7 +4,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.extractor.ExtractorFactory;
 import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
-import org.springframework.lang.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +62,7 @@ public class OfficeUtils {
      * @param password 文件密码
      * @return 是否可打开（兼容）
      */
-    public static synchronized boolean isCompatible(String path, @Nullable String password) {
+    public static synchronized boolean isCompatible(String path, String password) {
         InputStream propStream = null;
         try {
             propStream = Files.newInputStream(Paths.get(path));
