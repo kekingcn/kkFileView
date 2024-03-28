@@ -15,8 +15,17 @@ OFFICE_HOME=
 KKFILEVIEW_BIN_FOLDER=$(cd "$(dirname "$0")" || exit 1 ;pwd)
 PID_FILE_NAME="kkFileView.pid"
 PID_FILE="${KKFILEVIEW_BIN_FOLDER}/${PID_FILE_NAME}"
+MEMORY_LIMIT="2048"
 export KKFILEVIEW_BIN_FOLDER=$KKFILEVIEW_BIN_FOLDER
-#
+AVAILABLE_MEMORY=$(echo "$(free -m)" | awk '/Mem:/ { print $7 }')
+if [ "$AVAILABLE_MEMORY" -lt "2048" ]; then
+  echo "Your system current available memory is: ${AVAILABLE_MEMORY}MB, not enough for run kkFileView (minimum 2048MB)"
+  exit 1
+elif [ "$AVAILABLE_MEMORY" -gt "3072" ]; then
+  MEMORY_LIMIT="3072"
+fi
+JVM_OPTS="-Dfile.encoding=UTF-8 -Xms${MEMORY_LIMIT}M -Xmx${MEMORY_LIMIT}M"
+
 ## 如pid文件不存在则自动创建
 if [ ! -f ${PID_FILE_NAME} ]; then
   touch "${KKFILEVIEW_BIN_FOLDER}/${PID_FILE_NAME}"
@@ -51,7 +60,7 @@ else
 
   ## 启动kkFileView
   echo "Starting kkFileView..."
-  nohup java -Dfile.encoding=UTF-8 -Dspring.config.location=../config/application.properties -jar kkFileView-4.4.0-SNAPSHOT.jar > ../log/kkFileView.log 2>&1 &
+  nohup java $JVM_OPTS -Dspring.config.location=../config/application.properties -jar kkFileView-4.4.0-SNAPSHOT.jar > ../log/kkFileView.log 2>&1 &
   echo "Please execute ./showlog.sh to check log for more information"
   echo "You can get help in our official home site: https://kkview.cn"
   echo "If you need further help, please join our kk opensource community: https://t.zsxq.com/09ZHSXbsQ"
