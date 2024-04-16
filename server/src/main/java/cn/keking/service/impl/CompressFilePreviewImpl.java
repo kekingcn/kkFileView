@@ -10,6 +10,7 @@ import cn.keking.service.CompressFileReader;
 import cn.keking.utils.KkFileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.EncryptedDocumentException;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -28,6 +29,9 @@ public class CompressFilePreviewImpl implements FilePreview {
     private final CompressFileReader compressFileReader;
     private final OtherFilePreviewImpl otherFilePreview;
     private static final String Rar_PASSWORD_MSG = "password";
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(CompressFileReader.class);
+
+
     public CompressFilePreviewImpl(FileHandlerService fileHandlerService, CompressFileReader compressFileReader, OtherFilePreviewImpl otherFilePreview) {
         this.fileHandlerService = fileHandlerService;
         this.compressFileReader = compressFileReader;
@@ -36,20 +40,21 @@ public class CompressFilePreviewImpl implements FilePreview {
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
-        String fileName=fileAttribute.getName();
+        String fileName = fileAttribute.getName();
         String filePassword = fileAttribute.getFilePassword();
-        boolean forceUpdatedCache=fileAttribute.forceUpdatedCache();
+        boolean forceUpdatedCache = fileAttribute.forceUpdatedCache();
         String fileTree = null;
         // 判断文件名是否存在(redis缓存读取)
-        if (forceUpdatedCache || !StringUtils.hasText(fileHandlerService.getConvertedFile(fileName))  || !ConfigConstants.isCacheEnabled()) {
+        if (forceUpdatedCache || !StringUtils.hasText(fileHandlerService.getConvertedFile(fileName)) || !ConfigConstants.isCacheEnabled()) {
             ReturnResponse<String> response = DownloadUtils.downLoad(fileAttribute, fileName);
             if (response.isFailure()) {
                 return otherFilePreview.notSupportedFile(model, fileAttribute, response.getMsg());
             }
             String filePath = response.getContent();
             try {
-                fileTree = compressFileReader.unRar(filePath, filePassword,fileName, fileAttribute);
+                fileTree = compressFileReader.unRar(filePath, filePassword, fileName, fileAttribute);
             } catch (Exception e) {
+                logger.error("Error processing RAR file: " + e.getMessage(), e);
                 Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
                 for (Throwable throwable : throwableArray) {
                     if (throwable instanceof IOException || throwable instanceof EncryptedDocumentException) {
@@ -69,14 +74,14 @@ public class CompressFilePreviewImpl implements FilePreview {
                     // 加入缓存
                     fileHandlerService.addConvertedFile(fileName, fileTree);
                 }
-            }else {
-                return otherFilePreview.notSupportedFile(model, fileAttribute, "压缩文件密码错误! 压缩文件损坏!  压缩文件类型不受支持!");
+            } else {
+                return otherFilePreview.notSupportedFile(model, fileAttribute, "该压缩包文件无法处理!");
             }
         } else {
             fileTree = fileHandlerService.getConvertedFile(fileName);
         }
-            model.addAttribute("fileName", fileName);
-            model.addAttribute("fileTree", fileTree);
-            return COMPRESS_FILE_PREVIEW_PAGE;
+        model.addAttribute("fileName", fileName);
+        model.addAttribute("fileTree", fileTree);
+        return COMPRESS_FILE_PREVIEW_PAGE;
     }
 }
