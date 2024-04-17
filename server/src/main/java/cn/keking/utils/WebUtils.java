@@ -79,7 +79,9 @@ public class WebUtils {
             urlStr = clearFullfilenameParam(urlStr);
         } else {
             fullFileName = getFileNameFromURL(urlStr); //获取文件名
-
+        }
+        if (KkFileUtils.isIllegalFileName(fullFileName)) { //判断文件名是否带有穿越漏洞
+            return null;
         }
         if (!UrlEncoderUtils.hasUrlEncoded(fullFileName)) {  //判断文件名是否转义
             try {

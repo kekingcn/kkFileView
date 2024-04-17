@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -76,7 +77,11 @@ public class OnlinePreviewController {
         model.addAttribute("file", fileAttribute);
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
-        return filePreview.filePreviewHandle(WebUtils.urlEncoderencode(fileUrl), model, fileAttribute);  //统一在这里处理 url
+        fileUrl =WebUtils.urlEncoderencode(fileUrl);
+        if (ObjectUtils.isEmpty(fileUrl)) {
+            return otherFilePreview.notSupportedFile(model, "非法路径,不允许访问");
+        }
+        return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);  //统一在这里处理 url
     }
 
     @GetMapping( "/picturesPreview")
