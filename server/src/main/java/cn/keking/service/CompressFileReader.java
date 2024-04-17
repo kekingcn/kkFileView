@@ -12,12 +12,18 @@ import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,73 +43,67 @@ public class CompressFileReader {
     public String unRar(String filePath, String filePassword, String fileName, FileAttribute fileAttribute) throws Exception {
         List<String> imgUrls = new ArrayList<>();
         String baseUrl = BaseUrlFilter.getBaseUrl();
-        String packagePath = "_"; //防止文件名重复 压缩包统一生成文件添加_符号
+        String packagePath = "_";
         String folderName = filePath.replace(fileDir, ""); //修复压缩包 多重目录获取路径错误
-        if (fileAttribute.isCompressFile()) { //压缩包文件 直接赋予路径 不予下载
-            folderName = "_decompression" + folderName;  //重新修改多重压缩包 生成文件路径
+        if (fileAttribute.isCompressFile()) {
+            folderName = "_decompression" + folderName;
         }
-        RandomAccessFile randomAccessFile = null;
-        IInArchive inArchive = null;
-        try {
-            randomAccessFile = new RandomAccessFile(filePath, "r");
-            inArchive = SevenZip.openInArchive(null, new RandomAccessFileInStream(randomAccessFile));
+
+        Path folderPath = Paths.get(fileDir, folderName + packagePath);
+        Files.createDirectories(folderPath);
+
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(filePath, "r");
+             IInArchive inArchive = SevenZip.openInArchive(null, new RandomAccessFileInStream(randomAccessFile))) {
+
             ISimpleInArchive simpleInArchive = inArchive.getSimpleInterface();
-            final String[] str = {null};
             for (final ISimpleInArchiveItem item : simpleInArchive.getArchiveItems()) {
                 if (!item.isFolder()) {
-                    ExtractOperationResult result;
-                    String finalFolderName = folderName;
-                    result = item.extractSlow(data -> {
-                        try {
-                            str[0] = RarUtils.getUtf8String(item.getPath());
-                            if (RarUtils.isMessyCode(str[0])) {
-                                str[0] = new String(item.getPath().getBytes(StandardCharsets.ISO_8859_1), "gbk");
-                            }
-                            str[0] = str[0].replace("\\", File.separator); //Linux 下路径错误
-                            String str1 = str[0].substring(0, str[0].lastIndexOf(File.separator) + 1);
-                            File file = new File(fileDir, finalFolderName + packagePath + File.separator + str1);
-                            if (!file.exists()) {
-                                file.mkdirs();
-                            }
-                            OutputStream out = new FileOutputStream(fileDir + finalFolderName + packagePath + File.separator + str[0], true);
-                            IOUtils.write(data, out);
-                            out.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return Integer.parseInt(null);
+                    final Path filePathInsideArchive = getFilePathInsideArchive(item, folderPath);
+                    ExtractOperationResult result = item.extractSlow(data -> {
+                        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(filePathInsideArchive.toFile(), true))) {
+                            out.write(data);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
                         return data.length;
                     }, filePassword);
-                    if (result == ExtractOperationResult.OK) {
-                        FileType type = FileType.typeFromUrl(str[0]);
-                        if (type.equals(FileType.PICTURE)) {
-                            imgUrls.add(baseUrl + folderName + packagePath + "/" + str[0].replace("\\", "/"));
-                        }
-                        fileHandlerService.putImgCache(fileName + packagePath, imgUrls);
-                    } else {
-                        return null;
+
+                    if (result != ExtractOperationResult.OK) {
+                        throw new Exception("Failed to extract RAR file.");
+                    }
+
+                    FileType type = FileType.typeFromUrl(filePathInsideArchive.toString());
+                    if (type.equals(FileType.PICTURE)) {
+                        imgUrls.add(baseUrl + folderPath.relativize(filePathInsideArchive).toString().replace("\\", "/"));
                     }
                 }
             }
-            return folderName + packagePath;
+            fileHandlerService.putImgCache(fileName + packagePath, imgUrls);
         } catch (Exception e) {
-            throw new Exception(e);
-        } finally {
-            if (inArchive != null) {
-                try {
-                    inArchive.close();
-                } catch (SevenZipException e) {
-                    System.err.println("Error closing archive: " + e);
-                }
-            }
-            if (randomAccessFile != null) {
-                try {
-                    randomAccessFile.close();
-                } catch (IOException e) {
-                    System.err.println("Error closing file: " + e);
-                }
-            }
+            throw new Exception("Error processing RAR file: " + e.getMessage(), e);
         }
+        return folderName + packagePath;
     }
+
+    private Path getFilePathInsideArchive(ISimpleInArchiveItem item, Path folderPath) throws SevenZipException, UnsupportedEncodingException {
+        String insideFileName = RarUtils.getUtf8String(item.getPath());
+        if (RarUtils.isMessyCode(insideFileName)) {
+            insideFileName = new String(item.getPath().getBytes(StandardCharsets.ISO_8859_1), "gbk");
+        }
+
+        // 正规化路径并验证是否安全
+        Path normalizedPath = folderPath.resolve(insideFileName).normalize();
+        if (!normalizedPath.startsWith(folderPath)) {
+            throw new SecurityException("Unsafe path detected: " + insideFileName);
+        }
+
+        try {
+            Files.createDirectories(normalizedPath.getParent());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create directory: " + normalizedPath.getParent(), e);
+        }
+        return normalizedPath;
+    }
+
 
 }
