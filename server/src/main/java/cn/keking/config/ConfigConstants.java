@@ -67,6 +67,10 @@ public class ConfigConstants {
     private static String homePagination;
     private static String homePageSize;
     private static String homeSearch;
+    private static int pdfTimeout;
+    private static int pdfTimeout80;
+    private static int pdfTimeout200;
+    private static int pdfThread;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd,xbrl";
@@ -107,6 +111,10 @@ public class ConfigConstants {
     public static final String DEFAULT_HOME_PAGINATION = "true";
     public static final String DEFAULT_HOME_PAGSIZE = "15";
     public static final String DEFAULT_HOME_SEARCH = "true";
+    public static final String DEFAULT_PDF_TIMEOUT = "90";
+    public static final String DEFAULT_PDF_TIMEOUT80 = "180";
+    public static final String DEFAULT_PDF_TIMEOUT200 = "300";
+    public static final String DEFAULT_PDF_THREAD = "5";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -578,6 +586,65 @@ public class ConfigConstants {
 
     public static void setCadThreadValue(int cadThread) {
         ConfigConstants.cadThread = cadThread;
+    }
+
+    /**
+     * 以下为pdf转换模块设置
+     */
+    public static int getPdfTimeout() {
+        return pdfTimeout;
+    }
+
+    @Value("${pdf.timeout:90}")
+    public void setPdfTimeout(int pdfTimeout) {
+        setPdfTimeoutValue(pdfTimeout);
+    }
+
+    public static void setPdfTimeoutValue(int pdfTimeout) {
+        ConfigConstants.pdfTimeout = pdfTimeout;
+    }
+
+
+    public static int getPdfTimeout80() {
+        return pdfTimeout80;
+    }
+
+    @Value("${pdf.timeout80:180}")
+    public void setPdfTimeout80(int pdfTimeout80) {
+        setPdfTimeout80Value(pdfTimeout80);
+    }
+
+    public static void setPdfTimeout80Value(int pdfTimeout80) {
+        ConfigConstants.pdfTimeout80 = pdfTimeout80;
+    }
+
+
+
+    public static int getPdfTimeout200() {
+        return pdfTimeout200;
+    }
+
+    @Value("${pdf.timeout200:300}")
+    public void setPdfTimeout200(int pdfTimeout200) {
+        setPdfTimeout200Value(pdfTimeout200);
+    }
+
+    public static void setPdfTimeout200Value(int pdfTimeout200) {
+        ConfigConstants.pdfTimeout200 = pdfTimeout200;
+    }
+
+
+    public static int getPdfThread() {
+        return pdfThread;
+    }
+
+    @Value("${pdf.thread:5}")
+    public void setPdfThread(int pdfThread) {
+        setPdfThreadValue(pdfThread);
+    }
+
+    public static void setPdfThreadValue(int pdfThread) {
+        ConfigConstants.pdfThread = pdfThread;
     }
 
     /**

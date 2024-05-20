@@ -78,6 +78,10 @@ public class ConfigRefreshComponent {
                 String homePagination;
                 String homePageSize;
                 String homeSearch;
+                int pdfTimeout;
+                int pdfTimeout80;
+                int pdfTimeout200;
+                int pdfThread;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -126,6 +130,10 @@ public class ConfigRefreshComponent {
                     homePageSize = properties.getProperty("home.pagesize", ConfigConstants.DEFAULT_HOME_PAGSIZE);
                     homeSearch = properties.getProperty("home.search", ConfigConstants.DEFAULT_HOME_SEARCH);
                     cadThread = Integer.parseInt(properties.getProperty("cad.thread", ConfigConstants.DEFAULT_CAD_THREAD));
+                    pdfTimeout = Integer.parseInt(properties.getProperty("pdf.timeout", ConfigConstants.DEFAULT_PDF_TIMEOUT));
+                    pdfTimeout80 = Integer.parseInt(properties.getProperty("pdf.timeout80", ConfigConstants.DEFAULT_PDF_TIMEOUT80));
+                    pdfTimeout200 = Integer.parseInt(properties.getProperty("pdf.timeout200", ConfigConstants.DEFAULT_PDF_TIMEOUT200));
+                    pdfThread = Integer.parseInt(properties.getProperty("pdf.thread", ConfigConstants.DEFAULT_PDF_THREAD));
                     prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
@@ -169,6 +177,10 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setHomePaginationValue(homePagination);
                     ConfigConstants.setHomePageSizeValue(homePageSize);
                     ConfigConstants.setHomeSearchValue(homeSearch);
+                    ConfigConstants.setPdfTimeoutValue(pdfTimeout);
+                    ConfigConstants.setPdfTimeout80Value(pdfTimeout80);
+                    ConfigConstants.setPdfTimeout200Value(pdfTimeout200);
+                    ConfigConstants.setPdfThreadValue(pdfThread);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();
