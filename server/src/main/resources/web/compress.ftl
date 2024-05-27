@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>压缩包预览</title>
+    <title>${file.name}压缩包预览</title>
    <script src="js/jquery-3.6.1.min.js"></script>
      <#include "*/commonHeader.ftl">
    <script src="js/base64.min.js" type="text/javascript"></script>
@@ -49,14 +49,28 @@
             onClick: chooseNode,
         }
     };
+
+function isNotEmpty(value) {
+  return value !== null && value !== undefined && value !== '' && value !== 0 && !(value instanceof Array && value.length === 0) && !isNaN(value);
+}
+function getQueryParam(url, param) {
+  var urlObj = new URL(url);
+  return urlObj.searchParams.get(param);
+}
+var currentUrl = window.location.href;
+var keyword = getQueryParam(currentUrl, 'watermarkTxt');
     function chooseNode(event, treeId, treeNode) {
         if (!treeNode.isParent) {
-            var path = '${baseUrl}' + treeNode.id +  "?kkCompressfileKey=" + encodeURIComponent('${fileTree}')+"&kkCompressfilepath=" + encodeURIComponent(treeNode.id)+"&fullfilename="+encodeURIComponent(treeNode.name);
-            location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));
+            var path = '${baseUrl}'+encodeURIComponent(treeNode.id)+"?kkCompressfileKey="+'${fileTree}'+"&kkCompressfilepath="+encodeURIComponent(treeNode.id)+"&fullfilename="+encodeURIComponent(treeNode.name);
+           if (isNotEmpty(keyword)){
+             location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path))+"&watermarkTxt="+keyword;
+           }else{
+             location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path));}
+         
         }
     }
     $(document).ready(function () {
-    var url = '${fileTree}';
+    var url = "http://"+'${fileTree}';  //添加http协议方法
        $.ajax({
             type: "get",
             url: "${baseUrl}directory?urls="+encodeURIComponent(Base64.encode(url)),
@@ -66,6 +80,9 @@
             }
         });
     });
+        window.onload = function () {
+        initWaterMark();
+    }
 </script>
 </body>
 </html>

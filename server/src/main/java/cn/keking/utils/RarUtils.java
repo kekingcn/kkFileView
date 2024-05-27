@@ -77,7 +77,7 @@ public class RarUtils {
     }
     public static String specialSymbols(String str) {
         //去除压缩包文件字符串中特殊符号
-        Pattern p = Pattern.compile("\\s|\t|\r|\n|\\+|#|&|=|\\p{P}");
+        Pattern p = Pattern.compile("\\s|\t|\r|\n|\\+|#|&|=|�|\\p{P}");
   //    Pattern p = Pattern.compile("\\s|\\+|#|&|=|\\p{P}");
         Matcher m = p.matcher(str);
         return m.replaceAll("");

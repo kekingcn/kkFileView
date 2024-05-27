@@ -474,11 +474,7 @@ public class FileHandlerService implements InitializingBean {
         boolean isCompressFile = !ObjectUtils.isEmpty(compressFileKey);
         if (isCompressFile) {  //判断是否使用特定压缩包符号
             try {
-                // http://127.0.0.1:8012/各类型文件1 - 副本.zip_/各类型文件/正常预览/PPT转的PDF.pdf?kkCompressfileKey=各类型文件1 - 副本.zip_
-                // http://127.0.0.1:8012/preview/各类型文件1 - 副本.zip_/各类型文件/正常预览/PPT转的PDF.pdf?kkCompressfileKey=各类型文件1 - 副本.zip_ 获取路径就会错误 需要下面的方法
-                String urlStrr = getSubString(compressFilePath, compressFileKey); //反代情况下添加前缀,只获取有压缩包字符的路径
-                originFileName = compressFileKey + urlStrr.trim(); //拼接完整路径
-                originFileName = URLDecoder.decode(originFileName, uriEncoding); //压缩包文件中文编码问题
+                originFileName = URLDecoder.decode(originFileName, uriEncoding);  //转义的文件名 解下出原始文件名
                 attribute.setSkipDownLoad(true);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
