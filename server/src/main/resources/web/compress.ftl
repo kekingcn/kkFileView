@@ -61,7 +61,7 @@ var currentUrl = window.location.href;
 var keyword = getQueryParam(currentUrl, 'watermarkTxt');
     function chooseNode(event, treeId, treeNode) {
         if (!treeNode.isParent) {
-            var path = '${baseUrl}'+encodeURIComponent(treeNode.id)+"?kkCompressfileKey="+'${fileTree}'+"&kkCompressfilepath="+encodeURIComponent(treeNode.id)+"&fullfilename="+encodeURIComponent(treeNode.name);
+            var path = '${baseUrl}'+treeNode.id+"?kkCompressfileKey="+'${fileTree}'+"&kkCompressfilepath="+encodeURIComponent(treeNode.id)+"&fullfilename="+encodeURIComponent(treeNode.name);
            if (isNotEmpty(keyword)){
              location.href = "${baseUrl}onlinePreview?url=" + encodeURIComponent(Base64.encode(path))+"&watermarkTxt="+keyword;
            }else{
