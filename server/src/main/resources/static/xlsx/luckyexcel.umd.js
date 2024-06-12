@@ -8056,6 +8056,9 @@ function (_super) {
 
       if (t == constant_1.ST_CellType["SharedString"]) {
         var siIndex = parseInt(v[0].value);
+      	if (!sharedSI) {
+	  return cellValue;
+        }
         var sharedSI = sharedStrings[siIndex];
         var rFlag = sharedSI.getInnerElements("r");
 
