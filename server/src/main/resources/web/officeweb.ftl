@@ -123,7 +123,7 @@
                         title: exportJson.info.name,
                         userInfo: exportJson.info.name.creator,
             });
-        });
+        }, 1000);
     }
     loadText();
     // 打印时，获取luckysheet指定区域html内容，拼接至div，隐藏luckysheet容器并显示打印区域html
