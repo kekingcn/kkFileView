@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -88,7 +89,11 @@ public class CompressFileReader {
     private Path getFilePathInsideArchive(ISimpleInArchiveItem item, Path folderPath) throws SevenZipException, UnsupportedEncodingException {
         String insideFileName = RarUtils.getUtf8String(item.getPath());
         if (RarUtils.isMessyCode(insideFileName)) {
-            insideFileName = new String(item.getPath().getBytes(StandardCharsets.ISO_8859_1), "gbk");
+            insideFileName = item.getPath();
+            if(Charset.forName("GBK").newEncoder().canEncode(insideFileName))
+                insideFileName = new String(insideFileName.getBytes("GBK"), "gbk");
+            else
+                insideFileName = new String(insideFileName.getBytes(StandardCharsets.ISO_8859_1), "gbk");
         }
 
         // 正规化路径并验证是否安全
