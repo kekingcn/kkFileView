@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,7 +49,6 @@ public class CompressFileReader {
         if (fileAttribute.isCompressFile()) {
             folderName = "_decompression" + folderName;
         }
-
         Path folderPath = Paths.get(fileDir, folderName + packagePath);
         Files.createDirectories(folderPath);
 
@@ -67,14 +67,18 @@ public class CompressFileReader {
                         }
                         return data.length;
                     }, filePassword);
-
                     if (result != ExtractOperationResult.OK) {
-                        throw new Exception("Failed to extract RAR file.");
+                        ExtractOperationResult result1 = ExtractOperationResult.valueOf("WRONG_PASSWORD");
+                        if (result1.equals(result)) {
+                            throw new Exception("Password");
+                        }else {
+                            throw new Exception("Failed to extract RAR file.");
+                        }
                     }
 
                     FileType type = FileType.typeFromUrl(filePathInsideArchive.toString());
-                    if (type.equals(FileType.PICTURE)) {
-                        imgUrls.add(baseUrl + folderPath.relativize(filePathInsideArchive).toString().replace("\\", "/"));
+                    if (type.equals(FileType.PICTURE)) {  //图片缓存到集合，为了特殊符号需要进行编码
+                        imgUrls.add(baseUrl + URLEncoder.encode(fileName + packagePath+"/"+ folderPath.relativize(filePathInsideArchive).toString().replace("\\", "/"), "UTF-8"));
                     }
                 }
             }

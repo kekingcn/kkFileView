@@ -54,15 +54,11 @@ public class CompressFilePreviewImpl implements FilePreview {
             try {
                 fileTree = compressFileReader.unRar(filePath, filePassword, fileName, fileAttribute);
             } catch (Exception e) {
-                logger.error("Error processing RAR file: " + e.getMessage(), e);
-                Throwable[] throwableArray = ExceptionUtils.getThrowables(e);
-                for (Throwable throwable : throwableArray) {
-                    if (throwable instanceof IOException || throwable instanceof EncryptedDocumentException) {
-                        if (e.getMessage().toLowerCase().contains(Rar_PASSWORD_MSG)) {
-                            model.addAttribute("needFilePassword", true);
-                            return EXEL_FILE_PREVIEW_PAGE;
-                        }
-                    }
+                if (e.getMessage().toLowerCase().contains(Rar_PASSWORD_MSG)) {
+                    model.addAttribute("needFilePassword", true);
+                    return EXEL_FILE_PREVIEW_PAGE;
+                }else {
+                    logger.error("Error processing RAR file: " + e.getMessage(), e);
                 }
             }
             if (!ObjectUtils.isEmpty(fileTree)) {

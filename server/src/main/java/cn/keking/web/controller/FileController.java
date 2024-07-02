@@ -213,6 +213,7 @@ public class FileController {
             String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
             return ReturnResponse.failure(errorMsg);
         }
+        fileUrl = fileUrl.replaceAll("http://", "");
         if (KkFileUtils.isIllegalFileName(fileUrl)) {
             return ReturnResponse.failure("不允许访问的路径:");
         }
