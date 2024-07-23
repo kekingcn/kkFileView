@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 MAINTAINER chenjh "842761733@qq.com"
 # 内置一些常用的中文字体，避免普遍性乱码
 COPY fonts/* /usr/share/fonts/chinese/
