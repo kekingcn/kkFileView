@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 MAINTAINER chenjh "842761733@qq.com"
 # 内置一些常用的中文字体，避免普遍性乱码
 COPY fonts/* /usr/share/fonts/chinese/
@@ -19,12 +19,11 @@ RUN apt-get clean && apt-get update &&\
 
 # 安装 libreoffice
     apt-get install -y libxrender1 libxinerama1 libxt6 libxext-dev libfreetype6-dev libcairo2 libcups2 libx11-xcb1 libnss3 &&\
-    wget https://downloadarchive.documentfoundation.org/libreoffice/old/7.5.3.2/deb/x86_64/LibreOffice_7.5.3.2_Linux_x86-64_deb.tar.gz -cO libreoffice_deb.tar.gz &&\
-    tar -zxf /tmp/libreoffice_deb.tar.gz && cd /tmp/LibreOffice_7.5.3.2_Linux_x86-64_deb/DEBS &&\
-    dpkg -i *.deb &&\
+    wget http://security.ubuntu.com/ubuntu/pool/universe/libr/libreoffice/libreoffice-nogui_7.6.7-0ubuntu0.23.10.3_amd64.deb &&\
+    dpkg -i libreoffice*.deb &&\
 
 #  清理临时文件
-	rm -rf /tmp/* && rm -rf /var/lib/apt/lists/* &&\
+    rm -rf libreoffice*.deb && rm -rf /var/lib/apt/lists/* &&\
     cd /usr/share/fonts/chinese &&\
     mkfontscale &&\
     mkfontdir &&\
