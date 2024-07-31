@@ -506,7 +506,8 @@ public class FileHandlerService implements InitializingBean {
                for (String s : headerField.split(";")) {
                    int idx = s.indexOf("filename");
                    if (idx > -1) {
-                       originFileName = s.substring(idx + 10, s.length()-1).replaceAll("\"", "");
+                       s = s.replaceAll("[\"\\s]*", "");
+                       originFileName = s.substring(idx + 9);
                        cacheFilePrefixName = originFileName.substring(0, originFileName.lastIndexOf(".")) + suffix + ".";
                        isHtmlView = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
                        type = FileType.typeFromFileName(originFileName);
