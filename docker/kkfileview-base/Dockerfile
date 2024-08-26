@@ -11,15 +11,15 @@ RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.aliyun.com@g' /etc/apt/sources.li
     localedef -i zh_CN -c -f UTF-8 -A /usr/share/locale/locale.alias zh_CN.UTF-8 &&\
     locale-gen zh_CN.UTF-8 &&\
 # 安装微软字体
-    # apt-get install -y --no-install-recommends ttf-mscorefonts-installer &&\
+    apt-get install -y --no-install-recommends ttf-mscorefonts-installer &&\
 # 安装文泉驿字体
-    # apt-get install -y --no-install-recommends ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy &&\
+    apt-get install -y --no-install-recommends ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy &&\
 # 清理临时文件
 	apt-get autoremove -y &&\
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/*
 
-# 内置一些常用的中文字体，避免普遍性乱码. 建议安装思源字体 https://zh-cn.libreoffice.org/download/fonts/
+# 内置一些常用的中文字体，避免普遍性乱码
 ADD fonts/* /usr/share/fonts/chinese/
 
 RUN cd /usr/share/fonts/chinese &&\
