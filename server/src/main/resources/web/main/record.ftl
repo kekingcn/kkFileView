@@ -33,6 +33,23 @@
     <div class="page-header">
         <h1>版本发布记录</h1>
     </div>
+     <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">2025年01月11日，v4.4.0版本</h3>
+        </div>
+        <div class="panel-body">
+            <div>
+                1. 修复压缩包穿越漏洞 <br>
+                2. 新增PDF线程管理，超时管理，内存缓存管理，更新PDF解析组件版本 <br>
+                3. 修复压缩获取路径错误，图片合集路径错误，水印问题等BUG <br>
+                4. 修复前端解析xlsx 包含emf格式文件错误 <br>
+                5. 优化Dockerfile,支持真正的跨平台构建镜像 <br>
+                6. 其他功能优化及已知问题修复<br>
+            </div>
+        </div>
+    </div>   
+    
+    
     <div class="panel panel-success">
         <div class="panel-heading">
             <h3 class="panel-title">2024年04月15日，v4.4.0-beta版本</h3>
