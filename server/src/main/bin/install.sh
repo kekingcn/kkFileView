@@ -8,7 +8,7 @@ install_redhat() {
      yum install -y libSM.x86_64 libXrender.x86_64  libXext.x86_64
      yum groupinstall -y  "X Window System"
      yum localinstall -y *.rpm
-     echo 'install finshed...'
+     echo 'install finished...'
    else
      echo 'download package error...'
    fi
@@ -20,7 +20,7 @@ install_ubuntu() {
  if [ $? -eq 0 ];then
      apt-get install -y libxinerama1 libcairo2 libcups2 libx11-xcb1
      dpkg -i *.deb
-     echo 'install finshed...'
+     echo 'install finished...'
   else
     echo 'download package error...'
  fi

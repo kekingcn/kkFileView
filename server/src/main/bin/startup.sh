@@ -9,7 +9,7 @@
 # Description:  v1.1：修改进程启动机制为pid形式。
 #############################
 #
-DIR_HOME=("/opt/openoffice.org3" "/opt/libreoffice" "/opt/libreoffice6.1" "/opt/libreoffice7.0" "/opt/libreoffice7.1" "/opt/libreoffice7.2" "/opt/libreoffice7.3" "/opt/libreoffice7.4" "/opt/libreoffice7.5" "/opt/libreoffice7.6" "/opt/openoffice4" "/usr/lib/openoffice" "/usr/lib/libreoffice")
+DIR_HOME=("/opt/openoffice.org3" "/opt/libreoffice" "/opt/libreoffice6.1" "/opt/libreoffice7.0" "/opt/libreoffice7.1" "/opt/libreoffice7.2" "/opt/libreoffice7.3" "/opt/libreoffice7.4" "/opt/libreoffice7.5" "/opt/libreoffice7.6" "/opt/libreoffice24.2" "/opt/libreoffice24.8" "/opt/libreoffice25.2" "/opt/openoffice4" "/usr/lib/openoffice" "/usr/lib/libreoffice")
 FLAG=
 OFFICE_HOME=
 KKFILEVIEW_BIN_FOLDER=$(cd "$(dirname "$0")" || exit 1 ;pwd)
@@ -29,7 +29,7 @@ if [ -s "${PID_FILE}" ]; then
 else
   cd "$KKFILEVIEW_BIN_FOLDER" || exit 1
   echo "Using KKFILEVIEW_BIN_FOLDER $KKFILEVIEW_BIN_FOLDER"
-  grep 'office\.home' ../config/application.properties | grep '!^#'
+  grep 'office\.home' ../config/application.properties | grep -v '^#' | grep -v 'default'
   if [ $? -eq 0 ]; then
     echo "Using customized office.home"
   else
@@ -51,7 +51,7 @@ else
 
   ## 启动kkFileView
   echo "Starting kkFileView..."
-  nohup java -Dfile.encoding=UTF-8 -Dspring.config.location=../config/application.properties -jar kkFileView-4.4.0-beta.jar > ../log/kkFileView.log 2>&1 &
+  nohup java -Dfile.encoding=UTF-8 -Dspring.config.location=../config/application.properties -jar kkFileView-4.4.0.jar > ../log/kkFileView.log 2>&1 &
   echo "Please execute ./showlog.sh to check log for more information"
   echo "You can get help in our official home site: https://kkview.cn"
   echo "If you need further help, please join our kk opensource community: https://t.zsxq.com/09ZHSXbsQ"
