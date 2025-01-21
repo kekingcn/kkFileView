@@ -33,6 +33,7 @@ public class ConfigConstants {
     private static String ftpPassword;
     private static String ftpControlEncoding;
     private static String baseUrl;
+    private static String refererHost;
     private static String fileDir = ConfigUtils.getHomePath() + File.separator + "file" + File.separator;
     private static String localPreviewDir;
     private static CopyOnWriteArraySet<String> trustHostSet;
@@ -249,6 +250,18 @@ public class ConfigConstants {
     public static void setBaseUrlValue(String baseUrl) {
         ConfigConstants.baseUrl = baseUrl;
     }
+    
+    public static String getRefererHost() {
+        return refererHost;
+    }
+    @Value("${referer.host:}")
+    public void setRefererHost(String refererHost) {
+        setRefererHostValue(refererHost);
+    }
+    public static void setRefererHostValue(String refererHost) {
+        ConfigConstants.refererHost = refererHost;
+    }
+
 
     public static String getFileDir() {
         return fileDir;

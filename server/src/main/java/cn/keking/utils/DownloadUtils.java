@@ -98,6 +98,13 @@ public class DownloadUtils {
                     restTemplate.setRequestFactory(factory);
                     RequestCallback requestCallback = request -> {
                         request.getHeaders().setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
+
+                        if (!StringUtils.isEmpty(ConfigConstants.getRefererHost())){
+                            // 设置 Referer 头
+                            String referer = ConfigConstants.getRefererHost();
+                            request.getHeaders().set("Referer", referer);
+                        }
+
                         String proxyAuthorization = fileAttribute.getKkProxyAuthorization();
                         if(StringUtils.hasText(proxyAuthorization)){
                             Map<String,String>  proxyAuthorizationMap = mapper.readValue(proxyAuthorization, Map.class);
