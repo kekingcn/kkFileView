@@ -53,80 +53,80 @@
 #### 1. 文本预览
 支持所有类型的文本文档预览， 由于文本文档类型过多，无法全部枚举，默认开启的类型如下 txt,html,htm,asp,jsp,xml,xbrl,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd  
 文本预览效果如下  
-![文本预览效果如下](https://kkview.cn/img/preview/preview-text.png)      
+![文本预览效果如下](./doc/img/preview/preview-text.png)      
 
 #### 2. 图片预览
 支持jpg，jpeg，png，gif等图片预览（翻转，缩放，镜像），预览效果如下  
-![图片预览](https://kkview.cn/img/preview/preview-image.png)  
+![图片预览](./doc/img/preview/preview-image.png)  
 
 #### 3. word文档预览
 支持doc，docx文档预览，word预览有两种模式：一种是每页word转为图片预览，另一种是整个word文档转成pdf，再预览pdf。两种模式的适用场景如下  
 * 图片预览：word文件大，前台加载整个pdf过慢
 * pdf预览：内网访问，加载pdf快
 图片预览模式预览效果如下  
-![word文档预览1](https://kkview.cn/img/preview/preview-doc-image.png)  
+![word文档预览1](./doc/img/preview/preview-doc-image.png)  
 pdf预览模式预览效果如下  
-![word文档预览2](https://kkview.cn/img/preview/preview-doc-pdf.png)  
+![word文档预览2](./doc/img/preview/preview-doc-pdf.png)  
 
 #### 4. ppt文档预览
 支持ppt，pptx文档预览，和word文档一样，有两种预览模式  
 图片预览模式预览效果如下  
-![ppt文档预览1](https://kkview.cn/img/preview/preview-ppt-image.png)  
+![ppt文档预览1](./doc/img/preview/preview-ppt-image.png)  
 pdf预览模式预览效果如下  
-![ppt文档预览2](https://kkview.cn/img/preview/preview-ppt-pdf.png)  
+![ppt文档预览2](./doc/img/preview/preview-ppt-pdf.png)  
 
 #### 5. pdf文档预览
 支持pdf文档预览，和word文档一样，有两种预览模式   
 图片预览模式预览效果如下  
-![pdf文档预览1](https://kkview.cn/img/preview/preview-pdf-image.png)  
+![pdf文档预览1](./doc/img/preview/preview-pdf-image.png)  
 pdf预览模式预览效果如下   
-![pdf文档预览2](https://kkview.cn/img/preview/preview-pdf-pdf.png)    
+![pdf文档预览2](./doc/img/preview/preview-pdf-pdf.png)    
 
 #### 6. excel文档预览
 支持xls，xlsx文档预览，预览效果如下  
-![excel文档预览](https://kkview.cn/img/preview/preview-xls.png)  
+![excel文档预览](./doc/img/preview/preview-xls.png)  
 
 #### 7. 压缩文件预览
 支持zip,rar,jar,tar,gzip等压缩包，预览效果如下  
-![压缩文件预览1](https://kkview.cn/img/preview/preview-zip.png)  
+![压缩文件预览1](./doc/img/preview/preview-zip.png)  
 可点击压缩包中的文件名，直接预览文件，预览效果如下  
-![压缩文件预览2](https://kkview.cn/img/preview/preview-zip-inner.png)  
+![压缩文件预览2](./doc/img/preview/preview-zip-inner.png)  
 
 #### 8. 多媒体文件预览
 理论上支持所有的视频、音频文件，由于无法枚举所有文件格式，默认开启的类型如下  
 mp3,wav,mp4,flv  
 视频预览效果如下  
-![多媒体文件预览1](https://kkview.cn/img/preview/preview-video.png)  
+![多媒体文件预览1](./doc/img/preview/preview-video.png)  
 音频预览效果如下  
-![多媒体文件预览2](https://kkview.cn/img/preview/preview-audio.png)  
+![多媒体文件预览2](./doc/img/preview/preview-audio.png)  
 
 #### 9. CAD文档预览
 支持CAD dwg文档预览，和word文档一样，有两种预览模式  
 图片预览模式预览效果如下  
-![cad文档预览1](https://kkview.cn/img/preview/preview-cad-image.png)  
+![cad文档预览1](./doc/img/preview/preview-cad-image.png)  
 pdf预览模式预览效果如下  
-![cad文档预览2](https://kkview.cn/img/preview/preview-cad-pdf.png)  
+![cad文档预览2](./doc/img/preview/preview-cad-pdf.png)  
 考虑说明篇幅原因，就不贴其他格式文件的预览效果了，感兴趣的可以参考下面的实例搭建下
 
 #### 10. Excel文件纯前端渲染效果
 
-![Excel文件纯前端渲染效果](https://kkview.cn/img/preview/preview-xlsx-web.png)  
+![Excel文件纯前端渲染效果](./doc/img/preview/preview-xlsx-web.png)  
 
 #### 11. 流程图bpmn文件预览效果
 
-![流程图bpmn文件预览效果](https://kkview.cn/img/preview/preview-bpmn.png)  
+![流程图bpmn文件预览效果](./doc/img/preview/preview-bpmn.png)  
 
 #### 12. 3D模型文件预览效果：
 
-![3D模型文件预览效果](https://kkview.cn/img/preview/preview-3ds.png)  
+![3D模型文件预览效果](./doc/img/preview/preview-3ds.png)  
 
 #### 13. dcm医疗数位影像文件预览效果：
 
-![dcm医疗数位影像文件预览效果](https://kkview.cn/img/preview/preview-dcm.png) 
+![dcm医疗数位影像文件预览效果](./doc/img/preview/preview-dcm.png) 
 
 #### 14. drawio流程图预览效果：
 
-![dcdrawio流程图预览效果](https://kkview.cn/img/preview/preview-drawio.png) 
+![drawio流程图预览效果](./doc/img/preview/preview-drawio.png) 
 
 ### 快速开始
 > 项目使用技术
@@ -148,7 +148,56 @@ pdf预览模式预览效果如下
 
 ### 历史更新记录
 
-#### > 2023年07月05日，v4.3 版本发布 ：
+#### > 2025年01月16日，v4.4.0 版本发布 ：
+
+### 新增功能
+1. xlsx 新增支持打印功能
+2. 配置文件新增启用 GZIP 压缩
+3. CAD 格式新增支持转换成 SVG 和 TIF 格式，新增超时结束、线程管理
+4. 新增删除文件使用验证码校验
+5. 新增 xbrl 格式预览支持
+6. PDF 预览新增控制签名、绘图、插图控制、搜索定位页码、定义显示内容等功能
+7. 新增 CSV 格式前端解析支持
+8. 新增 ARM64 下的 Docker 镜像支持
+9. 新增 Office 预览支持转换超时属性设置功能
+10. 新增预览文件 host 黑名单机制
+
+### 优化
+1. 优化 OFD 移动端预览 页面不自适应
+2. 更新 xlsx 前端解析组件，加速解析速度
+3. 升级 CAD 组件
+4. office 功能调整，支持批注、转换页码限制、生成水印等功能
+5. 升级 markdown 组件
+6. 升级 dcm 解析组件
+7. 升级 PDF.JS 解析组件
+8. 更换视频播放插件为 ckplayer
+9. tif 解析更加智能化，支持被修改的图片格式
+10. 针对大小文本文件检测字符编码的正确率，处理并发隐患
+11. 重构下载文件的代码，新增通用的文件服务器认证访问的设计
+12. 更新 bootstrap 组件，并精简掉不需要的文件
+13. 更新 epub 版本，优化 epub 显示效果
+14. 解决定时清除缓存时，对于多媒体类型文件，只删除了磁盘缓存文件
+15. 自动检测已安装 Office 组件，增加 LibreOffice 7.5 & 7.6 版本默认路径
+16. 修改 drawio 默认为预览模式
+17. 新增 PDF 线程管理、超时管理、内存缓存管理，更新 PDF 解析组件版本
+18. 优化 Dockerfile，支持真正的跨平台构建镜像
+
+### 修复
+1. 修复 forceUpdatedCache 属性设置，但本地缓存文件不更新的问题
+2. 修复 PDF 解密加密文件转换成功后后台报错的问题
+3. 修复 BPMN 不支持跨域的问题
+4. 修复压缩包二级反代特殊符号错误问题
+5. 修复视频跨域配置导致视频无法预览的问题
+6. 修复 TXT 文本类分页二次加载问题
+7. 修复 Drawio 缺少 Base64 组件的问题
+8. 修复 Markdown 被转义问题
+9. 修复 EPUB 跨域报错问题
+10. 修复 URL 特殊符号问题
+11. 修复压缩包穿越漏洞
+12. 修复压缩获取路径错误、图片合集路径错误、水印问题等 BUG
+13. 修复前端解析 XLSX 包含 EMF 格式文件错误问题
+
+#### > 2023年07月05日，v4.3.0 版本发布 ：
 
 #### 新增功能:
 1. 新增dcm等医疗数位影像预 
