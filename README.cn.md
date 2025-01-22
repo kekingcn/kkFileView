@@ -105,8 +105,7 @@ mp3,wav,mp4,flv
 图片预览模式预览效果如下  
 ![cad文档预览1](./doc/img/preview/preview-cad-image.png)  
 pdf预览模式预览效果如下  
-![cad文档预览2](./doc/img/preview/preview-cad-pdf.png)  
-考虑说明篇幅原因，就不贴其他格式文件的预览效果了，感兴趣的可以参考下面的实例搭建下
+![cad文档预览2](./doc/img/preview/preview-cad-pdf.png)
 
 #### 10. Excel文件纯前端渲染效果
 
@@ -127,6 +126,8 @@ pdf预览模式预览效果如下
 #### 14. drawio流程图预览效果：
 
 ![drawio流程图预览效果](./doc/img/preview/preview-drawio.png) 
+
+考虑说明篇幅原因，就不贴其他格式文件的预览效果了，感兴趣的可以参考下面的实例搭建下
 
 ### 快速开始
 > 项目使用技术
