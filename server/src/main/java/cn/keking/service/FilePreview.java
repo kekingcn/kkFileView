@@ -34,5 +34,7 @@ public interface FilePreview {
     String XLSX_FILE_PREVIEW_PAGE = "officeweb";
     String CSV_FILE_PREVIEW_PAGE = "csv";
 
+    String MSG_FILE_PREVIEW_PAGE = "msg";
+
     String filePreviewHandle(String url, Model model, FileAttribute fileAttribute);
 }
