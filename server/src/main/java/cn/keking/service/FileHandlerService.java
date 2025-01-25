@@ -34,6 +34,8 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -496,6 +498,25 @@ public class FileHandlerService implements InitializingBean {
             cacheFilePrefixName = originFileName.substring(0, originFileName.lastIndexOf(".")) + suffix + "."; //这里统一文件名处理 下面更具类型 各自添加后缀
         } catch (Exception e) {
             logger.error("获取文件名后缀错误：", e);
+           try {
+               logger.info("尝试通过 Content-Disposition 获取后缀：", e);
+               URL obj = new URL(url);
+               URLConnection conn = obj.openConnection();
+               String headerField = conn.getHeaderField("Content-Disposition");
+               for (String s : headerField.split(";")) {
+                   int idx = s.indexOf("filename");
+                   if (idx > -1) {
+                       s = s.replaceAll("[\"\\s]*", "");
+                       originFileName = s.substring(idx + 9);
+                       cacheFilePrefixName = originFileName.substring(0, originFileName.lastIndexOf(".")) + suffix + ".";
+                       isHtmlView = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
+                       type = FileType.typeFromFileName(originFileName);
+                       suffix = KkFileUtils.suffixFromFileName(originFileName);
+                       break;
+                   }
+               }
+           }catch (Exception ignore){}
+
             //  e.printStackTrace();
         }
         String cacheFileName = this.getCacheFileName(type, originFileName, cacheFilePrefixName, isHtmlView, isCompressFile);
