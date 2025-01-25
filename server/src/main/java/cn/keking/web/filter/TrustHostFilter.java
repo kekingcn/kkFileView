@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import fr.opensagres.xdocreport.core.utils.StringEscapeUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
@@ -42,7 +43,7 @@ public class TrustHostFilter implements Filter {
         String host = WebUtils.getHost(url);
         assert host != null;
         if (isNotTrustHost(host)) {
-            String html = this.notTrustHostHtmlView.replace("${current_host}", host);
+            String html = this.notTrustHostHtmlView.replace("${current_host}", StringEscapeUtils.escapeHtml(host));
             response.getWriter().write(html);
             response.getWriter().close();
         } else {
