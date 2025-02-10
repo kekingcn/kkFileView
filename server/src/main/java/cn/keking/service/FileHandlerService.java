@@ -474,7 +474,7 @@ public class FileHandlerService implements InitializingBean {
         boolean isCompressFile = !ObjectUtils.isEmpty(compressFileKey);
         if (isCompressFile) {  //判断是否使用特定压缩包符号
             try {
-                originFileName = URLDecoder.decode(originFileName, uriEncoding);  //转义的文件名 解下出原始文件名
+                originFileName = URLDecoder.decode(compressFilePath, uriEncoding);  //转义的文件名 解下出原始文件名
                 attribute.setSkipDownLoad(true);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
