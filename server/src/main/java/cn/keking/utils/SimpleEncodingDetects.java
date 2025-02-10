@@ -685,8 +685,8 @@ class BytesEncodingDetect extends Encoding {
         // int score = 0;
         // int i, rawtextlen = 0;
         // int goodbytes = 0, asciibytes = 0;
-        if (rawtext.length > 1 && ((byte) 0xFE == rawtext[0] && (byte) 0xFF == rawtext[1]) || // Big-endian
-                ((byte) 0xFF == rawtext[0] && (byte) 0xFE == rawtext[1])) { // Little-endian
+        if (rawtext.length > 1 && (((byte) 0xFE == rawtext[0] && (byte) 0xFF == rawtext[1]) || // Big-endian
+                ((byte) 0xFF == rawtext[0] && (byte) 0xFE == rawtext[1]))) { // Little-endian
             return 100;
         }
         return 0;
