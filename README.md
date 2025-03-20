@@ -170,7 +170,7 @@ The year-end major update of 2020 includes comprehensive architecture design, co
 
 > January 17th 2018
 
-1. Refined the project directory, abstract file preview interface, Easy to extend more file extensions and depoly this project on your own
+1. Refined the project directory, abstract file preview interface, Easy to extend more file extensions and deploy this project on your own
 1. Added English documentation (@幻幻Fate，@汝辉) contribution
 1. Support for more image file extensions
 1. Fixed the issue that image carousel in zip file will always start from the first
