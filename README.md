@@ -59,9 +59,28 @@ URL：[https://file.kkview.cn](https://file.kkview.cn)
 - Redis(Optional, Unnecessary by default)
 - OpenOffice or LibreOffice(Integrated on Windows, will be installed automatically on Linux, need to be manually installed on Mac OS)
 
-1. First step：`git pull https://github.com/kekingcn/kkFileView.git`
+1. Install：
 
-2. second step：Run the main method of `/server/src/main/java/cn/keking/ServerMain.java`. After starting,visit `http://localhost:8012/`.
+```sh
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+sdk ls springboot
+sdk install springboot 2.4.4
+```
+
+2. Run：
+
+```sh
+git clone https://github.com/kekingcn/kkFileView.git
+cd kkFileView
+mvn dependency:tree
+cd server
+mvn spring-boot:run
+# Visit http://localhost:8012/
+```
+
+3. More info main method `./server/src/main/java/cn/keking/ServerMain.java`.
 
 ### Changelog
 > December 14, 2022, version 4.1.0 released:
