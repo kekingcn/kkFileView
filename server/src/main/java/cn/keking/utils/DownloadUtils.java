@@ -39,9 +39,18 @@ public class DownloadUtils {
     private static final String URL_PARAM_FTP_USERNAME = "ftp.username";
     private static final String URL_PARAM_FTP_PASSWORD = "ftp.password";
     private static final String URL_PARAM_FTP_CONTROL_ENCODING = "ftp.control.encoding";
-    private static final RestTemplate restTemplate = new RestTemplate();
+   // private static final RestTemplate restTemplate = new RestTemplate();
     private static  final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
     private static final ObjectMapper mapper = new ObjectMapper();
+    
+    /**
+     * 一开始就完成factory的基本参数设置，避免每次调用重复设置 
+     */
+    static {
+    	  factory.setConnectionRequestTimeout(2000);  //设置超时时间
+          factory.setConnectTimeout(10000);
+          factory.setReadTimeout(72000);
+    }
 
 
     /**
@@ -49,7 +58,8 @@ public class DownloadUtils {
      * @param fileName      文件名
      * @return 本地文件绝对路径
      */
-    public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
+    @SuppressWarnings("unchecked")
+	public static ReturnResponse<String> downLoad(FileAttribute fileAttribute, String fileName) {
         // 忽略ssl证书
         String urlStr = null;
         try {
@@ -90,11 +100,9 @@ public class DownloadUtils {
             if (!fileAttribute.getSkipDownLoad()) {
                 if (isHttpUrl(url)) {
                     File realFile = new File(realPath);
-                    factory.setConnectionRequestTimeout(2000);  //设置超时时间
-                    factory.setConnectTimeout(10000);
-                    factory.setReadTimeout(72000);
                     HttpClient httpClient = HttpClientBuilder.create().setRedirectStrategy(new DefaultRedirectStrategy()).build();
                     factory.setHttpClient(httpClient);  //加入重定向方法
+                    RestTemplate restTemplate = new RestTemplate();
                     restTemplate.setRequestFactory(factory);
                     RequestCallback requestCallback = request -> {
                         request.getHeaders().setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
