@@ -44,9 +44,11 @@
     window.onload = function () {
         /*初始化水印*/
         initWaterMark();
-        checkImgs();
+        // 移除这行，因为新的懒加载逻辑已经在lazyload.js中处理
+        // checkImgs();
     };
-    window.onscroll = throttle(checkImgs);
+    // 移除这行，因为新的懒加载逻辑已经在lazyload.js中处理
+    // window.onscroll = throttle(checkImgs);
     function changePreviewType(previewType) {
         var url = window.location.href;
         if (url.indexOf("officePreviewType=image") !== -1) {

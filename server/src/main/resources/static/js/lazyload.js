@@ -1,67 +1,68 @@
-function isInSight(el) {
-    var bound = el.getBoundingClientRect();
-    var clientHeight = window.innerHeight;
-    //只考虑向下滚动加载
-    //const clientWidth=window.innerWeight;
-    return bound.top <= clientHeight + 100;
+function isInSight(el, i) {
+  var bound = el.getBoundingClientRect()
+  var clientHeight = window.innerHeight
+  //只考虑向下滚动加载
+  //const clientWidth=window.innerWeight;
+  return bound.top + bound.height >= 0 && bound.top <= clientHeight + 100
 }
 
-
-
 function checkImgs() {
-    var index = 0;
-    var imgs = document.querySelectorAll('.my-photo');
-    for (var i = index; i < imgs.length; i++) {
-        if (isInSight(imgs[i])) {
-            loadImg(imgs[i]);
-            index = i;
-        }
+  var index = 0
+  var imgs = document.querySelectorAll('.my-photo')
+  for (var i = index; i < imgs.length; i++) {
+    if (isInSight(imgs[i], i)) {
+      loadImg(imgs[i])
+      index = i
     }
+  }
 }
 
 function loadImg(el) {
-    var source = el.getAttribute("data-src");
-    el.src = source;
-
+  var source = el.getAttribute('data-src')
+  el.src = source
 }
-// var mustRun = 500
-// function throttle(fn, mustRun) {
-//     var timer = null;
-//     var previous = null;
-//     return function() {
-//         var now = new Date();
-//         var context = this;
-//         var args = arguments;
-//         if (!previous) {
-//             previous = now;
-//         }
-//         var remaining = now - previous;
-//         if (mustRun && remaining >= mustRun) {
-//             fn.apply(context, args);
-//             previous = now;
-//         }
-//     }
-// }
 
+// 滚动停止检测相关变量
+var scrollTimer = null
+var isScrolling = false
 
-function throttle(fn) {
-    var timer = null;
-    var previous = null;
-    return function () {
-        var now = new Date();
-        var context = this;
-        var args = arguments;
-        if (!previous) {
-            previous = now;
-        }
-        var remaining = now - previous;
-        setTimeout(refresh(fn, remaining, context, args, previous, now));
+/**
+ * 滚动停止检测函数
+ * 滚动停止500毫秒后执行图片加载
+ */
+function onScrollStop() {
+  isScrolling = false
+  // console.log('滚动停止，开始加载图片')
+  checkImgs()
+}
+
+/**
+ * 滚动事件处理函数
+ * 设置滚动状态，并延迟执行图片加载
+ */
+function handleScroll() {
+  isScrolling = true
+
+  // 清除之前的定时器
+  if (scrollTimer) {
+    clearTimeout(scrollTimer)
+  }
+
+  // 滚动停止500毫秒后执行图片加载
+  scrollTimer = setTimeout(function () {
+    if (isScrolling) {
+      onScrollStop()
     }
+  }, 500)
 }
 
-function refresh(fn, remaining, context, args, previous, now) {
-    if (remaining >= 500) {
-        fn.apply(context, args);
-        previous = now;
-    }
-}
+// 监听滚动事件
+window.addEventListener('scroll', handleScroll)
+
+// 监听窗口大小变化事件
+window.addEventListener('resize', handleScroll)
+
+// 页面加载完成后执行一次检查
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(checkImgs, 100)
+})
