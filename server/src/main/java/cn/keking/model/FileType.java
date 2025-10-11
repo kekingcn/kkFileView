@@ -22,6 +22,7 @@ public enum FileType {
     MEDIACONVERT("mediaFilePreviewImpl"),
     MARKDOWN("markdownFilePreviewImpl"),
     XML("xmlFilePreviewImpl"),
+    JSON("jsonFilePreviewImpl"),
     CAD("cadFilePreviewImpl"),
     TIFF("tiffFilePreviewImpl"),
     OFD("ofdFilePreviewImpl"),
@@ -44,12 +45,13 @@ public enum FileType {
     private static final String[] DCM_TYPES = {"dcm"};
     private static final String[] DRAWIO_TYPES = {"drawio"};
     private static final String[] XML_TYPES = {"xml","xbrl"};
+    private static final String[] JSON_TYPES = {"json"};
     private static final String[] TIFF_TYPES = {"tif", "tiff"};
     private static final String[] OFD_TYPES = {"ofd"};
     private static final String[] SVG_TYPES = {"svg"};
     private static final String[] CAD_TYPES = {"dwg", "dxf", "dwf", "iges", "igs", "dwt", "dng", "ifc", "dwfx", "stl", "cf2", "plt"};
     private static final String[] SSIM_TEXT_TYPES = ConfigConstants.getSimText();
-    private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "yaml", "yml", "json", "h", "cpp", "cs", "aspx", "jsp", "sql"};
+    private static final String[] CODES = {"java", "c", "php", "go", "python", "py", "js", "html", "ftl", "css", "lua", "sh", "rb", "yaml", "yml", "h", "cpp", "cs", "aspx", "jsp", "sql"};
     private static final String[] MEDIA_TYPES = ConfigConstants.getMedia();
     public static final String[] MEDIA_CONVERT_TYPES = ConfigConstants.getConvertMedias();
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
@@ -108,6 +110,9 @@ public enum FileType {
         }
         for (String xml : XML_TYPES) {
             FILE_TYPE_MAPPER.put(xml, FileType.XML);
+        }
+        for (String json : JSON_TYPES) {
+            FILE_TYPE_MAPPER.put(json, FileType.JSON);
         }
         FILE_TYPE_MAPPER.put("md", FileType.MARKDOWN);
         FILE_TYPE_MAPPER.put("pdf", FileType.PDF);

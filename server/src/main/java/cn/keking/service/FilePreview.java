@@ -26,6 +26,7 @@ public interface FilePreview {
     String CODE_FILE_PREVIEW_PAGE = "code";
     String EXEL_FILE_PREVIEW_PAGE = "html";
     String XML_FILE_PREVIEW_PAGE = "xml";
+    String JSON_FILE_PREVIEW_PAGE = "json";
     String MARKDOWN_FILE_PREVIEW_PAGE = "markdown";
     String BPMN_FILE_PREVIEW_PAGE = "bpmn";
     String DCM_FILE_PREVIEW_PAGE = "dcm";
