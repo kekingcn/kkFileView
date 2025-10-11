@@ -17,25 +17,18 @@
             max-width: 100%;
             padding: 20px;
         }
-        .panel-body {
-            padding: 0;
-        }
         #json {
-            padding: 20px;
-            background-color: #f8f9fa;
-            overflow-x: auto;
-        }
-        #text_view {
-            padding: 20px;
-            background-color: #ffffff;
+            padding: 0;
             overflow-x: auto;
         }
         pre {
-            margin: 0;
+            padding: 20px;
+            padding-left: 65px; /* 为行号留出空间 */
             white-space: pre-wrap;
             word-wrap: break-word;
             font-size: 14px;
             line-height: 1.6;
+            position: relative;
         }
         .json-key {
             color: #881391;
@@ -55,11 +48,31 @@
             color: #808080;
             font-weight: bold;
         }
-        .btn-group {
-            margin-bottom: 10px;
+        .json-toggle {
+            cursor: pointer;
+            color: #666;
+            user-select: none;
+            display: inline-block;
+            width: 16px;
+            font-weight: bold;
         }
-        .view-mode-btn {
-            min-width: 100px;
+        .json-toggle:hover {
+            color: #333;
+        }
+        .json-node {
+            display: block;
+        }
+        .line-number {
+            position: absolute;
+            left: 0;
+            width: 55px;
+            color: #999;
+            font-size: 12px;
+            user-select: none;
+            text-align: right;
+            padding-right: 10px;
+            border-right: 1px solid #ddd;
+            background-color: #f8f9fa;
         }
     </style>
 </head>
@@ -68,18 +81,21 @@
 <input hidden id="textData" value="${textData}"/>
 <div class="container">
     <div class="panel panel-default">
-        <div class="panel-heading">
+        <div id="formatted_btn" class="panel-heading">
             <h4 class="panel-title">
-                ${file.name}
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                    ${file.name}
+                </a>
             </h4>
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-primary view-mode-btn" id="formatted_btn">格式化视图</button>
-                <button type="button" class="btn btn-default view-mode-btn" id="raw_btn">原始文本</button>
-            </div>
         </div>
-        <div class="panel-body">
-            <div id="json"></div>
-            <div id="text_view" style="display:none;"></div>
+        <div id="raw_btn" class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                    ${file.name}
+                </a>
+            </h4>
+        </div>
+        <div id="json" class="panel-body">
         </div>
     </div>
 </div>
@@ -89,22 +105,20 @@
      * 初始化
      */
     window.onload = function () {
+        $("#formatted_btn").hide();
         initWaterMark();
         loadJsonData();
     }
 
     /**
      * HTML 反转义（用于还原后端转义的内容）
+     * 使用浏览器的 DOM 来正确解码所有 HTML 实体
      */
     function htmlUnescape(str) {
         if (!str || str.length === 0) return "";
-        var s = str;
-        s = s.replace(/&quot;/g, '"');
-        s = s.replace(/&#39;/g, "'");
-        s = s.replace(/&lt;/g, "<");
-        s = s.replace(/&gt;/g, ">");
-        s = s.replace(/&amp;/g, "&");
-        return s;
+        var textarea = document.createElement('textarea');
+        textarea.innerHTML = str;
+        return textarea.value;
     }
 
     /**
@@ -131,8 +145,132 @@
         return str;
     }
 
+    // 全局行号计数器
+    var lineNumber = 1;
+
     /**
-     * JSON 语法高亮
+     * 构建可展开/收起的 JSON 树形结构
+     */
+    function buildJsonTree(obj, indent, skipLineNumber) {
+        indent = indent || 0;
+        skipLineNumber = skipLineNumber || false;
+        var html = '';
+        var indentStr = '  '.repeat(indent);
+
+        if (obj === null) {
+            return '<span class="json-null">null</span>';
+        }
+
+        if (typeof obj !== 'object') {
+            if (typeof obj === 'string') {
+                // 转义特殊字符，避免换行和制表符破坏布局
+                var escapedStr = obj
+                    .replace(/\\/g, '\\\\')
+                    .replace(/\n/g, '\\n')
+                    .replace(/\r/g, '\\r')
+                    .replace(/\t/g, '\\t')
+                    .replace(/"/g, '\\"');
+                return '<span class="json-string">"' + htmlEscape(escapedStr) + '"</span>';
+            } else if (typeof obj === 'number') {
+                return '<span class="json-number">' + obj + '</span>';
+            } else if (typeof obj === 'boolean') {
+                return '<span class="json-boolean">' + obj + '</span>';
+            }
+            return htmlEscape(String(obj));
+        }
+
+        var isArray = Array.isArray(obj);
+        var entries = isArray ? obj : Object.keys(obj);
+        var openBracket = isArray ? '[' : '{';
+        var closeBracket = isArray ? ']' : '}';
+
+        if (entries.length === 0) {
+            return openBracket + closeBracket;
+        }
+
+        var nodeId = 'node_' + Math.random().toString(36).substr(2, 9);
+
+        // 如果不跳过行号，说明是新的一行
+        if (!skipLineNumber) {
+            html += '<span class="line-number">' + lineNumber++ + '</span>';
+        }
+
+        html += '<span class="json-toggle" onclick="toggleJsonNode(\'' + nodeId + '\')">▼</span> ';
+        html += openBracket + '\n';
+        html += '<div id="' + nodeId + '" class="json-node">';
+
+        for (var i = 0; i < entries.length; i++) {
+            var key = isArray ? i : entries[i];
+            var value = isArray ? entries[i] : obj[entries[i]];
+
+            html += '<span class="line-number">' + lineNumber++ + '</span>';
+            html += indentStr + '  ';
+            if (!isArray) {
+                html += '<span class="json-key">"' + htmlEscape(key) + '"</span>: ';
+            }
+
+            // 如果值是对象或数组，跳过它的行号（因为已经在上面添加了）
+            html += buildJsonTree(value, indent + 1, true);
+
+            if (i < entries.length - 1) {
+                html += ',';
+            }
+            html += '\n';
+        }
+
+        html += '</div>';
+        html += '<span class="line-number">' + lineNumber++ + '</span>';
+        html += indentStr + closeBracket;
+
+        return html;
+    }
+
+    /**
+     * 切换 JSON 节点展开/收起
+     */
+    function toggleJsonNode(nodeId) {
+        var node = document.getElementById(nodeId);
+        var toggle = event.target;
+
+        if (node.style.display === 'none') {
+            node.style.display = 'block';
+            toggle.textContent = '▼';
+        } else {
+            node.style.display = 'none';
+            toggle.textContent = '▶';
+        }
+    }
+
+    /**
+     * 全部展开
+     */
+    function expandAll() {
+        var nodes = document.querySelectorAll('.json-node');
+        var toggles = document.querySelectorAll('.json-toggle');
+        nodes.forEach(function(node) {
+            node.style.display = 'block';
+        });
+        toggles.forEach(function(toggle) {
+            toggle.textContent = '▼';
+        });
+    }
+
+    /**
+     * 全部收起
+     */
+    function collapseAll() {
+        var nodes = document.querySelectorAll('.json-node');
+        var toggles = document.querySelectorAll('.json-toggle');
+        nodes.forEach(function(node) {
+            node.style.display = 'none';
+        });
+        toggles.forEach(function(toggle) {
+            toggle.textContent = '▶';
+        });
+    }
+
+    /**
+     * JSON 语法高亮（简单版本，用于原始文本视图）
      */
     function syntaxHighlight(json) {
         json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -154,11 +292,35 @@
     }
 
     /**
+     * UTF-8 解码 Base64（正确处理中文等 UTF-8 字符）
+     */
+    function decodeBase64UTF8(base64Str) {
+        try {
+            // 方法1：使用现代浏览器的 TextDecoder API（推荐）
+            if (typeof TextDecoder !== 'undefined') {
+                var binaryString = window.atob(base64Str);
+                var bytes = new Uint8Array(binaryString.length);
+                for (var i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return new TextDecoder('utf-8').decode(bytes);
+            }
+
+            // 方法2：降级方案
+            return decodeURIComponent(escape(window.atob(base64Str)));
+        } catch (e) {
+            console.error('Base64 decode error:', e);
+            // 最后降级到 Base64.js 库
+            return Base64.decode(base64Str);
+        }
+    }
+
+    /**
      * 加载 JSON 数据
      */
     function loadJsonData() {
         try {
-            var textData = Base64.decode($("#textData").val());
+            var textData = decodeBase64UTF8($("#textData").val());
 
             // 1. 先反转义 HTML 实体（因为后端已经转义过）
             textData = htmlUnescape(textData);
@@ -167,15 +329,27 @@
             textData = removeBOM(textData);
 
             // 保存原始文本（用于显示时再次转义以保证安全）
-            window.rawText = "<pre>" + htmlEscape(textData) + "</pre>";
+            window.rawText = "<pre style='background-color: #FFFFFF; border: none; margin: 0;'>" + htmlEscape(textData) + "</pre>";
 
             // 尝试解析并格式化 JSON
             try {
                 var jsonObj = JSON.parse(textData);
-                var formattedJson = JSON.stringify(jsonObj, null, 4);
-                window.formattedJson = "<pre>" + syntaxHighlight(formattedJson) + "</pre>";
 
-                // 默认显示格式化视图
+                // 重置行号计数器
+                lineNumber = 1;
+
+                // 构建树形视图
+                var treeHtml = '<div style="padding: 20px;">';
+                treeHtml += '<div style="margin-bottom: 10px;">';
+                treeHtml += '<button onclick="expandAll()" class="btn btn-sm btn-default" style="margin-right: 5px;">全部展开</button>';
+                treeHtml += '<button onclick="collapseAll()" class="btn btn-sm btn-default">全部收起</button>';
+                treeHtml += '</div>';
+                treeHtml += '<pre style="background-color: #f8f9fa; border: none; margin: 0;">';
+                treeHtml += buildJsonTree(jsonObj, 0);
+                treeHtml += '</pre></div>';
+                window.formattedJson = treeHtml;
+
+                // 默认显示树形视图
                 $("#json").html(window.formattedJson);
             } catch (e) {
                 // 如果不是有效的 JSON，显示错误并回退到原始文本
@@ -193,19 +367,15 @@
      */
     $(function () {
         $("#formatted_btn").click(function () {
-            $("#json").show();
-            $("#text_view").hide();
             $("#json").html(window.formattedJson);
-            $("#formatted_btn").removeClass("btn-default").addClass("btn-primary");
-            $("#raw_btn").removeClass("btn-primary").addClass("btn-default");
+            $("#raw_btn").show();
+            $("#formatted_btn").hide();
         });
 
         $("#raw_btn").click(function () {
-            $("#json").hide();
-            $("#text_view").show();
-            $("#text_view").html(window.rawText);
-            $("#raw_btn").removeClass("btn-default").addClass("btn-primary");
-            $("#formatted_btn").removeClass("btn-primary").addClass("btn-default");
+            $("#json").html(window.rawText);
+            $("#formatted_btn").show();
+            $("#raw_btn").hide();
         });
     });
 </script>
