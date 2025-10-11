@@ -50,26 +50,21 @@ public class RedissonConfig {
                 .setConnectionMinimumIdleSize(connectionMinimumIdleSize)
                 .setConnectionPoolSize(connectionPoolSize)
                 .setDatabase(database)
-                .setDnsMonitoring(dnsMonitoring)
                 .setDnsMonitoringInterval(dnsMonitoringInterval)
                 .setSubscriptionConnectionMinimumIdleSize(subscriptionConnectionMinimumIdleSize)
                 .setSubscriptionConnectionPoolSize(subscriptionConnectionPoolSize)
                 .setSubscriptionsPerConnection(subscriptionsPerConnection)
                 .setClientName(clientName)
-                .setFailedAttempts(failedAttempts)
                 .setRetryAttempts(retryAttempts)
                 .setRetryInterval(retryInterval)
-                .setReconnectionTimeout(reconnectionTimeout)
                 .setTimeout(timeout)
                 .setConnectTimeout(connectTimeout)
                 .setIdleConnectionTimeout(idleConnectionTimeout)
-                .setPingTimeout(pingTimeout)
                 .setPassword(StringUtils.trimToNull(password));
         Codec codec=(Codec) ClassUtils.forName(getCodec(), ClassUtils.getDefaultClassLoader()).newInstance();
         config.setCodec(codec);
         config.setThreads(thread);
         config.setEventLoopGroup(new NioEventLoopGroup());
-        config.setUseLinuxNativeEpoll(false);
         return config;
     }
 
