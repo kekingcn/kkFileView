@@ -426,7 +426,7 @@ public class ConfigConstants {
         return fileUploadDisable;
     }
 
-    @Value("${file.upload.disable:false}")
+    @Value("${file.upload.disable:true}")
     public void setFileUploadDisable(Boolean fileUploadDisable) {
         setFileUploadDisableValue(fileUploadDisable);
     }

@@ -148,6 +148,18 @@
                     <input type="file" id="file" name="file" style="float: left; margin: 0 auto; font-size:22px;" placeholder="请选择文件"/>
                     <input type="button" id="fileUploadBtn" class="btn btn-success" value=" 上 传 "/>
                 </form>
+            <#else>
+                <div style="padding: 20px; margin: 10px 0; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+                    <p style="margin: 0; color: #6c757d; font-size: 16px;">
+                        文件上传功能默认已禁用。如需开启，请通过以下方式配置：
+                        <br/>
+                        • 配置文件：<code>file.upload.disable=false</code>
+                        <br/>
+                        • 环境变量：<code>KK_FILE_UPLOAD_DISABLE=false</code>
+                        <br/>
+                        <strong style="color: #dc3545;">请注意：文件上传限开发环境调试使用，生产环境建议保持关闭状态，避免非法上传导致的安全隐患。</strong>
+                    </p>
+                </div>
             </#if>
             <table id="table" data-pagination="true"></table>
         </div>
