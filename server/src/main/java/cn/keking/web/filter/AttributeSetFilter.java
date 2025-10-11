@@ -4,8 +4,8 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.config.WatermarkConfigConstants;
 import cn.keking.utils.KkFileUtils;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
