@@ -8,6 +8,8 @@ import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.EncodingDetects;
 import cn.keking.utils.KkFileUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -20,16 +22,13 @@ import java.nio.charset.StandardCharsets;
  * Created by kl on 2018/1/17.
  * Content :处理文本文件
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class SimTextFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
-
-    public SimTextFilePreviewImpl(FileHandlerService fileHandlerService,OtherFilePreviewImpl otherFilePreview) {
-        this.fileHandlerService = fileHandlerService;
-        this.otherFilePreview = otherFilePreview;
-    }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
@@ -57,7 +56,7 @@ public class SimTextFilePreviewImpl implements FilePreview {
         try {
             fileData = HtmlUtils.htmlEscape(textData(filePath,fileName));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("读取文本文件失败: {}", filePath, e);
         }
         model.addAttribute("textData", Base64.encodeBase64String(fileData.getBytes(StandardCharsets.UTF_8)));
         return TXT_FILE_PREVIEW_PAGE;

@@ -7,6 +7,8 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
 import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.KkFileUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -23,16 +25,13 @@ import java.nio.file.Paths;
  * @since 2025/01/11
  * JSON 文件预览处理实现
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class JsonFilePreviewImpl implements FilePreview {
 
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
-
-    public JsonFilePreviewImpl(FileHandlerService fileHandlerService, OtherFilePreviewImpl otherFilePreview) {
-        this.fileHandlerService = fileHandlerService;
-        this.otherFilePreview = otherFilePreview;
-    }
 
     @Override
     public String filePreviewHandle(String url, Model model, FileAttribute fileAttribute) {
@@ -64,7 +63,7 @@ public class JsonFilePreviewImpl implements FilePreview {
         try {
             fileData = HtmlUtils.htmlEscape(readJsonFile(filePath, fileName));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("读取JSON文件失败: {}", filePath, e);
         }
         String base64Data = Base64.encodeBase64String(fileData.getBytes(StandardCharsets.UTF_8));
         model.addAttribute("textData", base64Data);

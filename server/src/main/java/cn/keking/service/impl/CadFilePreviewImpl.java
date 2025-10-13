@@ -9,6 +9,8 @@ import cn.keking.utils.DownloadUtils;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
 import cn.keking.web.filter.BaseUrlFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -22,6 +24,7 @@ import static cn.keking.service.impl.OfficeFilePreviewImpl.getPreviewType;
 @Service
 public class CadFilePreviewImpl implements FilePreview {
 
+    private static final Logger logger = LoggerFactory.getLogger(CadFilePreviewImpl.class);
     private static final String OFFICE_PREVIEW_TYPE_IMAGE = "image";
     private static final String OFFICE_PREVIEW_TYPE_ALL_IMAGES = "allImages";
 
@@ -55,7 +58,7 @@ public class CadFilePreviewImpl implements FilePreview {
                 try {
                     imageUrls = fileHandlerService.cadToPdf(filePath, outFilePath, cadPreviewType, fileAttribute);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Failed to convert CAD file: {}", filePath, e);
                 }
                 if (imageUrls == null) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, "CAD转换异常，请联系管理员");

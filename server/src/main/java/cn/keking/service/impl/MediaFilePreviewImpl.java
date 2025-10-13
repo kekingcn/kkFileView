@@ -11,6 +11,8 @@ import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -26,6 +28,7 @@ import java.io.File;
 @Service
 public class MediaFilePreviewImpl implements FilePreview {
 
+    private static final Logger logger = LoggerFactory.getLogger(MediaFilePreviewImpl.class);
     private final FileHandlerService fileHandlerService;
     private final OtherFilePreviewImpl otherFilePreview;
     private static final String mp4 = "mp4";
@@ -66,7 +69,7 @@ public class MediaFilePreviewImpl implements FilePreview {
                         convertedUrl = outFilePath;  //其他协议的  不需要转换方式的文件 直接输出
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Failed to convert media file: {}", filePath, e);
                 }
                 if (convertedUrl == null) {
                     return otherFilePreview.notSupportedFile(model, fileAttribute, "视频转换异常，请联系管理员");
@@ -148,7 +151,7 @@ public class MediaFilePreviewImpl implements FilePreview {
                 recorder.record(captured_frame);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to convert video file to mp4: {}", filePath, e);
             return null;
         } finally {
             if (recorder != null) {   //关闭

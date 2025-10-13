@@ -87,7 +87,7 @@ public class WebUtils {
             try {
                 urlStr = URLEncoder.encode(urlStr, "UTF-8").replaceAll("\\+", "%20").replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%26", "&").replaceAll("%3D", "=");
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to encode URL: {}", urlStr, e);
             }
         }
         return urlStr;
@@ -155,7 +155,7 @@ public class WebUtils {
                 URL urlObj = new URL(url);
                 url = urlObj.getPath().substring(1);
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to parse file URL: {}", url, e);
             }
         }
         // 因为url的参数中可能会存在/的情况，所以直接url.lastIndexOf("/")会有问题

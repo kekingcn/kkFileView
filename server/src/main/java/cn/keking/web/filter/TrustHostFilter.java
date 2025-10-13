@@ -13,6 +13,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
 
@@ -22,6 +24,7 @@ import org.springframework.util.FileCopyUtils;
  */
 public class TrustHostFilter implements Filter {
 
+    private static final Logger logger = LoggerFactory.getLogger(TrustHostFilter.class);
     private String notTrustHostHtmlView;
 
     @Override
@@ -32,7 +35,7 @@ public class TrustHostFilter implements Filter {
             byte[] bytes = FileCopyUtils.copyToByteArray(classPathResource.getInputStream());
             this.notTrustHostHtmlView = new String(bytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to load notTrustHost.html file", e);
         }
     }
 

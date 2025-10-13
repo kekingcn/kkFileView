@@ -4,6 +4,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.extractor.ExtractorFactory;
 import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +20,7 @@ import java.nio.file.Paths;
  */
 public class OfficeUtils {
 
+    private static final Logger logger = LoggerFactory.getLogger(OfficeUtils.class);
     private static final String POI_INVALID_PASSWORD_MSG = "password";
 
     /**
@@ -49,7 +52,7 @@ public class OfficeUtils {
                 try {
                     propStream.close();//关闭文件输入流
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("Failed to close input stream for file: {}", path, e);
                 }
             }
         }
@@ -76,7 +79,7 @@ public class OfficeUtils {
                 try {
                     propStream.close();//关闭文件输入流
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("Failed to close input stream for file: {}", path, e);
                 }
             }
         }

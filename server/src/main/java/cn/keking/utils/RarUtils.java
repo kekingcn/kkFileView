@@ -1,6 +1,9 @@
 package cn.keking.utils;
 import cn.keking.config.ConfigConstants;
 import cn.keking.service.ZtreeNodeVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -15,6 +18,7 @@ import java.util.regex.Pattern;
  * create : 2023-04-08
  **/
 public class RarUtils {
+    private static final Logger logger = LoggerFactory.getLogger(RarUtils.class);
     private static final String fileDir = ConfigConstants.getFileDir();
 
     public static byte[] getUTF8BytesFromGBKString(String gbkStr) {
@@ -55,7 +59,7 @@ public class RarUtils {
                     str = new String(getUTF8BytesFromGBKString(str), StandardCharsets.UTF_8);
                 }
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                logger.error("Failed to convert string encoding: {}", str, e);
             }
         }
         return str;
