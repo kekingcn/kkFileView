@@ -308,7 +308,8 @@ public class ConfigConstants {
         if (DEFAULT_VALUE.equalsIgnoreCase(trustHost)) {
             return new CopyOnWriteArraySet<>();
         } else {
-            String[] trustHostArray = trustHost.toLowerCase().split(",");
+            // 去除空格并转小写
+            String[] trustHostArray = trustHost.toLowerCase().replaceAll("\\s+", "").split(",");
             return new CopyOnWriteArraySet<>(Arrays.asList(trustHostArray));
         }
     }
