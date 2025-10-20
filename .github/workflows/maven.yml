@@ -12,13 +12,41 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Set up JDK 21
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4
       with:
         java-version: '21'
-        distribution: 'adopt'
-        cache: maven
+        distribution: 'temurin'  # 使用 Eclipse Temurin (AdoptOpenJDK 的继任者)
+        cache: 'maven'
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
     - name: Build with Maven
       run: mvn -B package -Dmaven.test.skip=true --file pom.xml
+
+    - name: Upload Linux distribution package
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: kkfileview-linux
+        path: server/target/*-assembly-linux.tar.gz
+        retention-days: 7
+
+    - name: Upload Windows distribution package
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: kkfileview-windows
+        path: server/target/*-assembly-windows.zip
+        retention-days: 7
