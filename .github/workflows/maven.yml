@@ -40,7 +40,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: kkfileview-linux
-        path: server/target/*-assembly-linux.tar.gz
+        path: server/target/*.tar.gz
         retention-days: 7
 
     - name: Upload Windows distribution package
@@ -48,5 +48,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: kkfileview-windows
-        path: server/target/*-assembly-windows.zip
+        path: server/target/*.zip
         retention-days: 7
