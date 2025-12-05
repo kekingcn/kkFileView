@@ -360,6 +360,29 @@ public class WebUtils {
     }
 
     /**
+     * 获取用户的IP地址
+     * @param request 请求
+     * @return 用户的IP地址
+     */
+    public static String getIpAddress(HttpServletRequest request) {
+        String ipAddress = request.getHeader("x-forwarded-for");
+        if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+        // 如果通过多个代理，第一个IP为客户端真实IP，多个IP以逗号分隔
+        if (ipAddress != null && ipAddress.contains(",")) {
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
+    }
+
+    /**
      * 移除 session 中的属性
      * @param request 请求
      * @param key 属性名

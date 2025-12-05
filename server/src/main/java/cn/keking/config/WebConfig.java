@@ -1,6 +1,7 @@
 package cn.keking.config;
 
 import cn.keking.web.filter.*;
+import cn.keking.web.filter.RateLimitFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -83,6 +84,19 @@ public class WebConfig implements WebMvcConfigurer {
         FilterRegistrationBean<UrlCheckFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(filter);
         registrationBean.setOrder(30);
+        return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean<RateLimitFilter> getRateLimitFilter() {
+        Set<String> filterUri = new HashSet<>();
+        filterUri.add("/onlinePreview");
+        RateLimitFilter filter = new RateLimitFilter();
+        FilterRegistrationBean<RateLimitFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(filter);
+        registrationBean.setUrlPatterns(filterUri);
+        // 设置限流过滤器的顺序，确保它在其他过滤器之前执行
+        registrationBean.setOrder(5);
         return registrationBean;
     }
 
