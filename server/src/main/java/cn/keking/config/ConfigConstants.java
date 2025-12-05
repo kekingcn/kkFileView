@@ -71,6 +71,8 @@ public class ConfigConstants {
     private static int pdfTimeout80;
     private static int pdfTimeout200;
     private static int pdfThread;
+    private static int rateLimitInterval;
+    private static int rateLimitMaxRequests;
 
     public static final String DEFAULT_CACHE_ENABLED = "true";
     public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,log,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd,xbrl";
@@ -115,6 +117,8 @@ public class ConfigConstants {
     public static final String DEFAULT_PDF_TIMEOUT80 = "180";
     public static final String DEFAULT_PDF_TIMEOUT200 = "300";
     public static final String DEFAULT_PDF_THREAD = "5";
+    public static final String DEFAULT_RATE_LIMIT_INTERVAL = "60";
+    public static final String DEFAULT_RATE_LIMIT_MAX_REQUESTS = "100";
 
     public static Boolean isCacheEnabled() {
         return cacheEnabled;
@@ -646,6 +650,32 @@ public class ConfigConstants {
 
     public static void setPdfThreadValue(int pdfThread) {
         ConfigConstants.pdfThread = pdfThread;
+    }
+
+    public static int getRateLimitInterval() {
+        return rateLimitInterval;
+    }
+
+    @Value("${rate.limit.interval:60}")
+    public void setRateLimitInterval(String rateLimitInterval) {
+        setRateLimitIntervalValue(Integer.parseInt(rateLimitInterval));
+    }
+
+    public static void setRateLimitIntervalValue(int rateLimitInterval) {
+        ConfigConstants.rateLimitInterval = rateLimitInterval;
+    }
+
+    public static int getRateLimitMaxRequests() {
+        return rateLimitMaxRequests;
+    }
+
+    @Value("${rate.limit.max.requests:100}")
+    public void setRateLimitMaxRequests(String rateLimitMaxRequests) {
+        setRateLimitMaxRequestsValue(Integer.parseInt(rateLimitMaxRequests));
+    }
+
+    public static void setRateLimitMaxRequestsValue(int rateLimitMaxRequests) {
+        ConfigConstants.rateLimitMaxRequests = rateLimitMaxRequests;
     }
 
     /**

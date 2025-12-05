@@ -82,6 +82,8 @@ public class ConfigRefreshComponent {
                 int pdfTimeout80;
                 int pdfTimeout200;
                 int pdfThread;
+                int rateLimitInterval;
+                int rateLimitMaxRequests;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -134,6 +136,8 @@ public class ConfigRefreshComponent {
                     pdfTimeout80 = Integer.parseInt(properties.getProperty("pdf.timeout80", ConfigConstants.DEFAULT_PDF_TIMEOUT80));
                     pdfTimeout200 = Integer.parseInt(properties.getProperty("pdf.timeout200", ConfigConstants.DEFAULT_PDF_TIMEOUT200));
                     pdfThread = Integer.parseInt(properties.getProperty("pdf.thread", ConfigConstants.DEFAULT_PDF_THREAD));
+                    rateLimitInterval = Integer.parseInt(properties.getProperty("rate.limit.interval", ConfigConstants.DEFAULT_RATE_LIMIT_INTERVAL));
+                    rateLimitMaxRequests = Integer.parseInt(properties.getProperty("rate.limit.max.requests", ConfigConstants.DEFAULT_RATE_LIMIT_MAX_REQUESTS));
                     prohibitArray = prohibit.split(",");
 
                     ConfigConstants.setCacheEnabledValueValue(cacheEnabled);
@@ -181,6 +185,8 @@ public class ConfigRefreshComponent {
                     ConfigConstants.setPdfTimeout80Value(pdfTimeout80);
                     ConfigConstants.setPdfTimeout200Value(pdfTimeout200);
                     ConfigConstants.setPdfThreadValue(pdfThread);
+                    ConfigConstants.setRateLimitIntervalValue(rateLimitInterval);
+                    ConfigConstants.setRateLimitMaxRequestsValue(rateLimitMaxRequests);
                     setWatermarkConfig(properties);
                     bufferedReader.close();
                     fileReader.close();

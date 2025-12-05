@@ -99,4 +99,15 @@ public class WebConfig implements WebMvcConfigurer {
         registrationBean.setUrlPatterns(filterUri);
         return registrationBean;
     }
+
+    @Bean
+    public FilterRegistrationBean<RateLimitInterceptor> getRateLimitInterceptor(RateLimitInterceptor rateLimitInterceptor) {
+        Set<String> filterUri = new HashSet<>();
+        filterUri.add("/onlinePreview");
+        FilterRegistrationBean<RateLimitInterceptor> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(rateLimitInterceptor);
+        registrationBean.setUrlPatterns(filterUri);
+        registrationBean.setOrder(5); // 设置拦截器的执行顺序，确保在其他业务逻辑之前执行
+        return registrationBean;
+    }
 }
