@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import cn.keking.interceptor.RateLimitInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -28,6 +30,13 @@ public class WebConfig implements WebMvcConfigurer {
         String filePath = ConfigConstants.getFileDir();
         LOGGER.info("Add resource locations: {}", filePath);
         registry.addResourceHandler("/**").addResourceLocations("classpath:/META-INF/resources/","classpath:/resources/","classpath:/static/","classpath:/public/","file:" + filePath);
+    }
+    
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        // 注册限流器拦截器，只拦截/onlinePreview接口
+        registry.addInterceptor(new RateLimitInterceptor())
+                .addPathPatterns("/onlinePreview");
     }
 
 

@@ -648,6 +648,32 @@ public class ConfigConstants {
         ConfigConstants.pdfThread = pdfThread;
     }
 
+    public static int getRateLimitMaxRequests() {
+        return rateLimitMaxRequests;
+    }
+
+    @Value("${rate.limit.max.requests:100}")
+    public void setRateLimitMaxRequests(String rateLimitMaxRequests) {
+        setRateLimitMaxRequestsValue(Integer.parseInt(rateLimitMaxRequests));
+    }
+
+    public static void setRateLimitMaxRequestsValue(int rateLimitMaxRequests) {
+        ConfigConstants.rateLimitMaxRequests = rateLimitMaxRequests;
+    }
+
+    public static int getRateLimitTimeWindowSeconds() {
+        return rateLimitTimeWindowSeconds;
+    }
+
+    @Value("${rate.limit.time.window.seconds:60}")
+    public void setRateLimitTimeWindowSeconds(String rateLimitTimeWindowSeconds) {
+        setRateLimitTimeWindowSecondsValue(Integer.parseInt(rateLimitTimeWindowSeconds));
+    }
+
+    public static void setRateLimitTimeWindowSecondsValue(int rateLimitTimeWindowSeconds) {
+        ConfigConstants.rateLimitTimeWindowSeconds = rateLimitTimeWindowSeconds;
+    }
+
     /**
      * 以下为OFFICE转换模块设置
      */
