@@ -1,10 +1,12 @@
 package cn.keking.web.filter;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.utils.DomainIpMatcherUtil;
 import cn.keking.utils.WebUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -56,7 +58,7 @@ public class TrustHostFilter implements Filter {
     public boolean isNotTrustHost(String host) {
         // 如果配置了黑名单，优先检查黑名单
         if (CollectionUtils.isNotEmpty(ConfigConstants.getNotTrustHostSet())) {
-            return ConfigConstants.getNotTrustHostSet().contains(host);
+            return DomainIpMatcherUtil.isAllowed(ConfigConstants.getNotTrustHostSet(), host);
         }
 
         // 如果配置了白名单，检查是否在白名单中
@@ -66,7 +68,7 @@ public class TrustHostFilter implements Filter {
                 logger.debug("允许所有主机访问（通配符模式）: {}", host);
                 return false;
             }
-            return !ConfigConstants.getTrustHostSet().contains(host);
+            return DomainIpMatcherUtil.isAllowed(ConfigConstants.getTrustHostSet(), host);
         }
 
         // 安全加固：默认拒绝所有未配置的主机（防止SSRF攻击）
