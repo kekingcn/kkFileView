@@ -12,16 +12,20 @@
 
 ```properties
 # 方式1：通过配置文件
-trust.host = kkview.cn,yourdomain.com,cdn.example.com
+trust.host = kkview.cn,yourdomain.com,cdn.example.com,*.cdn.example.com
 
 # 方式2：通过环境变量
-KK_TRUST_HOST=kkview.cn,yourdomain.com,cdn.example.com
+KK_TRUST_HOST=kkview.cn,yourdomain.com,cdn.example.com,*.cdn.example.com
 ```
 
 **示例场景**：
 - 只允许预览来自 `oss.aliyuncs.com` 和 `cdn.example.com` 的文件
 ```properties
 trust.host = oss.aliyuncs.com,cdn.example.com
+```
+- 允许预览来自 `example.com` 的域名和 `example.com` 与 `cdn.example.com` 子域名的文件
+```properties
+trust.host = example.com,*.example.com,*.cdn.example.com
 ```
 
 ### 2. 允许所有主机（不推荐，仅测试环境）
@@ -41,7 +45,7 @@ trust.host = *
 not.trust.host = localhost,127.0.0.1,192.168.*,10.*,172.16.*,169.254.*
 
 # 禁止特定恶意域名
-not.trust.host = malicious-site.com,spam-domain.net
+not.trust.host = malicious-site.com,spam-domain.net,*.spam-domain.net
 ```
 
 **优先级**：黑名单 > 白名单
@@ -62,7 +66,7 @@ docker run -d \
 
 ```properties
 # 1. 明确配置信任主机白名单
-trust.host = your-cdn.com,your-storage.com
+trust.host = your-cdn.com,your-storage.com,*.your-storage.com
 
 # 2. 配置黑名单防止内网访问
 not.trust.host = localhost,127.0.0.1,192.168.*,10.*,172.16.*
@@ -146,9 +150,8 @@ trust.host = *
 
 ### Q4: 如何允许子域名？
 
-目前不支持通配符域名匹配，需要明确列出每个子域名：
 ```properties
-trust.host = cdn.example.com,api.example.com,storage.example.com
+trust.host = *.example.com,*.cdn.example.com
 ```
 
 ## 🚨 安全事件响应
