@@ -68,7 +68,7 @@ public class TrustHostFilter implements Filter {
                 logger.debug("允许所有主机访问（通配符模式）: {}", host);
                 return false;
             }
-            return DomainIpMatcherUtil.isAllowed(ConfigConstants.getTrustHostSet(), host);
+            return !DomainIpMatcherUtil.isAllowed(ConfigConstants.getTrustHostSet(), host);
         }
 
         // 安全加固：默认拒绝所有未配置的主机（防止SSRF攻击）
