@@ -22,7 +22,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            const body = `@copilot 请自动分诊并直接给出可执行建议（无需人工先介入）：\n\n- 先判断类型：Bug / Performance / Security / Question / Feature\n- 检查 Issue 信息是否完整（版本、部署方式、复现步骤、日志）\n- 若信息不完整：请直接按模板列出缺失项并引导补充\n- 若信息较完整：请给出下一步排查建议与最小复现建议\n- 若判断为已知问题或已修复：请给出对应版本/修复方向\n\nIssue #${issue.number}\n标题：${issue.title}\n链接：${issue.html_url}`;
+            const body = `@copilot 请自动分诊并直接给出可执行建议（无需人工先介入）：\n\n- 先判断类型：Bug / Performance / Security / Question / Feature\n- 检查 Issue 信息是否完整（版本、部署方式、复现步骤、日志）\n- 若信息不完整：请直接按模板列出缺失项并引导补充\n- 若信息较完整：请给出下一步排查建议与最小复现建议\n- 若判断为已知问题或已修复：请给出对应版本/修复方向\n\nIssue #${issue.number}\n标题：${issue.title}\n链接：${issue.html_url}\n\n---\n\n补充说明 / Support Notice:\n- GitHub Issues 会持续跟进处理 / We will continue to follow up through GitHub Issues.\n- 如为线上紧急问题，可通过知识星球渠道加速处理 / For urgent production issues, you can use our Knowledge Planet channel for faster processing:\n  https://wx.zsxq.com/group/48844125114258`;
 
             await github.rest.issues.createComment({
               owner,
@@ -31,13 +31,4 @@ jobs:
               body,
             });
 
-            const accelNotice = `补充说明：\n\n- GitHub Issues 会持续跟进处理\n- 如为线上紧急问题，可通过知识星球渠道加速处理：\n  https://wx.zsxq.com/group/48844125114258`;
-
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number: issue.number,
-              body: accelNotice,
-            });
-
-            core.info(`Copilot prompt + acceleration notice posted to #${issue.number}`);
+            core.info(`Copilot prompt comment posted to #${issue.number}`);
