@@ -1,0 +1,71 @@
+name: "Feature Request / 功能建议"
+description: "Propose a new feature with clear use case and acceptance criteria. / 提交功能建议，请明确场景与验收标准。"
+title: "[FEATURE] "
+labels: ["type/feature", "priority/p2", "status/needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your idea! / 感谢你的建议！
+
+        Please provide concrete business scenario and expected behavior.
+        请尽量提供明确业务场景和期望行为，便于评估优先级与实现方案。
+
+  - type: textarea
+    id: background
+    attributes:
+      label: "Background / 背景"
+      description: "What problem are you trying to solve? / 你要解决什么问题？"
+      placeholder: "Describe current pain points... / 描述当前痛点..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Proposal / 建议方案"
+      description: "What do you expect kkFileView to support? / 期望 kkFileView 支持什么？"
+      placeholder: "Describe expected feature behavior... / 描述期望功能行为..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: "Use Case / 使用场景"
+      description: "Provide 1-3 concrete scenarios. / 提供 1-3 个具体场景"
+      placeholder: |
+        Scenario 1:
+        Scenario 2:
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives / 备选方案"
+      description: "What alternatives have you considered? / 是否考虑过替代方案？"
+      placeholder: "Existing workaround or alternative... / 当前替代做法..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance Criteria / 验收标准"
+      description: "How do we know this feature is done? / 如何判断该功能完成？"
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Checklist / 提交前检查"
+      options:
+        - label: "I have searched existing issues and did not find a duplicate feature request. / 我已搜索现有 issue，未发现重复功能建议"
+          required: true
+        - label: "I provided concrete use cases and expected behavior. / 我已提供具体使用场景和期望行为"
+          required: true
