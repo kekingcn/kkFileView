@@ -31,4 +31,13 @@ jobs:
               body,
             });
 
-            core.info(`Copilot prompt comment posted to #${issue.number}`);
+            const accelNotice = `补充说明：\n\n- GitHub Issues 会持续跟进处理\n- 如为线上紧急问题，可通过知识星球渠道加速处理：\n  https://wx.zsxq.com/group/48844125114258`;
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issue.number,
+              body: accelNotice,
+            });
+
+            core.info(`Copilot prompt + acceleration notice posted to #${issue.number}`);
