@@ -27,6 +27,8 @@ if (!fs.existsSync(zipPath)) {
   } catch (err) {
     console.error('Failed to create sample.zip fixture. Ensure "zip" is installed and available in PATH.');
     throw err instanceof Error ? err : new Error(String(err));
+  } finally {
+    fs.rmSync(zipWork, { recursive: true, force: true });
   }
 }
 
