@@ -11,6 +11,7 @@ This folder contains a first MVP of end-to-end automated tests.
 - Security regression checks for blocked internal-network hosts (`10.*`) on:
   - `/onlinePreview`
   - `/getCorsFile`
+- Basic performance smoke checks (configurable threshold): txt/docx/xlsx preview response time
 
 ## Local run
 
@@ -51,4 +52,14 @@ KK_TRUST_HOST='*' KK_NOT_TRUST_HOST='10.*,172.16.*,192.168.*' java -jar "$JAR_PA
 ```bash
 cd tests/e2e
 KK_BASE_URL=http://127.0.0.1:8012 FIXTURE_BASE_URL=http://127.0.0.1:18080 npm test
+```
+
+Optional:
+
+```bash
+# smoke only
+npm run test:smoke
+
+# perf smoke (default threshold 15000ms)
+E2E_MAX_PREVIEW_MS=15000 npm run test:perf
 ```

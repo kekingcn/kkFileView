@@ -1,0 +1,108 @@
+name: Nightly E2E Full
+
+on:
+  schedule:
+    - cron: '30 18 * * *' # 02:30 Asia/Shanghai
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-nightly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tests/e2e/package-lock.json
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install LibreOffice + zip
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice zip
+
+      - name: Setup Python deps for office fixtures
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tests/e2e/requirements.txt
+
+      - name: Build kkFileView
+        run: mvn -q -pl server -DskipTests package
+
+      - name: Install E2E deps
+        working-directory: tests/e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Start fixture server
+        run: |
+          cd tests/e2e/fixtures
+          python3 -m http.server 18080 > /tmp/fixture-server.log 2>&1 &
+
+      - name: Start kkFileView
+        run: |
+          JAR_PATH=$(ls server/target/kkFileView-*.jar | head -n 1)
+          nohup env KK_TRUST_HOST='*' KK_NOT_TRUST_HOST='10.*,172.16.*,192.168.*' java -jar "$JAR_PATH" > /tmp/kkfileview.log 2>&1 &
+
+      - name: Wait for services
+        run: |
+          for i in {1..60}; do
+            curl -fsS http://127.0.0.1:18080/sample.txt >/dev/null && break
+            sleep 1
+          done
+          for i in {1..120}; do
+            curl -fsS http://127.0.0.1:8012/ >/dev/null && break
+            sleep 1
+          done
+
+      - name: Run smoke suite
+        working-directory: tests/e2e
+        env:
+          KK_BASE_URL: http://127.0.0.1:8012
+          FIXTURE_BASE_URL: http://127.0.0.1:18080
+        run: npm run test:smoke
+
+      - name: Run perf suite
+        working-directory: tests/e2e
+        env:
+          KK_BASE_URL: http://127.0.0.1:8012
+          FIXTURE_BASE_URL: http://127.0.0.1:18080
+          E2E_MAX_PREVIEW_MS: 20000
+        run: npm run test:perf
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-playwright-report
+          path: tests/e2e/playwright-report
+
+      - name: Upload service logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-e2e-service-logs
+          path: |
+            /tmp/kkfileview.log
+            /tmp/fixture-server.log

@@ -9,7 +9,9 @@
     "gen:all": "npm run gen:fixtures && npm run gen:office",
     "pretest": "npm run gen:all",
     "test": "playwright test",
-    "test:headed": "playwright test --headed"
+    "test:headed": "playwright test --headed",
+    "test:smoke": "playwright test specs/preview-smoke.spec.ts",
+    "test:perf": "playwright test specs/perf-smoke.spec.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0"
