@@ -57,9 +57,9 @@ KK_BASE_URL=http://127.0.0.1:8012 FIXTURE_BASE_URL=http://127.0.0.1:18080 npm te
 Optional:
 
 ```bash
-# smoke only
+# smoke only (self-contained: will auto-generate fixtures)
 npm run test:smoke
 
-# perf smoke (default threshold 15000ms)
+# perf smoke (self-contained; default threshold 15000ms)
 E2E_MAX_PREVIEW_MS=15000 npm run test:perf
 ```

@@ -55,6 +55,10 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
+      - name: Generate E2E fixtures
+        working-directory: tests/e2e
+        run: npm run gen:all
+
       - name: Start fixture server
         run: |
           cd tests/e2e/fixtures
@@ -67,14 +71,31 @@ jobs:
 
       - name: Wait for services
         run: |
+          fixture_ready=false
           for i in {1..60}; do
-            curl -fsS http://127.0.0.1:18080/sample.txt >/dev/null && break
+            if curl -fsS http://127.0.0.1:18080/sample.txt >/dev/null; then
+              fixture_ready=true
+              break
+            fi
             sleep 1
           done
+          if [ "$fixture_ready" != "true" ]; then
+            echo "Error: fixture server did not become ready within 60 seconds." >&2
+            exit 1
+          fi
+
+          kkfileview_ready=false
           for i in {1..120}; do
-            curl -fsS http://127.0.0.1:8012/ >/dev/null && break
+            if curl -fsS http://127.0.0.1:8012/ >/dev/null; then
+              kkfileview_ready=true
+              break
+            fi
             sleep 1
           done
+          if [ "$kkfileview_ready" != "true" ]; then
+            echo "Error: kkFileView service did not become ready within 120 seconds." >&2
+            exit 1
+          fi
 
       - name: Run smoke suite
         working-directory: tests/e2e
