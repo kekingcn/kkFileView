@@ -26,7 +26,7 @@ mvn -q -pl server -DskipTests package
 cd tests/e2e
 npm install
 npx playwright install --with-deps chromium
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 > Prerequisite: ensure `zip` command is available in PATH (used for `sample.zip` fixture generation).
@@ -35,9 +35,8 @@ pip install -r requirements.txt
 
 ```bash
 cd /path/to/kkFileView
-node tests/e2e/scripts/generate-fixtures.mjs
-python tests/e2e/scripts/generate-office-fixtures.py
-cd tests/e2e/fixtures && python -m http.server 18080
+npm run gen:all
+cd tests/e2e/fixtures && python3 -m http.server 18080
 ```
 
 4. Start kkFileView in another terminal:
