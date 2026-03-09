@@ -87,9 +87,15 @@ try {
 
   ensureArchive('sample.7z', out => {
     try {
-      execFileSync('7z', ['a', '-bd', '-y', out, 'inner.txt'], { cwd: archiveWork });
-    } catch {
-      execFileSync('bsdtar', ['-a', '-cf', out, 'inner.txt'], { cwd: archiveWork });
+      execFileSync('7z', ['a', '-bd', '-y', '-mtc=off', '-mta=off', '-mtm=off', out, 'inner.txt'], {
+        cwd: archiveWork,
+      });
+    } catch (err) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
+        execFileSync('bsdtar', ['-a', '-cf', out, 'inner.txt'], { cwd: archiveWork });
+      } else {
+        throw err;
+      }
     }
   });
 } catch (err) {
