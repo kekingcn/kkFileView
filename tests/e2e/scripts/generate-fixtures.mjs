@@ -105,6 +105,13 @@ try {
   fs.rmSync(archiveWork, { recursive: true, force: true });
 }
 
+const rarFixture = path.join(fixturesDir, 'sample.rar');
+if (!fs.existsSync(rarFixture)) {
+  throw new Error(
+    'Missing required fixture tests/e2e/fixtures/sample.rar. Restore it from git (e.g. `git checkout -- tests/e2e/fixtures/sample.rar`) before running e2e.'
+  );
+}
+
 // 1x1 png
 write(
   'sample.png',
