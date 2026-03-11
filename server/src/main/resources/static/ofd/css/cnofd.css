@@ -202,6 +202,13 @@ body { margin: 0; }
     src: url(./fonts/simhei.woff);
 }
 
+/* OFD 表格竖线溢出修复 */
+/* cnofd 库在 SVG 上设置了 inline style overflow:visible，导致表格中间竖线的 */
+/* path 元素超出 SVG 容器高度后仍然可见。使用 !important 覆盖 inline style。 */
+#content svg {
+  overflow: hidden !important;
+}
+
 .gray {
     -webkit-filter: grayscale(100%);
     -moz-filter: grayscale(100%);
