@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
     <title>${file.name}代码预览</title>
     <#include  "*/commonHeader.ftl">
-    <script src="js/jquery-3.6.1.min.js" type="text/javascript"></script>
+    <script src="js/jquery-3.7.1.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
     <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="highlight/default.min.css">

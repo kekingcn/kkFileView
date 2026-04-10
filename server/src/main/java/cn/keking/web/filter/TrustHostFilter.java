@@ -48,7 +48,10 @@ public class TrustHostFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String url = WebUtils.getSourceUrl(request);
+        String url = request.getParameter("file");
+        if (url == null || url.trim().isEmpty()) {
+            url = WebUtils.getSourceUrl(request);
+        }
         String host = WebUtils.getHost(url);
         if (isNotTrustHost(host) || !WebUtils.isValidUrl(url)) {
             String currentHost = host == null ? "UNKNOWN" : host;

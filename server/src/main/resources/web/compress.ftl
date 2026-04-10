@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <title>${file.name}压缩包预览</title>
-   <script src="js/jquery-3.6.1.min.js"></script>
+   <script src="js/jquery-3.7.1.min.js"></script>
      <#include "*/commonHeader.ftl">
    <script src="js/base64.min.js" type="text/javascript"></script>
    <link href="css/zTreeStyle.css" rel="stylesheet" type="text/css">
