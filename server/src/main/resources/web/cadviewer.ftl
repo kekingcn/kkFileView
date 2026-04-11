@@ -11,7 +11,7 @@
     <link href="cadviewer/app/css/jquery-ui-1.13.2.min.css" media="screen" rel="stylesheet" type="text/css" />
     
     <!-- 核心脚本 - 最小化依赖 -->
-    <script src="js/jquery-3.6.1.min.js" type="text/javascript"></script>
+    <script src="js/jquery.min.js" type="text/javascript"></script>
     <script src="cadviewer/app/js/jquery-ui-1.13.2.min.js" type="text/javascript"></script>
     <script src="cadviewer/app/js/eve.js" type="text/javascript"></script>
     <script src="cadviewer/app/js/xml2json.min.js" type="text/javascript"></script>
