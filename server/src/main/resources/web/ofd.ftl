@@ -4,50 +4,178 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0">
-    <title>${file.name}OFD预览</title>
+    <title>${file.name} OFD预览</title>
     <#include "*/commonHeader.ftl">
     <script src="js/base64.min.js" type="text/javascript"></script>
+
+    <!-- OFD 阅读器所需样式和脚本（相对路径，请确保文件存在） -->
+    <link rel="stylesheet" href="ofd/css/element-ui.css">
+    <link rel="stylesheet" href="ofd/css/cnofd.css">
+    <script src="ofd/js/jquery-3.6.0.min.js"></script>
+    <script src="ofd/js/jszip-utils-0.1.0.min.js"></script>
+    <script src="ofd/js/Typr.js"></script>
+    <script src="ofd/js/Typr.U.js"></script>
+    <script src="ofd/js/openjpeg.js"></script>
+    <script src="ofd/js/cnofd.umd.min.js"></script>
 </head>
-<body>
 <#if currentUrl?contains("http://") || currentUrl?contains("https://")>
     <#assign finalUrl="${currentUrl}">
 <#else>
     <#assign finalUrl="${baseUrl}${currentUrl}">
 </#if>
-<iframe src="" width="100%" frameborder="0"></iframe>
-</body>
-<script type="text/javascript">
-    var url = '${finalUrl}';
-	var kkagent = '${kkagent}';
-    var baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';
-     
-    if (kkagent === 'true' || !url.startsWith(baseUrl)) {
+<body>
+    <!-- OFD 阅读器 DOM 结构（直接嵌入，不再使用 iframe） -->
+    <noscript>
+        <strong>很抱歉，因为没有启用JavaScript，cnofd.js无法正常工作。请启用它以继续。</strong>
+    </noscript>
+    <div id="app">
+        <section class="el-container is-vertical" style="width: 100vw; height: 100vh;">
+            <header class="el-header"
+                style="height: 32px; background: rgb(71, 71, 71); display: flex; border: 0px solid rgb(232, 232, 232); align-items: center;">
+                <div id="openFile" title="打开" class="btn-icon">
+                    <svg viewbox="64 64 896 896" focusable="false" width="1em" height="1em" fill="currentColor"
+                        aria-hidden="true">
+                        <path
+                            d="M928 444H820V330.4c0-17.7-14.3-32-32-32H473L355.7 186.2a8.15 8.15 0 0 0-5.5-2.2H96c-17.7 0-32 14.3-32 32v592c0 17.7 14.3 32 32 32h698c13 0 24.8-7.9 29.7-20l134-332c1.5-3.8 2.3-7.9 2.3-12 0-17.7-14.3-32-32-32zM136 256h188.5l119.6 114.4H748V444H238c-13 0-24.8 7.9-29.7 20L136 643.2V256zm635.3 512H159l103.3-256h612.4L771.3 768z">
+                        </path>
+                    </svg>
+                    <input id="file" type="file" accept=".ofd" class="hidden" />
+                </div>
+                <div style="background: rgb(71, 71, 71); display: flex; align-items: center;">
+                    <div id="separator1" class="horizontalToolbarSeparator"></div>
+                    <div id="zoomIn" title="放大" class="btn-icon">
+                        <svg viewbox="64 64 896 896" focusable="false" width="1em" height="1em" fill="currentColor"
+                            aria-hidden="true">
+                            <path
+                                d="M637 443H519V309c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v134H325c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h118v134c0 4.4 3.6 8 8 8h60c4.4 0 8-3.6 8-8V519h118c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8zm284 424L775 721c122.1-148.9 113.6-369.5-26-509-148-148.1-388.4-148.1-537 0-148.1 148.6-148.1 389 0 537 139.5 139.6 360.1 148.1 509 26l146 146c3.2 2.8 8.3 2.8 11 0l43-43c2.8-2.7 2.8-7.8 0-11zM696 696c-118.8 118.7-311.2 118.7-430 0-118.7-118.8-118.7-311.2 0-430 118.8-118.7 311.2-118.7 430 0 118.7 118.8 118.7 311.2 0 430z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div id="zoomSelect" class="select-icon" title="缩放比例">
+                        <select id="zoomValue">
+                            <option value="width">适合页宽</option>
+                            <option value="4.0">400%</option>
+                            <option value="3.0">300%</option>
+                            <option value="2.0">200%</option>
+                            <option value="1.5">150%</option>
+                            <option value="1.2">120%</option>
+                            <option value="1.1">110%</option>
+                            <option value="1.0" selected="selected">100%</option>
+                            <option value="0.9">90%</option>
+                            <option value="0.8">80%</option>
+                            <option value="0.6">60%</option>
+                            <option value="0.5">50%</option>
+                            <option value="0.25">25%</option>
+                        </select>
+                    </div>
+                    <div id="zoomOut" title="缩小" class="btn-icon">
+                        <svg viewbox="64 64 896 896" focusable="false" width="1em" height="1em" fill="currentColor"
+                            aria-hidden="true">
+                            <path
+                                d="M637 443H325c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h312c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8zm284 424L775 721c122.1-148.9 113.6-369.5-26-509-148-148.1-388.4-148.1-537 0-148.1 148.6-148.1 389 0 537 139.5 139.6 360.1 148.1 509 26l146 146c3.2 2.8 8.3 2.8 11 0l43-43c2.8-2.7 2.8-7.8 0-11zM696 696c-118.8 118.7-311.2 118.7-430 0-118.7-118.8-118.7-311.2 0-430 118.8-118.7 311.2-118.7 430 0 118.7 118.8 118.7 311.2 0 430z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div id="firstPage" title="首页" class="btn-icon">
+                        <svg viewbox="64 64 896 896" focusable="false" width="1em" height="1em" fill="currentColor"
+                            aria-hidden="true">
+                            <path
+                                d="M347.6 528.95l383.2 301.02c14.25 11.2 35.2 1.1 35.2-16.95V210.97c0-18.05-20.95-28.14-35.2-16.94L347.6 495.05a21.53 21.53 0 0 0 0 33.9M330 864h-64a8 8 0 0 1-8-8V168a8 8 0 0 1 8-8h64a8 8 0 0 1 8 8v688a8 8 0 0 1-8 8">
+                            </path>
+                        </svg>
+                    </div>
+                    <div id="prePage" title="上一页" class="btn-icon">
+                        <svg viewbox="64 64 896 896" focusable="false" width="1em" height="1em" fill="currentColor"
+                            aria-hidden="true">
+                            <path
+                                d="M689 165.1L308.2 493.5c-10.9 9.4-10.9 27.5 0 37L689 858.9c14.2 12.2 35 1.2 35-18.5V183.6c0-19.7-20.8-30.7-35-18.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div id="pageInfo" class="btn-icon">1/0</div>
+                    <div id="nextPage" title="下一页" class="btn-icon">
+                        <svg viewbox="64 64 896 896" focusable="false" width="1em" height="1em" fill="currentColor"
+                            aria-hidden="true">
+                            <path
+                                d="M715.8 493.5L335 165.1c-14.2-12.2-35-1.2-35 18.5v656.8c0 19.7 20.8 30.7 35 18.5l380.8-328.4c10.9-9.4 10.9-27.6 0-37z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div id="lastPage" title="尾页" class="btn-icon">
+                        <svg viewbox="64 64 896 896" focusable="false" width="1em" height="1em" fill="currentColor"
+                            aria-hidden="true">
+                            <path
+                                d="M676.4 528.95L293.2 829.97c-14.25 11.2-35.2 1.1-35.2-16.95V210.97c0-18.05 20.95-28.14 35.2-16.94l383.2 301.02a21.53 21.53 0 0 1 0 33.9M694 864h64a8 8 0 0 0 8-8V168a8 8 0 0 0-8-8h-64a8 8 0 0 0-8 8v688a8 8 0 0 0 8 8">
+                            </path>
+                        </svg>
+                    </div>
+                    <div id="separator2" class="horizontalToolbarSeparator"></div>
+                    <div id="print" title="打印" class="btn-icon">
+                        <svg viewbox="64 64 896 896" focusable="false" data-icon="printer" width="1em" height="1em"
+                            fill="currentColor" aria-hidden="true">
+                            <path
+                                d="M820 436h-40c-4.4 0-8 3.6-8 8v40c0 4.4 3.6 8 8 8h40c4.4 0 8-3.6 8-8v-40c0-4.4-3.6-8-8-8zm32-104H732V120c0-4.4-3.6-8-8-8H300c-4.4 0-8 3.6-8 8v212H172c-44.2 0-80 35.8-80 80v328c0 17.7 14.3 32 32 32h168v132c0 4.4 3.6 8 8 8h424c4.4 0 8-3.6 8-8V772h168c17.7 0 32-14.3 32-32V412c0-44.2-35.8-80-80-80zM360 180h304v152H360V180zm304 664H360V568h304v276zm200-140H732V500H292v204H160V412c0-6.6 5.4-12 12-12h680c6.6 0 12 5.4 12 12v292z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </header>
+            <main class="el-main" id="main" style="height: auto; background: rgb(242, 242, 242); padding: 0px;">
+                <div id="leftMenu" class="left-section"></div>
+                <div id="content" class="main-section"></div>
+                <div id="loading"
+                    style="position:absolute; z-index:999;  display:none; top:50%; left:50%; transform:translate(-50%,-50%);">
+                    <img src="ofd/img/loading.gif" alt="" />
+                </div>
+            </main>
+        </section>
+    </div>
+    <!-- cnofd 视图脚本（必须放在 DOM 之后） -->
+    <script src="ofd/js/cnofd-view.js"></script>
+    <script type="text/javascript">
+        // ========== 整合后端变量，直接指定 OFD 文件地址 ==========
+        // 后端传入的原始 URL（可能未经过代理）
+        var rawUrl = '${finalUrl}';
+        var kkagent = '${kkagent}';
+        var baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';
+        var pageNum = '${page}';  // 可选，用于跳转到指定页
+
+        // 根据代理标志计算最终的文件地址（与原 iframe 逻辑完全一致）
+        var finalOfdUrl = rawUrl;
+        if (kkagent === 'true' || !finalOfdUrl.startsWith(baseUrl)) {
          url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url))+ "&key=${kkkey}";
     }
-    if(IsPhone()){
-   	document.getElementsByTagName('iframe')[0].src = "${baseUrl}ofd/index.html?file=" + encodeURIComponent(url)+"&scale=width"+"&page=${page}";
-    }else{
-    document.getElementsByTagName('iframe')[0].src = "${baseUrl}ofd/index.html?file="+ encodeURIComponent(url)+"&page=${page}";
-    }
-    document.getElementsByTagName('iframe')[0].height = document.documentElement.clientHeight - 10;
-    /**
-     * 页面变化调整高度
-     */
-    window.onresize = function () {
-        var fm = document.getElementsByTagName("iframe")[0];
-        fm.height = window.document.documentElement.clientHeight - 10;
-    }
+		console.log("Hello, world!");
+		console.log(finalOfdUrl);
 
- function IsPhone() {
-        var info = navigator.userAgent;
-        //通过正则表达式的test方法判断是否包含“Mobile”字符串
-        var isPhone = /mobile/i.test(info);
-        //如果包含“Mobile”（是手机设备）则返回true
-        return isPhone;
-    }
-    /*初始化水印*/
-    window.onload = function () {
-        initWaterMark();
-    }
-</script>
+        // 页面加载完成后自动加载 OFD 文件
+        $(document).ready(function() {
+            // 延迟确保 cnofd 库完全初始化
+            setTimeout(function() {
+                if (typeof loadOfdFile === 'function') {
+                    loadOfdFile(finalOfdUrl);
+                    // 如果传入了页码参数，加载后跳转到指定页
+                    if (pageNum && !isNaN(pageNum) && pageNum > 1) {
+                        setTimeout(function() {
+                            // 等待渲染完成后再跳页
+                            if (typeof kkPage === 'function') {
+                                kkPage();  // 此函数需要提前定义，或使用类似逻辑
+                            } else {
+                                console.warn('未找到 kkPage 函数，无法跳转到指定页');
+                            }
+                        }, 1000);
+                    }
+                } else {
+                    console.error("cnofd 库未加载完成，请检查路径：ofd/js/cnofd-view.js");
+                }
+            }, 500);
+        });
+        // 保留水印初始化（原模板中的逻辑）
+        window.onload = function () {
+            if (typeof initWaterMark === 'function') {
+                initWaterMark();
+            }
+        };
+    </script>
+</body>
 </html>
