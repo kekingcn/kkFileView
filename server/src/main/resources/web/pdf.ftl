@@ -65,6 +65,7 @@
     // 可选：高亮关键词和水印（如果后端有传）
     viewerUrl += "&pdfhighlightall=${pdfhighlightAll}";
     viewerUrl += "&watermarktxt=${watermarkTxt}";
+	viewerUrl += "#page=${page}";
 
     // 设置 iframe 地址
     var iframe = document.getElementById('pdfFrame');
