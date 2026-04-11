@@ -143,10 +143,9 @@
         // 根据代理标志计算最终的文件地址（与原 iframe 逻辑完全一致）
         var finalOfdUrl = rawUrl;
         if (kkagent === 'true' || !finalOfdUrl.startsWith(baseUrl)) {
-         url = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(url))+ "&key=${kkkey}";
+         finalOfdUrl = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(rawUrl))+ "&key=${kkkey}";
     }
-		console.log("Hello, world!");
-		console.log(finalOfdUrl);
+
 
         // 页面加载完成后自动加载 OFD 文件
         $(document).ready(function() {

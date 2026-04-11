@@ -9,8 +9,8 @@
     <#include "*/commonHeader.ftl">
     <!-- 引入 jQuery 和 3D Viewer 核心样式/脚本 -->
     <script src="js/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/website/build/website_dev/o3dv.website.min.css">
-    <script type="text/javascript" src="/website/build/website_dev/o3dv.website.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="website/build/website_dev/o3dv.website.min.css">
+    <script type="text/javascript" src="website/build/website_dev/o3dv.website.min.js"></script>
     <style>
         /* 提示样式 */
         .toast {
@@ -68,19 +68,15 @@
     </div>
 
     <script type="text/javascript">
-        // 保留原有事件处理
-        OV.SetWebsiteEventHandler((eventName, eventLabel, eventParams) => {
-            console.log({ eventName, eventLabel, eventParams });
-        });
-
+  
         // 自定义加载逻辑（使用 fetch + Blob + ImportFiles）
         (function($) {
             // 从后端变量获取模型最终地址
-           const MODEL_URL = '${finalUrl}';
-		   const kkagent = '${kkagent}';
-		   const baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';
+           var MODEL_URL = '${finalUrl}';
+		   var kkagent = '${kkagent}';
+		   var baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';
           if (kkagent === 'true' || !MODEL_URL.startsWith(baseUrl)) {
-           MODEL_URL = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(MODEL_URL))+ "&key=${kkkey}";
+           MODEL_URL = baseUrl + 'getCorsFile?urlPath=' + encodeURIComponent(Base64.encode(MODEL_URL))+ "&key=${kkkey}" + "&fullfilename=/${file.name}";
       }
             
             function showMessage(msg, isError = false) {
@@ -152,7 +148,6 @@
             $(window).on('load', function() {
                 // 等待查看器核心初始化完成后再加载模型
                 setTimeout(() => {
-                    console.log('[自动加载] 固定模型:', MODEL_URL);
                     if (MODEL_URL && MODEL_URL !== '') {
                         loadModelFromUrl(MODEL_URL);
                     } else {
