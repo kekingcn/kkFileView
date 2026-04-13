@@ -31,6 +31,11 @@ public class IndexController {
         return "/main/integrated";
     }
 
+    @GetMapping( "/contact")
+    public String go2Contact(){
+        return "/main/contact";
+    }
+
     @GetMapping( "/")
     public String root() {
         return "/main/index";

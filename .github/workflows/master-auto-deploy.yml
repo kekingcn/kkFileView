@@ -1,0 +1,52 @@
+name: Master Auto Deploy
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+concurrency:
+  group: master-auto-deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-windows:
+    runs-on: ubuntu-22.04
+    env:
+      KK_DEPLOY_HOST: ${{ secrets.KK_DEPLOY_HOST }}
+      KK_DEPLOY_PORT: ${{ secrets.KK_DEPLOY_PORT }}
+      KK_DEPLOY_USERNAME: ${{ secrets.KK_DEPLOY_USERNAME }}
+      KK_DEPLOY_PASSWORD: ${{ secrets.KK_DEPLOY_PASSWORD }}
+      KK_DEPLOY_ROOT: ${{ secrets.KK_DEPLOY_ROOT }}
+      KK_DEPLOY_HEALTH_URL: ${{ secrets.KK_DEPLOY_HEALTH_URL }}
+      KK_DEPLOY_REPO_URL: ${{ vars.KK_DEPLOY_REPO_URL }}
+      KK_DEPLOY_BRANCH: ${{ vars.KK_DEPLOY_BRANCH }}
+      KK_DEPLOY_SOURCE_ROOT: ${{ vars.KK_DEPLOY_SOURCE_ROOT }}
+      KK_DEPLOY_JAVA_HOME: ${{ vars.KK_DEPLOY_JAVA_HOME }}
+      KK_DEPLOY_GIT_EXE: ${{ vars.KK_DEPLOY_GIT_EXE }}
+      KK_DEPLOY_MVN_CMD: ${{ vars.KK_DEPLOY_MVN_CMD }}
+      KK_DEPLOY_MAVEN_SETTINGS: ${{ vars.KK_DEPLOY_MAVEN_SETTINGS }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install WinRM dependencies
+        run: pip install pywinrm
+
+      - name: Validate deploy secrets
+        run: |
+          test -n "$KK_DEPLOY_HOST" || (echo "Missing secret: KK_DEPLOY_HOST" && exit 1)
+          test -n "$KK_DEPLOY_USERNAME" || (echo "Missing secret: KK_DEPLOY_USERNAME" && exit 1)
+          test -n "$KK_DEPLOY_PASSWORD" || (echo "Missing secret: KK_DEPLOY_PASSWORD" && exit 1)
+
+      - name: Deploy to Windows server
+        run: python .github/scripts/deploy_windows_winrm.py

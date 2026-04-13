@@ -3,12 +3,17 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>kkFileView演示首页</title>
+    <title>kkFileView 演示页</title>
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/loading.css"/>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css"/>
     <link rel="stylesheet" href="css/theme.css"/>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/main-pages.css?v=v1-polish-20260411-5"/>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery.form.min.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
@@ -17,268 +22,22 @@
     <script type="text/javascript" src="js/crypto-js.js"></script>
     <script type="text/javascript" src="js/aes.js"></script>
     <style>
-        <#-- 删除文件密码弹窗居中 -->
-        .alert {
-            width: 50%;
-        }
-        <#-- 删除文件验证码弹窗居中 -->
-        .modal {
-            width:100%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            -ms-transform: translate(-50%, -50%);
-        }
-        
-        /* 分页样式调整 */
-        .fixed-table-pagination {
-            padding: 15px 0;
-            border-top: 1px solid #e7eaec;
-            margin-top: 15px;
-        }
-        .pagination > li > a,
-        .pagination > li > span {
-            margin: 0 3px;
-            border-radius: 3px;
-            color: #337ab7;
-        }
-        .pagination > .active > a,
-        .pagination > .active > a:hover,
-        .pagination > .active > span,
-        .pagination > .active > span:hover {
-            background-color: #337ab7;
-            border-color: #337ab7;
-        }
-        
-        /* 目录导航样式 */
-        .breadcrumb {
-            background-color: #f8f9fa;
-            padding: 10px 20px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border: 1px solid #e7eaec;
-        }
-        .breadcrumb > li + li:before {
-            content: ">";
-            padding: 0 8px;
-            color: #6c757d;
-        }
         .file-icon {
             margin-right: 8px;
             font-size: 14px;
         }
-        
-        /* 表格行样式 */
-        .folder-row {
-            background-color: #f8f9fa;
-            font-weight: 500;
-        }
-        .folder-row:hover {
-            background-color: #e9ecef;
-        }
-        .file-row:hover {
-            background-color: #f5f5f5;
-        }
-        
-        /* 修正URL链接颜色 */
-        .breadcrumb a, 
-        .breadcrumb a:hover {
-            color: #333 !important;
-            text-decoration: none;
-        }
+
         #table a:not(.btn) {
-            color: #333 !important;
-            text-decoration: none;
+            color: var(--text) !important;
         }
+
         #table a:not(.btn):hover {
-            color: #0275d8 !important;
-            text-decoration: underline;
-        }
-        
-        /* 按钮样式优化 */
-        .btn {
-            border-radius: 3px;
-            padding: 5px 12px;
-        }
-        .btn-sm {
-            padding: 3px 8px;
-            font-size: 12px;
-        }
-        .btn-success {
-            background-color: #5cb85c;
-            border-color: #4cae4c;
-        }
-        .btn-success:hover {
-            background-color: #449d44;
-            border-color: #398439;
-        }
-        .btn-primary {
-            background-color: #337ab7;
-            border-color: #2e6da4;
-        }
-        .btn-primary:hover {
-            background-color: #286090;
-            border-color: #204d74;
-        }
-        .btn-danger {
-            background-color: #d9534f;
-            border-color: #d43f3a;
-        }
-        .btn-danger:hover {
-            background-color: #c9302c;
-            border-color: #ac2925;
-        }
-        .btn-info {
-            background-color: #5bc0de;
-            border-color: #46b8da;
-        }
-        .btn-info:hover {
-            background-color: #31b0d5;
-            border-color: #269abc;
-        }
-        
-        /* 输入框和表单样式 */
-        .form-control {
-            border-radius: 3px;
-            border: 1px solid #ccc;
-            box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-        }
-        .form-control:focus {
-            border-color: #66afe9;
-            outline: 0;
-            box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
-        }
-        
-        /* 地址预览区域优化 - 保持一行 */
-        .preview-form-row {
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .preview-form-row .form-group {
-            margin-bottom: 0;
-            flex-shrink: 0;
-        }
-        .preview-form-row #_url {
-            flex-grow: 1;
-            min-width: 300px;
-        }
-        .preview-form-row .checkbox-inline {
-            margin-right: 10px;
-            white-space: nowrap;
-        }
-        .preview-form-row .form-control {
-            display: inline-block;
-            width: auto;
-            min-width: 70px;
-        }
-        .preview-form-row .form-control#filePassword {
-            min-width: 80px;
-        }
-        .preview-form-row .form-control#watermarkTxt {
-            min-width: 100px;
-        }
-        .preview-form-row .form-control#kkkey {
-            min-width: 100px;
-        }
-        .preview-form-row .btn-success {
-            white-space: nowrap;
-        }
-        
-        /* 搜索框优化 */
-        .input-group {
-            width: 100%;
-        }
-        .input-group-btn .btn {
-            border-radius: 0 3px 3px 0;
-        }
-        #searchInput {
-            border-radius: 3px 0 0 3px;
-        }
-        
-        /* 上传区域优化 */
-        #file {
-            padding: 6px;
-        }
-        .input-group-btn .btn {
-            margin-left: 5px;
-        }
-        
-        /* 表格样式优化 */
-        #table {
-            border: 1px solid #e7eaec;
-            border-radius: 4px;
-            margin-top: 15px;
-        }
-        .fixed-table-container {
-            border: none;
-        }
-        .table > thead > tr > th {
-            border-bottom: 2px solid #e7eaec;
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-        .table > tbody > tr > td {
-            border-top: 1px solid #e7eaec;
-            padding: 12px 8px;
-            vertical-align: middle;
-        }
-        
-        /* 模态框优化 */
-        .modal-content {
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.5);
-        }
-        .modal-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e7eaec;
-            border-radius: 5px 5px 0 0;
-        }
-        .modal-footer {
-            background-color: #f8f9fa;
-            border-top: 1px solid #e7eaec;
-            border-radius: 0 0 5px 5px;
-        }
-        
-        /* 操作按钮间距 */
-        .btn + .btn {
-            margin-left: 5px;
-        }
-        
-        /* 高亮搜索结果 */
-        .text-danger[style*="background-color: yellow"] {
-            padding: 0 2px;
-            font-weight: bold;
-        }
-        
-        /* 禁用状态样式 */
-        .disabled-upload {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        .disabled-upload .btn {
-            cursor: not-allowed;
-        }
-        .disabled-upload .alert {
-            margin-bottom: 0;
-        }
-        
-        /* 响应式调整 */
-        @media (max-width: 1200px) {
-            .preview-form-row {
-                flex-wrap: wrap;
-            }
-            .preview-form-row #_url {
-                min-width: 200px;
-            }
+            color: var(--brand) !important;
         }
     </style>
 </head>
 
-<body>
+<body class="app-shell app-home">
 
 <#-- 删除文件验证码弹窗  -->
 <#if deleteCaptcha >
@@ -307,8 +66,7 @@
 </div>
 </#if>
 
-<!-- Fixed navbar -->
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<nav class="site-nav navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
             <a class="navbar-brand" href="https://kkview.cn" target='_blank'>kkFileView</a>
@@ -318,161 +76,258 @@
             <li><a href="./integrated">接入说明</a></li>
             <li><a href="./record">版本发布记录</a></li>
             <li><a href="./sponsor">赞助开源</a></li>
+            <li><a href="./contact">技术支持</a></li>
         </ul>
     </div>
 </nav>
 
-<div class="container theme-showcase" role="main">
-    <#--  接入说明  -->
-    <div class="page-header">
-        <h1>支持的文件类型</h1>
-        我们一直在扩展支持的文件类型，不断优化预览的效果，如果您有什么建议，欢迎在kk开源社区留言反馈：<a target='_blank' href="https://t.zsxq.com/09ZHSXbsQ">https://t.zsxq.com/09ZHSXbsQ</a>。
-    </div>
-    <div>
-        <ol>
-            <li>支持 doc, docx, xls, xlsx, xlsm, ppt, pptx, csv, tsv, dotm, xlt, xltm, dot, dotx, xlam, xla, pages 等 Office 办公文档</li>
-            <li>支持 wps, dps, et, ett, wpt 等国产 WPS Office 办公文档</li>
-            <li>支持 odt, ods, ots, odp, otp, six, ott, fodt, fods 等OpenOffice、LibreOffice 办公文档</li>
-            <li>支持 vsd, vsdx 等 Visio 流程图文件</li>
-            <li>支持 wmf, emf 等 Windows 系统图像文件</li>
-            <li>支持 psd, eps 等 Photoshop 软件模型文件</li>
-            <li>支持 pdf, ofd, rtf 等文档</li>
-            <li>支持 xmind 软件模型文件</li>
-            <li>支持 bpmn 工作流文件</li>
-            <li>支持 eml, msg邮件文件</li>
-            <li>支持 epub 图书文档</li>
-            <li>支持 obj, 3ds, stl, ply, gltf, glb, off, 3dm, fbx, dae, wrl, 3mf, ifc, brep, step, iges, fcstd, bim 等 3D 模型文件</li>
-            <li>支持 dwg, dxf, dwf, iges , igs, dwt, dng, ifc, dwfx, stl, cf2, plt  等 CAD 模型文件</li>
-            <li>支持 txt, xml(渲染), md(渲染), java, php, py, js, css 等所有纯文本</li>
-            <li>支持 zip, rar, jar, tar, gzip, 7z 等压缩包</li>
-            <li>支持 jpg, jpeg, png, gif, bmp, ico, jfif, webp, heic 等图片预览（翻转，缩放，镜像）</li>
-            <li>支持 tif, tiff 图信息模型文件（翻转，缩放）</li>
-            <li>支持 tga 图像格式文件</li>
-            <li>支持 svg 矢量图像格式文件 （翻转，缩放）</li>
-            <li>支持 mp3,wav,mp4,flv 等音视频格式文件</li>
-            <li>支持 avi,mov,rm,webm,ts,rm,mkv,mpeg,ogg,mpg,rmvb,wmv,3gp,ts,swf 等视频格式转码预览</li>
-            <li>支持 dcm 等医疗数位影像预览</li>
-            <li>支持 drawio 绘图预览</li>
-        </ol>
-    </div>
-     <#--  输入下载地址预览文件  -->
-    <div class="panel panel-success">
-        <div class="panel-heading">
-            <h3 class="panel-title">输入下载地址预览</h3>
-            跨域说明: 跨域是指你接入的URL默认支持跨域 不需要KK在进行反代了 <br>
-            <#if "${kkkey}" != "false" >
-                程序已经启用秘钥功能接入访问需要输入秘钥,获取秘钥请联系管理员！ <br>
-            </#if>
-            <#if isshowkey>
-                <#if "${kkkey}" != "false" >
-                    接入秘钥是：${kkkey}
-                </#if>
-            </#if>
-        </div>
-        <div class="panel-body">
-            <div class="row">
-                <label>&nbsp; &nbsp; <input type="text" id="_url" placeholder="请输入预览文件 url" style="min-width:35em"/></label>
-                <form action="${baseUrl}onlinePreview" target="_blank" id="previewByUrl" style="display: inline-block">
-                    <input type="hidden" name="url"/>
-                    <label><input type="checkbox" name="forceUpdatedCache" value="true"/>更新</label>
-                    <label><input type="checkbox" name="kkagent" value="true"/>跨域</label>
-                    <label><input type="checkbox" id="encryption" name="encryption" value="aes"/>AES</label>
-                    <input type="text" id="filePassword" name="filePassword" placeholder="密码" style="width:50px;">
-                    <input type="text" id="page" name="page" placeholder="页码" style="width:50px;">
-                    <input type="text" id="highlightall" name="highlightall" placeholder="高亮显示" style="width:60px;">
-                    <input type="text" id="watermarkTxt" name="watermarkTxt" placeholder="插入水印" style="width:60px;">
-                    <#if isshowkey>
-                        <input type="text" id="kkkey" name="key" placeholder="KK秘钥" style="width:60px;">
-                    </#if>
-
-                    <input type="submit" value="预览" class="btn btn-success">
-                </form>
+<div class="page-shell">
+    <div class="container" role="main">
+        <section class="hero-section">
+            <div class="hero-grid single">
+                <div class="hero-copy">
+                    <div class="home-hero-layout">
+                        <div class="home-hero-copy">
+                    <span class="eyebrow">Preview Engine / Demo Portal</span>
+                <h1 class="hero-title">开源的万能文件预览系统</h1>
+                    <p class="hero-subtitle">
+                        kkFileView 提供统一的文件预览入口，覆盖 5 大文件族群、70+ 常见文件类型，支持文件链接预览、上传文件预览，以及业务系统里的常见接入方式。
+                    </p>
+                    <div class="hero-actions">
+                        <a class="hero-link primary" href="#demo-lab">开始体验</a>
+                        <a class="hero-link secondary" href="./integrated">查看接入说明</a>
+                        <a class="hero-link secondary" href="./record">版本发布记录</a>
+                        <a class="hero-link secondary" href="./sponsor">赞助开源</a>
+                    </div>
+                        </div>
+                        <div class="home-hero-side">
+                    <div class="doc-stack" aria-hidden="true">
+                        <div class="doc-sheet sheet-word">
+                            <img src="images/hero-icons/word.svg" alt="Word">
+                            <span>DOCX</span>
+                        </div>
+                        <div class="doc-sheet sheet-excel">
+                            <img src="images/hero-icons/excel.svg" alt="Excel">
+                            <span>XLSX</span>
+                        </div>
+                        <div class="doc-sheet sheet-powerpoint">
+                            <img src="images/hero-icons/powerpoint.svg" alt="PowerPoint">
+                            <span>PPTX</span>
+                        </div>
+                        <div class="doc-sheet sheet-pdf">
+                            <img src="images/hero-icons/pdf.svg" alt="PDF">
+                            <span>PDF</span>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="alert alert-danger alert-dismissable hide" role="alert" id="previewCheckAlert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <strong>请输入正确的url</strong>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <#--  预览测试  -->
-    <div class="panel panel-success">
-        <div class="panel-heading">
-            <h3 class="panel-title">上传本地文件预览</h3>
-        </div>
-        <div class="panel-body">
-            <#-- 目录导航 -->
-            <nav aria-label="文件路径">
-                <ol class="breadcrumb" id="pathBreadcrumb">
+        <section class="feature-section">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">Capability Map</span>
+                    <h2>支持丰富的文件类型预览</h2>
+                </div>
+                <p>
+                    你可以先快速扫一遍支持范围，再判断它是否适合接入你的业务系统。
+                    如果你有新增格式建议，也欢迎继续到开源社区补充。
+                </p>
+            </div>
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <span class="tag brand">Office</span>
+                    <h3>办公文档</h3>
+                    <p>面向日常业务流里最常见的 Office、WPS 与 LibreOffice 文档。</p>
+                    <ul>
+                        <li>doc / docx / xls / xlsx / ppt / pptx / csv / tsv</li>
+                        <li>wps / dps / et / ett / wpt</li>
+                        <li>odt / ods / odp / ott / fodt / fods</li>
+                    </ul>
+                </article>
+                <article class="feature-card">
+                    <span class="tag highlight">Engineering</span>
+                    <h3>CAD 与 3D</h3>
+                    <p>覆盖设计、制造和工程协同链路里经常出现的模型与图纸格式。</p>
+                    <ul>
+                        <li>dwg / dxf / dwf / dwt / plt / cf2</li>
+                        <li>obj / 3ds / stl / gltf / glb / fbx / dae</li>
+                        <li>ifc / step / iges / fcstd / bim / brep</li>
+                    </ul>
+                </article>
+                <article class="feature-card">
+                    <span class="tag">Image</span>
+                    <h3>图片与图像</h3>
+                    <p>支持常规位图、多页图像、矢量图，以及较新的移动端图片格式。</p>
+                    <ul>
+                        <li>jpg / png / gif / bmp / webp / heic</li>
+                        <li>tif / tiff / tga / svg / wmf / emf</li>
+                        <li>翻转、缩放、镜像等交互能力</li>
+                    </ul>
+                </article>
+                <article class="feature-card">
+                    <span class="tag brand">Archive</span>
+                    <h3>压缩与文本</h3>
+                    <p>压缩包目录浏览、纯文本渲染、源码文件高亮都属于默认能力范围。</p>
+                    <ul>
+                        <li>zip / rar / jar / tar / gzip / 7z</li>
+                        <li>txt / md / xml / java / js / css / py / php</li>
+                        <li>支持目录访问、搜索和服务端分页</li>
+                    </ul>
+                </article>
+                <article class="feature-card">
+                    <span class="tag warn">Media</span>
+                    <h3>音视频与邮件</h3>
+                    <p>覆盖业务里常见的媒体文件与邮件归档场景，兼顾转码和直接预览。</p>
+                    <ul>
+                        <li>mp3 / wav / mp4 / flv / avi / mov / mkv</li>
+                        <li>eml / msg 邮件文件</li>
+                        <li>epub / ofd / xmind / bpmn / drawio / dcm</li>
+                    </ul>
+                </article>
+                <article class="feature-card">
+                    <span class="tag">Security</span>
+                    <h3>接入能力</h3>
+                    <p>除了预览类型本身，首页也需要把接入时常用的控制项直接暴露出来。</p>
+                    <ul>
+                        <li>支持 AES、Basic Auth、FTP 参数扩展</li>
+                        <li>支持页码、高亮、水印、密码与缓存刷新</li>
+                        <li>支持本地上传、目录浏览、文件删除</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="workspace-section" id="demo-lab">
+            <div class="workspace-card">
+                <div class="workspace-header">
+                    <div>
+                        <span class="eyebrow">Demo Lab</span>
+                        <h3>文件链接预览</h3>
+                        <p>这里统一承接两种预览来源：直接输入 URL，或者从本地文件目录里选择文件。参数和操作入口都尽量收在一起。</p>
+                    </div>
+                    <div class="note-row">
+                        <span class="note-pill">URL 预览</span>
+                        <span class="note-pill">支持目录级访问</span>
+                        <span class="note-pill">服务端分页</span>
+                        <span class="note-pill">搜索与删除</span>
+                    </div>
+                </div>
+
+                <div class="source-grid">
+                    <div class="source-card">
+                        <h4>输入 URL 直接试跑</h4>
+                        <p>贴入文件地址，按需叠加页码、高亮、水印、AES 和跨域参数，直接在新窗口验证最终预览行为。</p>
+                        <#if "${kkkey}" != "false" >
+                            <p>
+                                程序已启用秘钥访问。
+                                <#if isshowkey>
+                                    当前接入秘钥为 <span class="text-highlight">${kkkey}</span>。
+                                <#else>
+                                    如需秘钥，请联系管理员。
+                                </#if>
+                            </p>
+                        </#if>
+                        <div class="preview-panel">
+                            <form action="${baseUrl}onlinePreview" target="_blank" id="previewByUrl">
+                                <input type="hidden" name="url"/>
+                                <div class="preview-options">
+                                    <div class="preview-switches">
+                                        <label><input type="checkbox" name="forceUpdatedCache" value="true"/> 更新缓存</label>
+                                        <label><input type="checkbox" name="kkagent" value="true"/> 跨域代理</label>
+                                        <label><input type="checkbox" id="encryption" name="encryption" value="aes"/> AES 加密</label>
+                                    </div>
+                                    <div class="preview-grid">
+                                        <input type="text" id="filePassword" name="filePassword" class="form-control" placeholder="文件密码"/>
+                                        <input type="text" id="page" name="page" class="form-control" placeholder="页码"/>
+                                        <input type="text" id="highlightall" name="highlightall" class="form-control" placeholder="高亮关键字"/>
+                                        <input type="text" id="watermarkTxt" name="watermarkTxt" class="form-control" placeholder="水印文本"/>
+                                        <#if isshowkey>
+                                            <input type="text" id="kkkey" name="key" class="form-control" placeholder="KK 秘钥"/>
+                                        </#if>
+                                    </div>
+                                </div>
+                                <div class="preview-url">
+                                    <input type="text" id="_url" class="form-control" placeholder="请输入预览文件 URL，例如 https://example.com/demo.pdf"/>
+                                    <input type="submit" value="立即预览" class="preview-submit">
+                                </div>
+                            </form>
+                            <div class="alert alert-danger alert-dismissable hide" role="alert" id="previewCheckAlert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>请输入正确的 URL</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Local Source</span>
+                        <h2>上传文件预览</h2>
+                    </div>
+                </div>
+
+                <div class="toolbar-grid">
+                    <div class="toolbar-card">
+                        <h4>文件操作</h4>
+                        <#if fileUploadDisable == false>
+                            <form enctype="multipart/form-data" id="fileUpload">
+                                <div class="toolbar-inline">
+                                    <input type="file" id="file" name="file" class="form-control"/>
+                                    <input type="button" id="fileUploadBtn" class="btn toolbar-btn" value="上传文件"/>
+                                    <input type="button" id="newFolderBtn" class="btn toolbar-btn" value="新建文件夹"/>
+                                </div>
+                            </form>
+                        <#else>
+                            <div class="disabled-upload">
+                                <div class="alert alert-warning">
+                                    <span class="glyphicon glyphicon-info-sign"></span>
+                                    文件上传功能已禁用。如需开启，请修改配置文件或联系管理员。
+                                </div>
+                            </div>
+                        </#if>
+                    </div>
+                    <div class="toolbar-card">
+                        <h4>快速搜索</h4>
+                        <div class="toolbar-inline">
+                            <input type="text" id="searchInput" class="form-control" placeholder="搜索文件名..." value="${searchText!''}">
+                            <button class="btn toolbar-btn" type="button" onclick="performSearch()">搜索</button>
+                            <button class="btn toolbar-btn" type="button" onclick="clearSearch()">清除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <ol class="modern-breadcrumb" id="pathBreadcrumb" style="display: none;">
                     <li><a href="javascript:void(0);" onclick="changeDirectory('')">根目录</a></li>
                 </ol>
-            </nav>
-            
-            <#-- 操作区域 -->
-            <div class="row" style="margin-bottom: 15px;">
-                <div class="col-md-6">
-                    <#-- 上传区域 -->
-                    <#if fileUploadDisable == false>
-                        <form enctype="multipart/form-data" id="fileUpload" class="form-inline">
-                            <div class="input-group" style="width: 100%;">
-                                <input type="file" id="file" name="file" class="form-control" style="flex: 1;"/>
-                                <span class="input-group-btn">
-                                    <input type="button" id="fileUploadBtn" class="btn btn-success" value="上传文件"/>
-                                    <input type="button" id="newFolderBtn" class="btn btn-primary" style="margin-left:5px;" value="新建文件夹"/>
-                                </span>
+
+                <div class="modal fade" id="newFolderModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">新建文件夹</h4>
                             </div>
-                        </form>
-                    <#else>
-                        <div class="disabled-upload">
-                            <div class="alert alert-warning" style="margin-top: 10px; padding: 8px; font-size: 13px;">
-                                <span class="glyphicon glyphicon-info-sign"></span>
-                                文件上传功能已禁用。如需开启，请修改配置文件或联系管理员。
+                            <div class="modal-body">
+                                <input type="text" id="newFolderName" class="form-control" placeholder="请输入文件夹名称"/>
                             </div>
-                        </div>
-                    </#if>
-                </div>
-                <div class="col-md-6">
-                    <#-- 搜索框 -->
-                    <div class="input-group">
-                        <input type="text" id="searchInput" class="form-control" placeholder="搜索文件名..." value="${searchText!''}">
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" onclick="performSearch()">
-                                <span class="glyphicon glyphicon-search"></span> 搜索
-                            </button>
-                            <button class="btn btn-default" type="button" onclick="clearSearch()">
-                                <span class="glyphicon glyphicon-remove"></span> 清除
-                            </button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
-            <#-- 新建文件夹对话框 -->
-            <div class="modal fade" id="newFolderModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <h4 class="modal-title">新建文件夹</h4>
-                        </div>
-                        <div class="modal-body">
-                            <input type="text" id="newFolderName" class="form-control" placeholder="请输入文件夹名称"/>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" onclick="createNewFolder()">创建</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <div class="modal-footer">
+                                <button type="button" class="btn toolbar-btn" onclick="createNewFolder()">创建</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <table id="table" data-pagination="true"></table>
             </div>
-            
-            <#-- 文件列表表格 -->
-            <table id="table" data-pagination="true"></table>
-        </div>
+        </section>
     </div>
 </div>
 
@@ -499,10 +354,8 @@
     </div>
 </div>
 <#if beian?? && beian != "default">
-    <div style="display: grid; place-items: center;">
-        <div>
-            <a target="_blank" href="https://beian.miit.gov.cn/">${beian}</a>
-        </div>
+    <div class="site-footer">
+        <a target="_blank" href="https://beian.miit.gov.cn/">${beian}</a>
     </div>
 </#if>
 <script>
@@ -641,8 +494,8 @@
             search: false,
             searchOnEnterKey: false,
             showSearchButton: false,
-            showRefresh: true,
-            showColumns: true,
+            showRefresh: false,
+            showColumns: false,
             clickToSelect: true,
             locale: 'zh-CN',
             columns: [{
@@ -659,7 +512,7 @@
                     if (currentSearchText && currentSearchText.trim() !== '') {
                         var regex = new RegExp(currentSearchText, 'gi');
                         displayName = value.replace(regex, function(match) {
-                            return '<span class="text-danger" style="background-color: yellow;">' + match + '</span>';
+                            return '<span class="text-highlight">' + match + '</span>';
                         });
                     }
                     
@@ -791,23 +644,22 @@
         var breadcrumb = $('#pathBreadcrumb');
         breadcrumb.empty();
         
-        // 添加根目录
-        breadcrumb.append('<li><a href="javascript:void(0);" onclick="changeDirectory(\'\')" style="color: #333;">根目录</a></li>');
-        
         if (path) {
+            breadcrumb.show();
+            breadcrumb.append('<li><a href="javascript:void(0);" onclick="changeDirectory(\'\')">根目录</a></li>');
             var parts = path.split('/').filter(Boolean);
             var currentPath = '';
             
             parts.forEach(function(part, index) {
                 currentPath += (currentPath ? '/' : '') + part;
                 if (index < parts.length - 1) {
-                    breadcrumb.append('<li><a href="javascript:void(0);" onclick="changeDirectory(\'' + currentPath + '\')" style="color: #333;">' + part + '</a></li>');
+                    breadcrumb.append('<li><a href="javascript:void(0);" onclick="changeDirectory(\'' + currentPath + '\')">' + part + '</a></li>');
                 } else {
-                    breadcrumb.append('<li class="active" style="color: #333;">' + part + '</li>');
+                    breadcrumb.append('<li class="active">' + part + '</li>');
                 }
             });
         } else {
-            breadcrumb.append('<li class="active" style="color: #333;">根目录</li>');
+            breadcrumb.hide();
         }
     }
     
