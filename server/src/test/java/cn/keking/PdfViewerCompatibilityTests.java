@@ -27,10 +27,12 @@ public class PdfViewerCompatibilityTests {
     }
 
     @Test
-    void shouldOpenPdfPreviewWithThumbnailSidebarByDefault() throws IOException {
+    void shouldRenderPdfSidebarModeByDefaultBasedOnConfig() throws IOException {
         String pdfTemplate = readResource("/web/pdf.ftl");
 
-        assertTrue(pdfTemplate.contains("#page=1&pagemode=thumbs"));
+        assertTrue(pdfTemplate.contains("<#if \"true\" == pdfSidebarOpen>"));
+        assertTrue(pdfTemplate.contains("viewerUrl += \"&pagemode=thumbs\";"));
+        assertTrue(pdfTemplate.contains("viewerUrl += \"&pagemode=none\";"));
     }
 
     @Test
