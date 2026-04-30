@@ -77,6 +77,7 @@ public class ConfigConstants {
     public static final String DEFAULT_PDF_DOWNLOAD_DISABLE = "true";
     public static final String DEFAULT_PDF_BOOKMARK_DISABLE = "true";
     public static final String DEFAULT_PDF_DISABLE_EDITING = "true";
+    public static final String DEFAULT_PDF_SIDEBAR_OPEN = "true";
     public static final String DEFAULT_PDF2_JPG_DPI = "105";
     public static final String DEFAULT_PDF_SMALL_DTI = "150";
     public static final String DEFAULT_PDF_MEDIUM_DPI = "120";
@@ -194,6 +195,7 @@ public class ConfigConstants {
     private static String pdfPrintDisable;
     private static String pdfDownloadDisable;
     private static String pdfBookmarkDisable;
+    private static String pdfSidebarOpen;
     private static int pdf2JpgDpi;
     private static boolean pdfDpiEnabled;
     private static int pdfSmallDpi;
@@ -336,6 +338,7 @@ public class ConfigConstants {
     public static String getPdfDownloadDisable() { return pdfDownloadDisable; }
     public static String getPdfBookmarkDisable() { return pdfBookmarkDisable; }
     public static String getPdfDisableEditing() { return pdfDisableEditing; }
+    public static String getPdfSidebarOpen() { return pdfSidebarOpen; }
     public static int getPdf2JpgDpi() { return pdf2JpgDpi; }
     public static int getPdfTimeoutSmall() { return pdfTimeoutSmall; }
     public static int getPdfTimeoutMedium() { return pdfTimeoutMedium; }
@@ -562,6 +565,10 @@ public class ConfigConstants {
     @Value("${pdf.disable.editing:true}")
     public void setpdfDisableEditing(String pdfDisableEditing) { setPdfDisableEditingValue(pdfDisableEditing); }
     public static void setPdfDisableEditingValue(String pdfDisableEditing) { ConfigConstants.pdfDisableEditing = pdfDisableEditing; }
+
+    @Value("${pdf.sidebar.open:true}")
+    public void setPdfSidebarOpen(String pdfSidebarOpen) { setPdfSidebarOpenValue(pdfSidebarOpen); }
+    public static void setPdfSidebarOpenValue(String pdfSidebarOpen) { ConfigConstants.pdfSidebarOpen = pdfSidebarOpen; }
 
     @Value("${pdf2jpg.dpi:105}")
     public void pdf2JpgDpi(int pdf2JpgDpi) { setPdf2JpgDpiValue(pdf2JpgDpi); }

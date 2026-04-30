@@ -181,6 +181,7 @@ public class ConfigRefreshComponent {
         ConfigConstants.setPdfDownloadDisableValue(getProperty(properties, "pdf.download.disable", ConfigConstants.DEFAULT_PDF_DOWNLOAD_DISABLE));
         ConfigConstants.setPdfBookmarkDisableValue(getProperty(properties, "pdf.bookmark.disable", ConfigConstants.DEFAULT_PDF_BOOKMARK_DISABLE));
         ConfigConstants.setPdfDisableEditingValue(getProperty(properties, "pdf.disable.editing", ConfigConstants.DEFAULT_PDF_DISABLE_EDITING));
+        ConfigConstants.setPdfSidebarOpenValue(getProperty(properties, "pdf.sidebar.open", ConfigConstants.DEFAULT_PDF_SIDEBAR_OPEN));
         ConfigConstants.setPdf2JpgDpiValue(Integer.parseInt(getProperty(properties, "pdf2jpg.dpi", ConfigConstants.DEFAULT_PDF2_JPG_DPI)));
 
         // 8. CAD配置

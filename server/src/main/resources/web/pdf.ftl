@@ -64,7 +64,11 @@
     viewerUrl += "&watermarktxt=" + watermarkEncoded;
     viewerUrl += "&pdfhighlightall=" + highlightEncoded;
     viewerUrl += "#page=${page}";   // ?c 确保数字不包含千位分隔符
-	viewerUrl += "&pagemode=thumbs";     
+<#if "true" == pdfSidebarOpen>
+	viewerUrl += "&pagemode=thumbs";
+<#else>
+	viewerUrl += "&pagemode=none";
+</#if>
     var iframe = document.getElementById('pdfFrame');
     iframe.src = viewerUrl;
 
