@@ -4433,7 +4433,8 @@ var LuckySheet = /** @class */function (_super) {
       var _hint = method_1.getXmlAttibute(attrList, "prompt", null);
       var _hintShow = _hint ? true : false;
       var matchType = constant_1.COMMON_TYPE2.includes(_type) ? "common" : _type;
-      _type2 = operator ? (constant_1.DATA_VERIFICATION_TYPE2_MAP[matchType]?.[operator] ?? "bw") : "bw";
+      var _type2Map = constant_1.DATA_VERIFICATION_TYPE2_MAP[matchType];
+      _type2 = operator ? ((_type2Map && _type2Map[operator] != null) ? _type2Map[operator] : "bw") : "bw";
       // mobile phone number processing
       if (_type === "text_content" && ((_value1 === null || _value1 === void 0 ? void 0 : _value1.includes("LEN")) || (_value1 === null || _value1 === void 0 ? void 0 : _value1.includes("len"))) && (_value1 === null || _value1 === void 0 ? void 0 : _value1.includes("=11"))) {
         _type = "validity";
@@ -7421,4 +7422,3 @@ module.exports = main_1.LuckyExcel;
 
 },{"./main":19}]},{},[20])(20)
 });
-
