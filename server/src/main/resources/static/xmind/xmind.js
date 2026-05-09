@@ -3,6 +3,39 @@
 }(self, (function() {
     return (()=>{
         "use strict";
+        
+        // ==================== 内嵌 HTML，使用绝对路径 base ====================
+        const EMBED_HTML = `<!DOCTYPE html>
+<html site-mode=en mode=production lang=en>
+    <head>
+        
+        <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+        <meta http-equiv=X-UA-Compatible content="ie=edge">
+        <meta name=author content="Xmind Ltd.">
+        <meta name=renderer content=webkit>
+        <title>Xmind</title>
+        <meta name=description content="Xmind is the most professional and popular mind mapping tool. Millions of people use Xmind to clarify thinking, manage complex information, brainstorming, get work organized, remote and work from home WFH.">
+        <meta name=keywords content="Xmind,mindmap,mind map,mind mapping,mind mapping software,free mind mapping software,work from home,WFH,remote">
+        <link rel=stylesheet href="xmind/css/bootstrap-customized-2821153174.min.css">
+        <link rel=stylesheet href="xmind/css/index-5376440060.css">
+        <script src="js/jquery-3.6.1.min.js"><\/script>
+        <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+        <link rel=stylesheet href="xmind/css/share-embed-39eba5407f.css">
+		 
+    </head> 
+    <body>
+        <script>
+            window.manifests={snowbrush:"js/snowbrush.js"},window.metadataString=""
+        <\/script>
+		   <script src="xmind/js/polyfill-45b9836beb.min.js"><\/script> 
+        <script src="xmind/js/js-cookie-a978ac7394.js"><\/script> 
+		 <base href="xmind/">
+        <script src="js/base.61517cade8.js"><\/script> 
+        <script src="js/share-embed.68f7476360.js"><\/script>
+    </body>
+</html>`;
+        // ============================================================
+
         var e = {
             61: function(e, t) {
                 var n = this && this.__awaiter || function(e, t, n, r) {
@@ -247,14 +280,28 @@
                         if (null === r)
                             throw new Error("IFrame or mount element not found by selector " + e);
                         r instanceof HTMLIFrameElement ? n = r : (n = document.createElement("iframe"),
-                        r.appendChild(n)),
-                        n.setAttribute("frameborder", "0"),
-                        n.setAttribute("scrolling", "no"),
-                        n.setAttribute("allowfullscreen", "true"),
-                        n.setAttribute("allow", "allowfullscreen"),
-                        n.setAttribute("crossorigin", "anonymous"),
-                        n.setAttribute("src", t),
-                        this.iframe = n
+                        r.appendChild(n));
+                        n.setAttribute("frameborder", "0");
+                        n.setAttribute("scrolling", "no");
+                        n.setAttribute("allowfullscreen", "true");
+                        n.setAttribute("allow", "allowfullscreen");
+                        n.setAttribute("crossorigin", "anonymous");
+                        
+                        if (typeof t === "string") {
+                            n.setAttribute("src", t);
+                        } else if (t && typeof t === "object") {
+                            if (t.srcdoc) {
+                                n.setAttribute("srcdoc", t.srcdoc);
+                            } else if (t.src) {
+                                n.setAttribute("src", t.src);
+                            } else {
+                                throw new Error("Invalid iframe configuration: missing src or srcdoc");
+                            }
+                        } else {
+                            throw new Error("Invalid source or srcdoc for iframe");
+                        }
+                        
+                        this.iframe = n;
                     }
                     return e.prototype.getIframe = function() {
                         return this.iframe
@@ -286,37 +333,39 @@
                             zoomScale: 100,
                             currentSheetId: ""
                         };
-          var windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
-          var windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
-		      windowWidth = windowWidth-30;
-              windowHeight = windowHeight-30;
-	      windowWidth =windowWidth+"px";
-	      windowHeight =windowHeight+"px";
+                        var windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
+                        var windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+                        windowWidth = windowWidth - 30;
+                        windowHeight = windowHeight - 30;
+                        windowWidth = windowWidth + "px";
+                        windowHeight = windowHeight + "px";
+                        
                         var n = e.file
                           , i = e.el
                           , a = e.styles
                           , s = void 0 === a ? {
-                            height: windowWidth,
-                            width: windowHeight
-                        } : a
-                          , l = new o.IframeController(i,"xmind/index.html")
-                          , u = new r.IframeEventChannelController(l,"");
-                        this.iframeController = l,
-                        this.iframeEventChannelController = u,
+                            height: windowHeight,
+                            width: windowWidth
+                        } : a;
+                        
+                        var l = new o.IframeController(i, { srcdoc: EMBED_HTML });
+                        var u = new r.IframeEventChannelController(l, "");
+                        
+                        this.iframeController = l;
+                        this.iframeEventChannelController = u;
+                        
                         u.addEventListener("sheet-switch", (function(e) {
                             return t.internalState.currentSheetId = e
-                        }
-                        )),
+                        }));
                         u.addEventListener("zoom-change", (function(e) {
                             return t.internalState.zoomScale = e
-                        }
-                        )),
+                        }));
                         u.addEventListener("sheets-load", (function(e) {
                             return t.internalState.sheets = e
-                        }
-                        )),
-                        this.iframeController.setStyles(s),
-                        n && this.load(n)
+                        }));
+                        
+                        this.iframeController.setStyles(s);
+                        n && this.load(n);
                     }
                     return e.prototype.addEventListener = function(e, t) {
                         this.iframeEventChannelController.addEventListener(e, t)
