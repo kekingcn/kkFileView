@@ -39,13 +39,15 @@ public class PictureFilePreviewImpl extends CommonPreviewImpl {
             // 不是http开头，浏览器不能直接访问，需下载到本地
             super.filePreviewHandle(url, model, fileAttribute);
             if ( url.toLowerCase().startsWith("file") || url.toLowerCase().startsWith("ftp")) {
-                model.addAttribute("imgUrls", fileAttribute.getName());
+                // 使用下载后的相对路径，以便模板正确构造图片访问URL
+                String currentUrl = (String) model.getAttribute("currentUrl");
+                model.addAttribute("imgUrls", currentUrl != null ? currentUrl : fileAttribute.getName());
             }else {
                 model.addAttribute("imgUrls", url);
             }
 
         }
-        if(suffix.equalsIgnoreCase("heic")||suffix.equalsIgnoreCase("heif")){
+        if(suffix.equalsIgnoreCase("heic")||suffix.equalsIgnoreCase("heif")||suffix.equalsIgnoreCase("avif")){
             return HEIC_FILE_PREVIEW_PAGE;
         }else {
             return PICTURE_FILE_PREVIEW_PAGE;
