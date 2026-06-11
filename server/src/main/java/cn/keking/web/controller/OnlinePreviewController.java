@@ -8,6 +8,8 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.utils.*;
+import cn.keking.web.filter.TrustDirFilter;
+import cn.keking.web.filter.TrustHostFilter;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -228,6 +230,11 @@ public class OnlinePreviewController {
         //2. 验证访问权限
         if (WebUtils.validateKey(key)) {
             String errorMsg = "访问不合法：访问密码不正确!";
+            logger.info("{}，url：{}", errorMsg, fileUrls);
+            return errorMsg;
+        }
+        if (!TrustHostFilter.isTrustedSourceUrl(fileUrls) || !TrustDirFilter.isTrustedFileUrl(fileUrls)) {
+            String errorMsg = "访问不合法：来源地址不受信任!";
             logger.info("{}，url：{}", errorMsg, fileUrls);
             return errorMsg;
         }

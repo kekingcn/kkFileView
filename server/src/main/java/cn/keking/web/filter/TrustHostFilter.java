@@ -70,6 +70,14 @@ public class TrustHostFilter implements Filter {
         }
     }
 
+    public static boolean isTrustedSourceUrl(String url) {
+        if (!WebUtils.isValidUrl(url)) {
+            return false;
+        }
+        String host = WebUtils.getHost(url);
+        return !new TrustHostFilter().isNotTrustHost(host);
+    }
+
     public boolean isNotTrustHost(String host) {
         if (host == null || host.trim().isEmpty()) {
             logger.warn("主机名为空或无效，拒绝访问");

@@ -3,6 +3,8 @@ package cn.keking.service;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.service.cache.CacheService;
+import cn.keking.web.filter.TrustDirFilter;
+import cn.keking.web.filter.TrustHostFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,10 @@ public class FileConvertQueueTask {
                 try {
                     url = cacheService.takeQueueTask();
                     if (url != null) {
+                        if (!TrustHostFilter.isTrustedSourceUrl(url) || !TrustDirFilter.isTrustedFileUrl(url)) {
+                            logger.warn("拒绝处理不受信任的预览转换任务，url：{}", url);
+                            continue;
+                        }
                         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(url, null);
                         FileType fileType = fileAttribute.getType();
                         logger.info("正在处理预览转换任务，url：{}，预览类型：{}", url, fileType);

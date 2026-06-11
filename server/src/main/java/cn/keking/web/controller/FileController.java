@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -144,6 +145,28 @@ public class FileController {
             long duration = endTime - startTime;
             return String.format("处理 %d 个文件（匹配 %d 个），耗时 %d ms",
                     fileCount, matchingCount, duration);
+        }
+    }
+
+    private Path getDemoBasePath() {
+        return Paths.get(fileDir, demoDir).toAbsolutePath().normalize();
+    }
+
+    private Path resolveDemoPath(String path) {
+        Path demoBasePath = getDemoBasePath();
+        try {
+            if (ObjectUtils.isEmpty(path)) {
+                return demoBasePath;
+            }
+            Path normalizedPath = demoBasePath.resolve(path).normalize();
+            if (!normalizedPath.startsWith(demoBasePath)) {
+                logger.warn("检测到非法目录访问，path：{}", path);
+                return null;
+            }
+            return normalizedPath;
+        } catch (InvalidPathException e) {
+            logger.warn("解析目录路径失败，path：{}", path, e);
+            return null;
         }
     }
 
@@ -341,17 +364,20 @@ public class FileController {
             }
 
             // ==================== 2. 构建路径和验证 ====================
-            String basePath = fileDir + demoPath;
-            if (!ObjectUtils.isEmpty(path)) {
-                basePath += path + File.separator;
+            Path resolvedPath = resolveDemoPath(path);
+            if (resolvedPath == null) {
+                result.put("total", 0);
+                result.put("data", Collections.emptyList());
+                return result;
             }
 
-            File currentDir = new File(basePath);
+            File currentDir = resolvedPath.toFile();
             if (!currentDir.exists() || !currentDir.isDirectory()) {
                 result.put("total", 0);
                 result.put("data", Collections.emptyList());
                 return result;
             }
+            String basePath = resolvedPath.toString();
 
             // ==================== 3. 收集所有文件路径 ====================
             List<Path> allPaths = new ArrayList<>();

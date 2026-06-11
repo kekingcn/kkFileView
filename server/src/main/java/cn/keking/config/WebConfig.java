@@ -46,6 +46,7 @@ public class WebConfig implements WebMvcConfigurer {
         filterUri.add("/onlinePreview");
         filterUri.add("/picturesPreview");
         filterUri.add("/getCorsFile");
+        filterUri.add("/addTask");
         filterUri.add("/pdfjs/web/viewer.html");
         filterUri.add("/msg/index.html");
         filterUri.add("/eml/index.html");
@@ -64,6 +65,7 @@ public class WebConfig implements WebMvcConfigurer {
         filterUri.add("/onlinePreview");
         filterUri.add("/picturesPreview");
         filterUri.add("/getCorsFile");
+        filterUri.add("/addTask");
         TrustDirFilter filter = new TrustDirFilter();
         FilterRegistrationBean<TrustDirFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(filter);

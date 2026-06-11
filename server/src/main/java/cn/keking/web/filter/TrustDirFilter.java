@@ -28,7 +28,7 @@ import java.util.Locale;
 public class TrustDirFilter implements Filter {
 
     private String notTrustDirView;
-    private final Logger logger = LoggerFactory.getLogger(TrustDirFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(TrustDirFilter.class);
 
 
     @Override
@@ -57,6 +57,47 @@ public class TrustDirFilter implements Filter {
     @Override
     public void destroy() {
 
+    }
+
+    public static boolean isTrustedFileUrl(String urlPath) {
+        // 判断URL是否合法
+        if (KkFileUtils.isIllegalFileName(urlPath) || !StringUtils.hasText(urlPath) || !WebUtils.isValidUrl(urlPath)) {
+            return false;
+        }
+        try {
+            URL url = WebUtils.normalizedURL(urlPath);
+
+            if ("file".equals(url.getProtocol().toLowerCase(Locale.ROOT))) {
+                String filePath = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.name());
+                // 将文件路径转换为File对象
+                File targetFile = new File(filePath);
+                // 将配置目录也转换为File对象
+                File fileDir = new File(ConfigConstants.getFileDir());
+                File localPreviewDir = new File(ConfigConstants.getLocalPreviewDir());
+                try {
+                    // 获取规范路径
+                    String canonicalFilePath = targetFile.getCanonicalPath();
+                    String canonicalFileDir = fileDir.getCanonicalPath();
+                    String canonicalLocalPreviewDir = localPreviewDir.getCanonicalPath();
+                    return isSubDirectory(canonicalFileDir, canonicalFilePath) || isSubDirectory(canonicalLocalPreviewDir, canonicalFilePath);
+                } catch (IOException e) {
+                    LoggerFactory.getLogger(TrustDirFilter.class).warn("获取规范路径失败，使用原始路径比较", e);
+                    String absFilePath = targetFile.getAbsolutePath();
+                    String absFileDir = fileDir.getAbsolutePath();
+                    String absLocalPreviewDir = localPreviewDir.getAbsolutePath();
+                    absFilePath = absFilePath.replace('\\', '/');
+                    absFileDir = absFileDir.replace('\\', '/');
+                    absLocalPreviewDir = absLocalPreviewDir.replace('\\', '/');
+                    if (!absFileDir.endsWith("/")) absFileDir += "/";
+                    if (!absLocalPreviewDir.endsWith("/")) absLocalPreviewDir += "/";
+                    return absFilePath.startsWith(absFileDir) || absFilePath.startsWith(absLocalPreviewDir);
+                }
+            }
+            return true;
+        } catch (IOException | GalimatiasParseException e) {
+            LoggerFactory.getLogger(TrustDirFilter.class).error("解析URL异常，url：{}", urlPath, e);
+            return false;
+        }
     }
 
     private boolean allowPreview(String urlPath) {
@@ -107,7 +148,7 @@ public class TrustDirFilter implements Filter {
     /**
      * 检查子路径是否在父路径下（跨平台）
      */
-    private boolean isSubDirectory(String parentDir, String childPath) {
+    private static boolean isSubDirectory(String parentDir, String childPath) {
         try {
             File parent = new File(parentDir);
             File child = new File(childPath);
