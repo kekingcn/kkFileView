@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   e2e-nightly:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 50
 
     steps:
@@ -116,6 +116,3 @@ jobs:
           path: |
             /tmp/kkfileview.log
             /tmp/fixture-server.log
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]

@@ -36,7 +36,7 @@ jobs:
       run: mvn -B package "-Dmaven.test.skip=true" --file pom.xml
 
     - name: Upload Linux distribution package
-      if: success()
+      if: success() && runner.os == 'Linux'
       uses: actions/upload-artifact@v4
       with:
         name: kkfileview-linux
@@ -44,7 +44,7 @@ jobs:
         retention-days: 7
 
     - name: Upload Windows distribution package
-      if: success()
+      if: success() && runner.os == 'Windows'
       uses: actions/upload-artifact@v4
       with:
         name: kkfileview-windows
