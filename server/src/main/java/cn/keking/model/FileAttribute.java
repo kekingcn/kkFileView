@@ -17,6 +17,7 @@ public class FileAttribute {
     private String filePassword;
     private boolean usePasswordCache;
     private String officePreviewType = ConfigConstants.getOfficePreviewType();
+    private boolean officePreviewTypeSpecified;
     private String tifPreviewType;
     private Boolean skipDownLoad = false;
     private Boolean forceUpdatedCache = false;
@@ -49,6 +50,7 @@ public class FileAttribute {
         this.name = name;
         this.url = url;
         this.officePreviewType = officePreviewType;
+        this.officePreviewTypeSpecified = true;
     }
 
     public boolean isCompressFile() {
@@ -81,6 +83,16 @@ public class FileAttribute {
 
     public void setOfficePreviewType(String officePreviewType) {
         this.officePreviewType = officePreviewType;
+        this.officePreviewTypeSpecified = true;
+    }
+
+    /**
+     * 判断 Office 预览类型是否由请求或调用方显式指定。
+     *
+     * @return {@code true} 表示显式指定，{@code false} 表示使用系统默认配置
+     */
+    public boolean isOfficePreviewTypeSpecified() {
+        return officePreviewTypeSpecified;
     }
 
     public FileType getType() {
