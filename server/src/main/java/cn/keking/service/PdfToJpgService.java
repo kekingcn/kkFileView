@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -93,6 +94,8 @@ public class PdfToJpgService {
 
     @PostConstruct
     public void init() {
+        refreshImageIoPlugins();
+
         int maxThreads = ConfigConstants.getPdfMaxThreads();
         // 使用固定大小的虚拟线程池
         this.virtualThreadExecutor = Executors.newFixedThreadPool(maxThreads,
@@ -102,6 +105,13 @@ public class PdfToJpgService {
 
         // 启动缓存清理任务
         scheduleCacheCleanup();
+    }
+
+    static void refreshImageIoPlugins() {
+        // ImageIO only scans once automatically. If another launcher or Java agent initializes
+        // it before Spring Boot installs its application class loader, nested JAR providers such
+        // as jbig2-imageio remain invisible until the application class path is scanned again.
+        ImageIO.scanForPlugins();
     }
 
     @PreDestroy
