@@ -11,6 +11,7 @@ import cn.keking.utils.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +34,8 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 
 import static cn.keking.utils.CaptchaUtil.CAPTCHA_CODE;
@@ -218,7 +221,7 @@ public class FileController {
         }
     }
 
-    @GetMapping("/deleteFile")
+    @PostMapping("/deleteFile")
     public ReturnResponse<Object> deleteFile(HttpServletRequest request, String fileName, String password) {
         ReturnResponse<Object> checkResult = this.deleteFileCheck(request, fileName, password);
         if (checkResult.isFailure()) {
@@ -775,11 +778,22 @@ public class FileController {
             return ReturnResponse.failure("密码 or 验证码为空，删除失败！");
         }
 
-        String expectedPassword = ConfigConstants.getDeleteCaptcha() ?
+        boolean captchaEnabled = ConfigConstants.getDeleteCaptcha();
+        String expectedPassword = captchaEnabled ?
                 WebUtils.getSessionAttr(request, CAPTCHA_CODE) :
                 ConfigConstants.getPassword();
 
-        if (!password.equalsIgnoreCase(expectedPassword)) {
+        if (!captchaEnabled && (!StringUtils.hasText(expectedPassword)
+                || "false".equalsIgnoreCase(expectedPassword))) {
+            return ReturnResponse.failure("文件删除接口已禁用，请先配置 delete.password");
+        }
+
+        if (!StringUtils.hasText(expectedPassword)) {
+            return ReturnResponse.failure("验证码已失效，请刷新后重试！");
+        }
+
+        if (!MessageDigest.isEqual(password.getBytes(StandardCharsets.UTF_8),
+                expectedPassword.getBytes(StandardCharsets.UTF_8))) {
             logger.error("删除文件【{}】失败，密码错误！", fileName);
             return ReturnResponse.failure("删除文件失败，密码错误！");
         }
