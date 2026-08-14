@@ -65,6 +65,21 @@ URL：[https://file.kkview.cn](https://file.kkview.cn)
 
 ## Change History
 
+### Version 5.0.2 (August 14, 2026)
+
+#### Security Fixes
+1. Sandboxed untrusted HTML previews in an opaque-origin iframe and disabled embedded JavaScript by default, preventing previewed files from executing in the kkFileView application origin (GHSA-9wcf-jxxf-w2g2)
+2. Disabled the demo file deletion endpoint by default, changed it to POST, and required an explicitly configured password with exact comparison (GHSA-f3qx-xrwc-5428)
+
+#### Fixes
+1. Refreshed ImageIO plugins when PDF conversion starts so nested JAR providers such as the JBIG2 reader are discovered, preventing images from disappearing in PDF-to-image previews
+
+#### Upgrade Notes
+1. All users running v5.0.1 or earlier are strongly encouraged to upgrade to v5.0.2
+2. JDK 21 or higher remains required, and existing v5.0.1 configuration can be reused
+3. File deletion is now disabled unless `KK_DELETE_PASSWORD` or an external `delete.password` is set to an independent strong password; integrations must call `/deleteFile` with POST
+4. `kk.scriptjs` now defaults to `false`; when explicitly enabled, scripts still run only inside the isolated iframe sandbox
+
 ### Version 5.0.1 (July 13, 2026)
 
 #### Security Fixes
