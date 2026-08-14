@@ -369,8 +369,8 @@
         $("#deleteCaptchaConfirmBtn").click(function() {
             var fileName = $("#deleteCaptchaFileName").val();
             var deleteCaptchaText = $("#deleteCaptchaText").val();
-            $.get('${baseUrl}deleteFile?fileName=' + fileName +'&password=' + deleteCaptchaText, function(data){
-                if ("删除文件失败，密码错误！" === data.msg) {
+            $.post('${baseUrl}deleteFile', {fileName: fileName, password: deleteCaptchaText}, function(data){
+                if (!data.success) {
                     alert(data.msg);
                 } else {
                     $('#table').bootstrapTable("refresh", {});
@@ -392,11 +392,16 @@
         function deleteFile(fileName, isFolder) {
             var message = isFolder ? '你确定要删除这个文件夹吗？（包含所有子文件）' : '你确定要删除这个文件吗？';
             if (window.confirm(message)) {
-                password = prompt("请输入默认密码:123456");
+                var password = prompt("请输入文件删除密码");
+                if (password === null) {
+                    return false;
+                }
                 $.ajax({
-                    url: '${baseUrl}deleteFile?fileName=' + fileName +'&password='+password,
+                    url: '${baseUrl}deleteFile',
+                    type: 'POST',
+                    data: {fileName: fileName, password: password},
                     success: function (data) {
-                        if ("删除文件失败，密码错误！" === data.msg) {
+                        if (!data.success) {
                             alert(data.msg);
                         } else {
                             $("#table").bootstrapTable("refresh", {});

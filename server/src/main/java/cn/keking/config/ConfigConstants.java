@@ -31,7 +31,7 @@ public class ConfigConstants {
     // ==================================================
     public static final String DEFAULT_VALUE = "default";
     public static final String DEFAULT_SHOW_AES_KEY = "1234567890123456";
-    public static final String DEFAULT_PASSWORD = "123456";
+    public static final String DEFAULT_PASSWORD = "false";
     public static final String DEFAULT_SIZE = "500MB";
     public static final String DEFAULT_ENABLE_REFRECSHSCHEDULE = "5";
     public static final String DEFAULT_IS_JAVASCRIPT = "false";
@@ -664,7 +664,7 @@ public class ConfigConstants {
     public void setSize(String size) { setSizeValue(size); }
     public static void setSizeValue(String size) { ConfigConstants.size = size; }
 
-    @Value("${delete.password:123456}")
+    @Value("${delete.password:false}")
     public void setPassword(String password) { setPasswordValue(password); }
     public static void setPasswordValue(String password) { ConfigConstants.password = password; }
 
