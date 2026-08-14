@@ -16,6 +16,22 @@
     <script src="js/jsformat.js" type="text/javascript"></script>
     </#if>
     <script src="js/base64.min.js" type="text/javascript"></script>
+    <style>
+        #htmlPreviewFrame {
+            width: 100%;
+            min-height: 65vh;
+            border: 0;
+            background: #fff;
+        }
+        #htmlSource {
+            min-height: 65vh;
+            overflow: auto;
+            border: 0;
+            background: #fff;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
 </head>
 <body>
 <input hidden id="textData" value="${textData}"/>
@@ -25,7 +41,7 @@
     <div class="panel panel-default">
         <div class="panel-heading"> 
             <h4 class="panel-title"> 
-                <strong><font color="red"><input class="GLOkBtn" type="button" value="运行html" onclick="loadXmlData();" /></font></strong>
+                <strong><font color="red"><input class="GLOkBtn" type="button" value="在沙箱中运行html" onclick="loadXmlData();" /></font></strong>
                 <a data-toggle="collapse" data-parent="#accordion" onclick="loadText();">
                     ${file.name}   
                 </a>
@@ -39,58 +55,43 @@
 <script>
     // 将Freemarker的布尔值传递给JavaScript
     var scriptjs = ${scriptjs?c}; // ?c 将布尔值转换为字符串true/false
+
+    function decodePreviewText() {
+        var escapedText = Base64.decode($("#textData").val());
+        var decoder = document.createElement("textarea");
+        decoder.innerHTML = escapedText;
+        return decoder.value;
+    }
+
+    function replacePreviewContent(element) {
+        var container = document.getElementById("text");
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        container.appendChild(element);
+    }
     
     /**
      *加载普通文本
      */
     function loadText() {
-        var base64data = $("#textData").val()
-        var div = document.getElementById("text");
-        div.innerHTML = ""; //
-        var textData = Base64.decode(base64data);
-        textData = htmlttt(textData,1);
-        var textPreData = "<xmp style='background-color: #FFFFFF;overflow-y: scroll;border:none'>" + textData + "</xmp>";
-        $("#text").append(textPreData);
+        var source = document.createElement("pre");
+        source.id = "htmlSource";
+        source.textContent = decodePreviewText();
+        replacePreviewContent(source);
     }
-    
-    function htmlttt (str,txt){ 
-        var s = "";
-        if(str.length == 0) return "";
-        s = str.replace(/&amp;/gi,"&");
-        s = s.replace(/&lt;/gi,"<");
-        s = s.replace(/&gt;/gi,">");
-        s = s.replace(/&nbsp;/gi," ");
-        s = s.replace(/&#39;/gi,"\'");
-        s = s.replace(/&quot;/gi,"\""); 
-        s = s.replace(/javascript/g,"javascript ");
-        if (txt === 2){
-            s = s.replace(/<script/gi, "&lt;script ");
-            s = s.replace(/javascript/g,"javascript ");
-            s = s.replace(/<\/script/gi, "&lt;/script ");
-            s = s.replace(/<iframe/gi, "&lt;iframe ");
-            s = s.replace(/<\/iframe/gi, "&lt;/iframe ");
-            s = s.replace(/confirm/gi, "c&onfirm");
-            s = s.replace(/alert/gi, "a&lert");
-            s = s.replace(/eval/gi, "e&val");
-        }
-        return s;  
-    } 
     
     /**
      *加载运行
      */
     function loadXmlData() {
-        var base64data = $("#textData").val();
-        var textData = Base64.decode(base64data);
-        
-        // 直接使用JavaScript变量进行判断
-        if (scriptjs) {
-            textData = htmlttt(textData, 1);
-        } else {
-            textData = htmlttt(textData, 2);
-        }
-        
-        $('#text').html(textData);
+        var frame = document.createElement("iframe");
+        frame.id = "htmlPreviewFrame";
+        frame.title = "HTML sandbox preview";
+        frame.setAttribute("sandbox", scriptjs ? "allow-scripts" : "");
+        frame.setAttribute("referrerpolicy", "no-referrer");
+        frame.srcdoc = decodePreviewText();
+        replacePreviewContent(frame);
     }
     
     /**
