@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,6 +34,38 @@ public class PdfViewerCompatibilityTests {
         assertTrue(pdfTemplate.contains("<#if \"true\" == pdfSidebarOpen>"));
         assertTrue(pdfTemplate.contains("viewerUrl += \"&pagemode=thumbs\";"));
         assertTrue(pdfTemplate.contains("viewerUrl += \"&pagemode=none\";"));
+    }
+
+    @Test
+    void shouldForwardAndApplyAllPdfWatermarkSettings() throws IOException {
+        String pdfTemplate = readResource("/web/pdf.ftl");
+        String viewerScript = readResource("/static/pdfjs/web/viewer.mjs");
+        Map<String, String> watermarkParams = Map.ofEntries(
+                Map.entry("watermarktxt", "watermarkTxt"),
+                Map.entry("watermarkxspace", "watermarkXSpace"),
+                Map.entry("watermarkyspace", "watermarkYSpace"),
+                Map.entry("watermarkfont", "watermarkFont"),
+                Map.entry("watermarkfontsize", "watermarkFontsize"),
+                Map.entry("watermarkcolor", "watermarkColor"),
+                Map.entry("watermarkalpha", "watermarkAlpha"),
+                Map.entry("watermarkwidth", "watermarkWidth"),
+                Map.entry("watermarkheight", "watermarkHeight"),
+                Map.entry("watermarkangle", "watermarkAngle")
+        );
+
+        watermarkParams.forEach((queryParam, templateAttribute) -> {
+            assertTrue(pdfTemplate.contains(queryParam + ": '${" + templateAttribute + "?js_string}'"),
+                    () -> "PDF template does not forward " + templateAttribute);
+            assertTrue(viewerScript.contains("\"" + queryParam + "\"")
+                            || viewerScript.contains("'" + queryParam + "'"),
+                    () -> "PDF viewer does not consume " + queryParam);
+        });
+        assertTrue(viewerScript.contains("div.style.fontFamily = settings.font;"));
+        assertTrue(viewerScript.contains("div.style.fontSize = settings.fontsize;"));
+        assertTrue(viewerScript.contains("div.style.color = settings.color;"));
+        assertTrue(viewerScript.contains("div.style.opacity = settings.alpha;"));
+        assertTrue(viewerScript.contains("const xStep = settings.width + settings.x_space;"));
+        assertTrue(viewerScript.contains("const yStep = settings.height + settings.y_space;"));
     }
 
     @Test
