@@ -172,3 +172,53 @@ test('21 security: block 10.x host in getCorsFile', async ({ request }) => {
   const body = await resp.text();
   expect(body).toContain('不受信任');
 });
+
+test('22 pdf preview applies custom watermark settings', async ({ page }) => {
+  const query = new URLSearchParams({
+    url: b64(`${fixtureBase}/sample.pdf`),
+    watermarkTxt: 'Custom watermark',
+    watermarkXSpace: '37',
+    watermarkYSpace: '43',
+    watermarkFont: 'Courier New',
+    watermarkFontsize: '31px',
+    watermarkColor: 'rgb(1, 2, 3)',
+    watermarkAlpha: '0.65',
+    watermarkWidth: '100',
+    watermarkHeight: '77',
+    watermarkAngle: '17',
+  });
+
+  await page.goto(`/onlinePreview?${query.toString()}`);
+  const watermark = page.frameLocator('#pdfFrame').locator('.mask_div').first();
+  await expect(watermark).toHaveText('Custom watermark');
+
+  const style = await watermark.evaluate(element => ({
+    fontFamily: element.style.fontFamily,
+    fontSize: element.style.fontSize,
+    color: element.style.color,
+    opacity: element.style.opacity,
+    width: element.style.width,
+    height: element.style.height,
+    transform: element.style.transform,
+  }));
+  expect(style).toEqual({
+    fontFamily: '"Courier New"',
+    fontSize: '31px',
+    color: 'rgb(1, 2, 3)',
+    opacity: '0.65',
+    width: '100px',
+    height: '77px',
+    transform: 'rotate(-17deg)',
+  });
+
+  const positions = await page.frameLocator('#pdfFrame').locator('.mask_div').evaluateAll(elements =>
+    elements.map(element => ({
+      left: Number.parseFloat(element.style.left),
+      top: Number.parseFloat(element.style.top),
+    })),
+  );
+  const nextColumn = positions.find(position => position.left !== positions[0].left);
+  expect(positions[1].top - positions[0].top).toBe(120);
+  expect(nextColumn).toBeDefined();
+  expect(nextColumn!.left - positions[0].left).toBe(137);
+});

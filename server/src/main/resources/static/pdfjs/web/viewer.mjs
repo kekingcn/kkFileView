@@ -1,5 +1,18 @@
 var kkhighlightAll;
 var watermarkTxt;
+var watermarkSettings = {
+    start_x: 80,
+    start_y: 80,
+    x_space: 80,
+    y_space: 80,
+    color: 'black',
+    alpha: 0.2,
+    fontsize: '18px',
+    font: '微软雅黑',
+    width: 200,
+    height: 80,
+    angle: 30
+};
 const queryString = document.location.search.substring(1);
 const params = (0, parseQueryString)(queryString);
 
@@ -13,6 +26,30 @@ if (kkpdfAutoFetch == "true") {
 function isNotEmpty(value) {
   return value !== null && value !== undefined && value !== '' && value !== 'false' ;
 }
+
+function getWatermarkStringParam(params, name, fallback) {
+    const value = params.get(name);
+    return isNotEmpty(value) ? value : fallback;
+}
+
+function getWatermarkNumberParam(params, name, fallback, isValid) {
+    const rawValue = params.get(name);
+    if (!isNotEmpty(rawValue)) return fallback;
+    const value = Number(rawValue);
+    return Number.isFinite(value) && isValid(value) ? value : fallback;
+}
+
+function configureWatermark(params) {
+    watermarkSettings.x_space = getWatermarkNumberParam(params, "watermarkxspace", watermarkSettings.x_space, value => value >= 0);
+    watermarkSettings.y_space = getWatermarkNumberParam(params, "watermarkyspace", watermarkSettings.y_space, value => value >= 0);
+    watermarkSettings.font = getWatermarkStringParam(params, "watermarkfont", watermarkSettings.font);
+    watermarkSettings.fontsize = getWatermarkStringParam(params, "watermarkfontsize", watermarkSettings.fontsize);
+    watermarkSettings.color = getWatermarkStringParam(params, "watermarkcolor", watermarkSettings.color);
+    watermarkSettings.alpha = getWatermarkNumberParam(params, "watermarkalpha", watermarkSettings.alpha, value => value >= 0 && value <= 1);
+    watermarkSettings.width = getWatermarkNumberParam(params, "watermarkwidth", watermarkSettings.width, value => value > 0);
+    watermarkSettings.height = getWatermarkNumberParam(params, "watermarkheight", watermarkSettings.height, value => value > 0);
+    watermarkSettings.angle = getWatermarkNumberParam(params, "watermarkangle", watermarkSettings.angle, Number.isFinite);
+}
 /**
  * 通用水印生成函数
  * @param {HTMLElement} container   - 水印容器（相对定位的父元素）
@@ -23,20 +60,7 @@ function isNotEmpty(value) {
 function addWatermark(container, watermarkTxt, explicitWidth = null, explicitHeight = null) {
     if (!isNotEmpty(watermarkTxt)) return;
 
-    // 公共配置
-    const settings = {
-        start_x: 80,
-        start_y: 80,
-        x_space: 80,
-        y_space: 80,
-        color: 'black',
-        alpha: 0.2,
-        fontsize: '18px',
-        font: '微软雅黑',
-        width: 200,
-        height: 80,
-        angle: 30
-    };
+    const settings = watermarkSettings;
 
     // 确定实际使用的宽高
     let pageWidth, pageHeight;
@@ -55,30 +79,30 @@ function addWatermark(container, watermarkTxt, explicitWidth = null, explicitHei
     maxY = Math.max(maxY, 250);
 
     const fragment = document.createDocumentFragment();
-    for (let x = settings.start_x; x < maxX; x += settings.x_space) {
-        for (let y = settings.start_y; y < maxY; y += settings.y_space) {
+    const xStep = settings.width + settings.x_space;
+    const yStep = settings.height + settings.y_space;
+    for (let x = settings.start_x; x < maxX; x += xStep) {
+        for (let y = settings.start_y; y < maxY; y += yStep) {
             const div = document.createElement('div');
             div.className = 'mask_div';
             div.appendChild(document.createTextNode(watermarkTxt));
-            div.style.cssText = `
-                filter: progid:DXImageTransform.Microsoft.Alpha(opacity=${settings.alpha * 100});
-                transform: rotate(-${settings.angle}deg);
-                visibility: visible;
-                position: absolute;
-                left: ${x}px;
-                top: ${y}px;
-                overflow: hidden;
-                z-index: 100;
-                pointer-events: none;
-                opacity: ${settings.alpha};
-                font-size: ${settings.fontsize};
-                font-family: ${settings.font};
-                color: ${settings.color};
-                text-align: center;
-                width: ${settings.width}px;
-                height: ${settings.height}px;
-                display: block;
-            `;
+            div.style.filter = `progid:DXImageTransform.Microsoft.Alpha(opacity=${settings.alpha * 100})`;
+            div.style.transform = `rotate(-${settings.angle}deg)`;
+            div.style.visibility = 'visible';
+            div.style.position = 'absolute';
+            div.style.left = `${x}px`;
+            div.style.top = `${y}px`;
+            div.style.overflow = 'hidden';
+            div.style.zIndex = '100';
+            div.style.pointerEvents = 'none';
+            div.style.opacity = settings.alpha;
+            div.style.fontSize = settings.fontsize;
+            div.style.fontFamily = settings.font;
+            div.style.color = settings.color;
+            div.style.textAlign = 'center';
+            div.style.width = `${settings.width}px`;
+            div.style.height = `${settings.height}px`;
+            div.style.display = 'block';
             fragment.appendChild(div);
         }
     }
@@ -22069,7 +22093,8 @@ const PDFViewerApplication = {
     disableBookmark = params.get("disablebookmark") ?? 'false';
     disableEditing = params.get("disableediting") ?? 'false';
     kkhighlightAll = params.get("pdfhighlightall") ?? 'false';
-    watermarkTxt= params.get('watermarktxt') ?? 'false';
+    watermarkTxt = params.get('watermarktxt') ?? 'false';
+    configureWatermark(params);
     try {
       file = new URL(file).href;
     } catch {
