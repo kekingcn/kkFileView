@@ -72,16 +72,14 @@ public class OfficeFilePreviewImpl implements FilePreview {
             return convertStatusResult;
         }
 
-        if (!officePreviewType.equalsIgnoreCase("html")) {
-            if (ConfigConstants.getOfficeTypeWeb().equalsIgnoreCase("web")) {
-                if (suffix.equalsIgnoreCase("xlsx")) {
-                    model.addAttribute("pdfUrl", KkFileUtils.htmlEscape(url)); //特殊符号处理
-                    return XLSX_FILE_PREVIEW_PAGE;
-                }
-                if (suffix.equalsIgnoreCase("csv")) {
-                    model.addAttribute("csvUrl", KkFileUtils.htmlEscape(url));
-                    return CSV_FILE_PREVIEW_PAGE;
-                }
+        if (shouldUseWebPreview(fileAttribute)) {
+            if (suffix.equalsIgnoreCase("xlsx")) {
+                model.addAttribute("pdfUrl", KkFileUtils.htmlEscape(url)); //特殊符号处理
+                return XLSX_FILE_PREVIEW_PAGE;
+            }
+            if (suffix.equalsIgnoreCase("csv")) {
+                model.addAttribute("csvUrl", KkFileUtils.htmlEscape(url));
+                return CSV_FILE_PREVIEW_PAGE;
             }
         }
 
@@ -134,6 +132,29 @@ public class OfficeFilePreviewImpl implements FilePreview {
         // 处理普通Office转PDF预览
         return handleRegularOfficePreview(model, fileAttribute, fileName, forceUpdatedCache, cacheName, outFilePath,
                 isHtmlView, userToken, filePassword);
+    }
+
+    /**
+     * 判断 xlsx 或 csv 文件是否应直接使用前端 Web 预览。
+     * 未显式指定预览类型时保留系统原有 Web 预览行为；显式指定时仅文件类型同名模式
+     * （{@code xlsx} 或 {@code csv}）使用 Web 预览，避免 {@code pdf} 请求被错误路由。
+     *
+     * @param fileAttribute 文件属性
+     * @return 是否使用 Web 预览
+     */
+    static boolean shouldUseWebPreview(FileAttribute fileAttribute) {
+        if (!ConfigConstants.getOfficeTypeWeb().equalsIgnoreCase("web")) {
+            return false;
+        }
+        String suffix = fileAttribute.getSuffix();
+        boolean webPreviewFile = suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv");
+        if (!webPreviewFile || "html".equalsIgnoreCase(fileAttribute.getOfficePreviewType())) {
+            return false;
+        }
+        if (!fileAttribute.isOfficePreviewTypeSpecified()) {
+            return true;
+        }
+        return suffix.equalsIgnoreCase(fileAttribute.getOfficePreviewType());
     }
 
     /**
