@@ -22,23 +22,23 @@
      * 初始化水印
      */
     function initWaterMark() {
-        let watermarkTxt = '${watermarkTxt}';
+        let watermarkTxt = '${watermarkTxt!''}';
         if (watermarkTxt !== '') {
             watermark.init({
-                watermark_txt: '${watermarkTxt}',
+                watermark_txt: '${watermarkTxt!''}',
                 watermark_x: 0,
                 watermark_y: 0,
                 watermark_rows: 0,
                 watermark_cols: 0,
-                watermark_x_space: ${watermarkXSpace},
-                watermark_y_space: ${watermarkYSpace},
-                watermark_font: '${watermarkFont}',
-                watermark_fontsize: '${watermarkFontsize}',
-                watermark_color: '${watermarkColor}',
-                watermark_alpha: ${watermarkAlpha},
-                watermark_width: ${watermarkWidth},
-                watermark_height: ${watermarkHeight},
-                watermark_angle: ${watermarkAngle},
+                watermark_x_space: ${watermarkXSpace!10},
+                watermark_y_space: ${watermarkYSpace!10},
+                watermark_font: '${watermarkFont!'微软雅黑'}',
+                watermark_fontsize: '${watermarkFontsize!'18px'}',
+                watermark_color: '${watermarkColor!'black'}',
+                watermark_alpha: ${watermarkAlpha!0.2},
+                watermark_width: ${watermarkWidth!240},
+                watermark_height: ${watermarkHeight!80},
+                watermark_angle: ${watermarkAngle!10},
             });
         }
     }
