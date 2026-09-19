@@ -271,7 +271,12 @@ public class FileHandlerService {
             // 处理逻辑：抛出异常、记录日志、返回错误等
             throw new IllegalArgumentException("文件名超过系统限制");
         }
-        boolean isHtmlView = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
+        String officePreviewType = req == null ? null : req.getParameter("officePreviewType");
+        if (StringUtils.hasText(officePreviewType)) {
+            attribute.setOfficePreviewType(officePreviewType);
+        }
+        boolean isHtmlView = isHtmlPreview(suffix, attribute.getOfficePreviewType(),
+                attribute.isOfficePreviewTypeSpecified());
         String cacheFilePrefixName = null;
         try {
             cacheFilePrefixName = originFileName.substring(0, originFileName.lastIndexOf(".")) + suffix + "."; //这里统一文件名处理 下面更具类型 各自添加后缀
@@ -293,12 +298,8 @@ public class FileHandlerService {
         attribute.setSuffix(suffix);
         attribute.setUrl(url);
         if (req != null) {
-            String officePreviewType = req.getParameter("officePreviewType");
             String forceUpdatedCache = req.getParameter("forceUpdatedCache");
             String usePasswordCache = req.getParameter("usePasswordCache");
-            if (StringUtils.hasText(officePreviewType)) {
-                attribute.setOfficePreviewType(officePreviewType);
-            }
             if (StringUtils.hasText(compressFileKey)) {
                 attribute.setCompressFile(isCompressFile);
                 attribute.setCompressFileKey(compressFileKey);
@@ -325,6 +326,38 @@ public class FileHandlerService {
         }
 
         return attribute;
+    }
+
+    /**
+     * 判断电子表格是否需要生成 HTML 预览缓存。
+     * 未显式指定预览类型时保留原有行为；显式指定时仅 {@code html} 模式生成 HTML。
+     *
+     * @param suffix 文件后缀
+     * @param officePreviewType Office 预览类型
+     * @param previewTypeSpecified 是否由请求或调用方显式指定预览类型
+     * @return 是否生成 HTML 预览缓存
+     */
+    static boolean isHtmlPreview(String suffix, String officePreviewType, boolean previewTypeSpecified) {
+        return isSpreadsheet(suffix)
+                && (!previewTypeSpecified || "html".equalsIgnoreCase(officePreviewType));
+    }
+
+    /**
+     * 判断文件后缀是否属于支持 HTML 预览的电子表格类型。
+     *
+     * @param suffix 文件后缀
+     * @return 是否为电子表格类型
+     */
+    private static boolean isSpreadsheet(String suffix) {
+        return suffix.equalsIgnoreCase("xls")
+                || suffix.equalsIgnoreCase("xlsx")
+                || suffix.equalsIgnoreCase("csv")
+                || suffix.equalsIgnoreCase("xlsm")
+                || suffix.equalsIgnoreCase("xlt")
+                || suffix.equalsIgnoreCase("xltm")
+                || suffix.equalsIgnoreCase("et")
+                || suffix.equalsIgnoreCase("ett")
+                || suffix.equalsIgnoreCase("xlam");
     }
 
     /**
