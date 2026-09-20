@@ -1,12 +1,14 @@
 package cn.keking.service.cache.impl;
 
 import cn.keking.service.cache.CacheService;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +70,11 @@ public class CacheServiceRedisImpl implements CacheService {
 
     @Override
     public List<String> getImgCache(String key) {
+        // 与 CacheServiceJDKImpl 语义对齐：compressFileKey 在非压缩包预览场景为 null，
+        // Redisson 4.x 对 null key 会抛 NPE(map key can't be null)，此处返回空集兜底
+        if (StringUtils.isEmpty(key)) {
+            return new ArrayList<>();
+        }
         RMapCache<String, List<String>> convertedList = redissonClient.getMapCache(FILE_PREVIEW_IMGS_KEY);
         return convertedList.get(key);
     }
