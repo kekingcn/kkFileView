@@ -30,15 +30,15 @@
                 watermark_y: 0,
                 watermark_rows: 0,
                 watermark_cols: 0,
-                watermark_x_space: ${watermarkXSpace!10},
-                watermark_y_space: ${watermarkYSpace!10},
+                watermark_x_space: ${watermarkXSpace!'10'},
+                watermark_y_space: ${watermarkYSpace!'10'},
                 watermark_font: '${watermarkFont!'微软雅黑'}',
                 watermark_fontsize: '${watermarkFontsize!'18px'}',
                 watermark_color: '${watermarkColor!'black'}',
-                watermark_alpha: ${watermarkAlpha!0.2},
-                watermark_width: ${watermarkWidth!240},
-                watermark_height: ${watermarkHeight!80},
-                watermark_angle: ${watermarkAngle!10},
+                watermark_alpha: ${watermarkAlpha!'0.2'},
+                watermark_width: ${watermarkWidth!'240'},
+                watermark_height: ${watermarkHeight!'80'},
+                watermark_angle: ${watermarkAngle!'10'},
             });
         }
     }
