@@ -6,7 +6,6 @@ import cn.keking.model.ReturnResponse;
 import cn.keking.utils.CaptchaUtil;
 import cn.keking.utils.DateUtils;
 import cn.keking.utils.KkFileUtils;
-import cn.keking.utils.RarUtils;
 import cn.keking.utils.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -812,22 +811,6 @@ public class FileController {
         }
 
         return ReturnResponse.success(fileName);
-    }
-
-    @GetMapping("/directory")
-    public Object directory(String urls) {
-        String fileUrl;
-        try {
-            fileUrl = WebUtils.decodeUrl(urls,"base64");
-        } catch (Exception ex) {
-            String errorMsg = String.format(BASE64_DECODE_ERROR_MSG, "url");
-            return ReturnResponse.failure(errorMsg);
-        }
-        fileUrl = fileUrl.replaceAll("http://", "");
-        if (KkFileUtils.isIllegalFileName(fileUrl)) {
-            return ReturnResponse.failure("不允许访问的路径:");
-        }
-        return RarUtils.getTree(fileUrl);
     }
 
 }
