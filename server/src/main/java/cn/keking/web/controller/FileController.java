@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.LinkOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -154,29 +157,24 @@ public class FileController {
     @PostMapping("/fileUpload")
     public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file,
                                              @RequestParam(value = "path", defaultValue = "") String path) {
-        ReturnResponse<Object> checkResult = this.fileUploadCheck(file, path);
+        ReturnResponse<Object> checkResult = this.fileUploadCheck(file);
         if (checkResult.isFailure()) {
             return checkResult;
         }
 
-        String uploadPath = fileDir + demoPath;
-        if (!ObjectUtils.isEmpty(path)) {
-            uploadPath += path + File.separator;
-        }
-
-        File outFile = new File(uploadPath);
-        if (!outFile.exists() && !outFile.mkdirs()) {
-            logger.error("创建文件夹【{}】失败，请检查目录权限！", uploadPath);
-            return ReturnResponse.failure("创建文件夹失败，请检查目录权限！");
-        }
-
         String fileName = checkResult.getContent().toString();
-        logger.info("上传文件：{}{}", uploadPath, fileName);
-
-        try (InputStream in = file.getInputStream();
-             OutputStream out = Files.newOutputStream(Paths.get(uploadPath + fileName))) {
-            StreamUtils.copy(in, out);
+        try {
+            Path target = createUploadDirectory(path).resolve(fileName);
+            try (InputStream in = file.getInputStream();
+                 OutputStream out = Files.newOutputStream(target, StandardOpenOption.CREATE_NEW,
+                         StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS)) {
+                StreamUtils.copy(in, out);
+            }
             return ReturnResponse.success(null);
+        } catch (FileAlreadyExistsException e) {
+            return ReturnResponse.failure("存在同名文件，请先删除原有文件再次上传");
+        } catch (SecurityException | InvalidPathException e) {
+            return ReturnResponse.failure("非法目录路径");
         } catch (IOException e) {
             logger.error("文件上传失败", e);
             return ReturnResponse.failure("文件上传失败");
@@ -195,30 +193,49 @@ public class FileController {
                 return ReturnResponse.failure("文件夹名称不能为空");
             }
 
-            if (KkFileUtils.isIllegalFileName(folderName)) {
+            if (KkFileUtils.isIllegalFileName(folderName) || folderName.contains("/")
+                    || folderName.contains("\\") || folderName.contains(":")
+                    || folderName.indexOf('\0') >= 0 || folderName.endsWith(".") || folderName.endsWith(" ")) {
                 return ReturnResponse.failure("非法文件夹名称");
             }
-            String basePath = fileDir + demoPath;
-            if (!ObjectUtils.isEmpty(path)) {
-                basePath += path + File.separator;
-            }
-
-            File newFolder = new File(basePath + folderName);
-            if (newFolder.exists()) {
-                return ReturnResponse.failure("文件夹已存在");
-            }
-
-            if (newFolder.mkdirs()) {
-                logger.info("创建文件夹：{}", newFolder.getAbsolutePath());
-                return ReturnResponse.success();
-            } else {
-                logger.error("创建文件夹失败：{}", newFolder.getAbsolutePath());
-                return ReturnResponse.failure("创建文件夹失败，请检查目录权限");
-            }
+            Files.createDirectory(createUploadDirectory(path).resolve(folderName));
+            return ReturnResponse.success();
+        } catch (FileAlreadyExistsException e) {
+            return ReturnResponse.failure("文件夹已存在");
+        } catch (SecurityException | InvalidPathException e) {
+            return ReturnResponse.failure("非法目录路径");
         } catch (Exception e) {
             logger.error("创建文件夹异常", e);
-            return ReturnResponse.failure("创建文件夹失败：" + e.getMessage());
+            return ReturnResponse.failure("创建文件夹失败");
         }
+    }
+
+    /** Create only relative upload directories, without following symbolic links. */
+    private Path createUploadDirectory(String requestedPath) throws IOException {
+        String value = requestedPath == null ? "" : requestedPath.replace('\\', '/');
+        if (value.startsWith("/") || value.indexOf(':') >= 0 || value.indexOf('\0') >= 0) {
+            throw new SecurityException("Absolute paths are not allowed");
+        }
+        Path relative = Paths.get(value);
+        for (Path segment : relative) {
+            String name = segment.toString();
+            if ("..".equals(name) || (!".".equals(name) && (name.endsWith(".") || name.endsWith(" ")))) {
+                throw new SecurityException("Parent path segments are not allowed");
+            }
+        }
+        Path root = Files.createDirectories(Paths.get(fileDir)).toRealPath();
+        Path current = root;
+        for (Path segment : Paths.get(demoDir).resolve(relative).normalize()) {
+            current = current.resolve(segment);
+            try {
+                Files.createDirectory(current);
+            } catch (FileAlreadyExistsException e) {
+                if (!Files.isDirectory(current, LinkOption.NOFOLLOW_LINKS)) {
+                    throw new SecurityException("Upload directory must not be a symbolic link or file");
+                }
+            }
+        }
+        return current;
     }
 
     @PostMapping("/deleteFile")
@@ -722,7 +739,7 @@ public class FileController {
     /**
      * 上传文件前校验
      */
-    private ReturnResponse<Object> fileUploadCheck(MultipartFile file, String path) {
+    private ReturnResponse<Object> fileUploadCheck(MultipartFile file) {
         if (ConfigConstants.getFileUploadDisable()) {
             return ReturnResponse.failure("文件上传接口已禁用");
         }
@@ -734,17 +751,13 @@ public class FileController {
         if (!KkFileUtils.isAllowedUpload(fileName)) {
             return ReturnResponse.failure("不允许上传的文件类型: " + fileName);
         }
-        if (KkFileUtils.isIllegalFileName(fileName)) {
+        if (KkFileUtils.isIllegalFileName(fileName) || fileName.contains(":") || fileName.indexOf('\0') >= 0
+                || fileName.endsWith(".") || fileName.endsWith(" ")) {
             return ReturnResponse.failure("不允许上传的文件名: " + fileName);
         }
         FileType type = FileType.typeFromFileName(fileName);
         if (Objects.equals(type, FileType.OTHER)) {
             return ReturnResponse.failure("该文件格式还不支持预览，请联系管理员，添加该格式: " + fileName);
-        }
-
-        // 判断是否存在同名文件
-        if (existsFile(fileName, path)) {
-            return ReturnResponse.failure("存在同名文件，请先删除原有文件再次上传");
         }
 
         return ReturnResponse.success(fileName);
@@ -817,12 +830,4 @@ public class FileController {
         return RarUtils.getTree(fileUrl);
     }
 
-    private boolean existsFile(String fileName, String path) {
-        String fullPath = fileDir + demoPath;
-        if (!ObjectUtils.isEmpty(path)) {
-            fullPath += path + File.separator;
-        }
-        File file = new File(fullPath + fileName);
-        return file.exists();
-    }
 }
