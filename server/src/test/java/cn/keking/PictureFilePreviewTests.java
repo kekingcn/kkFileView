@@ -16,10 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * src 属性，Viewer.js 用 image.src 取标题得到 undefined，导致标题为空。修复方式是在 Viewer 初始化时
  * 配置 title 函数，从 data-original-url 派生文件名。
  *
- * 关键点（已核对 viewer.min.js 源码）：title 回调拿到的 `image` 是 Viewer 内部新建的 &lt;img&gt;
- * （view(): `var image = document.createElement('img')`），不是原始 &lt;div&gt;。Viewer 在构建缩略图
- * 与查看大图时只透传 `inheritedAttributes` 里的属性，默认值不含 data-original-url，所以必须把
- * data-original-url 加进 inheritedAttributes，否则 title 函数永远读不到它、标题恒为 'image'。
+ * Viewer 会将内部克隆图片的 data-original-url 改为实际加载地址（可能是代理地址），
+ * 标题必须读取 this.images[this.index] 中保留原始 URL 的元素。
  */
 public class PictureFilePreviewTests {
 
@@ -41,12 +39,8 @@ public class PictureFilePreviewTests {
         assertTrue(pictureTemplate.contains("getAttribute('data-original-url')"),
                 () -> "title derivation must read data-original-url attribute (see #787)");
 
-        // 关键：Viewer.js 只会把 inheritedAttributes 透传到 title 回调拿到的 <img> 上，默认值不含
-        // data-original-url。若不显式加入，title 函数读不到原始 URL、标题恒为 'image'（修复形同虚设）。
-        assertTrue(pictureTemplate.contains("inheritedAttributes"),
-                () -> "picture.ftl must set Viewer inheritedAttributes so data-original-url reaches the title image (see #787)");
-        assertTrue(pictureTemplate.contains("'data-original-url'"),
-                () -> "Viewer inheritedAttributes must include data-original-url (see #787)");
+        assertTrue(pictureTemplate.contains("getImageNameFromOriginalUrl(this.images[this.index])"),
+                () -> "Viewer title must use the original element rather than its proxy-backed clone (see #787)");
     }
 
     private String readResource(String resourcePath) throws IOException {

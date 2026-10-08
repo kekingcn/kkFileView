@@ -77,16 +77,9 @@
             button: false,
             backdrop: false,
             loop: true,
-            // #787: Viewer.js 的 title 回调拿到的 `image` 是它内部新建的 <img>（见 viewer.min.js
-            // 的 view(): `var image = document.createElement('img')`），并不是原始 <div>。Viewer
-            // 在构建缩略图与查看大图时只透传 `inheritedAttributes` 里的属性，而默认值不含
-            // data-original-url，所以若不显式加入，getImageNameFromOriginalUrl 在该 <img> 上永远
-            // getAttribute('data-original-url') == null，标题会恒为 'image'（修复形同虚设）。
-            // 因此必须把 data-original-url 加进 inheritedAttributes，让原始 URL 随缩略图→大图透传。
-            inheritedAttributes: ['crossOrigin', 'decoding', 'isMap', 'loading', 'referrerPolicy', 'sizes', 'srcset', 'useMap', 'data-original-url'],
-            // 从 data-original-url 派生标题文件名（避免受反代 / CORS 代理 URL 影响）
-            title: function (image, imageData) {
-                return getImageNameFromOriginalUrl(image);
+            // Viewer 会将克隆图片的 data-original-url 改为加载地址，因此从原始元素读取标题。
+            title: function () {
+                return getImageNameFromOriginalUrl(this.images[this.index]);
             }
         });
         viewer.view(0); // 0 是图片的索引，如果你想点击第一张图片，索引为 0
