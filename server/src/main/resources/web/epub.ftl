@@ -25,7 +25,7 @@
   <div id="next" class="arrow">›</div>
 </body>
 <script type="text/javascript">
- 	var url = '${finalUrl}';
+ 	var url = '${finalUrl?js_string}';
 	var kkagent = '${kkagent}';
     var baseUrl = '${baseUrl}'.endsWith('/') ? '${baseUrl}' : '${baseUrl}' + '/';
     if (kkagent === 'true' || !url.startsWith(baseUrl)) {

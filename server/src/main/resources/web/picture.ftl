@@ -58,6 +58,17 @@
         });
     }
     
+    // 从原始图片 URL 提取文件名（优先用 data-original-url，避免受反代 / CORS 代理 URL 影响）
+    function getImageNameFromOriginalUrl(imageElement) {
+        var originalUrl = imageElement.getAttribute('data-original-url') || '';
+        // 去除查询串与锚点
+        var noQuery = originalUrl.split('?')[0].split('#')[0];
+        // 取路径最后一段作为文件名（兼容 / 与 \）
+        var lastSep = Math.max(noQuery.lastIndexOf('/'), noQuery.lastIndexOf('\\'));
+        var name = lastSep >= 0 ? noQuery.substring(lastSep + 1) : noQuery;
+        return name || 'image';
+    }
+
     // 初始化图片查看器
     function initImageViewer() {
         var viewer = new Viewer(document.getElementById('image'), {
@@ -66,6 +77,10 @@
             button: false,
             backdrop: false,
             loop: true,
+            // Viewer 会将克隆图片的 data-original-url 改为加载地址，因此从原始元素读取标题。
+            title: function () {
+                return getImageNameFromOriginalUrl(this.images[this.index]);
+            }
         });
         viewer.view(0); // 0 是图片的索引，如果你想点击第一张图片，索引为 0
     }
