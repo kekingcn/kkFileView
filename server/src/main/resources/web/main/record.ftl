@@ -41,10 +41,10 @@
                     你可以先看最新版本的升级重点，再顺着时间轴继续了解历史版本细节。
                 </p>
                 <div class="release-badge-row">
-                    <span class="tag highlight">最新版本 v5.0.2</span>
-                    <span class="tag brand">发布日期 2026-08-14</span>
+                    <span class="tag highlight">最新版本 v5.0.3</span>
+                    <span class="tag brand">发布日期 2026-10-08</span>
                     <span class="tag warn">JDK 21+ 强制要求</span>
-                    <span class="tag">安全补丁 / HTML、文件删除、PDF 转图修复</span>
+                    <span class="tag">安全补丁 / FTP、文件路径、预览与监控加固</span>
                 </div>
             </div>
         </section>
@@ -53,10 +53,38 @@
             <div class="timeline-year">2026</div>
             <div class="timeline-list">
                 <article class="release-card">
+                    <h3>v5.0.3</h3>
+                    <div class="release-meta">
+                        <span class="tag brand">2026-10-08</span>
+                        <span class="tag highlight">最新稳定版本</span>
+                        <span class="tag warn">建议尽快升级</span>
+                    </div>
+                    <div class="release-columns">
+                        <div class="release-group">
+                            <h4>安全修复</h4>
+                            <ul class="release-list">
+                                <li>校验 FTP 命令参数，限制上传和建目录路径。</li>
+                                <li>校验所有预览源地址，以及页码和代理参数。</li>
+                                <li>压缩包目录树改由通过校验的预览生成，移除公开的目录枚举接口。</li>
+                                <li>监控默认仅开放汇总健康状态。</li>
+                            </ul>
+                        </div>
+                        <div class="release-group">
+                            <h4>升级重点</h4>
+                            <ul class="release-list">
+                                <li>建议 v5.0.2 及更早版本用户升级，继续要求 JDK 21 及以上。</li>
+                                <li>已有外部配置需将 <code>management.endpoints.web.exposure.include</code> 设为 <code>health</code>，将 <code>management.endpoint.health.show-details</code> 设为 <code>never</code>。</li>
+                                <li><code>/directory</code> 接口已移除，内置压缩包预览继续可用。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="release-card">
                     <h3>v5.0.2</h3>
                     <div class="release-meta">
                         <span class="tag brand">2026-08-14</span>
-                        <span class="tag highlight">最新稳定版本</span>
+                        <span class="tag">上一补丁版本</span>
                         <span class="tag warn">建议尽快升级</span>
                     </div>
                     <div class="release-columns">

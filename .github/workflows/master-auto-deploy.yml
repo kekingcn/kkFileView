@@ -4,6 +4,11 @@ on:
   push:
     branches: [ master ]
   workflow_dispatch:
+    inputs:
+      harden_actuator:
+        description: Apply v5.0.3 monitoring defaults to the active external config
+        type: boolean
+        default: false
 
 concurrency:
   group: master-auto-deploy-production
@@ -29,6 +34,8 @@ jobs:
       KK_DEPLOY_GIT_EXE: ${{ vars.KK_DEPLOY_GIT_EXE }}
       KK_DEPLOY_MVN_CMD: ${{ vars.KK_DEPLOY_MVN_CMD }}
       KK_DEPLOY_MAVEN_SETTINGS: ${{ vars.KK_DEPLOY_MAVEN_SETTINGS }}
+      KK_DEPLOY_REVISION: ${{ github.sha }}
+      KK_DEPLOY_HARDEN_ACTUATOR: ${{ inputs.harden_actuator || 'false' }}
 
     steps:
       - name: Checkout repository

@@ -40,6 +40,8 @@ def main() -> int:
         "KK_DEPLOY_MVN_CMD": optional_env("KK_DEPLOY_MVN_CMD", r"C:\kkFileView-tools\maven\bin\mvn.cmd"),
         "KK_DEPLOY_MAVEN_SETTINGS": optional_env("KK_DEPLOY_MAVEN_SETTINGS", ""),
         "KK_DEPLOY_DRY_RUN": optional_env("KK_DEPLOY_DRY_RUN", "false").lower(),
+        "KK_DEPLOY_REVISION": optional_env("KK_DEPLOY_REVISION", ""),
+        "KK_DEPLOY_HARDEN_ACTUATOR": optional_env("KK_DEPLOY_HARDEN_ACTUATOR", "false").lower(),
     }
 
     script_path = pathlib.Path(__file__).with_name("remote_windows_deploy.ps1")

@@ -65,6 +65,22 @@ URL：[https://file.kkview.cn](https://file.kkview.cn)
 
 ## Change History
 
+### Version 5.0.3 (October 8, 2026)
+
+#### Security Fixes
+1. Reject control characters in FTP command arguments before connecting
+2. Confine uploads and folder creation to demo storage, including symbolic-link checks
+3. Validate every preview source URL to prevent parameter-confusion bypasses of trust policies
+4. Validate page and agent parameters before rendering preview templates
+5. Render archive directory trees within the validated preview flow and remove the public `/directory` endpoint
+6. Expose only aggregate health status by default; detailed health, info, and metrics are no longer public defaults
+
+#### Upgrade Notes
+1. All v5.0.2 and earlier users should upgrade to v5.0.3; JDK 21 or higher remains required
+2. Existing external configuration files must set `management.endpoints.web.exposure.include=health` and `management.endpoint.health.show-details=never` to apply the monitoring hardening
+3. The `/directory` endpoint is removed; the built-in archive preview remains supported
+4. Uploads remain disabled by default. Enabled uploads and folder creation accept only paths beneath demo storage
+
 ### Version 5.0.2 (August 14, 2026)
 
 #### Security Fixes

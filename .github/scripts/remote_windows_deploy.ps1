@@ -41,6 +41,8 @@ $GitExe = Get-OptionalEnv 'KK_DEPLOY_GIT_EXE' 'C:\kkFileView-tools\git\cmd\git.e
 $MvnCmd = Get-OptionalEnv 'KK_DEPLOY_MVN_CMD' 'C:\kkFileView-tools\maven\bin\mvn.cmd'
 $MavenSettings = Get-OptionalEnv 'KK_DEPLOY_MAVEN_SETTINGS' ''
 $DryRun = Get-OptionalEnv 'KK_DEPLOY_DRY_RUN' 'false'
+$ExpectedRevision = Get-OptionalEnv 'KK_DEPLOY_REVISION' ''
+$HardenActuator = (Get-OptionalEnv 'KK_DEPLOY_HARDEN_ACTUATOR' 'false') -eq 'true'
 
 $BinDir = Join-Path $DeployRoot 'bin'
 $StartupScript = Join-Path $BinDir 'startup.bat'
@@ -202,6 +204,18 @@ function Build-KkFileView {
 }
 
 Sync-Repository
+if (-not [string]::IsNullOrWhiteSpace($ExpectedRevision)) {
+    if ($ExpectedRevision -notmatch '^[0-9a-f]{40}$') {
+        throw 'Deployment revision must be a full commit SHA'
+    }
+    Invoke-External -FilePath $GitExe -Arguments @('fetch', '--depth', '1', 'origin', $ExpectedRevision) -WorkingDirectory $SourceRoot
+    Invoke-External -FilePath $GitExe -Arguments @('checkout', '--detach', $ExpectedRevision) -WorkingDirectory $SourceRoot
+}
+$SourceRevision = (& $GitExe -C $SourceRoot rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or ($ExpectedRevision -and $SourceRevision -ne $ExpectedRevision)) {
+    throw 'Source revision does not match the requested deployment commit'
+}
+Write-Step "Building source revision: $SourceRevision"
 Build-KkFileView
 
 $DownloadedJars = Get-ChildItem $BuildOutputDir -Filter 'kkFileView-*.jar' -File
@@ -295,33 +309,118 @@ function Wait-Health {
     return $false
 }
 
+function Resolve-ActiveConfigPath {
+    param([string[]]$CommandLines, [string]$WorkingDirectory)
+    $Paths = @()
+    foreach ($CommandLine in $CommandLines) {
+        $MatchesFound = [regex]::Matches($CommandLine, '(?:-D|--)spring\.config\.location=(?:"([^"]+)"|([^\s"<>]+))')
+        foreach ($Match in $MatchesFound) {
+            $Value = $Match.Groups[1].Value
+            if (-not $Value) { $Value = $Match.Groups[2].Value }
+            $Value = $Value -replace '^file:', ''
+            if ($Value -match '[,;*?%$]' -or $Value -notmatch '\.properties$') {
+                throw 'Security config migration requires one explicit .properties file'
+            }
+            if (-not [System.IO.Path]::IsPathRooted($Value)) {
+                $Value = Join-Path $WorkingDirectory $Value
+            }
+            $Paths += [System.IO.Path]::GetFullPath($Value)
+        }
+    }
+    $Paths = @($Paths | Select-Object -Unique)
+    if ($Paths.Count -ne 1 -or -not (Test-Path -LiteralPath $Paths[0] -PathType Leaf)) {
+        throw 'Unable to identify a unique active external configuration file'
+    }
+    return $Paths[0]
+}
+
+function Set-SecureActuatorDefaults {
+    param([string]$ConfigPath)
+    # Round-trip unrelated bytes unchanged, regardless of the existing encoding.
+    $Encoding = [System.Text.Encoding]::GetEncoding(28591)
+    $Content = $Encoding.GetString([System.IO.File]::ReadAllBytes($ConfigPath))
+    $NewLine = "`n"
+    if ($Content.Contains("`r`n")) { $NewLine = "`r`n" }
+    foreach ($Entry in @(
+        @('management.endpoints.web.exposure.include', 'health'),
+        @('management.endpoint.health.show-details', 'never')
+    )) {
+        $Pattern = '(?m)^[ \t]*' + [regex]::Escape($Entry[0]) + '[ \t]*[=:][^\r\n]*'
+        $Line = $Entry[0] + ' = ' + $Entry[1]
+        if ([regex]::IsMatch($Content, $Pattern)) {
+            $Content = [regex]::Replace($Content, $Pattern, $Line)
+        } else {
+            $Content += $NewLine + $Line + $NewLine
+        }
+    }
+    [System.IO.File]::WriteAllBytes($ConfigPath, $Encoding.GetBytes($Content))
+}
+
+function Assert-SecureActuatorExposure {
+    param([string]$Url)
+    $HealthEndpoint = [System.Uri]::new([System.Uri]$Url, 'actuator/health').AbsoluteUri
+    $MetricsEndpoint = [System.Uri]::new([System.Uri]$Url, 'actuator/metrics').AbsoluteUri
+    $Health = Invoke-RestMethod -Uri $HealthEndpoint -TimeoutSec 10
+    if ($Health.status -ne 'UP' -or @($Health.PSObject.Properties).Count -ne 1) {
+        throw 'Health endpoint still exposes component details or is unhealthy'
+    }
+    try {
+        $null = Invoke-WebRequest -Uri $MetricsEndpoint -UseBasicParsing -TimeoutSec 10
+        throw 'Metrics endpoint remains publicly exposed'
+    } catch {
+        if (-not $_.Exception.Response -or [int]$_.Exception.Response.StatusCode -ne 404) {
+            throw
+        }
+    }
+    Write-Step 'Security verification passed: aggregate health only; metrics returns 404'
+}
+
+$ActiveConfig = $null
+$BackupConfig = $null
+if ($HardenActuator) {
+    $CommandLines = @(Get-KkFileViewJavaProcesses | ForEach-Object { $_.CommandLine })
+    if ($CommandLines.Count -eq 0) { $CommandLines = @(Get-Content -LiteralPath $StartupScript -Raw) }
+    $ActiveConfig = Resolve-ActiveConfigPath -CommandLines $CommandLines -WorkingDirectory $BinDir
+    $BackupConfig = Join-Path $ReleaseDir ("{0}.{1}.bak" -f [System.IO.Path]::GetFileName($ActiveConfig), $Timestamp)
+    Write-Step "Active configuration: $ActiveConfig"
+    Write-Step "Backing up active configuration to $BackupConfig"
+    Copy-Item -LiteralPath $ActiveConfig -Destination $BackupConfig
+}
+
 Write-Step "Backing up current jar to $BackupJar"
 Copy-Item $JarPath $BackupJar -Force
 
-Stop-KkFileView
-if (-not (Wait-KkFileViewStopped)) {
-    throw "Timed out waiting for the previous kkFileView process to exit"
-}
-
-Write-Step "Replacing jar with artifact output"
-Copy-Item $DownloadedJar.FullName $JarPath -Force
-
-Start-KkFileView
-
-if (-not (Wait-Health -Url $HealthUrl)) {
-    Write-Step "Health check failed, rolling back"
+try {
     Stop-KkFileView
     if (-not (Wait-KkFileViewStopped)) {
-        throw "Timed out waiting for the failed kkFileView process to exit during rollback"
+        throw "Timed out waiting for the previous kkFileView process to exit"
     }
-    Copy-Item $BackupJar $JarPath -Force
+    if ($HardenActuator) { Set-SecureActuatorDefaults -ConfigPath $ActiveConfig }
+    Write-Step "Replacing jar with artifact output: $($DownloadedJar.Name)"
+    Copy-Item $DownloadedJar.FullName $JarPath -Force
     Start-KkFileView
-
     if (-not (Wait-Health -Url $HealthUrl)) {
-        throw "Deployment failed and rollback health check also failed"
+        throw 'Deployment health check failed'
     }
-
-    throw "Deployment failed, rollback completed successfully"
+    if ($HardenActuator) { Assert-SecureActuatorExposure -Url $HealthUrl }
+} catch {
+    $DeploymentError = $_
+    Write-Step 'Deployment verification failed, restoring jar and configuration'
+    Stop-KkFileView
+    if (-not (Wait-KkFileViewStopped)) { throw 'Unable to stop the failed deployment for rollback' }
+    Copy-Item $BackupJar $JarPath -Force
+    if ($BackupConfig) { Copy-Item -LiteralPath $BackupConfig -Destination $ActiveConfig -Force }
+    Start-KkFileView
+    if (-not (Wait-Health -Url $HealthUrl)) { throw 'Deployment and rollback health checks both failed' }
+    throw "Deployment failed; rollback succeeded: $DeploymentError"
 }
 
+@{
+    revision = $SourceRevision
+    artifact = $DownloadedJar.Name
+    sha256 = (Get-FileHash -LiteralPath $JarPath -Algorithm SHA256).Hash
+    actuatorHardened = $HardenActuator
+    deployedAt = (Get-Date).ToUniversalTime().ToString('o')
+} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $DeployRoot 'deployment.json') -Encoding UTF8
+Write-Step "Verified deployed revision: $SourceRevision"
 Write-Step "Deployment completed successfully"

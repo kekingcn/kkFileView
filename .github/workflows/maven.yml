@@ -35,6 +35,18 @@ jobs:
     - name: Build with Maven
       run: mvn -B package "-Dmaven.test.skip=true" --file pom.xml
 
+    - name: Security regression tests
+      if: runner.os == 'Linux'
+      run: >-
+        mvn -B -pl server
+        -Dtest=FtpCommandSecurityTests,UploadPathSecurityTests,PreviewSourceSecurityTests,PreviewParameterSecurityTests,ArchiveDirectorySecurityTests,ActuatorExposureSecurityTests,ArchiveTraversalSecurityTests,FileControllerPathSecurityTests,FileControllerDeleteSecurityTests
+        test
+
+    - name: Validate Windows deployment
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: .github/scripts/test_windows_deploy.ps1
+
     - name: Upload Linux distribution package
       if: success() && runner.os == 'Linux'
       uses: actions/upload-artifact@v4
