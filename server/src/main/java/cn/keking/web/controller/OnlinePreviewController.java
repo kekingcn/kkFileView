@@ -192,6 +192,17 @@ public class OnlinePreviewController {
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(urlPath, req);
         logger.info("读取跨域文件url：{}", urlPath);
 
+        // #791 修复副作用：getFileAttribute 为了隔离同名文件碰撞，把 FileAttribute.name 设成了
+        // 物理唯一名（形如 <hash>_<原名>）。该物理名会被 pdfjs 等前端当作下载保存名，导致用户
+        // 拿到的文件名带 hash 前缀（UX 回归）。这里用源 URL 的原始文件名作为下载保存名。
+        // Content-Disposition 仅作用于“下载”动作，不影响 pdfjs 通过 XHR 取字节做预览渲染。
+        String originalFileName = urlPath;
+        int lastSlash = originalFileName.lastIndexOf('/');
+        if (lastSlash >= 0 && lastSlash + 1 < originalFileName.length()) {
+            originalFileName = originalFileName.substring(lastSlash + 1);
+        }
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + originalFileName + "\"");
+
         if (!isFtpUrl(url)) {
             // HTTP/HTTPS 处理（修复：不关闭共享的 CloseableHttpClient）
             CloseableHttpClient httpClient = HttpRequestUtils.createConfiguredHttpClient();

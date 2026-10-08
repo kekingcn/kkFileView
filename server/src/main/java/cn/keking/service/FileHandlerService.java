@@ -272,19 +272,22 @@ public class FileHandlerService {
             throw new IllegalArgumentException("文件名超过系统限制");
         }
         boolean isHtmlView = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
+        // #791: 用完整源 URL 的短哈希为物理落地名加前缀，避免不同路径下同名文件互相覆盖（内容污染）
+        String fileKey = KkFileUtils.urlCacheKey(url);
+        String physicalName = fileKey + "_" + originFileName; // 物理唯一名；getName 同步设为 physicalName，使下载/转换/引用三处路径一致
         String cacheFilePrefixName = null;
         try {
-            cacheFilePrefixName = originFileName.substring(0, originFileName.lastIndexOf(".")) + suffix + "."; //这里统一文件名处理 下面更具类型 各自添加后缀
+            cacheFilePrefixName = physicalName.substring(0, physicalName.lastIndexOf(".")) + suffix + "."; //这里统一文件名处理 下面更具类型 各自添加后缀
         } catch (Exception e) {
             logger.error("获取文件名后缀错误：", e);
             //  e.printStackTrace();
         }
-        String cacheFileName = this.getCacheFileName(type, originFileName, cacheFilePrefixName, isHtmlView, isCompressFile);
+        String cacheFileName = this.getCacheFileName(type, physicalName, cacheFilePrefixName, isHtmlView, isCompressFile);
         outFilePath = fileDir + cacheFileName;
-        originFilePath = fileDir + originFileName;
+        originFilePath = fileDir + physicalName;
         String cacheListName = cacheFilePrefixName + "ListName";  //文件列表缓存文件名
         attribute.setType(type);
-        attribute.setName(originFileName);
+        attribute.setName(physicalName);
         attribute.setCacheName(cacheFileName);
         attribute.setCacheListName(cacheListName);
         attribute.setHtmlView(isHtmlView);
