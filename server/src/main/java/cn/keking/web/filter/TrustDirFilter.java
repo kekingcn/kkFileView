@@ -13,6 +13,7 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
 import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.List;
 
 /**
  * @author : kl (http://kailing.pub)
@@ -45,9 +47,12 @@ public class TrustDirFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String url = WebUtils.getSourceUrl(request);
-        if (!allowPreview(url)) {
-            response.getWriter().write(this.notTrustDirView);
+        List<String> urls = WebUtils.getSourceUrls(request);
+        if (urls.isEmpty() || urls.stream().anyMatch(url -> !allowPreview(url))) {
+            if (response instanceof HttpServletResponse httpResponse) {
+                httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            }
+            response.getWriter().write(this.notTrustDirView == null ? "Forbidden" : this.notTrustDirView);
             response.getWriter().close();
         } else {
             chain.doFilter(request, response);
@@ -61,7 +66,7 @@ public class TrustDirFilter implements Filter {
 
     private boolean allowPreview(String urlPath) {
         // 判断URL是否合法
-        if (KkFileUtils.isIllegalFileName(urlPath) || !StringUtils.hasText(urlPath) || !WebUtils.isValidUrl(urlPath)) {
+        if (!StringUtils.hasText(urlPath) || KkFileUtils.isIllegalFileName(urlPath) || !WebUtils.isValidUrl(urlPath)) {
             return false;
         }
         try {

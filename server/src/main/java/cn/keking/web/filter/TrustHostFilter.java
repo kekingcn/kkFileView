@@ -5,6 +5,7 @@ import cn.keking.utils.WebUtils;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.nio.charset.StandardCharsets;
@@ -48,9 +49,12 @@ public class TrustHostFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String url = WebUtils.getSourceUrl(request);
-        String host = WebUtils.getHost(url);
-        if (isNotTrustHost(host) || !WebUtils.isValidUrl(url)) {
+        List<String> urls = WebUtils.getSourceUrls(request);
+        String rejectedUrl = urls.stream()
+                .filter(url -> !WebUtils.isValidUrl(url) || isNotTrustHost(WebUtils.getHost(url)))
+                .findFirst().orElse(null);
+        if (urls.isEmpty() || rejectedUrl != null) {
+            String host = rejectedUrl == null ? null : WebUtils.getHost(rejectedUrl);
             String currentHost = host == null ? "UNKNOWN" : host;
             if (response instanceof HttpServletResponse httpServletResponse) {
                 httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
