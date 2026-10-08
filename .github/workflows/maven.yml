@@ -39,7 +39,7 @@ jobs:
       if: runner.os == 'Linux'
       run: >-
         mvn -B -pl server
-        -Dtest=FtpCommandSecurityTests,UploadPathSecurityTests,PreviewSourceSecurityTests,PreviewParameterSecurityTests,ArchiveDirectorySecurityTests,ActuatorExposureSecurityTests,ArchiveTraversalSecurityTests,FileControllerPathSecurityTests,FileControllerDeleteSecurityTests
+        -Dtest=FtpCommandSecurityTests,UploadPathSecurityTests,PreviewSourceSecurityTests,PreviewParameterSecurityTests,ArchiveDirectorySecurityTests,ActuatorExposureSecurityTests,ActuatorOverrideExposureSecurityTests,ArchiveTraversalSecurityTests,FileControllerPathSecurityTests,FileControllerDeleteSecurityTests
         test
 
     - name: Validate Windows deployment

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -17,18 +18,23 @@ class ArchiveTraversalSecurityTests {
 
     @Test void existingExtractorRejectsZipSlipBeforeWritingOutsideArchive() throws Exception {
         String previous = ConfigConstants.getFileDir();
-        ConfigConstants.setFileDirValue(temp.toString());
         try {
-            Path archive = temp.resolve("malicious.zip");
-            try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(archive))) {
-                zip.putNextEntry(new ZipEntry("../outside-marker.txt"));
-                zip.write("BENIGN-CANARY".getBytes());
-                zip.closeEntry();
+            CompressFileReader reader = new CompressFileReader(null);
+            for (String directory : List.of("first", "second")) {
+                Path root = Files.createDirectory(temp.resolve(directory));
+                ConfigConstants.setFileDirValue(root.toString());
+                Path archive = root.resolve("malicious.zip");
+                try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(archive))) {
+                    zip.putNextEntry(new ZipEntry("../outside-marker.txt"));
+                    zip.write("BENIGN-CANARY".getBytes());
+                    zip.closeEntry();
+                }
+                Exception error = assertThrows(Exception.class, () -> reader
+                        .unRar(archive.toString(), "", "malicious.zip", new FileAttribute()));
+                assertTrue(error.getMessage().contains("Unsafe path detected"), error.toString());
+                assertTrue(Files.isDirectory(root.resolve("malicious.zip_")));
+                assertFalse(Files.exists(root.resolve("outside-marker.txt")));
             }
-            Exception error = assertThrows(Exception.class, () -> new CompressFileReader(null)
-                    .unRar(archive.toString(), "", "malicious.zip", new FileAttribute()));
-            assertTrue(error.getMessage().contains("Unsafe path detected"), error.toString());
-            assertFalse(Files.exists(temp.resolve("outside-marker.txt")));
         } finally {
             ConfigConstants.setFileDirValue(previous);
         }
