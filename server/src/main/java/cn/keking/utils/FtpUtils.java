@@ -154,7 +154,20 @@ public class FtpUtils {
         } catch (URISyntaxException e) {
             throw new IOException("无效的FTP URL: " + ftpUrl, e);
         }
+        // URI#getPath decodes percent escapes. Validate the values actually
+        // sent as FTP command arguments, before opening any connection.
+        validateCommandArgument(info.remoteFilePath);
+        validateCommandArgument(info.username);
+        validateCommandArgument(info.password);
+        validateCommandArgument(new String(info.remoteFilePath.getBytes(info.controlEncoding),
+                StandardCharsets.ISO_8859_1));
         return info;
+    }
+
+    private static void validateCommandArgument(String value) throws IOException {
+        if (value != null && value.chars().anyMatch(c -> c < 0x20 || c == 0x7f)) {
+            throw new IOException("FTP command arguments must not contain control characters");
+        }
     }
 
     /**
