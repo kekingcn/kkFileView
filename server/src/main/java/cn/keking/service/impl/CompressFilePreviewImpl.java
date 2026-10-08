@@ -8,6 +8,8 @@ import cn.keking.utils.DownloadUtils;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.CompressFileReader;
 import cn.keking.utils.KkFileUtils;
+import cn.keking.utils.RarUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.slf4j.Logger;
@@ -78,6 +80,12 @@ public class CompressFilePreviewImpl implements FilePreview {
         }
         model.addAttribute("fileName", fileName);
         model.addAttribute("fileTree", fileTree);
+        try {
+            model.addAttribute("archiveTreeJson", new ObjectMapper().writeValueAsString(RarUtils.getTree(fileTree)));
+        } catch (IOException | SecurityException e) {
+            logger.warn("Unable to read the previewed archive directory", e);
+            return otherFilePreview.notSupportedFile(model, fileAttribute, "该压缩包目录无法读取!");
+        }
         return COMPRESS_FILE_PREVIEW_PAGE;
     }
 }

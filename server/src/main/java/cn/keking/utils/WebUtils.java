@@ -241,32 +241,50 @@ public class WebUtils {
      * @return url
      */
     public static String getSourceUrl(ServletRequest request) {
-        String url = request.getParameter("url");
-        String urls = request.getParameter("urls");
-        String currentUrl = request.getParameter("currentUrl");
-        String urlPath = request.getParameter("urlPath");
+        List<String> urls = getSourceUrls(request);
+        return urls.isEmpty() ? null : urls.get(0);
+    }
+
+    /** Validate every candidate consumed by preview endpoints, including all images. */
+    public static List<String> getSourceUrls(ServletRequest request) {
+        List<String> urls = new ArrayList<>();
         String encryption = request.getParameter("encryption");
-        if (StringUtils.isNotBlank(url)) {
-            return decodeUrl(url,encryption);
+        try {
+            for (String name : List.of("url", "currentUrl", "urlPath", "urls")) {
+                String[] values = request.getParameterValues(name);
+                if (values == null) {
+                    continue;
+                }
+                for (String value : values) {
+                    if (StringUtils.isBlank(value)) {
+                        continue;
+                    }
+                    // picturesPreview decodes currentUrl as Base64 independently of encryption.
+                    String decoded = "currentUrl".equals(name)
+                            ? decodeBase64String(value, StandardCharsets.UTF_8) : decodeUrl(value, encryption);
+                    if (decoded == null) {
+                        return List.of("");
+                    }
+                    if ("urls".equals(name)) {
+                        urls.addAll(Arrays.asList(decoded.split("\\|", -1)));
+                    } else {
+                        urls.add(decoded);
+                    }
+                }
+            }
+        } catch (RuntimeException e) {
+            return List.of("");
         }
-        if (StringUtils.isNotBlank(currentUrl)) {
-            return decodeUrl(currentUrl,encryption);
-        }
-        if (StringUtils.isNotBlank(urlPath)) {
-            return decodeUrl(urlPath,encryption);
-        }
-        if (StringUtils.isNotBlank(urls)) {
-            urls = decodeUrl(urls,encryption);
-            String[] images = urls.split("\\|");
-            return images[0];
-        }
-        return null;
+        return urls;
     }
     /**
      *  判断地址是否正确
      * 高 2022/12/17
      */
     public static boolean isValidUrl(String url) {
+        if (url == null) {
+            return false;
+        }
         String regStr = "^((https|http|ftp|rtsp|mms|file)://)";//[.?*]表示匹配的就是本身
         Pattern pattern = Pattern.compile(regStr);
         Matcher matcher = pattern.matcher(url);
@@ -350,10 +368,13 @@ public class WebUtils {
      * @return host
      */
     public static String getHost(String urlStr) {
+        if (urlStr == null) {
+            return null;
+        }
         try {
-            URL url = new URL(urlStr);
-            return url.getHost().toLowerCase();
-        } catch (MalformedURLException ignored) {
+            URL url = normalizedURL(urlStr);
+            return url.getHost().toLowerCase(Locale.ROOT);
+        } catch (GalimatiasParseException | MalformedURLException | IllegalArgumentException ignored) {
         }
         return null;
     }

@@ -944,22 +944,10 @@
     }
 
     function loadTree() {
-        var url = "http://" + '${fileTree}';
         setTreeStatus("目录加载中", "is-loading");
         treeSummaryEl.textContent = "正在准备目录结构...";
         showTreeState("loading");
-        $.ajax({
-            type: "get",
-            url: "${baseUrl}directory?urls=" + encodeURIComponent(Base64.encode(url)),
-            success: function (res) {
-                initTree(res);
-            },
-            error: function () {
-                showTreeState("error");
-                setTreeStatus("目录加载失败", "is-error");
-                treeSummaryEl.textContent = "目录读取失败，请重试。";
-            }
-        });
+        initTree(JSON.parse('${archiveTreeJson?js_string}'));
     }
 
     document.getElementById("retryTree").addEventListener("click", function () {
