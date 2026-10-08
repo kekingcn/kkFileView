@@ -86,8 +86,8 @@ public class OnlinePreviewController {
 
         highlightall= KkFileUtils.htmlEscape(highlightall);
         model.addAttribute("highlightall", highlightall);
-        model.addAttribute("page", page);
-        model.addAttribute("kkagent", kkagent);
+        model.addAttribute("page", normalizePage(page));
+        model.addAttribute("kkagent", Boolean.toString(Boolean.parseBoolean(kkagent)));
         model.addAttribute("file", fileAttribute);
         FilePreview filePreview = previewFactory.get(fileAttribute);
         logger.info("预览文件url：{}，previewType：{}", fileUrl, fileAttribute.getType());
@@ -96,6 +96,17 @@ public class OnlinePreviewController {
             return otherFilePreview.notSupportedFile(model, "非法路径,不允许访问");
         }
         return filePreview.filePreviewHandle(fileUrl, model, fileAttribute);  //统一在这里处理 url
+    }
+
+    private static String normalizePage(String page) {
+        if (page != null && page.matches("[0-9]{1,10}")) {
+            try {
+                return Integer.toString(Integer.parseInt(page));
+            } catch (NumberFormatException ignored) {
+                // Out-of-range values use the same default as missing values.
+            }
+        }
+        return "0";
     }
 
     @GetMapping( "/picturesPreview")
