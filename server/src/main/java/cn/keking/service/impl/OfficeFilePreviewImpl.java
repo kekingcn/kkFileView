@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -91,7 +92,10 @@ public class OfficeFilePreviewImpl implements FilePreview {
             if (!ObjectUtils.isEmpty(filePassword)) {
                 jiami = pdftojpgservice.hasEncryptedPdfCacheSimple(outFilePath);
             }
-            if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(cacheName) || !ConfigConstants.isCacheEnabled()) {
+            // PDF 预览与图片预览共用同一个 cacheName，PDF 预览转换完成后 cacheName 已在缓存中，但图片尚未生成，
+            // 因此图片缓存不存在时同样需要执行转换
+            if (forceUpdatedCache || !fileHandlerService.listConvertedFiles().containsKey(cacheName) || !ConfigConstants.isCacheEnabled()
+                    || !hasImageCache(outFilePath)) {
                 if (jiami) {
                     return getPreviewType(model, fileAttribute, officePreviewType, cacheName, outFilePath);
                 }
@@ -216,6 +220,14 @@ public class OfficeFilePreviewImpl implements FilePreview {
                 logger.error("Office转换后续处理失败: {}", filePath, e);
             }
         }, callbackExecutor);
+    }
+
+    /**
+     * 判断图片缓存是否存在（包含加密文档的图片缓存）
+     */
+    private boolean hasImageCache(String outFilePath) {
+        return pdftojpgservice.hasEncryptedPdfCacheSimple(outFilePath)
+                || !CollectionUtils.isEmpty(fileHandlerService.loadPdf2jpgCache(outFilePath));
     }
 
     /**
