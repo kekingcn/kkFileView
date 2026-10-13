@@ -154,6 +154,15 @@
             <artifactId>sevenzipjbinding-all-platforms</artifactId>
             <version>${sevenzipjbinding.version}</version>
         </dependency>
+        <!-- all-platforms 不包含 Linux arm64 的原生库，需单独引入。
+             两个 jar 各带一份同名的平台列表文件，SevenZipJBinding 只读取类路径上的第一份，
+             因此必须放在 all-platforms 之后，否则其它平台也会去加载 arm64 的原生库。
+             平台名的指定见 cn.keking.utils.SevenZipNativePlatform -->
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding-linux-arm64</artifactId>
+            <version>${sevenzipjbinding.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.github.junrar</groupId>
             <artifactId>junrar</artifactId>

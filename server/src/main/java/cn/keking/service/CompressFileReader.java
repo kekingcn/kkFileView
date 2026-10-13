@@ -4,6 +4,7 @@ import cn.keking.config.ConfigConstants;
 import cn.keking.model.FileAttribute;
 import cn.keking.model.FileType;
 import cn.keking.utils.RarUtils;
+import cn.keking.utils.SevenZipNativePlatform;
 import cn.keking.web.filter.BaseUrlFilter;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
 import net.sf.sevenzipjbinding.IInArchive;
@@ -34,6 +35,11 @@ import java.util.List;
  */
 @Component
 public class CompressFileReader {
+    static {
+        // Linux arm64 上需要显式指定 SevenZipJBinding 的平台名，其它平台不做任何处理
+        SevenZipNativePlatform.init();
+    }
+
     private final FileHandlerService fileHandlerService;
 
     public CompressFileReader(FileHandlerService fileHandlerService) {
