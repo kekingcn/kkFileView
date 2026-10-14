@@ -884,6 +884,9 @@
             previewUrl += "&watermarkTxt=" + encodeURIComponent(keyword);
         }
         previewUrl += "&key=${kkkey}";
+<#if (archiveTokenQuery!)?has_content>
+        previewUrl += "${archiveTokenQuery?js_string}";
+</#if>
         return previewUrl;
     }
 

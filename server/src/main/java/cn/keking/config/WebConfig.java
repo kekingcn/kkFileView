@@ -41,6 +41,20 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    public FilterRegistrationBean<SignedPreviewFilter> getSignedPreviewFilter() {
+        Set<String> filterUri = new HashSet<>();
+        filterUri.add("/onlinePreview");
+        filterUri.add("/picturesPreview");
+        SignedPreviewFilter filter = new SignedPreviewFilter();
+        FilterRegistrationBean<SignedPreviewFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(filter);
+        registrationBean.setUrlPatterns(filterUri);
+        // 排在 ChinesePathFilter 之后，信任站点、信任目录、水印过滤器之前
+        registrationBean.setOrder(15);
+        return registrationBean;
+    }
+
+    @Bean
     public FilterRegistrationBean<TrustHostFilter> getTrustHostFilter() {
         Set<String> filterUri = new HashSet<>();
         filterUri.add("/onlinePreview");

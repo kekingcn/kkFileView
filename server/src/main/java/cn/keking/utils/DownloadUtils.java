@@ -95,7 +95,7 @@ public class DownloadUtils {
                             }
                         }
                         FileUtils.copyToFile(responseWrapper.getInputStream(), realFile);
-                    });
+                    }, true);
 
                     if (hasMimeError[0]) {
                         response.setCode(1);
