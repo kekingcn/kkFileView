@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -136,6 +139,34 @@ public class ConfigConstants {
     public static final String DEFAULT_ENABLE_REDIRECT = "true";
 
     // ==================================================
+    // 签名预览配置常量
+    // ==================================================
+    public static final String DEFAULT_SIGNED_PREVIEW_ENABLED = "false";
+    public static final String DEFAULT_SIGNED_PREVIEW_SECRET = "false";
+    public static final String DEFAULT_SIGNED_PREVIEW_ALGORITHM = "HS256";
+    public static final String DEFAULT_SIGNED_PREVIEW_TOKEN_PARAM = "token";
+    public static final String DEFAULT_SIGNED_PREVIEW_CLAIM_URL = "url";
+    public static final String DEFAULT_SIGNED_PREVIEW_CLAIM_URLS = "urls";
+    public static final String DEFAULT_SIGNED_PREVIEW_CLAIM_FILENAME = "fullfilename";
+    public static final String DEFAULT_SIGNED_PREVIEW_CLAIM_WATERMARK = "watermarkTxt";
+    public static final String DEFAULT_SIGNED_PREVIEW_CLAIM_FORCE = "forceUpdatedCache";
+    public static final String DEFAULT_SIGNED_PREVIEW_ALLOW_PARAMS = "officePreviewType,tifPreviewType,page,highlightall,filePassword,key";
+    public static final String DEFAULT_SIGNED_PREVIEW_TTL = "600";
+    public static final String DEFAULT_SIGNED_PREVIEW_LEEWAY = "30";
+    public static final String DEFAULT_SIGNED_FETCH_ENABLED = "false";
+    public static final String DEFAULT_SIGNED_FETCH_HEADER = "kk-fetch-token";
+    public static final String DEFAULT_SIGNED_PREVIEW_CLAIM_USE = "use";
+    public static final String DEFAULT_SIGNED_PREVIEW_USE_PREVIEW = "preview";
+    public static final String DEFAULT_SIGNED_PREVIEW_USE_ARCHIVE = "archive";
+    public static final String DEFAULT_SIGNED_PREVIEW_USE_FETCH = "fetch";
+    public static final String DEFAULT_SIGNED_PREVIEW_USE_REQUIRED = "false";
+    public static final String DEFAULT_SIGNED_PREVIEW_CLAIM_MAP = "default";
+    public static final String DEFAULT_SIGNED_PREVIEW_ARCHIVE_TTL = "default";
+    public static final String DEFAULT_SIGNED_FETCH_TTL = "default";
+    public static final String DEFAULT_SIGNED_FETCH_CLAIM_URL = "url";
+    public static final String DEFAULT_SIGNED_FETCH_HEADER_PREFIX = "default";
+
+    // ==================================================
     // 十一、媒体文件处理配置常量
     // ==================================================
     public static final String DEFAULT_MEDIA_CONVERT_MAX_SIZE = "300";
@@ -252,6 +283,34 @@ public class ConfigConstants {
     private static String aesKey;
     private static String userAgent;
     private static String basicName;
+
+    // ==================================================
+    // 签名预览配置变量
+    // ==================================================
+    private static boolean signedPreviewEnabled;
+    private static String signedPreviewSecret = DEFAULT_SIGNED_PREVIEW_SECRET;
+    private static String signedPreviewAlgorithm = DEFAULT_SIGNED_PREVIEW_ALGORITHM;
+    private static String signedPreviewTokenParam = DEFAULT_SIGNED_PREVIEW_TOKEN_PARAM;
+    private static String signedPreviewClaimUrl = DEFAULT_SIGNED_PREVIEW_CLAIM_URL;
+    private static String signedPreviewClaimUrls = DEFAULT_SIGNED_PREVIEW_CLAIM_URLS;
+    private static String signedPreviewClaimFilename = DEFAULT_SIGNED_PREVIEW_CLAIM_FILENAME;
+    private static String signedPreviewClaimWatermark = DEFAULT_SIGNED_PREVIEW_CLAIM_WATERMARK;
+    private static String signedPreviewClaimForce = DEFAULT_SIGNED_PREVIEW_CLAIM_FORCE;
+    private static Map<String, Set<String>> signedPreviewAllowParams = parseSignedPreviewAllowParams(DEFAULT_SIGNED_PREVIEW_ALLOW_PARAMS);
+    private static long signedPreviewTtl = Long.parseLong(DEFAULT_SIGNED_PREVIEW_TTL);
+    private static long signedPreviewLeeway = Long.parseLong(DEFAULT_SIGNED_PREVIEW_LEEWAY);
+    private static boolean signedFetchEnabled;
+    private static String signedFetchHeader = DEFAULT_SIGNED_FETCH_HEADER;
+    private static String signedPreviewClaimUse = DEFAULT_SIGNED_PREVIEW_CLAIM_USE;
+    private static String signedPreviewUsePreview = DEFAULT_SIGNED_PREVIEW_USE_PREVIEW;
+    private static String signedPreviewUseArchive = DEFAULT_SIGNED_PREVIEW_USE_ARCHIVE;
+    private static String signedPreviewUseFetch = DEFAULT_SIGNED_PREVIEW_USE_FETCH;
+    private static boolean signedPreviewUseRequired;
+    private static Map<String, String> signedPreviewClaimMap = Collections.emptyMap();
+    private static Long signedPreviewArchiveTtl;
+    private static Long signedFetchTtl;
+    private static String signedFetchClaimUrl = DEFAULT_SIGNED_FETCH_CLAIM_URL;
+    private static String signedFetchHeaderPrefix = "";
 
     // ==================================================
     // 10. 媒体文件配置变量
@@ -407,6 +466,34 @@ public class ConfigConstants {
     public static String getaesKey() { return aesKey; }
     public static String getUserAgent() { return userAgent; }
     public static String getBasicName() { return basicName; }
+
+    // ==================================================
+    // 签名预览配置获取方法
+    // ==================================================
+    public static boolean isSignedPreviewEnabled() { return signedPreviewEnabled; }
+    public static String getSignedPreviewSecret() { return signedPreviewSecret; }
+    public static String getSignedPreviewAlgorithm() { return signedPreviewAlgorithm; }
+    public static String getSignedPreviewTokenParam() { return signedPreviewTokenParam; }
+    public static String getSignedPreviewClaimUrl() { return signedPreviewClaimUrl; }
+    public static String getSignedPreviewClaimUrls() { return signedPreviewClaimUrls; }
+    public static String getSignedPreviewClaimFilename() { return signedPreviewClaimFilename; }
+    public static String getSignedPreviewClaimWatermark() { return signedPreviewClaimWatermark; }
+    public static String getSignedPreviewClaimForce() { return signedPreviewClaimForce; }
+    public static Map<String, Set<String>> getSignedPreviewAllowParams() { return signedPreviewAllowParams; }
+    public static long getSignedPreviewTtl() { return signedPreviewTtl; }
+    public static long getSignedPreviewLeeway() { return signedPreviewLeeway; }
+    public static boolean isSignedFetchEnabled() { return signedFetchEnabled; }
+    public static String getSignedFetchHeader() { return signedFetchHeader; }
+    public static String getSignedPreviewClaimUse() { return signedPreviewClaimUse; }
+    public static String getSignedPreviewUsePreview() { return signedPreviewUsePreview; }
+    public static String getSignedPreviewUseArchive() { return signedPreviewUseArchive; }
+    public static String getSignedPreviewUseFetch() { return signedPreviewUseFetch; }
+    public static boolean isSignedPreviewUseRequired() { return signedPreviewUseRequired; }
+    public static Map<String, String> getSignedPreviewClaimMap() { return signedPreviewClaimMap; }
+    public static long getSignedPreviewArchiveTtl() { return signedPreviewArchiveTtl == null ? signedPreviewTtl : signedPreviewArchiveTtl; }
+    public static long getSignedFetchTtl() { return signedFetchTtl == null ? signedPreviewTtl : signedFetchTtl; }
+    public static String getSignedFetchClaimUrl() { return signedFetchClaimUrl; }
+    public static String getSignedFetchHeaderPrefix() { return signedFetchHeaderPrefix; }
 
     // ==================================================
     // 10. 媒体文件配置获取方法
@@ -737,6 +824,137 @@ public class ConfigConstants {
     @Value("${kk.enable.redirect:true}")
     public void setEnableRedirect(String enableRedirect) { setEnableRedirectValue(Boolean.parseBoolean(enableRedirect)); }
     public static void setEnableRedirectValue(Boolean enableRedirect) { ConfigConstants.enableRedirect = enableRedirect; }
+
+    // ==================================================
+    // 签名预览配置Setter方法
+    // ==================================================
+    @Value("${signed.preview.enabled:false}")
+    public void setSignedPreviewEnabled(String signedPreviewEnabled) { setSignedPreviewEnabledValue(Boolean.parseBoolean(signedPreviewEnabled)); }
+    public static void setSignedPreviewEnabledValue(boolean signedPreviewEnabled) { ConfigConstants.signedPreviewEnabled = signedPreviewEnabled; }
+
+    @Value("${signed.preview.secret:false}")
+    public void setSignedPreviewSecret(String signedPreviewSecret) { setSignedPreviewSecretValue(signedPreviewSecret); }
+    public static void setSignedPreviewSecretValue(String signedPreviewSecret) { ConfigConstants.signedPreviewSecret = signedPreviewSecret; }
+
+    @Value("${signed.preview.algorithm:HS256}")
+    public void setSignedPreviewAlgorithm(String signedPreviewAlgorithm) { setSignedPreviewAlgorithmValue(signedPreviewAlgorithm); }
+    public static void setSignedPreviewAlgorithmValue(String signedPreviewAlgorithm) { ConfigConstants.signedPreviewAlgorithm = signedPreviewAlgorithm; }
+
+    @Value("${signed.preview.token.param:token}")
+    public void setSignedPreviewTokenParam(String signedPreviewTokenParam) { setSignedPreviewTokenParamValue(signedPreviewTokenParam); }
+    public static void setSignedPreviewTokenParamValue(String signedPreviewTokenParam) { ConfigConstants.signedPreviewTokenParam = signedPreviewTokenParam; }
+
+    @Value("${signed.preview.claim.url:url}")
+    public void setSignedPreviewClaimUrl(String signedPreviewClaimUrl) { setSignedPreviewClaimUrlValue(signedPreviewClaimUrl); }
+    public static void setSignedPreviewClaimUrlValue(String signedPreviewClaimUrl) { ConfigConstants.signedPreviewClaimUrl = signedPreviewClaimUrl; }
+
+    @Value("${signed.preview.claim.urls:urls}")
+    public void setSignedPreviewClaimUrls(String signedPreviewClaimUrls) { setSignedPreviewClaimUrlsValue(signedPreviewClaimUrls); }
+    public static void setSignedPreviewClaimUrlsValue(String signedPreviewClaimUrls) { ConfigConstants.signedPreviewClaimUrls = signedPreviewClaimUrls; }
+
+    @Value("${signed.preview.claim.filename:fullfilename}")
+    public void setSignedPreviewClaimFilename(String signedPreviewClaimFilename) { setSignedPreviewClaimFilenameValue(signedPreviewClaimFilename); }
+    public static void setSignedPreviewClaimFilenameValue(String signedPreviewClaimFilename) { ConfigConstants.signedPreviewClaimFilename = signedPreviewClaimFilename; }
+
+    @Value("${signed.preview.claim.watermark:watermarkTxt}")
+    public void setSignedPreviewClaimWatermark(String signedPreviewClaimWatermark) { setSignedPreviewClaimWatermarkValue(signedPreviewClaimWatermark); }
+    public static void setSignedPreviewClaimWatermarkValue(String signedPreviewClaimWatermark) { ConfigConstants.signedPreviewClaimWatermark = signedPreviewClaimWatermark; }
+
+    @Value("${signed.preview.claim.force:forceUpdatedCache}")
+    public void setSignedPreviewClaimForce(String signedPreviewClaimForce) { setSignedPreviewClaimForceValue(signedPreviewClaimForce); }
+    public static void setSignedPreviewClaimForceValue(String signedPreviewClaimForce) { ConfigConstants.signedPreviewClaimForce = signedPreviewClaimForce; }
+
+    @Value("${signed.preview.allow.params:officePreviewType,tifPreviewType,page,highlightall,filePassword,key}")
+    public void setSignedPreviewAllowParams(String signedPreviewAllowParams) { setSignedPreviewAllowParamsValue(signedPreviewAllowParams); }
+    public static void setSignedPreviewAllowParamsValue(String signedPreviewAllowParams) { ConfigConstants.signedPreviewAllowParams = parseSignedPreviewAllowParams(signedPreviewAllowParams); }
+
+    /**
+     * 放行名单：参数名，或 参数名=值1|值2（只放过列出的值）。返回 参数名 -> 允许的值，值集合为空表示任意值
+     */
+    private static Map<String, Set<String>> parseSignedPreviewAllowParams(String allowParams) {
+        Map<String, Set<String>> result = new LinkedHashMap<>();
+        for (String item : allowParams.replaceAll("\\s+", "").split(",")) {
+            int index = item.indexOf('=');
+            String name = index < 0 ? item : item.substring(0, index);
+            if (!name.isEmpty()) {
+                result.put(name, index < 0 ? Set.of() : new CopyOnWriteArraySet<>(Arrays.asList(item.substring(index + 1).split("\\|"))));
+            }
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    @Value("${signed.preview.ttl:600}")
+    public void setSignedPreviewTtl(String signedPreviewTtl) { setSignedPreviewTtlValue(Long.parseLong(signedPreviewTtl)); }
+    public static void setSignedPreviewTtlValue(long signedPreviewTtl) { ConfigConstants.signedPreviewTtl = signedPreviewTtl; }
+
+    @Value("${signed.preview.leeway:30}")
+    public void setSignedPreviewLeeway(String signedPreviewLeeway) { setSignedPreviewLeewayValue(Long.parseLong(signedPreviewLeeway)); }
+    public static void setSignedPreviewLeewayValue(long signedPreviewLeeway) { ConfigConstants.signedPreviewLeeway = signedPreviewLeeway; }
+
+    @Value("${signed.fetch.enabled:false}")
+    public void setSignedFetchEnabled(String signedFetchEnabled) { setSignedFetchEnabledValue(Boolean.parseBoolean(signedFetchEnabled)); }
+    public static void setSignedFetchEnabledValue(boolean signedFetchEnabled) { ConfigConstants.signedFetchEnabled = signedFetchEnabled; }
+
+    @Value("${signed.fetch.header:kk-fetch-token}")
+    public void setSignedFetchHeader(String signedFetchHeader) { setSignedFetchHeaderValue(signedFetchHeader); }
+    public static void setSignedFetchHeaderValue(String signedFetchHeader) { ConfigConstants.signedFetchHeader = signedFetchHeader; }
+
+    @Value("${signed.preview.claim.use:use}")
+    public void setSignedPreviewClaimUse(String signedPreviewClaimUse) { setSignedPreviewClaimUseValue(signedPreviewClaimUse); }
+    public static void setSignedPreviewClaimUseValue(String signedPreviewClaimUse) { ConfigConstants.signedPreviewClaimUse = signedPreviewClaimUse; }
+
+    @Value("${signed.preview.use.preview:preview}")
+    public void setSignedPreviewUsePreview(String signedPreviewUsePreview) { setSignedPreviewUsePreviewValue(signedPreviewUsePreview); }
+    public static void setSignedPreviewUsePreviewValue(String signedPreviewUsePreview) { ConfigConstants.signedPreviewUsePreview = signedPreviewUsePreview; }
+
+    @Value("${signed.preview.use.archive:archive}")
+    public void setSignedPreviewUseArchive(String signedPreviewUseArchive) { setSignedPreviewUseArchiveValue(signedPreviewUseArchive); }
+    public static void setSignedPreviewUseArchiveValue(String signedPreviewUseArchive) { ConfigConstants.signedPreviewUseArchive = signedPreviewUseArchive; }
+
+    @Value("${signed.preview.use.fetch:fetch}")
+    public void setSignedPreviewUseFetch(String signedPreviewUseFetch) { setSignedPreviewUseFetchValue(signedPreviewUseFetch); }
+    public static void setSignedPreviewUseFetchValue(String signedPreviewUseFetch) { ConfigConstants.signedPreviewUseFetch = signedPreviewUseFetch; }
+
+    @Value("${signed.preview.use.required:false}")
+    public void setSignedPreviewUseRequired(String signedPreviewUseRequired) { setSignedPreviewUseRequiredValue(Boolean.parseBoolean(signedPreviewUseRequired)); }
+    public static void setSignedPreviewUseRequiredValue(boolean signedPreviewUseRequired) { ConfigConstants.signedPreviewUseRequired = signedPreviewUseRequired; }
+
+    @Value("${signed.preview.claim.map:default}")
+    public void setSignedPreviewClaimMap(String signedPreviewClaimMap) { setSignedPreviewClaimMapValue(signedPreviewClaimMap); }
+    public static void setSignedPreviewClaimMapValue(String signedPreviewClaimMap) {
+        Map<String, String> result = new LinkedHashMap<>();
+        if (!DEFAULT_VALUE.equalsIgnoreCase(signedPreviewClaimMap.trim())) {
+            for (String item : signedPreviewClaimMap.replaceAll("\\s+", "").split(",")) {
+                int index = item.indexOf(':');
+                if (index > 0 && index < item.length() - 1) {
+                    result.put(item.substring(0, index), item.substring(index + 1));
+                }
+            }
+        }
+        ConfigConstants.signedPreviewClaimMap = Collections.unmodifiableMap(result);
+    }
+
+    @Value("${signed.preview.archive.ttl:default}")
+    public void setSignedPreviewArchiveTtl(String signedPreviewArchiveTtl) { setSignedPreviewArchiveTtlValue(signedPreviewArchiveTtl); }
+    public static void setSignedPreviewArchiveTtlValue(String signedPreviewArchiveTtl) {
+        ConfigConstants.signedPreviewArchiveTtl = DEFAULT_VALUE.equalsIgnoreCase(signedPreviewArchiveTtl.trim()) ? null : Long.valueOf(signedPreviewArchiveTtl.trim());
+    }
+
+    @Value("${signed.fetch.ttl:default}")
+    public void setSignedFetchTtl(String signedFetchTtl) { setSignedFetchTtlValue(signedFetchTtl); }
+    public static void setSignedFetchTtlValue(String signedFetchTtl) {
+        ConfigConstants.signedFetchTtl = DEFAULT_VALUE.equalsIgnoreCase(signedFetchTtl.trim()) ? null : Long.valueOf(signedFetchTtl.trim());
+    }
+
+    @Value("${signed.fetch.claim.url:url}")
+    public void setSignedFetchClaimUrl(String signedFetchClaimUrl) { setSignedFetchClaimUrlValue(signedFetchClaimUrl); }
+    public static void setSignedFetchClaimUrlValue(String signedFetchClaimUrl) { ConfigConstants.signedFetchClaimUrl = signedFetchClaimUrl; }
+
+    @Value("${signed.fetch.header.prefix:default}")
+    public void setSignedFetchHeaderPrefix(String signedFetchHeaderPrefix) { setSignedFetchHeaderPrefixValue(signedFetchHeaderPrefix); }
+    public static void setSignedFetchHeaderPrefixValue(String signedFetchHeaderPrefix) {
+        ConfigConstants.signedFetchHeaderPrefix = DEFAULT_VALUE.equalsIgnoreCase(signedFetchHeaderPrefix.trim()) ? "" : signedFetchHeaderPrefix.trim();
+    }
 
     // ==================================================
     // 10. 媒体文件配置Setter方法

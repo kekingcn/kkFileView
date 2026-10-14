@@ -221,6 +221,32 @@ public class ConfigRefreshComponent {
         // 14. Basic认证配置
         ConfigConstants.setBasicNameValue(getProperty(properties, "basic.name", ConfigConstants.DEFAULT_BASIC_NAME));
 
+        // 签名预览配置
+        ConfigConstants.setSignedPreviewEnabledValue(Boolean.parseBoolean(getProperty(properties, "signed.preview.enabled", ConfigConstants.DEFAULT_SIGNED_PREVIEW_ENABLED)));
+        ConfigConstants.setSignedPreviewSecretValue(getProperty(properties, "signed.preview.secret", ConfigConstants.DEFAULT_SIGNED_PREVIEW_SECRET));
+        ConfigConstants.setSignedPreviewAlgorithmValue(getProperty(properties, "signed.preview.algorithm", ConfigConstants.DEFAULT_SIGNED_PREVIEW_ALGORITHM));
+        ConfigConstants.setSignedPreviewTokenParamValue(getProperty(properties, "signed.preview.token.param", ConfigConstants.DEFAULT_SIGNED_PREVIEW_TOKEN_PARAM));
+        ConfigConstants.setSignedPreviewClaimUrlValue(getProperty(properties, "signed.preview.claim.url", ConfigConstants.DEFAULT_SIGNED_PREVIEW_CLAIM_URL));
+        ConfigConstants.setSignedPreviewClaimUrlsValue(getProperty(properties, "signed.preview.claim.urls", ConfigConstants.DEFAULT_SIGNED_PREVIEW_CLAIM_URLS));
+        ConfigConstants.setSignedPreviewClaimFilenameValue(getProperty(properties, "signed.preview.claim.filename", ConfigConstants.DEFAULT_SIGNED_PREVIEW_CLAIM_FILENAME));
+        ConfigConstants.setSignedPreviewClaimWatermarkValue(getProperty(properties, "signed.preview.claim.watermark", ConfigConstants.DEFAULT_SIGNED_PREVIEW_CLAIM_WATERMARK));
+        ConfigConstants.setSignedPreviewClaimForceValue(getProperty(properties, "signed.preview.claim.force", ConfigConstants.DEFAULT_SIGNED_PREVIEW_CLAIM_FORCE));
+        ConfigConstants.setSignedPreviewAllowParamsValue(getProperty(properties, "signed.preview.allow.params", ConfigConstants.DEFAULT_SIGNED_PREVIEW_ALLOW_PARAMS));
+        ConfigConstants.setSignedPreviewTtlValue(Long.parseLong(getProperty(properties, "signed.preview.ttl", ConfigConstants.DEFAULT_SIGNED_PREVIEW_TTL)));
+        ConfigConstants.setSignedPreviewLeewayValue(Long.parseLong(getProperty(properties, "signed.preview.leeway", ConfigConstants.DEFAULT_SIGNED_PREVIEW_LEEWAY)));
+        ConfigConstants.setSignedFetchEnabledValue(Boolean.parseBoolean(getProperty(properties, "signed.fetch.enabled", ConfigConstants.DEFAULT_SIGNED_FETCH_ENABLED)));
+        ConfigConstants.setSignedFetchHeaderValue(getProperty(properties, "signed.fetch.header", ConfigConstants.DEFAULT_SIGNED_FETCH_HEADER));
+        ConfigConstants.setSignedPreviewClaimUseValue(getProperty(properties, "signed.preview.claim.use", ConfigConstants.DEFAULT_SIGNED_PREVIEW_CLAIM_USE));
+        ConfigConstants.setSignedPreviewUsePreviewValue(getProperty(properties, "signed.preview.use.preview", ConfigConstants.DEFAULT_SIGNED_PREVIEW_USE_PREVIEW));
+        ConfigConstants.setSignedPreviewUseArchiveValue(getProperty(properties, "signed.preview.use.archive", ConfigConstants.DEFAULT_SIGNED_PREVIEW_USE_ARCHIVE));
+        ConfigConstants.setSignedPreviewUseFetchValue(getProperty(properties, "signed.preview.use.fetch", ConfigConstants.DEFAULT_SIGNED_PREVIEW_USE_FETCH));
+        ConfigConstants.setSignedPreviewUseRequiredValue(Boolean.parseBoolean(getProperty(properties, "signed.preview.use.required", ConfigConstants.DEFAULT_SIGNED_PREVIEW_USE_REQUIRED)));
+        ConfigConstants.setSignedPreviewClaimMapValue(getProperty(properties, "signed.preview.claim.map", ConfigConstants.DEFAULT_SIGNED_PREVIEW_CLAIM_MAP));
+        ConfigConstants.setSignedPreviewArchiveTtlValue(getProperty(properties, "signed.preview.archive.ttl", ConfigConstants.DEFAULT_SIGNED_PREVIEW_ARCHIVE_TTL));
+        ConfigConstants.setSignedFetchTtlValue(getProperty(properties, "signed.fetch.ttl", ConfigConstants.DEFAULT_SIGNED_FETCH_TTL));
+        ConfigConstants.setSignedFetchClaimUrlValue(getProperty(properties, "signed.fetch.claim.url", ConfigConstants.DEFAULT_SIGNED_FETCH_CLAIM_URL));
+        ConfigConstants.setSignedFetchHeaderPrefixValue(getProperty(properties, "signed.fetch.header.prefix", ConfigConstants.DEFAULT_SIGNED_FETCH_HEADER_PREFIX));
+
         // 15. 视频转换配置
         ConfigConstants.setMediaConvertMaxSizeValue(Integer.parseInt(getProperty(properties, "media.convert.max.size", ConfigConstants.DEFAULT_MEDIA_CONVERT_MAX_SIZE)));
         ConfigConstants.setMediaTimeoutEnabledValue(Boolean.parseBoolean(getProperty(properties, "media.timeout.enabled", ConfigConstants.DEFAULT_MEDIA_TIMEOUT_ENABLED)));

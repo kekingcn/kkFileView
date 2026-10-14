@@ -187,7 +187,11 @@ public class HttpRequestUtils {
      * 创建根据配置定制的HttpClient（支持复用）
      */
     public static CloseableHttpClient createConfiguredHttpClient() throws Exception {
-        String cacheKey = buildHttpClientCacheKey();
+        return createConfiguredHttpClient(ConfigConstants.isEnableRedirect());
+    }
+
+    private static CloseableHttpClient createConfiguredHttpClient(boolean enableRedirect) throws Exception {
+        String cacheKey = buildHttpClientCacheKey(enableRedirect);
 
         // 尝试从缓存获取
         CloseableHttpClient cachedClient = httpClientCache.get(cacheKey);
@@ -214,7 +218,7 @@ public class HttpRequestUtils {
             CloseableHttpClient httpClient = SslUtils.configureHttpClientBuilder(
                     httpClientBuilder,
                     ConfigConstants.isIgnoreSSL(),
-                    ConfigConstants.isEnableRedirect()
+                    enableRedirect
             ).build();
 
             // 缓存HttpClient
@@ -228,10 +232,10 @@ public class HttpRequestUtils {
     /**
      * 构建HttpClient缓存键
      */
-    private static String buildHttpClientCacheKey() {
+    private static String buildHttpClientCacheKey(boolean enableRedirect) {
         return String.format("ignoreSSL_%s_enableRedirect_%s",
                 ConfigConstants.isIgnoreSSL(),
-                ConfigConstants.isEnableRedirect());
+                enableRedirect);
     }
 
     /**
@@ -261,14 +265,38 @@ public class HttpRequestUtils {
      */
     public static void executeHttpRequest(java.net.URL url, CloseableHttpClient httpClient,
                                           FileAttribute fileAttribute, FileResponseHandler handler) throws Exception {
+        executeHttpRequest(url, httpClient, fileAttribute, handler, false);
+    }
+
+    /**
+     * 执行HTTP请求（使用连接池）
+     *
+     * @param signFetch 是否按 signed.fetch.enabled 的配置附带取件令牌；只有 kkFileView 自己下载原文件时传 true
+     */
+    public static void executeHttpRequest(java.net.URL url, CloseableHttpClient httpClient,
+                                          FileAttribute fileAttribute, FileResponseHandler handler,
+                                          boolean signFetch) throws Exception {
+        // 取件令牌只给原始地址：带令牌的这一次请求不自动跟随跳转，遇到跳转时在下面另发一次不带令牌的请求
+        boolean signedFetch = signFetch && SignedPreviewUtils.isFetchSigningActive();
+        if (signedFetch) {
+            httpClient = createConfiguredHttpClient(false);
+        }
+        java.net.URI requestUri = url.toURI();
+        java.net.URI[] redirectTarget = new java.net.URI[1];
+
         // 获取缓存的RestTemplate
         RestTemplate restTemplate = getCachedRestTemplate(httpClient);
 
         String finalUrlStr = url.toString();
-        RequestCallback requestCallback = createRequestCallback(finalUrlStr, fileAttribute);
+        RequestCallback requestCallback = createRequestCallback(finalUrlStr, fileAttribute, signFetch);
 
         try {
-            restTemplate.execute(url.toURI(), HttpMethod.GET, requestCallback, response -> {
+            restTemplate.execute(requestUri, HttpMethod.GET, requestCallback, response -> {
+                if (signedFetch && ConfigConstants.isEnableRedirect() && response.getStatusCode().is3xxRedirection()
+                        && response.getHeaders().getLocation() != null) {
+                    redirectTarget[0] = requestUri.resolve(response.getHeaders().getLocation());
+                    return null;
+                }
                 FileResponseWrapper wrapper = new FileResponseWrapper();
                 wrapper.setInputStream(response.getBody());
                 wrapper.setContentType(WebUtils.headersType(response));
@@ -292,6 +320,9 @@ public class HttpRequestUtils {
                 }
                 return null;
             });
+            if (redirectTarget[0] != null) {
+                executeHttpRequest(redirectTarget[0].toURL(), createConfiguredHttpClient(), fileAttribute, handler, false);
+            }
         } catch (Exception e) {
             // 如果是客户端中断连接，不再记录为错误
             if (isClientAbortException(e)) {
@@ -317,7 +348,7 @@ public class HttpRequestUtils {
     /**
      * 创建请求回调
      */
-    private static RequestCallback createRequestCallback(String finalUrlStr, FileAttribute fileAttribute) {
+    private static RequestCallback createRequestCallback(String finalUrlStr, FileAttribute fileAttribute, boolean signFetch) {
         return request -> {
             request.getHeaders().setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
             WebUtils.applyBasicAuthHeaders(request.getHeaders(), finalUrlStr);
@@ -333,6 +364,13 @@ public class HttpRequestUtils {
                         TypeFactory.defaultInstance().constructMapType(Map.class, String.class, String.class)
                 );
                 proxyAuthorizationMap.forEach((key, value) -> request.getHeaders().set(key, value));
+            }
+
+            // 取原文件时附带签名令牌（默认关闭），放在最后：请求头配成 Authorization 时，
+            // 上面的 basic 认证和转发来的请求头不会把它顶掉，以令牌为准
+            String fetchToken = signFetch ? SignedPreviewUtils.issueFetchToken(request.getURI().toString()) : null;
+            if (fetchToken != null) {
+                request.getHeaders().set(ConfigConstants.getSignedFetchHeader(), SignedPreviewUtils.fetchHeaderValue(fetchToken));
             }
         };
     }

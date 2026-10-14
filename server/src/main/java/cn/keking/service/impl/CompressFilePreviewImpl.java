@@ -9,6 +9,7 @@ import cn.keking.service.FileHandlerService;
 import cn.keking.service.CompressFileReader;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.RarUtils;
+import cn.keking.utils.SignedPreviewUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.EncryptedDocumentException;
@@ -85,6 +86,11 @@ public class CompressFilePreviewImpl implements FilePreview {
         } catch (IOException | SecurityException e) {
             logger.warn("Unable to read the previewed archive directory", e);
             return otherFilePreview.notSupportedFile(model, fileAttribute, "该压缩包目录无法读取!");
+        }
+        // 签名预览开启时，给页面一枚只对这个压缩包有效的令牌，点开包内文件时带上
+        String archiveTokenQuery = SignedPreviewUtils.currentArchiveTokenQuery(fileTree);
+        if (StringUtils.hasText(archiveTokenQuery)) {
+            model.addAttribute("archiveTokenQuery", archiveTokenQuery);
         }
         return COMPRESS_FILE_PREVIEW_PAGE;
     }
