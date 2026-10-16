@@ -587,9 +587,9 @@
                     },
                     'click .btn-danger': function(e, value, row, index) {
                         if (row.isDirectory) {
-                            deleteFile(encodeURIComponent(Base64.encode("http://"+row.fullPath)), true);
+                            deleteFile(Base64.encode("http://"+row.fullPath), true);
                         } else {
-                            deleteFile(encodeURIComponent(Base64.encode("http://"+row.relativePath)), false);
+                            deleteFile(Base64.encode("http://"+row.relativePath), false);
                         }
                     }
                 },
@@ -853,7 +853,7 @@
         var maxsize = daxiao * 1024 * 1024;
         var errMsg = "上传的文件不能超过${size}喔！！！";
         var tipMsg = "您的浏览器暂不支持上传，确保上传文件不要超过${size}，建议使用IE、FireFox、Chrome浏览器";
-        var warning = "kkview温馨提示您：上传的文件请注意，如果是设计到公司或者个人机密文件，请不要上传，或者上传执行后立即删除，如果造成各种损失我们概不负责！";
+        var warning = "kkview温馨提示您：上传的文件请注意，如果是涉及到公司或者个人机密文件，请不要上传，或者上传执行后立即删除，如果造成各种损失我们概不负责！";
         
         try {
             var filesize = 0;
