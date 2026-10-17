@@ -162,7 +162,7 @@ public class FileController {
     // Same ceiling as spring.servlet.multipart.max-request-size, checked on Content-Length before the body is parsed.
     @GuardContentTypeFilter(allowedTypes = "multipart/form-data")
     @GuardMaxRequestSize(sizeBytes = 524288000)
-    // Path, query and headers are still scanned. The multipart body is not: reading it for the scan leaves the upload without its file part.
+    // Path, query and headers are still scanned. The multipart body is not: spring-boot-guard 1.3.0 scans file part payloads along with form fields, and kkFileView stores and previews html, sql and shell sources that look like attacks.
     @GuardDetectionExclusion(scanBody = false)
     @GuardCustomValidation(validatorBean = GuardAdminAccessValidator.BEAN_NAME)
     @PostMapping("/fileUpload")

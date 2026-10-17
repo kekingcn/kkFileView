@@ -187,7 +187,7 @@ guard.enabled = true
 - 默认不启用 `sensitive_file` 和 `recon` 类别：它们会把 `.java`、`.py`、`.sql`、`.sh`、`.jsp`、`.asp` 等源码文件的访问路径当作探测，而 kkFileView 会预览这类文件。可以用 `KK_GUARD_DETECTION_CATEGORIES` 覆盖。
 - 使用 `local.preview.dir`（`file://` 预览）时，需要把 `url`、`urlPath`、`urls`、`currentUrl` 加入 `guard.excluded-detection-params`，否则 `file://` 会被当作文件包含攻击。
 - 404 规则按接口统计，不是按路径统计：遍历大量不同静态路径的扫描器只会被请求限制限速，不会被封禁。
-- Guard 看不到上传文件部分的内容，`Content-Type` 检查的是请求而不是文件部分，文件类型仍由 `prohibit` 控制。声明的 Content-Length 达到 2GB 或以上时，引擎的大小检查会抛出异常并返回 500（请求仍然被拒绝）。
+- `/fileUpload` 的 multipart 请求体不做检测（`scanBody = false`）：spring-boot-guard 1.3.0 会检测表单字段和文件部分的内容，而 kkFileView 会保存并预览 html、sql、sh 等源码，这类文件会被当作攻击拒绝。路径、查询参数和请求头仍然检测，`path` 表单字段由 `FileController` 校验。Guard 看不到上传文件部分的内容，`Content-Type` 检查的是请求而不是文件部分，文件类型仍由 `prohibit` 控制。声明的 Content-Length 达到 2GB 或以上时，引擎的大小检查会抛出异常并返回 500（请求仍然被拒绝）。
 - 引擎不会封禁回环地址（127.0.0.1）：来自回环地址的探测会被拒绝，但不会被封禁。
 - 计数和封禁默认保存在进程内存中：多实例之间不共享，重启后清空。需要共享时设置 `KK_GUARD_ENABLE_REDIS=true` 和 `KK_GUARD_REDIS_URL`（独立于 `cache.type=redis`）。
 - 全局限制默认 600 次/分钟：预览页面会加载大量静态资源，限制按客户端地址统计，办公室出口共用一个地址时请调大 `KK_GUARD_RATE_LIMIT`。
