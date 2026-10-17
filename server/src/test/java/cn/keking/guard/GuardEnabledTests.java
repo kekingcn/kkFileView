@@ -3,14 +3,18 @@ package cn.keking.guard;
 import cn.keking.config.ConfigConstants;
 import com.sun.net.httpserver.HttpServer;
 import jakarta.servlet.Filter;
+import com.guardcore.spring.GuardMiddleware;
+import com.guardcore.spring.GuardProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.test.context.TestPropertySource;
@@ -53,6 +57,9 @@ class GuardEnabledTests extends GuardHttpTestSupport {
 
     private static final int CHUNK_BYTES = 1024 * 1024;
     private static final Map<String, String> RESPONSE_TYPES = new ConcurrentHashMap<>();
+
+    @Autowired
+    ApplicationContext context;
 
     @TempDir
     static Path fileDir;
@@ -255,6 +262,13 @@ class GuardEnabledTests extends GuardHttpTestSupport {
             String optional = "&fullfilename=O%27Brien%20%E5%90%88%E5%90%8C.docx&watermarkTxt=O%27Brien%20%26%20Sons%20%3Cinternal%3E&page=2&kkagent=false";
             assertNotEquals(400, status("/onlinePreview?url=" + url + optional, client), source);
         }
+    }
+
+    @Test
+    void enablingThePropertyRegistersTheGuard() {
+        assertEquals(1, context.getBeanNamesForType(GuardMiddleware.class).length);
+        assertEquals(1, context.getBeanNamesForType(GuardProperties.class).length);
+        assertEquals(1, context.getBeanNamesForType(GuardAdminAccessValidator.class).length);
     }
 
     @Test

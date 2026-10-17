@@ -18,12 +18,21 @@ public class ServerMain {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
 
+    /**
+     * spring-boot-guard is on unless {@code guard.enabled=false}. The shipped application.properties turns it off, but
+     * {@code -Dspring.config.location} replaces that file with the operator's own copy, so the opt-in default is repeated
+     * here as the lowest-precedence property: any config file, environment variable or argument still wins.
+     */
+    static SpringApplicationBuilder applicationBuilder() {
+        return new SpringApplicationBuilder(ServerMain.class)
+                .logStartupInfo(false)
+                .properties("guard.enabled=false");
+    }
+
     public static void main(String[] args) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        ConfigurableApplicationContext context = new SpringApplicationBuilder(ServerMain.class)
-                .logStartupInfo(false)
-                .run(args);
+        ConfigurableApplicationContext context = applicationBuilder().run(args);
         stopWatch.stop();
         ServerProperties serverProperties = context.getBean(ServerProperties.class);
         Integer port = serverProperties.getPort();
