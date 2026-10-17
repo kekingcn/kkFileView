@@ -1,12 +1,18 @@
 package cn.keking.web.controller;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.guard.GuardAdminAccessValidator;
 import cn.keking.model.FileType;
 import cn.keking.model.ReturnResponse;
 import cn.keking.utils.CaptchaUtil;
 import cn.keking.utils.DateUtils;
 import cn.keking.utils.KkFileUtils;
 import cn.keking.utils.WebUtils;
+import com.guardcore.spring.GuardContentTypeFilter;
+import com.guardcore.spring.GuardCustomValidation;
+import com.guardcore.spring.GuardDetectionExclusion;
+import com.guardcore.spring.GuardMaxRequestSize;
+import com.guardcore.spring.GuardReturnMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
@@ -153,6 +159,12 @@ public class FileController {
         }
     }
 
+    // Same ceiling as spring.servlet.multipart.max-request-size, checked on Content-Length before the body is parsed.
+    @GuardContentTypeFilter(allowedTypes = "multipart/form-data")
+    @GuardMaxRequestSize(sizeBytes = 524288000)
+    // Path, query and headers are still scanned. The multipart body is not: reading it for the scan leaves the upload without its file part.
+    @GuardDetectionExclusion(scanBody = false)
+    @GuardCustomValidation(validatorBean = GuardAdminAccessValidator.BEAN_NAME)
     @PostMapping("/fileUpload")
     public ReturnResponse<Object> fileUpload(@RequestParam("file") MultipartFile file,
                                              @RequestParam(value = "path", defaultValue = "") String path) {
@@ -180,6 +192,7 @@ public class FileController {
         }
     }
 
+    @GuardCustomValidation(validatorBean = GuardAdminAccessValidator.BEAN_NAME)
     @PostMapping("/createFolder")
     public ReturnResponse<Object> createFolder(@RequestParam(value = "path", defaultValue = "") String path,
                                                @RequestParam("folderName") String folderName) {
@@ -237,6 +250,9 @@ public class FileController {
         return current;
     }
 
+    @GuardCustomValidation(validatorBean = GuardAdminAccessValidator.BEAN_NAME)
+    // Every failed delete (wrong password, unknown file) answers {"code":1,...}: ban a client that keeps failing, i.e. guessing the password.
+    @GuardReturnMonitor(pattern = "\"code\":1", maxOccurrences = 5, window = 3600, action = "ban")
     @PostMapping("/deleteFile")
     public ReturnResponse<Object> deleteFile(HttpServletRequest request, String fileName, String password) {
         ReturnResponse<Object> checkResult = this.deleteFileCheck(request, fileName, password);
