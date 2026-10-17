@@ -155,6 +155,45 @@ trust.host = *.example.com
 - `*.example.com` 会匹配 `cdn.example.com`、`api.internal.example.com`，但不匹配根域 `example.com`
 - 对于 IP 风格通配（如 `192.168.*`、`10.*`），仅匹配字面量 IPv4 地址，不匹配域名
 
+## 🧱 应用层防护 Guard Core（可选，默认关闭）
+
+kkFileView 可以选择启用 [Guard Core](https://github.com/Guard-Core/spring-boot-guard)（spring-boot-guard，MIT），在应用内增加请求频率限制、攻击特征检测和自动封禁。它**不替代** `trust.host` / `not.trust.host` 和各个安全修复，只限制谁能访问这些接口、访问多快，并封禁持续探测的客户端。
+
+Guard Core is an optional, off-by-default application-layer guard (rate limits, attack screening, auto-ban). It does not replace `trust.host` / `not.trust.host` or the code fixes for the advisories. It limits who can reach the routes, how fast, and bans clients that keep probing.
+
+### 启用 / Enable
+
+```properties
+guard.enabled = true
+# 或环境变量 / or: KK_GUARD_ENABLED=true
+```
+
+不设置 `guard.enabled` 或设置为 `false` 时，不会注册任何 Guard 组件，行为与之前完全一致。建议先用 `KK_GUARD_PASSIVE_MODE=true`（只记录不拦截）观察一段时间，再关闭观察模式。完整配置见 `application.properties` 的“十五、Guard Core 应用层防护”。
+
+### 它做什么 / What it does
+
+| 风险 / Risk | 措施 / Measure | 配置 / Setting |
+|---|---|---|
+| 转换、预览、远程读取、入队被刷（LibreOffice 转换消耗大量 CPU） | 每个客户端的全局和分接口请求限制，超限返回 429 | `guard.rate-limit`、`guard.endpoint-rate-limits[...]` |
+| 目录穿越、注入、XSS、扫描探测（路径、查询参数、请求头、请求体，包含 Base64 解码后的 url） | 攻击特征检测，返回 400，持续触发的客户端自动封禁 | `guard.enabled-detection-categories`、`guard.auto-ban-*` |
+| 反复读取不存在的远程文件 | 同一接口累计大量 404 的客户端封禁 | `guard.global-behavior-rules[0]` |
+| 删除密码被猜解 | 删除失败超过 5 次的客户端封禁 1 小时 | `FileController#deleteFile` 上的 `@GuardReturnMonitor` |
+| 上传请求过大或类型不对 | `/fileUpload` 只接受 `multipart/form-data`，Content-Length 超过 500MB 直接返回 413 | `FileController#fileUpload` 上的注解 |
+| 写操作接口被匿名调用（上传、创建文件夹、删除、addTask） | IP 白名单和/或密钥（请求头 `X-KK-Admin-Key`），同时设置时两者都必须满足 | `KK_GUARD_ADMIN_ALLOWED_IPS`、`KK_GUARD_ADMIN_KEY` |
+
+### 诚实的限制 / Honest limits
+
+- 不检测 `ssrf` 类别：预览内网地址是正常用法，SSRF 仍由 `trust.host` / `not.trust.host` 负责。Guard 会解码 Base64 的 `url` 并检测解码后的内容，但 AES 加密（`encryption=aes`）的 `url` 无法检测。
+- 默认不启用 `sensitive_file` 和 `recon` 类别：它们会把 `.java`、`.py`、`.sql`、`.sh`、`.jsp`、`.asp` 等源码文件的访问路径当作探测，而 kkFileView 会预览这类文件。可以用 `KK_GUARD_DETECTION_CATEGORIES` 覆盖。
+- 使用 `local.preview.dir`（`file://` 预览）时，需要把 `url`、`urlPath`、`urls`、`currentUrl` 加入 `guard.excluded-detection-params`，否则 `file://` 会被当作文件包含攻击。
+- 404 规则按接口统计，不是按路径统计：遍历大量不同静态路径的扫描器只会被请求限制限速，不会被封禁。
+- Guard 看不到上传文件部分的内容，`Content-Type` 检查的是请求而不是文件部分，文件类型仍由 `prohibit` 控制。声明的 Content-Length 达到 2GB 或以上时，引擎的大小检查会抛出异常并返回 500（请求仍然被拒绝）。
+- 引擎不会封禁回环地址（127.0.0.1）：来自回环地址的探测会被拒绝，但不会被封禁。
+- 计数和封禁默认保存在进程内存中：多实例之间不共享，重启后清空。需要共享时设置 `KK_GUARD_ENABLE_REDIS=true` 和 `KK_GUARD_REDIS_URL`（独立于 `cache.type=redis`）。
+- 全局限制默认 600 次/分钟：预览页面会加载大量静态资源，限制按客户端地址统计，办公室出口共用一个地址时请调大 `KK_GUARD_RATE_LIMIT`。
+- 响应头和 CORS 保持关闭：kkFileView 常被嵌入 iframe，Guard 的 `X-Frame-Options` 会破坏嵌入。
+- 反向代理之后必须设置 `KK_GUARD_TRUSTED_PROXIES`（代理的 IP/CIDR），否则所有客户端共用代理的地址。只信任来自这些地址的 `X-Forwarded-For`。不要同时设置 `server.forward-headers-strategy=native/framework`，两者二选一；启动日志会说明当前由谁决定客户端地址。
+
 ## 🚨 安全事件响应
 
 如果发现可疑的预览请求：
