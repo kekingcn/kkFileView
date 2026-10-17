@@ -1,6 +1,7 @@
 package cn.keking.web.controller;
 
 import cn.keking.config.ConfigConstants;
+import cn.keking.guard.GuardAdminAccessValidator;
 import cn.keking.model.FileAttribute;
 import cn.keking.service.FileHandlerService;
 import cn.keking.service.FilePreview;
@@ -8,6 +9,7 @@ import cn.keking.service.FilePreviewFactory;
 import cn.keking.service.cache.CacheService;
 import cn.keking.service.impl.OtherFilePreviewImpl;
 import cn.keking.utils.*;
+import com.guardcore.spring.GuardCustomValidation;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -268,6 +270,7 @@ public class OnlinePreviewController {
      *
      * @param url 请编码后在入队
      */
+    @GuardCustomValidation(validatorBean = GuardAdminAccessValidator.BEAN_NAME)
     @GetMapping("/addTask")
     @ResponseBody
     public String addQueueTask(@RequestParam String url,
