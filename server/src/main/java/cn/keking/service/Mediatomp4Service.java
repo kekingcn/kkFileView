@@ -478,6 +478,11 @@ public class Mediatomp4Service {
         recorder.setFrameRate(grabber.getFrameRate());
         recorder.setSampleRate(grabber.getSampleRate());
         recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+        // 手机拍摄的视频旋转角度只存在元数据里，帧本身未旋转，需要原样写入输出文件
+        double displayRotation = grabber.getDisplayRotation();
+        if (displayRotation != 0 && !Double.isNaN(displayRotation)) {
+            recorder.setDisplayRotation(displayRotation);
+        }
 
         int videoBitrate = grabber.getVideoBitrate();
         if (videoBitrate <= 0) {
