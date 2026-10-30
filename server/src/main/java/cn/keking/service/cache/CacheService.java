@@ -2,6 +2,7 @@ package cn.keking.service.cache;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author: chenjh
@@ -39,4 +40,13 @@ public interface CacheService {
     void addQueueTask(String url);
     String takeQueueTask() throws InterruptedException;
 
+    /**
+     * 同一份压缩包在共享目录上只能有一个实例下载、解压、删除源文件并写入缓存。
+     * 默认实现不加锁，单机本地盘可以继续用。Redis 实现按文件名互斥。
+     */
+    default boolean tryCompressLock(String fileName, long wait, TimeUnit unit) {
+        return true;
+    }
+
+    default void unlockCompress(String fileName) {}
 }

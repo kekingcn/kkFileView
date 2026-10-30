@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
@@ -127,6 +128,14 @@ public class FileHandlerService {
      */
     public void putImgCache(String fileKey, List<String> imgs) {
         cacheService.putImgCache(fileKey, imgs);
+    }
+
+    public boolean tryCompressLock(String fileName, long wait, TimeUnit unit) {
+        return cacheService.tryCompressLock(fileName, wait, unit);
+    }
+
+    public void unlockCompress(String fileName) {
+        cacheService.unlockCompress(fileName);
     }
 
 

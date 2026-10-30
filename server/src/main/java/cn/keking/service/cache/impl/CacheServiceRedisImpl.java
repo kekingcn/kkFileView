@@ -3,6 +3,7 @@ package cn.keking.service.cache.impl;
 import cn.keking.service.cache.CacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @auther: chenjh
@@ -20,6 +22,8 @@ import java.util.Map;
 @ConditionalOnExpression("'${cache.type:default}'.equals('redis')")
 @Service
 public class CacheServiceRedisImpl implements CacheService {
+
+    private static final String COMPRESS_LOCK_PREFIX = "kk-compress:";
 
     private final RedissonClient redissonClient;
 
@@ -144,5 +148,25 @@ public class CacheServiceRedisImpl implements CacheService {
     private void cleanMediaConvertCache() {
         RMapCache<String, Integer> mediaConvertCache = redissonClient.getMapCache(FILE_PREVIEW_MEDIA_CONVERT_KEY);
         mediaConvertCache.clear();
+    }
+
+    @Override
+    public boolean tryCompressLock(String fileName, long wait, TimeUnit unit) {
+        RLock lock = redissonClient.getLock(COMPRESS_LOCK_PREFIX + fileName);
+        try {
+            // 不设租约，看门狗在持锁线程存活期间续期。进程退出后锁大约 30 秒过期。
+            return lock.tryLock(wait, unit);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
+    @Override
+    public void unlockCompress(String fileName) {
+        RLock lock = redissonClient.getLock(COMPRESS_LOCK_PREFIX + fileName);
+        if (lock.isHeldByCurrentThread()) {
+            lock.unlock();
+        }
     }
 }
