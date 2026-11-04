@@ -28,6 +28,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -203,6 +205,25 @@ public class OnlinePreviewController {
         FileAttribute fileAttribute = fileHandlerService.getFileAttribute(urlPath, req);
         logger.info("读取跨域文件url：{}", urlPath);
 
+        // #791 修复副作用：getFileAttribute 为了隔离同名文件碰撞，把 FileAttribute.name 设成了
+        // 物理唯一名（形如 <hash>_<原名>）。该物理名会被 pdfjs 等前端当作下载保存名，导致用户
+        // 拿到的文件名带 hash 前缀（UX 回归）。这里用源 URL 的原始文件名作为下载保存名。
+        // Content-Disposition 仅作用于“下载”动作，不影响 pdfjs 通过 XHR 取字节做预览渲染。
+        // 文件名必须取自 URL 的 path（剔除 query/fragment），否则 `report.pdf?token=demo` 会整个
+        // 变成下载名，而 query 值里的 '/' 又会被误当路径分隔符（`?token=partA/partB` -> `partB`）。
+        String downloadName = resolveDownloadFileName(urlPath);
+        if (StringUtils.hasText(downloadName)) {
+            String asciiName = toHeaderSafeAscii(downloadName);
+            StringBuilder disposition = new StringBuilder("attachment; filename=\"")
+                    .append(asciiName)
+                    .append('"');
+            if (!asciiName.equals(downloadName)) {
+                // 头部只能承载 ISO-8859-1，非 ASCII 原名交给 RFC 5987 的 filename* 承载
+                disposition.append("; filename*=UTF-8''").append(encodeRfc5987(downloadName));
+            }
+            response.setHeader("Content-Disposition", disposition.toString());
+        }
+
         if (!isFtpUrl(url)) {
             // HTTP/HTTPS 处理（修复：不关闭共享的 CloseableHttpClient）
             CloseableHttpClient httpClient = HttpRequestUtils.createConfiguredHttpClient();
@@ -261,6 +282,92 @@ public class OnlinePreviewController {
                 IOUtils.closeQuietly(inputStream);
             }
         }
+    }
+
+    /**
+     * 从源 URL 中解析下载保存名：优先使用 {@code fullfilename} 参数，否则取 URL path 的最后一段。
+     *
+     * <p>query 与 fragment 一律剔除，避免把 {@code ?token=...} 拼进文件名，也避免 query 值里的
+     * {@code /} 被误当成路径分隔符。
+     *
+     * @param urlPath 已解码的源 URL
+     * @return 可用于 Content-Disposition 的文件名；无法解析时返回 null
+     */
+    static String resolveDownloadFileName(String urlPath) {
+        if (urlPath == null) {
+            return null;
+        }
+        String fullFileName = WebUtils.getUrlParameterReg(urlPath, "fullfilename");
+        if (StringUtils.hasText(fullFileName)) {
+            return decodeQuietly(fullFileName);
+        }
+        String path = urlPath;
+        int queryIndex = path.indexOf('?');
+        if (queryIndex >= 0) {
+            path = path.substring(0, queryIndex);
+        }
+        int fragmentIndex = path.indexOf('#');
+        if (fragmentIndex >= 0) {
+            path = path.substring(0, fragmentIndex);
+        }
+        int lastSlash = path.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            path = path.substring(lastSlash + 1);
+        }
+        return decodeQuietly(path);
+    }
+
+    /**
+     * 仅在确实存在百分号转义时才解码，避免 {@link java.net.URLDecoder} 把文件名中合法的 {@code +}
+     * 变成空格。
+     */
+    private static String decodeQuietly(String value) {
+        if (value == null || value.indexOf('%') < 0) {
+            return value;
+        }
+        try {
+            return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+        } catch (Exception e) {
+            return value;
+        }
+    }
+
+    /**
+     * HTTP 头部只能承载 ISO-8859-1：把非 ASCII 字符与控制字符替换掉，原始文件名由
+     * {@code filename*} 承载，避免头部出现乱码或被截断。
+     */
+    private static String toHeaderSafeAscii(String name) {
+        StringBuilder sb = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (c < 0x20 || c == 0x7f || c == '"' || c == '\\' || c > 0x7e) {
+                sb.append('_');
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /** 按 RFC 5987 编码 {@code filename*} 的值（UTF-8 + 百分号转义）。 */
+    private static String encodeRfc5987(String name) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : name.getBytes(StandardCharsets.UTF_8)) {
+            int v = b & 0xff;
+            boolean unreserved = (v >= 'a' && v <= 'z')
+                    || (v >= 'A' && v <= 'Z')
+                    || (v >= '0' && v <= '9')
+                    || v == '-'
+                    || v == '.'
+                    || v == '_'
+                    || v == '~';
+            if (unreserved) {
+                sb.append((char) v);
+            } else {
+                sb.append('%').append(String.format("%02X", v));
+            }
+        }
+        return sb.toString();
     }
 
     /**
