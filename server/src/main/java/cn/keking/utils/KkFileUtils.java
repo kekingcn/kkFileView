@@ -278,8 +278,9 @@ public class KkFileUtils {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(url.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(24);
-            for (int i = 0; i < 12 && i < digest.length; i++) {
+            // 12 位十六进制 = 6 字节摘要（与 Javadoc 及 keyIsSafeForFileName 的断言一致）
+            StringBuilder sb = new StringBuilder(12);
+            for (int i = 0; i < 6 && i < digest.length; i++) {
                 sb.append(String.format("%02x", digest[i] & 0xff));
             }
             return sb.toString();

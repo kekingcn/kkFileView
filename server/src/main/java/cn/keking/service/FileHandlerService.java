@@ -272,9 +272,9 @@ public class FileHandlerService {
             throw new IllegalArgumentException("文件名超过系统限制");
         }
         boolean isHtmlView = suffix.equalsIgnoreCase("xls") || suffix.equalsIgnoreCase("xlsx") || suffix.equalsIgnoreCase("csv") || suffix.equalsIgnoreCase("xlsm") || suffix.equalsIgnoreCase("xlt") || suffix.equalsIgnoreCase("xltm") || suffix.equalsIgnoreCase("et") || suffix.equalsIgnoreCase("ett") || suffix.equalsIgnoreCase("xlam");
-        // #791: 用完整源 URL 的短哈希为物理落地名加前缀，避免不同路径下同名文件互相覆盖（内容污染）
-        String fileKey = KkFileUtils.urlCacheKey(url);
-        String physicalName = fileKey + "_" + originFileName; // 物理唯一名；getName 同步设为 physicalName，使下载/转换/引用三处路径一致
+        // #791: 用完整源 URL 的短哈希为物理落地名加前缀，避免不同路径下同名文件互相覆盖（内容污染）。
+        // 压缩包内的文件是例外，原因见 resolvePhysicalName(...)。
+        String physicalName = resolvePhysicalName(url, originFileName, isCompressFile);
         String cacheFilePrefixName = null;
         try {
             cacheFilePrefixName = physicalName.substring(0, physicalName.lastIndexOf(".")) + suffix + "."; //这里统一文件名处理 下面更具类型 各自添加后缀
@@ -328,6 +328,29 @@ public class FileHandlerService {
         }
 
         return attribute;
+    }
+
+    /**
+     * 计算落地物理名：{@code #791} 的哈希前缀只作用于真正会被下载的文件。
+     *
+     * <p>压缩包内的文件是例外：此时 {@code originFileName} 已经是压缩包解压后的真实相对路径
+     * （取自 {@code kkCompressfilepath}），且 {@code skipDownLoad=true} —— {@code DownloadUtils}
+     * 既不会下载也不会重命名它。再加一层前缀会得到一条从未被解压过的路径，导致压缩包内文件
+     * 的预览/转换全部失败。
+     *
+     * <p>命名空间隔离由外层压缩包本身承载：压缩包被下载时走非压缩包分支，已带上哈希前缀，
+     * 其解压产物自然落在独立的目录里。
+     *
+     * @param url            源 URL（已规范化）
+     * @param originFileName 文件名；压缩包内文件为解压后的相对路径
+     * @param isCompressFile 是否为压缩包内文件
+     * @return 物理落地名
+     */
+    static String resolvePhysicalName(String url, String originFileName, boolean isCompressFile) {
+        if (isCompressFile) {
+            return originFileName;
+        }
+        return KkFileUtils.urlCacheKey(url) + "_" + originFileName;
     }
 
     /**
